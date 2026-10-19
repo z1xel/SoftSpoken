@@ -1,0 +1,17 @@
+RESTORE FROZEN WORKING VISUAL MASTER - Turtle WoW 1.12
+
+This patch intentionally reverts the refactored window to the original
+self-contained Frame.lua + Interior.lua with no Visual/* dependency.
+
+The .toc only loads Frame.lua, Frame.xml, Interior.lua, Demo.lua.
+This removes the nil SSZClassicSkin_InsetBorder dependency completely.
+The original appearance, 670-unit width and tuned dual scrollbars are intact.
+
+Install into Interface/AddOns/SSZ_Portrait_Template_Test/:
+  OVERWRITE Frame.lua, Interior.lua and SSZ_Portrait_Template_Test.toc.
+  Do not delete the existing Textures/ folder; imported client art
+  is necessary and was missing from older distributed full archives.
+  /reload
+
+The Data/ files from the provider experiment can stay on disk; they are NOT
+loaded or used by this build. The broken Stage 3 experiment is rolled back.

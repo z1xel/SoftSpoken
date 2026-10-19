@@ -1,0 +1,10 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+  <!-- Only the frame definition is XML. Frame.lua recreates the older
+       Blizzard portrait-window art geometry using WoW 1.12 primitives. -->
+  <Frame name="SSZPortraitFrameTemplate" virtual="true" movable="true" enableMouse="true">
+    <Size><AbsDimension x="720" y="520"/></Size>
+    <Scripts>
+      <OnLoad>SSZPortraitFrame_OnLoad(this);</OnLoad>
+    </Scripts>
+  </Frame>
+</Ui>

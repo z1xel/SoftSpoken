@@ -1,0 +1,250 @@
+-- Standalone 1.12 port of the older Blizzard PortraitFrameTemplate visual geometry.
+-- Reference: SharedUIPanelTemplates.xml (older version, PortraitFrameTemplateNoCloseButton).
+-- No modern mixins, NineSlice APIs, masks, texture-sublevels or ClassicAPI requirements.
+
+local DIR = "Interface\\AddOns\\SSZ_Portrait_Template_Test\\Textures\\"
+local FRAME = DIR .. "UI-Frame"
+local HORIZ = DIR .. "_UI-Frame"
+local VERT = DIR .. "!UI-Frame"
+local ROCK = DIR .. "UI-Background-Rock-Classic"
+
+local function fixed(parent, layer, path, w, h, coords, p, x, y)
+    local t = parent:CreateTexture(nil, layer)
+    t:SetTexture(path)
+    t:SetWidth(w)
+    t:SetHeight(h)
+    t:SetTexCoord(coords[1], coords[2], coords[3], coords[4])
+    t:SetPoint(p, parent, p, x, y)
+    return t
+end
+
+-- WoW 1.12 has no MaskTexture API. Sample the stock Blizzard icon as one-pixel
+-- horizontal slices, clipped to a circle INSIDE the metal portrait ring. This
+-- avoids exporting a replacement icon and removes the visible square corners.
+-- The original icon, ring and their anchors are otherwise unchanged.
+local function circularIcon(parent, texturePath, x, y, size, radius)
+    local slices = {}
+    local center = size / 2
+    for row = 0, size - 1 do
+        local dy = (row + 0.5) - center
+        local half = math.sqrt(math.max(0, radius * radius - dy * dy))
+        if half > 0 then
+            local left = center - half
+            local right = center + half
+            local t = parent:CreateTexture(nil, "ARTWORK")
+            t:SetTexture(texturePath)
+            t:SetWidth(right - left)
+            t:SetHeight(1)
+            t:SetTexCoord(left / size, right / size, row / size, (row + 1) / size)
+            t:SetPoint("TOPLEFT", parent, "TOPLEFT", x + left, y - row)
+            table.insert(slices, t)
+        end
+    end
+    return slices
+end
+
+local function tiled(parent, layer, path, coords, horizontal, start, span, length, thickness)
+    -- Pixel-accurate repetition: never stretch a 256px source border to window width.
+    -- Coordinates start/span are offsets in parent top-left (x rightwards/y downwards).
+    if length <= 0 then return end
+    local src = horizontal and 256 or 256
+    local count = math.ceil(length / src)
+    for i = 1, count do
+        local run = math.min(src, length - (i - 1)*src)
+        -- Reuse existing texture objects: mouse-drag resizing can call this
+        -- dozens of times per second, and WoW textures cannot be destroyed.
+        parent.sszSegmentUsed = parent.sszSegmentUsed + 1
+        local idx = parent.sszSegmentUsed
+        local t = parent.sszSegments[idx]
+        if not t then
+            t = parent:CreateTexture(nil, layer)
+            parent.sszSegments[idx] = t
+        else
+            t:SetDrawLayer(layer)
+        end
+        t:SetTexture(path)
+        t:ClearAllPoints()
+        t:Show()
+        if horizontal then
+            t:SetWidth(run)
+            t:SetHeight(thickness)
+            t:SetTexCoord(coords[1], coords[1] + (coords[2] - coords[1]) * run / src, coords[3], coords[4])
+            t:SetPoint("TOPLEFT",parent,"TOPLEFT", start + (i - 1)*src, -span)
+        else
+            t:SetWidth(thickness)
+            t:SetHeight(run)
+            t:SetTexCoord(coords[1], coords[2], coords[3], coords[3] + (coords[4] - coords[3]) * run / src)
+            t:SetPoint("TOPLEFT",parent,"TOPLEFT", start, -(span + (i - 1)*src))
+        end
+    end
+end
+
+local function clearSegments(frame)
+    -- Reset the ACTIVE count without losing the pooled textures. Hidden
+    -- textures are reused rather than orphaned on every drag update.
+    frame.sszSegmentUsed = 0
+end
+
+function SSZPortraitFrame_Reflow(frame)
+    if not frame or not frame.sszInitialized then return end
+    local w, h = frame:GetWidth(), frame:GetHeight()
+    if not w or not h or w < 220 or h < 180 then return end
+    clearSegments(frame)
+
+    -- Older Blizzard placements, sourced from PortraitFrameTemplateNoCloseButton:
+    -- portrait: x=-6/y=+8, 61x61; circular metal: x=-14/y=+11, 78x78.
+    -- title metal spans from right of portrait (x=64) to top-right corner (x=w-33).
+    tiled(frame,"ARTWORK",HORIZ,{0,1,0.4375,0.65625},true,64,-1,w-97,28)
+    -- Tile the background of the title behind the visible top border.
+    tiled(frame,"BACKGROUND",HORIZ,{0,1,0.2890625,0.421875},true,2,3,w-27,17)
+    -- Top streaks deliberately disabled by default; they cover 37px under the header.
+    if frame.sszShowStreaks then
+        tiled(frame,"BORDER",HORIZ,{0,1,0.671875,0.9609375},true,0,21,w-2,37)
+    end
+    -- Horizontal lower edge, from x=8 to (w - 11), aligned with 14px/11px corners.
+    tiled(frame,"BORDER",HORIZ,{0,1,0.203125,0.2734375},true,8,h-4,w-19,9)
+    -- Vertical borders use the original !UI-Frame atlas, 256px each repetition.
+    tiled(frame,"BORDER",VERT,{0.359375,0.609375,0,1},false,-6,67,h-74,16)
+    tiled(frame,"BORDER",VERT,{0.171875,0.328125,0,1},false,w-9,32,h-38,10)
+    for i = frame.sszSegmentUsed + 1, table.getn(frame.sszSegments) do
+        frame.sszSegments[i]:Hide()
+    end
+end
+
+function SSZPortraitFrame_OnLoad(self)
+    -- No call to a modern Blizzard XML template. Draw using real old Blizzard textures.
+    -- Blizzard PortraitFrameTemplate's background:
+    --   Interface\FrameGeneral\UI-Background-Rock
+    --   TOPLEFT +2, -21; BOTTOMRIGHT -2, +2; tiled in both directions.
+    -- The Classic Era artwork is 256x256. A 256-unit
+    -- backdrop tile keeps its texels at their natural scale, not stretched
+    -- across the entire resizable window. This is a background only: the
+    -- navigation inset still supplies its own tiled Marble backdrop.
+    self:SetBackdrop({
+        bgFile = ROCK,
+        tile = true,
+        tileSize = 256,
+        insets = {left = 2, right = 2, top = 21, bottom = 2},
+    })
+
+    self.sszSegments = {}
+    self.sszInitialized = true
+    self.sszShowStreaks = true
+
+    -- Window metal corners: exact coords from the older Blizzard UI-Frame atlas.
+    fixed(self,"OVERLAY",FRAME,33,33,{0.6328125,0.890625,0.0078125,0.265625},"TOPRIGHT",0,1)
+    fixed(self,"BORDER",FRAME,14,14,{0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,-5)
+    fixed(self,"BORDER",FRAME,11,11,{0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,-5)
+
+    self.sszPortraitSlices = circularIcon(
+        self, "Interface\\Icons\\INV_Misc_Book_09", -6, 8, 61, 29
+    )
+    -- Recreate portrait ring above icon rather than relying on texture layering order.
+    -- The portrait ring is drawn after the icon so it stays in front.
+    self.sszPortraitRing = fixed(self,"OVERLAY",FRAME,78,78,
+        {0.0078125,0.6171875,0.0078125,0.6171875},"TOPLEFT",-14,11)
+    self.sszTitle = self:CreateFontString(nil,"OVERLAY","GameFontNormal")
+    self.sszTitle:SetWidth(490)
+    self.sszTitle:SetHeight(20)
+    self.sszTitle:SetPoint("TOP",self,"TOP",0,-3)
+    self.sszTitle:SetText("Azeroth's Compendium - template test")
+    self.sszClose = CreateFrame("Button",nil,self,"UIPanelCloseButton")
+    self.sszClose:SetWidth(32)
+    self.sszClose:SetHeight(32)
+    self.sszClose:SetPoint("TOPRIGHT",self,"TOPRIGHT",4,5)
+    self.sszClose:SetScript("OnClick",function() self:Hide() end)
+
+    -- Borrow the *actual Turtle WoW* World Map minimizer's client artwork.
+    -- This is a built-in Turtle WorldMapFrame control, NOT a Cartographer icon.
+    -- Do not ship screenshot crops or guess at later-version BLP filenames.
+    self.sszMinimize=CreateFrame("Button",nil,self)
+    self.sszMinimize:SetWidth(32)
+    self.sszMinimize:SetHeight(32)
+    self.sszMinimize:SetPoint("RIGHT",self.sszClose,"LEFT",10,0)
+    self.sszMinimize:SetFrameLevel(self.sszClose:GetFrameLevel())
+    self.sszMinimize:EnableMouse(true) -- Native pressed/hover states on click.
+    self.sszMinimize:SetAlpha(0) -- No bogus red rectangle if the map isn't loaded.
+
+    -- Match the native title-bar chrome rather than trying to manufacture a
+    -- bezel from the close button's *icon* texture. The existing top-right
+    -- corner above the close button is an authentic Blizzard UI-Frame atlas
+    -- region (33x33). Repeat that exact region one button-width to the left,
+    -- behind the real Turtle WoW minimize button. Both metal squares now use
+    -- the same frame artwork; no screenshots, BLP guesses, or synthetic edges.
+    -- Keep this as a separate parent region so the native button states render
+    -- above it and the resizable header remains unchanged.
+    -- Retain the approved horizontal alignment and trim another 5 units
+    -- from the bezel's bottom (10 units total from the original 33x33 slice).
+    -- Shift the minimize arrow and its trimmed surround 10 units to the right;
+    -- leave the close button and all other components fixed.
+    fixed(self,"OVERLAY",FRAME,33,23,
+        {0.6328125,0.890625,0.0078125,0.1875},"TOPRIGHT",-22,1)
+
+    local function CopyMapButtonState(source, getter, setter)
+        if not source or not source[getter] then return false end
+        local src=source[getter](source)
+        if not src then return false end
+        local file=src:GetTexture()
+        if not file then return false end
+        self.sszMinimize[setter](self.sszMinimize,file)
+        local dst=self.sszMinimize[getter](self.sszMinimize)
+        if dst then
+            dst:SetAllPoints(self.sszMinimize)
+            dst:SetTexCoord(src:GetTexCoord())
+            local r,g,b,a=src:GetVertexColor()
+            if r then dst:SetVertexColor(r,g,b,a or 1) end
+        end
+        return true
+    end
+
+    local function CopyNativeWorldMapMinimizer()
+        -- Mirror Turtle WoW's minimize / maximize BUTTON artwork, including
+        -- its native pressed state. Never call the map's actual OnClick script:
+        -- that script operates on WorldMapFrame, not on the Compendium.
+        local source=getglobal("WorldMapFrameMinimizeButton")
+            or getglobal("WorldMapFrameSizeDownButton")
+        if not source then return false end
+        if not CopyMapButtonState(source,"GetNormalTexture","SetNormalTexture") then
+            return false
+        end
+        -- The standard WoW Button widget automatically displays its pushed
+        -- texture while held and restores the normal texture on release.
+        if not CopyMapButtonState(source,"GetPushedTexture","SetPushedTexture") then
+            -- Native buttons normally provide pushed artwork; if one doesn't,
+            -- keep a visible press effect without introducing custom art.
+            local normal=self.sszMinimize:GetNormalTexture()
+            if normal and normal:GetTexture() then
+                self.sszMinimize:SetPushedTexture(normal:GetTexture())
+                local pushed=self.sszMinimize:GetPushedTexture()
+                pushed:SetAllPoints(self.sszMinimize)
+                pushed:SetTexCoord(normal:GetTexCoord())
+            end
+        end
+        CopyMapButtonState(source,"GetHighlightTexture","SetHighlightTexture")
+        local highlight=self.sszMinimize:GetHighlightTexture()
+        if highlight then highlight:SetBlendMode("ADD") end
+        self.sszMinimize:SetAlpha(1)
+        return true
+    end
+
+    -- Appearance-only button for now: native normal, hover, and pushed states
+    -- remain functional, but clicking does not resize or compact the window.
+    -- The Button widget handles its pushed texture while the mouse is down;
+    -- no OnClick script is needed for that visual feedback.
+    -- WorldMapFrame might be initialized after this addon depending on client
+    -- setup; retry briefly until the real texture becomes available.
+    if not CopyNativeWorldMapMinimizer() then
+        self.sszMinimize.sszProbeElapsed=0
+        self.sszMinimize:SetScript("OnUpdate",function()
+            this.sszProbeElapsed=this.sszProbeElapsed+(arg1 or 0)
+            if this.sszProbeElapsed < 0.5 then return end
+            this.sszProbeElapsed=0
+            if CopyNativeWorldMapMinimizer() then
+                this:SetScript("OnUpdate",nil)
+            end
+        end)
+    end
+
+    self:SetScript("OnSizeChanged",function() SSZPortraitFrame_Reflow(this) end)
+    SSZPortraitFrame_Reflow(self)
+end

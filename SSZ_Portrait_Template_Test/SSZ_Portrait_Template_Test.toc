@@ -1,0 +1,9 @@
+## Interface: 11200
+## Title: SSZ Portrait Frame Test
+## Notes: Standalone 1.12 port of older Blizzard PortraitFrameTemplate; no changes to Spoken.
+## Author: SSZ prototype
+Frame.lua
+Frame.xml
+Data\LivePlaces.lua
+Interior.lua
+Demo.lua
