@@ -5,8 +5,8 @@
 -- prototype art paths until a complete independent asset bundle is available.
 SSCPrototypeInteriorSkin = SSCPrototypeInteriorSkin or {}
 local Skin = SSCPrototypeInteriorSkin
-local INSET = "Interface\\AddOns\\SSZ_Portrait_Template_Test\\Textures\\InsetClassic\\"
-local MARBLE = "Interface\\AddOns\\SSZ_Portrait_Template_Test\\Textures\\UI-Background-Marble"
+local INSET = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\InsetClassic\\"
+local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\UI-Background-Marble"
 
 local function BlizzardInsetBorder(parent)
     local cornerAtlas = INSET .. "UI-Frame"

@@ -5,7 +5,7 @@
 SSCPrototypePageSkin = SSCPrototypePageSkin or {}
 local Skin = SSCPrototypePageSkin
 local INTERIOR = SSCPrototypeInteriorSkin
-local MARBLE = "Interface\\AddOns\\SSZ_Portrait_Template_Test\\Textures\\UI-Background-Marble"
+local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\UI-Background-Marble"
 -- This file is already included with SoftSpoken and is byte-identical to the
 -- texture imported by the prototype, so the integrated reader can be portable.
 local PARCHMENT = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\QuestDetailsBackgrounds"

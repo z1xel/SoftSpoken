@@ -7,7 +7,7 @@
 SSCPrototypeScrollSkin = SSCPrototypeScrollSkin or {}
 local Skin = SSCPrototypeScrollSkin
 local U = SSCUI
-local MARBLE = "Interface\\AddOns\\SSZ_Portrait_Template_Test\\Textures\\UI-Background-Marble"
+local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\UI-Background-Marble"
 local SCROLL_ART = "Interface\\PaperDollInfoFrame\\UI-Character-ScrollBar"
 local SLOT_WIDTH = 31
 -- The approved prototype placed the slider's BOTTOM at +18, exactly level

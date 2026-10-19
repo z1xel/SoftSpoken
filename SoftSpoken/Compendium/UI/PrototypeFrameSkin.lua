@@ -13,7 +13,7 @@ local Skin=SSCPrototypeFrameSkin
 -- Reference: SharedUIPanelTemplates.xml (older version, PortraitFrameTemplateNoCloseButton).
 -- No modern mixins, NineSlice APIs, masks, texture-sublevels or ClassicAPI requirements.
 
-local DIR = "Interface\\AddOns\\SSZ_Portrait_Template_Test\\Textures\\"
+local DIR = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\"
 local FRAME = DIR .. "UI-Frame"
 local HORIZ = DIR .. "_UI-Frame"
 local VERT = DIR .. "!UI-Frame"
