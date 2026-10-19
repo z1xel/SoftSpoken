@@ -193,25 +193,10 @@ local function Build(panelFrame)
     -- Use the very same right-page construction as Places and Readables.
     -- The shared prototype skin owns parchment art, geometry and scroll
     -- chrome; Quests supplies only quest-specific content and actions.
-    local pageInset=CreateFrame("Frame",nil,panelFrame)
-    if not (SSCPrototypePageSkin and SSCPrototypePageSkin.Apply) then
-        SSCUI.AddInsetBorder(pageInset)
-    end
-    if pageInset.SetBackdropColor then
-        pageInset:SetBackdropColor(.08,.07,.06,1)
-    end
-    pageInset:SetPoint("TOPLEFT",list.inset,"TOPRIGHT",27,0)
-    pageInset:SetPoint("BOTTOMRIGHT",panelFrame,"BOTTOMRIGHT",0,6)
-    local holder=CreateFrame("Frame",nil,pageInset)
-    holder:SetPoint("TOPLEFT",pageInset,"TOPLEFT",5,-5)
-    holder:SetPoint("BOTTOMRIGHT",pageInset,"BOTTOMRIGHT",-36,5)
-    page=SSCLorePage.CreateLorePage(holder,"book")
-    if SSCPrototypePageSkin and SSCPrototypePageSkin.Apply then
-        SSCPrototypePageSkin.Apply(pageInset,holder,page)
-    end
-    if SSCPrototypeScrollSkin and SSCPrototypeScrollSkin.AttachPage then
-        SSCPrototypeScrollSkin.AttachPage(pageInset,page)
-    end
+    local pageInset
+    pageInset, page = C.CreatePagePane(panelFrame, list, function(holder)
+        return SSCLorePage.CreateLorePage(holder,"book")
+    end)
     if SSCQuestPage and SSCQuestPage.Create then
         details=SSCQuestPage.Create(page)
     end

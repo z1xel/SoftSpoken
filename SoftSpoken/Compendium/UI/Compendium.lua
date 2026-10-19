@@ -74,10 +74,40 @@ local function Enabled(def)
 end
 -- Upstream's size management, adapted to Vanilla Frame methods and existing
 -- per-character settings.  The collapsed window remains height-resizable.
-local function Store()
+-- Compendium geometry belongs to core, not the first installed tab. Migrate
+-- legacy width/height lazily from the first tab's old storage, then persist in
+-- the core's per-character database. No existing feature settings are deleted.
+local function LegacyStore()
     for _,def in ipairs(Ordered()) do
         if def.store then return def.store end
     end
+end
+
+local function SavedCompendium()
+    local env = _G.SpokenEnv
+    local addon = env and env.Addon
+    local db = addon and addon.db
+    local char = db and db.char
+    if type(char) ~= "table" then return nil end
+    if type(char.Compendium) ~= "table" then char.Compendium = {} end
+    return char.Compendium
+end
+
+local coreStore = {}
+function coreStore.get(key)
+    local state = SavedCompendium()
+    if state and state[key] ~= nil then return state[key] end
+    local old = LegacyStore()
+    local value = old and old.get and old.get(key)
+    if state and value ~= nil then state[key] = value end
+    return value
+end
+function coreStore.set(key, value)
+    local state = SavedCompendium()
+    if state then state[key] = value end
+end
+local function Store()
+    return coreStore
 end
 -- Original Spoken's portrait-frame margins: search just beneath the portrait
 -- and the list 38 units lower; the parchment begins at the search line.

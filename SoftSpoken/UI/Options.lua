@@ -457,7 +457,7 @@ local function Build(canvas)
     -- add a tab to, opened here and from the minimap menu, with each tab's Unlock switch. The tabs
     -- register once the world is up, after this page is built, so the rows ask for them each time
     -- they are drawn; with neither part installed the section has nothing showing and hides.
-    local function Compendium() return _G.SpokenZones112Compendium or _G.SpokenCompendium end
+    local function Compendium() return _G.SSCCompendium or _G.SpokenZones112Compendium or _G.SpokenCompendium end
     local function Tab(key)
         local compendium = Compendium()
         return compendium and compendium.Tab and compendium:Tab(key)

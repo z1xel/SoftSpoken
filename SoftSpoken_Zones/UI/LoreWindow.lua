@@ -468,29 +468,10 @@ local function BuildPanel(p)
         list.inset,list.filterButton,list.filterMenu,list.noMatch,list.bar
     -- Spoken's original split-window geometry: the parchment reaches the
     -- header while the tree begins below its search field.
-    local _,right=C.Margins()
-    local pageInset=CreateFrame("Frame",nil,p)
-    -- Pilot 4: the shared prototype visual module paints this inset after
-    -- the real LorePage is constructed.  Keep the fallback for older builds.
-    if not (SSCPrototypePageSkin and SSCPrototypePageSkin.Apply) then
-    SSZUI.AddInsetBorder(pageInset)
-    end
-    if pageInset.SetBackdropColor then pageInset:SetBackdropColor(.08,.07,.06,1) end
-    -- Align the page's top with the list inset, exactly as the visual master.
-    pageInset:SetPoint("TOPLEFT",list.inset,"TOPRIGHT",27,0)
-    pageInset:SetPoint("BOTTOMRIGHT",p,"BOTTOMRIGHT",0,6)
-    local holder=CreateFrame("Frame",nil,pageInset)
-    holder:SetPoint("TOPLEFT",pageInset,"TOPLEFT",5,-5)
-    -- Leave a 31-unit native-scroll recess to the right of the parchment.
-    holder:SetPoint("BOTTOMRIGHT",pageInset,"BOTTOMRIGHT",-36,5)
-    local P=SSZLorePage
-    page=P.Build(holder)
-    if SSCPrototypePageSkin and SSCPrototypePageSkin.Apply then
-        SSCPrototypePageSkin.Apply(pageInset,holder,page)
-    end
-    if SSCPrototypeScrollSkin and SSCPrototypeScrollSkin.AttachPage then
-        SSCPrototypeScrollSkin.AttachPage(pageInset,page)
-    end
+    local pageInset
+    pageInset, page = C.CreatePagePane(p, list, function(holder)
+        return SSZLorePage.Build(holder)
+    end)
     if SSZAudioButton and SSZAudioButton.Bind then SSZAudioButton.Bind(page.play) end
     p.lorePage=page
     p.pageInset=pageInset

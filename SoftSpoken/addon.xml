@@ -35,6 +35,7 @@
     <Include file="Compendium\UI\PlayButton.lua"/>
     <Include file="Compendium\UI\LorePage.lua"/>
     <Include file="Compendium\UI\Compendium.lua"/>
+    <Include file="Compendium\UI\PagePane.lua"/>
     <Include file="Compendium\UI\MapNames.lua"/>
 
 

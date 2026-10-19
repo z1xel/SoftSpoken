@@ -459,30 +459,11 @@ local function Build(panelFrame)
     panel.Refresh=function() B:RefreshReadables() end
     panel.inset,panel.filterButton,panel.filterMenu,panel.noMatch,panel.listBar=
         list.inset,list.filterButton,list.filterMenu,list.noMatch,list.bar
-    local _,right=C.Margins()
-    local inset=CreateFrame("Frame",nil,panel)
-    -- Pilot 4: the shared prototype visual module paints this inset after
-    -- the real LorePage is constructed.  Keep the fallback for older builds.
-    if not (SSCPrototypePageSkin and SSCPrototypePageSkin.Apply) then
-    U.AddInsetBorder(inset)
-    end
-    if inset.SetBackdropColor then inset:SetBackdropColor(.08,.07,.06,1) end
-    -- Align the page's top with the list inset, exactly as the visual master.
-    inset:SetPoint("TOPLEFT",list.inset,"TOPRIGHT",27,0)
-    inset:SetPoint("BOTTOMRIGHT",panel,"BOTTOMRIGHT",0,6)
-    local holder=CreateFrame("Frame",nil,inset)
-    holder:SetPoint("TOPLEFT",inset,"TOPLEFT",5,-5)
-    -- Leave a 31-unit native-scroll recess to the right of the parchment.
-    holder:SetPoint("BOTTOMRIGHT",inset,"BOTTOMRIGHT",-36,5)
-    -- CreateLorePage, not Build: Build is intentionally a singleton used by
-    -- Places. Both tabs must own independent parchment and scroll state.
-    page=P.CreateLorePage(holder,"book")
-    if SSCPrototypePageSkin and SSCPrototypePageSkin.Apply then
-        SSCPrototypePageSkin.Apply(inset,holder,page)
-    end
-    if SSCPrototypeScrollSkin and SSCPrototypeScrollSkin.AttachPage then
-        SSCPrototypeScrollSkin.AttachPage(inset,page)
-    end
+    -- Unlike Places, Books requires a separate page object and scroll position.
+    local inset
+    inset, page = C.CreatePagePane(panel, list, function(holder)
+        return P.CreateLorePage(holder,"book")
+    end)
     EquipPlay(page)
     panel.pageInset=inset
     panel.page=page.frame
