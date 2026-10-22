@@ -72,18 +72,20 @@ function A.Bind(button)
     if SSZBridge and SSZBridge.OnAudioChanged then
         SSZBridge:OnAudioChanged(function() button:Refresh() end)
     end
-    -- Older player versions may not broadcast AUDIO_CHANGED. This modest
-    -- polling fallback reads state, never manipulates audio or the queue.
-    local elapsedSinceRefresh=0
-    button:SetScript("OnUpdate",function(self,elapsed)
-        local b=this or self
-        if not b or not b.mapID or not b:IsShown() then return end
-        elapsedSinceRefresh=elapsedSinceRefresh+(elapsed or arg1 or 0)
-        if elapsedSinceRefresh>=0.5 then
-            elapsedSinceRefresh=0
-            b:Refresh()
-        end
-    end)
+    -- Current SoftSpoken fires AUDIO_CHANGED for every queue transition.
+    -- Keep the old low-rate polling fallback only for older API builds.
+    if not (Spoken and Spoken.RegisterCallback) then
+        local elapsedSinceRefresh=0
+        button:SetScript("OnUpdate",function(self,elapsed)
+            local b=this or self
+            if not b or not b.mapID or not b:IsShown() then return end
+            elapsedSinceRefresh=elapsedSinceRefresh+(elapsed or arg1 or 0)
+            if elapsedSinceRefresh>=0.5 then
+                elapsedSinceRefresh=0
+                b:Refresh()
+            end
+        end)
+    end
     button:SetTarget(nil,nil)
     return button
 end

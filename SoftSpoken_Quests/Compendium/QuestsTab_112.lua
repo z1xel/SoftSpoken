@@ -13,6 +13,19 @@ local opened={ ["continent:1414"]=true,["continent:1415"]=true,["section:other"]
 local filter=""
 local searchClosed={}
 local onlyVoiceCache={}
+
+-- Recomputed when voice packs or the preferred language change. Without this,
+-- a negative lookup made before deferred Quests data loaded remains stale.
+function Q:InvalidateVoiceCache()
+    onlyVoiceCache={}
+    if C and C.IsOpen and C:IsOpen("quests") then
+        C:Refresh()
+    end
+end
+if Spoken and Spoken.RegisterCallback then
+    Spoken:RegisterCallback("VOICE_PACKS_LOADED",function() Q:InvalidateVoiceCache() end)
+    Spoken:RegisterCallback("VOICE_LANGUAGE_CHANGED",function() Q:InvalidateVoiceCache() end)
+end
 local function Lower(text)
     return string.lower(tostring(text or ""))
 end

@@ -324,6 +324,33 @@ function Spoken:GetLanguageChoice()
     return language.Voice, language.Fallback
 end
 
+-- The core owns both the preference and the change notification. Feature
+-- modules still supply their legacy defaults when a field is unset here.
+function Spoken:SetLanguageChoice(which, value)
+    if not Addon.db or not self.Language then return false end
+    local key
+    if which == "voice" then
+        if value ~= "auto" and not self.Language:IsSupported(value) then return false end
+        key = "Voice"
+    elseif which == "fallback" then
+        if value ~= "none" and not self.Language:IsSupported(value) then return false end
+        key = "Fallback"
+    else
+        return false
+    end
+    local language = Addon.db.profile.Language
+    if language[key] == value then return true end
+    language[key] = value
+    Callbacks:Fire("VOICE_LANGUAGE_CHANGED")
+    return true
+end
+
+-- Data packs are installed by feature modules; one notification lets all
+-- consumers discard any derived voice-availability results.
+function Spoken:NotifyVoicePacksChanged()
+    Callbacks:Fire("VOICE_PACKS_LOADED")
+end
+
 function Spoken:SetPartOn(key, on)
     Sources:SetTurnedOff(key, not on)
     -- Home lists the same switch.

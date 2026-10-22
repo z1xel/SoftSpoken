@@ -91,3 +91,20 @@ state.
 7. Books: in-world page-turn pause; continuous Compendium book playback.
 8. Quests: dialogue/gossip, quest history, source playback and deferred packs.
 9. Compare geometry against the approved prototype screenshots.
+
+
+## Shared language and voice-availability updates
+
+- SoftSpoken/Language.lua owns the locale list, client locale lookup,
+  voice and fallback ordering, including English defaults for old packs.
+- Spoken.Language is additive on the public Spoken API. Books and Quests keep
+  their previous public method names as thin adapters and continue to prefer
+  the module's saved preferences until the core field is explicitly selected.
+- Spoken:SetLanguageChoice("voice"|"fallback", code) updates the core preference
+  and broadcasts VOICE_LANGUAGE_CHANGED.
+- Spoken:NotifyVoicePacksChanged() broadcasts the existing VOICE_PACKS_LOADED
+  event without exposing SpokenEnv internals to feature modules.
+- Quests invalidates its Compendium Voiced Only cache after deferred/manual
+  audio-pack loads, language changes and quest profile changes.
+- Zones play buttons normally use shared AUDIO_CHANGED callbacks; old players
+  without RegisterCallback retain a compatibility-only polling fallback.
