@@ -9,6 +9,7 @@
 Data\Books.lua
 Data\Places.lua
 Core.lua
+DiscoveryLocations.lua
 Locale\enUS.lua
 Checksum.lua
 Language.lua
