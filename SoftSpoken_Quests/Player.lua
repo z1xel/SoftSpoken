@@ -577,7 +577,8 @@ function Player:Setup()
             end
             if dialog and dialog.Refresh then dialog:Refresh() end
             if contribute and contribute.Refresh then contribute:Refresh() end
-            if SpokenCompendium and SpokenCompendium.Relayout then SpokenCompendium:Relayout() end
+            local compendium = _G.SSCCompendium or _G.SpokenCompendium
+            if compendium and compendium.Relayout then compendium:Relayout() end
         end)
     end
 

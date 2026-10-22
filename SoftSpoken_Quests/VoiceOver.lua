@@ -549,7 +549,7 @@ function Addon:OnInitialize()
             Debug:Record("data-ready", "Deferred sound packs finished loading")
         end
         -- The settings pages were built before this, with every pack still to register.
-        SpokenEnv.Callbacks:Fire("VOICE_PACKS_LOADED")
+        Spoken:NotifyVoicePacksChanged()
         self:ShowMissingDataModulePopup()
     end
     local function ScheduleDeferredDataLoad()
@@ -1072,6 +1072,10 @@ end
 
 function Addon:RefreshConfig()
     Player:RefreshConfig()
+    -- Quest-local profile language fallbacks also affect the Voiced Only filter.
+    if SSCQuestsTab and SSCQuestsTab.InvalidateVoiceCache then
+        SSCQuestsTab:InvalidateVoiceCache()
+    end
 end
 
 function Addon:ADDON_LOADED(event, addon)

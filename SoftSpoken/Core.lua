@@ -158,6 +158,9 @@ function Addon:ApplyProfile()
     -- and what one now off had queued goes, as switching it off on Spoken's page does.
     for key in Sources:Iterate() do Sources:Apply(key) end
     if Options and Options.UpdateRows then Options:UpdateRows() end
+    -- Profile switches may change the shared voice language without using the
+    -- settings dropdown; invalidate consumers of the derived voice order.
+    Callbacks:Fire("VOICE_LANGUAGE_CHANGED")
 end
 
 --- One of the profile's settings tables ("Frame", "Transcript"), or its defaults where there is

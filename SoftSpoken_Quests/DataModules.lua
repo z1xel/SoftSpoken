@@ -416,6 +416,10 @@ function DataModules:LoadModule(module)
 
     if loaded then
         self.loadErrors[module.AddonName] = nil
+        -- Also cover packs loaded manually from Quests' settings.
+        if Spoken and Spoken.NotifyVoicePacksChanged then
+            Spoken:NotifyVoicePacksChanged()
+        end
     else
         self.loadErrors[module.AddonName] = reason or "UNKNOWN"
     end

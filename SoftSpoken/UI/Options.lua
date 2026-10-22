@@ -121,22 +121,8 @@ local STYLE_TIPS = {
     subtitle = L.WELCOME_STYLE_SUBTITLE_TIP,
     none = L.WELCOME_STYLE_NONE_TIP,
 }
--- The languages a voice pack can speak: the same list, in the same order, as each module's
--- (SpokenQuests' Language.LOCALES, SpokenBooks.LOCALES).
-LANGUAGES = {
-    { code = "enUS", native = "English" },
-    { code = "deDE", native = "Deutsch" },
-    { code = "esES", native = "Español (España)" },
-    { code = "esMX", native = "Español (América Latina)" },
-    { code = "frFR", native = "Français" },
-    -- No client runs in Italian, so "Auto" never lands on it; a player picks it by hand.
-    { code = "itIT", native = "Italiano" },
-    { code = "ptBR", native = "Português" },
-    { code = "ruRU", native = "Русский" },
-    { code = "koKR", native = "한국어" },
-    { code = "zhCN", native = "简体中文" },
-    { code = "zhTW", native = "繁體中文" },
-}
+-- Locale metadata and auto/fallback policy have one owner in core.
+local LANGUAGES = Spoken.Language.LOCALES
 
 --- Show `style` on screen with a sample line, or nil to stop.
 function Options:Preview(style)
@@ -457,7 +443,7 @@ local function Build(canvas)
     -- add a tab to, opened here and from the minimap menu, with each tab's Unlock switch. The tabs
     -- register once the world is up, after this page is built, so the rows ask for them each time
     -- they are drawn; with neither part installed the section has nothing showing and hides.
-    local function Compendium() return _G.SpokenZones112Compendium or _G.SpokenCompendium end
+    local function Compendium() return _G.SSCCompendium or _G.SpokenZones112Compendium or _G.SpokenCompendium end
     local function Tab(key)
         local compendium = Compendium()
         return compendium and compendium.Tab and compendium:Tab(key)
@@ -499,29 +485,21 @@ local function Build(canvas)
         table.insert(fallbacks, locale.code)
     end
     local function Native(code)
-        for _, locale in ipairs(LANGUAGES) do
-            if locale.code == code then return locale.native end
-        end
-        return code
+        return Spoken.Language:GetNativeName(code)
     end
     local function ClientLanguage()
-        local locale = GetLocale and GetLocale()
-        if locale == "enGB" then return "enUS" end
-        for _, each in ipairs(LANGUAGES) do
-            if each.code == locale then return locale end
-        end
-        return "enUS"
+        return Spoken.Language:GetClientLanguage()
     end
     layout:Dropdown(L.OPT_VOICE_LANGUAGE, L.OPT_VOICE_LANGUAGE_TIP, voices,
         function() return language().Voice or "auto" end,
-        function(code) language().Voice = code end, nil,
+        function(code) Spoken:SetLanguageChoice("voice", code) end, nil,
         function(code)
             if code == "auto" then return format(L.OPT_LANG_AUTO_FMT, Native(ClientLanguage())) end
             return Native(code)
         end)
     layout:Dropdown(L.OPT_FALLBACK_LANGUAGE, L.OPT_FALLBACK_LANGUAGE_TIP, fallbacks,
         function() return language().Fallback or "enUS" end,
-        function(code) language().Fallback = code end, nil,
+        function(code) Spoken:SetLanguageChoice("fallback", code) end, nil,
         function(code) return code == "none" and L.OPT_FALLBACK_NONE or Native(code) end)
 
     layout:Section(L.OPT_AUDIO_TITLE)
