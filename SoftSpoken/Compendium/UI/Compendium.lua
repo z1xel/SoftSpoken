@@ -30,7 +30,7 @@ function C.ContinentOf(mapID)
     -- C_Map is optional; Turtle-specific map discovery remains in LoreBridge.
     return KNOWN_CONTINENT[mapID]
 end
-local NAME = "SSZCompendiumWindow"
+local NAME = "SSCCompendiumWindow"
 local WIDTH, HEIGHT, VISIBLE_ROWS = 670, 600, 42
 -- Same row metrics as original Spoken: branch 24px, leaf 20px, 14px per depth.
 local BRANCH_ROW, LEAF_ROW, DEPTH_STEP, SCROLL_STEP = 24, 20, 14, 60
@@ -73,13 +73,22 @@ local function Enabled(def)
     return not def.enabled or (def.enabled() and true or false)
 end
 -- Upstream's size management, adapted to Vanilla Frame methods and existing
--- per-character settings.  The collapsed window remains height-resizable.
--- Compendium geometry belongs to core, not the first installed tab. Migrate
--- legacy width/height lazily from the first tab's old storage, then persist in
--- the core's per-character database. No existing feature settings are deleted.
-local function LegacyStore()
-    for _,def in ipairs(Ordered()) do
-        if def.store then return def.store end
+-- per-character settings. The collapsed window remains height-resizable.
+-- Compendium geometry belongs to Core. Migrate legacy width/height lazily
+-- from Places first, then Readables; preserve the modules' own settings.
+-- Legacy modules kept window dimensions alongside their own preferences.
+-- Use an explicit order, independent of which tabs happen to be registered.
+-- Each dimension migrates separately so a missing value can fall back.
+local LEGACY_SIZE_TABS = {"places", "readables"}
+local function LegacySize(key)
+    if key~="width" and key~="height" then return nil end
+    for _,tabKey in ipairs(LEGACY_SIZE_TABS) do
+        local tab=C.tabs[tabKey]
+        local old=tab and tab.store
+        if old and type(old.get)=="function" then
+            local value=old.get(key)
+            if type(value)=="number" and value>0 then return value end
+        end
     end
 end
 
@@ -95,11 +104,11 @@ end
 
 local coreStore = {}
 function coreStore.get(key)
-    local state = SavedCompendium()
-    if state and state[key] ~= nil then return state[key] end
-    local old = LegacyStore()
-    local value = old and old.get and old.get(key)
-    if state and value ~= nil then state[key] = value end
+    local state=SavedCompendium()
+    local saved=state and state[key]
+    if type(saved)=="number" and saved>0 then return saved end
+    local value=LegacySize(key)
+    if state and value then state[key]=value end
     return value
 end
 function coreStore.set(key, value)
@@ -337,7 +346,7 @@ local function PaintTabs()
 end
 local function NewWindow(title,icon)
     local frame=CreateFrame("Frame",NAME,UIParent)
-    -- Phase 1 visual-shell pilot: reuse EXACT approved prototype chrome, while
+    -- Reuse the approved portrait-frame chrome, while
     -- retaining all real Compendium providers, list/page controllers and audio.
     if SSCPrototypeFrameSkin and SSCPrototypeFrameSkin.Apply then
         SSCPrototypeFrameSkin.Apply(frame,title)
@@ -530,6 +539,8 @@ function C:Refresh()
 end
 
 -- Virtualized list renderer: a fixed pool of 42 rows for the 1.12 client.
+-- Multiple tabs create their own dropdowns; WoW requires unique global names.
+local filterMenuSerial=0
 local List={}
 List.__index=List
 function C.NewList(panel,opts)
@@ -608,7 +619,9 @@ function C.NewList(panel,opts)
     local function ToggleCheck(check)
         return function() check.set(not check.get());Changed() end
     end
-    local menu=CreateFrame("Frame",NAME.."FilterMenu",UIParent,"UIDropDownMenuTemplate")
+    filterMenuSerial=filterMenuSerial+1
+    local menuName=NAME.."FilterMenu"..filterMenuSerial
+    local menu=CreateFrame("Frame",menuName,UIParent,"UIDropDownMenuTemplate")
     list.filterMenu=menu
     if UIDropDownMenu_Initialize then
         UIDropDownMenu_Initialize(menu,function()
