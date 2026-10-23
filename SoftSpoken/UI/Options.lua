@@ -942,6 +942,10 @@ function Options:SelectLegacyPage(order)
     end
     local child = chosen and chosen.frame or legacyScrollChild
     local old = self.activePage and self.activePage.frame or legacyScrollChild
+    -- Preview belongs to Home, not to whichever module tab is opened next.
+    if order ~= 0 and (self.previewing or Addon.previewStyle) then
+        self:SetPreviewing(false)
+    end
     if old ~= child then old:Hide() end
     -- All pages share the same scrollbar; no second window or nested scrollbar.
     child:SetParent(scroller)
