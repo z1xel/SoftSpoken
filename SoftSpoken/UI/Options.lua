@@ -567,6 +567,24 @@ local function Build(canvas)
     layout:Checkbox(L.OPT_MINIMAP_LOCK, L.OPT_MINIMAP_LOCK_TIP,
         function() return mm().lock end,
         function(v) mm().lock = v end, function() Minimap:Refresh() end)
+    -- The minimap already dispatches these saved click mappings.
+    local clicks = {
+        { key = "LeftButton", label = "Left Click" },
+        { key = "MiddleButton", label = "Middle Click" },
+        { key = "RightButton", label = "Right Click" },
+    }
+    local commands = { "Settings", "PlayPause", "Stop", "Compendium", "Menu" }
+    local commandLabels = {
+        Settings = "Open Settings", PlayPause = "Play / Pause",
+        Stop = "Stop Reading", Compendium = "Open Compendium", Menu = "Open Menu",
+    }
+    for _, entry in ipairs(clicks) do
+        local mouseButton, label = entry.key, entry.label
+        layout:Dropdown(label, "Choose an existing minimap button action.", commands,
+            function() return Addon.db.profile.Minimap.Commands[mouseButton] end,
+            function(command) Addon.db.profile.Minimap.Commands[mouseButton] = command end,
+            nil, function(command) return commandLabels[command] or command end)
+    end
     -- Blizzard's addon compartment exists on the modern clients only; the player's
     -- button shows there too, opening the same menu, and this row switches it.
     if AddonCompartmentFrame then
