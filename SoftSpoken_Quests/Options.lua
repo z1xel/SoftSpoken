@@ -443,6 +443,13 @@ end
 --- Turtle WoW 1.12 uses the AceConfig window for quest and gossip settings,
 -- profiles, and the sound-pack manager.
 function Options:OpenSettings()
+    -- Prefer the shared Vanilla Quests tab. If its optional UI cannot build,
+    -- preserve the original AceGUI window as an independent working fallback.
+    if SettingsPanel and SettingsPanel.Open then
+        local ok, opened = pcall(SettingsPanel.Open, SettingsPanel)
+        if ok and opened then return end
+        if not ok then SettingsPanel.lastError = tostring(opened) end
+    end
     self:OpenConfigWindow()
 end
 
@@ -453,8 +460,13 @@ end
 
 function Options:OpenConfigWindow()
     if not self.frame then
-        print("|cFFFF4040Spoken Quests: the legacy options window is unavailable on this client. " ..
-            "Quest narration and slash commands remain active.|r")
+        print("|cFFFF4040Spoken Quests: neither settings view could be opened.|r")
+        if SettingsPanel and SettingsPanel.lastError then
+            print("Shared Quests settings: " .. SettingsPanel.lastError)
+        end
+        for _, warning in ipairs(self.initializationErrors or {}) do
+            print("Legacy Quests settings: " .. tostring(warning))
+        end
         return
     end
     if self.frame:IsShown() then
