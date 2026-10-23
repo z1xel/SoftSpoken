@@ -103,8 +103,9 @@ function SettingsPanel:Setup()
         note:SetText(count == 0 and "No Quests voice packs installed."
             or tostring(count) .. " Quests voice pack(s) installed.")
     end)
-    for _, module in DataModules:GetAvailableModules() do
-        local info = module
+    -- Give each pack its own callback scope. The original Lua 5.0 generic-for
+    -- variables are not safe to capture directly in delayed UI handlers.
+    local function AddPack(info)
         local name = DataModules:GetPackLabel(info)
         layout:Download(name, function()
             for _, installed in DataModules:GetPresentModules() do
@@ -117,6 +118,9 @@ function SettingsPanel:Setup()
                 ReportButton:ShowAddress(info.URL)
             end
         end)
+    end
+    for _, module in DataModules:GetAvailableModules() do
+        AddPack(module)
     end
     layout:Button("Test Voice Line", 200, function() Options:RunSelfTest() end)
     layout:Button("Diagnostics", 200, function() Options:PrintDiagnostics() end)
