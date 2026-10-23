@@ -109,10 +109,15 @@ local function Index()
 end
 
 local function Found(id) return B:IsBookFound(id) end
-local function Voiced(id)
+-- Like upstream Readables: a book is voiced when ANY page has a recording.
+-- Return the first playable page so the Compendium starts where audio exists.
+local function FirstVoiced(id)
     local book=Books()[id]
-    return book and book.pages and book.pages[1] and B:HasAudio(book.pages[1]) or false
+    for _,pageId in ipairs(book and book.pages or {}) do
+        if B:HasAudio(pageId) then return pageId end
+    end
 end
+local function Voiced(id) return FirstVoiced(id)~=nil end
 local function OnlyFound() return Settings().compendiumFoundOnly==true end
 local function OnlyVoiced() return Settings().compendiumVoicedOnly==true end
 local function Unlocked() return Settings().unlockUnfound==true end
@@ -425,9 +430,9 @@ local function ShowEntry()
         -- places the character visited. Muted ink distinguishes this note.
         local other=OtherKnownLocations(id,place)
         if other then table.insert(parts,"|cff84694a"..other.."|r") end
-        local first=book.pages and book.pages[1]
+        local first=FirstVoiced(id)
         page:Show({title=Title(id),subtitle=location,
-            text=table.concat(parts,"\n\n"),audio=(first and Voiced(id)) and {id,first} or nil})
+            text=table.concat(parts,"\n\n"),audio=first and {id,first} or nil})
         return
     end
     local found,total=selected.found or 0,selected.total or 0
