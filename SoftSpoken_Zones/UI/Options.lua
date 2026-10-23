@@ -42,11 +42,11 @@ local function Build()
         function() return Settings().mode end,
         function(value) Settings().mode = value end,
         nil, function(value)
-            return value == "unheard" and "Entering Unheard Areas" or "Discovering New Areas"
+            return value == "unheard" and "Discoveries + Unheard Areas" or "Discoveries Only"
         end)
     layout:Outdent()
-    layout:Requires(subzones, function() return Settings().auto end,
-        "Turn on automatic narration to use this.")
+    -- Subzones also influence the one-time starting-area greeting, even if
+    -- normal automatic narration is disabled; do not wrongly grey it out.
     layout:Requires(mode, function() return Settings().auto end,
         "Turn on automatic narration to use this.")
     local combat = layout:Checkbox("Hold During Combat",
@@ -59,8 +59,7 @@ local function Build()
         "Narrate a starting-area introduction for a new level-one character.",
         function() return Settings().greeting end,
         function(on) Settings().greeting = on end)
-    layout:Requires(greeting, function() return Settings().auto end,
-        "Turn on automatic narration to use this.")
+    -- The starter greeting uses its own flag and may play when auto is off.
 
     layout:Section("World Map")
     layout:Checkbox("Show Map Lore Panel",
