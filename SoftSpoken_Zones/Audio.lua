@@ -30,6 +30,36 @@ local function FindInRegistry(registry, mapID, areaKey)
     return nil
 end
 
+-- A read-only inventory for Spoken's existing per-module pack status.
+-- Use the same supported registries and version as FindInRegistry above.
+-- This is metadata for settings, not a playback or language selector.
+function R.AudioPackNames()
+    local names, seen = {}, {}
+    local function Add(pack)
+        if type(pack) ~= "table" or pack.version ~= 1 or
+            type(pack.addon) ~= "string" or pack.addon == "" then return end
+        if type(pack.zones) ~= "table" and type(pack.subzones) ~= "table" then return end
+        if not seen[pack.addon] then
+            seen[pack.addon] = true
+            table.insert(names, pack.title or pack.addon)
+        end
+    end
+    for _, registry in ipairs({SpokenZonesAudioPacks, ZoneLoreAudioPacks}) do
+        if type(registry) == "table" then
+            for _, pack in pairs(registry) do Add(pack) end
+        end
+    end
+    if type(ZoneLoreAudioData) == "table" then
+        local legacy = ZoneLoreAudioData
+        -- FindRecording treats this as a legacy pack and supplies the same
+        -- fallback addon name when no explicit path was registered.
+        if legacy.addon == nil then legacy.addon = "ZoneLoreAudio" end
+        Add(legacy)
+    end
+    table.sort(names)
+    return names
+end
+
 local function FindRecording(mapID, areaKey)
     local pack, recording = FindInRegistry(SpokenZonesAudioPacks, mapID, areaKey)
     if pack then return pack, recording end
