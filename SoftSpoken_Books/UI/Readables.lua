@@ -109,10 +109,21 @@ local function Index()
 end
 
 local function Found(id) return B:IsBookFound(id) end
-local function Voiced(id)
+-- Like upstream Readables: a book is voiced when ANY page has a recording.
+-- Cache its first playable page only until the next Compendium refresh.
+local voiced={}
+local function FirstVoiced(id)
+    if voiced[id]~=nil then return voiced[id] or nil end
     local book=Books()[id]
-    return book and book.pages and book.pages[1] and B:HasAudio(book.pages[1]) or false
+    for _,pageId in ipairs(book and book.pages or {}) do
+        if B:HasAudio(pageId) then
+            voiced[id]=pageId
+            return pageId
+        end
+    end
+    voiced[id]=false
 end
+local function Voiced(id) return FirstVoiced(id)~=nil end
 local function OnlyFound() return Settings().compendiumFoundOnly==true end
 local function OnlyVoiced() return Settings().compendiumVoicedOnly==true end
 local function Unlocked() return Settings().unlockUnfound==true end
@@ -425,9 +436,9 @@ local function ShowEntry()
         -- places the character visited. Muted ink distinguishes this note.
         local other=OtherKnownLocations(id,place)
         if other then table.insert(parts,"|cff84694a"..other.."|r") end
-        local first=book.pages and book.pages[1]
+        local first=FirstVoiced(id)
         page:Show({title=Title(id),subtitle=location,
-            text=table.concat(parts,"\n\n"),audio=(first and Voiced(id)) and {id,first} or nil})
+            text=table.concat(parts,"\n\n"),audio=first and {id,first} or nil})
         return
     end
     local found,total=selected.found or 0,selected.total or 0
@@ -494,6 +505,7 @@ local function EquipPlay(pageObject)
 end
 
 function B:RefreshReadablesPlayback()
+    voiced={}
     if page and page.play and page.play.Refresh then page.play:Refresh() end
 end
 local function Build(panelFrame)
@@ -564,6 +576,7 @@ function B:ReadablesLocationChanged()
 end
 function B:RefreshReadables(scrollToSelection)
     if not list then return end
+    voiced={}
     local items=list:Render()
     if scrollToSelection then list:ScrollToSelection(items) end
     ShowEntry()
