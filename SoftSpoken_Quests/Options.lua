@@ -438,6 +438,12 @@ function Options:Initialize()
         _G["VoiceOverOptions"] = self.frame.frame
         tinsert(UISpecialFrames, "VoiceOverOptions")
     end)
+    -- Register from the same AceAddon lifecycle as the Quests database.
+    -- The deferred PLAYER_ENTERING_WORLD hook in SettingsPanel remains a
+    -- fallback if the shared core has not finished setting up yet.
+    RunOptionalStep("shared settings page", function()
+        if SettingsPanel and SettingsPanel.Setup then SettingsPanel:Setup() end
+    end)
 end
 
 --- Turtle WoW 1.12 uses the AceConfig window for quest and gossip settings,
