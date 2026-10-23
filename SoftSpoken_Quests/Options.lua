@@ -101,9 +101,6 @@ local GeneralTab =
     }
 }
 
--- The 2.4.3/3.3.5 music-channel and HD-model settings are the Spoken player's now.
-local LegacyWrathTab = nil
-
 ---@type AceConfigOptionsTable
 local DataModulesTab =
 {
@@ -204,7 +201,6 @@ Options.table = {
     childGroups = "tab",
     args = {
         General = GeneralTab,
-        LegacyWrath = LegacyWrathTab,
         DataModules = DataModulesTab,
         Profiles = nil, -- Filled in Options:OnInitialize, order is implicitly 100
 

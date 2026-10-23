@@ -262,7 +262,7 @@ end
 ---@param loadModules? boolean Whether LoadOnDemand data modules should be loaded during enumeration
 function DataModules:EnumerateAddons(loadModules)
     assert(GetNumAddOns and GetAddOnMetadata and GetAddOnInfo,
-        "No compatible AddOn-management API was found (expected C_AddOns on current clients)")
+        "The 1.12 AddOn-management globals are unavailable")
 
     for i = 1, GetNumAddOns() do
         local moduleVersion = ModuleNumber(i, "Version")
@@ -358,32 +358,21 @@ function DataModules:LoadPresentModules()
     return self:HasRegisteredModules()
 end
 
--- We deliberately use a high ##Interface version in TOC to ensure that all clients will load it.
--- Otherwise pre-classic-rerelease clients will refuse to load addons with version < 20000.
--- Here we temporarily enable "Load out of date AddOns" to load the module, and restore the user's setting afterwards.
--- These cvars can be nil, so have to store the fact of them being changed in a separate variable.
+-- A data pack may need the 1.12 "Load out of date AddOns" switch
+-- temporarily disabled before LoadAddOn. Restore its previous value afterward.
+-- The 5.x+ lastAddonVersion CVar does not exist on our target client.
 local prev_checkAddonVersion, changed_checkAddonVersion
-local prev_lastAddonVersion, changed_lastAddonVersion -- Added in 5.x
 local function EnableOutOfDate(addon)
     if not changed_checkAddonVersion then
         prev_checkAddonVersion = GetCVar("checkAddonVersion")
         SetCVar("checkAddonVersion", 0)
         changed_checkAddonVersion = true
     end
-    if not changed_lastAddonVersion and Version:IsRetailOrAboveLegacyVersion(50000) then
-        prev_lastAddonVersion = GetCVar("lastAddonVersion")
-        SetCVar("lastAddonVersion", Version.Interface)
-        changed_lastAddonVersion = true
-    end
 end
 local function RestoreOutOfDate(addon)
     if changed_checkAddonVersion then
         SetCVar("checkAddonVersion", prev_checkAddonVersion)
         changed_checkAddonVersion = nil
-    end
-    if changed_lastAddonVersion and Version:IsRetailOrAboveLegacyVersion(50000) then
-        SetCVar("lastAddonVersion", prev_lastAddonVersion)
-        changed_lastAddonVersion = nil
     end
 end
 
