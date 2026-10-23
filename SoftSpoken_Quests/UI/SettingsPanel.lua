@@ -121,7 +121,11 @@ end
 
 local loader = CreateFrame("Frame")
 loader:RegisterEvent("PLAYER_LOGIN")
+loader:RegisterEvent("PLAYER_ENTERING_WORLD")
 loader:SetScript("OnEvent", function()
-    loader:UnregisterEvent("PLAYER_LOGIN")
     SettingsPanel:Setup()
+    if page then
+        loader:UnregisterEvent("PLAYER_LOGIN")
+        loader:UnregisterEvent("PLAYER_ENTERING_WORLD")
+    end
 end)
