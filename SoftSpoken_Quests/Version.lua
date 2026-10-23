@@ -1,18 +1,6 @@
 setfenv(1, VoiceOver)
 
--- Dedicated Turtle WoW 1.12 port: Quests shares Core's single target client.
--- Preserve the flags read by the Quest player, but not unreachable client modes.
-Version={}
-local client,build,_,interface=GetBuildInfo()
-Version.Client=client
-Version.Build=build
-Version.Interface=interface or 0
-Version.IsAnyLegacy=true
-Version.IsLegacyVanilla=true
-
-function Version:IsBelowLegacyVersion(target)
-    return self.Interface<target or nil
-end
-function Version:IsRetailOrAboveLegacyVersion(target)
-    return nil
-end
+-- Shared 1.12 client definition from mandatory SoftSpoken Core.
+-- Keep this small binding here so existing Quests load order stays unchanged.
+Version = assert(Spoken and Spoken.Version,
+    "SoftSpoken Core 1.12 version service is required")
