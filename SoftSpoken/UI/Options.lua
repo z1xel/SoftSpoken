@@ -881,12 +881,14 @@ end
 --- Every page search can reach: this one, then the feature addons' in their order.
 function Options:Pages()
     local pages = {}
-    if panel and self.category then
-        table.insert(pages, { name = L.OPT_HOME_TITLE, category = self.category, layout = panel.layout,
-            scroller = scroller, order = 0 })
+    if panel then
+        table.insert(pages, { name = L.OPT_HOME_TITLE, category = self.category,
+            layout = panel.layout, scroller = self.category and scroller or nil, order = 0 })
     end
     for _, page in ipairs(self.pages or {}) do
-        if page.category and page.layout then table.insert(pages, page) end
+        if page.layout and (not self.category or page.category) then
+            table.insert(pages, page)
+        end
     end
     return pages
 end
@@ -894,16 +896,29 @@ end
 --- Open a page, and once the settings window has drawn it, scroll to `row` and light it up.
 --- `page` is one of Pages(), each of which OpenPage finds by its order.
 function Options:ShowRow(page, row)
-    self:OpenPage(page.order)
+    if not self:OpenPage(page.order) then return end
     local function Land()
+        page.layout:Refresh()
+        local offset = math.max(0, -(row.layoutY or 0) - 60)
         if page.scroller then
             page.scroller:Recalculate()
-            page.scroller:ScrollTo(-(row.layoutY or 0) - 60)
+            page.scroller:ScrollTo(offset)
+        elseif scroller and not self.category then
+            -- Original Vanilla scroll frame, shared by all module pages.
+            local maximum = scroller.GetVerticalScrollRange and
+                scroller:GetVerticalScrollRange() or offset
+            if offset > maximum then offset = maximum end
+            scroller:SetVerticalScroll(offset)
         end
         page.layout:Highlight(row)
     end
-    -- The canvas has no size until the window lays it out, so the scroll waits a moment.
-    if C_Timer and C_Timer.After then C_Timer.After(0.05, Land) else Land() end
+    -- Retail's canvas measures its content after the category opens; 1.12
+    -- updates the shared ScrollFrame synchronously and needs no timer.
+    if self.category and C_Timer and C_Timer.After then
+        C_Timer.After(0.05, Land)
+    else
+        Land()
+    end
 end
 
 -- On the original 1.12 client there is no Blizzard Settings category tree.
