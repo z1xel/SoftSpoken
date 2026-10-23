@@ -99,6 +99,14 @@ function B:ShowOptions()
     if page and page.Open then page.Open() end
 end
 
+-- Create the shared Books page at login, not only when opened.
+local loader = CreateFrame("Frame")
+loader:RegisterEvent("PLAYER_LOGIN")
+loader:SetScript("OnEvent", function()
+    loader:UnregisterEvent("PLAYER_LOGIN")
+    B:SetupOptions()
+end)
+
 function B:ShowBooksStatus()
     local books,pages,clips=0,0,0
     for _ in pairs(self:Data() and self:Data().books or {}) do books=books+1 end
