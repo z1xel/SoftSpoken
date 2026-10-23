@@ -199,7 +199,7 @@ local function Build(canvas)
         -- scroll template, not the modern custom Layout.Scroll implementation.
         scroller = CreateFrame("ScrollFrame", "SpokenOptionsLegacyScroll", panel, "UIPanelScrollFrameTemplate")
         scroller:EnableMouseWheel(true)
-        scroller:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -78)
+        scroller:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -116)
         scroller:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -42, 20)
         host = CreateFrame("Frame", nil, scroller)
         host:SetWidth(470)
@@ -926,7 +926,7 @@ function Options:RefreshNavigation()
         button:ClearAllPoints()
         local width = math.floor(514 / table.getn(pages))
         button:SetWidth(width - 4)
-        button:SetPoint("TOPLEFT", panel, "TOPLEFT", 18 + (index - 1) * width, -42)
+        button:SetPoint("TOPLEFT", panel, "TOPLEFT", 18 + (index - 1) * width, -77)
         button:SetText(entry.order == 0 and "Home" or entry.name)
         local order = entry.order
         button:SetScript("OnClick", function() Options:SelectLegacyPage(order) end)
@@ -958,6 +958,7 @@ function Options:SelectLegacyPage(order)
         self:SetPreviewing(false)
     end
     if old ~= child then old:Hide() end
+    if Search and Search.Close then Search:Close() end
     -- All pages share the same scrollbar; no second window or nested scrollbar.
     child:SetParent(scroller)
     child:SetWidth(470)
@@ -1030,6 +1031,7 @@ function Options:Setup()
         panel:SetScript("OnDragStart", function() panel:StartMoving() end)
         panel:SetScript("OnDragStop", function() panel:StopMovingOrSizing() end)
         FitWindow()
+        if Search and Search.BuildLegacy then Search:BuildLegacy(panel) end
         panel:Hide()
         self:RefreshNavigation()
         self:SelectLegacyPage(0)
@@ -1103,6 +1105,7 @@ function Options:Open()
         Layout.OpenCategory(self.category, L.OPT_OPEN_COMBAT)
     elseif panel then
         if panel:IsShown() then
+            if Search and Search.Close then Search:Close() end
             panel:Hide()
         else
             self:SelectLegacyPage(0)
