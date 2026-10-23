@@ -573,10 +573,12 @@ local function Build(canvas)
         { key = "MiddleButton", label = "Middle Click" },
         { key = "RightButton", label = "Right Click" },
     }
-    local commands = { "Settings", "PlayPause", "Stop", "Compendium", "Menu" }
+    -- "Compendium" is intentionally excluded: the current 1.12 minimap
+    -- dispatcher still checks old Compendium globals instead of SSCCompendium.
+    local commands = { "Settings", "PlayPause", "Stop", "Menu" }
     local commandLabels = {
         Settings = "Open Settings", PlayPause = "Play / Pause",
-        Stop = "Stop Reading", Compendium = "Open Compendium", Menu = "Open Menu",
+        Stop = "Stop Reading", Menu = "Open Menu",
     }
     for _, entry in ipairs(clicks) do
         local mouseButton, label = entry.key, entry.label
