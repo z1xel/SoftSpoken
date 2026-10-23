@@ -793,9 +793,29 @@ function Addon:OnInitialize()
     local directEventLookup = {}
     local lastDispatch = {}
     local dispatching = {}
+
+    -- Several frame/event hooks can report the same interaction. Only let a
+    -- different quest through the short duplicate window when its positive ID
+    -- and current title can actually be resolved. Unknown IDs (and gossip)
+    -- keep the previous conservative, event-only suppression.
+    local function DispatchQuestID(event)
+        if not QUEST_EVENTS[event] then return nil end
+        local ok, id, title = pcall(function()
+            return QuestIDFor(event), QuestTitle()
+        end)
+        if ok and type(id) == "number" and id > 0 and
+           type(title) == "string" and title ~= "" then
+            return id
+        end
+    end
+
     local function DispatchDirectEvent(event, source)
         local now = GetTime()
-        if dispatching[event] or lastDispatch[event] and now - lastDispatch[event] < 0.5 then
+        local questID = DispatchQuestID(event)
+        local previous = lastDispatch[event]
+        if dispatching[event] or
+           (previous and now - previous.time < 0.5 and
+            (not questID or not previous.questID or questID == previous.questID)) then
             return
         end
 
@@ -822,7 +842,7 @@ function Addon:OnInitialize()
         -- with unpopulated quest globals must be allowed to retry.
         local stage = Debug.runtime and Debug.runtime.stage
         if stage == "queued" or stage == "queue-paused" or stage == "playing" then
-            lastDispatch[event] = GetTime()
+            lastDispatch[event] = { time = GetTime(), questID = questID }
         else
             lastDispatch[event] = nil
         end
