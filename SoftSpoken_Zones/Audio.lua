@@ -35,26 +35,27 @@ end
 -- This is metadata for settings, not a playback or language selector.
 function R.AudioPackNames()
     local names, seen = {}, {}
-    local function Add(pack)
-        if type(pack) ~= "table" or pack.version ~= 1 or
-            type(pack.addon) ~= "string" or pack.addon == "" then return end
+    local function Add(pack, fallbackAddon)
+        if type(pack) ~= "table" or pack.version ~= 1 then return end
+        local addon = pack.addon or fallbackAddon
+        if type(addon) ~= "string" or addon == "" then return end
         if type(pack.zones) ~= "table" and type(pack.subzones) ~= "table" then return end
-        if not seen[pack.addon] then
-            seen[pack.addon] = true
-            table.insert(names, pack.title or pack.addon)
+        if not seen[addon] then
+            seen[addon] = true
+            table.insert(names, pack.title or addon)
         end
     end
-    for _, registry in ipairs({SpokenZonesAudioPacks, ZoneLoreAudioPacks}) do
+    local function AddRegistry(registry)
         if type(registry) == "table" then
             for _, pack in pairs(registry) do Add(pack) end
         end
     end
+    -- Check both registries separately: Lua 5.0 ipairs stops at the first
+    -- nil array element, so a missing first registry must not hide the second.
+    AddRegistry(SpokenZonesAudioPacks)
+    AddRegistry(ZoneLoreAudioPacks)
     if type(ZoneLoreAudioData) == "table" then
-        local legacy = ZoneLoreAudioData
-        -- FindRecording treats this as a legacy pack and supplies the same
-        -- fallback addon name when no explicit path was registered.
-        if legacy.addon == nil then legacy.addon = "ZoneLoreAudio" end
-        Add(legacy)
+        Add(ZoneLoreAudioData, "ZoneLoreAudio")
     end
     table.sort(names)
     return names
