@@ -1050,6 +1050,11 @@ function Options:AddPage(frame, name, order, layout, pageScroller)
         -- A Vanilla page is a scroll child, not a separate settings window.
         frame:SetWidth(470)
         frame:Hide()
+        local priorResize = layout.onResize
+        layout.onResize = function(height)
+            frame:SetHeight(TOP + layout:Height() + BOTTOM)
+            if priorResize then priorResize(height) end
+        end
         if panel and panel.isWindow then self:RefreshNavigation() end
     end
     return page
