@@ -23,7 +23,7 @@ local function Build()
     optionsLayout = layout
     layout:Intro([[Interface\Icons\INV_Misc_Map02]], "Zones")
 
-    local enabled = layout:Checkbox("Enable Zones", "Allow narrated zone lore to play.",
+    layout:Checkbox("Enable Zones", "Allow narrated zone lore to play.",
         function() return Spoken:IsPartOn("zones") end,
         function(on) Spoken:SetPartOn("zones", on) end, Refresh)
     layout:Status(function() return Spoken:PartStatus("zones") end)
