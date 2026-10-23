@@ -624,7 +624,7 @@ local function Build(canvas)
 
     -- Profiles, for all of Spoken at once: the player's own settings and every part that keeps
     -- its settings in profiles switch, copy and delete together.
-    -- Options:AddProfiles(layout)
+    Options:AddProfiles(layout)
 
     -- Spoken outside the game: its code, its Discord and its download page.
 
@@ -716,12 +716,19 @@ end
 --- Every AceDB object a profile choice applies to: the player's, then each installed part's
 --- that keeps its settings in profiles (a source's `profiles`).
 function Options:ProfileDBs()
-    local dbs = {}
-    if Addon.db and Addon.db.GetProfiles then table.insert(dbs, Addon.db) end
+    local dbs, seen = {}, {}
+    if Addon.db and Addon.db.GetProfiles then
+        table.insert(dbs, Addon.db)
+        seen[Addon.db] = true
+    end
     for _, source in Sources:Iterate() do
         if type(source.profiles) == "function" then
             local ok, db = pcall(source.profiles)
-            if ok and type(db) == "table" and db.GetProfiles then table.insert(dbs, db) end
+            -- Quests and Gossip share one database, despite having two sources.
+            if ok and type(db) == "table" and db.GetProfiles and not seen[db] then
+                table.insert(dbs, db)
+                seen[db] = true
+            end
         end
     end
     return dbs
