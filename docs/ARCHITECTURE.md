@@ -72,6 +72,9 @@ state.
 - 1.12 runs Lua 5.0. Preserve event/arg global fallbacks and legacy widget APIs.
 - The feature .toc files hard-depend on SoftSpoken. The core's common Ace/LibStub
   libraries load first; Quests keeps its own AceAddon/AceGUI/config libraries.
+- Quests includes its Compendium metadata and dialogue databases under
+  SoftSpoken_Quests/Data/ at startup; no separate QuestData/QuestText addons
+  or LoadAddOn calls are required.
 - Core internals use SpokenEnv; Quests uses its own VoiceOver environment.
   VoiceOver must not be renamed because shipped voice packs reference it.
 - Quests and gossip have separate sources sharing one global queue.
