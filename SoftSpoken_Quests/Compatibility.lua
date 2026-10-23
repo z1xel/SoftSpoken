@@ -1,11 +1,8 @@
 setfenv(1, VoiceOver)
 
--- SoftSpoken Quests targets Turtle WoW 1.12 only.
--- Core supplies the shared Lua/FrameXML client shims, while this module owns
--- quest and gossip behavior. VoiceOver remains a private Lua environment.
-assert(Spoken and Spoken.Compat and Spoken.Compat.InstallClientShims,
-    "SoftSpoken Core 1.12 compatibility services are required")
-Spoken.Compat.InstallClientShims(VoiceOver)
+-- Quest-specific Turtle WoW 1.12 adapters. Shared Lua/FrameXML primitives
+-- are installed in Environment.lua before any other Quests implementation
+-- files load, so top-level frames also receive the Core wrappers.
 
 if not GetQuestID then
     local source, text
@@ -114,8 +111,12 @@ else
     end
 end
 
--- WoW 1.12 QuestLogTitle has no real quest ID or suggested-group field.
--- Use ClassicAPI when available, then the original DataModules/title history.
+-- Native WoW 1.12 GetQuestLogTitle returns exactly six values:
+-- title, level, questTag, isHeader, isCollapsed, isComplete.
+-- There is no suggestedGroup or isDaily return in this client. The normalized
+-- frequency is therefore always 1, exactly as the previous 1.12 adapter
+-- returned; do not infer daily status from questTag or later-client APIs.
+-- Recover IDs via ClassicAPI, then existing DataModules/title history.
 -- A stable negative ID is only a UI placeholder for an unresolved quest.
 local dummyQuestIDMap={NEXT=-1}
 local oldGetQuestLogTitle=GetQuestLogTitle -- Capture before EQL3 changes the quest-log UI.

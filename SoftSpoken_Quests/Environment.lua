@@ -38,3 +38,11 @@ VoiceOver = setmetatable({
     -- A value the game hides from addons in some situations comes back as nil, not an error.
     NotSecret = Spoken and Spoken.NotSecret or function(value) return value end,
 }, { __index = _G })
+
+-- Core is a required addon. Install shared 1.12 Lua and FrameXML methods now,
+-- before subsequent Quests files construct their frames and event handlers.
+-- Compatibility.lua still loads later for quest-specific adapters.
+assert(Spoken and Spoken.Compat and
+    type(Spoken.Compat.InstallClientShims) == "function",
+    "SoftSpoken Core 1.12 compatibility services are required")
+Spoken.Compat.InstallClientShims(VoiceOver)
