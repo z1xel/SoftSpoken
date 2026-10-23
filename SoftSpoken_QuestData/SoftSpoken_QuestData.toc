@@ -1,0 +1,8 @@
+## Interface: 11200
+## Title: SoftSpoken Quest Catalog
+## Notes: Lazy-loaded upstream Spoken quest compendium metadata for Turtle WoW.
+## Version: 0.1
+## Dependencies: SoftSpoken_Quests
+## LoadOnDemand: 1
+
+Compendium.lua
