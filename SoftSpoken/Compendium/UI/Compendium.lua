@@ -31,8 +31,6 @@ function C.ContinentOf(mapID)
     return KNOWN_CONTINENT[mapID]
 end
 local NAME = "SSCCompendiumWindow"
--- Legacy global lookup remains supported; the actual named frame is Core-owned.
-local LEGACY_WINDOW_NAME = "SSZCompendiumWindow"
 local WIDTH, HEIGHT, VISIBLE_ROWS = 670, 600, 42
 -- Same row metrics as original Spoken: branch 24px, leaf 20px, 14px per depth.
 local BRANCH_ROW, LEAF_ROW, DEPTH_STEP, SCROLL_STEP = 24, 20, 14, 60
@@ -348,9 +346,6 @@ local function PaintTabs()
 end
 local function NewWindow(title,icon)
     local frame=CreateFrame("Frame",NAME,UIParent)
-    -- Retain the former global reference without creating a second frame.
-    -- The new canonical GetName() and UISpecialFrames entry use NAME.
-    _G[LEGACY_WINDOW_NAME]=frame
     -- Reuse the approved portrait-frame chrome, while
     -- retaining all real Compendium providers, list/page controllers and audio.
     if SSCPrototypeFrameSkin and SSCPrototypeFrameSkin.Apply then
