@@ -1,24 +1,18 @@
 setfenv(1, VoiceOver)
-Version = {}
 
-local CLIENT_VERSION, BUILD, _, INTERFACE_VERSION = GetBuildInfo()
+-- Dedicated Turtle WoW 1.12 port: Quests shares Core's single target client.
+-- Preserve the flags read by the Quest player, but not unreachable client modes.
+Version={}
+local client,build,_,interface=GetBuildInfo()
+Version.Client=client
+Version.Build=build
+Version.Interface=interface or 0
+Version.IsAnyLegacy=true
+Version.IsLegacyVanilla=true
 
-Version.Client                  = CLIENT_VERSION
-Version.Build                   = BUILD
-Version.Interface               = INTERFACE_VERSION or 0
-Version.IsAnyLegacy             = (Version.Interface == 0 or WOW_PROJECT_ID == nil) or nil
-Version.IsLegacyVanilla         = Version.IsAnyLegacy and Version.Interface ==     0 or nil
-Version.IsLegacyBurningCrusade  = Version.IsAnyLegacy and Version.Interface == 20400 or nil
-Version.IsLegacyWrath           = Version.IsAnyLegacy and Version.Interface == 30300 or nil
-Version.IsAnyRetail             = not Version.IsAnyLegacy or nil
-Version.IsRetailVanilla         = Version.IsAnyRetail and WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or nil
-Version.IsRetailBurningCrusade  = Version.IsAnyRetail and WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC or nil
-Version.IsRetailWrath           = Version.IsAnyRetail and WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC or nil
-Version.IsRetailMainline        = Version.IsAnyRetail and WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or nil
-
-function Version:IsBelowLegacyVersion(version)
-    return self.IsAnyLegacy and self.Interface < version or nil
+function Version:IsBelowLegacyVersion(target)
+    return self.Interface<target or nil
 end
-function Version:IsRetailOrAboveLegacyVersion(version)
-    return self.IsAnyRetail or self.Interface >= version or nil
+function Version:IsRetailOrAboveLegacyVersion(target)
+    return nil
 end

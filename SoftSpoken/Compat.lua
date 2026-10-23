@@ -34,6 +34,8 @@ if not SOUNDKIT then
     SOUNDKIT = {
         U_CHAT_SCROLL_BUTTON = "uChatScrollButton",
         IG_QUEST_LOG_CLOSE = "igQuestLogClose",
+        IG_MAINMENU_OPEN = "igMainMenuOpen",
+        IG_MAINMENU_CLOSE = "igMainMenuClose",
     }
 end
 
@@ -451,3 +453,42 @@ local modelFramePool = {}
         -- Used for XML OnLeave handlers
         GameTooltip:Hide()
     end
+
+-- One implementation of the vanilla client primitives is shared with modules.
+-- Feature addons retain their private environments; no global CreateFrame or
+-- Lua compatibility functions are replaced. Core loads before its modules.
+--
+-- The few unavoidable game-global hooks (GameTooltip and AceGUI's
+-- SetDesaturation helper) are installed once here rather than in Quests.
+if not _G.SetDesaturation then
+    function _G.SetDesaturation(texture, desaturation)
+        local shaderSupported = texture.SetDesaturated and texture:SetDesaturated(desaturation)
+        if not shaderSupported then
+            if desaturation then
+                texture:SetVertexColor(0.5, 0.5, 0.5)
+            else
+                texture:SetVertexColor(1.0, 1.0, 1.0)
+            end
+        end
+    end
+end
+
+-- SetCursor was introduced after 1.12. Quests uses it for optional UI hints.
+if not SetCursor then
+    function SetCursor() end
+end
+
+Spoken.Compat = Spoken.Compat or {}
+local sharedPrimitives = {
+    "CreateFrame", "select", "print", "strsplit", "wipe", "hooksecurefunc",
+    "SOUNDKIT", "GetAddOnInfo", "GetAddOnEnableState",
+    "MouseIsOver", "GameTooltip_Hide", "SetCursor",
+}
+function Spoken.Compat.InstallClientShims(target)
+    assert(type(target)=="table", "Expected a private addon environment")
+    for _,name in ipairs(sharedPrimitives) do
+        -- rawget: do not confuse the target's _G fallback with a private shim.
+        local implementation=rawget(SpokenEnv,name)
+        if implementation~=nil then rawset(target,name,implementation) end
+    end
+end
