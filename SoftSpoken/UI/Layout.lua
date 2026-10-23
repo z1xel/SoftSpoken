@@ -921,7 +921,13 @@ function Layout:Highlight(row)
         glow = CreateFrame("Frame", nil, self.parent)
         glow.texture = glow:CreateTexture(nil, "BACKGROUND")
         glow.texture:SetAllPoints()
-        if glow.texture.SetColorTexture then glow.texture:SetColorTexture(1, 0.82, 0, 1) end
+        if glow.texture.SetColorTexture then
+            glow.texture:SetColorTexture(1, 0.82, 0, 1)
+        else
+            -- The original 1.12 client has no SetColorTexture.
+            glow.texture:SetTexture([[Interface\Buttons\WHITE8X8]])
+            glow.texture:SetVertexColor(1, 0.82, 0)
+        end
         Script(glow, "OnUpdate", function(frame, elapsed)
             frame.left = frame.left - (elapsed or arg1 or 0)
             if frame.left <= 0 then
