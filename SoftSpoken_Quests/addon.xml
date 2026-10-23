@@ -21,6 +21,9 @@
     <Include file="Followup.lua"/>
 
     <Include file="Compatibility.lua"/>
+    <!-- Static Compendium datasets load with Quests before its UI adapters. -->
+    <Include file="Data\Compendium.lua"/>
+    <Include file="Data\QuestText.lua"/>
     <!-- Phase 1: ClassicAPI quest state and upstream quest hierarchy. -->
     <Include file="Compendium\QuestState_112.lua"/>
     <Include file="Compendium\QuestCatalog_112.lua"/>

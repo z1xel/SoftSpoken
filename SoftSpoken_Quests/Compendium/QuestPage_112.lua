@@ -24,12 +24,7 @@ end
 local function Data()
     return VoiceOver and VoiceOver.DataModules
 end
-local function LoadText()
-    if _G.SpokenQuestsText then return end
-    if type(LoadAddOn)=="function" then pcall(LoadAddOn,"SoftSpoken_QuestText") end
-end
 local function Database(id)
-    LoadText()
     return _G.SpokenQuestsText and _G.SpokenQuestsText[id] or nil
 end
 local function Fill(text)

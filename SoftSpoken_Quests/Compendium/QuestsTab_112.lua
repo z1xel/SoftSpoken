@@ -33,13 +33,12 @@ local function Settings(key,value)
     return S:Setting(key,value)
 end
 local function EnsureCatalog()
-    if not _G.SpokenQuestsCompendium and type(LoadAddOn)=="function" then
-        local ok,loaded=pcall(LoadAddOn,"SoftSpoken_QuestData")
-        if not ok or loaded==false then
-            Q.loadError="Could not load SoftSpoken_QuestData. Enable the companion addon in AddOns."
-        end
+    if not _G.SpokenQuestsCompendium then
+        Q.loadError="Quest catalog data is unavailable. Reinstall SoftSpoken_Quests."
+        return nil
     end
-    if _G.SpokenQuestsCompendium and (not tree or treeRevision~=S.revision) then
+    Q.loadError=nil
+    if not tree or treeRevision~=S.revision then
         tree=M:BuildTree()
         S:SeedActive(tree.idSet)
         -- Newly seeded collapsed quests may extend the tree with custom IDs.

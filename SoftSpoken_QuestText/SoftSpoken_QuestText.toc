@@ -1,8 +1,0 @@
-## Interface: 11200
-## Title: SoftSpoken Quest Dialogue
-## Notes: Lazy-loaded original Spoken quest dialogue text for Azeroth's Compendium.
-## Version: 0.2
-## Dependencies: SoftSpoken_Quests
-## LoadOnDemand: 1
-
-QuestText.lua
