@@ -20,30 +20,40 @@ function SettingsPanel:Setup()
     layout = UI.New(frame, 25, -16)
     layout:Intro([[Interface\Icons\INV_Scroll_03]], "Quests & Gossip")
 
-    local switch = layout:Checkbox("Enable Quests", "Allow quest narration to play.",
+    layout:Checkbox("Enable Quests", "Allow quest narration to play.",
         function() return Spoken:IsPartOn("quests") end,
         function(on) Spoken:SetPartOn("quests", on) end, Refresh)
+    layout:Checkbox("Enable Gossip", "Allow NPC gossip narration independently of quests.",
+        function() return Spoken:IsPartOn("gossip") end,
+        function(on) Spoken:SetPartOn("gossip", on) end, Refresh)
 
     layout:Section("Quest Narration")
     local autoplay = layout:Checkbox(L.OPT_PANEL_AUTOPLAY or "Read Automatically", nil,
         function() return Addon:IsAutoplayOn() end,
         function(on) Addon:SetAutoplay(on) end, Refresh)
+    layout:Requires(autoplay, function()
+        return Spoken:IsPartOn("quests") or Spoken:IsPartOn("gossip")
+    end, "Enable Quests or Gossip to use this.")
     layout:Indent()
     local followup = layout:Checkbox(L.OPT_PANEL_FOLLOWUP or "Read Follow-up Lines", nil,
         function() return Audio().FollowupLines ~= false end,
         function(on) Audio().FollowupLines = on end)
     layout:Outdent()
-    layout:Requires(followup, function() return Addon:IsAutoplayOn() end,
-        "Turn on automatic narration to use this.")
-    layout:Checkbox(L.OPT_PANEL_STOP_ON_CLOSE or "Stop When Window Closes", nil,
+    layout:Requires(followup, function()
+        return Spoken:IsPartOn("quests") and Addon:IsAutoplayOn()
+    end, "Enable Quests and automatic narration to use this.")
+    local stopOnClose = layout:Checkbox(L.OPT_PANEL_STOP_ON_CLOSE or "Stop When Window Closes", nil,
         function() return Audio().StopAudioOnDisengage end,
         function(on) Audio().StopAudioOnDisengage = on end)
+    layout:Requires(stopOnClose, function() return Spoken:IsPartOn("quests") end,
+        "Enable Quests to use this.")
     local afterClose = layout:Checkbox(L.OPT_PANEL_READ_AFTER_CLOSE or "Read When Window Closes",
         "Start an automatic quest reading when the quest window closes.",
         function() return Audio().ReadAfterClose end,
         function(on) Audio().ReadAfterClose = on end)
-    layout:Requires(afterClose, function() return Addon:IsAutoplayOn() end,
-        "Turn on automatic narration to use this.")
+    layout:Requires(afterClose, function()
+        return Spoken:IsPartOn("quests") and Addon:IsAutoplayOn()
+    end, "Enable Quests and automatic narration to use this.")
     local gameFirst = layout:Checkbox(L.OPT_PANEL_GAME_GREETING_FIRST or "Game Greeting First",
         "Allow the game's own NPC greeting before reading the line.",
         function() return Audio().GreetingFirst end,
@@ -53,11 +63,15 @@ function SettingsPanel:Setup()
                 GreetingFirst:SetDialogApart()
             end
         end)
-    layout:Requires(gameFirst, function() return Addon:IsAutoplayOn() end,
-        "Turn on automatic narration to use this.")
-    layout:Checkbox(L.OPT_OG_THRALL or "Original Thrall Voice", L.OPT_OG_THRALL_TIP,
+    layout:Requires(gameFirst, function()
+        return (Spoken:IsPartOn("quests") or Spoken:IsPartOn("gossip"))
+            and Addon:IsAutoplayOn()
+    end, "Enable Quests or Gossip and automatic narration to use this.")
+    local originalThrall = layout:Checkbox(L.OPT_OG_THRALL or "Original Thrall Voice", L.OPT_OG_THRALL_TIP,
         function() return Audio().OGThrall end,
         function(on) Audio().OGThrall = on end)
+    layout:Requires(originalThrall, function() return Spoken:IsPartOn("quests") end,
+        "Enable Quests to use this.")
 
     layout:Section("NPC Gossip")
     local frequencies = {
@@ -107,8 +121,13 @@ function SettingsPanel:Setup()
     layout:Button("Test Voice Line", 200, function() Options:RunSelfTest() end)
     layout:Button("Diagnostics", 200, function() Options:PrintDiagnostics() end)
 
-    layout:RequiresAll(function() return Spoken:IsPartOn("quests") end,
-        "Enable Quests to configure this module.", switch)
+    layout:Defaults(function()
+        UI.Confirm("Reset Quests and Gossip preferences? Their profiles are reset; reading history is kept.",
+            "Reset", "Cancel", function()
+                Addon.db:ResetProfile()
+                Refresh()
+            end)
+    end)
     frame:SetScript("OnShow", Refresh)
     page = Spoken:AddSettingsPage(frame, "Quests", 1, layout)
     Refresh()
