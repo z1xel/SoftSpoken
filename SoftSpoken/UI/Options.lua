@@ -735,17 +735,19 @@ end
 
 --- Every AceDB object a profile choice applies to: the player's, then each installed part's
 --- that keeps its settings in profiles (a source's `profiles`).
+-- One installed source may advertise profiles before its AceDB object is ready.
+-- Check for a callable GetProfiles method, rather than just a truthy field.
 function Options:ProfileDBs()
     local dbs, seen = {}, {}
-    if Addon.db and Addon.db.GetProfiles then
+    if Addon.db and type(Addon.db.GetProfiles) == "function" then
         table.insert(dbs, Addon.db)
         seen[Addon.db] = true
     end
     for _, source in Sources:Iterate() do
         if type(source.profiles) == "function" then
             local ok, db = pcall(source.profiles)
-            -- Quests and Gossip share one database, despite having two sources.
-            if ok and type(db) == "table" and db.GetProfiles and not seen[db] then
+            if ok and type(db) == "table" and
+                type(db.GetProfiles) == "function" and not seen[db] then
                 table.insert(dbs, db)
                 seen[db] = true
             end
@@ -754,19 +756,28 @@ function Options:ProfileDBs()
     return dbs
 end
 
+-- AceDB's GetProfiles returns a list, but a partially initialized module
+-- must not prevent the entire 1.12 settings window from opening.
+local function ProfileList(db)
+    if not db or type(db.GetProfiles) ~= "function" then return {} end
+    local ok, result = pcall(db.GetProfiles, db)
+    if not ok or type(result) ~= "table" then return {} end
+    return result
+end
+
 local function Has(db, name)
-    for _, other in ipairs(db:GetProfiles()) do
+    for _, other in ipairs(ProfileList(db)) do
         if other == name then return true end
     end
     return false
 end
 
---- Every profile any of them has, sorted, each once.
+--- Every profile any of the installed databases has, sorted once.
 function Options:ProfileNames()
     local seen, names = {}, {}
     for _, db in ipairs(self:ProfileDBs()) do
-        for _, name in ipairs(db:GetProfiles()) do
-            if not seen[name] then
+        for _, name in ipairs(ProfileList(db)) do
+            if type(name) == "string" and not seen[name] then
                 seen[name] = true
                 table.insert(names, name)
             end
