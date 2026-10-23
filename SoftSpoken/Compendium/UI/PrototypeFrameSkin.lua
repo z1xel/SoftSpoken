@@ -1,11 +1,8 @@
--- VISUAL-MASTER SHELL / PILOT ONLY.
--- This file adapts the APPROVED SSZ_Portrait_Template_Test Frame.lua.
--- All root-frame draw calls, atlas UVs, UI dimensions and texture anchors were
--- retained byte-for-byte except function namespace and production aliases.
--- This pilot reads the user's existing prototype art paths intentionally:
---   Interface\AddOns\SSZ_Portrait_Template_Test\Textures\
--- Do NOT remove the working prototype addon or its textures during this pilot.
--- Production Places/Books content logic remains separate and unchanged.
+-- SoftSpoken's shared Compendium portrait-frame skin for WoW 1.12.
+-- Adapted from the approved SSZ portrait-frame prototype.
+-- All artwork ships with SoftSpoken under Compendium/Textures/Prototype;
+-- no separate prototype addon is required.
+-- This file owns the visual shell; the shared Compendium controller owns behavior.
 SSCPrototypeFrameSkin = SSCPrototypeFrameSkin or {}
 local Skin=SSCPrototypeFrameSkin
 
@@ -158,7 +155,7 @@ function Skin.Apply(self, title)
     self.sszTitle:SetWidth(490)
     self.sszTitle:SetHeight(20)
     self.sszTitle:SetPoint("TOP",self,"TOP",0,-3)
-    self.sszTitle:SetText("Azeroth's Compendium - template test")
+    self.sszTitle:SetText("Azeroth's Compendium")
     self.sszClose = CreateFrame("Button",nil,self,"UIPanelCloseButton")
     self.sszClose:SetWidth(32)
     self.sszClose:SetHeight(32)
@@ -238,10 +235,8 @@ function Skin.Apply(self, title)
         return true
     end
 
-    -- Appearance-only button for now: native normal, hover, and pushed states
-    -- remain functional, but clicking does not resize or compact the window.
-    -- The Button widget handles its pushed texture while the mouse is down;
-    -- no OnClick script is needed for that visual feedback.
+    -- The Compendium controller wires this button to collapse and expand.
+    -- This skin supplies only the native normal, hover, and pushed textures.
     -- WorldMapFrame might be initialized after this addon depending on client
     -- setup; retry briefly until the real texture becomes available.
     if not CopyNativeWorldMapMinimizer() then

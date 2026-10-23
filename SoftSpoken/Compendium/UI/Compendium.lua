@@ -30,7 +30,9 @@ function C.ContinentOf(mapID)
     -- C_Map is optional; Turtle-specific map discovery remains in LoreBridge.
     return KNOWN_CONTINENT[mapID]
 end
-local NAME = "SSZCompendiumWindow"
+local NAME = "SSCCompendiumWindow"
+-- Legacy global lookup remains supported; the actual named frame is Core-owned.
+local LEGACY_WINDOW_NAME = "SSZCompendiumWindow"
 local WIDTH, HEIGHT, VISIBLE_ROWS = 670, 600, 42
 -- Same row metrics as original Spoken: branch 24px, leaf 20px, 14px per depth.
 local BRANCH_ROW, LEAF_ROW, DEPTH_STEP, SCROLL_STEP = 24, 20, 14, 60
@@ -346,7 +348,10 @@ local function PaintTabs()
 end
 local function NewWindow(title,icon)
     local frame=CreateFrame("Frame",NAME,UIParent)
-    -- Phase 1 visual-shell pilot: reuse EXACT approved prototype chrome, while
+    -- Retain the former global reference without creating a second frame.
+    -- The new canonical GetName() and UISpecialFrames entry use NAME.
+    _G[LEGACY_WINDOW_NAME]=frame
+    -- Reuse the approved portrait-frame chrome, while
     -- retaining all real Compendium providers, list/page controllers and audio.
     if SSCPrototypeFrameSkin and SSCPrototypeFrameSkin.Apply then
         SSCPrototypeFrameSkin.Apply(frame,title)
@@ -539,6 +544,8 @@ function C:Refresh()
 end
 
 -- Virtualized list renderer: a fixed pool of 42 rows for the 1.12 client.
+-- Multiple tabs create their own dropdowns; WoW requires unique global names.
+local filterMenuSerial=0
 local List={}
 List.__index=List
 function C.NewList(panel,opts)
@@ -617,7 +624,9 @@ function C.NewList(panel,opts)
     local function ToggleCheck(check)
         return function() check.set(not check.get());Changed() end
     end
-    local menu=CreateFrame("Frame",NAME.."FilterMenu",UIParent,"UIDropDownMenuTemplate")
+    filterMenuSerial=filterMenuSerial+1
+    local menuName=NAME.."FilterMenu"..filterMenuSerial
+    local menu=CreateFrame("Frame",menuName,UIParent,"UIDropDownMenuTemplate")
     list.filterMenu=menu
     if UIDropDownMenu_Initialize then
         UIDropDownMenu_Initialize(menu,function()
