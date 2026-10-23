@@ -110,12 +110,18 @@ end
 
 local function Found(id) return B:IsBookFound(id) end
 -- Like upstream Readables: a book is voiced when ANY page has a recording.
--- Return the first playable page so the Compendium starts where audio exists.
+-- Cache its first playable page only until the next Compendium refresh.
+local voiced={}
 local function FirstVoiced(id)
+    if voiced[id]~=nil then return voiced[id] or nil end
     local book=Books()[id]
     for _,pageId in ipairs(book and book.pages or {}) do
-        if B:HasAudio(pageId) then return pageId end
+        if B:HasAudio(pageId) then
+            voiced[id]=pageId
+            return pageId
+        end
     end
+    voiced[id]=false
 end
 local function Voiced(id) return FirstVoiced(id)~=nil end
 local function OnlyFound() return Settings().compendiumFoundOnly==true end
@@ -499,6 +505,7 @@ local function EquipPlay(pageObject)
 end
 
 function B:RefreshReadablesPlayback()
+    voiced={}
     if page and page.play and page.play.Refresh then page.play:Refresh() end
 end
 local function Build(panelFrame)
@@ -569,6 +576,7 @@ function B:ReadablesLocationChanged()
 end
 function B:RefreshReadables(scrollToSelection)
     if not list then return end
+    voiced={}
     local items=list:Render()
     if scrollToSelection then list:ScrollToSelection(items) end
     ShowEntry()
