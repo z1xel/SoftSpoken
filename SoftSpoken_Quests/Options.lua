@@ -421,48 +421,23 @@ function Options:Initialize()
         -- and in what players tell each other.
         AceConfig:RegisterOptionsTable("SpokenQuests", self.table, { "spokenquests", "spq" })
     end)
-    -- Turtle WoW 1.12 has no modern Settings canvas. Use the existing
-    -- AceConfig/AceGUI window for settings, modules, and profiles.
+    -- Keep AceConfig's existing slash commands, profiles and pack registry.
+    -- The graphical settings are presented by our shared Vanilla page instead
+    -- of constructing a second, independent AceGUI window.
     Debug:Print("Done!", "Options")
-
-    -- Create the option frame
-    ---@type AceGUIFrame|AceGUIWidget
-    RunOptionalStep("AceGUI options frame", function()
-        self.frame = AceGUI:Create("Frame")
-        --AceConfigDialog:SetDefaultSize("VoiceOver", 640, 780) -- Let it be auto-sized
-        AceConfigDialog:Open("SpokenQuests", self.frame)
-        self.frame:SetLayout("Fill")
-        self.frame:Hide()
-
-        -- Enable the frame to be closed with Escape key
-        _G["VoiceOverOptions"] = self.frame.frame
-        tinsert(UISpecialFrames, "VoiceOverOptions")
-    end)
 end
 
---- Turtle WoW 1.12 uses the AceConfig window for quest and gossip settings,
--- profiles, and the sound-pack manager.
+-- All quest and gossip settings use SoftSpoken's shared settings window.
+-- The AceConfig table stays registered for existing /spq commands.
 function Options:OpenSettings()
-    self:OpenConfigWindow()
+    if SettingsPanel and SettingsPanel.Open and SettingsPanel:Open() then return end
+    print("|cFFFF4040Spoken Quests: the shared settings page is not ready.|r")
 end
 
---- Gossip settings share the same AceConfig window on Turtle WoW 1.12.
 function Options:OpenGossipSettings()
-    self:OpenConfigWindow()
+    self:OpenSettings()
 end
 
 function Options:OpenConfigWindow()
-    if not self.frame then
-        print("|cFFFF4040Spoken Quests: the legacy options window is unavailable on this client. " ..
-            "Quest narration and slash commands remain active.|r")
-        return
-    end
-    if self.frame:IsShown() then
-        PlaySound(SOUNDKIT.IG_MAINMENU_CLOSE)
-        self.frame:Hide()
-    else
-        PlaySound(SOUNDKIT.IG_MAINMENU_OPEN)
-        self.frame:Show()
-        AceConfigDialog:Open("SpokenQuests", self.frame)
-    end
+    self:OpenSettings()
 end
