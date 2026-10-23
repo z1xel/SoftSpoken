@@ -26,12 +26,15 @@ local function Build()
     local enabled = layout:Checkbox("Enable Zones", "Allow narrated zone lore to play.",
         function() return Spoken:IsPartOn("zones") end,
         function(on) Spoken:SetPartOn("zones", on) end, Refresh)
+    layout:Status(function() return Spoken:PartStatus("zones") end)
 
     layout:Section("Automatic Narration")
     local autoplay = layout:Checkbox("Narrate Automatically",
         "Narrate supported places while exploring Azeroth.",
         function() return Settings().auto end,
         function(on) Settings().auto = on end, Refresh)
+    layout:Requires(autoplay, function() return Spoken:IsPartOn("zones") end,
+        "Enable Zones to use automatic narration.")
     layout:Indent()
     local subzones = layout:Checkbox("Include Subzones",
         "Narrate supported locations inside their parent zone.",
@@ -47,19 +50,25 @@ local function Build()
     layout:Outdent()
     -- Subzones also influence the one-time starting-area greeting, even if
     -- normal automatic narration is disabled; do not wrongly grey it out.
-    layout:Requires(mode, function() return Settings().auto end,
-        "Turn on automatic narration to use this.")
+    layout:Requires(subzones, function() return Spoken:IsPartOn("zones") end,
+        "Enable Zones to configure narrated subzones.")
+    layout:Requires(mode, function()
+        return Spoken:IsPartOn("zones") and Settings().auto
+    end, "Enable Zones and automatic narration to use this.")
     local combat = layout:Checkbox("Hold During Combat",
         "Delay automatic Zones narration while in combat.",
         function() return Settings().holdCombat end,
         function(on) Settings().holdCombat = on; if R.Recheck then R.Recheck() end end)
-    layout:Requires(combat, function() return Settings().auto end,
-        "Turn on automatic narration to use this.")
+    layout:Requires(combat, function()
+        return Spoken:IsPartOn("zones") and Settings().auto
+    end, "Enable Zones and automatic narration to use this.")
     local greeting = layout:Checkbox("Starting Character Greeting",
         "Narrate a starting-area introduction for a new level-one character.",
         function() return Settings().greeting end,
         function(on) Settings().greeting = on end)
     -- The starter greeting uses its own flag and may play when auto is off.
+    layout:Requires(greeting, function() return Spoken:IsPartOn("zones") end,
+        "Enable Zones to use starting character greetings.")
 
     layout:Section("World Map")
     layout:Checkbox("Show Map Lore Panel",
@@ -73,11 +82,15 @@ local function Build()
             end
         end)
 
-    layout:Note("Zone narration uses installed Zones audio packs. Voice language is not configurable per zone in this version.", nil, 42)
-    -- Keep discovery/heard history untouched: there is no existing Zones
-    -- reset method with an explicit user-facing confirmation contract.
-    layout:RequiresAll(function() return Spoken:IsPartOn("zones") end,
-        "Enable Zones to configure this module.", enabled)
+    -- World Map visibility is a display preference, not automatic audio
+    -- narration. It remains configurable even when narration is switched off.
+    layout:Section("Voice Packs")
+    layout:Badge("Installed Audio", function()
+        return Spoken:PartVoice("zones")
+    end, "Count of valid Zones audio packs currently registered.")
+    layout:Note("Zones reads from installed audio packs independently of the shared Quests/Books voice-language preference.", nil, 42)
+    -- Keep discovery/heard history untouched: this module does not expose a
+    -- reset action with established history-preservation semantics.
     frame:SetScript("OnShow", Refresh)
     optionsPage = Spoken:AddSettingsPage(frame, "Zones", 3, layout)
     Refresh()
