@@ -10,6 +10,7 @@
     <Include file="Options.lua"/>
     <Include file="FuzzySearch.lua"/>
     <Include file="QuestOverlayUI.lua"/>
+    <Include file="UI\QuestLogNativePlay.lua"/>
     <Include file="ReportButton.lua"/>
     <Include file="UI\DialogPlayButton.lua"/>
     <Include file="EasterEggs.lua"/>
