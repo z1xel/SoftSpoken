@@ -1077,6 +1077,11 @@ function Options:Setup()
         panel:Hide()
         self:RefreshNavigation()
         self:SelectLegacyPage(0)
+        -- Native escape handling. The panel has a stable global name, and
+        -- its OnHide hook also clears any open search results or preview.
+        if UISpecialFrames then
+            table.insert(UISpecialFrames, "SpokenOptionsPanel")
+        end
         local close = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
         close:SetPoint("TOPRIGHT", -4, -4)
         close:SetScript("OnClick", function() panel:Hide() end)
