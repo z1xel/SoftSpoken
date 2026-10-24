@@ -1577,7 +1577,21 @@ local function Card(parent)
     end
     -- Still over the card while over its checkbox or its button, which take the pointer from
     -- it: the hover ends when the pointer leaves the card's bounds, not when it reaches a child.
-    local function Inside() return card.IsMouseOver and card:IsMouseOver() end
+    local function Inside()
+        if card.IsMouseOver then return card:IsMouseOver() end
+        -- Vanilla 1.12 lacks Frame:IsMouseOver(). Cursor coordinates are
+        -- screen pixels; frame bounds use scaled UI coordinates.
+        if not (GetCursorPosition and card.GetLeft and card.GetRight and
+            card.GetTop and card.GetBottom) then return false end
+        local left, right, top, bottom =
+            card:GetLeft(), card:GetRight(), card:GetTop(), card:GetBottom()
+        if not (left and right and top and bottom) then return false end
+        local x, y = GetCursorPosition()
+        local scale = card.GetEffectiveScale and card:GetEffectiveScale() or 1
+        if not scale or scale == 0 then scale = 1 end
+        x, y = x / scale, y / scale
+        return x >= left and x <= right and y >= bottom and y <= top
+    end
     local function Leave()
         over = false
         Script(card, "OnUpdate", nil)
@@ -1893,7 +1907,8 @@ function Layout:ModuleList(items)
             if kind then
                 count:SetText((label or "") .. (value and (": " .. tostring(value)) or ""))
             else
-                count:SetText(info.unavailable or reason or "")
+                -- No pack counter is not the same as a missing module.
+                count:SetText(reason and (info.unavailable or reason) or "")
             end
             count:SetAlpha(live and 1 or 0.65)
 
