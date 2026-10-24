@@ -270,6 +270,7 @@ local function Build(canvas)
         local function Missing() if not Sources:Get(key) then return L.REASON_NOT_INSTALLED end end
         table.insert(cards, { icon = part.icon, title = part.label, text = part.text, tooltip = part.tip,
             read = On, write = Write, apply = function() Options:UpdateRows() end, disabled = Missing,
+            unavailable = L.PART_NOT_INSTALLED,
             status = function() return Options:PartVoice(key) end,
             hint = function(on) return on and L.OPT_PART_CLICK_OFF or L.OPT_PART_CLICK_ON end,
             button = L.OPT_PART_SETTINGS, onButton = function() Options:OpenPage(order) end,
