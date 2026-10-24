@@ -647,9 +647,7 @@ local function Build(canvas)
     -- its settings in profiles switch, copy and delete together.
     Options:AddProfiles(layout)
 
-    -- Spoken outside the game: its code, its Discord and its download page.
-
-    -- Every setting back, from the header's Defaults as the game's pages have it.
+    -- Restore the player's existing settings (module preferences are separate).
     layout:StartOver(L.OPT_START_OVER_TITLE, L.OPT_RESET_ALL, function()
         Layout.Confirm(L.OPT_RESET_ALL_CONFIRM, L.OPT_RESET_AND_RELOAD, L.CANCEL, function()
             -- The Unlock switches are on this page but kept with each part's settings, which
@@ -864,22 +862,22 @@ end
 
 --- Open Spoken's page on a tab: Home's is 0, a feature addon's the order it was listed in.
 function Options:OpenPage(order)
+    if not panel then return false end
     if not self.category then
         if not self:SelectLegacyPage(order) then return false end
         panel:Show()
         return true
     end
-    if self.category then
-        -- Each page its own entry: open that one.
-        local category = self.category
+    -- Clients with a Settings canvas use the category registered for this page.
+    local category = order == 0 and self.category or nil
+    if order ~= 0 then
         for _, page in ipairs(self.pages or {}) do
-            if page.order == order then category = page.category end
+            if page.order == order then category = page.category; break end
         end
-        if not category then return false end
-        Layout.OpenCategory(category, L.OPT_OPEN_COMBAT)
-        return true
     end
-    return false
+    if not category then return false end
+    Layout.OpenCategory(category, L.OPT_OPEN_COMBAT)
+    return true
 end
 
 --- Every page search can reach: this one, then the feature addons' in their order.
@@ -1006,9 +1004,8 @@ function Options:SelectLegacyPage(order)
     return true
 end
 
--- The legacy window's height: never shorter than it always was, and tall enough for every
--- row, including a link a feature addon added after the window was built. On the canvas,
--- the scroller's content height instead, for the same late links.
+-- Keep the scroll child tall enough for the active page without growing the
+-- bounded Vanilla window. Modern clients size the canvas content instead.
 local function FitWindow()
     if not panel then return end
     local activeLayout = Options.activePage and Options.activePage.layout or panel.layout
