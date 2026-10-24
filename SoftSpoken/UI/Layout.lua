@@ -1787,6 +1787,147 @@ function Layout:Cards(items)
     return cards
 end
 
+--- Compact module list for Vanilla's 470-unit scroll child. Upstream's
+--- wider settings canvas puts the module's icon, description, pack status,
+--- Settings button and checkbox on one bronze-framed line. This variant uses
+--- the same familiar Blizzard tooltip border and button assets without
+--- imitating the Retail Settings window or requiring modern atlases.
+---
+--- items = { icon, title, text, tooltip, read(), write(on), apply(),
+---           disabled() -> reason, status() -> kind, label, count,
+---           button, onButton(), buttonEnabled() }.
+function Layout:ModuleList(items)
+    self:Columns(nil)
+    local parent = self.parent
+    local rowHeight = 88
+    local inset = 12
+    local iconSize = 38
+    local leftText = inset + iconSize + 12
+    local actionWidth = 96
+    local actionGap = 14
+    local cards = {}
+
+    for _, item in ipairs(items) do
+        -- A distinct local per row is necessary for Lua 5.0 click callbacks.
+        local info = item
+        local card = Card(parent)
+        card.layoutCard = info
+
+        local iconFrame = InputFrame(card)
+        iconFrame:SetWidth(iconSize)
+        iconFrame:SetHeight(iconSize)
+        iconFrame:SetPoint("TOPLEFT", card, "TOPLEFT", inset, -16)
+        local icon = iconFrame:CreateTexture(nil, "ARTWORK")
+        icon:SetPoint("CENTER", iconFrame, "CENTER")
+        icon:SetWidth(iconSize - 6)
+        icon:SetHeight(iconSize - 6)
+        icon:SetTexture(info.icon)
+        icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+
+        local title = card:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+        title:SetPoint("TOPLEFT", card, "TOPLEFT", leftText, -12)
+        title:SetJustifyH("LEFT")
+        title:SetText(info.title)
+
+        local description = card:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+        description:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -5)
+        description:SetJustifyH("LEFT")
+        description:SetJustifyV("TOP")
+        description:SetTextColor(0.8, 0.8, 0.8)
+        description:SetText(info.text or "")
+        description:SetHeight(27)
+
+        local count = card:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+        count:SetPoint("BOTTOMLEFT", card, "BOTTOMLEFT", leftText, 12)
+        count:SetJustifyH("LEFT")
+        count:SetTextColor(0.64, 0.64, 0.64)
+
+        local check = NewCheck(card, 26)
+        check:SetPoint("TOPRIGHT", card, "TOPRIGHT", -inset, -12)
+        Script(check, "OnClick", function(box)
+            if info.disabled and info.disabled() then return end
+            Sound(box:GetChecked() and ON or OFF)
+            info.write(box:GetChecked() and true or false)
+            if info.apply then info.apply() end
+            self:Refresh()
+        end)
+        Tooltip(check, info.title, info.tooltip)
+
+        local button
+        if info.button then
+            button = NewButton(card, info.button)
+            button:SetWidth(actionWidth)
+            button:SetPoint("BOTTOMRIGHT", card, "BOTTOMRIGHT", -inset, 12)
+            Script(button, "OnClick", function()
+                if info.onButton then info.onButton() end
+            end)
+            Tooltip(button, info.title, info.tooltip)
+        end
+
+        local function Toggle()
+            if info.disabled and info.disabled() then return end
+            local value = not info.read()
+            Sound(value and ON or OFF)
+            info.write(value)
+            if info.apply then info.apply() end
+            self:Refresh()
+        end
+        Script(card, "OnClick", Toggle)
+        Tooltip(card, info.title, info.tooltip)
+
+        function card:Update()
+            local reason = info.disabled and info.disabled()
+            local active = info.read() and true or false
+            local live = active and not reason
+            self.layoutReason = reason
+            self.layoutFaceOn, self.layoutFaceOff = live, reason ~= nil
+            self.layoutHint = not reason and info.hint and info.hint(active) or nil
+            check:SetChecked(active)
+            if reason then check:Disable() else check:Enable() end
+            if icon.SetDesaturated then icon:SetDesaturated(not live) end
+            title:SetTextColor(live and GOLD[1] or 0.7,
+                live and GOLD[2] or 0.7, live and GOLD[3] or 0.7)
+
+            local kind, label, value = nil, nil, nil
+            if info.status then kind, label, value = info.status() end
+            if kind then
+                count:SetText((label or "") .. (value and (": " .. tostring(value)) or ""))
+            else
+                count:SetText(reason or "")
+            end
+            count:SetAlpha(live and 1 or 0.65)
+
+            if button then
+                if not info.buttonEnabled or info.buttonEnabled() then
+                    button:Enable()
+                else
+                    button:Disable()
+                end
+            end
+            self:Look()
+        end
+
+        self:Index(card, info.title, info.tooltip)
+        local row = self:AddRow(rowHeight, card,
+            { card }, function(top, x)
+                local width = self:Width()
+                card:SetWidth(width)
+                card:SetHeight(rowHeight - ROW_GAP)
+                title:SetWidth(width - leftText - inset - check:GetWidth() - 6)
+                description:SetWidth(width - leftText - inset - actionWidth - actionGap)
+                count:SetWidth(width - leftText - inset - actionWidth - actionGap)
+                Put(card, parent, x, top)
+            end)
+        row.members = { card }
+        card.check, card.button, card.icon, card.statusText = check, button, icon, count
+        table.insert(cards, card)
+    end
+    Updater(self, function()
+        for _, card in ipairs(cards) do card:Update() end
+    end)
+    return cards
+end
+
 --- The narrator's styles, a card each, side by side: a sketch of the style in a small dark screen
 --- across the top -- the input field's frame, as a module's icon has -- then its name and a line
 --- about it. An item is { value, title, text, tooltip, art(frame) }; `art` draws the sketch,
