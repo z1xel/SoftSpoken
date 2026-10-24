@@ -1856,7 +1856,7 @@ function Layout:ModuleList(items)
         local button
         if info.button then
             button = NewButton(card, info.button)
-            button:SetWidth(actionWidth)
+            FitToLabel(button, actionWidth)
             button:SetPoint("BOTTOMRIGHT", card, "BOTTOMRIGHT", -inset, 12)
             Script(button, "OnClick", function()
                 if info.onButton then info.onButton() end
@@ -1914,8 +1914,10 @@ function Layout:ModuleList(items)
                 card:SetWidth(width)
                 card:SetHeight(rowHeight - ROW_GAP)
                 title:SetWidth(width - leftText - inset - check:GetWidth() - 6)
-                description:SetWidth(width - leftText - inset - actionWidth - actionGap)
-                count:SetWidth(width - leftText - inset - actionWidth - actionGap)
+                local reserved = button and button:GetWidth() or actionWidth
+                local copyWidth = math.max(100, width - leftText - inset - reserved - actionGap)
+                description:SetWidth(copyWidth)
+                count:SetWidth(copyWidth)
                 Put(card, parent, x, top)
             end)
         row.members = { card }
