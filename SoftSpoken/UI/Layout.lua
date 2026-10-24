@@ -1815,7 +1815,7 @@ end
 function Layout:ModuleList(items)
     self:Columns(nil)
     local parent = self.parent
-    local rowHeight = 96
+    local rowHeight = 88
     local inset = 12
     local iconSize = 38
     local leftText = inset + iconSize + 12
@@ -1929,7 +1929,9 @@ function Layout:ModuleList(items)
             { card }, function(top, x)
                 local width = self:Width()
                 card:SetWidth(width)
-                card:SetHeight(rowHeight - ROW_GAP)
+                -- Layout:Reflow inserts the nine-unit gap between rows.
+                -- Keep the frame the row's full height to avoid double gaps.
+                card:SetHeight(rowHeight)
                 title:SetWidth(width - leftText - inset - check:GetWidth() - 6)
                 local reserved = button and button:GetWidth() or actionWidth
                 local copyWidth = math.max(100, width - leftText - inset - reserved - actionGap)
