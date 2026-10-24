@@ -77,6 +77,7 @@ function B:SetupOptions()
         end
         return result
     end, "No compatible Books voice packs installed.")
+    layout:Note("Voice language is selected on Home. An installed pack may not have a recording for every book in that language.", nil, 38)
     layout:Button("Audio Download Address", 220, function()
         B:Print("Books audio: " .. DOWNLOAD)
     end, "Print the existing Books voice-pack download address.")
