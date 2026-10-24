@@ -130,8 +130,16 @@ function SettingsPanel:Build()
     for _, module in DataModules:GetAvailableModules() do
         AddPack(module)
     end
-    layout:Button("Test Voice Line", 200, function() Options:RunSelfTest() end)
-    layout:Button("Diagnostics", 200, function() Options:PrintDiagnostics() end)
+
+    -- These are existing Quests troubleshooting actions. Keep them together,
+    -- separately from the installed-pack inventory and the reading options.
+    layout:Section("Fix a Problem")
+    layout:Columns(2)
+    layout:Button("Test Voice Line", 200, function() Options:RunSelfTest() end,
+        "Play the Quests module's existing audio self-test.")
+    layout:Button("Diagnostics", 200, function() Options:PrintDiagnostics() end,
+        "Print the existing Quests diagnostic report.")
+    layout:Columns(nil)
 
     layout:Defaults(function()
         UI.Confirm("Reset Quests and Gossip preferences? Their profiles are reset; reading history is kept.",
