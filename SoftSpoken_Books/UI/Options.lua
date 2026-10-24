@@ -61,12 +61,21 @@ function B:SetupOptions()
     layout:Note("In the world, the narration follows your page turns. In the Compendium, it plays the whole book.", nil, 40)
 
     layout:Section(S("OPT_SECTION_PACKS", "Voice Packs"))
-    local packNote = layout:Note("", nil, 28)
-    layout:OnRefresh(function()
-        local count = table.getn(B:GetAudioPacks())
-        packNote:SetText(count == 0 and "No compatible Books voice pack installed."
-            or tostring(count) .. " compatible Books voice pack(s) installed.")
-    end)
+    -- This is the same compatible-pack inventory that Books playback reads.
+    -- The pack's format 'version' is not its content version; use installed
+    -- addon metadata for the right-hand column only when it exists.
+    layout:PackInventory(function()
+        local result = {}
+        for _, pack in ipairs(B:GetAudioPacks()) do
+            local name = pack.title or pack.addon
+            local version
+            if pack.addon and GetAddOnMetadata then
+                version = GetAddOnMetadata(pack.addon, "Version")
+            end
+            table.insert(result, {name = name, version = version})
+        end
+        return result
+    end, "No compatible Books voice packs installed.")
     layout:Button("Audio Download Address", 220, function()
         B:Print("Books audio: " .. DOWNLOAD)
     end, "Print the existing Books voice-pack download address.")
