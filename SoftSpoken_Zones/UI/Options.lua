@@ -85,9 +85,10 @@ local function Build()
     -- World Map visibility is a display preference, not automatic audio
     -- narration. It remains configurable even when narration is switched off.
     layout:Section("Voice Packs")
-    layout:Badge("Installed Audio", function()
-        return Spoken:PartVoice("zones")
-    end, "Count of valid Zones audio packs currently registered.")
+    -- Show the actual compatible packs, not just a total. Both this list
+    -- and the Home count use the existing Zones registry validator.
+    layout:PackInventory(function() return R.AudioPackNames() end,
+        "No compatible Zones voice packs installed.")
     layout:Note("Zones reads from installed audio packs independently of the shared Quests/Books voice-language preference.", nil, 42)
     -- Keep discovery/heard history untouched: this module does not expose a
     -- reset action with established history-preservation semantics.
