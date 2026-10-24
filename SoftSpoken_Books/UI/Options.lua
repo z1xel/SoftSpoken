@@ -31,7 +31,7 @@ function B:SetupOptions()
     layout = Layout.New(frame, 25, -16)
     layout:Intro([[Interface\Icons\INV_Misc_Book_09]], "Books")
 
-    local switch = layout:Checkbox("Enable Books", "Allow book and letter narration.",
+    layout:Checkbox("Enable Books", "Allow book and letter narration.",
         function() return B:IsPartOn() end,
         function(on) Spoken:SetPartOn("books", on) end, Refresh)
     layout:Section(S("OPT_SECTION_READING", "When to Read"))
@@ -39,19 +39,25 @@ function B:SetupOptions()
         L.OPT_AUTOPLAY_TIP,
         function() return Settings().autoplay end,
         function(on) Settings().autoplay = on end, Refresh)
+    layout:Requires(autoplay, function() return B:IsPartOn() end,
+        "Enable Books to use automatic reading.")
     layout:Indent()
     local once = layout:Checkbox(S("OPT_READ_ONCE", "Read Only Once"), L.OPT_READ_ONCE_TIP,
         function() return Settings().readOnce end,
         function(on) Settings().readOnce = on end)
     layout:Outdent()
-    layout:Requires(once, function() return Settings().autoplay end,
-        "Turn on automatic reading to use this.")
-    layout:Checkbox(S("OPT_STOP_ON_CLOSE", "Stop When Book Closes"), L.OPT_STOP_ON_CLOSE_TIP,
+    layout:Requires(once, function() return B:IsPartOn() and Settings().autoplay end,
+        "Enable Books and automatic reading to use this.")
+    local stopOnClose = layout:Checkbox(S("OPT_STOP_ON_CLOSE", "Stop When Book Closes"), L.OPT_STOP_ON_CLOSE_TIP,
         function() return Settings().stopOnClose end,
         function(on) Settings().stopOnClose = on end)
-    layout:Checkbox(S("OPT_CLOSE_WHEN_READ", "Close Book When Done Reading"), L.OPT_CLOSE_WHEN_READ_TIP,
+    layout:Requires(stopOnClose, function() return B:IsPartOn() end,
+        "Enable Books to use this.")
+    local closeWhenRead = layout:Checkbox(S("OPT_CLOSE_WHEN_READ", "Close Book When Done Reading"), L.OPT_CLOSE_WHEN_READ_TIP,
         function() return Settings().closeWhenRead end,
         function(on) Settings().closeWhenRead = on end)
+    layout:Requires(closeWhenRead, function() return B:IsPartOn() end,
+        "Enable Books to use this.")
     layout:Note("In the world, the narration follows your page turns. In the Compendium, it plays the whole book.", nil, 40)
 
     layout:Section(S("OPT_SECTION_PACKS", "Voice Packs"))
@@ -86,8 +92,8 @@ function B:SetupOptions()
             end)
     end)
 
-    layout:RequiresAll(function() return B:IsPartOn() end,
-        "Enable Books to configure this module.", switch)
+    -- Reading history, discovery, pack diagnostics and reset remain available
+    -- when Books narration is off; only audio-dependent controls are disabled.
     frame:SetScript("OnShow", Refresh)
     page = Spoken:AddSettingsPage(frame, "Books", 2, layout)
     Refresh()
