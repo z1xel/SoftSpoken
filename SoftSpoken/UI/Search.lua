@@ -37,8 +37,10 @@ end
 function Search:Find(query)
     local words, found = Terms(query), {}
     if table.getn(words) == 0 then return found end
+    -- Layouts maintain their row visibility whenever a setting changes.
+    -- Do not refresh every module on each keystroke; that can invoke module
+    -- callbacks and resize inactive pages while the search box has focus.
     for _, page in ipairs(Options:Pages()) do
-        page.layout:Refresh()
         local pageName = Plain(page.name)
         for _, entry in ipairs(page.layout.entries or {}) do
             local row = entry.frame and entry.frame.layoutRow
@@ -186,6 +188,10 @@ function Search:BuildLegacy(parent)
 end
 
 function Search:Close()
+    self.found = nil
     if self.results then self.results:Hide() end
-    if self.box then self.box:ClearFocus() end
+    if self.box then
+        if self.box:GetText() ~= "" then self.box:SetText("") end
+        self.box:ClearFocus()
+    end
 end
