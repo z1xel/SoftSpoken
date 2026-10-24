@@ -281,13 +281,16 @@ local function Build(canvas)
     else
         layout:ModuleList(cards)
     end
-    -- An addon outside the three that speaks through the player still gets its switch.
+    -- Optional third-party sources keep their existing switches. Bind the
+    -- callbacks through a function scope: 1.12's Lua 5.0 generic-for
+    -- variables must not be captured directly by a deferred UI handler.
+    local function AddOtherSource(key, source)
+        layout:Checkbox(source.title, L.OPT_PART_OTHER_TIP,
+            function() return not Sources:IsTurnedOff(source) end,
+            function(v) Sources:SetTurnedOff(key, not v) end)
+    end
     for key, source in Sources:Iterate() do
-        if not known[key] then
-            layout:Checkbox(source.title, L.OPT_PART_OTHER_TIP,
-                function() return not Sources:IsTurnedOff(source) end,
-                function(v) Sources:SetTurnedOff(key, not v) end)
-        end
+        if not known[key] then AddOtherSource(key, source) end
     end
 
     -- The two narrator styles this 1.12 client actually supports. Both
