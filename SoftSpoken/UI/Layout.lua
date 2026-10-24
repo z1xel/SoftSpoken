@@ -1799,7 +1799,7 @@ end
 function Layout:ModuleList(items)
     self:Columns(nil)
     local parent = self.parent
-    local rowHeight = 88
+    local rowHeight = 96
     local inset = 12
     local iconSize = 38
     local leftText = inset + iconSize + 12
@@ -1893,7 +1893,7 @@ function Layout:ModuleList(items)
             if kind then
                 count:SetText((label or "") .. (value and (": " .. tostring(value)) or ""))
             else
-                count:SetText(reason or "")
+                count:SetText(info.unavailable or reason or "")
             end
             count:SetAlpha(live and 1 or 0.65)
 
