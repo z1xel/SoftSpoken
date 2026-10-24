@@ -34,6 +34,7 @@ function B:SetupOptions()
     layout:Checkbox("Enable Books", "Allow book and letter narration.",
         function() return B:IsPartOn() end,
         function(on) Spoken:SetPartOn("books", on) end, Refresh)
+    layout:Status(function() return Spoken:PartStatus("books") end)
     layout:Section(S("OPT_SECTION_READING", "When to Read"))
     local autoplay = layout:Checkbox(S("OPT_AUTOPLAY", "Read Automatically"),
         L.OPT_AUTOPLAY_TIP,
@@ -90,7 +91,10 @@ function B:SetupOptions()
     layout:Button("Open Books Compendium", 205, function()
         if B.ShowReadables then B:ShowReadables() end
     end)
-    layout:Button("Show Diagnostics", 205, function() B:ShowBooksStatus() end)
+
+    layout:Section("Fix a Problem")
+    layout:Button("Show Diagnostics", 205, function() B:ShowBooksStatus() end,
+        "Print the existing Books data, discovery and audio-pack report.")
 
     layout:Defaults(function()
         Layout.Confirm("Reset Books preferences? Discoveries and reading history are kept.",
