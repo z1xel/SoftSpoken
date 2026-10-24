@@ -256,12 +256,10 @@ local function Build(canvas)
         layout:Custom(Search:Build(host), Search.height, function(width) Search:Fit(width) end)
     end
 
-    -- What Spoken reads, first: it decides which of the pages under this one matter. On the
-    -- settings canvas, a card each, side by side, with what is installed said on the card;
-    -- the legacy window is too narrow for three, and keeps a switch per row.
-    -- A card each, with no box round them: the cards are boxes themselves.
-    layout:Section(L.OPT_PARTS_TITLE, canvas)
-    panel.parts = {}
+    -- The existing four modules, each with an icon, description, voice-pack
+    -- count, Settings button and enable checkbox. Modern Settings keeps its
+    -- cards; Vanilla uses one compact framed row per module instead.
+    layout:Section(L.OPT_PARTS_TITLE, true)
     local known = {}
     local cards = {}
     for _, part in ipairs(PARTS) do
@@ -270,25 +268,18 @@ local function Build(canvas)
         local function On() return Spoken:IsPartOn(key) end
         local function Write(v) Sources:SetTurnedOff(key, not v) end
         local function Missing() if not Sources:Get(key) then return L.REASON_NOT_INSTALLED end end
-        if canvas then
-            -- Under its words, how many of its voice packs it has; along its foot, a button to
-            -- its page, whenever the module is installed: switched off, its page is still there,
-            -- with its own Enable switch for exactly that. Whether it is on, its checkbox and its
-            -- card say.
-            table.insert(cards, { icon = part.icon, title = part.label, text = part.text, tooltip = part.tip,
-                read = On, write = Write, apply = function() Options:UpdateRows() end, disabled = Missing,
-                status = function() return Options:PartVoice(key) end,
-                hint = function(on) return on and L.OPT_PART_CLICK_OFF or L.OPT_PART_CLICK_ON end,
-                button = L.OPT_PART_SETTINGS, onButton = function() Options:OpenPage(order) end,
-                buttonEnabled = function() return Sources:Get(key) ~= nil end })
-        else
-            local row = layout:Checkbox(part.label, part.tip, On, Write, function() Options:UpdateRows() end)
-            row.partKey, row.partLabel = key, part.label
-            table.insert(panel.parts, row)
-            Requires(row, function() return Sources:Get(key) ~= nil end, L.REASON_NOT_INSTALLED)
-        end
+        table.insert(cards, { icon = part.icon, title = part.label, text = part.text, tooltip = part.tip,
+            read = On, write = Write, apply = function() Options:UpdateRows() end, disabled = Missing,
+            status = function() return Options:PartVoice(key) end,
+            hint = function(on) return on and L.OPT_PART_CLICK_OFF or L.OPT_PART_CLICK_ON end,
+            button = L.OPT_PART_SETTINGS, onButton = function() Options:OpenPage(order) end,
+            buttonEnabled = function() return Sources:Get(key) ~= nil end })
     end
-    if canvas then layout:Cards(cards) end
+    if canvas then
+        layout:Cards(cards)
+    else
+        layout:ModuleList(cards)
+    end
     -- An addon outside the three that speaks through the player still gets its switch.
     for key, source in Sources:Iterate() do
         if not known[key] then
@@ -298,35 +289,24 @@ local function Build(canvas)
         end
     end
 
-    -- The choice every other display row depends on, then the two that apply whichever way
-    -- lines are shown. On the canvas the choice is a row of pictures, a section of its own.
+    -- The two narrator styles this 1.12 client actually supports. Both
+    -- use SpokenLayout's existing hand-drawn sketches and tooltip borders;
+    -- no Retail assets or new style settings are involved.
     local styles = Options:Styles()
-    -- Pictures on the canvas, where the three look different enough that a sketch says more
-    -- than a name; a dropdown in the legacy window, which has room for neither.
-    if canvas then
-        layout:Section(L.OPT_PLAYER_STYLE, true)
-        local tiles = {}
-        for _, style in ipairs(styles) do
-            table.insert(tiles, { value = style, title = STYLE_LABELS[style], text = STYLE_TEXTS[style],
-                tooltip = STYLE_TIPS[style], art = SKETCHES[style] })
-        end
-        Options:PreviewButton(layout)
-        layout:Tiles(tiles, Style, function(v) Addon:SetPlayerStyle(v) end,
-            function()
-                PlayerFrame:RefreshConfig(); refreshTranscript()
-                Options:StyleChosen()
-            end,
-            { choose = L.STYLE_CHOOSE })
-        layout:Group(L.OPT_NARRATOR_SETTINGS)
-        layout:Section(L.OPT_SHOW_TITLE)
-    else
-        layout:Group(L.OPT_NARRATOR_SETTINGS)
-        layout:Section(L.OPT_SHOW_TITLE)
-        layout:Dropdown(L.OPT_PLAYER_STYLE, L.OPT_PLAYER_STYLE_TIP, styles, Style,
-            function(v) Addon:SetPlayerStyle(v) end,
-            function() PlayerFrame:RefreshConfig(); refreshTranscript() end,
-            function(v) return STYLE_LABELS[v] or v end)
+    layout:Section(L.OPT_PLAYER_STYLE, true)
+    local tiles = {}
+    for _, style in ipairs(styles) do
+        table.insert(tiles, { value = style, title = STYLE_LABELS[style], text = STYLE_TEXTS[style],
+            tooltip = STYLE_TIPS[style], art = SKETCHES[style] })
     end
+    Options:PreviewButton(layout)
+    layout:Tiles(tiles, Style, function(v) Addon:SetPlayerStyle(v) end,
+        function()
+            PlayerFrame:RefreshConfig(); refreshTranscript()
+            Options:StyleChosen()
+        end, { choose = L.STYLE_CHOOSE })
+    layout:Group(L.OPT_NARRATOR_SETTINGS)
+    layout:Section(L.OPT_SHOW_TITLE)
     -- Vanilla uses the shared page-caption renderer, not upstream's modern
     -- typewriter engine. Offer only controls that really work.
     if Transcript.vanillaCaptions then
@@ -701,10 +681,6 @@ function Options:UpdateRows()
     panel.layout:Refresh()
     if Options.activePage and Options.activePage.layout then
         Options.activePage.layout:Refresh()
-    end
-    for _, row in ipairs(panel.parts or {}) do
-        local installed = Sources:Get(row.partKey) ~= nil
-        row.text:SetText(installed and row.partLabel or format(L.OPT_PART_MISSING, row.partLabel))
     end
     local sample = panel.sampleButton
     if sample then
