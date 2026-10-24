@@ -31,6 +31,8 @@ local legacyNavButtons = {}
 -- Rows, headings and the spacing between them come from UI/Layout.lua, the file every
 -- Spoken addon carries a copy of, so the three panels read alike.
 local Layout = SpokenLayout
+-- Product name stays consistent across locales, unlike descriptive settings text.
+local HOME_TITLE = "SoftSpoken"
 
 -- The ways of showing a line, by the name Addon:PlayerStyle gives each.
 local STYLE_LABELS = {
@@ -192,7 +194,7 @@ local function Build(canvas)
     panel = CreateFrame("Frame", "SpokenOptionsPanel", UIParent)
     -- The family's one entry in the game's settings. This page is its Home; each feature
     -- addon's page is nested under it (Options:AddPage).
-    panel.name = "Spoken"
+    panel.name = HOME_TITLE
     -- On the settings canvas the rows are laid out in a scroller, as the books and zones
     -- panels are: the canvas neither scrolls nor clips, and the contributions rows pushed
     -- this panel past its bottom edge, drawing the minimap section over the game world. The
@@ -235,12 +237,12 @@ local function Build(canvas)
 
     local layout = Layout.New(host, INDENT, -TOP)
     panel.layout = layout
-    layout:Header(L.OPT_HOME_TITLE, L.OPT_HOME_NOTE, nil, [[Interface\AddOns\SoftSpoken\icon.tga]])
+    layout:Header(HOME_TITLE, L.OPT_HOME_NOTE, nil, [[Interface\AddOns\SoftSpoken\icon.tga]], 56)
     -- On the canvas the page is headed as the game's pages are: its name and its Defaults, and
     -- no paragraph under them, as the game's own pages have none.
     if canvas then
         layout:HideHeader()
-        layout:Intro([[Interface\AddOns\SoftSpoken\icon.tga]], L.OPT_HOME_TITLE)
+        layout:Intro([[Interface\AddOns\SoftSpoken\icon.tga]], HOME_TITLE)
     end
     -- Two kinds of row that does nothing right now. One that belongs to another way of
     -- showing lines is hidden, and the page closes up round it: a player who chose subtitles
@@ -1023,7 +1025,7 @@ function Options:Setup()
         -- Spoken's entry in the game's settings, and each feature addon's page an entry nested
         -- under it (Options:RegisterPage).
         FitWindow()
-        self.category = Settings.RegisterCanvasLayoutCategory(panel, "Spoken")
+        self.category = Settings.RegisterCanvasLayoutCategory(panel, HOME_TITLE)
         Settings.RegisterAddOnCategory(self.category)
         table.sort(pendingPages, function(a, b) return a.order < b.order end)
         for _, page in ipairs(pendingPages) do self:RegisterPage(page) end
@@ -1052,7 +1054,7 @@ function Options:Setup()
         -- while the title, search and navigation remain fixed like Blizzard UI.
         local heading = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
         heading:SetPoint("TOPLEFT", panel, "TOPLEFT", 23, -15)
-        heading:SetText(L.OPT_HOME_TITLE or "Spoken")
+        heading:SetText(HOME_TITLE)
         local divider = panel:CreateTexture(nil, "BORDER")
         divider:SetTexture([[Interface\Buttons\WHITE8X8]])
         divider:SetVertexColor(0.75, 0.63, 0.38, 0.65)
