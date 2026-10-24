@@ -22,7 +22,7 @@ local function Terms(value)
 end
 
 local function Plain(value)
-    return " " .. table.concat(Terms(value or ""), " ")
+    return " " .. table.concat(Terms(value), " ")
 end
 
 local function Rank(term, label, section, tooltip, page)
@@ -112,7 +112,7 @@ function Search:ShowResults(query)
             row.text:SetText(result.entry.label .. "  |cff999999" .. where .. "|r")
             row:Enable()
         else
-            row.text:SetText("|cff999999No matching setting|r")
+            row.text:SetText("|cff999999" .. (L.SEARCH_NONE or "No matching setting") .. "|r")
             row:Disable()
         end
         row:Show()
