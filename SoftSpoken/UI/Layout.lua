@@ -1689,8 +1689,10 @@ function Layout:Cards(items)
     local cards = {}
     local hasStatus, hasButton = false, false
     for _, item in ipairs(items) do
+        -- Stable callback scope even on clients using Lua 5.0.
+        local info = item
         local card = Card(parent)
-        card.layoutCard = item
+        card.layoutCard = info
         local frame = InputFrame(card)
         frame:SetWidth(ICON_FRAME)
         frame:SetHeight(ICON_FRAME)
@@ -1699,11 +1701,11 @@ function Layout:Cards(items)
         icon:SetWidth(CARD_ICON)
         icon:SetHeight(CARD_ICON)
         icon:SetPoint("CENTER", frame, "CENTER", 0, 0)
-        icon:SetTexture(item.icon)
+        icon:SetTexture(info.icon)
         icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 
         -- Its name under its icon, as a style's is under its sketch: the full width to fit in.
-        local title, text = Words(card, item, 14)
+        local title, text = Words(card, info, 14)
         title:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 0, -10)
         title:SetPoint("RIGHT", card, "RIGHT", -CARD_PAD, 0)
         text:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -TITLE_GAP)
@@ -1715,15 +1717,15 @@ function Layout:Cards(items)
         check:SetPoint("TOPRIGHT", card, "TOPRIGHT", -CARD_PAD, -CARD_PAD)
         Script(check, "OnClick", function(box)
             Sound(box:GetChecked() and ON or OFF)
-            item.write(box:GetChecked() and true or false)
-            if item.apply then item.apply() end
+            info.write(box:GetChecked() and true or false)
+            if info.apply then info.apply() end
             self:Refresh()
         end)
-        Tooltip(check, item.title, item.tooltip)
+        Tooltip(check, info.title, info.tooltip)
         card.check = check
 
         local status
-        if item.status then
+        if info.status then
             hasStatus = true
             -- A faint line between what the module is and what it has installed, with room either
             -- side, across the card's padded width.
@@ -1740,33 +1742,33 @@ function Layout:Cards(items)
         end
 
         local button
-        if item.button then
+        if info.button then
             hasButton = true
-            button = NewButton(card, item.button)
+            button = NewButton(card, info.button)
             -- The red button's art stops 2 short of its frame on each side: drawn 2 wider, its
             -- edges line up with the icon, the words and the bar above it.
             button:SetPoint("BOTTOMLEFT", card, "BOTTOMLEFT", CARD_PAD - 2, CARD_PAD)
             button:SetPoint("BOTTOMRIGHT", card, "BOTTOMRIGHT", -(CARD_PAD - 2), CARD_PAD)
-            Script(button, "OnClick", function() if item.onButton then item.onButton() end end)
+            Script(button, "OnClick", function() if info.onButton then info.onButton() end end)
             card.button = button
         end
 
         Script(card, "OnClick", function()
-            if item.disabled and item.disabled() then return end
-            Sound(item.read() and OFF or ON)
-            item.write(not item.read())
-            if item.apply then item.apply() end
+            if info.disabled and info.disabled() then return end
+            Sound(info.read() and OFF or ON)
+            info.write(not info.read())
+            if info.apply then info.apply() end
             self:Refresh()
         end)
-        Tooltip(card, item.title, item.tooltip)
+        Tooltip(card, info.title, info.tooltip)
 
         function card:Update()
-            local reason = item.disabled and item.disabled()
-            local on = item.read() and true or false
+            local reason = info.disabled and info.disabled()
+            local on = info.read() and true or false
             local live = on and not reason
             card.layoutReason, check.layoutReason = reason, reason
             card.layoutFaceOn, card.layoutFaceOff = live, reason ~= nil
-            card.layoutHint = (not reason) and item.hint and item.hint(on) or nil
+            card.layoutHint = (not reason) and info.hint and info.hint(on) or nil
             check:SetChecked(live)
             if reason then check:Disable() else check:Enable() end
             if icon.SetDesaturated then icon:SetDesaturated(not live) end
@@ -1776,17 +1778,17 @@ function Layout:Cards(items)
                 title:SetTextColor(0.7, 0.7, 0.7)
             end
             if status then
-                status:Set(item.status())
+                status:Set(info.status())
                 status:SetGreyed(not live)
             end
             if button then
-                local usable = not item.buttonEnabled or item.buttonEnabled()
+                local usable = not info.buttonEnabled or info.buttonEnabled()
                 if usable then button:Enable() else button:Disable() end
             end
             card.layoutChecked = live
             card:Look()
         end
-        self:Index(card, item.title, item.tooltip)
+        self:Index(card, info.title, info.tooltip)
         table.insert(cards, card)
     end
     Updater(self, function() for _, card in ipairs(cards) do card:Update() end end)
