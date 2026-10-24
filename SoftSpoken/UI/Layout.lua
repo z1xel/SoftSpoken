@@ -524,17 +524,18 @@ end
 
 --- The top of a page: its icon, its name, and one sentence saying what the page is for.
 --- Neither is a row: the panel tests measure rows and sections, and a title is neither.
-function Layout:Header(title, description, width, icon)
+function Layout:Header(title, description, width, icon, iconSize)
     local parent, left = self.parent, self.left
+    local size = icon and (iconSize or 40) or 0
     local texture
     if icon then
         texture = parent:CreateTexture(nil, "ARTWORK")
-        texture:SetWidth(40)
-        texture:SetHeight(40)
+        texture:SetWidth(size)
+        texture:SetHeight(size)
         texture:SetTexture(icon)
         self.icon = texture
     end
-    local textX = icon and 40 + 12 or 0
+    local textX = icon and size + 12 or 0
     local fs = parent:CreateFontString(nil, "ARTWORK", Font("GameFontHighlightHuge", "GameFontHighlightLarge"))
     fs:SetJustifyH("LEFT")
     fs:SetText(title)
@@ -552,7 +553,7 @@ function Layout:Header(title, description, width, icon)
         line:SetText(description)
     end
     local height = 26 + (description and 32 or 0)
-    if icon and height < 40 then height = 40 end
+    if icon and height < size then height = size end
     local layout = self
     local regions = { fs }
     if texture then table.insert(regions, texture) end
