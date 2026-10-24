@@ -99,24 +99,16 @@ end
 -- Presentation
 --------------------------------------------------------------------------------
 
--- The creature to draw, or nil for the book. The book for Items, GameObjects, players,
--- a missing GUID, and 2.4.3, which cannot show an arbitrary creature -- what
--- ShouldShowBookFor used to decide inside the frame, decided here instead and handed
--- over as a fallback.
+-- Creature portrait fallback for Turtle 1.12. When an optional extension
+-- provides GUIDs, use its creature ID; otherwise retain the Vanilla "npc"
+-- model fallback. Objects and items intentionally have no creature portrait.
 local function CreatureFor(soundData)
-    if soundData.unitIsObjectOrItem or Version.IsLegacyBurningCrusade then
-        return nil
-    end
+    if soundData.unitIsObjectOrItem then return nil end
     local guid = soundData.unitGUID
     if guid and Utils.GetGUIDType and Utils.GetIDFromGUID then
         return Utils:GetCreatureIDFromGUID(guid)
     end
-    -- 1.12 has no GUIDs; the pooled model shows the "npc" unit and this is only what
-    -- tells one clip's portrait from the next.
-    if Version.IsLegacyVanilla then
-        return soundData.questID or soundData.name
-    end
-    return nil
+    return soundData.questID or soundData.name
 end
 
 -- Give ClassicAPI a real creature ID even for quest-log replay away from an NPC.
@@ -191,7 +183,7 @@ local function PortraitFor(soundData)
     }
     -- Rendering is strictly optional and cannot block an audio clip.
     -- Emergency switch: /run SoftSpokenClassicPortraits=false
-    if Version.IsLegacyVanilla and rawget(_G, "SoftSpokenClassicPortraits") ~= false then
+    if rawget(_G, "SoftSpokenClassicPortraits") ~= false then
         local ok, creatureID, displayID, fromQuestDatabase = pcall(ClassicCreatureFor, soundData)
         if ok and creatureID then
             return {

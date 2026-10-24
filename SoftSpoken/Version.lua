@@ -18,3 +18,7 @@ end
 function Version:IsRetailOrAboveLegacyVersion(version)
     return self.Interface >= version or nil
 end
+
+-- Core is the authoritative version service for all SoftSpoken modules.
+-- This describes the target 1.12 runtime; module-specific addons reuse it.
+Spoken.Version = Version
