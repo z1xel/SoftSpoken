@@ -12,6 +12,16 @@ Options = {}
 local INDENT = 25
 local TOP = 16    -- where the page's title starts
 local BOTTOM = 16 -- the margin under the last row
+
+-- One coordinate system for the shared Vanilla window. Keep the search,
+-- navigation, scroll viewport and module content aligned when polishing it.
+local LEGACY_WIDTH = 550
+local LEGACY_CONTENT_WIDTH = 470
+local LEGACY_NAV_WIDTH = 514
+local LEGACY_NAV_TOP = -77
+local LEGACY_SCROLL_TOP = -116
+local LEGACY_RULE_TOP = -110
+
 local panel
 local scroller
 local legacyScrollChild
@@ -199,10 +209,10 @@ local function Build(canvas)
         -- scroll template, not the modern custom Layout.Scroll implementation.
         scroller = CreateFrame("ScrollFrame", "SpokenOptionsLegacyScroll", panel, "UIPanelScrollFrameTemplate")
         scroller:EnableMouseWheel(true)
-        scroller:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -116)
+        scroller:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, LEGACY_SCROLL_TOP)
         scroller:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -42, 20)
         host = CreateFrame("Frame", nil, scroller)
-        host:SetWidth(470)
+        host:SetWidth(LEGACY_CONTENT_WIDTH)
         host:SetHeight(1)
         scroller:SetScrollChild(host)
         legacyScrollChild = host
@@ -935,7 +945,7 @@ function Options:RefreshNavigation()
     -- Four pages fit the native 550-pixel window: Home, Quests, Books, Zones.
     -- A disabled UIPanelButtonTemplate looks unavailable, not selected. Keep
     -- every button usable and distinguish the active page with a gold rule.
-    local width = math.floor(514 / table.getn(pages))
+    local width = math.floor(LEGACY_NAV_WIDTH / table.getn(pages))
     local activeOrder = self.activePage and self.activePage.order or 0
     for index, entry in ipairs(pages) do
         local button = legacyNavButtons[index]
@@ -953,7 +963,7 @@ function Options:RefreshNavigation()
         end
         button:ClearAllPoints()
         button:SetWidth(width - 4)
-        button:SetPoint("TOPLEFT", panel, "TOPLEFT", 18 + (index - 1) * width, -77)
+        button:SetPoint("TOPLEFT", panel, "TOPLEFT", 18 + (index - 1) * width, LEGACY_NAV_TOP)
         button:SetText(entry.order == 0 and "Home" or entry.name)
         local order = entry.order
         button:SetScript("OnClick", function()
@@ -993,7 +1003,7 @@ function Options:SelectLegacyPage(order)
     if Search and Search.Close then Search:Close() end
     -- All pages share the same scrollbar; no second window or nested scrollbar.
     child:SetParent(scroller)
-    child:SetWidth(470)
+    child:SetWidth(LEGACY_CONTENT_WIDTH)
     scroller:SetScrollChild(child)
     self.activePage = chosen
     child:Show()
@@ -1043,7 +1053,7 @@ function Options:Setup()
         -- rows, which vary by client, rather than a fixed height the rows can outgrow.
         panel.isWindow = true
         local screenHeight = (UIParent and UIParent.GetHeight and UIParent:GetHeight()) or 768
-        panel:SetSize(550, math.min(620, math.max(300, screenHeight - 80)))
+        panel:SetSize(LEGACY_WIDTH, math.min(620, math.max(300, screenHeight - 80)))
         panel:SetPoint("CENTER")
         panel:SetMovable(true)
         panel:EnableMouse(true)
@@ -1067,8 +1077,8 @@ function Options:Setup()
         divider:SetTexture([[Interface\Buttons\WHITE8X8]])
         divider:SetVertexColor(0.75, 0.63, 0.38, 0.65)
         divider:SetHeight(1)
-        divider:SetPoint("TOPLEFT", panel, "TOPLEFT", 22, -110)
-        divider:SetPoint("TOPRIGHT", panel, "TOPRIGHT", -22, -110)
+        divider:SetPoint("TOPLEFT", panel, "TOPLEFT", 22, LEGACY_RULE_TOP)
+        divider:SetPoint("TOPRIGHT", panel, "TOPRIGHT", -22, LEGACY_RULE_TOP)
         panel:RegisterForDrag("LeftButton")
         panel:SetScript("OnDragStart", function() panel:StartMoving() end)
         panel:SetScript("OnDragStop", function() panel:StopMovingOrSizing() end)
@@ -1108,7 +1118,7 @@ function Options:AddPage(frame, name, order, layout, pageScroller)
         end
     else
         -- A Vanilla page is a scroll child, not a separate settings window.
-        frame:SetWidth(470)
+        frame:SetWidth(LEGACY_CONTENT_WIDTH)
         frame:Hide()
         local priorResize = layout.onResize
         layout.onResize = function(height)
