@@ -1943,6 +1943,9 @@ function Layout:Tiles(items, read, write, apply, labels)
     local parent = self.parent
     local tiles = {}
     for _, item in ipairs(items) do
+        -- Lua 5.0 does not preserve generic-for variables in deferred handlers.
+        -- Capture the selected style in a fresh local for each tile.
+        local choice = item
         local tile = Card(parent)
         tile.layoutTile = item
         local screen = InputFrame(tile)
@@ -1963,7 +1966,7 @@ function Layout:Tiles(items, read, write, apply, labels)
 
         local function Choose()
             Sound(CLICK)
-            write(item.value)
+            write(choice.value)
             if apply then apply() end
             self:Refresh()
         end
@@ -1979,7 +1982,7 @@ function Layout:Tiles(items, read, write, apply, labels)
         tile.check = check
         Tooltip(tile, item.title, item.tooltip)
         function tile:Update()
-            local chosen = read() == item.value
+            local chosen = read() == choice.value
             tile.layoutFaceOn = chosen
             tile.layoutHint = (not chosen) and labels.choose or nil
             check:SetChecked(chosen)
