@@ -935,24 +935,39 @@ function Options:RefreshNavigation()
         table.insert(pages, page)
     end
     -- Four pages fit the native 550-pixel window: Home, Quests, Books, Zones.
+    -- A disabled UIPanelButtonTemplate looks unavailable, not selected. Keep
+    -- every button usable and distinguish the active page with a gold rule.
+    local width = math.floor(514 / table.getn(pages))
+    local activeOrder = self.activePage and self.activePage.order or 0
     for index, entry in ipairs(pages) do
         local button = legacyNavButtons[index]
         if not button then
             button = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
             button:SetHeight(24)
+            local rule = button:CreateTexture(nil, "OVERLAY")
+            rule:SetTexture([[Interface\Buttons\WHITE8X8]])
+            rule:SetVertexColor(1, 0.82, 0)
+            rule:SetHeight(2)
+            rule:SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 10, 3)
+            rule:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -10, 3)
+            button.selectedRule = rule
             legacyNavButtons[index] = button
         end
         button:ClearAllPoints()
-        local width = math.floor(514 / table.getn(pages))
         button:SetWidth(width - 4)
         button:SetPoint("TOPLEFT", panel, "TOPLEFT", 18 + (index - 1) * width, -77)
         button:SetText(entry.order == 0 and "Home" or entry.name)
         local order = entry.order
-        button:SetScript("OnClick", function() Options:SelectLegacyPage(order) end)
-        if (self.activePage and self.activePage.order or 0) == order then
-            button:Disable()
+        button:SetScript("OnClick", function()
+            if (Options.activePage and Options.activePage.order or 0) ~= order then
+                Options:SelectLegacyPage(order)
+            end
+        end)
+        button:Enable()
+        if order == activeOrder then
+            button.selectedRule:Show()
         else
-            button:Enable()
+            button.selectedRule:Hide()
         end
         button:Show()
     end
@@ -1046,6 +1061,17 @@ function Options:Setup()
                 insets = { left = 10, right = 10, top = 10, bottom = 10 },
             })
         end
+        -- Permanent window furniture: the current module heading scrolls,
+        -- while the title, search and navigation remain fixed like Blizzard UI.
+        local heading = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+        heading:SetPoint("TOPLEFT", panel, "TOPLEFT", 23, -15)
+        heading:SetText(L.OPT_HOME_TITLE or "Spoken")
+        local divider = panel:CreateTexture(nil, "BORDER")
+        divider:SetTexture([[Interface\Buttons\WHITE8X8]])
+        divider:SetVertexColor(0.75, 0.63, 0.38, 0.65)
+        divider:SetHeight(1)
+        divider:SetPoint("TOPLEFT", panel, "TOPLEFT", 22, -110)
+        divider:SetPoint("TOPRIGHT", panel, "TOPRIGHT", -22, -110)
         panel:RegisterForDrag("LeftButton")
         panel:SetScript("OnDragStart", function() panel:StartMoving() end)
         panel:SetScript("OnDragStop", function() panel:StopMovingOrSizing() end)
