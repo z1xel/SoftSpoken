@@ -2177,6 +2177,93 @@ function Layout:Download(label, read, buttonLabel, onClick, tooltip)
     return field
 end
 
+--- A read-only, dynamically sized list of installed audio packs. The
+--- module supplies supported packs from its existing registry; this widget
+--- never loads packs, changes playback, or guesses missing versions. A live
+--- inventory avoids hardcoding rows before optional packs finish loading.
+--- Each entry is a name string or { name = ..., version = ... }.
+function Layout:PackInventory(read, emptyText)
+    self:Columns(nil)
+    local parent = self.parent
+    local holder = CreateFrame("Frame", nil, parent)
+    local inset, lineHeight = 9, 22
+    local labels, values = {}, {}
+    local visible, height = 1, lineHeight + inset * 2
+
+    if holder.SetBackdrop then
+        holder:SetBackdrop({
+            bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
+            edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
+            tile = true, tileSize = 16, edgeSize = 12,
+            insets = {left = 4, right = 4, top = 4, bottom = 4},
+        })
+        holder:SetBackdropColor(0.05, 0.05, 0.05, 0.65)
+        holder:SetBackdropBorderColor(0.45, 0.45, 0.45, 1)
+    end
+
+    local function Line(index)
+        if labels[index] then return labels[index], values[index] end
+        local label = holder:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+        label:SetJustifyH("LEFT")
+        if label.SetWordWrap then label:SetWordWrap(false) end
+        local detail = holder:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+        detail:SetJustifyH("RIGHT")
+        if detail.SetWordWrap then detail:SetWordWrap(false) end
+        detail:SetTextColor(0.7, 0.7, 0.7)
+        labels[index], values[index] = label, detail
+        return label, detail
+    end
+
+    local function Refresh()
+        local packs = read() or {}
+        local count = type(packs) == "table" and Count(packs) or 0
+        visible = math.max(1, count)
+        height = inset * 2 + visible * lineHeight
+        for index = 1, visible do
+            local label, detail = Line(index)
+            if count == 0 then
+                label:SetText(emptyText or "No compatible voice packs installed.")
+                label:SetTextColor(0.65, 0.65, 0.65)
+                detail:SetText("")
+            else
+                local pack = packs[index]
+                local name = type(pack) == "table" and
+                    (pack.name or pack.title or pack.addon) or pack
+                local version = type(pack) == "table" and pack.version or nil
+                label:SetText(tostring(name or "Unknown pack"))
+                label:SetTextColor(GOLD[1], GOLD[2], GOLD[3])
+                detail:SetText(version and tostring(version) or "")
+            end
+            label:Show()
+            detail:Show()
+        end
+        for index = visible + 1, Count(labels) do
+            labels[index]:Hide()
+            values[index]:Hide()
+        end
+    end
+    Updater(self, Refresh)
+    local row = self:AddRow(height, holder, { holder }, function(top, x)
+        local width = self:Width()
+        holder:SetWidth(width)
+        holder:SetHeight(height)
+        Put(holder, parent, x, top)
+        local labelWidth = math.floor((width - inset * 2) * 0.72)
+        for index = 1, visible do
+            local label, detail = labels[index], values[index]
+            label:ClearAllPoints()
+            label:SetPoint("TOPLEFT", holder, "TOPLEFT", inset, -inset - (index - 1) * lineHeight - 3)
+            label:SetWidth(labelWidth)
+            detail:ClearAllPoints()
+            detail:SetPoint("TOPRIGHT", holder, "TOPRIGHT", -inset, -inset - (index - 1) * lineHeight - 3)
+            detail:SetWidth(width - inset * 2 - labelWidth)
+        end
+    end)
+    row.measure = function() return height end
+    self:Index(holder, "Installed Voice Packs", emptyText)
+    return holder
+end
+
 --- A key for an action, set right there: its name on the left of the row and its key on the
 --- dropdown's face, as Badge has them. A click on the row or the field listens for the next key
 --- -- `labels.press` saying so -- and hands it to `set`, with its modifiers, as the game names
