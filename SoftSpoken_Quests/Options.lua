@@ -455,9 +455,10 @@ function Options:OpenSettings()
     self:OpenConfigWindow()
 end
 
---- Gossip settings share the same AceConfig window on Turtle WoW 1.12.
+--- Gossip shares the Quests page, with its own enable toggle and
+-- frequency control. Use the same fallback as Quests if that page fails.
 function Options:OpenGossipSettings()
-    self:OpenConfigWindow()
+    self:OpenSettings()
 end
 
 function Options:OpenConfigWindow()
