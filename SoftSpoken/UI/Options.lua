@@ -675,6 +675,9 @@ local function Build(canvas)
         panel:HookScript("OnShow", function() Options:UpdateRows() end)
         -- The sample is for placing the subtitle while the settings are open, not after.
         panel:HookScript("OnHide", function()
+            -- Close search regardless of whether the player used the X, Escape,
+            -- the minimap button, or a module's own entry point.
+            if Search and Search.Close then Search:Close() end
             if Subtitle and Subtitle:IsShowingSample() then Subtitle:ShowSample(false) end
             if Options.previewing or Addon.previewStyle then Options:SetPreviewing(false) end
         end)
