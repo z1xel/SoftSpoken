@@ -144,6 +144,17 @@ function Search:Build(parent)
     box:SetHeight(20)
     box:SetPoint("LEFT", caption, "RIGHT", 12, 0)
     box:SetAutoFocus(false)
+    -- A small native Blizzard close button acts as Clear Search. It belongs
+    -- to the search row, not the settings window's close action.
+    local clear = CreateFrame("Button", nil, row, "UIPanelCloseButton")
+    clear:SetWidth(18)
+    clear:SetHeight(18)
+    clear:SetPoint("LEFT", box, "RIGHT", 4, 0)
+    clear:SetScript("OnClick", function()
+        box:SetText("")
+        box:SetFocus()
+    end)
+    clear:Hide()
     local hint = box:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
     hint:SetPoint("LEFT", box, "LEFT", 6, 0)
     hint:SetText(L.SEARCH_HINT or "Search settings")
@@ -167,7 +178,13 @@ function Search:Build(parent)
     self.box, self.results, self.rows, self.row = box, results, {}, row
     box:SetScript("OnTextChanged", function()
         local value = box:GetText() or ""
-        if value == "" then hint:Show() else hint:Hide() end
+        if value == "" then
+            hint:Show()
+            clear:Hide()
+        else
+            hint:Hide()
+            clear:Show()
+        end
         Search:ShowResults(value)
     end)
     box:SetScript("OnEnterPressed", function()
