@@ -12,10 +12,21 @@ Options = {}
 local INDENT = 25
 local TOP = 16    -- where the page's title starts
 local BOTTOM = 16 -- the margin under the last row
+
+-- One coordinate system for the shared Vanilla window. Keep the search,
+-- navigation, scroll viewport and module content aligned when polishing it.
+local LEGACY_WIDTH = 550
+local LEGACY_CONTENT_WIDTH = 470
+local LEGACY_NAV_WIDTH = 514
+local LEGACY_NAV_TOP = -77
+local LEGACY_SCROLL_TOP = -116
+local LEGACY_RULE_TOP = -110
+
 local panel
 local scroller
 local legacyScrollChild
 local pendingLinks = {}
+local legacyNavButtons = {}
 
 -- Rows, headings and the spacing between them come from UI/Layout.lua, the file every
 -- Spoken addon carries a copy of, so the three panels read alike.
@@ -46,6 +57,8 @@ local BINDINGS = {
 local PARTS = {
     { key = "quests", label = L.OPT_PART_QUESTS, text = L.OPT_PART_QUESTS_TEXT, tip = L.OPT_PART_QUESTS_TIP,
         icon = [[Interface\Icons\INV_Scroll_03]], order = 1 },
+    { key = "gossip", label = L.OPT_PART_GOSSIP, text = L.OPT_PART_GOSSIP_TEXT, tip = L.OPT_PART_GOSSIP_TIP,
+        icon = [[Interface\Icons\INV_Misc_Note_05]], order = 1 },
     { key = "books", label = L.OPT_PART_BOOKS, text = L.OPT_PART_BOOKS_TEXT, tip = L.OPT_PART_BOOKS_TIP,
         icon = [[Interface\Icons\INV_Misc_Book_09]], order = 2 },
     { key = "zones", label = L.OPT_PART_ZONES, text = L.OPT_PART_ZONES_TEXT, tip = L.OPT_PART_ZONES_TIP,
@@ -196,10 +209,10 @@ local function Build(canvas)
         -- scroll template, not the modern custom Layout.Scroll implementation.
         scroller = CreateFrame("ScrollFrame", "SpokenOptionsLegacyScroll", panel, "UIPanelScrollFrameTemplate")
         scroller:EnableMouseWheel(true)
-        scroller:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -34)
+        scroller:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, LEGACY_SCROLL_TOP)
         scroller:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -42, 20)
         host = CreateFrame("Frame", nil, scroller)
-        host:SetWidth(470)
+        host:SetWidth(LEGACY_CONTENT_WIDTH)
         host:SetHeight(1)
         scroller:SetScrollChild(host)
         legacyScrollChild = host
@@ -243,12 +256,10 @@ local function Build(canvas)
         layout:Custom(Search:Build(host), Search.height, function(width) Search:Fit(width) end)
     end
 
-    -- What Spoken reads, first: it decides which of the pages under this one matter. On the
-    -- settings canvas, a card each, side by side, with what is installed said on the card;
-    -- the legacy window is too narrow for three, and keeps a switch per row.
-    -- A card each, with no box round them: the cards are boxes themselves.
-    layout:Section(L.OPT_PARTS_TITLE, canvas)
-    panel.parts = {}
+    -- The existing four modules, each with an icon, description, voice-pack
+    -- count, Settings button and enable checkbox. Modern Settings keeps its
+    -- cards; Vanilla uses one compact framed row per module instead.
+    layout:Section(L.OPT_PARTS_TITLE, true)
     local known = {}
     local cards = {}
     for _, part in ipairs(PARTS) do
@@ -257,25 +268,19 @@ local function Build(canvas)
         local function On() return Spoken:IsPartOn(key) end
         local function Write(v) Sources:SetTurnedOff(key, not v) end
         local function Missing() if not Sources:Get(key) then return L.REASON_NOT_INSTALLED end end
-        if canvas then
-            -- Under its words, how many of its voice packs it has; along its foot, a button to
-            -- its page, whenever the module is installed: switched off, its page is still there,
-            -- with its own Enable switch for exactly that. Whether it is on, its checkbox and its
-            -- card say.
-            table.insert(cards, { icon = part.icon, title = part.label, text = part.text, tooltip = part.tip,
-                read = On, write = Write, apply = function() Options:UpdateRows() end, disabled = Missing,
-                status = function() return Options:PartVoice(key) end,
-                hint = function(on) return on and L.OPT_PART_CLICK_OFF or L.OPT_PART_CLICK_ON end,
-                button = L.OPT_PART_SETTINGS, onButton = function() Options:OpenPage(order) end,
-                buttonEnabled = function() return Sources:Get(key) ~= nil end })
-        else
-            local row = layout:Checkbox(part.label, part.tip, On, Write, function() Options:UpdateRows() end)
-            row.partKey, row.partLabel = key, part.label
-            table.insert(panel.parts, row)
-            Requires(row, function() return Sources:Get(key) ~= nil end, L.REASON_NOT_INSTALLED)
-        end
+        table.insert(cards, { icon = part.icon, title = part.label, text = part.text, tooltip = part.tip,
+            read = On, write = Write, apply = function() Options:UpdateRows() end, disabled = Missing,
+            unavailable = L.PART_NOT_INSTALLED,
+            status = function() return Options:PartVoice(key) end,
+            hint = function(on) return on and L.OPT_PART_CLICK_OFF or L.OPT_PART_CLICK_ON end,
+            button = L.OPT_PART_SETTINGS, onButton = function() Options:OpenPage(order) end,
+            buttonEnabled = function() return Sources:Get(key) ~= nil end })
     end
-    if canvas then layout:Cards(cards) end
+    if canvas then
+        layout:Cards(cards)
+    else
+        layout:ModuleList(cards)
+    end
     -- An addon outside the three that speaks through the player still gets its switch.
     for key, source in Sources:Iterate() do
         if not known[key] then
@@ -285,35 +290,24 @@ local function Build(canvas)
         end
     end
 
-    -- The choice every other display row depends on, then the two that apply whichever way
-    -- lines are shown. On the canvas the choice is a row of pictures, a section of its own.
+    -- The two narrator styles this 1.12 client actually supports. Both
+    -- use SpokenLayout's existing hand-drawn sketches and tooltip borders;
+    -- no Retail assets or new style settings are involved.
     local styles = Options:Styles()
-    -- Pictures on the canvas, where the three look different enough that a sketch says more
-    -- than a name; a dropdown in the legacy window, which has room for neither.
-    if canvas then
-        layout:Section(L.OPT_PLAYER_STYLE, true)
-        local tiles = {}
-        for _, style in ipairs(styles) do
-            table.insert(tiles, { value = style, title = STYLE_LABELS[style], text = STYLE_TEXTS[style],
-                tooltip = STYLE_TIPS[style], art = SKETCHES[style] })
-        end
-        Options:PreviewButton(layout)
-        layout:Tiles(tiles, Style, function(v) Addon:SetPlayerStyle(v) end,
-            function()
-                PlayerFrame:RefreshConfig(); refreshTranscript()
-                Options:StyleChosen()
-            end,
-            { choose = L.STYLE_CHOOSE })
-        layout:Group(L.OPT_NARRATOR_SETTINGS)
-        layout:Section(L.OPT_SHOW_TITLE)
-    else
-        layout:Group(L.OPT_NARRATOR_SETTINGS)
-        layout:Section(L.OPT_SHOW_TITLE)
-        layout:Dropdown(L.OPT_PLAYER_STYLE, L.OPT_PLAYER_STYLE_TIP, styles, Style,
-            function(v) Addon:SetPlayerStyle(v) end,
-            function() PlayerFrame:RefreshConfig(); refreshTranscript() end,
-            function(v) return STYLE_LABELS[v] or v end)
+    layout:Section(L.OPT_PLAYER_STYLE, true)
+    local tiles = {}
+    for _, style in ipairs(styles) do
+        table.insert(tiles, { value = style, title = STYLE_LABELS[style], text = STYLE_TEXTS[style],
+            tooltip = STYLE_TIPS[style], art = SKETCHES[style] })
     end
+    Options:PreviewButton(layout)
+    layout:Tiles(tiles, Style, function(v) Addon:SetPlayerStyle(v) end,
+        function()
+            PlayerFrame:RefreshConfig(); refreshTranscript()
+            Options:StyleChosen()
+        end, { choose = L.STYLE_CHOOSE })
+    layout:Group(L.OPT_NARRATOR_SETTINGS)
+    layout:Section(L.OPT_SHOW_TITLE)
     -- Vanilla uses the shared page-caption renderer, not upstream's modern
     -- typewriter engine. Offer only controls that really work.
     if Transcript.vanillaCaptions then
@@ -564,6 +558,27 @@ local function Build(canvas)
     layout:Checkbox(L.OPT_MINIMAP_LOCK, L.OPT_MINIMAP_LOCK_TIP,
         function() return mm().lock end,
         function(v) mm().lock = v end, function() Minimap:Refresh() end)
+    -- The minimap already dispatches these saved click mappings.
+    local clicks = {
+        { key = "LeftButton", label = "Left Click" },
+        { key = "MiddleButton", label = "Middle Click" },
+        { key = "RightButton", label = "Right Click" },
+    }
+    -- These commands already exist in the minimap dispatcher. Compendium
+    -- now resolves to the shared SSCCompendium as well as legacy names.
+    local commands = { "Settings", "PlayPause", "Stop", "Compendium", "Menu" }
+    local commandLabels = {
+        Settings = "Open Settings", PlayPause = "Play / Pause",
+        Stop = "Stop Reading", Compendium = "Open Compendium",
+        Menu = "Open Menu",
+    }
+    for _, entry in ipairs(clicks) do
+        local mouseButton, label = entry.key, entry.label
+        layout:Dropdown(label, "Choose an existing minimap button action.", commands,
+            function() return Addon.db.profile.Minimap.Commands[mouseButton] end,
+            function(command) Addon.db.profile.Minimap.Commands[mouseButton] = command end,
+            nil, function(command) return commandLabels[command] or command end)
+    end
     -- Blizzard's addon compartment exists on the modern clients only; the player's
     -- button shows there too, opening the same menu, and this row switches it.
     if AddonCompartmentFrame then
@@ -621,11 +636,9 @@ local function Build(canvas)
 
     -- Profiles, for all of Spoken at once: the player's own settings and every part that keeps
     -- its settings in profiles switch, copy and delete together.
-    -- Options:AddProfiles(layout)
+    Options:AddProfiles(layout)
 
-    -- Spoken outside the game: its code, its Discord and its download page.
-
-    -- Every setting back, from the header's Defaults as the game's pages have it.
+    -- Restore the player's existing settings (module preferences are separate).
     layout:StartOver(L.OPT_START_OVER_TITLE, L.OPT_RESET_ALL, function()
         Layout.Confirm(L.OPT_RESET_ALL_CONFIRM, L.OPT_RESET_AND_RELOAD, L.CANCEL, function()
             -- The Unlock switches are on this page but kept with each part's settings, which
@@ -652,6 +665,9 @@ local function Build(canvas)
         panel:HookScript("OnShow", function() Options:UpdateRows() end)
         -- The sample is for placing the subtitle while the settings are open, not after.
         panel:HookScript("OnHide", function()
+            -- Close search regardless of whether the player used the X, Escape,
+            -- the minimap button, or a module's own entry point.
+            if Search and Search.Close then Search:Close() end
             if Subtitle and Subtitle:IsShowingSample() then Subtitle:ShowSample(false) end
             if Options.previewing or Addon.previewStyle then Options:SetPreviewing(false) end
         end)
@@ -664,9 +680,8 @@ end
 function Options:UpdateRows()
     if not panel then return end
     panel.layout:Refresh()
-    for _, row in ipairs(panel.parts or {}) do
-        local installed = Sources:Get(row.partKey) ~= nil
-        row.text:SetText(installed and row.partLabel or format(L.OPT_PART_MISSING, row.partLabel))
+    if Options.activePage and Options.activePage.layout then
+        Options.activePage.layout:Refresh()
     end
     local sample = panel.sampleButton
     if sample then
@@ -709,31 +724,49 @@ end
 
 --- Every AceDB object a profile choice applies to: the player's, then each installed part's
 --- that keeps its settings in profiles (a source's `profiles`).
+-- One installed source may advertise profiles before its AceDB object is ready.
+-- Check for a callable GetProfiles method, rather than just a truthy field.
 function Options:ProfileDBs()
-    local dbs = {}
-    if Addon.db and Addon.db.GetProfiles then table.insert(dbs, Addon.db) end
+    local dbs, seen = {}, {}
+    if Addon.db and type(Addon.db.GetProfiles) == "function" then
+        table.insert(dbs, Addon.db)
+        seen[Addon.db] = true
+    end
     for _, source in Sources:Iterate() do
         if type(source.profiles) == "function" then
             local ok, db = pcall(source.profiles)
-            if ok and type(db) == "table" and db.GetProfiles then table.insert(dbs, db) end
+            if ok and type(db) == "table" and
+                type(db.GetProfiles) == "function" and not seen[db] then
+                table.insert(dbs, db)
+                seen[db] = true
+            end
         end
     end
     return dbs
 end
 
+-- AceDB's GetProfiles returns a list, but a partially initialized module
+-- must not prevent the entire 1.12 settings window from opening.
+local function ProfileList(db)
+    if not db or type(db.GetProfiles) ~= "function" then return {} end
+    local ok, result = pcall(db.GetProfiles, db)
+    if not ok or type(result) ~= "table" then return {} end
+    return result
+end
+
 local function Has(db, name)
-    for _, other in ipairs(db:GetProfiles()) do
+    for _, other in ipairs(ProfileList(db)) do
         if other == name then return true end
     end
     return false
 end
 
---- Every profile any of them has, sorted, each once.
+--- Every profile any of the installed databases has, sorted once.
 function Options:ProfileNames()
     local seen, names = {}, {}
     for _, db in ipairs(self:ProfileDBs()) do
-        for _, name in ipairs(db:GetProfiles()) do
-            if not seen[name] then
+        for _, name in ipairs(ProfileList(db)) do
+            if type(name) == "string" and not seen[name] then
                 seen[name] = true
                 table.insert(names, name)
             end
@@ -816,28 +849,35 @@ end
 
 --- Open Spoken's page on a tab: Home's is 0, a feature addon's the order it was listed in.
 function Options:OpenPage(order)
-    if self.category then
-        -- Each page its own entry: open that one.
-        local category = self.category
-        for _, page in ipairs(self.pages or {}) do
-            if page.order == order then category = page.category end
-        end
-        if not category then return false end
-        Layout.OpenCategory(category, L.OPT_OPEN_COMBAT)
+    if not panel then return false end
+    if not self.category then
+        if not self:SelectLegacyPage(order) then return false end
+        panel:Show()
         return true
     end
-    return false
+    -- Clients with a Settings canvas use the category registered for this page.
+    local category = order == 0 and self.category or nil
+    if order ~= 0 then
+        for _, page in ipairs(self.pages or {}) do
+            if page.order == order then category = page.category; break end
+        end
+    end
+    if not category then return false end
+    Layout.OpenCategory(category, L.OPT_OPEN_COMBAT)
+    return true
 end
 
 --- Every page search can reach: this one, then the feature addons' in their order.
 function Options:Pages()
     local pages = {}
-    if panel and self.category then
-        table.insert(pages, { name = L.OPT_HOME_TITLE, category = self.category, layout = panel.layout,
-            scroller = scroller, order = 0 })
+    if panel then
+        table.insert(pages, { name = L.OPT_HOME_TITLE, category = self.category,
+            layout = panel.layout, scroller = self.category and scroller or nil, order = 0 })
     end
     for _, page in ipairs(self.pages or {}) do
-        if page.category and page.layout then table.insert(pages, page) end
+        if page.layout and (not self.category or page.category) then
+            table.insert(pages, page)
+        end
     end
     return pages
 end
@@ -845,28 +885,122 @@ end
 --- Open a page, and once the settings window has drawn it, scroll to `row` and light it up.
 --- `page` is one of Pages(), each of which OpenPage finds by its order.
 function Options:ShowRow(page, row)
-    self:OpenPage(page.order)
+    if not self:OpenPage(page.order) then return end
     local function Land()
+        page.layout:Refresh()
+        local offset = math.max(0, -(row.layoutY or 0) - 60)
         if page.scroller then
             page.scroller:Recalculate()
-            page.scroller:ScrollTo(-(row.layoutY or 0) - 60)
+            page.scroller:ScrollTo(offset)
+        elseif scroller and not self.category then
+            -- Original Vanilla scroll frame, shared by all module pages.
+            local maximum = scroller.GetVerticalScrollRange and
+                scroller:GetVerticalScrollRange() or offset
+            if offset > maximum then offset = maximum end
+            scroller:SetVerticalScroll(offset)
         end
         page.layout:Highlight(row)
     end
-    -- The canvas has no size until the window lays it out, so the scroll waits a moment.
-    if C_Timer and C_Timer.After then C_Timer.After(0.05, Land) else Land() end
+    -- Retail's canvas measures its content after the category opens; 1.12
+    -- updates the shared ScrollFrame synchronously and needs no timer.
+    if self.category and C_Timer and C_Timer.After then
+        C_Timer.After(0.05, Land)
+    else
+        Land()
+    end
 end
 
--- The legacy window's height: never shorter than it always was, and tall enough for every
--- row, including a link a feature addon added after the window was built. On the canvas,
--- the scroller's content height instead, for the same late links.
+-- On the original 1.12 client there is no Blizzard Settings category tree.
+-- Keep upstream's page model, but display each module inside the same bounded
+-- Blizzard scroll frame. A page's layout still belongs entirely to that module.
+function Options:RefreshNavigation()
+    if not (panel and panel.isWindow) then return end
+    local pages = { { order = 0, name = L.OPT_HOME_TITLE } }
+    for _, page in ipairs(self.pages or {}) do
+        table.insert(pages, page)
+    end
+    -- Four pages fit the native 550-pixel window: Home, Quests, Books, Zones.
+    -- A disabled UIPanelButtonTemplate looks unavailable, not selected. Keep
+    -- every button usable and distinguish the active page with a gold rule.
+    local width = math.floor(LEGACY_NAV_WIDTH / table.getn(pages))
+    local activeOrder = self.activePage and self.activePage.order or 0
+    for index, entry in ipairs(pages) do
+        local button = legacyNavButtons[index]
+        if not button then
+            button = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+            button:SetHeight(24)
+            local rule = button:CreateTexture(nil, "OVERLAY")
+            rule:SetTexture([[Interface\Buttons\WHITE8X8]])
+            rule:SetVertexColor(1, 0.82, 0)
+            rule:SetHeight(2)
+            rule:SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 10, 3)
+            rule:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -10, 3)
+            button.selectedRule = rule
+            legacyNavButtons[index] = button
+        end
+        button:ClearAllPoints()
+        button:SetWidth(width - 4)
+        button:SetPoint("TOPLEFT", panel, "TOPLEFT", 18 + (index - 1) * width, LEGACY_NAV_TOP)
+        button:SetText(entry.order == 0 and "Home" or entry.name)
+        local order = entry.order
+        button:SetScript("OnClick", function()
+            if (Options.activePage and Options.activePage.order or 0) ~= order then
+                Options:SelectLegacyPage(order)
+            end
+        end)
+        button:Enable()
+        if order == activeOrder then
+            button.selectedRule:Show()
+        else
+            button.selectedRule:Hide()
+        end
+        button:Show()
+    end
+    for index = table.getn(pages) + 1, table.getn(legacyNavButtons) do
+        legacyNavButtons[index]:Hide()
+    end
+end
+
+function Options:SelectLegacyPage(order)
+    if not (panel and panel.isWindow and scroller and legacyScrollChild) then return false end
+    local chosen
+    if order ~= 0 then
+        for _, page in ipairs(self.pages or {}) do
+            if page.order == order then chosen = page; break end
+        end
+        if not chosen then return false end
+    end
+    local child = chosen and chosen.frame or legacyScrollChild
+    local old = self.activePage and self.activePage.frame or legacyScrollChild
+    -- Preview belongs to Home, not to whichever module tab is opened next.
+    if order ~= 0 and (self.previewing or Addon.previewStyle) then
+        self:SetPreviewing(false)
+    end
+    if old ~= child then old:Hide() end
+    if Search and Search.Close then Search:Close() end
+    -- All pages share the same scrollbar; no second window or nested scrollbar.
+    child:SetParent(scroller)
+    child:SetWidth(LEGACY_CONTENT_WIDTH)
+    scroller:SetScrollChild(child)
+    self.activePage = chosen
+    child:Show()
+    if scroller.SetVerticalScroll then scroller:SetVerticalScroll(0) end
+    local layout = chosen and chosen.layout or panel.layout
+    if layout then layout:Refresh() end
+    self:RefreshNavigation()
+    return true
+end
+
+-- Keep the scroll child tall enough for the active page without growing the
+-- bounded Vanilla window. Modern clients size the canvas content instead.
 local function FitWindow()
     if not panel then return end
-    local needed = TOP + panel.layout:Height() + BOTTOM
+    local activeLayout = Options.activePage and Options.activePage.layout or panel.layout
+    local needed = TOP + activeLayout:Height() + BOTTOM
     if legacyScrollChild then
-        -- Resizing the scroll child automatically updates the Vanilla scrollbar.
-        -- Never enlarge the outer options window to the entire page height.
-        legacyScrollChild:SetHeight(needed)
+        -- The currently selected module owns the scroll child and its height.
+        local child = Options.activePage and Options.activePage.frame or legacyScrollChild
+        child:SetHeight(needed)
     elseif scroller and scroller.SetContentHeight then
         scroller:SetContentHeight(needed)
     elseif panel.isWindow and needed > (panel:GetHeight() or 0) then
@@ -896,7 +1030,7 @@ function Options:Setup()
         -- rows, which vary by client, rather than a fixed height the rows can outgrow.
         panel.isWindow = true
         local screenHeight = (UIParent and UIParent.GetHeight and UIParent:GetHeight()) or 768
-        panel:SetSize(550, math.min(620, math.max(300, screenHeight - 80)))
+        panel:SetSize(LEGACY_WIDTH, math.min(620, math.max(300, screenHeight - 80)))
         panel:SetPoint("CENTER")
         panel:SetMovable(true)
         panel:EnableMouse(true)
@@ -911,11 +1045,30 @@ function Options:Setup()
                 insets = { left = 10, right = 10, top = 10, bottom = 10 },
             })
         end
+        -- Permanent window furniture: the current module heading scrolls,
+        -- while the title, search and navigation remain fixed like Blizzard UI.
+        local heading = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+        heading:SetPoint("TOPLEFT", panel, "TOPLEFT", 23, -15)
+        heading:SetText(L.OPT_HOME_TITLE or "Spoken")
+        local divider = panel:CreateTexture(nil, "BORDER")
+        divider:SetTexture([[Interface\Buttons\WHITE8X8]])
+        divider:SetVertexColor(0.75, 0.63, 0.38, 0.65)
+        divider:SetHeight(1)
+        divider:SetPoint("TOPLEFT", panel, "TOPLEFT", 22, LEGACY_RULE_TOP)
+        divider:SetPoint("TOPRIGHT", panel, "TOPRIGHT", -22, LEGACY_RULE_TOP)
         panel:RegisterForDrag("LeftButton")
         panel:SetScript("OnDragStart", function() panel:StartMoving() end)
         panel:SetScript("OnDragStop", function() panel:StopMovingOrSizing() end)
         FitWindow()
+        if Search and Search.BuildLegacy then Search:BuildLegacy(panel) end
         panel:Hide()
+        self:RefreshNavigation()
+        self:SelectLegacyPage(0)
+        -- Native escape handling. The panel has a stable global name, and
+        -- its OnHide hook also clears any open search results or preview.
+        if UISpecialFrames then
+            table.insert(UISpecialFrames, "SpokenOptionsPanel")
+        end
         local close = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
         close:SetPoint("TOPRIGHT", -4, -4)
         close:SetScript("OnClick", function() panel:Hide() end)
@@ -927,17 +1080,29 @@ end
 --- on its tab, and `page.category` is Spoken's own entry once registered. Nil where the client
 --- has no settings canvas, and the feature addon registers a page of its own.
 function Options:AddPage(frame, name, order, layout, pageScroller)
-    if not (Settings and Settings.RegisterCanvasLayoutCategory) then return nil end
+    if not frame or not layout then return nil end
     -- The layout and its scroller come along so the search on Home can reach this page's rows.
     local page = { frame = frame, name = name, order = order or 100, layout = layout, scroller = pageScroller }
     page.Open = function() return Options:OpenPage(page.order) end
     self.pages = self.pages or {}
     table.insert(self.pages, page)
     table.sort(self.pages, function(a, b) return a.order < b.order end)
-    if self.category then
-        self:RegisterPage(page)
+    if Settings and Settings.RegisterCanvasLayoutCategory then
+        if self.category then
+            self:RegisterPage(page)
+        else
+            table.insert(pendingPages, page)
+        end
     else
-        table.insert(pendingPages, page)
+        -- A Vanilla page is a scroll child, not a separate settings window.
+        frame:SetWidth(LEGACY_CONTENT_WIDTH)
+        frame:Hide()
+        local priorResize = layout.onResize
+        layout.onResize = function(height)
+            frame:SetHeight(TOP + layout:Height() + BOTTOM)
+            if priorResize then priorResize(height) end
+        end
+        if panel and panel.isWindow then self:RefreshNavigation() end
     end
     return page
 end
@@ -950,9 +1115,12 @@ end
 --- quests addon uses this because AceConfigDialog owns its frame lifecycle and nesting
 --- it as a canvas subcategory is fragile across six clients.
 function Options:AddLink(text, onClick)
-    -- Where the feature addons' pages nest under this one, the settings list already leads
-    -- to each of them, and a button to the same place is a second way to say one thing.
+    -- Registered module pages are reachable from the navigation on every client.
+    -- Do not grow a second set of links in the Home page.
     if Settings and Settings.RegisterCanvasLayoutSubcategory then return end
+    for _, page in ipairs(self.pages or {}) do
+        if string.find(string.lower(text or ""), string.lower(page.name or ""), 1, true) then return end
+    end
     -- Feature addons call this from ADDON_LOADED; the panel is built at PLAYER_LOGIN.
     if not panel then
         table.insert(pendingLinks, { text = text, onClick = onClick })
@@ -970,7 +1138,13 @@ function Options:Open()
     if self.category and Settings and Settings.OpenToCategory then
         Layout.OpenCategory(self.category, L.OPT_OPEN_COMBAT)
     elseif panel then
-        panel:SetShown(not panel:IsShown())
+        if panel:IsShown() then
+            if Search and Search.Close then Search:Close() end
+            panel:Hide()
+        else
+            self:SelectLegacyPage(0)
+            panel:Show()
+        end
     else
         print("Spoken: " .. L.OPT_NO_SETTINGS_API)
     end

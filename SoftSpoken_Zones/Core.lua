@@ -45,6 +45,9 @@ frame:SetScript("OnEvent", function(self, firedEvent, a, b, c)
                 order = 2,
                 queueLimit = 3,
                 interClipGap = 0.25,
+                -- Existing audio registries, exposed only as read-only
+                -- metadata for the shared settings panel.
+                packs = function() return R.AudioPackNames() end,
             })
         end
         if R.source.AddGate then R.source:AddGate(R.HoldAutoplay) end

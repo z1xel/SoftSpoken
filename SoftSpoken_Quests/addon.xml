@@ -30,5 +30,7 @@
     <Include file="Compendium\QuestCatalog_112.lua"/>
     <Include file="Compendium\QuestsTab_112.lua"/>
     <Include file="Compendium\QuestPage_112.lua"/>
+    <!-- Optional shared settings page: built after the quest runtime and compatibility layer. -->
+    <Include file="UI\SettingsPanel.lua"/>
 
 </Ui>

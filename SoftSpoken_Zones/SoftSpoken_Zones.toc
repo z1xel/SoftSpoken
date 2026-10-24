@@ -24,3 +24,4 @@ UI\MapPanel.lua
 UI\SubzoneClick.lua
 UI\MapHighlight.lua
 UI\MapHover.lua
+UI\Options.lua

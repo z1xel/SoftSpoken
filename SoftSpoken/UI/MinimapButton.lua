@@ -19,11 +19,11 @@ local PLAYER_ENTRIES = {
     -- Azeroth's Compendium, whichever parts have a tab in it (UI/Compendium.lua in each).
     { id = "Compendium", text = L.OPT_COMPENDIUM_OPEN, order = 3,
         visible = function()
-            local compendium = _G.SpokenZones112Compendium or _G.SpokenCompendium
+            local compendium = _G.SSCCompendium or _G.SpokenZones112Compendium or _G.SpokenCompendium
             return compendium ~= nil and compendium.Available ~= nil and compendium:Available()
         end,
         onClick = function()
-            local compendium = _G.SpokenZones112Compendium or _G.SpokenCompendium
+            local compendium = _G.SSCCompendium or _G.SpokenZones112Compendium or _G.SpokenCompendium
             if compendium and compendium.Toggle then compendium:Toggle() end
         end },
     { id = "Settings",  text = L.SETTINGS,     order = 4, onClick = function() Options:Open() end },

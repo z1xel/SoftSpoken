@@ -434,23 +434,42 @@ function Options:Initialize()
         _G["VoiceOverOptions"] = self.frame.frame
         tinsert(UISpecialFrames, "VoiceOverOptions")
     end)
+    -- Register from the same AceAddon lifecycle as the Quests database.
+    -- The deferred PLAYER_ENTERING_WORLD hook in SettingsPanel remains a
+    -- fallback if the shared core has not finished setting up yet.
+    RunOptionalStep("shared settings page", function()
+        if SettingsPanel and SettingsPanel.Setup then SettingsPanel:Setup() end
+    end)
 end
 
 --- Turtle WoW 1.12 uses the AceConfig window for quest and gossip settings,
 -- profiles, and the sound-pack manager.
 function Options:OpenSettings()
+    -- Prefer the shared Vanilla Quests tab. If its optional UI cannot build,
+    -- preserve the original AceGUI window as an independent working fallback.
+    if SettingsPanel and SettingsPanel.Open then
+        local ok, opened = pcall(SettingsPanel.Open, SettingsPanel)
+        if ok and opened then return end
+        if not ok then SettingsPanel.lastError = tostring(opened) end
+    end
     self:OpenConfigWindow()
 end
 
---- Gossip settings share the same AceConfig window on Turtle WoW 1.12.
+--- Gossip shares the Quests page, with its own enable toggle and
+-- frequency control. Use the same fallback as Quests if that page fails.
 function Options:OpenGossipSettings()
-    self:OpenConfigWindow()
+    self:OpenSettings()
 end
 
 function Options:OpenConfigWindow()
     if not self.frame then
-        print("|cFFFF4040Spoken Quests: the legacy options window is unavailable on this client. " ..
-            "Quest narration and slash commands remain active.|r")
+        print("|cFFFF4040Spoken Quests: neither settings view could be opened.|r")
+        if SettingsPanel and SettingsPanel.lastError then
+            print("Shared Quests settings: " .. SettingsPanel.lastError)
+        end
+        for _, warning in ipairs(self.initializationErrors or {}) do
+            print("Legacy Quests settings: " .. tostring(warning))
+        end
         return
     end
     if self.frame:IsShown() then
