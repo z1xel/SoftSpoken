@@ -20,7 +20,6 @@ local LEGACY_CONTENT_WIDTH = 470
 local LEGACY_NAV_WIDTH = 514
 local LEGACY_NAV_TOP = -77
 local LEGACY_SCROLL_TOP = -116
-local LEGACY_RULE_TOP = -110
 
 local panel
 local scroller
@@ -33,6 +32,69 @@ local legacyNavButtons = {}
 local Layout = SpokenLayout
 -- Product name stays consistent across locales, unlike descriptive settings text.
 local HOME_TITLE = "SoftSpoken"
+
+-- The framed header around the legacy navigation tabs uses the same
+-- three-piece Blizzard chat-input border as the Compendium search field:
+-- a full-size ornamental cap at either end and a narrow straight middle.
+-- Draw directly on the panel's BORDER layer, behind its title and real buttons;
+-- a child Frame here would sit above them and risk blocking the tabs.
+local function DrawOrnateHeaderBand(window)
+    local art = [[Interface\ChatFrame\UI-ChatInputBorder-]]
+    local xLeft, xRight = 20, -20
+    local yTop, yBottom = -17, -111
+    local capWidth, capHeight = 75, 32
+
+    local function Rail(upper)
+        local left = window:CreateTexture(nil, "BORDER")
+        left:SetTexture(art .. "Left")
+        left:SetWidth(capWidth)
+        left:SetHeight(capHeight)
+        left:SetTexCoord(0, 0.29296875, 0, 1)
+
+        local right = window:CreateTexture(nil, "BORDER")
+        right:SetTexture(art .. "Right")
+        right:SetWidth(capWidth)
+        right:SetHeight(capHeight)
+        right:SetTexCoord(0.70703125, 1, 0, 1)
+
+        local middle = window:CreateTexture(nil, "BORDER")
+        middle:SetTexture(art .. "Left")
+        -- Only use the straight upper or lower silver edge. Stretching
+        -- all 32px would leave a fat black search-box band across the page.
+        if upper then
+            middle:SetTexCoord(0.29296875, 1, 0, 0.3125)
+            middle:SetHeight(10)
+            left:SetPoint("TOPLEFT", window, "TOPLEFT", xLeft, yTop)
+            right:SetPoint("TOPRIGHT", window, "TOPRIGHT", xRight, yTop)
+            middle:SetPoint("TOPLEFT", left, "TOPRIGHT", 0, 0)
+            middle:SetPoint("TOPRIGHT", right, "TOPLEFT", 0, 0)
+        else
+            middle:SetTexCoord(0.29296875, 1, 0.6875, 1)
+            middle:SetHeight(10)
+            left:SetPoint("BOTTOMLEFT", window, "TOPLEFT", xLeft, yBottom)
+            right:SetPoint("BOTTOMRIGHT", window, "TOPRIGHT", xRight, yBottom)
+            middle:SetPoint("BOTTOMLEFT", left, "BOTTOMRIGHT", 0, 0)
+            middle:SetPoint("BOTTOMRIGHT", right, "BOTTOMLEFT", 0, 0)
+        end
+    end
+    Rail(true)
+    Rail(false)
+
+    -- Connect the two ornate caps without vertically distorting their art.
+    -- These thin rails sit inside the silver corner pieces.
+    local function Side(right)
+        local line = window:CreateTexture(nil, "BORDER")
+        line:SetTexture([[Interface\Buttons\WHITE8X8]])
+        line:SetVertexColor(0.64, 0.65, 0.69, 0.8)
+        line:SetWidth(2)
+        local anchor = right and "TOPRIGHT" or "TOPLEFT"
+        local inset = right and (xRight - 5) or (xLeft + 5)
+        line:SetPoint("TOPLEFT", window, anchor, inset, yTop - 18)
+        line:SetPoint("BOTTOMLEFT", window, anchor, inset, yBottom + 18)
+    end
+    Side(false)
+    Side(true)
+end
 
 -- The ways of showing a line, by the name Addon:PlayerStyle gives each.
 local STYLE_LABELS = {
@@ -1183,12 +1245,8 @@ function Options:Setup()
         heading:SetJustifyH("CENTER")
         heading:SetPoint("TOP", titlePlate, "TOP", 0, -13)
         heading:SetText(HOME_TITLE)
-        local divider = panel:CreateTexture(nil, "BORDER")
-        divider:SetTexture([[Interface\Buttons\WHITE8X8]])
-        divider:SetVertexColor(0.75, 0.63, 0.38, 0.65)
-        divider:SetHeight(1)
-        divider:SetPoint("TOPLEFT", panel, "TOPLEFT", 22, LEGACY_RULE_TOP)
-        divider:SetPoint("TOPRIGHT", panel, "TOPRIGHT", -22, LEGACY_RULE_TOP)
+        -- Silver frame replaces the old gold divider under the tabs.
+        DrawOrnateHeaderBand(panel)
         panel:RegisterForDrag("LeftButton")
         panel:SetScript("OnDragStart", function() panel:StartMoving() end)
         panel:SetScript("OnDragStop", function() panel:StopMovingOrSizing() end)
