@@ -608,18 +608,17 @@ local function Build(canvas)
         { key = "MiddleButton", label = "Middle Click" },
         { key = "RightButton", label = "Right Click" },
     }
-    -- These commands already exist in the minimap dispatcher. Compendium
-    -- now resolves to the shared SSCCompendium as well as legacy names.
-    local commands = { "Settings", "PlayPause", "Stop", "Compendium", "Menu" }
+    -- Playback commands are no longer assignable to minimap mouse buttons.
+    -- Minimap:GetClickCommand migrates old/nil assignments to these options.
+    local commands = { "Settings", "Compendium", "Menu" }
     local commandLabels = {
-        Settings = "Open Settings", PlayPause = "Play / Pause",
-        Stop = "Stop Reading", Compendium = "Open Compendium",
+        Settings = "Open Settings", Compendium = "Open Compendium",
         Menu = "Open Menu",
     }
     for _, entry in ipairs(clicks) do
         local mouseButton, label = entry.key, entry.label
         layout:Dropdown(label, "Choose an existing minimap button action.", commands,
-            function() return Addon.db.profile.Minimap.Commands[mouseButton] end,
+            function() return Minimap:GetClickCommand(mouseButton) end,
             function(command) Addon.db.profile.Minimap.Commands[mouseButton] = command end,
             nil, function(command) return commandLabels[command] or command end)
     end
