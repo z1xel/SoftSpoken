@@ -29,6 +29,27 @@ local PLAYER_ENTRIES = {
     { id = "Settings",  text = L.SETTINGS,     order = 4, onClick = function() Options:Open() end },
 }
 
+-- The two playback-specific click mappings have been retired from Settings.
+-- Old profiles (and the prior 1.12 dropdown-capture bug) may still contain
+-- PlayPause, Stop, or nil. Migrate only those values to supported actions,
+-- consistently for both the settings display and the click dispatcher.
+local SAFE_CLICK_DEFAULTS = {
+    LeftButton = "Settings",
+    MiddleButton = "Compendium",
+    RightButton = "Menu",
+}
+function Minimap:GetClickCommand(button)
+    local commands = Addon.db and Addon.db.profile
+        and Addon.db.profile.Minimap and Addon.db.profile.Minimap.Commands
+    if not commands then return SAFE_CLICK_DEFAULTS[button] end
+    local command = commands[button]
+    if command == nil or command == "PlayPause" or command == "Stop" then
+        command = SAFE_CLICK_DEFAULTS[button]
+        commands[button] = command
+    end
+    return command
+end
+
 --- entry = { id, text, icon, order, onClick(button), tooltip(GameTooltip), visible() }
 function Minimap:AddEntry(sourceKey, entry)
     self.entries[sourceKey] = self.entries[sourceKey] or {}
@@ -266,7 +287,7 @@ end
 --- compartment. `button` is the frame a menu opens on and the one feature addons get;
 --- the lib's own button, not the frame the compartment clicked with (see OnClick).
 function Minimap:HandleClick(button, mouseButton)
-    local command = Addon.db.profile.Minimap.Commands[mouseButton]
+    local command = self:GetClickCommand(mouseButton)
     if command == "Menu" then
         ToggleMenu(button)
     elseif command and command ~= "" then
