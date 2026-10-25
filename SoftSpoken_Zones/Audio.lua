@@ -30,34 +30,48 @@ local function FindInRegistry(registry, mapID, areaKey)
     return nil
 end
 
--- A read-only inventory for Spoken's existing per-module pack status.
--- Use the same supported registries and version as FindInRegistry above.
--- This is metadata for settings, not a playback or language selector.
-function R.AudioPackNames()
-    local names, seen = {}, {}
+-- Read-only pack records for settings. Preserve the same format/registry
+-- checks as playback, and do not alter registry entries while inspecting them.
+function R.AudioPackDetails()
+    local packs, seen = {}, {}
     local function Add(pack, fallbackAddon)
         if type(pack) ~= "table" or pack.version ~= 1 then return end
         local addon = pack.addon or fallbackAddon
         if type(addon) ~= "string" or addon == "" then return end
         if type(pack.zones) ~= "table" and type(pack.subzones) ~= "table" then return end
-        if not seen[addon] then
-            seen[addon] = true
-            table.insert(names, pack.title or addon)
-        end
+        if seen[addon] then return end
+        seen[addon] = true
+        table.insert(packs, {
+            addon = addon, title = pack.title or addon,
+            version = pack.version, language = pack.language,
+            source = pack,
+        })
     end
     local function AddRegistry(registry)
         if type(registry) == "table" then
             for _, pack in pairs(registry) do Add(pack) end
         end
     end
-    -- Check both registries separately: Lua 5.0 ipairs stops at the first
-    -- nil array element, so a missing first registry must not hide the second.
+    -- These are independent optional registries; a missing one must never
+    -- hide another, especially with Lua 5.0's nil-terminating ipairs.
     AddRegistry(SpokenZonesAudioPacks)
     AddRegistry(ZoneLoreAudioPacks)
     if type(ZoneLoreAudioData) == "table" then
         Add(ZoneLoreAudioData, "ZoneLoreAudio")
     end
-    table.sort(names)
+    table.sort(packs, function(a, b)
+        if a.title == b.title then return a.addon < b.addon end
+        return a.title < b.title
+    end)
+    return packs
+end
+
+-- Keep the original names-only API used by the player and Home counters.
+function R.AudioPackNames()
+    local names = {}
+    for _, pack in ipairs(R.AudioPackDetails()) do
+        table.insert(names, pack.title)
+    end
     return names
 end
 
