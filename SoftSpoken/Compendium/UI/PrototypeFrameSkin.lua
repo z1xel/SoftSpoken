@@ -48,7 +48,7 @@ local CHAR_LEFT_POS_X, CHAR_LEFT_POS_Y = -14, 12
 -- No duplicate generic FrameGeneral top-right square is drawn.
 local CHAR_RIGHT_X0, CHAR_RIGHT_X1 = 56, 128
 local CHAR_RIGHT_Y0, CHAR_RIGHT_Y1 = 14, 52
-local CHAR_RIGHT_POS_X = CHAR_RIGHT_X1 - 96
+local CHAR_RIGHT_POS_X = CHAR_RIGHT_X1 - 95
 local CHAR_RIGHT_POS_Y = CHAR_LEFT_POS_Y - CHAR_RIGHT_Y0
 
 -- The reusable Blizzard title strip itself occupies x=64..(w-33).
