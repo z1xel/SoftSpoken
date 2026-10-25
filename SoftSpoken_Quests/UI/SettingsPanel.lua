@@ -146,25 +146,38 @@ function SettingsPanel:Build()
         return packs
     end, "No Quests voice packs detected.")
 
-    -- These are download destinations, not an inventory of installed packs.
+    -- Keep the known download destinations visible for reference, but disable
+    -- the entire section until downloading is supported here. Match Home's
+    -- disabled Profiles controls: grey appearance, inert buttons and red note.
+    -- Installed voice pack details above remain available and interactive.
+    local downloadsAvailable = false
+    local downloadsUnavailable = "* Voice pack downloads are currently disabled in Settings. Install or update packs manually."
+    local function CanDownload() return downloadsAvailable end
     layout:Section("Voice Pack Downloads")
     local function AddPack(info)
         local name = DataModules:GetPackLabel(info)
-        layout:Download(name, function()
+        local control = layout:Download(name, function()
             for _, installed in DataModules:GetPresentModules() do
                 if installed.AddonName == info.AddonName then
                     return "ok", installed.ContentVersion or "Installed"
                 end
             end
         end, "Get Pack", function()
+            if not downloadsAvailable then return end
             if info.URL and ReportButton and ReportButton.ShowAddress then
                 ReportButton:ShowAddress(info.URL)
             end
         end)
+        layout:Requires(control, CanDownload, downloadsUnavailable)
+        if not downloadsAvailable then layout:BlockInteraction(control) end
     end
     for _, module in DataModules:GetAvailableModules() do
         AddPack(module)
     end
+    local notice = layout:Note(downloadsUnavailable, nil, 40)
+    notice:SetTextColor(1, 0.24, 0.24)
+    notice:SetAlpha(1)
+    notice.layoutBaseAlpha = 1
 
     -- These are existing Quests troubleshooting actions. Keep them together,
     -- separately from the installed-pack inventory and the reading options.
