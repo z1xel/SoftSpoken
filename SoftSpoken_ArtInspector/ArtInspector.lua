@@ -1,23 +1,50 @@
--- Standalone, opt-in diagnostic addon for Turtle WoW / Vanilla 1.12.
--- The two source textures are loaded from the client without editing or tinting.
--- Nothing here modifies SoftSpoken's production UI or its saved variables.
+-- Original Blizzard artwork inspector for Turtle WoW / Vanilla 1.12.
+-- Source references: Gethe/wow-ui-textures (classic), FrameGeneral,
+-- PaperDollInfoFrame, and FriendsFrame. Never tint or modify source art.
+-- This standalone addon does not change SoftSpoken's actual Compendium.
 
-local SHEET_SIZE = 512
-local VIEW_W, VIEW_H = 874, 448
-local SHOP_W, SHOP_H = 700, 460
-local BG1 = "Interface\\ShopFrame\\bg1"
-local BG2 = "Interface\\ShopFrame\\bg2"
-
-local mode = "shop"
+local VIEW_W, VIEW_H = 874, 414
+local mode = "characterLeft"
 local zoomChoice = "fit"
 local lightBackdrop = false
 local centerX, centerY
 local dragging = false
 local cursorX, cursorY
 
+local CHAR_L = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft"
+local CHAR_R = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight"
+local FRIEND_L = "Interface\\FriendsFrame\\UI-FRIENDSFRAME-TOPLEFT"
+local FRIEND_R = "Interface\\FriendsFrame\\UI-FRIENDSFRAME-TOPRIGHT"
+local TITLE = "Interface\\FrameGeneral\\_UI-Frame"
+local CORNERS = "Interface\\FrameGeneral\\UI-Frame"
+local SIDES = "Interface\\FrameGeneral\\!UI-Frame"
+local ROCK = "Interface\\FrameGeneral\\UI-Background-Rock"
+
+local function single(label,file,w,h)
+    return {label=label,w=w,h=h,pieces={{file=file,x=0,y=0,w=w,h=h}}}
+end
+local sources = {
+    characterLeft=single("Character: original top-left",CHAR_L,256,256),
+    characterRight=single("Character: original top-right",CHAR_R,128,256),
+    friendsLeft=single("Friends: original top-left",FRIEND_L,256,256),
+    friendsRight=single("Friends: original top-right",FRIEND_R,128,256),
+    title=single("Portrait-frame title, bevel and dark streaks",TITLE,256,128),
+    corners=single("Portrait ring, buttons and corners",CORNERS,128,128),
+    sides=single("Original vertical border atlas",SIDES,64,256),
+    rock=single("Original tiled rock background",ROCK,256,256),
+    characterPair={label="Character: original left/right sheets side by side",
+        w=384,h=256,pieces={
+        {file=CHAR_L,x=0,y=0,w=256,h=256},
+        {file=CHAR_R,x=256,y=0,w=128,h=256}}},
+    friendsPair={label="Friends: original left/right sheets side by side",
+        w=384,h=256,pieces={
+        {file=FRIEND_L,x=0,y=0,w=256,h=256},
+        {file=FRIEND_R,x=256,y=0,w=128,h=256}}},
+}
+
 local viewer = CreateFrame("Frame", "SoftSpokenArtInspector", UIParent)
 viewer:SetWidth(924)
-viewer:SetHeight(592)
+viewer:SetHeight(612)
 viewer:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 viewer:SetFrameStrata("DIALOG")
 viewer:SetMovable(true)
@@ -44,45 +71,48 @@ close:SetScript("OnClick", function() viewer:Hide() end)
 
 local title = viewer:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 title:SetPoint("TOP", viewer, "TOP", 0, -16)
-title:SetText("Original Turtle WoW Shop Artwork")
+title:SetText("Original Blizzard Frame Artwork")
 
 local viewport = CreateFrame("Frame", nil, viewer)
 viewport:SetWidth(VIEW_W)
 viewport:SetHeight(VIEW_H)
-viewport:SetPoint("TOPLEFT", viewer, "TOPLEFT", 25, -81)
+viewport:SetPoint("TOPLEFT", viewer, "TOPLEFT", 25, -124)
 viewport:EnableMouse(true)
 
 local backdrop = viewport:CreateTexture(nil, "BACKGROUND")
 backdrop:SetAllPoints(viewport)
 
-local tex1 = viewport:CreateTexture(nil, "ARTWORK")
-tex1:SetTexture(BG1)
-tex1:SetVertexColor(1, 1, 1, 1)
-tex1:SetBlendMode("BLEND")
-local tex2 = viewport:CreateTexture(nil, "ARTWORK")
-tex2:SetTexture(BG2)
-tex2:SetVertexColor(1, 1, 1, 1)
-tex2:SetBlendMode("BLEND")
+local tiles = {}
+for i=1,2 do
+    local tex = viewport:CreateTexture(nil, "ARTWORK")
+    tex:SetVertexColor(1,1,1,1)
+    tex:SetBlendMode("BLEND")
+    table.insert(tiles,tex)
+end
 
 local status = viewer:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-status:SetPoint("TOPLEFT", viewer, "TOPLEFT", 29, -542)
+status:SetPoint("TOPLEFT", viewer, "TOPLEFT", 29, -547)
 status:SetWidth(864)
 status:SetJustifyH("LEFT")
 
+local paths = viewer:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+paths:SetPoint("TOPLEFT",viewer,"TOPLEFT",29,-566)
+paths:SetWidth(864)
+paths:SetJustifyH("LEFT")
+
 local help = viewer:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-help:SetPoint("TOPLEFT", viewer, "TOPLEFT", 29, -562)
+help:SetPoint("TOPLEFT",viewer,"TOPLEFT",29,-588)
 help:SetWidth(864)
 help:SetJustifyH("LEFT")
-help:SetText("Drag artwork to pan when zoomed. Light backdrop reveals alpha/shadows. No textures are recolored or substituted.")
+help:SetText("All files from Blizzard's original client texture paths. Drag to pan. No synthetic shadows or tint.")
 
 local function clamp(v, low, high)
     return math.max(low, math.min(high, v))
 end
 
 local function dimensions()
-    if mode == "shop" then return SHOP_W, SHOP_H end
-    if mode == "sheets" then return SHEET_SIZE * 2, SHEET_SIZE end
-    return SHEET_SIZE, SHEET_SIZE
+    local selected=sources[mode]
+    return selected.w, selected.h
 end
 
 local modeButtons = {}
@@ -100,144 +130,111 @@ local function updateButtons()
     backdropButton:SetText(lightBackdrop and "Dark backdrop" or "Light backdrop")
 end
 
--- Crop source sheets to the visible rectangle mathematically.
--- This avoids ScrollFrame API differences in Turtle/Vanilla 1.12 and works
--- even at 2:1: only the source pixels inside the viewport are ever drawn.
-local function drawSheet(texture, originX, left, top, right, bottom, canvasW, canvasH, scale)
-    local x1 = math.max(originX, left, 0)
-    local y1 = math.max(top, 0)
-    local x2 = math.min(originX + SHEET_SIZE, right, canvasW)
-    local y2 = math.min(SHEET_SIZE, bottom, canvasH)
-    if x2 <= x1 or y2 <= y1 then
-        texture:Hide()
-        return
-    end
-
+-- Crop a source sheet mathematically to the visible viewport; the texture
+-- is sampled at its ORIGINAL UVs, never stretched over the window.
+local function drawPiece(texture, piece, left, top, right, bottom, scale)
+    local x1 = math.max(piece.x,left)
+    local y1 = math.max(piece.y,top)
+    local x2 = math.min(piece.x+piece.w,right)
+    local y2 = math.min(piece.y+piece.h,bottom)
+    if x2<=x1 or y2<=y1 then texture:Hide() return end
+    texture:SetTexture(piece.file)
     texture:ClearAllPoints()
-    texture:SetPoint("TOPLEFT", viewport, "TOPLEFT",
-        (x1 - left) * scale, -(y1 - top) * scale)
-    texture:SetWidth((x2 - x1) * scale)
-    texture:SetHeight((y2 - y1) * scale)
+    texture:SetPoint("TOPLEFT",viewport,"TOPLEFT",
+        (x1-left)*scale,-(y1-top)*scale)
+    texture:SetWidth((x2-x1)*scale)
+    texture:SetHeight((y2-y1)*scale)
     texture:SetTexCoord(
-        (x1 - originX) / SHEET_SIZE, (x2 - originX) / SHEET_SIZE,
-        y1 / SHEET_SIZE, y2 / SHEET_SIZE)
+        (x1-piece.x)/piece.w,(x2-piece.x)/piece.w,
+        (y1-piece.y)/piece.h,(y2-piece.y)/piece.h)
     texture:Show()
 end
 
 local function render()
-    local canvasW, canvasH = dimensions()
-    local scale
-    if zoomChoice == "fit" then
-        scale = math.min(VIEW_W / canvasW, VIEW_H / canvasH)
-    else
-        scale = zoomChoice
-    end
-
-    local visibleW = VIEW_W / scale
-    local visibleH = VIEW_H / scale
-    if not centerX then centerX = canvasW / 2 end
-    if not centerY then centerY = canvasH / 2 end
-
-    if visibleW >= canvasW then
-        centerX = canvasW / 2
-    else
-        centerX = clamp(centerX, visibleW / 2, canvasW - visibleW / 2)
-    end
-    if visibleH >= canvasH then
-        centerY = canvasH / 2
-    else
-        centerY = clamp(centerY, visibleH / 2, canvasH - visibleH / 2)
-    end
-
-    local left = centerX - visibleW / 2
-    local top = centerY - visibleH / 2
-    local right = left + visibleW
-    local bottom = top + visibleH
-
+    local selected=sources[mode]
+    local canvasW,canvasH=dimensions()
+    local scale=zoomChoice=="fit"
+        and math.min(VIEW_W/canvasW,VIEW_H/canvasH) or zoomChoice
+    local visibleW,visibleH=VIEW_W/scale,VIEW_H/scale
+    if not centerX then centerX=canvasW/2 end
+    if not centerY then centerY=canvasH/2 end
+    if visibleW>=canvasW then centerX=canvasW/2
+    else centerX=clamp(centerX,visibleW/2,canvasW-visibleW/2) end
+    if visibleH>=canvasH then centerY=canvasH/2
+    else centerY=clamp(centerY,visibleH/2,canvasH-visibleH/2) end
+    local left,top=centerX-visibleW/2,centerY-visibleH/2
+    local right,bottom=left+visibleW,top+visibleH
     if lightBackdrop then
-        backdrop:SetTexture(0.87, 0.87, 0.83, 1)
+        backdrop:SetTexture(.87,.87,.83,1)
     else
-        backdrop:SetTexture(0.12, 0.12, 0.13, 1)
+        backdrop:SetTexture(.12,.12,.13,1)
     end
-
-    if mode == "bg1" then
-        drawSheet(tex1, 0, left, top, right, bottom, canvasW, canvasH, scale)
-        tex2:Hide()
-    elseif mode == "bg2" then
-        tex1:Hide()
-        drawSheet(tex2, 0, left, top, right, bottom, canvasW, canvasH, scale)
+    for i=1,table.getn(tiles) do
+        local p=selected.pieces[i]
+        if p then drawPiece(tiles[i],p,left,top,right,bottom,scale)
+        else tiles[i]:Hide() end
+    end
+    status:SetText(selected.label.."  |  "..canvasW.."x"..canvasH..
+        " pixels  |  "..math.floor(scale*100+.5).."% zoom")
+    if table.getn(selected.pieces)==1 then
+        paths:SetText(selected.pieces[1].file)
     else
-        drawSheet(tex1, 0, left, top, right, bottom, canvasW, canvasH, scale)
-        drawSheet(tex2, SHEET_SIZE, left, top, right, bottom, canvasW, canvasH, scale)
+        paths:SetText(selected.pieces[1].file.." + "..selected.pieces[2].file)
     end
-
-    local displayMode = (mode == "shop" and "Shop's visible 700x460 area")
-        or (mode == "sheets" and "Both complete 512x512 sheets")
-        or (mode == "bg1" and "bg1: Interface\\ShopFrame\\bg1")
-        or "bg2: Interface\\ShopFrame\\bg2"
-    status:SetText(displayMode .. "     |     " ..
-        math.floor(scale * 100 + 0.5) .. "% zoom     |     " ..
-        (lightBackdrop and "light" or "dark") .. " backdrop")
     updateButtons()
 end
 
 local x = 27
-local function addButton(label, width, callback)
-    local b = CreateFrame("Button", nil, viewer, "UIPanelButtonTemplate")
-    b:SetWidth(width)
-    b:SetHeight(23)
-    b:SetPoint("TOPLEFT", viewer, "TOPLEFT", x, -44)
+local function addButton(label, width, y, callback)
+    local b=CreateFrame("Button",nil,viewer,"UIPanelButtonTemplate")
+    b:SetWidth(width); b:SetHeight(23)
+    b:SetPoint("TOPLEFT",viewer,"TOPLEFT",x,y)
     b:SetText(label)
-    b:SetScript("OnClick", callback)
-    x = x + width + 7
+    b:SetScript("OnClick",callback)
+    x=x+width+7
     return b
 end
-
-local function setMode(newMode)
-    mode = newMode
-    centerX, centerY = nil, nil
-    render()
+local function addMode(label,width,key,y)
+    local b=addButton(label,width,y,function()
+        mode=key
+        centerX,centerY=nil,nil
+        render()
+    end)
+    b.inspectorMode=key
+    table.insert(modeButtons,b)
 end
 
-local function setZoom(newZoom)
-    zoomChoice = newZoom
-    render()
-end
+addMode("Character L",111,"characterLeft",-46)
+addMode("Character R",111,"characterRight",-46)
+addMode("Friends L",100,"friendsLeft",-46)
+addMode("Friends R",100,"friendsRight",-46)
+addMode("Top/title",105,"title",-46)
+addMode("Corners",90,"corners",-46)
+addMode("Sides",75,"sides",-46)
+addMode("Rock",68,"rock",-46)
 
-local modes = {
-    {"Shop 700x460", 122, "shop"},
-    {"Both sheets", 110, "sheets"},
-    {"bg1", 59, "bg1"},
-    {"bg2", 59, "bg2"},
-}
-for i = 1, table.getn(modes) do
-    local item = modes[i]
-    local which = item[3]
-    local b = addButton(item[1], item[2], function() setMode(which) end)
-    b.inspectorMode = which
-    table.insert(modeButtons, b)
+x=27
+addMode("Character pair",133,"characterPair",-80)
+addMode("Friends pair",120,"friendsPair",-80)
+local function addZoom(label,width,value)
+    local b=addButton(label,width,-80,function()
+        zoomChoice=value
+        render()
+    end)
+    b.inspectorZoom=value
+    table.insert(zoomButtons,b)
 end
+addZoom("Fit",56,"fit")
+addZoom("1:1",56,1)
+addZoom("2:1",56,2)
 
-local zooms = {
-    {"Fit", 55, "fit"},
-    {"1:1", 55, 1},
-    {"2:1", 55, 2},
-}
-for i = 1, table.getn(zooms) do
-    local item = zooms[i]
-    local which = item[3]
-    local b = addButton(item[1], item[2], function() setZoom(which) end)
-    b.inspectorZoom = which
-    table.insert(zoomButtons, b)
-end
-
-backdropButton = addButton("Light backdrop", 117, function()
-    lightBackdrop = not lightBackdrop
+backdropButton=addButton("Light backdrop",142,-80,function()
+    lightBackdrop=not lightBackdrop
     render()
 end)
-addButton("Reset view", 97, function()
-    centerX, centerY = nil, nil
-    zoomChoice = "fit"
+addButton("Reset view",111,-80,function()
+    centerX,centerY=nil,nil
+    zoomChoice="fit"
     render()
 end)
 
@@ -275,7 +272,7 @@ if UISpecialFrames then
 end
 
 SLASH_SOFTSPOKEN_ART_INSPECTOR1 = "/ssart"
-SLASH_SOFTSPOKEN_ART_INSPECTOR2 = "/shopart"
+SLASH_SOFTSPOKEN_ART_INSPECTOR2 = "/blizzart"
 SlashCmdList["SOFTSPOKEN_ART_INSPECTOR"] = function()
     if viewer:IsShown() then viewer:Hide() else viewer:Show() end
 end
