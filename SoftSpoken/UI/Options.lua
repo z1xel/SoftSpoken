@@ -49,13 +49,13 @@ local function DrawOrnateHeaderBand(window)
     local topY, bottomY = -17, -111
     local cornerW, cornerH = 28, 16
 
-    local function Part(file, layer, u1, u2, v1, v2, width, height, anchor, x, y)
+    local function Part(file, layer, u1, u2, v1, v2, width, height, anchor, relative, x, y)
         local tex = window:CreateTexture(nil, layer)
         tex:SetTexture(art .. file)
         tex:SetTexCoord(u1, u2, v1, v2)
         tex:SetWidth(width)
         tex:SetHeight(height)
-        tex:SetPoint(anchor, window, anchor, x, y)
+        tex:SetPoint(anchor, window, relative, x, y)
         return tex
     end
 
@@ -63,13 +63,13 @@ local function DrawOrnateHeaderBand(window)
     -- contains only its upper border and the bottom row its lower border.
     -- No full search field is drawn through the empty space between them.
     local tl = Part("Left", "BORDER", 0, 28/256, 0, 0.5,
-        cornerW, cornerH, "TOPLEFT", leftX, topY)
+        cornerW, cornerH, "TOPLEFT", "TOPLEFT", leftX, topY)
     local tr = Part("Right", "BORDER", 228/256, 1, 0, 0.5,
-        cornerW, cornerH, "TOPRIGHT", rightX, topY)
+        cornerW, cornerH, "TOPRIGHT", "TOPRIGHT", rightX, topY)
     local bl = Part("Left", "BORDER", 0, 28/256, 0.5, 1,
-        cornerW, cornerH, "BOTTOMLEFT", leftX, bottomY)
+        cornerW, cornerH, "BOTTOMLEFT", "TOPLEFT", leftX, bottomY)
     local br = Part("Right", "BORDER", 228/256, 1, 0.5, 1,
-        cornerW, cornerH, "BOTTOMRIGHT", rightX, bottomY)
+        cornerW, cornerH, "BOTTOMRIGHT", "TOPRIGHT", rightX, bottomY)
 
     -- Crop from the COMPENDIUM search bar's flat middle, taking only the
     -- upper or lower half of the native 32px border. The 2-point horizontal
