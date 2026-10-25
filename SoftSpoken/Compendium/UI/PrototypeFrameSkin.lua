@@ -39,17 +39,16 @@ local CHAR_LEFT_Y0, CHAR_LEFT_Y1 = 0, 68
 local CHAR_LEFT_POS_X, CHAR_LEFT_POS_Y = -14, 12
 
 -- Keep the MATCHING ORIGINAL Character Frame right cap. Its texture crop
--- begins at source y=14: unlike a full-sheet texture, the crop must be
--- lowered by those 14 pixels to share the left source's +12 vertical origin.
--- The prior TOPRIGHT y=+11 incorrectly raised it by 13 UI units.
+-- starts at source y=0 to preserve the complete original top edge.
+-- Keep the existing one-pixel-up alignment and unchanged horizontal offset.
 -- Retain source x=95 at root x=w-9, matching the vertical frame border.
 -- Extend the crop to the FULL 128px right edge; move the TOPRIGHT anchor by
 -- 27px to retain the original seam, then 5px farther right for alignment.
 -- No duplicate generic FrameGeneral top-right square is drawn.
 local CHAR_RIGHT_X0, CHAR_RIGHT_X1 = 56, 128
-local CHAR_RIGHT_Y0, CHAR_RIGHT_Y1 = 14, 52
+local CHAR_RIGHT_Y0, CHAR_RIGHT_Y1 = 0, 52
 local CHAR_RIGHT_POS_X = CHAR_RIGHT_X1 - 94
-local CHAR_RIGHT_POS_Y = CHAR_LEFT_POS_Y - CHAR_RIGHT_Y0 + 1
+local CHAR_RIGHT_POS_Y = CHAR_LEFT_POS_Y + 1
 
 -- The reusable Blizzard title strip itself occupies x=64..(w-33).
 local TITLE_START = 64
