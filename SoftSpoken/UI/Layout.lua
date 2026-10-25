@@ -16,7 +16,7 @@
 -- they are built and placed by Reflow, top to bottom. Placing them all in one pass is what lets
 -- a row be hidden (ShowWhen) and everything under it close up, rather than leaving a hole.
 
-local VERSION = 65
+local VERSION = 66
 
 -- LibStub's contract, for LibStub's reason: several addons load this file and the newest
 -- copy must win, whichever of them the client happens to load last.
@@ -797,15 +797,43 @@ local function Caption(parent, text)
     return fs
 end
 
--- Put a row's label where the game's settings put it: 37 in, 15 more for each indent, running to
--- 85 short of the row's middle; small for an option under another.
-local function PlaceLabel(layout, caption, x, top)
+-- Keep the familiar left-aligned Blizzard settings labels, but give them
+-- their *actual* text width wherever the control can move right without
+-- passing the page edge. The modern Settings template assumes a much wider
+-- canvas, so its fixed "85 before the middle" cutoff truncates ordinary
+-- labels like "Smooth Caption Changes" on the 1.12 window.
+-- Return the control's X position; only unusually long labels are clipped.
+local LABEL_CONTROL_GAP = 9
+local LABEL_RIGHT_PAD = 10
+local function PlaceLabel(layout, caption, x, top, controlWidth, controlOffset)
     local start = x + LABEL_X
-    -- The font object itself: the legacy clients take no font by its name here.
     local font = x > layout.left and "GameFontNormalSmall" or "GameFontNormal"
     caption:SetFontObject(_G[font] or font)
-    caption:SetWidth(math.max(40, layout:Middle() - LABEL_END - start))
+
+    -- Measure without the previous layout's truncation affecting the result.
+    caption:SetWidth(layout:Width())
+    local natural = caption.GetStringWidth and caption:GetStringWidth() or 0
+    local base = layout:Middle() + (controlOffset or CONTROL_X)
+    local right = layout.left + layout:Width() - LABEL_RIGHT_PAD
+    local furthest = math.max(base, right - (controlWidth or 0))
+    local wanted = start + natural + LABEL_CONTROL_GAP
+    local column = math.min(furthest, math.max(base, wanted))
+    local room = math.max(40, column - start - LABEL_CONTROL_GAP)
+
+    -- Only use the narrower Blizzard font when a label really cannot fit,
+    -- rather than abbreviating a normal-length name unnecessarily.
+    if natural > room and x <= layout.left and _G.GameFontNormalSmall then
+        caption:SetFontObject(_G.GameFontNormalSmall)
+        caption:SetWidth(layout:Width())
+        natural = caption:GetStringWidth()
+        wanted = start + natural + LABEL_CONTROL_GAP
+        column = math.min(furthest, math.max(base, wanted))
+        room = math.max(40, column - start - LABEL_CONTROL_GAP)
+    end
+
+    caption:SetWidth(room)
     Put(caption, layout.parent, start, top)
+    return column
 end
 
 --- Grey `row` out whenever `applies()` is false, and add `reason` to its tooltip, so a
@@ -1114,8 +1142,7 @@ function Layout:Checkbox(label, tooltip, read, write, apply)
     self:Index(box, label, tooltip)
     self:AddRow(ROW_HEIGHT, box, { hit, box, box.text }, function(top, x)
         PlaceBand(self, hit, top)
-        PlaceLabel(self, box.text, x, top)
-        local column = self:Column()
+        local column = PlaceLabel(self, box.text, x, top, box:GetWidth())
         Put(box, parent, column, top - math.floor((ROW_HEIGHT - box:GetHeight()) / 2))
         box.layoutColumn = column
     end)
@@ -1207,8 +1234,7 @@ function Layout:Slider(label, minValue, maxValue, step, read, write, apply, show
     self:Index(frame, label, tooltip)
     self:AddRow(ROW_HEIGHT, frame, { hit, frame, caption }, function(top, x)
         PlaceBand(self, hit, top)
-        PlaceLabel(self, caption, x, top)
-        local column = self:Column()
+        local column = PlaceLabel(self, caption, x, top, frame:GetWidth())
         Put(frame, parent, column, top - math.floor((ROW_HEIGHT - (frame:GetHeight() or 20)) / 2) + 3)
         frame.layoutColumn = column
     end)
@@ -1351,10 +1377,10 @@ function Layout:Dropdown(label, tooltip, values, read, write, apply, describe)
     Sync()
     self:AddRow(ROW_HEIGHT, control, { hit, control, caption }, function(top, x)
         PlaceBand(self, hit, top)
-        PlaceLabel(self, caption, x, top)
-        local start = self:Middle() + offset
-        Put(control, parent, start, top - math.floor((ROW_HEIGHT - (control:GetHeight() or 26)) / 2) + 3)
-        control.layoutColumn = self:Column()
+        local column = PlaceLabel(self, caption, x, top,
+            math.max(DROPDOWN_WIDTH - 40, control:GetWidth() or 0), offset)
+        Put(control, parent, column, top - math.floor((ROW_HEIGHT - (control:GetHeight() or 26)) / 2) + 3)
+        control.layoutColumn = column
     end)
     return control
 end
@@ -2196,8 +2222,7 @@ function Layout:Badge(label, read, tooltip, hug)
     badge.layoutLabel = caption
     self:AddRow(ROW_HEIGHT, badge, { hit, badge, caption }, function(top, x)
         PlaceBand(self, hit, top)
-        PlaceLabel(self, caption, x, top)
-        local column = self:Column()
+        local column = PlaceLabel(self, caption, x, top, badge:GetWidth())
         Put(badge, parent, column, top - math.floor((ROW_HEIGHT - FIELD_HEIGHT) / 2))
         badge.layoutColumn = column
     end)
@@ -2236,8 +2261,8 @@ function Layout:Download(label, read, buttonLabel, onClick, tooltip)
     self:Index(field, label, tooltip)
     self:AddRow(ROW_HEIGHT, field, { hit, field, button, caption }, function(top, x)
         PlaceBand(self, hit, top)
-        PlaceLabel(self, caption, x, top)
-        local column = self:Column()
+        local column = PlaceLabel(self, caption, x, top,
+            math.max(field:GetWidth(), button:GetWidth()))
         local y = top - math.floor((ROW_HEIGHT - FIELD_HEIGHT) / 2)
         Put(field, parent, column, y)
         Put(button, parent, column, y)
@@ -2410,8 +2435,7 @@ function Layout:Key(label, read, set, tooltip, labels)
     self:Index(field, label, tooltip)
     self:AddRow(ROW_HEIGHT, field, { hit, field, caption }, function(top, x)
         PlaceBand(self, hit, top)
-        PlaceLabel(self, caption, x, top)
-        local column = self:Column()
+        local column = PlaceLabel(self, caption, x, top, field:GetWidth())
         Put(field, parent, column, top - math.floor((ROW_HEIGHT - FIELD_HEIGHT) / 2))
         field.layoutColumn = column
     end)
