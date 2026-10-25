@@ -245,6 +245,7 @@ L = {
     OPT_RESET = "Reset Positions",
     OPT_AUDIO_TITLE = "Sound",
     OPT_LANGUAGE_TITLE = "Language",
+    OPT_LANGUAGE_UNAVAILABLE = "* Multiple languages are not currently supported. Language selection is disabled.",
     OPT_VOICE_LANGUAGE = "Voice Language",
     OPT_VOICE_LANGUAGE_TIP = "The voice language for Quests, Gossip and Books. Zones uses its installed audio packs separately. Auto uses your game language. A language requires its voice pack.",
     OPT_LANG_AUTO_FMT = "Auto (%1$s)",
