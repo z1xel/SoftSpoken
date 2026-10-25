@@ -1,0 +1,5 @@
+## Interface: 11200
+## Title: SoftSpoken Art Inspector
+## Notes: Temporary, standalone viewer for Turtle WoW's original ShopFrame textures.
+## Author: SoftSpoken
+ArtInspector.lua
