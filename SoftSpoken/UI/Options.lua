@@ -34,108 +34,6 @@ local Layout = SpokenLayout
 -- Product name stays consistent across locales, unlike descriptive settings text.
 local HOME_TITLE = "SoftSpoken"
 
--- Shared legacy-window chrome for the original 1.12 client.
--- Keep the window's contents, navigation and scroll child independent of its skin.
--- The packed rock and metal files are already shipped with SoftSpoken's Compendium.
--- We deliberately do not use the six KeyBindingFrame background textures: they
--- have transparent regions and were designed for a fixed 640x512 window.
-local SKIN_ROOT = [[Interface\AddOns\SoftSpoken\Compendium\Textures\]]
-local SKIN_ROCK = SKIN_ROOT .. [[Prototype\UI-Background-Rock-Classic]]
-local SKIN_METAL = SKIN_ROOT .. [[ClassicFrames\UIFrameMetal]]
-local SKIN_METAL_H = SKIN_ROOT .. [[ClassicFrames\UIFrameMetalHorizontal]]
-local SKIN_METAL_V = SKIN_ROOT .. [[ClassicFrames\UIFrameMetalVertical]]
-
-local function ApplyLegacyWindowSkin(frame, title)
-    if frame.softSpokenSkinApplied then
-        if frame.titleText then frame.titleText:SetText(title or HOME_TITLE) end
-        return
-    end
-    frame.softSpokenSkinApplied = true
-
-    -- A genuine tiled rock backdrop covers the WHOLE panel. SetBackdrop
-    -- handles tiling on 1.12; don't stretch one texture or repeat atlas UVs.
-    -- The dialog border is also native 1.12 artwork, silver tinted.
-    frame:SetBackdrop({
-        bgFile = SKIN_ROCK,
-        edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]],
-        tile = true, tileSize = 256, edgeSize = 32,
-        insets = {left = 12, right = 12, top = 12, bottom = 12},
-    })
-    frame:SetBackdropColor(0.43, 0.42, 0.44, 1)
-    frame:SetBackdropBorderColor(0.85, 0.85, 0.9, 1)
-
-    local function Art(layer, file, u1, u2, v1, v2)
-        local tex = frame:CreateTexture(nil, layer)
-        tex:SetTexture(file)
-        tex:SetTexCoord(u1, u2, v1, v2)
-        return tex
-    end
-
-    -- Cropped silver corner ornamentation from Blizzard's bundled 512px
-    -- UIFrameMetal atlas. Small corner pieces, never 132px overlays on controls.
-    local cornerUVs = {
-        {135, 267, 135, 267, "TOPLEFT", -5, 5},
-        {1, 133, 135, 267, "TOPRIGHT", 5, 5},
-        {1, 133, 1, 133, "BOTTOMLEFT", -5, -5},
-        {135, 267, 1, 133, "BOTTOMRIGHT", 5, -5},
-    }
-    for _, info in ipairs(cornerUVs) do
-        local tex = Art("ARTWORK", SKIN_METAL,
-            info[1] / 512, info[2] / 512, info[3] / 512, info[4] / 512)
-        tex:SetWidth(42)
-        tex:SetHeight(42)
-        tex:SetPoint(info[5], frame, info[5], info[6], info[7])
-    end
-
-    -- Narrow silver rails span only between the corners. Two top strokes
-    -- frame the stone header; a third closes the lower edge. The source
-    -- is the same eight-pixel-high Blizzard metal used by the Compendium.
-    local function Horizontal(top, pixels, y)
-        local tex = Art("BORDER", SKIN_METAL_H,
-            0, 1, pixels[1] / 512, pixels[2] / 512)
-        tex:SetHeight(pixels[2] - pixels[1])
-        if top then
-            tex:SetPoint("TOPLEFT", frame, "TOPLEFT", 34, -y)
-            tex:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -34, -y)
-        else
-            tex:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 34, y)
-            tex:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -34, y)
-        end
-        return tex
-    end
-    Horizontal(true, {149, 156}, 10)
-    Horizontal(true, {169, 177}, 39)
-    Horizontal(false, {125, 131}, 9)
-
-    -- Vertical trims are anchored at BOTH ends. Unlike fixed-height sprites,
-    -- they follow the 1.12 panel when screen resolution changes.
-    local function Vertical(right, u1, u2)
-        local tex = Art("BORDER", SKIN_METAL_V, u1 / 512, u2 / 512, 0, 1)
-        tex:SetWidth(u2 - u1)
-        local x = right and -11 or 11
-        local point = right and "TOPRIGHT" or "TOPLEFT"
-        local bottom = right and "BOTTOMRIGHT" or "BOTTOMLEFT"
-        tex:SetPoint(point, frame, point, x, -39)
-        tex:SetPoint(bottom, frame, bottom, x, 27)
-    end
-    Vertical(false, 11, 18)
-    Vertical(true, 258, 266)
-
-    -- Retain the already validated native title plaque and its centered text.
-    local plaque = frame:CreateTexture(nil, "ARTWORK")
-    plaque:SetTexture([[Interface\DialogFrame\UI-DialogBox-Header]])
-    plaque:SetWidth(400)
-    plaque:SetHeight(64)
-    plaque:SetPoint("TOP", frame, "TOP", 0, 12)
-    local heading = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    heading:SetWidth(210)
-    heading:SetHeight(16)
-    heading:SetJustifyH("CENTER")
-    heading:SetPoint("TOP", plaque, "TOP", 0, -13)
-    heading:SetText(title or HOME_TITLE)
-    frame.titleText = heading
-end
-
 -- The ways of showing a line, by the name Addon:PlayerStyle gives each.
 local STYLE_LABELS = {
     minimal = L.OPT_STYLE_MINIMAL,
@@ -1201,8 +1099,90 @@ function Options:Setup()
         panel:SetMovable(true)
         panel:EnableMouse(true)
         panel:SetFrameStrata("DIALOG")
-        -- Custom silver ornamental shell with an opaque, tiled rock interior.
-        ApplyLegacyWindowSkin(panel, HOME_TITLE)
+        -- The Key Bindings art below has transparent space between its upper
+        -- and lower stone bands. Give the full-height window an opaque backing,
+        -- so the world never shows through on tall settings pages. Keep the
+        -- familiar Blizzard dialogue border rather than drawing our own.
+        if panel.SetBackdrop then
+            panel:SetBackdrop({
+                bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+                edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+                tile = true, tileSize = 16, edgeSize = 32,
+                insets = { left = 10, right = 10, top = 10, bottom = 10 },
+            })
+            panel:SetBackdropColor(0.12, 0.11, 0.12, 1)
+        end
+
+        -- Native Blizzard rock fills the space behind the settings, not only
+        -- the top and bottom. The solid backdrop above is also a safe fallback
+        -- on clients missing this particular stone texture.
+        local rock = panel:CreateTexture(nil, "BACKGROUND")
+        rock:SetTexture([[Interface\FrameGeneral\UI-Background-Rock]])
+        rock:SetPoint("TOPLEFT", panel, "TOPLEFT", 12, -12)
+        rock:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -12, 12)
+        rock:SetVertexColor(0.48, 0.46, 0.46)
+        if rock.SetHorizTile then rock:SetHorizTile(true) end
+        if rock.SetVertTile then rock:SetVertTile(true) end
+
+        -- The six original Key Bindings border/background pieces retain their
+        -- native proportions. Stretching each across half of a taller window
+        -- magnified the artwork's transparent areas instead of filling them.
+        local bindingArt = [[Interface\KeyBindingFrame\UI-KeyBindingFrame-]]
+        local art = {}
+        local function Piece(name, point)
+            local texture = panel:CreateTexture(nil, "BACKGROUND")
+            texture:SetTexture(bindingArt .. name)
+            texture:SetPoint(point, panel, point, 0, 0)
+            art[name] = texture
+            return texture
+        end
+        Piece("TopLeft", "TOPLEFT")
+        Piece("Top", "TOP")
+        Piece("TopRight", "TOPRIGHT")
+        Piece("BotLeft", "BOTTOMLEFT")
+        Piece("Bot", "BOTTOM")
+        Piece("BotRight", "BOTTOMRIGHT")
+        local function SizeBindingArt()
+            local width, height = panel:GetWidth(), panel:GetHeight()
+            local scale = width / 640
+            local side = math.floor(256 * scale + 0.5)
+            local right = width - side * 2
+            local half = math.min(height / 2, 256 * scale)
+            -- Repeat, rather than stretch, the rock throughout the window.
+            rock:SetTexCoord(0, math.max(1, (width - 24) / 256),
+                             0, math.max(1, (height - 24) / 256))
+            for _, texture in pairs(art) do texture:SetHeight(half) end
+            art.TopLeft:SetWidth(side)
+            art.Top:SetWidth(side)
+            art.TopRight:SetWidth(right)
+            art.BotLeft:SetWidth(side)
+            art.Bot:SetWidth(side)
+            art.BotRight:SetWidth(right)
+            art.Top:ClearAllPoints()
+            art.Top:SetPoint("TOPLEFT", art.TopLeft, "TOPRIGHT", 0, 0)
+            art.Bot:ClearAllPoints()
+            art.Bot:SetPoint("BOTTOMLEFT", art.BotLeft, "BOTTOMRIGHT", 0, 0)
+        end
+        SizeBindingArt()
+        -- On legacy clients this window is currently fixed-width, but allow
+        -- the artwork to follow it if a future settings layout resizes it.
+        if panel.HookScript then panel:HookScript("OnSizeChanged", SizeBindingArt) end
+
+        -- The native 400x64 UI-DialogBox-Header is centered on this window.
+        -- Blizzard's Key Bindings uses a -30 horizontal offset for its own
+        -- asymmetric frame; retaining that offset shifts SoftSpoken's plaque
+        -- left of center. Keep the caption anchored to the plaque itself.
+        local titlePlate = panel:CreateTexture(nil, "ARTWORK")
+        titlePlate:SetTexture([[Interface\DialogFrame\UI-DialogBox-Header]])
+        titlePlate:SetWidth(400)
+        titlePlate:SetHeight(64)
+        titlePlate:SetPoint("TOP", panel, "TOP", 0, 12)
+        local heading = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        heading:SetWidth(210)
+        heading:SetHeight(16)
+        heading:SetJustifyH("CENTER")
+        heading:SetPoint("TOP", titlePlate, "TOP", 0, -13)
+        heading:SetText(HOME_TITLE)
         local divider = panel:CreateTexture(nil, "BORDER")
         divider:SetTexture([[Interface\Buttons\WHITE8X8]])
         divider:SetVertexColor(0.75, 0.63, 0.38, 0.65)
