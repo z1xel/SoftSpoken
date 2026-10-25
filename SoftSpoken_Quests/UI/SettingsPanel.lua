@@ -104,15 +104,50 @@ function SettingsPanel:Build()
     end, "Enable Gossip and automatic narration to use this.")
 
     layout:Section("Voice Packs")
-    local note = layout:Note("", nil, 28)
-    layout:OnRefresh(function()
-        local count = 0
-        for _, module in DataModules:GetPresentModules() do count = count + 1 end
-        note:SetText(count == 0 and "No Quests voice packs installed."
-            or tostring(count) .. " Quests voice pack(s) installed.")
-    end)
-    -- Give each pack its own callback scope. The original Lua 5.0 generic-for
-    -- variables are not safe to capture directly in delayed UI handlers.
+    -- Include every detected enabled pack, not just the five download choices.
+    -- Its metadata comes from the same enumeration used by the original panel.
+    layout:PackInventory(function()
+        local packs = {}
+        for _, module in DataModules:GetPresentModules() do
+            local info = module
+            local loaded = DataModules:GetModule(info.AddonName) ~= nil
+            local errorCode = DataModules:GetModuleLoadError(info.AddonName)
+            local reason
+            if GetAddOnInfo then
+                local _, _, _, _, failure = GetAddOnInfo(info.AddonName)
+                if failure ~= "DEMAND_LOADED" and failure ~= "INTERFACE_VERSION" then
+                    reason = failure
+                end
+            end
+            local fields = {
+                { label = "Addon", value = info.AddonName },
+                { label = "Pack Title", value = info.Title },
+                { label = "Content Version", value = info.ContentVersion },
+                { label = "Data Format", value = info.ModuleVersion },
+                { label = "Priority", value = info.ModulePriority },
+                { label = "Language", value = Language:GetNativeName(info.Language) },
+                { label = "Load on Demand", value = info.LoadOnDemand and YES or NO },
+                { label = "Loaded", value = loaded and YES or NO },
+            }
+            if reason then
+                table.insert(fields, { label = "Addon Status", value = _G["ADDON_" .. reason] or reason })
+            end
+            if errorCode then
+                table.insert(fields, { label = "Load Error", value = tostring(errorCode) })
+            end
+            table.insert(packs, {
+                id = info.AddonName, source = info,
+                name = info.Title or info.AddonName,
+                version = info.ContentVersion,
+                status = loaded and "Loaded" or "Not loaded",
+                details = fields,
+            })
+        end
+        return packs
+    end, "No Quests voice packs detected.")
+
+    -- These are download destinations, not an inventory of installed packs.
+    layout:Section("Voice Pack Downloads")
     local function AddPack(info)
         local name = DataModules:GetPackLabel(info)
         layout:Download(name, function()
