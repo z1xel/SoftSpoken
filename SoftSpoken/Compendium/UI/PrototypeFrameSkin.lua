@@ -20,6 +20,7 @@ local ROCK = DIR .. "UI-Background-Rock-Classic"
 -- These are the same source textures inspected with /ssart: NO recoloring,
 -- exported screenshots, invented shadows, or Turtle Shop composites.
 local CHARACTER_LEFT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft"
+local CHARACTER_RIGHT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight"
 
 -- The CHARACTER top-left/right PNGs are fixed-window compositions, not
 -- tiling atlases. Repeating their opaque stone interiors created rectangular
@@ -37,10 +38,16 @@ local CHAR_LEFT_X0, CHAR_LEFT_X1 = 0, 78
 local CHAR_LEFT_Y0, CHAR_LEFT_Y1 = 0, 68
 local CHAR_LEFT_POS_X, CHAR_LEFT_POS_Y = -14, 12
 
--- Do not draw a Character Frame right cap: the current Compendium already
--- uses the original Blizzard UI-Frame top-right corner and a matching bezel
--- behind its minimize button. Adding another right cap duplicates the end
--- geometry and produces the raised floating piece seen in-game.
+-- Keep the MATCHING ORIGINAL Character Frame right cap. Its texture crop
+-- begins at source y=14: unlike a full-sheet texture, the crop must be
+-- lowered by those 14 pixels to share the left source's +12 vertical origin.
+-- The prior TOPRIGHT y=+11 incorrectly raised it by 13 UI units.
+-- Retain source x=95 at root x=w-9, matching the vertical frame border.
+-- No duplicate generic FrameGeneral top-right square is drawn.
+local CHAR_RIGHT_X0, CHAR_RIGHT_X1 = 56, 101
+local CHAR_RIGHT_Y0, CHAR_RIGHT_Y1 = 14, 52
+local CHAR_RIGHT_POS_X = -3
+local CHAR_RIGHT_POS_Y = CHAR_LEFT_POS_Y - CHAR_RIGHT_Y0
 
 -- The reusable Blizzard title strip itself occupies x=64..(w-33).
 local TITLE_START = 64
@@ -173,17 +180,18 @@ function Skin.Apply(self, title)
     self.sszInitialized = true
     self.sszShowStreaks = true
 
-    -- The left Character accent ends at x=64, where the native repeating
-    -- Blizzard title rail begins. Keep the right side on one frame system:
-    -- its existing UI-Frame corner and minimize bezel below.
+    -- The approved left accent remains untouched. The fixed Character right
+    -- cap is restored at the SAME native source-to-screen vertical origin.
+    -- Draw the right end above the repeatable rail but before the existing
+    -- minimizer/close controls. The old generic 33x33 endcap was a duplicate.
     self.sszCharacterHeaderLeft = fixed(self,"BORDER",CHARACTER_LEFT,
         CHAR_LEFT_X1-CHAR_LEFT_X0,CHAR_LEFT_Y1-CHAR_LEFT_Y0,
         {CHAR_LEFT_X0/256,CHAR_LEFT_X1/256,CHAR_LEFT_Y0/256,CHAR_LEFT_Y1/256},
         "TOPLEFT",CHAR_LEFT_POS_X,CHAR_LEFT_POS_Y)
-
-    -- The native 33x33 endcap and existing button bezels share the approved
-    -- right-edge anchor; the extra Character right artwork is intentionally gone.
-    fixed(self,"OVERLAY",FRAME,33,33,{0.6328125,0.890625,0.0078125,0.265625},"TOPRIGHT",0,1)
+    self.sszCharacterHeaderRight = fixed(self,"OVERLAY",CHARACTER_RIGHT,
+        CHAR_RIGHT_X1-CHAR_RIGHT_X0,CHAR_RIGHT_Y1-CHAR_RIGHT_Y0,
+        {CHAR_RIGHT_X0/128,CHAR_RIGHT_X1/128,CHAR_RIGHT_Y0/256,CHAR_RIGHT_Y1/256},
+        "TOPRIGHT",CHAR_RIGHT_POS_X,CHAR_RIGHT_POS_Y)
     fixed(self,"BORDER",FRAME,14,14,{0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,-5)
     fixed(self,"BORDER",FRAME,11,11,{0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,-5)
 
