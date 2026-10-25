@@ -574,12 +574,10 @@ function Player:Setup()
         end)
     end
 
-    -- No "read visible quest" entry: it only did anything with a quest window already open,
-    -- and an open quest window has its own Play button.
-    Spoken.Minimap:AddEntry("quests", { id = "Options", text = L.OPT_MINIMAP_SETTINGS, order = 2,
-        onClick = function() Options:OpenSettings() end })
-    Spoken.Minimap:AddEntry("gossip", { id = "Options", text = L.OPT_GOSSIP_MINIMAP_SETTINGS, order = 2,
-        onClick = function() Options:OpenGossipSettings() end })
+    -- The shared minimap already provides a Settings entry that opens the
+    -- unified window. Do not add duplicate Quests/Gossip settings entries:
+    -- they created otherwise-empty Quests and Gossip groups in that menu.
+    -- Keep the standalone settings methods and the existing settings link.
     if Spoken.AddSettingsLink then
         Spoken:AddSettingsLink(L.OPT_MINIMAP_SETTINGS, function() Options:OpenSettings() end)
     end
