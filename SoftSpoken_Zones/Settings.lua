@@ -60,5 +60,25 @@ function SSZLoreFontSize()
     return CharDB().settings.loreFontSize or 14
 end
 
+-- Restore supported Zones preferences without touching character progression.
+-- Spoken's per-module Enable switch lives in the shared player profile, not
+-- this character's settings; as with Books Defaults, leave that switch alone.
+local function ResetOptions()
+    local settings = CharDB().settings
+    settings.auto = true
+    settings.subzones = true
+    settings.mode = "discovery"
+    settings.discoveryDefaultMigrated = true
+    settings.holdCombat = true
+    settings.greeting = true
+    settings.showMapPanel = true
+    settings.mapPanelCollapsed = false
+    settings.loreFontSize = 14
+    -- Do not clear heard, visited or greeted; those are progress/history.
+    -- Keep the retired captions import and any unknown extensions intact.
+end
+
+R.ResetOptions = ResetOptions
+
 R.CharDB = CharDB
 R.WasHeard = WasHeard
