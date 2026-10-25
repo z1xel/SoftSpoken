@@ -45,7 +45,9 @@ local function DrawOrnateHeaderBand(window)
     -- chat-input border, and connect them with straight edge-only slices.
     -- Textures belong to the parent window, so they cannot intercept clicks.
     local art = [[Interface\ChatFrame\UI-ChatInputBorder-]]
-    local leftX, rightX = 20, -20
+    -- Align both silver side edges with the legacy settings window itself.
+    -- The previous 20px inset made this header shorter than the outer frame.
+    local leftX, rightX = 0, 0
     local topY, bottomY = -17, -111
     local cornerW, cornerH = 28, 16
 
