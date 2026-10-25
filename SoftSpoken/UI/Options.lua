@@ -505,6 +505,7 @@ local function Build(canvas)
             return Native(code)
         end)
     layout:Requires(voiceChoice, LanguageAvailable, languageUnavailable)
+    layout:BlockInteraction(voiceChoice)
     local fallbackChoice = layout:Dropdown(L.OPT_FALLBACK_LANGUAGE, L.OPT_FALLBACK_LANGUAGE_TIP, fallbacks,
         function() return language().Fallback or "enUS" end,
         function(code)
@@ -512,6 +513,7 @@ local function Build(canvas)
         end, nil,
         function(code) return code == "none" and L.OPT_FALLBACK_NONE or Native(code) end)
     layout:Requires(fallbackChoice, LanguageAvailable, languageUnavailable)
+    layout:BlockInteraction(fallbackChoice)
     local languageNotice = layout:Note(languageUnavailable, nil, 34)
     languageNotice:SetTextColor(1, 0.24, 0.24)
     languageNotice:SetAlpha(1)
