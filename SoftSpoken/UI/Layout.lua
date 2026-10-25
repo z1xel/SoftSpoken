@@ -16,7 +16,7 @@
 -- they are built and placed by Reflow, top to bottom. Placing them all in one pass is what lets
 -- a row be hidden (ShowWhen) and everything under it close up, rather than leaving a hole.
 
-local VERSION = 66
+local VERSION = 67
 
 -- LibStub's contract, for LibStub's reason: several addons load this file and the newest
 -- copy must win, whichever of them the client happens to load last.
@@ -797,20 +797,16 @@ local function Caption(parent, text)
     return fs
 end
 
--- Keep the familiar left-aligned Blizzard settings labels, but give them
--- their *actual* text width wherever the control can move right without
--- passing the page edge. The modern Settings template assumes a much wider
--- canvas, so its fixed "85 before the middle" cutoff truncates ordinary
--- labels like "Smooth Caption Changes" on the 1.12 window.
--- Return the control's X position; only unusually long labels are clipped.
+-- Keep all settings labels in Blizzard's GameFontNormal. The previous
+-- adaptive-width pass switched individual labels to GameFontNormalSmall if
+-- they were long, which made neighboring controls visibly inconsistent.
+-- Measure in the one font, move controls into available space, and truncate
+-- only when a genuinely long name cannot fit within the page.
 local LABEL_CONTROL_GAP = 9
 local LABEL_RIGHT_PAD = 10
 local function PlaceLabel(layout, caption, x, top, controlWidth, controlOffset)
     local start = x + LABEL_X
-    local font = x > layout.left and "GameFontNormalSmall" or "GameFontNormal"
-    caption:SetFontObject(_G[font] or font)
-
-    -- Measure without the previous layout's truncation affecting the result.
+    caption:SetFontObject(_G.GameFontNormal or "GameFontNormal")
     caption:SetWidth(layout:Width())
     local natural = caption.GetStringWidth and caption:GetStringWidth() or 0
     local base = layout:Middle() + (controlOffset or CONTROL_X)
@@ -818,20 +814,7 @@ local function PlaceLabel(layout, caption, x, top, controlWidth, controlOffset)
     local furthest = math.max(base, right - (controlWidth or 0))
     local wanted = start + natural + LABEL_CONTROL_GAP
     local column = math.min(furthest, math.max(base, wanted))
-    local room = math.max(40, column - start - LABEL_CONTROL_GAP)
-
-    -- Only use the narrower Blizzard font when a label really cannot fit,
-    -- rather than abbreviating a normal-length name unnecessarily.
-    if natural > room and x <= layout.left and _G.GameFontNormalSmall then
-        caption:SetFontObject(_G.GameFontNormalSmall)
-        caption:SetWidth(layout:Width())
-        natural = caption:GetStringWidth() or 0
-        wanted = start + natural + LABEL_CONTROL_GAP
-        column = math.min(furthest, math.max(base, wanted))
-        room = math.max(40, column - start - LABEL_CONTROL_GAP)
-    end
-
-    caption:SetWidth(room)
+    caption:SetWidth(math.max(40, column - start - LABEL_CONTROL_GAP))
     Put(caption, layout.parent, start, top)
     return column
 end
@@ -1234,6 +1217,20 @@ function Layout:Slider(label, minValue, maxValue, step, read, write, apply, show
     self:Index(frame, label, tooltip)
     self:AddRow(ROW_HEIGHT, frame, { hit, frame, caption }, function(top, x)
         PlaceBand(self, hit, top)
+        -- The Vanilla slider has a 50-unit value area beside its track.
+        -- Shorten only the track when a longer label needs that room; do
+        -- not shrink the label's font or change its alignment.
+        if value then
+            caption:SetFontObject(_G.GameFontNormal or "GameFontNormal")
+            caption:SetWidth(self:Width())
+            local natural = caption.GetStringWidth and caption:GetStringWidth() or 0
+            local desiredColumn = math.max(self:Column(),
+                x + LABEL_X + natural + LABEL_CONTROL_GAP)
+            local remaining = self.left + self:Width() - LABEL_RIGHT_PAD - desiredColumn
+            local width = math.min(SLIDER_WIDTH, math.max(170, remaining))
+            frame:SetWidth(width)
+            slider:SetWidth(width - 50)
+        end
         local column = PlaceLabel(self, caption, x, top, frame:GetWidth())
         Put(frame, parent, column, top - math.floor((ROW_HEIGHT - (frame:GetHeight() or 20)) / 2) + 3)
         frame.layoutColumn = column
