@@ -22,25 +22,22 @@ local ROCK = DIR .. "UI-Background-Rock-Classic"
 local CHARACTER_LEFT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft"
 local CHARACTER_RIGHT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight"
 
--- Use the complete original upper character-frame composition, beginning
--- at atlas row zero. The former 20..90 crop severed the stone background
--- horizontally across the Compendium. Extend the authentic artwork DOWN
--- BEHIND the existing search and inset frames instead of cutting it in view.
--- All source pixels remain at 1:1 scale. Never draw an artificial shadow.
+-- The Character Frame sheets contain a fully painted portrait ring, top
+-- stone, title ridge, and the left/right end shadows. In the first prototype
+-- we cropped off source x=0..64 and raised the sheet by 26 units; this cut
+-- off the left corner and put the header 15 units above the existing title.
+-- Keep the original art whole at the portrait frame's approved -14,+11
+-- origin instead. The middle alone is tiled; neither end is stretched.
 local CHAR_TOP = 0
 local CHAR_BOTTOM = 120
 local CHAR_HEIGHT = CHAR_BOTTOM - CHAR_TOP
--- Preserve the original atlas-to-screen alignment of the last prototype:
--- source (75,20) was displayed at (64,+6). Therefore x = srcX - 11
--- and y = srcY - 26. Extending the native source above and below this
--- range changes the cropping, NOT the approved border coordinates.
--- Include ten extra columns behind the existing portrait rim at left.
-local CHAR_LEFT_X0, CHAR_LEFT_X1 = 65, 220
-local CHAR_LEFT_DRAW_X = 54
+local CHAR_LEFT_X0, CHAR_LEFT_X1 = 0, 220
+local CHAR_LEFT_DRAW_X = -14
 local CHAR_MIDDLE_X0, CHAR_MIDDLE_X1 = 128, 220
 local CHAR_MIDDLE_W = CHAR_MIDDLE_X1 - CHAR_MIDDLE_X0
-local CHAR_RIGHT_W = 96
-local CHAR_TOP_RAISE = 26
+-- Do not cut off the original 128px right-hand corner.
+local CHAR_RIGHT_W = 128
+local CHAR_TOP_RAISE = 11
 
 local function fixed(parent, layer, path, w, h, coords, p, x, y)
     local t = parent:CreateTexture(nil, layer)
@@ -127,12 +124,10 @@ local function Reflow(frame)
     if not w or not h or w < 220 or h < 180 then return end
     clearSegments(frame)
 
-    -- Continue the original Blizzard title border and rock across the
-    -- resizable center. The artwork extends under the inset frames; those
-    -- existing children cover its lower boundary without a visible cut.
-    -- The repeated source is intentionally unchanged (no tint/masks).
-    -- At compact width (~340), the center still has positive space.
-    -- Reflow reuses the existing texture pool on every resize.
+    -- Repeat the original character stone only BETWEEN the unscaled ends.
+    -- Align the entire header to the same vertical origin as the portrait.
+    -- The deeper source art finishes under the existing Compendium insets;
+    -- no backdrop, content geometry, synthetic shadow, or tint is changed.
     tiled(frame,"BACKGROUND",CHARACTER_LEFT,
         {CHAR_MIDDLE_X0/256,CHAR_MIDDLE_X1/256,CHAR_TOP/256,CHAR_BOTTOM/256},
         true,CHAR_LEFT_DRAW_X+(CHAR_LEFT_X1-CHAR_LEFT_X0),
@@ -169,9 +164,9 @@ function Skin.Apply(self, title)
     self.sszInitialized = true
     self.sszShowStreaks = true
 
-    -- Retain the existing Blizzard ring and draw the original adjoining
-    -- Character stone below it. Each full native slice extends beyond the
-    -- earlier crop, with its bottom buried beneath the unchanged insets.
+    -- Restore the complete left corner (including native portrait surround)
+    -- and original right endcap. Both now share the portrait ring's vertical
+    -- origin, rather than floating fifteen units above the title/controls.
     self.sszCharacterHeaderLeft = fixed(self,"BORDER",CHARACTER_LEFT,
         CHAR_LEFT_X1-CHAR_LEFT_X0,CHAR_HEIGHT,
         {CHAR_LEFT_X0/256,CHAR_LEFT_X1/256,CHAR_TOP/256,CHAR_BOTTOM/256},
@@ -190,8 +185,8 @@ function Skin.Apply(self, title)
     self.sszPortraitSlices = circularIcon(
         self, "Interface\\Icons\\INV_Misc_Book_09", -6, 8, 61, 29
     )
-    -- Keep the original visible portrait icon and ring; the Character
-    -- artwork starts at x=65 (under the rim) rather than duplicating it.
+    -- Keep the existing portrait icon and metal ring on higher draw layers,
+    -- precisely above the original Character Frame portrait surround.
     self.sszPortraitRing = fixed(self,"OVERLAY",FRAME,78,78,
         {0.0078125,0.6171875,0.0078125,0.6171875},"TOPLEFT",-14,11)
     self.sszTitle = self:CreateFontString(nil,"OVERLAY","GameFontNormal")
