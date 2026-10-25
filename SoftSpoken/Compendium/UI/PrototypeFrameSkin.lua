@@ -31,11 +31,12 @@ local CHARACTER_RIGHT = "Interface\\PaperDollInfoFrame\\UI-Character-General-Top
 -- backdrop. Keep those for EVERY resizable span, while restricting the
 -- Character artwork to small source-aligned fixed corner details.
 --
--- Shared art anchor: the approved portrait ring begins at (-14,+11).
+-- The approved portrait ring remains at (-14,+11). Place only the
+-- Character left-side accent one pixel higher, at (-14,+12).
 -- Source art coordinates below are ORIGINAL native pixels, not UI offsets.
 local CHAR_LEFT_X0, CHAR_LEFT_X1 = 0, 78
 local CHAR_LEFT_Y0, CHAR_LEFT_Y1 = 0, 68
-local CHAR_LEFT_POS_X, CHAR_LEFT_POS_Y = -14, 11
+local CHAR_LEFT_POS_X, CHAR_LEFT_POS_Y = -14, 12
 
 -- Native Character right cap: the painted rightmost metal ends around
 -- source x=95 in its 128px sheet, not at x=128. Restrict this to the cap
