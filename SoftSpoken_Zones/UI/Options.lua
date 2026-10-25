@@ -89,8 +89,23 @@ local function Build()
     layout:PackInventory(function() return R.AudioPackNames() end,
         "No compatible Zones voice packs installed.")
     layout:Note("Zones reads from installed audio packs independently of the shared Quests/Books voice-language preference.", nil, 42)
-    -- Keep discovery/heard history untouched: this module does not expose a
-    -- reset action with established history-preservation semantics.
+
+    -- Mirrors the Books Defaults action: a confirmation, a preference-only
+    -- reset, and a refresh. Discovery and narration history are untouched.
+    layout:Defaults(function()
+        Layout.Confirm("Reset Zones preferences? Discovered and heard areas are kept.",
+            "Reset", "Cancel", function()
+                R.ResetOptions()
+                -- Apply the restored map preference immediately, not only
+                -- after the next reload or map interaction.
+                if SSZMapPanel and SSZMapPanel.SetEnabled then
+                    SSZMapPanel.SetEnabled(true)
+                end
+                if R.Recheck then R.Recheck() end
+                Refresh()
+            end)
+    end)
+
     frame:SetScript("OnShow", Refresh)
     optionsPage = Spoken:AddSettingsPage(frame, "Zones", 3, layout)
     Refresh()
