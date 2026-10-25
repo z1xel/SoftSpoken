@@ -1152,14 +1152,15 @@ function Options:Setup()
         -- the artwork to follow it if a future settings layout resizes it.
         if panel.HookScript then panel:HookScript("OnSizeChanged", SizeBindingArt) end
 
-        -- KeyBindingFrameHeader in Blizzard's XML is the native 400x64
-        -- UI-DialogBox-Header at TOP (-30,+12), with the caption -13 below
-        -- the header's top. Use that plaque rather than a loose top-left title.
+        -- The native 400x64 UI-DialogBox-Header is centered on this window.
+        -- Blizzard's Key Bindings uses a -30 horizontal offset for its own
+        -- asymmetric frame; retaining that offset shifts SoftSpoken's plaque
+        -- left of center. Keep the caption anchored to the plaque itself.
         local titlePlate = panel:CreateTexture(nil, "ARTWORK")
         titlePlate:SetTexture([[Interface\DialogFrame\UI-DialogBox-Header]])
         titlePlate:SetWidth(400)
         titlePlate:SetHeight(64)
-        titlePlate:SetPoint("TOP", panel, "TOP", -30, 12)
+        titlePlate:SetPoint("TOP", panel, "TOP", 0, 12)
         local heading = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         heading:SetWidth(210)
         heading:SetHeight(16)
