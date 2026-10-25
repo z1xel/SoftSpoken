@@ -16,7 +16,7 @@
 -- they are built and placed by Reflow, top to bottom. Placing them all in one pass is what lets
 -- a row be hidden (ShowWhen) and everything under it close up, rather than leaving a hole.
 
-local VERSION = 63
+local VERSION = 64
 
 -- LibStub's contract, for LibStub's reason: several addons load this file and the newest
 -- copy must win, whichever of them the client happens to load last.
@@ -441,6 +441,7 @@ function Layout:Reflow()
             if not any then
                 item.heading:Hide()
                 item.box:Hide()
+                item.background:Hide()
             else
                 if started then y = y - ROW_GAP end
                 item.heading:Show()
@@ -476,6 +477,7 @@ function Layout:Reflow()
                 box:SetWidth(group.right - group.left)
                 box:SetHeight(group.top - group.bottom)
                 box:Show()
+                group.background:Show()
                 started = true
             end
         else
@@ -670,23 +672,25 @@ function Layout:Group(title)
     fs.layoutHeading, fs.layoutHeight = true, SECTION_HEIGHT
     local template = BackdropTemplateMixin and "BackdropTemplate" or nil
     local box = CreateFrame("Frame", nil, parent, template)
+    -- The dark fill MUST be a BACKGROUND texture on the PAGE, not a child
+    -- frame backdrop. In Vanilla a child frame can render above the parent's
+    -- ARTWORK font strings even after lowering its frame level, dimming the
+    -- section headings and setting labels inside the box.
+    local background = parent:CreateTexture(nil, "BACKGROUND")
+    background:SetTexture([[Interface\Tooltips\UI-Tooltip-Background]])
+    background:SetVertexColor(0.06, 0.06, 0.06, 0.6)
+    background:SetAllPoints(box)
+    background:Hide()
+
     local edges = {}
     if box.SetBackdrop then
-        -- The cards' border and background (Card, below), in the grey of a card not chosen.
-        box:SetBackdrop({ bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
-            edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], tile = true, tileSize = 16, edgeSize = 14,
+        -- Border only: keep the same original Blizzard outline, but no
+        -- child-frame background capable of covering the parent text.
+        box:SetBackdrop({
+            edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], edgeSize = 14,
             insets = { left = 4, right = 4, top = 4, bottom = 4 } })
-        box:SetBackdropColor(0.06, 0.06, 0.06, 0.6)
         box:SetBackdropBorderColor(0.45, 0.45, 0.45, 1)
     end
-    -- Under the page, not over it: the rows' labels are the page's own, and a frame of its own
-    -- above the page drew its background over them.
-    local level = parent.GetFrameLevel and parent:GetFrameLevel() or 0
-    if level < 1 and parent.SetFrameLevel then
-        parent:SetFrameLevel(1)
-        level = 1
-    end
-    if box.SetFrameLevel then box:SetFrameLevel(math.max(0, level - 1)) end
     for _, side in ipairs(box.SetBackdrop and {} or { "top", "bottom", "left", "right" }) do
         local line = Flat(box, "BORDER", GROUP_LINE[1], GROUP_LINE[2], GROUP_LINE[3], GROUP_LINE[4])
         if side == "top" or side == "bottom" then
@@ -701,7 +705,8 @@ function Layout:Group(title)
         edges[side] = line
     end
     box:Hide()
-    local group = { kind = "group", text = title, heading = fs, box = box, edges = edges, sections = {} }
+    local group = { kind = "group", text = title, heading = fs, box = box, background = background,
+        edges = edges, sections = {} }
     table.insert(self.items, group)
     self.group, self.current = group, nil
     self.dirty = true
