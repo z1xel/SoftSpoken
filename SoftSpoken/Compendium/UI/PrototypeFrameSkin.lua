@@ -26,7 +26,7 @@ local CHARACTER_RIGHT = "Interface\\PaperDollInfoFrame\\UI-Character-General-Top
 -- tiling atlases. Repeating their opaque stone interiors created rectangular
 -- patches across the Compendium in the previous iteration.
 --
--- The real Blender/Blizzard portrait-frame construction instead uses
+-- Blizzard's native portrait-frame construction instead uses
 -- FrameGeneral/_UI-Frame's dedicated tiling strips over a continuous rock
 -- backdrop. Keep those for EVERY resizable span, while restricting the
 -- Character artwork to small source-aligned fixed corner details.
