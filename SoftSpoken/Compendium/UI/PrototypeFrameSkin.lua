@@ -44,11 +44,11 @@ local CHAR_LEFT_POS_X, CHAR_LEFT_POS_Y = -14, 12
 -- The prior TOPRIGHT y=+11 incorrectly raised it by 13 UI units.
 -- Retain source x=95 at root x=w-9, matching the vertical frame border.
 -- Extend the crop to the FULL 128px right edge; move the TOPRIGHT anchor by
--- exactly the added 27px so the inner left seam stays at the approved x=w-48.
+-- 27px to retain the original seam, then 5px farther right for alignment.
 -- No duplicate generic FrameGeneral top-right square is drawn.
 local CHAR_RIGHT_X0, CHAR_RIGHT_X1 = 56, 128
 local CHAR_RIGHT_Y0, CHAR_RIGHT_Y1 = 14, 52
-local CHAR_RIGHT_POS_X = CHAR_RIGHT_X1 - 104
+local CHAR_RIGHT_POS_X = CHAR_RIGHT_X1 - 99
 local CHAR_RIGHT_POS_Y = CHAR_LEFT_POS_Y - CHAR_RIGHT_Y0
 
 -- The reusable Blizzard title strip itself occupies x=64..(w-33).
