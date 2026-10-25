@@ -39,14 +39,10 @@ local HOME_TITLE = "SoftSpoken"
 -- Draw directly on the panel's BORDER layer, behind its title and real buttons;
 -- a child Frame here would sit above them and risk blocking the tabs.
 local function DrawOrnateHeaderBand(window)
-    -- ONE rectangular border around the header tabs. The former version put
-    -- two complete 32px search fields on top of each other, producing extra
-    -- horizontal bands. Crop the four CORNERS from the Compendium's native
-    -- chat-input border, and connect them with straight edge-only slices.
-    -- Textures belong to the parent window, so they cannot intercept clicks.
+    -- Open-top U-shaped silver trim beneath the navigation tabs.
+    -- Keep only the bottom corners/rail and the two vertical sides;
+    -- the title and existing window chrome supply the upper decoration.
     local art = [[Interface\ChatFrame\UI-ChatInputBorder-]]
-    -- Align both silver side edges with the legacy settings window itself.
-    -- The previous 20px inset made this header shorter than the outer frame.
     local leftX, rightX = 2, -2
     local topY, bottomY = -17, -111
     local cornerW, cornerH = 28, 16
@@ -61,40 +57,20 @@ local function DrawOrnateHeaderBand(window)
         return tex
     end
 
-    -- Each corner is HALF the native search bar's height: the top row
-    -- contains only its upper border and the bottom row its lower border.
-    -- No full search field is drawn through the empty space between them.
-    local tl = Part("Left", "BORDER", 0, 28/256, 0, 0.5,
-        cornerW, cornerH, "TOPLEFT", "TOPLEFT", leftX, topY)
-    local tr = Part("Right", "ARTWORK", 228/256, 1, 0, 0.5,
-        cornerW, cornerH, "TOPRIGHT", "TOPRIGHT", rightX, topY)
+    -- Bottom ornamentation only. No top corners or horizontal top rail.
     local bl = Part("Left", "BORDER", 0, 28/256, 0.5, 1,
         cornerW, cornerH, "BOTTOMLEFT", "TOPLEFT", leftX, bottomY)
     local br = Part("Right", "ARTWORK", 228/256, 1, 0.5, 1,
         cornerW, cornerH, "BOTTOMRIGHT", "TOPRIGHT", rightX, bottomY)
 
-    -- Crop from the COMPENDIUM search bar's flat middle, taking only the
-    -- upper or lower half of the native 32px border. The 2-point horizontal
-    -- anchors stretch these straight sections across the panel width.
-    local function Horizontal(v1, v2, upper)
-        local tex = window:CreateTexture(nil, "BORDER")
-        tex:SetTexture(art .. "Left")
-        tex:SetTexCoord(75/256, 1, v1, v2)
-        tex:SetHeight(cornerH)
-        if upper then
-            tex:SetPoint("TOPLEFT", tl, "TOPRIGHT", 0, 0)
-            tex:SetPoint("TOPRIGHT", tr, "TOPLEFT", 0, 0)
-        else
-            tex:SetPoint("BOTTOMLEFT", bl, "BOTTOMRIGHT", 0, 0)
-            tex:SetPoint("BOTTOMRIGHT", br, "BOTTOMLEFT", 0, 0)
-        end
-    end
-    Horizontal(0, 0.5, true)
-    Horizontal(0.5, 1, false)
+    local bottom = window:CreateTexture(nil, "BORDER")
+    bottom:SetTexture(art .. "Left")
+    bottom:SetTexCoord(75/256, 1, 0.5, 1)
+    bottom:SetHeight(cornerH)
+    bottom:SetPoint("BOTTOMLEFT", bl, "BOTTOMRIGHT", 0, 0)
+    bottom:SetPoint("BOTTOMRIGHT", br, "BOTTOMLEFT", 0, 0)
 
-    -- Only the two vertical sides connect the top and bottom. Sample the
-    -- straight middle of each corner's native texture rather than drawing
-    -- a second inset frame or a separate bar behind the tabs.
+    -- Vertical sides still join the lower corners, as before.
     local function Vertical(file, u1, u2, right)
         local tex = window:CreateTexture(nil, right and "ARTWORK" or "BORDER")
         tex:SetTexture(art .. file)
