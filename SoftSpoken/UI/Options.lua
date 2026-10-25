@@ -379,13 +379,34 @@ local function Build(canvas)
     for _, optional in ipairs(Actions.optional) do
         -- Lua 5.0 shares generic-for variables between iterations; callbacks need their own key.
         local actionID = optional.id
-        Only(layout:Checkbox(format(L.OPT_HIDE_ACTION, optional.label), L.OPT_HIDE_ACTION_TIP,
+        -- Preserve the original read/write behavior, but keep Report's
+        -- visibility preference unavailable until that setting is supported.
+        local isReport = actionID == "report"
+        local reportUnavailable = L.OPT_REPORT_SETTING_UNAVAILABLE
+            or "* Report button visibility is currently unavailable."
+        local row = layout:Checkbox(format(L.OPT_HIDE_ACTION, optional.label), L.OPT_HIDE_ACTION_TIP,
             function() return cfg().HiddenActions[actionID] end,
-            function(v) cfg().HiddenActions[actionID] = v or nil end, function()
+            function(v)
+                if isReport then return end
+                cfg().HiddenActions[actionID] = v or nil
+            end, function()
+                if isReport then return end
                 refresh()
                 if Subtitle then Subtitle:Update() end
-            end),
-            function() return InWindow() or Subtitles() end)
+            end)
+        local function StyleShowsActions() return InWindow() or Subtitles() end
+        Only(row, StyleShowsActions)
+        if isReport then
+            -- Requires supplies the disabled look; BlockInteraction prevents
+            -- the row's hover, tooltip and checkbox clicks on Vanilla 1.12.
+            Requires(row, function() return false end, reportUnavailable)
+            layout:BlockInteraction(row)
+            local notice = layout:Note(reportUnavailable, nil, 28)
+            notice:SetTextColor(1, 0.24, 0.24)
+            notice:SetAlpha(1)
+            notice.layoutBaseAlpha = 1
+            Only(notice, StyleShowsActions)
+        end
     end
     -- No "hide the window" switch: nothing on screen at all is Voice Only, a way of showing
     -- lines like the others, chosen with them above.
