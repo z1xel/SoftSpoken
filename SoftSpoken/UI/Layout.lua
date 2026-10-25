@@ -2341,6 +2341,8 @@ function Layout:PackInventory(read, emptyText)
         local value = holder:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
         label:SetJustifyH("LEFT")
         value:SetJustifyH("LEFT")
+        label:SetHeight(detailHeight)
+        value:SetHeight(detailHeight)
         if label.SetWordWrap then label:SetWordWrap(false) end
         if value.SetWordWrap then value:SetWordWrap(false) end
         label:SetTextColor(0.6, 0.6, 0.6)
@@ -2377,12 +2379,17 @@ function Layout:PackInventory(read, emptyText)
             local expandable = count > 0 and (pack.details ~= nil or pack.extra ~= nil)
             local opened = expandable and expanded == key
             local rows = opened and PackRows(pack) or {}
-            local name = pack.name or pack.title or pack.addon or "Unknown pack"
+            local name = count == 0 and (emptyText or "No compatible voice packs installed.")
+                or pack.name or pack.title or pack.addon or "Unknown pack"
             local button = Header(index)
             button.packKey = expandable and key or nil
             button:EnableMouse(expandable and true or false)
             button.label:SetText((expandable and (opened and "- " or "+ ") or "") .. tostring(name))
-            button.label:SetTextColor(GOLD[1], GOLD[2], GOLD[3])
+            if count == 0 then
+                button.label:SetTextColor(0.65, 0.65, 0.65)
+            else
+                button.label:SetTextColor(GOLD[1], GOLD[2], GOLD[3])
+            end
             local suffix = pack.status or ""
             if pack.version and pack.version ~= "" then
                 suffix = (suffix ~= "" and suffix .. "  |  " or "") .. tostring(pack.version)
