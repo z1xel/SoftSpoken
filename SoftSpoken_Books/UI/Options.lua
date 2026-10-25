@@ -34,7 +34,6 @@ function B:SetupOptions()
     layout:Checkbox("Enable Books", "Allow book and letter narration.",
         function() return B:IsPartOn() end,
         function(on) Spoken:SetPartOn("books", on) end, Refresh)
-    layout:Status(function() return Spoken:PartStatus("books") end)
     layout:Section(S("OPT_SECTION_READING", "When to Read"))
     local autoplay = layout:Checkbox(S("OPT_AUTOPLAY", "Read Automatically"),
         L.OPT_AUTOPLAY_TIP,
