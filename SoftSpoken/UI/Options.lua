@@ -474,9 +474,15 @@ local function Build(canvas)
     -- Everything about how a line is played, whichever addon queued it: the two feature
     -- addons each used to carry their own channel control, and a player with both
     -- installed had two settings for one thing.
-    -- The voice language, once for every module: they share the same list of languages, and a
-    -- player who picks Portuguese means it for quests and books alike.
+    -- Retain the complete language options and saved preferences, but do not
+    -- expose working selectors until multilingual voice support is ready.
+    -- Requires greys and disables both Vanilla dropdowns; the write guards
+    -- also prevent an already-open menu from changing either preference.
     layout:Section(L.OPT_LANGUAGE_TITLE)
+    local languageSelectionAvailable = false
+    local languageUnavailable = L.OPT_LANGUAGE_UNAVAILABLE
+        or "* Multiple languages are not currently supported. Language selection is disabled."
+    local function LanguageAvailable() return languageSelectionAvailable end
     local language = function() return Addon.db.profile.Language end
     local voices, fallbacks = { "auto" }, { "none" }
     for _, locale in ipairs(LANGUAGES) do
@@ -489,17 +495,27 @@ local function Build(canvas)
     local function ClientLanguage()
         return Spoken.Language:GetClientLanguage()
     end
-    layout:Dropdown(L.OPT_VOICE_LANGUAGE, L.OPT_VOICE_LANGUAGE_TIP, voices,
+    local voiceChoice = layout:Dropdown(L.OPT_VOICE_LANGUAGE, L.OPT_VOICE_LANGUAGE_TIP, voices,
         function() return language().Voice or "auto" end,
-        function(code) Spoken:SetLanguageChoice("voice", code) end, nil,
+        function(code)
+            if languageSelectionAvailable then Spoken:SetLanguageChoice("voice", code) end
+        end, nil,
         function(code)
             if code == "auto" then return format(L.OPT_LANG_AUTO_FMT, Native(ClientLanguage())) end
             return Native(code)
         end)
-    layout:Dropdown(L.OPT_FALLBACK_LANGUAGE, L.OPT_FALLBACK_LANGUAGE_TIP, fallbacks,
+    layout:Requires(voiceChoice, LanguageAvailable, languageUnavailable)
+    local fallbackChoice = layout:Dropdown(L.OPT_FALLBACK_LANGUAGE, L.OPT_FALLBACK_LANGUAGE_TIP, fallbacks,
         function() return language().Fallback or "enUS" end,
-        function(code) Spoken:SetLanguageChoice("fallback", code) end, nil,
+        function(code)
+            if languageSelectionAvailable then Spoken:SetLanguageChoice("fallback", code) end
+        end, nil,
         function(code) return code == "none" and L.OPT_FALLBACK_NONE or Native(code) end)
+    layout:Requires(fallbackChoice, LanguageAvailable, languageUnavailable)
+    local languageNotice = layout:Note(languageUnavailable, nil, 34)
+    languageNotice:SetTextColor(1, 0.24, 0.24)
+    languageNotice:SetAlpha(1)
+    languageNotice.layoutBaseAlpha = 1
 
     layout:Section(L.OPT_AUDIO_TITLE)
     if audio().AutoToggleDialog ~= nil then
