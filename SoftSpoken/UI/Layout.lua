@@ -807,6 +807,11 @@ local LABEL_RIGHT_PAD = 10
 local function PlaceLabel(layout, caption, x, top, controlWidth, controlOffset)
     local start = x + LABEL_X
     caption:SetFontObject(_G.GameFontNormal or "GameFontNormal")
+    -- Resetting the font object can restore TOP justification in Vanilla.
+    -- Reassert a row-height, vertically centred caption on every reflow so
+    -- labels line up with their checkboxes across all module settings pages.
+    caption:SetHeight(ROW_HEIGHT)
+    caption:SetJustifyV("MIDDLE")
     caption:SetWidth(layout:Width())
     local natural = caption.GetStringWidth and caption:GetStringWidth() or 0
     local base = layout:Middle() + (controlOffset or CONTROL_X)
