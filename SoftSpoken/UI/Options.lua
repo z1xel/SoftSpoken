@@ -1099,22 +1099,34 @@ function Options:Setup()
         panel:SetMovable(true)
         panel:EnableMouse(true)
         panel:SetFrameStrata("DIALOG")
-        -- A proper Vanilla dialogue backdrop prevents controls from looking like
-        -- loose text over the world; it requires no extra texture files.
+        -- The Key Bindings art below has transparent space between its upper
+        -- and lower stone bands. Give the full-height window an opaque backing,
+        -- so the world never shows through on tall settings pages. Keep the
+        -- familiar Blizzard dialogue border rather than drawing our own.
         if panel.SetBackdrop then
             panel:SetBackdrop({
-                bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+                bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
                 edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-                tile = true, tileSize = 32, edgeSize = 32,
+                tile = true, tileSize = 16, edgeSize = 32,
                 insets = { left = 10, right = 10, top = 10, bottom = 10 },
             })
+            panel:SetBackdropColor(0.12, 0.11, 0.12, 1)
         end
-        -- Reuse the exact background artwork of Blizzard's 1.12 Key Bindings
-        -- window (Blizzard_BindingUI.xml). That frame consists of three top
-        -- textures and three bottom textures at native proportions 256:256:128.
-        -- Anchor the pieces to our window so its stone header and footer remain
-        -- in place when the panel's height changes. The existing dialogue edge
-        -- stays for the taller middle section; the scroll child stays above art.
+
+        -- Native Blizzard rock fills the space behind the settings, not only
+        -- the top and bottom. The solid backdrop above is also a safe fallback
+        -- on clients missing this particular stone texture.
+        local rock = panel:CreateTexture(nil, "BACKGROUND")
+        rock:SetTexture([[Interface\FrameGeneral\UI-Background-Rock]])
+        rock:SetPoint("TOPLEFT", panel, "TOPLEFT", 12, -12)
+        rock:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -12, 12)
+        rock:SetVertexColor(0.48, 0.46, 0.46)
+        if rock.SetHorizTile then rock:SetHorizTile(true) end
+        if rock.SetVertTile then rock:SetVertTile(true) end
+
+        -- The six original Key Bindings border/background pieces retain their
+        -- native proportions. Stretching each across half of a taller window
+        -- magnified the artwork's transparent areas instead of filling them.
         local bindingArt = [[Interface\KeyBindingFrame\UI-KeyBindingFrame-]]
         local art = {}
         local function Piece(name, point)
@@ -1132,9 +1144,13 @@ function Options:Setup()
         Piece("BotRight", "BOTTOMRIGHT")
         local function SizeBindingArt()
             local width, height = panel:GetWidth(), panel:GetHeight()
-            local side = math.floor(width * 256 / 640 + 0.5)
+            local scale = width / 640
+            local side = math.floor(256 * scale + 0.5)
             local right = width - side * 2
-            local half = height / 2
+            local half = math.min(height / 2, 256 * scale)
+            -- Repeat, rather than stretch, the rock throughout the window.
+            rock:SetTexCoord(0, math.max(1, (width - 24) / 256),
+                             0, math.max(1, (height - 24) / 256))
             for _, texture in pairs(art) do texture:SetHeight(half) end
             art.TopLeft:SetWidth(side)
             art.Top:SetWidth(side)
