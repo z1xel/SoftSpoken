@@ -261,6 +261,21 @@ function Addon:SetPlayerStyle(style)
     self.db.profile.Frame.Style = style == "none" and "none" or "classic"
 end
 
+--- Bind J once as the default Compendium shortcut, without overriding any
+--- existing game/addon binding or a player's choice to remove it later.
+--- The key belongs to WoW's binding set; the one-time marker is account-wide.
+function Addon:SeedCompendiumBinding()
+    if not (self.db and self.db.global) or self.db.global.CompendiumKeySeeded then return end
+    if not (GetBindingKey and GetBindingAction and SetBinding) then return end
+    local existing = GetBindingAction("J")
+    if not GetBindingKey("SPOKEN_COMPENDIUM") and (not existing or existing == "") then
+        if SetBinding("J", "SPOKEN_COMPENDIUM") and SaveBindings then
+            SaveBindings(GetCurrentBindingSet and GetCurrentBindingSet() or 1)
+        end
+    end
+    self.db.global.CompendiumKeySeeded = true
+end
+
 --- Everything that needs the world: the frame, the button, the settings, the slash
 --- command. Idempotent, so the harness and PLAYER_LOGIN can both call it.
 function Addon:Enable()
@@ -287,6 +302,11 @@ function Addon:Enable()
             SoundQueue:RemoveAllSoundsFromQueue()
         elseif command == "skip" then
             SoundQueue:Skip()
+        elseif command == "compendium" then
+            -- Use the same available/visible action as the minimap, so
+            -- the keyboard shortcut and button always behave alike.
+            local entry = Minimap:FindEntry("Compendium")
+            if entry and entry.onClick then entry.onClick() end
         elseif command == "transcript" then
             Transcript:SetEnabled(not Addon.db.profile.Transcript.Enabled)
         elseif command == "transcript on" then
@@ -329,9 +349,10 @@ function Addon:Enable()
             print("  " .. Transcript:Describe())
             for _, err in ipairs(Callbacks.errors) do print("  callback error: " .. err) end
         else
-            print("Spoken: /spoken play | stop | skip | player [classic|none] | transcript [on|off|1|2|reset] | log | options | reset | diagnostics")
+            print("Spoken: /spoken play | stop | skip | compendium | player [classic|none] | transcript [on|off|1|2|reset] | log | options | reset | diagnostics")
         end
     end
+    self:SeedCompendiumBinding()
 end
 
 -- Said the first time a line waits behind a stop with nothing on screen to show it: with subtitles
