@@ -45,8 +45,8 @@ local CHAR_LEFT_POS_X, CHAR_LEFT_POS_Y = -14, 12
 -- Extend the crop to the FULL 128px right edge; move the TOPRIGHT anchor by
 -- 27px to retain the original seam, then 5px farther right for alignment.
 -- No duplicate generic FrameGeneral top-right square is drawn.
-local CHAR_RIGHT_X0, CHAR_RIGHT_X1 = 56, 128
-local CHAR_RIGHT_Y0, CHAR_RIGHT_Y1 = 0, 52
+local CHAR_RIGHT_X0, CHAR_RIGHT_X1 = 0, 128
+local CHAR_RIGHT_Y0, CHAR_RIGHT_Y1 = 0, 76
 local CHAR_RIGHT_POS_X = CHAR_RIGHT_X1 - 94
 local CHAR_RIGHT_POS_Y = CHAR_LEFT_POS_Y + 1
 
