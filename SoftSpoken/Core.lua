@@ -29,8 +29,11 @@ Defaults = {
             -- Forever only: the bronze its own frames wear, on the minimal player's metal.
             BronzeTint = true,
             MinimalWidth = 380,
-            -- Per action id, for the ones an addon declared optional. Absent means shown.
-            HiddenActions = {},
+            -- Per action id, for the ones an addon declared optional.
+            -- Report is hidden by default while its visibility UI is disabled;
+            -- other optional actions remain visible unless explicitly hidden.
+            -- AceDB supplies this default to existing profiles missing the key.
+            HiddenActions = { report = true },
             DialogueUI = {
                 -- Parchment or dark, as DialogueUI is set, changing when it does.
                 FollowTheme = true,
