@@ -505,7 +505,7 @@ local function Build(canvas)
             return Native(code)
         end)
     layout:Requires(voiceChoice, LanguageAvailable, languageUnavailable)
-    layout:BlockInteraction(voiceChoice)
+    if not languageSelectionAvailable then layout:BlockInteraction(voiceChoice) end
     local fallbackChoice = layout:Dropdown(L.OPT_FALLBACK_LANGUAGE, L.OPT_FALLBACK_LANGUAGE_TIP, fallbacks,
         function() return language().Fallback or "enUS" end,
         function(code)
@@ -513,7 +513,7 @@ local function Build(canvas)
         end, nil,
         function(code) return code == "none" and L.OPT_FALLBACK_NONE or Native(code) end)
     layout:Requires(fallbackChoice, LanguageAvailable, languageUnavailable)
-    layout:BlockInteraction(fallbackChoice)
+    if not languageSelectionAvailable then layout:BlockInteraction(fallbackChoice) end
     local languageNotice = layout:Note(languageUnavailable, nil, 34)
     languageNotice:SetTextColor(1, 0.24, 0.24)
     languageNotice:SetAlpha(1)
@@ -833,7 +833,7 @@ function Options:AddProfiles(layout)
     local function ProfileAvailable() return profileSelectionAvailable end
     local function DisableProfileControl(control)
         layout:Requires(control, ProfileAvailable, profileUnavailable)
-        layout:BlockInteraction(control)
+        if not profileSelectionAvailable then layout:BlockInteraction(control) end
     end
     local function Others()
         local others, current = {}, self:CurrentProfile()
