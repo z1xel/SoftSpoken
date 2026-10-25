@@ -37,8 +37,9 @@ end
 -- One rhythm, kept here rather than at the call sites: the game's own settings list's, read from
 -- its code (Blizzard_Settings_Shared: SettingsListTemplate, SettingsListSectionHeaderTemplate,
 -- SettingsListElementTemplate and SettingsListElementMixin, the control mixins; wow-ui-source,
--- forever branch). A row is 26 tall and 9 from the next; its label starts 37 in, in the game's
--- gold; its control starts just left of the row's middle, the label stopping 85 short of it.
+-- forever branch). A row is 26 tall and 9 from the next; its label starts 37 in in the game's
+-- gold. The original fixed label cutoff is intentionally replaced by measured text widths
+-- so ordinary setting names remain readable in the narrower Vanilla window.
 local ROW_HEIGHT = 26         -- SettingsListElementTemplate: 280 x 26
 local ROW_GAP = 9             -- SettingsListMixin: the list view's spacing
 local BUTTON_ROW = 26
@@ -48,7 +49,6 @@ local SECTION_TITLE_Y = 16
 local HEADER_HEIGHT = 50      -- SettingsListTemplate's Header: title at 7, -22, divider at -50
 local HEADER_PAD = 10         -- the list's verticalPad under it
 local LABEL_X = 37            -- SettingsListElementMixin: Text at indent + 37...
-local LABEL_END = 85          -- ...to 85 short of the row's middle
 local INDENT_STEP = 15        -- indentSize, and a child option's label is GameFontNormalSmall
 local CONTROL_X = -80         -- a checkbox or a slider starts 80 left of the middle
 local DROPDOWN_X = -48        -- a dropdown with its steppers, 48
@@ -825,7 +825,7 @@ local function PlaceLabel(layout, caption, x, top, controlWidth, controlOffset)
     if natural > room and x <= layout.left and _G.GameFontNormalSmall then
         caption:SetFontObject(_G.GameFontNormalSmall)
         caption:SetWidth(layout:Width())
-        natural = caption:GetStringWidth()
+        natural = caption:GetStringWidth() or 0
         wanted = start + natural + LABEL_CONTROL_GAP
         column = math.min(furthest, math.max(base, wanted))
         room = math.max(40, column - start - LABEL_CONTROL_GAP)
