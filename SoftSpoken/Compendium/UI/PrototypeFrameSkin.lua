@@ -16,6 +16,25 @@ local HORIZ = DIR .. "_UI-Frame"
 local VERT = DIR .. "!UI-Frame"
 local ROCK = DIR .. "UI-Background-Rock-Classic"
 
+-- Original Blizzard Character Frame art, loaded directly from the game client.
+-- These are the same source textures inspected with /ssart: NO recoloring,
+-- exported screenshots, invented shadows, or Turtle Shop composites.
+local CHARACTER_LEFT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft"
+local CHARACTER_RIGHT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight"
+
+-- A horizontal-only experimental trim of the character frame:
+-- source left sheet 256x256, right sheet 128x256. All slices preserve
+-- one source pixel per UI unit (fixed 70-unit height).
+local CHAR_TOP = 20
+local CHAR_BOTTOM = 90
+local CHAR_HEIGHT = CHAR_BOTTOM - CHAR_TOP
+local CHAR_LEFT_X0, CHAR_LEFT_X1 = 75, 220
+local CHAR_LEFT_DRAW_X = 64
+local CHAR_MIDDLE_X0, CHAR_MIDDLE_X1 = 128, 220
+local CHAR_MIDDLE_W = CHAR_MIDDLE_X1 - CHAR_MIDDLE_X0
+local CHAR_RIGHT_W = 96
+local CHAR_TOP_RAISE = 6
+
 local function fixed(parent, layer, path, w, h, coords, p, x, y)
     local t = parent:CreateTexture(nil, layer)
     t:SetTexture(path)
@@ -51,11 +70,13 @@ local function circularIcon(parent, texturePath, x, y, size, radius)
     return slices
 end
 
-local function tiled(parent, layer, path, coords, horizontal, start, span, length, thickness)
+local function tiled(parent, layer, path, coords, horizontal, start, span, length, thickness, sourceSpan)
     -- Pixel-accurate repetition: never stretch a 256px source border to window width.
     -- Coordinates start/span are offsets in parent top-left (x rightwards/y downwards).
     if length <= 0 then return end
-    local src = horizontal and 256 or 256
+    -- Default remains the original 256px Blizzard tile. The Character Frame
+    -- midsection uses a smaller cropped native strip without stretching.
+    local src = sourceSpan or 256
     local count = math.ceil(length / src)
     for i = 1, count do
         local run = math.min(src, length - (i - 1)*src)
@@ -99,16 +120,17 @@ local function Reflow(frame)
     if not w or not h or w < 220 or h < 180 then return end
     clearSegments(frame)
 
-    -- Older Blizzard placements, sourced from PortraitFrameTemplateNoCloseButton:
-    -- portrait: x=-6/y=+8, 61x61; circular metal: x=-14/y=+11, 78x78.
-    -- title metal spans from right of portrait (x=64) to top-right corner (x=w-33).
-    tiled(frame,"ARTWORK",HORIZ,{0,1,0.4375,0.65625},true,64,-1,w-97,28)
-    -- Tile the background of the title behind the visible top border.
-    tiled(frame,"BACKGROUND",HORIZ,{0,1,0.2890625,0.421875},true,2,3,w-27,17)
-    -- Top streaks deliberately disabled by default; they cover 37px under the header.
-    if frame.sszShowStreaks then
-        tiled(frame,"BORDER",HORIZ,{0,1,0.671875,0.9609375},true,0,21,w-2,37)
-    end
+    -- Fill ONLY the gap between the two fixed Character Frame end pieces.
+    -- The original Blizzard artwork contains the title border, stone and
+    -- shadowing together. Never stretch either fixed end or alter its colors.
+    -- At the collapsed width (~340), the gap remains small but nonnegative.
+    -- The pooled tiles are re-used by the existing OnSizeChanged -> Reflow.
+    tiled(frame,"BACKGROUND",CHARACTER_LEFT,
+        {CHAR_MIDDLE_X0/256,CHAR_MIDDLE_X1/256,CHAR_TOP/256,CHAR_BOTTOM/256},
+        true,CHAR_LEFT_DRAW_X+(CHAR_LEFT_X1-CHAR_LEFT_X0),
+        -CHAR_TOP_RAISE,
+        w-CHAR_RIGHT_W-(CHAR_LEFT_DRAW_X+(CHAR_LEFT_X1-CHAR_LEFT_X0)),
+        CHAR_HEIGHT,CHAR_MIDDLE_W)
     -- Horizontal lower edge, from x=8 to (w - 11), aligned with 14px/11px corners.
     tiled(frame,"BORDER",HORIZ,{0,1,0.203125,0.2734375},true,8,h-4,w-19,9)
     -- Vertical borders use the original !UI-Frame atlas, 256px each repetition.
@@ -139,7 +161,23 @@ function Skin.Apply(self, title)
     self.sszInitialized = true
     self.sszShowStreaks = true
 
-    -- Window metal corners: exact coords from the older Blizzard UI-Frame atlas.
+    -- Two stationary end pieces of Blizzard's ORIGINAL character window.
+    -- No ring is duplicated: the left crop starts beyond the baked portrait
+    -- circle and sits underneath our unchanged portrait icon and overlay ring.
+    -- Cropping vertically prevents the source's fixed-size list/body artwork
+    -- from entering the Compendium's search, parchment and scroll panes.
+    -- The 96px right crop includes the authentic frame termination/shadow.
+    self.sszCharacterHeaderLeft = fixed(self,"BORDER",CHARACTER_LEFT,
+        CHAR_LEFT_X1-CHAR_LEFT_X0,CHAR_HEIGHT,
+        {CHAR_LEFT_X0/256,CHAR_LEFT_X1/256,CHAR_TOP/256,CHAR_BOTTOM/256},
+        "TOPLEFT",CHAR_LEFT_DRAW_X,CHAR_TOP_RAISE)
+    self.sszCharacterHeaderRight = fixed(self,"BORDER",CHARACTER_RIGHT,
+        CHAR_RIGHT_W,CHAR_HEIGHT,
+        {0,CHAR_RIGHT_W/128,CHAR_TOP/256,CHAR_BOTTOM/256},
+        "TOPRIGHT",0,CHAR_TOP_RAISE)
+
+    -- Existing controls and their native Blizzard button bezels remain intact.
+    -- The original 33x33 right corner is still above the header as before.
     fixed(self,"OVERLAY",FRAME,33,33,{0.6328125,0.890625,0.0078125,0.265625},"TOPRIGHT",0,1)
     fixed(self,"BORDER",FRAME,14,14,{0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,-5)
     fixed(self,"BORDER",FRAME,11,11,{0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,-5)
