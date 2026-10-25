@@ -1,41 +1,43 @@
-# Original Blizzard Character Frame: resizable top-header experiment
+# Blizzard-native resizable header experiment
 
-**Branch:** `ui/top-rock-shadow-pass`
+**Branch:** `ui/top-rock-shadow-pass`  
+**Active code:** `SoftSpoken/Compendium/UI/PrototypeFrameSkin.lua`
 
-**Implementation:** `SoftSpoken/Compendium/UI/PrototypeFrameSkin.lua`
+## Why the previous implementation failed
 
-The Compendium's top uses original Blizzard textures loaded by the game client. The source crop is now taller (120 UI units) so the top stone is not abruptly cut in the visible header:
+The fixed-width `UI-Character-General-TopLeft/TopRight` sheets include **opaque window backgrounds**. Repeating their large 120px-high regions in a much wider Compendium duplicated stone patterns and created large rectangular seams at the left, center, right, and bottom of the header.
 
-- `Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft` (256x256)
-- `Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight` (128x256)
+Moving those opaque sheets up/down could not fix the fundamental problem.
 
-The original portrait icon, circular metal ring, close/minimize buttons, frame dimensions, backdrop and all page geometry are unchanged. No exported image assets, color tints, artificial shadows or Turtle Shop composites are used.
+## Current construction
 
-## Repeated center and fixed ends
+The implementation now respects each Blizzard texture's original purpose:
 
-The *fixed left* now uses original Blizzard Character TopLeft source x=0..220 and y=0..120, at the **native portrait frame origin x=-14, y=+11**. This restores the complete left corner and ensures that the embedded original ring and the existing icon/overlay ring occupy the same coordinates.
+1. **Continuous backdrop** — original `UI-Background-Rock-Classic` (256px natural tiling), unchanged.
+2. **Resizable title rail** — genuine `_UI-Frame` title tile, title underlay, and native dark streaks, tiled in original 256px segments.
+3. **Portrait end** — native `UI-Character-General-TopLeft` source x=0..78, y=0..68, fixed at x=-14/y=+11. This ends at screen x=64, precisely where Blizzard's repeatable title tile begins. Existing icon and ring remain above it.
+4. **Right cap** — native `UI-Character-General-TopRight` source x=56..101, y=14..52, fixed at x=-3/y=+11 relative to the root top-right. Source right border pixel x=95 is positioned at screen x=window width minus 9, matching the existing native right frame border.
+5. **Remaining original frame borders** — bottom and vertical strokes, unchanged.
+6. **Resize handling** — retained `OnSizeChanged -> Reflow` and reusable texture pool. No new textures created by dragging after pool capacity is reached.
 
-The *middle* continues to use original Character TopLeft source x=128..220 and y=0..120, repeated as a 92-unit strip between the fixed ends. At compact width (~340), its available length is about 6 UI units, so neither end needs to overlap.
+The selected fixed regions remain at 1:1 native source size; no custom TGA, recoloring, gradients, fake shadows, or texture stretching has been introduced.
 
-The *fixed right* now uses **the entire 128px source width** x=0..128 from Character TopRight (previously truncated at 96px) and y=0..120, right-anchored at full native pixel width.
+## Coordinate checks
 
-The previous header was artificially raised **26 UI units**, while the approved portrait ring is raised only **11 UI units**. The corrected source artwork now shares the ring's +11 vertical anchor. This shifts the actual character art downward by 15 UI units into the existing title bar position without moving the Compendium title, buttons, or content. Both ends remain at 1:1 native scale.
+| Visual component | Source span | Relative screen span |
+| --- | --- | --- |
+| Left Character ring-side piece | x=0..78 | x=-14..64 |
+| Title metal / repeatable center | width=256 tiled | x=64..(width-33) |
+| Right Character endcap | x=56..101 | x=(width-48)..(width-3) |
+| Right metal border alignment | x=95 within right cap | x=width-9 |
+| Vertical anchor for both fixed pieces | fixed source | y=+11 from root top |
 
-## What to test in-game
+At **minimum compact width ≈340**, native title span = 340−64−33 = 243 (positive). At 670 width it is 573; at 1200 it is 1103. Native tile segments clip to exactly that span.
 
-1. Compare at default Compendium width against the Character Frame reference.
-2. Resize very wide and inspect the repeated middle for visible seams. The source was not authored as a repeating tile: **the center is experimental, not guaranteed seamless**.
-3. Collapse and expand (the compact-width midsection is short). Check both ends do not overlap.
-4. Verify the complete native left corner aligns with the existing portrait icon/ring, with no duplicate ring or detached vertical seam.
-5. Check the right end with minimize, close, hover and pressed states.
-6. Check that search, navigation, parchment, tabs and scrollbars remain unchanged.
+## In-game validation still necessary
 
-If a seam or edge misaligns, use an in-game screenshot to refine these **source crop boundaries only**. Do not add generated shadows, gradients, tints or fake brown shading.
+Check (a) original ring/right cap at default width, (b) very wide and collapsed widths for repeat seams, (c) whether title-line endpoints meet the fixed accents without a hairline shift, and (d) search, parchment, navigation, tabs and scrollbar positions. This is a **code-verified prototype, not a claimed in-game visual pass**.
 
-### Restore original
+If an endcap's original Blizzard artwork has a baked edge slightly different from the modern native `_UI-Frame` rail, adjust only the small fixed original sprite selection or use the unchanged native FrameGeneral endcap. Do not return to tiling opaque Character window backgrounds.
 
-Switch the Git repository back to `main`; no changes have been made to main. Do not merge this branch unless the in-game inspection passes.
-
-### Original artwork reference
-
-[Gethe Classic PaperDollInfoFrame](https://github.com/Gethe/wow-ui-textures/tree/classic/PaperDollInfoFrame)
+Original Blizzard textures: [Gethe Classic FrameGeneral](https://github.com/Gethe/wow-ui-textures/tree/classic/FrameGeneral) · [PaperDollInfoFrame](https://github.com/Gethe/wow-ui-textures/tree/classic/PaperDollInfoFrame).
