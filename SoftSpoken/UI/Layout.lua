@@ -16,7 +16,7 @@
 -- they are built and placed by Reflow, top to bottom. Placing them all in one pass is what lets
 -- a row be hidden (ShowWhen) and everything under it close up, rather than leaving a hole.
 
-local VERSION = 67
+local VERSION = 68
 
 -- LibStub's contract, for LibStub's reason: several addons load this file and the newest
 -- copy must win, whichever of them the client happens to load last.
@@ -1331,8 +1331,10 @@ function Layout:Dropdown(label, tooltip, values, read, write, apply, describe)
         -- the same table.
         dropdown:SetupMenu(function(_, root)
             for _, value in ipairs(Resolve(values)) do
-                root:CreateRadio(describe(value), function() return describe(read()) == describe(value) end,
-                    function() Choose(value) end, value)
+                local selected = value
+                root:CreateRadio(describe(selected),
+                    function() return describe(read()) == describe(selected) end,
+                    function() Choose(selected) end, selected)
             end
         end)
         Sync = function() if dropdown.GenerateMenu then dropdown:GenerateMenu() end end
@@ -1347,11 +1349,13 @@ function Layout:Dropdown(label, tooltip, values, read, write, apply, describe)
         UIDropDownMenu_Initialize(control, function(_, level)
             local current = read()
             for _, value in ipairs(Resolve(values)) do
+                -- Vanilla Lua 5.0 callbacks must capture a fresh local.
+                local selected = value
                 local info = UIDropDownMenu_CreateInfo()
-                info.text = describe(value)
-                info.checked = describe(value) == describe(current)
+                info.text = describe(selected)
+                info.checked = describe(selected) == describe(current)
                 info.func = function()
-                    Choose(value)
+                    Choose(selected)
                     if CloseDropDownMenus then CloseDropDownMenus() end
                 end
                 UIDropDownMenu_AddButton(info, level)
