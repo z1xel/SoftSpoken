@@ -26,7 +26,6 @@ local function Build()
     layout:Checkbox("Enable Zones", "Allow narrated zone lore to play.",
         function() return Spoken:IsPartOn("zones") end,
         function(on) Spoken:SetPartOn("zones", on) end, Refresh)
-    layout:Status(function() return Spoken:PartStatus("zones") end)
 
     layout:Section("Automatic Narration")
     local autoplay = layout:Checkbox("Narrate Automatically",
