@@ -35,7 +35,7 @@ local CHARACTER_RIGHT = "Interface\\PaperDollInfoFrame\\UI-Character-General-Top
 -- Character left-side accent one pixel higher, at (-14,+12).
 -- Source art coordinates below are ORIGINAL native pixels, not UI offsets.
 local CHAR_LEFT_X0, CHAR_LEFT_X1 = 0, 78
-local CHAR_LEFT_Y0, CHAR_LEFT_Y1 = 0, 68
+local CHAR_LEFT_Y0, CHAR_LEFT_Y1 = 0, 92
 local CHAR_LEFT_POS_X, CHAR_LEFT_POS_Y = -14, 12
 
 -- Keep the MATCHING ORIGINAL Character Frame right cap. Its texture crop
