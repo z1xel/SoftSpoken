@@ -140,6 +140,7 @@ L = {
     STOPPED_REMINDER = "Spoken is stopped, so new lines wait. Press Replay or Skip, or type /sp play, to carry on.",
     BIND_SKIP = "Skip Line",
     BIND_STOP = "Stop All",
+    BIND_COMPENDIUM = "Open Azeroth's Compendium",
     GATHER_OFF = "Not collecting",
     GATHER_NONE = "Nothing collected yet",
     GATHER_BADGE_FMT = "%1$d ready to send",
