@@ -20,7 +20,6 @@ local ROCK = DIR .. "UI-Background-Rock-Classic"
 -- These are the same source textures inspected with /ssart: NO recoloring,
 -- exported screenshots, invented shadows, or Turtle Shop composites.
 local CHARACTER_LEFT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft"
-local CHARACTER_RIGHT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight"
 
 -- The CHARACTER top-left/right PNGs are fixed-window compositions, not
 -- tiling atlases. Repeating their opaque stone interiors created rectangular
@@ -38,13 +37,10 @@ local CHAR_LEFT_X0, CHAR_LEFT_X1 = 0, 78
 local CHAR_LEFT_Y0, CHAR_LEFT_Y1 = 0, 68
 local CHAR_LEFT_POS_X, CHAR_LEFT_POS_Y = -14, 12
 
--- Native Character right cap: the painted rightmost metal ends around
--- source x=95 in its 128px sheet, not at x=128. Restrict this to the cap
--- itself so its opaque stone doesn't overlay any resizable background.
--- Place source x=95 over the Compendium's right-side metal frame x=w-9.
-local CHAR_RIGHT_X0, CHAR_RIGHT_X1 = 56, 101
-local CHAR_RIGHT_Y0, CHAR_RIGHT_Y1 = 14, 52
-local CHAR_RIGHT_POS_X, CHAR_RIGHT_POS_Y = -3, 11
+-- Do not draw a Character Frame right cap: the current Compendium already
+-- uses the original Blizzard UI-Frame top-right corner and a matching bezel
+-- behind its minimize button. Adding another right cap duplicates the end
+-- geometry and produces the raised floating piece seen in-game.
 
 -- The reusable Blizzard title strip itself occupies x=64..(w-33).
 local TITLE_START = 64
@@ -177,21 +173,16 @@ function Skin.Apply(self, title)
     self.sszInitialized = true
     self.sszShowStreaks = true
 
-    -- Authentic Character Frame cap accents. The left terminates exactly at
-    -- TITLE_START=64 (source width 78, anchored x=-14). Crucially, neither
-    -- native slice covers the center or its rock background. The selected
-    -- rightmost 45x38 pixels contain the original bevel and join only.
+    -- The left Character accent ends at x=64, where the native repeating
+    -- Blizzard title rail begins. Keep the right side on one frame system:
+    -- its existing UI-Frame corner and minimize bezel below.
     self.sszCharacterHeaderLeft = fixed(self,"BORDER",CHARACTER_LEFT,
         CHAR_LEFT_X1-CHAR_LEFT_X0,CHAR_LEFT_Y1-CHAR_LEFT_Y0,
         {CHAR_LEFT_X0/256,CHAR_LEFT_X1/256,CHAR_LEFT_Y0/256,CHAR_LEFT_Y1/256},
         "TOPLEFT",CHAR_LEFT_POS_X,CHAR_LEFT_POS_Y)
-    self.sszCharacterHeaderRight = fixed(self,"BORDER",CHARACTER_RIGHT,
-        CHAR_RIGHT_X1-CHAR_RIGHT_X0,CHAR_RIGHT_Y1-CHAR_RIGHT_Y0,
-        {CHAR_RIGHT_X0/128,CHAR_RIGHT_X1/128,CHAR_RIGHT_Y0/256,CHAR_RIGHT_Y1/256},
-        "TOPRIGHT",CHAR_RIGHT_POS_X,CHAR_RIGHT_POS_Y)
 
-    -- Existing controls and their native Blizzard button bezels remain intact.
-    -- The original 33x33 right corner is still above the header as before.
+    -- The native 33x33 endcap and existing button bezels share the approved
+    -- right-edge anchor; the extra Character right artwork is intentionally gone.
     fixed(self,"OVERLAY",FRAME,33,33,{0.6328125,0.890625,0.0078125,0.265625},"TOPRIGHT",0,1)
     fixed(self,"BORDER",FRAME,14,14,{0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,-5)
     fixed(self,"BORDER",FRAME,11,11,{0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,-5)
