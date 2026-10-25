@@ -61,18 +61,41 @@ function B:SetupOptions()
     layout:Note("In the world, the narration follows your page turns. In the Compendium, it plays the whole book.", nil, 40)
 
     layout:Section(S("OPT_SECTION_PACKS", "Voice Packs"))
-    -- This is the same compatible-pack inventory that Books playback reads.
-    -- The pack's format 'version' is not its content version; use installed
-    -- addon metadata for the right-hand column only when it exists.
+    -- This is the same compatible-pack registry used by Books playback.
+    -- Metadata is cheap to read; page totals are computed on first expansion.
     layout:PackInventory(function()
         local result = {}
         for _, pack in ipairs(B:GetAudioPacks()) do
-            local name = pack.title or pack.addon
-            local version
-            if pack.addon and GetAddOnMetadata then
-                version = GetAddOnMetadata(pack.addon, "Version")
+            local source = pack
+            local addon = source.addon
+            local version = addon and GetAddOnMetadata and GetAddOnMetadata(addon, "Version")
+            local loaded = addon and IsAddOnLoaded and IsAddOnLoaded(addon)
+            local demand = addon and IsAddOnLoadOnDemand and IsAddOnLoadOnDemand(addon)
+            local fields = {
+                { label = "Addon", value = addon },
+                { label = "Pack Title", value = source.title or addon },
+                { label = "Content Version", value = version },
+                { label = "Data Format", value = source.version },
+                { label = "Language", value = B:GetLanguageName(B:PackLanguage(source)) },
+                { label = "Registered", value = YES },
+                { label = "Loaded", value = loaded and YES or NO },
+            }
+            if addon and IsAddOnLoadOnDemand then
+                table.insert(fields, { label = "Load on Demand", value = demand and YES or NO })
             end
-            table.insert(result, {name = name, version = version})
+            table.insert(result, {
+                id = addon, source = source, name = source.title or addon,
+                version = version, status = "Registered", details = fields,
+                extra = function()
+                    local count = 0
+                    for _, entry in pairs(source.pages or {}) do
+                        if type(entry) == "table" and entry.file then
+                            count = count + 1
+                        end
+                    end
+                    return { { label = "Recorded Pages", value = count } }
+                end,
+            })
         end
         return result
     end, "No compatible Books voice packs installed.")
