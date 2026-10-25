@@ -22,22 +22,32 @@ local ROCK = DIR .. "UI-Background-Rock-Classic"
 local CHARACTER_LEFT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft"
 local CHARACTER_RIGHT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight"
 
--- The Character Frame sheets contain a fully painted portrait ring, top
--- stone, title ridge, and the left/right end shadows. In the first prototype
--- we cropped off source x=0..64 and raised the sheet by 26 units; this cut
--- off the left corner and put the header 15 units above the existing title.
--- Keep the original art whole at the portrait frame's approved -14,+11
--- origin instead. The middle alone is tiled; neither end is stretched.
-local CHAR_TOP = 0
-local CHAR_BOTTOM = 120
-local CHAR_HEIGHT = CHAR_BOTTOM - CHAR_TOP
-local CHAR_LEFT_X0, CHAR_LEFT_X1 = 0, 220
-local CHAR_LEFT_DRAW_X = -14
-local CHAR_MIDDLE_X0, CHAR_MIDDLE_X1 = 128, 220
-local CHAR_MIDDLE_W = CHAR_MIDDLE_X1 - CHAR_MIDDLE_X0
--- Do not cut off the original 128px right-hand corner.
-local CHAR_RIGHT_W = 128
-local CHAR_TOP_RAISE = 11
+-- The CHARACTER top-left/right PNGs are fixed-window compositions, not
+-- tiling atlases. Repeating their opaque stone interiors created rectangular
+-- patches across the Compendium in the previous iteration.
+--
+-- The real Blender/Blizzard portrait-frame construction instead uses
+-- FrameGeneral/_UI-Frame's dedicated tiling strips over a continuous rock
+-- backdrop. Keep those for EVERY resizable span, while restricting the
+-- Character artwork to small source-aligned fixed corner details.
+--
+-- Shared art anchor: the approved portrait ring begins at (-14,+11).
+-- Source art coordinates below are ORIGINAL native pixels, not UI offsets.
+local CHAR_LEFT_X0, CHAR_LEFT_X1 = 0, 78
+local CHAR_LEFT_Y0, CHAR_LEFT_Y1 = 0, 68
+local CHAR_LEFT_POS_X, CHAR_LEFT_POS_Y = -14, 11
+
+-- Native Character right cap: the painted rightmost metal ends around
+-- source x=95 in its 128px sheet, not at x=128. Restrict this to the cap
+-- itself so its opaque stone doesn't overlay any resizable background.
+-- Place source x=95 over the Compendium's right-side metal frame x=w-9.
+local CHAR_RIGHT_X0, CHAR_RIGHT_X1 = 56, 101
+local CHAR_RIGHT_Y0, CHAR_RIGHT_Y1 = 14, 52
+local CHAR_RIGHT_POS_X, CHAR_RIGHT_POS_Y = -3, 11
+
+-- The reusable Blizzard title strip itself occupies x=64..(w-33).
+local TITLE_START = 64
+local TITLE_END_MARGIN = 33
 
 local function fixed(parent, layer, path, w, h, coords, p, x, y)
     local t = parent:CreateTexture(nil, layer)
@@ -74,13 +84,13 @@ local function circularIcon(parent, texturePath, x, y, size, radius)
     return slices
 end
 
-local function tiled(parent, layer, path, coords, horizontal, start, span, length, thickness, sourceSpan)
+local function tiled(parent, layer, path, coords, horizontal, start, span, length, thickness)
     -- Pixel-accurate repetition: never stretch a 256px source border to window width.
     -- Coordinates start/span are offsets in parent top-left (x rightwards/y downwards).
     if length <= 0 then return end
-    -- Default remains the original 256px Blizzard tile. The Character Frame
-    -- midsection uses a smaller cropped native strip without stretching.
-    local src = sourceSpan or 256
+    -- _UI-Frame/!UI-Frame are native 256px tile atlases. Never attempt
+    -- to repeat the fixed-size Character Frame background here.
+    local src = 256
     local count = math.ceil(length / src)
     for i = 1, count do
         local run = math.min(src, length - (i - 1)*src)
@@ -124,16 +134,18 @@ local function Reflow(frame)
     if not w or not h or w < 220 or h < 180 then return end
     clearSegments(frame)
 
-    -- Repeat the original character stone only BETWEEN the unscaled ends.
-    -- Align the entire header to the same vertical origin as the portrait.
-    -- The deeper source art finishes under the existing Compendium insets;
-    -- no backdrop, content geometry, synthetic shadow, or tint is changed.
-    tiled(frame,"BACKGROUND",CHARACTER_LEFT,
-        {CHAR_MIDDLE_X0/256,CHAR_MIDDLE_X1/256,CHAR_TOP/256,CHAR_BOTTOM/256},
-        true,CHAR_LEFT_DRAW_X+(CHAR_LEFT_X1-CHAR_LEFT_X0),
-        -CHAR_TOP_RAISE,
-        w-CHAR_RIGHT_W-(CHAR_LEFT_DRAW_X+(CHAR_LEFT_X1-CHAR_LEFT_X0)),
-        CHAR_HEIGHT,CHAR_MIDDLE_W)
+    -- Blizzard's own repeatable FrameGeneral title composition.
+    -- These are the original pixel-exact atlas UVs and 1.12-style anchors.
+    -- Each layer has the SAME root coordinate system as the fixed corners.
+    -- Native _UI-Frame artwork is already baked with the metal ridges/shading.
+    tiled(frame,"ARTWORK",HORIZ,{0,1,0.4375,0.65625},
+        true,TITLE_START,-1,w-TITLE_START-TITLE_END_MARGIN,28)
+    tiled(frame,"BACKGROUND",HORIZ,{0,1,0.2890625,0.421875},
+        true,2,3,w-27,17)
+    if frame.sszShowStreaks then
+        tiled(frame,"BORDER",HORIZ,{0,1,0.671875,0.9609375},
+            true,0,21,w-2,37)
+    end
     -- Horizontal lower edge, from x=8 to (w - 11), aligned with 14px/11px corners.
     tiled(frame,"BORDER",HORIZ,{0,1,0.203125,0.2734375},true,8,h-4,w-19,9)
     -- Vertical borders use the original !UI-Frame atlas, 256px each repetition.
@@ -164,17 +176,18 @@ function Skin.Apply(self, title)
     self.sszInitialized = true
     self.sszShowStreaks = true
 
-    -- Restore the complete left corner (including native portrait surround)
-    -- and original right endcap. Both now share the portrait ring's vertical
-    -- origin, rather than floating fifteen units above the title/controls.
+    -- Authentic Character Frame cap accents. The left terminates exactly at
+    -- TITLE_START=64 (source width 78, anchored x=-14). Crucially, neither
+    -- native slice covers the center or its rock background. The selected
+    -- rightmost 45x38 pixels contain the original bevel and join only.
     self.sszCharacterHeaderLeft = fixed(self,"BORDER",CHARACTER_LEFT,
-        CHAR_LEFT_X1-CHAR_LEFT_X0,CHAR_HEIGHT,
-        {CHAR_LEFT_X0/256,CHAR_LEFT_X1/256,CHAR_TOP/256,CHAR_BOTTOM/256},
-        "TOPLEFT",CHAR_LEFT_DRAW_X,CHAR_TOP_RAISE)
+        CHAR_LEFT_X1-CHAR_LEFT_X0,CHAR_LEFT_Y1-CHAR_LEFT_Y0,
+        {CHAR_LEFT_X0/256,CHAR_LEFT_X1/256,CHAR_LEFT_Y0/256,CHAR_LEFT_Y1/256},
+        "TOPLEFT",CHAR_LEFT_POS_X,CHAR_LEFT_POS_Y)
     self.sszCharacterHeaderRight = fixed(self,"BORDER",CHARACTER_RIGHT,
-        CHAR_RIGHT_W,CHAR_HEIGHT,
-        {0,CHAR_RIGHT_W/128,CHAR_TOP/256,CHAR_BOTTOM/256},
-        "TOPRIGHT",0,CHAR_TOP_RAISE)
+        CHAR_RIGHT_X1-CHAR_RIGHT_X0,CHAR_RIGHT_Y1-CHAR_RIGHT_Y0,
+        {CHAR_RIGHT_X0/128,CHAR_RIGHT_X1/128,CHAR_RIGHT_Y0/256,CHAR_RIGHT_Y1/256},
+        "TOPRIGHT",CHAR_RIGHT_POS_X,CHAR_RIGHT_POS_Y)
 
     -- Existing controls and their native Blizzard button bezels remain intact.
     -- The original 33x33 right corner is still above the header as before.
@@ -185,8 +198,8 @@ function Skin.Apply(self, title)
     self.sszPortraitSlices = circularIcon(
         self, "Interface\\Icons\\INV_Misc_Book_09", -6, 8, 61, 29
     )
-    -- Keep the existing portrait icon and metal ring on higher draw layers,
-    -- precisely above the original Character Frame portrait surround.
+    -- Retain the original, already-aligned Blizzard portrait ring and icon
+    -- on higher draw layers over the native Character ring-side accent.
     self.sszPortraitRing = fixed(self,"OVERLAY",FRAME,78,78,
         {0.0078125,0.6171875,0.0078125,0.6171875},"TOPLEFT",-14,11)
     self.sszTitle = self:CreateFontString(nil,"OVERLAY","GameFontNormal")
