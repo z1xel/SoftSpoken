@@ -49,7 +49,7 @@ local CHAR_LEFT_POS_X, CHAR_LEFT_POS_Y = -14, 12
 local CHAR_RIGHT_X0, CHAR_RIGHT_X1 = 56, 128
 local CHAR_RIGHT_Y0, CHAR_RIGHT_Y1 = 14, 52
 local CHAR_RIGHT_POS_X = CHAR_RIGHT_X1 - 94
-local CHAR_RIGHT_POS_Y = CHAR_LEFT_POS_Y - CHAR_RIGHT_Y0
+local CHAR_RIGHT_POS_Y = CHAR_LEFT_POS_Y - CHAR_RIGHT_Y0 + 1
 
 -- The reusable Blizzard title strip itself occupies x=64..(w-33).
 local TITLE_START = 64
