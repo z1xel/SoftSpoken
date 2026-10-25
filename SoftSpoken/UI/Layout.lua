@@ -16,7 +16,7 @@
 -- they are built and placed by Reflow, top to bottom. Placing them all in one pass is what lets
 -- a row be hidden (ShowWhen) and everything under it close up, rather than leaving a hole.
 
-local VERSION = 61
+local VERSION = 62
 
 -- LibStub's contract, for LibStub's reason: several addons load this file and the newest
 -- copy must win, whichever of them the client happens to load last.
@@ -813,6 +813,40 @@ function Layout:Requires(row, applies, reason)
     end
     table.insert(row.layoutConditions, { applies = applies, reason = reason })
     return row
+end
+
+--- Make a deliberately unavailable setting fully inert, including 1.12's
+--- separate UIDropDownMenu arrow and the row's hover/tooltip button.
+--- Requires() controls the grey appearance; this function blocks all input.
+--- Its transparent shield follows the full row as Reflow moves it, so the
+--- dropdown's arrow cannot be clicked even if the client's DisableDropDown
+--- implementation leaves that child button active.
+function Layout:BlockInteraction(control)
+    if not control or control.layoutInputShield then return end
+    local hit = control.layoutHit or control
+    if hit.EnableMouse then hit:EnableMouse(false) end
+    if hit.layoutBand then hit.layoutBand:Hide() end
+    local shield = CreateFrame("Frame", nil, self.parent)
+    shield:SetAllPoints(hit)
+    shield:EnableMouse(true)
+    -- Higher than the dropdown's nested arrow (or the button itself).
+    -- Search results use TOOLTIP strata, so this does not cover them.
+    local function Raise()
+        if shield.SetFrameLevel then
+            local level = math.max(
+                hit.GetFrameLevel and hit:GetFrameLevel() or 0,
+                control.GetFrameLevel and control:GetFrameLevel() or 0)
+            shield:SetFrameLevel(level + 30)
+        end
+        if hit.layoutBand then hit.layoutBand:Hide() end
+    end
+    Script(shield, "OnEnter", function()
+        if GameTooltip then GameTooltip:Hide() end
+    end)
+    Raise()
+    self:OnRefresh(Raise)
+    control.layoutInputShield = shield
+    return shield
 end
 
 --- Grey out every row on the page but `except` -- a module's own switch -- while `applies()`
