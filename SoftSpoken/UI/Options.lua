@@ -1109,10 +1109,62 @@ function Options:Setup()
                 insets = { left = 10, right = 10, top = 10, bottom = 10 },
             })
         end
-        -- Permanent window furniture: the current module heading scrolls,
-        -- while the title, search and navigation remain fixed like Blizzard UI.
-        local heading = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-        heading:SetPoint("TOPLEFT", panel, "TOPLEFT", 23, -15)
+        -- Reuse the exact background artwork of Blizzard's 1.12 Key Bindings
+        -- window (Blizzard_BindingUI.xml). That frame consists of three top
+        -- textures and three bottom textures at native proportions 256:256:128.
+        -- Anchor the pieces to our window so its stone header and footer remain
+        -- in place when the panel's height changes. The existing dialogue edge
+        -- stays for the taller middle section; the scroll child stays above art.
+        local bindingArt = [[Interface\KeyBindingFrame\UI-KeyBindingFrame-]]
+        local art = {}
+        local function Piece(name, point)
+            local texture = panel:CreateTexture(nil, "BACKGROUND")
+            texture:SetTexture(bindingArt .. name)
+            texture:SetPoint(point, panel, point, 0, 0)
+            art[name] = texture
+            return texture
+        end
+        Piece("TopLeft", "TOPLEFT")
+        Piece("Top", "TOP")
+        Piece("TopRight", "TOPRIGHT")
+        Piece("BotLeft", "BOTTOMLEFT")
+        Piece("Bot", "BOTTOM")
+        Piece("BotRight", "BOTTOMRIGHT")
+        local function SizeBindingArt()
+            local width, height = panel:GetWidth(), panel:GetHeight()
+            local side = math.floor(width * 256 / 640 + 0.5)
+            local right = width - side * 2
+            local half = height / 2
+            for _, texture in pairs(art) do texture:SetHeight(half) end
+            art.TopLeft:SetWidth(side)
+            art.Top:SetWidth(side)
+            art.TopRight:SetWidth(right)
+            art.BotLeft:SetWidth(side)
+            art.Bot:SetWidth(side)
+            art.BotRight:SetWidth(right)
+            art.Top:ClearAllPoints()
+            art.Top:SetPoint("TOPLEFT", art.TopLeft, "TOPRIGHT", 0, 0)
+            art.Bot:ClearAllPoints()
+            art.Bot:SetPoint("BOTTOMLEFT", art.BotLeft, "BOTTOMRIGHT", 0, 0)
+        end
+        SizeBindingArt()
+        -- On legacy clients this window is currently fixed-width, but allow
+        -- the artwork to follow it if a future settings layout resizes it.
+        if panel.HookScript then panel:HookScript("OnSizeChanged", SizeBindingArt) end
+
+        -- KeyBindingFrameHeader in Blizzard's XML is the native 400x64
+        -- UI-DialogBox-Header at TOP (-30,+12), with the caption -13 below
+        -- the header's top. Use that plaque rather than a loose top-left title.
+        local titlePlate = panel:CreateTexture(nil, "ARTWORK")
+        titlePlate:SetTexture([[Interface\DialogFrame\UI-DialogBox-Header]])
+        titlePlate:SetWidth(400)
+        titlePlate:SetHeight(64)
+        titlePlate:SetPoint("TOP", panel, "TOP", -30, 12)
+        local heading = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        heading:SetWidth(210)
+        heading:SetHeight(16)
+        heading:SetJustifyH("CENTER")
+        heading:SetPoint("TOP", titlePlate, "TOP", 0, -13)
         heading:SetText(HOME_TITLE)
         local divider = panel:CreateTexture(nil, "BORDER")
         divider:SetTexture([[Interface\Buttons\WHITE8X8]])
