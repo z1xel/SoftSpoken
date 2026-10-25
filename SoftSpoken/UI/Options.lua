@@ -66,11 +66,11 @@ local function DrawOrnateHeaderBand(window)
     -- No full search field is drawn through the empty space between them.
     local tl = Part("Left", "BORDER", 0, 28/256, 0, 0.5,
         cornerW, cornerH, "TOPLEFT", "TOPLEFT", leftX, topY)
-    local tr = Part("Right", "BORDER", 228/256, 1, 0, 0.5,
+    local tr = Part("Right", "ARTWORK", 228/256, 1, 0, 0.5,
         cornerW, cornerH, "TOPRIGHT", "TOPRIGHT", rightX, topY)
     local bl = Part("Left", "BORDER", 0, 28/256, 0.5, 1,
         cornerW, cornerH, "BOTTOMLEFT", "TOPLEFT", leftX, bottomY)
-    local br = Part("Right", "BORDER", 228/256, 1, 0.5, 1,
+    local br = Part("Right", "ARTWORK", 228/256, 1, 0.5, 1,
         cornerW, cornerH, "BOTTOMRIGHT", "TOPRIGHT", rightX, bottomY)
 
     -- Crop from the COMPENDIUM search bar's flat middle, taking only the
@@ -96,7 +96,7 @@ local function DrawOrnateHeaderBand(window)
     -- straight middle of each corner's native texture rather than drawing
     -- a second inset frame or a separate bar behind the tabs.
     local function Vertical(file, u1, u2, right)
-        local tex = window:CreateTexture(nil, "BORDER")
+        local tex = window:CreateTexture(nil, right and "ARTWORK" or "BORDER")
         tex:SetTexture(art .. file)
         tex:SetTexCoord(u1, u2, 12/32, 20/32)
         tex:SetWidth(4)
