@@ -3,10 +3,9 @@ setfenv(1, SpokenEnv)
 -- The one minimap button. Feature addons contribute menu entries rather than buttons of
 -- their own, so a player with two Spoken addons installed gets one icon, not two.
 --
--- Left-click opens settings. Right-click opens a menu: the player's entries, then each
--- source's, grouped in source order. Middle-click stops or replays. All three are
--- rebindable (Minimap.Commands in the profile), which is what keeps VoiceOverRedux's three-configurable-clicks
--- behaviour for the players who use it.
+-- Left-click opens settings, middle-click opens the Compendium, and right-click
+-- opens the grouped action menu by default. All three are configurable using
+-- the supported Settings / Compendium / Menu choices on the settings page.
 Minimap = { entries = {} }
 
 local ICON = [[Interface\AddOns\SoftSpoken\icon.tga]]
@@ -19,15 +18,36 @@ local PLAYER_ENTRIES = {
     -- Azeroth's Compendium, whichever parts have a tab in it (UI/Compendium.lua in each).
     { id = "Compendium", text = L.OPT_COMPENDIUM_OPEN, order = 3,
         visible = function()
-            local compendium = _G.SpokenZones112Compendium or _G.SpokenCompendium
+            local compendium = _G.SSCCompendium or _G.SpokenZones112Compendium or _G.SpokenCompendium
             return compendium ~= nil and compendium.Available ~= nil and compendium:Available()
         end,
         onClick = function()
-            local compendium = _G.SpokenZones112Compendium or _G.SpokenCompendium
+            local compendium = _G.SSCCompendium or _G.SpokenZones112Compendium or _G.SpokenCompendium
             if compendium and compendium.Toggle then compendium:Toggle() end
         end },
     { id = "Settings",  text = L.SETTINGS,     order = 4, onClick = function() Options:Open() end },
 }
+
+-- The two playback-specific click mappings have been retired from Settings.
+-- Old profiles (and the prior 1.12 dropdown-capture bug) may still contain
+-- PlayPause, Stop, or nil. Migrate only those values to supported actions,
+-- consistently for both the settings display and the click dispatcher.
+local SAFE_CLICK_DEFAULTS = {
+    LeftButton = "Settings",
+    MiddleButton = "Compendium",
+    RightButton = "Menu",
+}
+function Minimap:GetClickCommand(button)
+    local commands = Addon.db and Addon.db.profile
+        and Addon.db.profile.Minimap and Addon.db.profile.Minimap.Commands
+    if not commands then return SAFE_CLICK_DEFAULTS[button] end
+    local command = commands[button]
+    if command == nil or command == "" or command == "PlayPause" or command == "Stop" then
+        command = SAFE_CLICK_DEFAULTS[button]
+        commands[button] = command
+    end
+    return command
+end
 
 --- entry = { id, text, icon, order, onClick(button), tooltip(GameTooltip), visible() }
 function Minimap:AddEntry(sourceKey, entry)
@@ -122,6 +142,10 @@ local function ToggleClientMenu(anchor)
         UIDropDownMenu_Initialize(dropDown, function(_, level)
             local lastGroup, shownAny = nil, false
             for _, entry in ipairs(Minimap:BuildMenu()) do
+                -- Vanilla Lua 5.0 does not preserve generic-for variables
+                -- in deferred menu callbacks. Each menu item needs its own
+                -- stable reference or clicking any action indexes nil.
+                local selected = entry
                 if entry.sourceTitle and entry.sourceTitle ~= lastGroup then
                     -- A rule above each addon's heading. Without one the heading is the
                     -- only thing between the groups, and it reads as a row of the group
@@ -152,7 +176,7 @@ local function ToggleClientMenu(anchor)
                 info.icon = entry.icon
                 info.notCheckable = true
                 info.func = function()
-                    if entry.onClick then entry.onClick(anchor) end
+                    if selected.onClick then selected.onClick(anchor) end
                     if CloseDropDownMenus then CloseDropDownMenus() end
                 end
                 UIDropDownMenu_AddButton(info, level)
@@ -262,13 +286,18 @@ end
 --- compartment. `button` is the frame a menu opens on and the one feature addons get;
 --- the lib's own button, not the frame the compartment clicked with (see OnClick).
 function Minimap:HandleClick(button, mouseButton)
-    local command = Addon.db.profile.Minimap.Commands[mouseButton]
+    local command = self:GetClickCommand(mouseButton)
     if command == "Menu" then
         ToggleMenu(button)
     elseif command and command ~= "" then
         local entry = Minimap:FindEntry(command)
         if entry and entry.onClick then
-            PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON)
+            -- SOUNDKIT does not exist on the original 1.12 client.
+            if PlaySound then
+                local sound = SOUNDKIT and SOUNDKIT.U_CHAT_SCROLL_BUTTON
+                    or "igMainMenuOptionCheckBoxOn"
+                PlaySound(sound)
+            end
             entry.onClick(button)
         end
     end

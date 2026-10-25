@@ -16,7 +16,7 @@
 -- they are built and placed by Reflow, top to bottom. Placing them all in one pass is what lets
 -- a row be hidden (ShowWhen) and everything under it close up, rather than leaving a hole.
 
-local VERSION = 59
+local VERSION = 69
 
 -- LibStub's contract, for LibStub's reason: several addons load this file and the newest
 -- copy must win, whichever of them the client happens to load last.
@@ -37,8 +37,9 @@ end
 -- One rhythm, kept here rather than at the call sites: the game's own settings list's, read from
 -- its code (Blizzard_Settings_Shared: SettingsListTemplate, SettingsListSectionHeaderTemplate,
 -- SettingsListElementTemplate and SettingsListElementMixin, the control mixins; wow-ui-source,
--- forever branch). A row is 26 tall and 9 from the next; its label starts 37 in, in the game's
--- gold; its control starts just left of the row's middle, the label stopping 85 short of it.
+-- forever branch). A row is 26 tall and 9 from the next; its label starts 37 in in the game's
+-- gold. The original fixed label cutoff is intentionally replaced by measured text widths
+-- so ordinary setting names remain readable in the narrower Vanilla window.
 local ROW_HEIGHT = 26         -- SettingsListElementTemplate: 280 x 26
 local ROW_GAP = 9             -- SettingsListMixin: the list view's spacing
 local BUTTON_ROW = 26
@@ -48,7 +49,6 @@ local SECTION_TITLE_Y = 16
 local HEADER_HEIGHT = 50      -- SettingsListTemplate's Header: title at 7, -22, divider at -50
 local HEADER_PAD = 10         -- the list's verticalPad under it
 local LABEL_X = 37            -- SettingsListElementMixin: Text at indent + 37...
-local LABEL_END = 85          -- ...to 85 short of the row's middle
 local INDENT_STEP = 15        -- indentSize, and a child option's label is GameFontNormalSmall
 local CONTROL_X = -80         -- a checkbox or a slider starts 80 left of the middle
 local DROPDOWN_X = -48        -- a dropdown with its steppers, 48
@@ -441,6 +441,7 @@ function Layout:Reflow()
             if not any then
                 item.heading:Hide()
                 item.box:Hide()
+                item.background:Hide()
             else
                 if started then y = y - ROW_GAP end
                 item.heading:Show()
@@ -476,6 +477,7 @@ function Layout:Reflow()
                 box:SetWidth(group.right - group.left)
                 box:SetHeight(group.top - group.bottom)
                 box:Show()
+                group.background:Show()
                 started = true
             end
         else
@@ -524,17 +526,18 @@ end
 
 --- The top of a page: its icon, its name, and one sentence saying what the page is for.
 --- Neither is a row: the panel tests measure rows and sections, and a title is neither.
-function Layout:Header(title, description, width, icon)
+function Layout:Header(title, description, width, icon, iconSize)
     local parent, left = self.parent, self.left
+    local size = icon and (iconSize or 40) or 0
     local texture
     if icon then
         texture = parent:CreateTexture(nil, "ARTWORK")
-        texture:SetWidth(40)
-        texture:SetHeight(40)
+        texture:SetWidth(size)
+        texture:SetHeight(size)
         texture:SetTexture(icon)
         self.icon = texture
     end
-    local textX = icon and 40 + 12 or 0
+    local textX = icon and size + 12 or 0
     local fs = parent:CreateFontString(nil, "ARTWORK", Font("GameFontHighlightHuge", "GameFontHighlightLarge"))
     fs:SetJustifyH("LEFT")
     fs:SetText(title)
@@ -552,7 +555,7 @@ function Layout:Header(title, description, width, icon)
         line:SetText(description)
     end
     local height = 26 + (description and 32 or 0)
-    if icon and height < 40 then height = 40 end
+    if icon and height < size then height = size end
     local layout = self
     local regions = { fs }
     if texture then table.insert(regions, texture) end
@@ -669,23 +672,25 @@ function Layout:Group(title)
     fs.layoutHeading, fs.layoutHeight = true, SECTION_HEIGHT
     local template = BackdropTemplateMixin and "BackdropTemplate" or nil
     local box = CreateFrame("Frame", nil, parent, template)
+    -- The dark fill MUST be a BACKGROUND texture on the PAGE, not a child
+    -- frame backdrop. In Vanilla a child frame can render above the parent's
+    -- ARTWORK font strings even after lowering its frame level, dimming the
+    -- section headings and setting labels inside the box.
+    local background = parent:CreateTexture(nil, "BACKGROUND")
+    background:SetTexture([[Interface\Tooltips\UI-Tooltip-Background]])
+    background:SetVertexColor(0.06, 0.06, 0.06, 0.6)
+    background:SetAllPoints(box)
+    background:Hide()
+
     local edges = {}
     if box.SetBackdrop then
-        -- The cards' border and background (Card, below), in the grey of a card not chosen.
-        box:SetBackdrop({ bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
-            edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], tile = true, tileSize = 16, edgeSize = 14,
+        -- Border only: keep the same original Blizzard outline, but no
+        -- child-frame background capable of covering the parent text.
+        box:SetBackdrop({
+            edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], edgeSize = 14,
             insets = { left = 4, right = 4, top = 4, bottom = 4 } })
-        box:SetBackdropColor(0.06, 0.06, 0.06, 0.6)
         box:SetBackdropBorderColor(0.45, 0.45, 0.45, 1)
     end
-    -- Under the page, not over it: the rows' labels are the page's own, and a frame of its own
-    -- above the page drew its background over them.
-    local level = parent.GetFrameLevel and parent:GetFrameLevel() or 0
-    if level < 1 and parent.SetFrameLevel then
-        parent:SetFrameLevel(1)
-        level = 1
-    end
-    if box.SetFrameLevel then box:SetFrameLevel(math.max(0, level - 1)) end
     for _, side in ipairs(box.SetBackdrop and {} or { "top", "bottom", "left", "right" }) do
         local line = Flat(box, "BORDER", GROUP_LINE[1], GROUP_LINE[2], GROUP_LINE[3], GROUP_LINE[4])
         if side == "top" or side == "bottom" then
@@ -700,7 +705,8 @@ function Layout:Group(title)
         edges[side] = line
     end
     box:Hide()
-    local group = { kind = "group", text = title, heading = fs, box = box, edges = edges, sections = {} }
+    local group = { kind = "group", text = title, heading = fs, box = box, background = background,
+        edges = edges, sections = {} }
     table.insert(self.items, group)
     self.group, self.current = group, nil
     self.dirty = true
@@ -791,15 +797,31 @@ local function Caption(parent, text)
     return fs
 end
 
--- Put a row's label where the game's settings put it: 37 in, 15 more for each indent, running to
--- 85 short of the row's middle; small for an option under another.
-local function PlaceLabel(layout, caption, x, top)
+-- Keep all settings labels in Blizzard's GameFontNormal. The previous
+-- adaptive-width pass switched individual labels to GameFontNormalSmall if
+-- they were long, which made neighboring controls visibly inconsistent.
+-- Measure in the one font, move controls into available space, and truncate
+-- only when a genuinely long name cannot fit within the page.
+local LABEL_CONTROL_GAP = 9
+local LABEL_RIGHT_PAD = 10
+local function PlaceLabel(layout, caption, x, top, controlWidth, controlOffset)
     local start = x + LABEL_X
-    -- The font object itself: the legacy clients take no font by its name here.
-    local font = x > layout.left and "GameFontNormalSmall" or "GameFontNormal"
-    caption:SetFontObject(_G[font] or font)
-    caption:SetWidth(math.max(40, layout:Middle() - LABEL_END - start))
+    caption:SetFontObject(_G.GameFontNormal or "GameFontNormal")
+    -- Resetting the font object can restore TOP justification in Vanilla.
+    -- Reassert a row-height, vertically centred caption on every reflow so
+    -- labels line up with their checkboxes across all module settings pages.
+    caption:SetHeight(ROW_HEIGHT)
+    caption:SetJustifyV("MIDDLE")
+    caption:SetWidth(layout:Width())
+    local natural = caption.GetStringWidth and caption:GetStringWidth() or 0
+    local base = layout:Middle() + (controlOffset or CONTROL_X)
+    local right = layout.left + layout:Width() - LABEL_RIGHT_PAD
+    local furthest = math.max(base, right - (controlWidth or 0))
+    local wanted = start + natural + LABEL_CONTROL_GAP
+    local column = math.min(furthest, math.max(base, wanted))
+    caption:SetWidth(math.max(40, column - start - LABEL_CONTROL_GAP))
     Put(caption, layout.parent, start, top)
+    return column
 end
 
 --- Grey `row` out whenever `applies()` is false, and add `reason` to its tooltip, so a
@@ -812,6 +834,71 @@ function Layout:Requires(row, applies, reason)
     end
     table.insert(row.layoutConditions, { applies = applies, reason = reason })
     return row
+end
+
+--- Make a deliberately unavailable setting fully inert, including 1.12's
+--- separate UIDropDownMenu arrow and the row's hover/tooltip button.
+--- Requires() controls the grey appearance; this function blocks all input.
+--- Its transparent shield follows the full row as Reflow moves it, so the
+--- dropdown's arrow cannot be clicked even if the client's DisableDropDown
+--- implementation leaves that child button active.
+function Layout:BlockInteraction(control)
+    if not control or control.layoutInputShield then return end
+    local hit = control.layoutHit or control
+    if hit.EnableMouse then hit:EnableMouse(false) end
+    if hit.layoutBand then hit.layoutBand:Hide() end
+
+    -- The 1.12 UIDropDownMenuTemplate creates a separately named Button.
+    -- Disabling its parent alone still leaves that arrow hoverable/clickable.
+    -- Make the child inert directly; do not remove its original scripts.
+    local function BlockArrow()
+        if not control.layoutDropdown then return end
+        if UIDropDownMenu_DisableDropDown then
+            UIDropDownMenu_DisableDropDown(control)
+        end
+        local name = control.GetName and control:GetName()
+        local arrow = name and _G[name .. "Button"]
+        if arrow then
+            if arrow.Disable then arrow:Disable() end
+            if arrow.EnableMouse then arrow:EnableMouse(false) end
+            if arrow.SetMotionScriptsWhileDisabled then
+                arrow:SetMotionScriptsWhileDisabled(false)
+            end
+        end
+    end
+
+    local shield = CreateFrame("Frame", nil, self.parent)
+    -- Cover the entire setting, not just the 26-high hit frame: Vanilla
+    -- dropdown decorations/arrow extend slightly above and below their row.
+    shield:SetPoint("TOPLEFT", hit, "TOPLEFT", -12, 7)
+    shield:SetPoint("BOTTOMRIGHT", hit, "BOTTOMRIGHT", 12, -7)
+    shield:EnableMouse(true)
+    -- UIDropDownMenu's arrow can live on a higher strata than its parent.
+    -- Confine a topmost, textureless blocker to this one inactive row.
+    shield:SetFrameStrata("TOOLTIP")
+    local function Raise()
+        BlockArrow()
+        if shield.SetFrameLevel then
+            local level = math.max(
+                hit.GetFrameLevel and hit:GetFrameLevel() or 0,
+                control.GetFrameLevel and control:GetFrameLevel() or 0)
+            shield:SetFrameLevel(level + 50)
+        end
+        if hit.layoutBand then hit.layoutBand:Hide() end
+    end
+    Script(shield, "OnEnter", function()
+        if GameTooltip then GameTooltip:Hide() end
+    end)
+    -- Track the blocker as a row region so ShowWhen/Only() hides it
+    -- whenever the setting disappears (for example, in Voice Only mode).
+    -- Otherwise an invisible shield could intercept an unrelated row after
+    -- the layout reflows and closes the gap.
+    local row = control.layoutRow
+    if row then table.insert(row.regions, shield) end
+    Raise()
+    self:OnRefresh(Raise)
+    control.layoutInputShield = shield
+    return shield
 end
 
 --- Grey out every row on the page but `except` -- a module's own switch -- while `applies()`
@@ -921,7 +1008,13 @@ function Layout:Highlight(row)
         glow = CreateFrame("Frame", nil, self.parent)
         glow.texture = glow:CreateTexture(nil, "BACKGROUND")
         glow.texture:SetAllPoints()
-        if glow.texture.SetColorTexture then glow.texture:SetColorTexture(1, 0.82, 0, 1) end
+        if glow.texture.SetColorTexture then
+            glow.texture:SetColorTexture(1, 0.82, 0, 1)
+        else
+            -- The original 1.12 client has no SetColorTexture.
+            glow.texture:SetTexture([[Interface\Buttons\WHITE8X8]])
+            glow.texture:SetVertexColor(1, 0.82, 0)
+        end
         Script(glow, "OnUpdate", function(frame, elapsed)
             frame.left = frame.left - (elapsed or arg1 or 0)
             if frame.left <= 0 then
@@ -1037,8 +1130,7 @@ function Layout:Checkbox(label, tooltip, read, write, apply)
     self:Index(box, label, tooltip)
     self:AddRow(ROW_HEIGHT, box, { hit, box, box.text }, function(top, x)
         PlaceBand(self, hit, top)
-        PlaceLabel(self, box.text, x, top)
-        local column = self:Column()
+        local column = PlaceLabel(self, box.text, x, top, box:GetWidth())
         Put(box, parent, column, top - math.floor((ROW_HEIGHT - box:GetHeight()) / 2))
         box.layoutColumn = column
     end)
@@ -1130,8 +1222,21 @@ function Layout:Slider(label, minValue, maxValue, step, read, write, apply, show
     self:Index(frame, label, tooltip)
     self:AddRow(ROW_HEIGHT, frame, { hit, frame, caption }, function(top, x)
         PlaceBand(self, hit, top)
-        PlaceLabel(self, caption, x, top)
-        local column = self:Column()
+        -- The Vanilla slider has a 50-unit value area beside its track.
+        -- Shorten only the track when a longer label needs that room; do
+        -- not shrink the label's font or change its alignment.
+        if value then
+            caption:SetFontObject(_G.GameFontNormal or "GameFontNormal")
+            caption:SetWidth(self:Width())
+            local natural = caption.GetStringWidth and caption:GetStringWidth() or 0
+            local desiredColumn = math.max(self:Column(),
+                x + LABEL_X + natural + LABEL_CONTROL_GAP)
+            local remaining = self.left + self:Width() - LABEL_RIGHT_PAD - desiredColumn
+            local width = math.min(SLIDER_WIDTH, math.max(170, remaining))
+            frame:SetWidth(width)
+            slider:SetWidth(width - 50)
+        end
+        local column = PlaceLabel(self, caption, x, top, frame:GetWidth())
         Put(frame, parent, column, top - math.floor((ROW_HEIGHT - (frame:GetHeight() or 20)) / 2) + 3)
         frame.layoutColumn = column
     end)
@@ -1231,8 +1336,10 @@ function Layout:Dropdown(label, tooltip, values, read, write, apply, describe)
         -- the same table.
         dropdown:SetupMenu(function(_, root)
             for _, value in ipairs(Resolve(values)) do
-                root:CreateRadio(describe(value), function() return describe(read()) == describe(value) end,
-                    function() Choose(value) end, value)
+                local selected = value
+                root:CreateRadio(describe(selected),
+                    function() return describe(read()) == describe(selected) end,
+                    function() Choose(selected) end, selected)
             end
         end)
         Sync = function() if dropdown.GenerateMenu then dropdown:GenerateMenu() end end
@@ -1247,11 +1354,13 @@ function Layout:Dropdown(label, tooltip, values, read, write, apply, describe)
         UIDropDownMenu_Initialize(control, function(_, level)
             local current = read()
             for _, value in ipairs(Resolve(values)) do
+                -- Vanilla Lua 5.0 callbacks must capture a fresh local.
+                local selected = value
                 local info = UIDropDownMenu_CreateInfo()
-                info.text = describe(value)
-                info.checked = describe(value) == describe(current)
+                info.text = describe(selected)
+                info.checked = describe(selected) == describe(current)
                 info.func = function()
-                    Choose(value)
+                    Choose(selected)
                     if CloseDropDownMenus then CloseDropDownMenus() end
                 end
                 UIDropDownMenu_AddButton(info, level)
@@ -1274,10 +1383,10 @@ function Layout:Dropdown(label, tooltip, values, read, write, apply, describe)
     Sync()
     self:AddRow(ROW_HEIGHT, control, { hit, control, caption }, function(top, x)
         PlaceBand(self, hit, top)
-        PlaceLabel(self, caption, x, top)
-        local start = self:Middle() + offset
-        Put(control, parent, start, top - math.floor((ROW_HEIGHT - (control:GetHeight() or 26)) / 2) + 3)
-        control.layoutColumn = self:Column()
+        local column = PlaceLabel(self, caption, x, top,
+            math.max(DROPDOWN_WIDTH - 40, control:GetWidth() or 0), offset)
+        Put(control, parent, column, top - math.floor((ROW_HEIGHT - (control:GetHeight() or 26)) / 2) + 3)
+        control.layoutColumn = column
     end)
     return control
 end
@@ -1571,7 +1680,21 @@ local function Card(parent)
     end
     -- Still over the card while over its checkbox or its button, which take the pointer from
     -- it: the hover ends when the pointer leaves the card's bounds, not when it reaches a child.
-    local function Inside() return card.IsMouseOver and card:IsMouseOver() end
+    local function Inside()
+        if card.IsMouseOver then return card:IsMouseOver() end
+        -- Vanilla 1.12 lacks Frame:IsMouseOver(). Cursor coordinates are
+        -- screen pixels; frame bounds use scaled UI coordinates.
+        if not (GetCursorPosition and card.GetLeft and card.GetRight and
+            card.GetTop and card.GetBottom) then return false end
+        local left, right, top, bottom =
+            card:GetLeft(), card:GetRight(), card:GetTop(), card:GetBottom()
+        if not (left and right and top and bottom) then return false end
+        local x, y = GetCursorPosition()
+        local scale = card.GetEffectiveScale and card:GetEffectiveScale() or 1
+        if not scale or scale == 0 then scale = 1 end
+        x, y = x / scale, y / scale
+        return x >= left and x <= right and y >= bottom and y <= top
+    end
     local function Leave()
         over = false
         Script(card, "OnUpdate", nil)
@@ -1669,8 +1792,10 @@ function Layout:Cards(items)
     local cards = {}
     local hasStatus, hasButton = false, false
     for _, item in ipairs(items) do
+        -- Stable callback scope even on clients using Lua 5.0.
+        local info = item
         local card = Card(parent)
-        card.layoutCard = item
+        card.layoutCard = info
         local frame = InputFrame(card)
         frame:SetWidth(ICON_FRAME)
         frame:SetHeight(ICON_FRAME)
@@ -1679,11 +1804,11 @@ function Layout:Cards(items)
         icon:SetWidth(CARD_ICON)
         icon:SetHeight(CARD_ICON)
         icon:SetPoint("CENTER", frame, "CENTER", 0, 0)
-        icon:SetTexture(item.icon)
+        icon:SetTexture(info.icon)
         icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 
         -- Its name under its icon, as a style's is under its sketch: the full width to fit in.
-        local title, text = Words(card, item, 14)
+        local title, text = Words(card, info, 14)
         title:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 0, -10)
         title:SetPoint("RIGHT", card, "RIGHT", -CARD_PAD, 0)
         text:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -TITLE_GAP)
@@ -1695,15 +1820,15 @@ function Layout:Cards(items)
         check:SetPoint("TOPRIGHT", card, "TOPRIGHT", -CARD_PAD, -CARD_PAD)
         Script(check, "OnClick", function(box)
             Sound(box:GetChecked() and ON or OFF)
-            item.write(box:GetChecked() and true or false)
-            if item.apply then item.apply() end
+            info.write(box:GetChecked() and true or false)
+            if info.apply then info.apply() end
             self:Refresh()
         end)
-        Tooltip(check, item.title, item.tooltip)
+        Tooltip(check, info.title, info.tooltip)
         card.check = check
 
         local status
-        if item.status then
+        if info.status then
             hasStatus = true
             -- A faint line between what the module is and what it has installed, with room either
             -- side, across the card's padded width.
@@ -1720,33 +1845,33 @@ function Layout:Cards(items)
         end
 
         local button
-        if item.button then
+        if info.button then
             hasButton = true
-            button = NewButton(card, item.button)
+            button = NewButton(card, info.button)
             -- The red button's art stops 2 short of its frame on each side: drawn 2 wider, its
             -- edges line up with the icon, the words and the bar above it.
             button:SetPoint("BOTTOMLEFT", card, "BOTTOMLEFT", CARD_PAD - 2, CARD_PAD)
             button:SetPoint("BOTTOMRIGHT", card, "BOTTOMRIGHT", -(CARD_PAD - 2), CARD_PAD)
-            Script(button, "OnClick", function() if item.onButton then item.onButton() end end)
+            Script(button, "OnClick", function() if info.onButton then info.onButton() end end)
             card.button = button
         end
 
         Script(card, "OnClick", function()
-            if item.disabled and item.disabled() then return end
-            Sound(item.read() and OFF or ON)
-            item.write(not item.read())
-            if item.apply then item.apply() end
+            if info.disabled and info.disabled() then return end
+            Sound(info.read() and OFF or ON)
+            info.write(not info.read())
+            if info.apply then info.apply() end
             self:Refresh()
         end)
-        Tooltip(card, item.title, item.tooltip)
+        Tooltip(card, info.title, info.tooltip)
 
         function card:Update()
-            local reason = item.disabled and item.disabled()
-            local on = item.read() and true or false
+            local reason = info.disabled and info.disabled()
+            local on = info.read() and true or false
             local live = on and not reason
             card.layoutReason, check.layoutReason = reason, reason
             card.layoutFaceOn, card.layoutFaceOff = live, reason ~= nil
-            card.layoutHint = (not reason) and item.hint and item.hint(on) or nil
+            card.layoutHint = (not reason) and info.hint and info.hint(on) or nil
             check:SetChecked(live)
             if reason then check:Disable() else check:Enable() end
             if icon.SetDesaturated then icon:SetDesaturated(not live) end
@@ -1756,17 +1881,17 @@ function Layout:Cards(items)
                 title:SetTextColor(0.7, 0.7, 0.7)
             end
             if status then
-                status:Set(item.status())
+                status:Set(info.status())
                 status:SetGreyed(not live)
             end
             if button then
-                local usable = not item.buttonEnabled or item.buttonEnabled()
+                local usable = not info.buttonEnabled or info.buttonEnabled()
                 if usable then button:Enable() else button:Disable() end
             end
             card.layoutChecked = live
             card:Look()
         end
-        self:Index(card, item.title, item.tooltip)
+        self:Index(card, info.title, info.tooltip)
         table.insert(cards, card)
     end
     Updater(self, function() for _, card in ipairs(cards) do card:Update() end end)
@@ -1778,6 +1903,152 @@ function Layout:Cards(items)
     row.measure = function() return PlaceCards(self, cards, nil, MODULE_HEAD, foot, 42) end
     row.members = cards
     for _, card in ipairs(cards) do card.layoutRow = row end
+    return cards
+end
+
+--- Compact module list for Vanilla's 470-unit scroll child. Upstream's
+--- wider settings canvas puts the module's icon, description, pack status,
+--- Settings button and checkbox on one bronze-framed line. This variant uses
+--- the same familiar Blizzard tooltip border and button assets without
+--- imitating the Retail Settings window or requiring modern atlases.
+---
+--- items = { icon, title, text, tooltip, read(), write(on), apply(),
+---           disabled() -> reason, status() -> kind, label, count,
+---           button, onButton(), buttonEnabled() }.
+function Layout:ModuleList(items)
+    self:Columns(nil)
+    local parent = self.parent
+    local rowHeight = 88
+    local inset = 12
+    local iconSize = 38
+    local leftText = inset + iconSize + 12
+    local actionWidth = 96
+    local actionGap = 14
+    local cards = {}
+
+    for _, item in ipairs(items) do
+        -- A distinct local per row is necessary for Lua 5.0 click callbacks.
+        local info = item
+        local card = Card(parent)
+        card.layoutCard = info
+
+        local iconFrame = InputFrame(card)
+        iconFrame:SetWidth(iconSize)
+        iconFrame:SetHeight(iconSize)
+        iconFrame:SetPoint("TOPLEFT", card, "TOPLEFT", inset, -16)
+        local icon = iconFrame:CreateTexture(nil, "ARTWORK")
+        icon:SetPoint("CENTER", iconFrame, "CENTER")
+        icon:SetWidth(iconSize - 6)
+        icon:SetHeight(iconSize - 6)
+        icon:SetTexture(info.icon)
+        icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+
+        local title = card:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+        title:SetPoint("TOPLEFT", card, "TOPLEFT", leftText, -12)
+        title:SetJustifyH("LEFT")
+        title:SetText(info.title)
+
+        local description = card:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+        description:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -5)
+        description:SetJustifyH("LEFT")
+        description:SetJustifyV("TOP")
+        description:SetTextColor(0.8, 0.8, 0.8)
+        description:SetText(info.text or "")
+        description:SetHeight(27)
+
+        local count = card:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+        count:SetPoint("BOTTOMLEFT", card, "BOTTOMLEFT", leftText, 12)
+        count:SetJustifyH("LEFT")
+        count:SetTextColor(0.64, 0.64, 0.64)
+
+        local check = NewCheck(card, 26)
+        check:SetPoint("TOPRIGHT", card, "TOPRIGHT", -inset, -12)
+        Script(check, "OnClick", function(box)
+            if info.disabled and info.disabled() then return end
+            Sound(box:GetChecked() and ON or OFF)
+            info.write(box:GetChecked() and true or false)
+            if info.apply then info.apply() end
+            self:Refresh()
+        end)
+        Tooltip(check, info.title, info.tooltip)
+
+        local button
+        if info.button then
+            button = NewButton(card, info.button)
+            FitToLabel(button, actionWidth)
+            button:SetPoint("BOTTOMRIGHT", card, "BOTTOMRIGHT", -inset, 12)
+            Script(button, "OnClick", function()
+                if info.onButton then info.onButton() end
+            end)
+            Tooltip(button, info.title, info.tooltip)
+        end
+
+        local function Toggle()
+            if info.disabled and info.disabled() then return end
+            local value = not info.read()
+            Sound(value and ON or OFF)
+            info.write(value)
+            if info.apply then info.apply() end
+            self:Refresh()
+        end
+        Script(card, "OnClick", Toggle)
+        Tooltip(card, info.title, info.tooltip)
+
+        function card:Update()
+            local reason = info.disabled and info.disabled()
+            local active = info.read() and true or false
+            local live = active and not reason
+            self.layoutReason = reason
+            self.layoutFaceOn, self.layoutFaceOff = live, reason ~= nil
+            self.layoutHint = not reason and info.hint and info.hint(active) or nil
+            check:SetChecked(active)
+            if reason then check:Disable() else check:Enable() end
+            if icon.SetDesaturated then icon:SetDesaturated(not live) end
+            title:SetTextColor(live and GOLD[1] or 0.7,
+                live and GOLD[2] or 0.7, live and GOLD[3] or 0.7)
+
+            local kind, label, value = nil, nil, nil
+            if info.status then kind, label, value = info.status() end
+            if kind then
+                count:SetText((label or "") .. (value and (": " .. tostring(value)) or ""))
+            else
+                -- No pack counter is not the same as a missing module.
+                count:SetText(reason and (info.unavailable or reason) or "")
+            end
+            count:SetAlpha(live and 1 or 0.65)
+
+            if button then
+                if not info.buttonEnabled or info.buttonEnabled() then
+                    button:Enable()
+                else
+                    button:Disable()
+                end
+            end
+            self:Look()
+        end
+
+        self:Index(card, info.title, info.tooltip)
+        local row = self:AddRow(rowHeight, card,
+            { card }, function(top, x)
+                local width = self:Width()
+                card:SetWidth(width)
+                -- Layout:Reflow inserts the nine-unit gap between rows.
+                -- Keep the frame the row's full height to avoid double gaps.
+                card:SetHeight(rowHeight)
+                title:SetWidth(width - leftText - inset - check:GetWidth() - 6)
+                local reserved = button and button:GetWidth() or actionWidth
+                local copyWidth = math.max(100, width - leftText - inset - reserved - actionGap)
+                description:SetWidth(copyWidth)
+                count:SetWidth(copyWidth)
+                Put(card, parent, x, top)
+            end)
+        row.members = { card }
+        card.check, card.button, card.icon, card.statusText = check, button, icon, count
+        table.insert(cards, card)
+    end
+    Updater(self, function()
+        for _, card in ipairs(cards) do card:Update() end
+    end)
     return cards
 end
 
@@ -1794,6 +2065,9 @@ function Layout:Tiles(items, read, write, apply, labels)
     local parent = self.parent
     local tiles = {}
     for _, item in ipairs(items) do
+        -- Lua 5.0 does not preserve generic-for variables in deferred handlers.
+        -- Capture the selected style in a fresh local for each tile.
+        local choice = item
         local tile = Card(parent)
         tile.layoutTile = item
         local screen = InputFrame(tile)
@@ -1814,7 +2088,7 @@ function Layout:Tiles(items, read, write, apply, labels)
 
         local function Choose()
             Sound(CLICK)
-            write(item.value)
+            write(choice.value)
             if apply then apply() end
             self:Refresh()
         end
@@ -1830,7 +2104,7 @@ function Layout:Tiles(items, read, write, apply, labels)
         tile.check = check
         Tooltip(tile, item.title, item.tooltip)
         function tile:Update()
-            local chosen = read() == item.value
+            local chosen = read() == choice.value
             tile.layoutFaceOn = chosen
             tile.layoutHint = (not chosen) and labels.choose or nil
             check:SetChecked(chosen)
@@ -1954,8 +2228,7 @@ function Layout:Badge(label, read, tooltip, hug)
     badge.layoutLabel = caption
     self:AddRow(ROW_HEIGHT, badge, { hit, badge, caption }, function(top, x)
         PlaceBand(self, hit, top)
-        PlaceLabel(self, caption, x, top)
-        local column = self:Column()
+        local column = PlaceLabel(self, caption, x, top, badge:GetWidth())
         Put(badge, parent, column, top - math.floor((ROW_HEIGHT - FIELD_HEIGHT) / 2))
         badge.layoutColumn = column
     end)
@@ -1994,8 +2267,8 @@ function Layout:Download(label, read, buttonLabel, onClick, tooltip)
     self:Index(field, label, tooltip)
     self:AddRow(ROW_HEIGHT, field, { hit, field, button, caption }, function(top, x)
         PlaceBand(self, hit, top)
-        PlaceLabel(self, caption, x, top)
-        local column = self:Column()
+        local column = PlaceLabel(self, caption, x, top,
+            math.max(field:GetWidth(), button:GetWidth()))
         local y = top - math.floor((ROW_HEIGHT - FIELD_HEIGHT) / 2)
         Put(field, parent, column, y)
         Put(button, parent, column, y)
@@ -2003,6 +2276,185 @@ function Layout:Download(label, read, buttonLabel, onClick, tooltip)
     end)
     field.layoutButton = button
     return field
+end
+
+--- A read-only inventory of registered voice packs, with optional inline details.
+--- The reader returns strings, or records containing id, name, version, status,
+--- details = {{label=..., value=...}}, and optionally extra() for expensive
+--- recording counts. extra() is called only on expansion, once per source table.
+--- Pack rows do not load addons or change narration settings.
+function Layout:PackInventory(read, emptyText)
+    self:Columns(nil)
+    local parent = self.parent
+    local holder = CreateFrame("Frame", nil, parent)
+    local inset, lineHeight, detailHeight = 9, 26, 19
+    local headers, details, shown = {}, {}, {}
+    local expanded
+    local extraCache = {}
+    local height = lineHeight + inset * 2
+
+    if holder.SetBackdrop then
+        holder:SetBackdrop({
+            bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
+            edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
+            tile = true, tileSize = 16, edgeSize = 12,
+            insets = {left = 4, right = 4, top = 4, bottom = 4},
+        })
+        holder:SetBackdropColor(0.05, 0.05, 0.05, 0.65)
+        holder:SetBackdropBorderColor(0.45, 0.45, 0.45, 1)
+    end
+
+    local function Header(index)
+        if headers[index] then return headers[index] end
+        local button = CreateFrame("Button", nil, holder)
+        local label = button:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+        label:SetJustifyH("LEFT")
+        label:SetPoint("LEFT", button, "LEFT", 1, 0)
+        if label.SetWordWrap then label:SetWordWrap(false) end
+        local value = button:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+        value:SetJustifyH("RIGHT")
+        value:SetPoint("RIGHT", button, "RIGHT", -1, 0)
+        if value.SetWordWrap then value:SetWordWrap(false) end
+        value:SetTextColor(0.7, 0.7, 0.7)
+        button.label, button.value = label, value
+        Script(button, "OnClick", function()
+            if not button.packKey then return end
+            if expanded == button.packKey then
+                expanded = nil
+            else
+                expanded = button.packKey
+            end
+            self:Refresh()
+        end)
+        Script(button, "OnEnter", function()
+            if button.packKey then button.label:SetTextColor(1, 1, 1) end
+        end)
+        Script(button, "OnLeave", function()
+            button.label:SetTextColor(GOLD[1], GOLD[2], GOLD[3])
+        end)
+        Tooltip(button, "Installed Voice Pack", "Click to expand or collapse its details.")
+        headers[index] = button
+        return button
+    end
+
+    local function Detail(index, number)
+        details[index] = details[index] or {}
+        if details[index][number] then
+            return details[index][number][1], details[index][number][2]
+        end
+        local label = holder:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+        local value = holder:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+        label:SetJustifyH("LEFT")
+        value:SetJustifyH("LEFT")
+        label:SetHeight(detailHeight)
+        value:SetHeight(detailHeight)
+        if label.SetWordWrap then label:SetWordWrap(false) end
+        if value.SetWordWrap then value:SetWordWrap(false) end
+        label:SetTextColor(0.6, 0.6, 0.6)
+        details[index][number] = { label, value }
+        return label, value
+    end
+
+    local function PackRows(pack)
+        local rows = {}
+        for _, info in ipairs(pack.details or {}) do
+            if info.value ~= nil and info.value ~= "" then
+                table.insert(rows, info)
+            end
+        end
+        if pack.extra then
+            -- The registry table is a stable key while that installed pack is active.
+            -- A newly loaded or replaced pack gets new counts on its first expansion.
+            local key = pack.source or pack.id or pack.name
+            if not extraCache[key] then extraCache[key] = pack.extra() or {} end
+            for _, info in ipairs(extraCache[key]) do table.insert(rows, info) end
+        end
+        return rows
+    end
+
+    local function Refresh()
+        local packs = read() or {}
+        local count = type(packs) == "table" and Count(packs) or 0
+        local cursor = inset
+        shown = {}
+        for index = 1, math.max(1, count) do
+            local pack = count > 0 and packs[index] or nil
+            if type(pack) ~= "table" then pack = { name = pack } end
+            local key = pack.id or pack.addon or (pack.name and tostring(pack.name)) or tostring(index)
+            local expandable = count > 0 and (pack.details ~= nil or pack.extra ~= nil)
+            local opened = expandable and expanded == key
+            local rows = opened and PackRows(pack) or {}
+            local name = count == 0 and (emptyText or "No compatible voice packs installed.")
+                or pack.name or pack.title or pack.addon or "Unknown pack"
+            local button = Header(index)
+            button.packKey = expandable and key or nil
+            button:EnableMouse(expandable and true or false)
+            button.label:SetText((expandable and (opened and "- " or "+ ") or "") .. tostring(name))
+            if count == 0 then
+                button.label:SetTextColor(0.65, 0.65, 0.65)
+            else
+                button.label:SetTextColor(GOLD[1], GOLD[2], GOLD[3])
+            end
+            local suffix = pack.status or ""
+            if pack.version and pack.version ~= "" then
+                suffix = (suffix ~= "" and suffix .. "  |  " or "") .. tostring(pack.version)
+            end
+            button.value:SetText(suffix)
+            table.insert(shown, { button = button, start = cursor, rows = rows })
+            cursor = cursor + lineHeight
+            if opened and Count(rows) > 0 then
+                cursor = cursor + 4 + Count(rows) * detailHeight + 6
+            end
+            for number, info in ipairs(rows) do
+                local label, value = Detail(index, number)
+                label:SetText(tostring(info.label or ""))
+                value:SetText(tostring(info.value or ""))
+                label:Show()
+                value:Show()
+            end
+            for number = Count(rows) + 1, Count(details[index] or {}) do
+                details[index][number][1]:Hide()
+                details[index][number][2]:Hide()
+            end
+            button:Show()
+        end
+        for index = math.max(1, count) + 1, Count(headers) do
+            headers[index]:Hide()
+            for _, fields in ipairs(details[index] or {}) do
+                fields[1]:Hide()
+                fields[2]:Hide()
+            end
+        end
+        height = cursor + inset
+    end
+
+    Updater(self, Refresh)
+    local row = self:AddRow(height, holder, { holder }, function(top, x)
+        local width = self:Width()
+        holder:SetWidth(width)
+        holder:SetHeight(height)
+        Put(holder, parent, x, top)
+        local labelWidth = math.floor((width - inset * 2) * 0.69)
+        for index, item in ipairs(shown) do
+            local button = item.button
+            button:SetWidth(width - inset * 2)
+            button:SetHeight(lineHeight)
+            Put(button, holder, inset, -item.start)
+            button.label:SetWidth(labelWidth)
+            button.value:SetWidth(width - inset * 2 - labelWidth - 6)
+            local detailTop = item.start + lineHeight + 4
+            for number, info in ipairs(item.rows) do
+                local label, value = Detail(index, number)
+                label:SetWidth(112)
+                value:SetWidth(math.max(100, width - inset * 2 - 135))
+                Put(label, holder, inset + 18, -detailTop - (number - 1) * detailHeight)
+                Put(value, holder, inset + 128, -detailTop - (number - 1) * detailHeight)
+            end
+        end
+    end)
+    row.measure = function() return height end
+    self:Index(holder, "Installed Voice Packs", emptyText)
+    return holder
 end
 
 --- A key for an action, set right there: its name on the left of the row and its key on the
@@ -2081,8 +2533,7 @@ function Layout:Key(label, read, set, tooltip, labels)
     self:Index(field, label, tooltip)
     self:AddRow(ROW_HEIGHT, field, { hit, field, caption }, function(top, x)
         PlaceBand(self, hit, top)
-        PlaceLabel(self, caption, x, top)
-        local column = self:Column()
+        local column = PlaceLabel(self, caption, x, top, field:GetWidth())
         Put(field, parent, column, top - math.floor((ROW_HEIGHT - FIELD_HEIGHT) / 2))
         field.layoutColumn = column
     end)
