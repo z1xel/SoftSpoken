@@ -22,18 +22,23 @@ local ROCK = DIR .. "UI-Background-Rock-Classic"
 local CHARACTER_LEFT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft"
 local CHARACTER_RIGHT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight"
 
--- A horizontal-only experimental trim of the character frame:
--- source left sheet 256x256, right sheet 128x256. All slices preserve
--- one source pixel per UI unit (fixed 70-unit height).
-local CHAR_TOP = 20
-local CHAR_BOTTOM = 90
+-- Use the complete original upper character-frame composition, beginning
+-- at atlas row zero. The former 20..90 crop severed the stone background
+-- horizontally across the Compendium. Extend the authentic artwork DOWN
+-- BEHIND the existing search and inset frames instead of cutting it in view.
+-- All source pixels remain at 1:1 scale. Never draw an artificial shadow.
+local CHAR_TOP = 0
+local CHAR_BOTTOM = 120
 local CHAR_HEIGHT = CHAR_BOTTOM - CHAR_TOP
-local CHAR_LEFT_X0, CHAR_LEFT_X1 = 75, 220
-local CHAR_LEFT_DRAW_X = 64
-local CHAR_MIDDLE_X0, CHAR_MIDDLE_X1 = 128, 220
+-- The 130px left end includes the original Blizzard ring-side stone and
+-- its natural connection to the title bar. The ring aligns with our icon
+-- when its original sheet starts at -10,+10 relative to the window.
+local CHAR_LEFT_X0, CHAR_LEFT_X1 = 0, 130
+local CHAR_LEFT_DRAW_X = -10
+local CHAR_MIDDLE_X0, CHAR_MIDDLE_X1 = 130, 220
 local CHAR_MIDDLE_W = CHAR_MIDDLE_X1 - CHAR_MIDDLE_X0
 local CHAR_RIGHT_W = 96
-local CHAR_TOP_RAISE = 6
+local CHAR_TOP_RAISE = 10
 
 local function fixed(parent, layer, path, w, h, coords, p, x, y)
     local t = parent:CreateTexture(nil, layer)
@@ -120,11 +125,12 @@ local function Reflow(frame)
     if not w or not h or w < 220 or h < 180 then return end
     clearSegments(frame)
 
-    -- Fill ONLY the gap between the two fixed Character Frame end pieces.
-    -- The original Blizzard artwork contains the title border, stone and
-    -- shadowing together. Never stretch either fixed end or alter its colors.
-    -- At the collapsed width (~340), the gap remains small but nonnegative.
-    -- The pooled tiles are re-used by the existing OnSizeChanged -> Reflow.
+    -- Continue the original Blizzard title border and rock across the
+    -- resizable center. The artwork extends under the inset frames; those
+    -- existing children cover its lower boundary without a visible cut.
+    -- The repeated source is intentionally unchanged (no tint/masks).
+    -- At compact width (~340), the center still has positive space.
+    -- Reflow reuses the existing texture pool on every resize.
     tiled(frame,"BACKGROUND",CHARACTER_LEFT,
         {CHAR_MIDDLE_X0/256,CHAR_MIDDLE_X1/256,CHAR_TOP/256,CHAR_BOTTOM/256},
         true,CHAR_LEFT_DRAW_X+(CHAR_LEFT_X1-CHAR_LEFT_X0),
@@ -161,12 +167,11 @@ function Skin.Apply(self, title)
     self.sszInitialized = true
     self.sszShowStreaks = true
 
-    -- Two stationary end pieces of Blizzard's ORIGINAL character window.
-    -- No ring is duplicated: the left crop starts beyond the baked portrait
-    -- circle and sits underneath our unchanged portrait icon and overlay ring.
-    -- Cropping vertically prevents the source's fixed-size list/body artwork
-    -- from entering the Compendium's search, parchment and scroll panes.
-    -- The 96px right crop includes the authentic frame termination/shadow.
+    -- Fixed original Blizzard end pieces, fully aligned with the backdrop.
+    -- The left includes the native stone transition around the portrait;
+    -- the right includes the natural bezel and end shadow. Unlike the first
+    -- attempt, the top and the stone beneath it are not cut off in view.
+    -- Source artwork passes beneath the live Compendium child panels.
     self.sszCharacterHeaderLeft = fixed(self,"BORDER",CHARACTER_LEFT,
         CHAR_LEFT_X1-CHAR_LEFT_X0,CHAR_HEIGHT,
         {CHAR_LEFT_X0/256,CHAR_LEFT_X1/256,CHAR_TOP/256,CHAR_BOTTOM/256},
@@ -185,10 +190,12 @@ function Skin.Apply(self, title)
     self.sszPortraitSlices = circularIcon(
         self, "Interface\\Icons\\INV_Misc_Book_09", -6, 8, 61, 29
     )
-    -- Recreate portrait ring above icon rather than relying on texture layering order.
-    -- The portrait ring is drawn after the icon so it stays in front.
+    -- The Character Frame left piece already contains Blizzard's complete
+    -- gold-and-stone portrait ring. Keep the existing icon slices and the
+    -- compatibility texture reference, but don't render a second ring.
     self.sszPortraitRing = fixed(self,"OVERLAY",FRAME,78,78,
         {0.0078125,0.6171875,0.0078125,0.6171875},"TOPLEFT",-14,11)
+    self.sszPortraitRing:Hide()
     self.sszTitle = self:CreateFontString(nil,"OVERLAY","GameFontNormal")
     self.sszTitle:SetWidth(490)
     self.sszTitle:SetHeight(20)
