@@ -122,6 +122,10 @@ local function ToggleClientMenu(anchor)
         UIDropDownMenu_Initialize(dropDown, function(_, level)
             local lastGroup, shownAny = nil, false
             for _, entry in ipairs(Minimap:BuildMenu()) do
+                -- Vanilla Lua 5.0 does not preserve generic-for variables
+                -- in deferred menu callbacks. Each menu item needs its own
+                -- stable reference or clicking any action indexes nil.
+                local selected = entry
                 if entry.sourceTitle and entry.sourceTitle ~= lastGroup then
                     -- A rule above each addon's heading. Without one the heading is the
                     -- only thing between the groups, and it reads as a row of the group
@@ -152,7 +156,7 @@ local function ToggleClientMenu(anchor)
                 info.icon = entry.icon
                 info.notCheckable = true
                 info.func = function()
-                    if entry.onClick then entry.onClick(anchor) end
+                    if selected.onClick then selected.onClick(anchor) end
                     if CloseDropDownMenus then CloseDropDownMenus() end
                 end
                 UIDropDownMenu_AddButton(info, level)
@@ -268,7 +272,12 @@ function Minimap:HandleClick(button, mouseButton)
     elseif command and command ~= "" then
         local entry = Minimap:FindEntry(command)
         if entry and entry.onClick then
-            PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON)
+            -- SOUNDKIT does not exist on the original 1.12 client.
+            if PlaySound then
+                local sound = SOUNDKIT and SOUNDKIT.U_CHAT_SCROLL_BUTTON
+                    or "igMainMenuOptionCheckBoxOn"
+                PlaySound(sound)
+            end
             entry.onClick(button)
         end
     end
