@@ -30,15 +30,17 @@ local CHARACTER_RIGHT = "Interface\\PaperDollInfoFrame\\UI-Character-General-Top
 local CHAR_TOP = 0
 local CHAR_BOTTOM = 120
 local CHAR_HEIGHT = CHAR_BOTTOM - CHAR_TOP
--- The 130px left end includes the original Blizzard ring-side stone and
--- its natural connection to the title bar. The ring aligns with our icon
--- when its original sheet starts at -10,+10 relative to the window.
-local CHAR_LEFT_X0, CHAR_LEFT_X1 = 0, 130
-local CHAR_LEFT_DRAW_X = -10
-local CHAR_MIDDLE_X0, CHAR_MIDDLE_X1 = 130, 220
+-- Preserve the original atlas-to-screen alignment of the last prototype:
+-- source (75,20) was displayed at (64,+6). Therefore x = srcX - 11
+-- and y = srcY - 26. Extending the native source above and below this
+-- range changes the cropping, NOT the approved border coordinates.
+-- Include ten extra columns behind the existing portrait rim at left.
+local CHAR_LEFT_X0, CHAR_LEFT_X1 = 65, 220
+local CHAR_LEFT_DRAW_X = 54
+local CHAR_MIDDLE_X0, CHAR_MIDDLE_X1 = 128, 220
 local CHAR_MIDDLE_W = CHAR_MIDDLE_X1 - CHAR_MIDDLE_X0
 local CHAR_RIGHT_W = 96
-local CHAR_TOP_RAISE = 10
+local CHAR_TOP_RAISE = 26
 
 local function fixed(parent, layer, path, w, h, coords, p, x, y)
     local t = parent:CreateTexture(nil, layer)
@@ -167,11 +169,9 @@ function Skin.Apply(self, title)
     self.sszInitialized = true
     self.sszShowStreaks = true
 
-    -- Fixed original Blizzard end pieces, fully aligned with the backdrop.
-    -- The left includes the native stone transition around the portrait;
-    -- the right includes the natural bezel and end shadow. Unlike the first
-    -- attempt, the top and the stone beneath it are not cut off in view.
-    -- Source artwork passes beneath the live Compendium child panels.
+    -- Retain the existing Blizzard ring and draw the original adjoining
+    -- Character stone below it. Each full native slice extends beyond the
+    -- earlier crop, with its bottom buried beneath the unchanged insets.
     self.sszCharacterHeaderLeft = fixed(self,"BORDER",CHARACTER_LEFT,
         CHAR_LEFT_X1-CHAR_LEFT_X0,CHAR_HEIGHT,
         {CHAR_LEFT_X0/256,CHAR_LEFT_X1/256,CHAR_TOP/256,CHAR_BOTTOM/256},
@@ -190,12 +190,10 @@ function Skin.Apply(self, title)
     self.sszPortraitSlices = circularIcon(
         self, "Interface\\Icons\\INV_Misc_Book_09", -6, 8, 61, 29
     )
-    -- The Character Frame left piece already contains Blizzard's complete
-    -- gold-and-stone portrait ring. Keep the existing icon slices and the
-    -- compatibility texture reference, but don't render a second ring.
+    -- Keep the original visible portrait icon and ring; the Character
+    -- artwork starts at x=65 (under the rim) rather than duplicating it.
     self.sszPortraitRing = fixed(self,"OVERLAY",FRAME,78,78,
         {0.0078125,0.6171875,0.0078125,0.6171875},"TOPLEFT",-14,11)
-    self.sszPortraitRing:Hide()
     self.sszTitle = self:CreateFontString(nil,"OVERLAY","GameFontNormal")
     self.sszTitle:SetWidth(490)
     self.sszTitle:SetHeight(20)
