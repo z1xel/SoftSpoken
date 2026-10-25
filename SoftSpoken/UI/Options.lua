@@ -49,10 +49,12 @@ _G.BINDING_HEADER_SPOKEN = "Spoken"
 _G.BINDING_NAME_SPOKEN_PLAYPAUSE = L.BIND_PLAYPAUSE
 _G.BINDING_NAME_SPOKEN_SKIP = L.BIND_SKIP
 _G.BINDING_NAME_SPOKEN_STOP = L.BIND_STOP
+_G.BINDING_NAME_SPOKEN_COMPENDIUM = L.BIND_COMPENDIUM
 local BINDINGS = {
     { "SPOKEN_PLAYPAUSE", L.BIND_PLAYPAUSE },
     { "SPOKEN_SKIP", L.BIND_SKIP },
     { "SPOKEN_STOP", L.BIND_STOP },
+    { "SPOKEN_COMPENDIUM", L.BIND_COMPENDIUM },
 }
 -- The parts of Spoken by source key, named as their pages are, each with the game's own icon
 -- for what it reads and the order its page is listed in under Spoken.
