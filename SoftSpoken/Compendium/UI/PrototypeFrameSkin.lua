@@ -22,10 +22,14 @@ local ROCK = DIR .. "UI-Background-Rock-Classic"
 local CHARACTER_LEFT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft"
 local CHARACTER_RIGHT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight"
 
--- Repeat a SOURCE-SIZED middle band from the original Character Frame art,
--- keeping the fixed endcaps in place. Its 142px source span repeats without
--- stretching, at the same vertical origin and crop as the left corner.
--- Retain separate FrameGeneral strips only for the outer frame borders.
+-- The CHARACTER top-left/right PNGs are fixed-window compositions, not
+-- tiling atlases. Repeating their opaque stone interiors created rectangular
+-- patches across the Compendium in the previous iteration.
+--
+-- Blizzard's native portrait-frame construction instead uses
+-- FrameGeneral/_UI-Frame's dedicated tiling strips over a continuous rock
+-- backdrop. Keep those for EVERY resizable span, while restricting the
+-- Character artwork to small source-aligned fixed corner details.
 --
 -- The approved portrait ring remains at (-14,+11). Place only the
 -- Character left-side accent one pixel higher, at (-14,+12).
@@ -33,12 +37,6 @@ local CHARACTER_RIGHT = "Interface\\PaperDollInfoFrame\\UI-Character-General-Top
 local CHAR_LEFT_X0, CHAR_LEFT_X1 = 0, 256
 local CHAR_LEFT_Y0, CHAR_LEFT_Y1 = 0, 92
 local CHAR_LEFT_POS_X, CHAR_LEFT_POS_Y = -14, 12
-
--- Original Character Frame middle, at native scale and matching left crop.
-local CHAR_MIDDLE_X0, CHAR_MIDDLE_X1 = 78, 220
-local CHAR_MIDDLE_Y0, CHAR_MIDDLE_Y1 = 0, 92
-local CHAR_MIDDLE_W = CHAR_MIDDLE_X1 - CHAR_MIDDLE_X0
-local CHAR_MIDDLE_H = CHAR_MIDDLE_Y1 - CHAR_MIDDLE_Y0
 
 -- Keep the MATCHING ORIGINAL Character Frame right cap. Its texture crop
 -- starts at source y=0 to preserve the complete original top edge.
@@ -52,9 +50,9 @@ local CHAR_RIGHT_Y0, CHAR_RIGHT_Y1 = 0, 76
 local CHAR_RIGHT_POS_X = CHAR_RIGHT_X1 - 94
 local CHAR_RIGHT_POS_Y = CHAR_LEFT_POS_Y + 1
 
--- The middle begins where the original portrait-side header meets the rail.
+-- The reusable Blizzard title strip itself occupies x=64..(w-33).
 local TITLE_START = 64
-local TITLE_END_MARGIN = 128
+local TITLE_END_MARGIN = 33
 
 local function fixed(parent, layer, path, w, h, coords, p, x, y)
     local t = parent:CreateTexture(nil, layer)
@@ -91,13 +89,13 @@ local function circularIcon(parent, texturePath, x, y, size, radius)
     return slices
 end
 
-local function tiled(parent, layer, path, coords, horizontal, start, span, length, thickness, sourceSpan)
-    -- Pixel-accurate repetition: never stretch a source border to window width.
+local function tiled(parent, layer, path, coords, horizontal, start, span, length, thickness)
+    -- Pixel-accurate repetition: never stretch a 256px source border to window width.
     -- Coordinates start/span are offsets in parent top-left (x rightwards/y downwards).
     if length <= 0 then return end
-    -- FrameGeneral atlas strips use 256px; Character middle repeats only
-    -- its selected native-width source band.
-    local src = sourceSpan or 256
+    -- _UI-Frame/!UI-Frame are native 256px tile atlases. Never attempt
+    -- to repeat the fixed-size Character Frame background here.
+    local src = 256
     local count = math.ceil(length / src)
     for i = 1, count do
         local run = math.min(src, length - (i - 1)*src)
@@ -141,14 +139,18 @@ local function Reflow(frame)
     if not w or not h or w < 220 or h < 180 then return end
     clearSegments(frame)
 
-    -- The genuine Blizzard Character Frame middle resumes between the
-    -- endcaps, at the left corner's native vertical origin and 0..92 crop.
-    -- Repeat 142px source runs without stretching; pool all resize segments.
-    tiled(frame,"BORDER",CHARACTER_LEFT,
-        {CHAR_MIDDLE_X0/256,CHAR_MIDDLE_X1/256,
-         CHAR_MIDDLE_Y0/256,CHAR_MIDDLE_Y1/256},
-        true,TITLE_START,CHAR_LEFT_POS_Y,
-        w-TITLE_START-TITLE_END_MARGIN,CHAR_MIDDLE_H,CHAR_MIDDLE_W)
+    -- Blizzard's own repeatable FrameGeneral title composition.
+    -- These are the original pixel-exact atlas UVs and 1.12-style anchors.
+    -- Each layer has the SAME root coordinate system as the fixed corners.
+    -- Native _UI-Frame artwork is already baked with the metal ridges/shading.
+    tiled(frame,"ARTWORK",HORIZ,{0,1,0.4375,0.65625},
+        true,TITLE_START,-1,w-TITLE_START-TITLE_END_MARGIN,28)
+    tiled(frame,"BACKGROUND",HORIZ,{0,1,0.2890625,0.421875},
+        true,2,3,w-27,17)
+    if frame.sszShowStreaks then
+        tiled(frame,"BORDER",HORIZ,{0,1,0.671875,0.9609375},
+            true,0,21,w-2,37)
+    end
     -- Horizontal lower edge, from x=8 to (w - 11), aligned with 14px/11px corners.
     tiled(frame,"BORDER",HORIZ,{0,1,0.203125,0.2734375},true,8,h-4,w-19,9)
     -- Vertical borders use the original !UI-Frame atlas, 256px each repetition.
