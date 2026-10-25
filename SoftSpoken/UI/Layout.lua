@@ -16,7 +16,7 @@
 -- they are built and placed by Reflow, top to bottom. Placing them all in one pass is what lets
 -- a row be hidden (ShowWhen) and everything under it close up, rather than leaving a hole.
 
-local VERSION = 62
+local VERSION = 63
 
 -- LibStub's contract, for LibStub's reason: several addons load this file and the newest
 -- copy must win, whichever of them the client happens to load last.
@@ -826,17 +826,42 @@ function Layout:BlockInteraction(control)
     local hit = control.layoutHit or control
     if hit.EnableMouse then hit:EnableMouse(false) end
     if hit.layoutBand then hit.layoutBand:Hide() end
+
+    -- The 1.12 UIDropDownMenuTemplate creates a separately named Button.
+    -- Disabling its parent alone still leaves that arrow hoverable/clickable.
+    -- Make the child inert directly; do not remove its original scripts.
+    local function BlockArrow()
+        if not control.layoutDropdown then return end
+        if UIDropDownMenu_DisableDropDown then
+            UIDropDownMenu_DisableDropDown(control)
+        end
+        local name = control.GetName and control:GetName()
+        local arrow = name and _G[name .. "Button"]
+        if arrow then
+            if arrow.Disable then arrow:Disable() end
+            if arrow.EnableMouse then arrow:EnableMouse(false) end
+            if arrow.SetMotionScriptsWhileDisabled then
+                arrow:SetMotionScriptsWhileDisabled(false)
+            end
+        end
+    end
+
     local shield = CreateFrame("Frame", nil, self.parent)
-    shield:SetAllPoints(hit)
+    -- Cover the entire setting, not just the 26-high hit frame: Vanilla
+    -- dropdown decorations/arrow extend slightly above and below their row.
+    shield:SetPoint("TOPLEFT", hit, "TOPLEFT", -12, 7)
+    shield:SetPoint("BOTTOMRIGHT", hit, "BOTTOMRIGHT", 12, -7)
     shield:EnableMouse(true)
-    -- Higher than the dropdown's nested arrow (or the button itself).
-    -- Search results use TOOLTIP strata, so this does not cover them.
+    -- UIDropDownMenu's arrow can live on a higher strata than its parent.
+    -- Confine a topmost, textureless blocker to this one inactive row.
+    shield:SetFrameStrata("TOOLTIP")
     local function Raise()
+        BlockArrow()
         if shield.SetFrameLevel then
             local level = math.max(
                 hit.GetFrameLevel and hit:GetFrameLevel() or 0,
                 control.GetFrameLevel and control:GetFrameLevel() or 0)
-            shield:SetFrameLevel(level + 30)
+            shield:SetFrameLevel(level + 50)
         end
         if hit.layoutBand then hit.layoutBand:Hide() end
     end
