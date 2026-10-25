@@ -42,7 +42,7 @@ function Minimap:GetClickCommand(button)
         and Addon.db.profile.Minimap and Addon.db.profile.Minimap.Commands
     if not commands then return SAFE_CLICK_DEFAULTS[button] end
     local command = commands[button]
-    if command == nil or command == "PlayPause" or command == "Stop" then
+    if command == nil or command == "" or command == "PlayPause" or command == "Stop" then
         command = SAFE_CLICK_DEFAULTS[button]
         commands[button] = command
     end
