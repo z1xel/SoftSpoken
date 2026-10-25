@@ -54,6 +54,7 @@ L = {
     TRANSCRIPT_BY_LETTER = "Letters",
     REASON_TYPEWRITER = "Turn on Type Words Out to use this.",
     OPT_SECTION_PROFILES = "Profiles",
+    OPT_PROFILE_UNAVAILABLE = "* Profiles are currently unavailable. Profile management is disabled.",
     OPT_PROFILE = "Profile in Use",
     OPT_PROFILE_TIP = "A saved set of Spoken's settings, for Spoken itself and the modules that keep theirs in profiles. Characters can share one or each have their own.",
     OPT_PROFILE_NEW = "New Profile",
