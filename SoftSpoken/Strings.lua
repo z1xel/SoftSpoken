@@ -230,6 +230,7 @@ L = {
     OPT_BRONZE_TINT_TIP = "Colours the round buttons' rings bronze, and the small window's border, progress bar and portrait ring, to match the game's own frames.",
     OPT_HIDE_ACTION = "Hide %1$s Button",
     OPT_HIDE_ACTION_TIP = "Takes this button off the window and the subtitles, and out of the small window's right-click menu.",
+    OPT_REPORT_SETTING_UNAVAILABLE = "* Report button visibility is currently unavailable.",
     OPT_SCALE = "Window Size",
     OPT_CONTRIBUTE_TITLE = "Contributions",
     OPT_HIDE_CONTRIBUTE = "Hide Contribute Buttons",
