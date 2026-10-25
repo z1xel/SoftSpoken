@@ -825,6 +825,16 @@ end
 function Options:AddProfiles(layout)
     if not self:ProfileDBs()[1] then return end
     self.profileLayout = layout
+    -- Preserve all AceDB profile logic and saved data for later use, but make
+    -- this entire UI section inert until profile support is ready.
+    local profileSelectionAvailable = false
+    local profileUnavailable = L.OPT_PROFILE_UNAVAILABLE
+        or "* Profiles are currently unavailable. Profile management is disabled."
+    local function ProfileAvailable() return profileSelectionAvailable end
+    local function DisableProfileControl(control)
+        layout:Requires(control, ProfileAvailable, profileUnavailable)
+        layout:BlockInteraction(control)
+    end
     local function Others()
         local others, current = {}, self:CurrentProfile()
         for _, name in ipairs(self:ProfileNames()) do
@@ -834,19 +844,32 @@ function Options:AddProfiles(layout)
     end
     local function Pick(name) return name or L.OPT_PROFILE_PICK end
     layout:Section(L.OPT_SECTION_PROFILES)
-    layout:Dropdown(L.OPT_PROFILE, L.OPT_PROFILE_TIP, function() return self:ProfileNames() end,
+    local current = layout:Dropdown(L.OPT_PROFILE, L.OPT_PROFILE_TIP,
+        function() return self:ProfileNames() end,
         function() return self:CurrentProfile() end,
-        function(name) self:SetProfile(name); layout:Refresh() end)
-    layout:Dropdown(L.OPT_COPY_PROFILE, L.OPT_COPY_PROFILE_TIP, Others, function() return nil end,
-        function(name) self:CopyProfile(name); layout:Refresh() end, nil, Pick)
-    layout:Dropdown(L.OPT_DELETE_PROFILE, L.OPT_DELETE_PROFILE_TIP, Others, function() return nil end,
-        function(name) self:DeleteProfile(name); layout:Refresh() end, nil, Pick)
+        function(name)
+            if profileSelectionAvailable then self:SetProfile(name); layout:Refresh() end
+        end)
+    DisableProfileControl(current)
+    local copy = layout:Dropdown(L.OPT_COPY_PROFILE, L.OPT_COPY_PROFILE_TIP,
+        Others, function() return nil end,
+        function(name)
+            if profileSelectionAvailable then self:CopyProfile(name); layout:Refresh() end
+        end, nil, Pick)
+    DisableProfileControl(copy)
+    local delete = layout:Dropdown(L.OPT_DELETE_PROFILE, L.OPT_DELETE_PROFILE_TIP,
+        Others, function() return nil end,
+        function(name)
+            if profileSelectionAvailable then self:DeleteProfile(name); layout:Refresh() end
+        end, nil, Pick)
+    DisableProfileControl(delete)
     if StaticPopupDialogs and StaticPopup_Show then
         StaticPopupDialogs.SPOKEN_NEW_PROFILE = StaticPopupDialogs.SPOKEN_NEW_PROFILE or {
             text = L.OPT_PROFILE_NEW_PROMPT, button1 = _G.ACCEPT or "Accept", button2 = L.CANCEL,
             hasEditBox = true, timeout = 0, whileDead = true, hideOnEscape = true,
             -- 1.12 and 2.4.3 hand these nothing: the dialog, or its edit box, is in `this`.
             OnAccept = function(popup)
+                if not profileSelectionAvailable then return end
                 popup = popup or this
                 local box = popup and (popup.editBox or popup.EditBox)
                 if not box and StaticPopup_Visible then
@@ -865,9 +888,15 @@ function Options:AddProfiles(layout)
                 if popup and popup.button1 then popup.button1:Click() end
             end,
         }
-        layout:Button(L.OPT_PROFILE_NEW, 200, function() StaticPopup_Show("SPOKEN_NEW_PROFILE") end,
-            L.OPT_PROFILE_NEW_TIP)
+        local newProfile = layout:Button(L.OPT_PROFILE_NEW, 200, function()
+            if profileSelectionAvailable then StaticPopup_Show("SPOKEN_NEW_PROFILE") end
+        end, L.OPT_PROFILE_NEW_TIP)
+        DisableProfileControl(newProfile)
     end
+    local notice = layout:Note(profileUnavailable, nil, 34)
+    notice:SetTextColor(1, 0.24, 0.24)
+    notice:SetAlpha(1)
+    notice.layoutBaseAlpha = 1
 end
 
 --- Open Spoken's page on a tab: Home's is 0, a feature addon's the order it was listed in.
