@@ -11,47 +11,33 @@ Moving those opaque sheets up/down could not fix the fundamental problem.
 
 ## Current construction
 
-The active prototype restores the original Character Frame texture across the
-entire top while keeping its fixed corners and the resizable border system.
+The implementation now respects each Blizzard texture's original purpose:
 
-1. **Backdrop** — original `UI-Background-Rock-Classic`, unchanged.
-2. **Left corner** — `UI-Character-General-TopLeft` x=0..256, y=0..92,
-   anchored TOPLEFT (-14,+12); original portrait ring and icon untouched.
-3. **Repeating middle** — `UI-Character-General-TopLeft` source x=78..220
-   (142px-wide native-size repetitions), y=0..92, anchored at screen x=64,
-   y=+12. Reflow tiles to x=width−128 using the pooled texture segments.
-   The earlier generic repeating title rail, underlay and streak strips are
-   replaced by this experimental Character Frame middle.
-4. **Right corner** — `UI-Character-General-TopRight` x=0..128, y=0..76,
-   anchored TOPRIGHT (+34,+13), with the approved manual alignment retained.
-   The generic top-right cap remains removed; minimize/close controls remain.
-5. **Remaining borders** — original `_UI-Frame` lower-edge tile and
-   `!UI-Frame` side borders, unchanged.
-6. **Resizing** — `OnSizeChanged -> Reflow` and texture pooling retained;
-   partial final repeats are source-clipped rather than stretched.
+1. **Continuous backdrop** — original `UI-Background-Rock-Classic` (256px natural tiling), unchanged.
+2. **Resizable title rail** — genuine `_UI-Frame` title tile, title underlay, and native dark streaks, tiled in original 256px segments.
+3. **Portrait end** — native `UI-Character-General-TopLeft` source x=0..78, y=0..68, fixed at x=-14/y=+12 (one pixel above the existing portrait ring at +11). This ends at screen x=64, precisely where Blizzard's repeatable title tile begins. Existing icon and ring remain above it.
+4. **Right cap** — restored the ORIGINAL Blizzard `UI-Character-General-TopRight`, source x=56..101 and y=14..52, at native size. The crop's anchor is x=-3, y=(+12−14)=-2 relative to the Compendium top-right. This aligns its source-pixel y position to the approved left art and source pixel x=95 to the existing right border x=width−9. The older generic `UI-Frame` 33×33 top-right sprite was removed to avoid duplicate caps; the minimize bezel and actual controls remain.
+5. **Remaining original frame borders** — bottom and vertical strokes, unchanged.
+6. **Resize handling** — retained `OnSizeChanged -> Reflow` and reusable texture pool. No new textures created by dragging after pool capacity is reached.
 
-All repeated and fixed segments use unmodified native Blizzard textures, at
-1:1 source scale. No custom texture, recoloring, gradients or fake shadows.
+The selected fixed regions remain at 1:1 native source size; no custom TGA, recoloring, gradients, fake shadows, or texture stretching has been introduced.
 
 ## Coordinate checks
 
-| Piece | Source crop | Frame position |
+| Visual component | Source span | Relative screen span |
 | --- | --- | --- |
-| Left fixed corner | x=0..256, y=0..92 | TOPLEFT (-14,+12); spans x=-14..242 |
-| Middle repeated strip | x=78..220, y=0..92 | x=64..(width−128), y=+12 |
-| Right fixed corner | x=0..128, y=0..76 | TOPRIGHT (+34,+13); spans x=(width−94)..(width+34) |
-| Minimize bezel | `UI-Frame` 33×23 | TOPRIGHT (-22,+1), unchanged |
+| Left Character ring-side piece | x=0..78 | x=-14..64 |
+| Title metal / repeatable center | width=256 tiled | x=64..(width-33) |
+| Right Character frame cap | x=56..101, y=14..52 | TOPRIGHT (-3,-2); pixel x=95 maps to width−9 |
+| Existing minimize button bezel | original atlas 33×23 | anchored TOPRIGHT at (-22,+1) |
+| Left Character accent vertical anchor | fixed source | y=+12 from root top |
 
-The middle source width is 142px; at a compact width of 340px the span is
-148px, requiring two clipped source-sized tiles. At width 670px it is 478px,
-and at 1200px it is 1008px. The art extends further than the header join on
-both ends intentionally, and the in-game render must be inspected for visible
-repetition seams and boundary overlap.
+At **minimum compact width ≈340**, native title span = 340−64−33 = 243 (positive). At 670 width it is 573; at 1200 it is 1103. Native tile segments clip to exactly that span.
 
 ## In-game validation still necessary
 
-Check (a) the repeated Character middle is visible and vertically aligned with both ends, (b) very wide and collapsed widths for repeat seams, (c) whether opaque Character artwork introduces unwanted overlap/seams at the middle joins, and (d) that the left side, search, parchment, navigation, tabs and scrollbars remain unchanged. This is a **code-verified prototype, not a claimed in-game visual pass**.
+Check (a) that the genuine Character right cap is now vertically level with the approved Character left art rather than floating above it, (b) very wide and collapsed widths for repeat seams, (c) that title-line endpoints meet both corners without a hairline shift, and (d) that the left side, search, parchment, navigation, tabs and scrollbars remain unchanged. This is a **code-verified prototype, not a claimed in-game visual pass**.
 
-If the experimental opaque Character middle produces rectangular repetition seams, adjust its source band or the join regions without moving the already-approved fixed corners.
+If an endcap's original Blizzard artwork has a baked edge slightly different from the modern native `_UI-Frame` rail, adjust only the small fixed original sprite selection or use the unchanged native FrameGeneral endcap. Do not return to tiling opaque Character window backgrounds.
 
 Original Blizzard textures: [Gethe Classic FrameGeneral](https://github.com/Gethe/wow-ui-textures/tree/classic/FrameGeneral) · [PaperDollInfoFrame](https://github.com/Gethe/wow-ui-textures/tree/classic/PaperDollInfoFrame).
