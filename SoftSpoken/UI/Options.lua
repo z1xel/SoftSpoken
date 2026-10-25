@@ -991,9 +991,9 @@ function Options:RefreshNavigation()
     for _, page in ipairs(self.pages or {}) do
         table.insert(pages, page)
     end
-    -- Four pages fit the native 550-pixel window: Home, Quests, Books, Zones.
-    -- A disabled UIPanelButtonTemplate looks unavailable, not selected. Keep
-    -- every button usable and distinguish the active page with a gold rule.
+    -- Four pages fit the native Vanilla window: Home, Quests, Books, Zones.
+    -- The currently selected Blizzard button is greyed out/disabled, exactly
+    -- as it was before the extra gold selection rule was introduced.
     local width = math.floor(LEGACY_NAV_WIDTH / table.getn(pages))
     local activeOrder = self.activePage and self.activePage.order or 0
     for index, entry in ipairs(pages) do
@@ -1001,13 +1001,6 @@ function Options:RefreshNavigation()
         if not button then
             button = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
             button:SetHeight(24)
-            local rule = button:CreateTexture(nil, "OVERLAY")
-            rule:SetTexture([[Interface\Buttons\WHITE8X8]])
-            rule:SetVertexColor(1, 0.82, 0)
-            rule:SetHeight(2)
-            rule:SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 10, 3)
-            rule:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -10, 3)
-            button.selectedRule = rule
             legacyNavButtons[index] = button
         end
         button:ClearAllPoints()
@@ -1020,11 +1013,10 @@ function Options:RefreshNavigation()
                 Options:SelectLegacyPage(order)
             end
         end)
-        button:Enable()
         if order == activeOrder then
-            button.selectedRule:Show()
+            button:Disable()
         else
-            button.selectedRule:Hide()
+            button:Enable()
         end
         button:Show()
     end
