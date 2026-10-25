@@ -1,23 +1,37 @@
-# SoftSpoken Art Inspector (experimental)
+# SoftSpoken Blizzard Art Inspector (experimental)
 
-Standalone Vanilla 1.12/Turtle WoW addon. It **only displays original client textures**; it does not alter SoftSpoken, the game's shop, or any artwork.
+This standalone Vanilla 1.12 / Turtle WoW addon displays **Blizzard's original frame texture assets**, loaded directly from the game client. It does not create new shadows, recolor the artwork, or change SoftSpoken's Compendium.
 
 ## Install
 
-Put this `SoftSpoken_ArtInspector` directory directly under `Interface\AddOns`, enable it in the character-selection AddOns menu if needed, and reload the game.
+Place the `SoftSpoken_ArtInspector` directory directly inside `Interface\AddOns`. Enable it in the character-selection AddOns menu, if needed, and reload the game.
 
-If your current addon folder uses Git junctions, you can junction just this directory from a separate checkout of the `ui/top-rock-shadow-pass` branch instead of switching your production SoftSpoken checkout.
+You can install just this directory from branch `ui/top-rock-shadow-pass` without switching your working SoftSpoken checkout.
 
 ## Open
 
-In chat, type `/ssart` (or `/shopart`).
+Type `/ssart` or `/blizzart` in game.
 
-- **Shop 700x460:** renders bg1/bg2 exactly in the same relative positions used by Turtle WoW's ShopFrame XML, cropped to the nominal shop frame dimensions.
-- **Both sheets:** both complete 512×512 original texture sheets, placed side by side.
-- **bg1 / bg2:** inspect each source separately.
-- **Fit / 1:1 / 2:1:** zoom. Drag the artwork to pan if it exceeds the viewport.
-- **Light backdrop / Dark backdrop:** inspect true embedded alpha and shaded edges without modifying the artwork.
+- **Character L / R:** the original `Interface\PaperDollInfoFrame\UI-Character-General-TopLeft/TopRight` 256x256 and 128x256 sheets. Includes Blizzard's portrait ring, browner stone background, ridges, frame details, and shadows.
+- **Friends L / R:** original `Interface\FriendsFrame\UI-FRIENDSFRAME-TOPLEFT/TOPRIGHT` sheets. Compare the stronger brown stone treatment.
+- **Top/title:** the original `Interface\FrameGeneral\_UI-Frame` 256x128 atlas, including the native title-bar tile, bevel and under-header streak.
+- **Corners:** original `Interface\FrameGeneral\UI-Frame` 128x128 atlas for portrait and fixed endcap.
+- **Sides:** original `Interface\FrameGeneral\!UI-Frame` 64x256 vertical pieces.
+- **Rock:** original `Interface\FrameGeneral\UI-Background-Rock` 256x256 tile.
+- **Character pair / Friends pair:** display each pair of complete sheets side by side, without any overlay or resizing of the original artwork.
+- **Fit / 1:1 / 2:1:** display size. Pan with mouse when zoomed in.
+- **Light backdrop:** reveals the true embedded transparency; the pixels themselves are never changed.
 
-Sources are loaded by the game from `Interface\ShopFrame\bg1` and `Interface\ShopFrame\bg2`. If the panel is blank, those assets may be absent or inaccessible to your client. This inspector cannot export them to files; it shows the originals rendered by the client.
+## Verified source artwork
 
-Blizzard/Turtle art is not included in this repository.
+Blizzard original art from the [Gethe/wow-ui-textures classic branch](https://github.com/Gethe/wow-ui-textures/tree/classic):
+
+- [PaperDollInfoFrame](https://github.com/Gethe/wow-ui-textures/tree/classic/PaperDollInfoFrame)
+- [FriendsFrame](https://github.com/Gethe/wow-ui-textures/tree/classic/FriendsFrame)
+- [FrameGeneral](https://github.com/Gethe/wow-ui-textures/tree/classic/FrameGeneral)
+
+Blizzard's corresponding [PortraitFrameTemplateNoCloseButton](https://github.com/Gethe/wow-ui-source/blob/classic/Interface/AddOns/Blizzard_SharedXML/Classic/SharedUIPanelTemplates.xml) demonstrates how the reusable FrameGeneral assets are layered, tiled, and anchored.
+
+This inspector renders the files in the local client by their original texture paths. Some newer Classic assets might not exist in a 1.12 client; if an individual selection renders blank, check its corresponding GitHub PNG. No bundled PNG files are required.
+
+**Important:** The Turtle WoW shop's `ShopFrame/bg1` and `bg2` are precomposed custom images, not the original modular Blizzard frame artwork. They are intentionally not used here.
