@@ -39,61 +39,73 @@ local HOME_TITLE = "SoftSpoken"
 -- Draw directly on the panel's BORDER layer, behind its title and real buttons;
 -- a child Frame here would sit above them and risk blocking the tabs.
 local function DrawOrnateHeaderBand(window)
+    -- ONE rectangular border around the header tabs. The former version put
+    -- two complete 32px search fields on top of each other, producing extra
+    -- horizontal bands. Crop the four CORNERS from the Compendium's native
+    -- chat-input border, and connect them with straight edge-only slices.
+    -- Textures belong to the parent window, so they cannot intercept clicks.
     local art = [[Interface\ChatFrame\UI-ChatInputBorder-]]
-    local xLeft, xRight = 20, -20
-    local yTop, yBottom = -17, -111
-    local capWidth, capHeight = 75, 32
+    local leftX, rightX = 20, -20
+    local topY, bottomY = -17, -111
+    local cornerW, cornerH = 28, 16
 
-    local function Rail(upper)
-        local left = window:CreateTexture(nil, "BORDER")
-        left:SetTexture(art .. "Left")
-        left:SetWidth(capWidth)
-        left:SetHeight(capHeight)
-        left:SetTexCoord(0, 0.29296875, 0, 1)
+    local function Part(file, layer, u1, u2, v1, v2, width, height, anchor, x, y)
+        local tex = window:CreateTexture(nil, layer)
+        tex:SetTexture(art .. file)
+        tex:SetTexCoord(u1, u2, v1, v2)
+        tex:SetWidth(width)
+        tex:SetHeight(height)
+        tex:SetPoint(anchor, window, anchor, x, y)
+        return tex
+    end
 
-        local right = window:CreateTexture(nil, "BORDER")
-        right:SetTexture(art .. "Right")
-        right:SetWidth(capWidth)
-        right:SetHeight(capHeight)
-        right:SetTexCoord(0.70703125, 1, 0, 1)
+    -- Each corner is HALF the native search bar's height: the top row
+    -- contains only its upper border and the bottom row its lower border.
+    -- No full search field is drawn through the empty space between them.
+    local tl = Part("Left", "BORDER", 0, 28/256, 0, 0.5,
+        cornerW, cornerH, "TOPLEFT", leftX, topY)
+    local tr = Part("Right", "BORDER", 228/256, 1, 0, 0.5,
+        cornerW, cornerH, "TOPRIGHT", rightX, topY)
+    local bl = Part("Left", "BORDER", 0, 28/256, 0.5, 1,
+        cornerW, cornerH, "BOTTOMLEFT", leftX, bottomY)
+    local br = Part("Right", "BORDER", 228/256, 1, 0.5, 1,
+        cornerW, cornerH, "BOTTOMRIGHT", rightX, bottomY)
 
-        local middle = window:CreateTexture(nil, "BORDER")
-        middle:SetTexture(art .. "Left")
-        -- Only use the straight upper or lower silver edge. Stretching
-        -- all 32px would leave a fat black search-box band across the page.
+    -- Crop from the COMPENDIUM search bar's flat middle, taking only the
+    -- upper or lower half of the native 32px border. The 2-point horizontal
+    -- anchors stretch these straight sections across the panel width.
+    local function Horizontal(v1, v2, upper)
+        local tex = window:CreateTexture(nil, "BORDER")
+        tex:SetTexture(art .. "Left")
+        tex:SetTexCoord(75/256, 1, v1, v2)
+        tex:SetHeight(cornerH)
         if upper then
-            middle:SetTexCoord(0.29296875, 1, 0, 0.3125)
-            middle:SetHeight(10)
-            left:SetPoint("TOPLEFT", window, "TOPLEFT", xLeft, yTop)
-            right:SetPoint("TOPRIGHT", window, "TOPRIGHT", xRight, yTop)
-            middle:SetPoint("TOPLEFT", left, "TOPRIGHT", 0, 0)
-            middle:SetPoint("TOPRIGHT", right, "TOPLEFT", 0, 0)
+            tex:SetPoint("TOPLEFT", tl, "TOPRIGHT", 0, 0)
+            tex:SetPoint("TOPRIGHT", tr, "TOPLEFT", 0, 0)
         else
-            middle:SetTexCoord(0.29296875, 1, 0.6875, 1)
-            middle:SetHeight(10)
-            left:SetPoint("BOTTOMLEFT", window, "TOPLEFT", xLeft, yBottom)
-            right:SetPoint("BOTTOMRIGHT", window, "TOPRIGHT", xRight, yBottom)
-            middle:SetPoint("BOTTOMLEFT", left, "BOTTOMRIGHT", 0, 0)
-            middle:SetPoint("BOTTOMRIGHT", right, "BOTTOMLEFT", 0, 0)
+            tex:SetPoint("BOTTOMLEFT", bl, "BOTTOMRIGHT", 0, 0)
+            tex:SetPoint("BOTTOMRIGHT", br, "BOTTOMLEFT", 0, 0)
         end
     end
-    Rail(true)
-    Rail(false)
+    Horizontal(0, 0.5, true)
+    Horizontal(0.5, 1, false)
 
-    -- Connect the two ornate caps without vertically distorting their art.
-    -- These thin rails sit inside the silver corner pieces.
-    local function Side(right)
-        local line = window:CreateTexture(nil, "BORDER")
-        line:SetTexture([[Interface\Buttons\WHITE8X8]])
-        line:SetVertexColor(0.64, 0.65, 0.69, 0.8)
-        line:SetWidth(2)
-        local anchor = right and "TOPRIGHT" or "TOPLEFT"
-        local inset = right and (xRight - 5) or (xLeft + 5)
-        line:SetPoint("TOPLEFT", window, anchor, inset, yTop - 18)
-        line:SetPoint("BOTTOMLEFT", window, anchor, inset, yBottom + 18)
+    -- Only the two vertical sides connect the top and bottom. Sample the
+    -- straight middle of each corner's native texture rather than drawing
+    -- a second inset frame or a separate bar behind the tabs.
+    local function Vertical(file, u1, u2, right)
+        local tex = window:CreateTexture(nil, "BORDER")
+        tex:SetTexture(art .. file)
+        tex:SetTexCoord(u1, u2, 12/32, 20/32)
+        tex:SetWidth(4)
+        local edge = right and "TOPRIGHT" or "TOPLEFT"
+        local x = right and (rightX - 8) or (leftX + 8)
+        tex:SetPoint(edge, window, edge, x, topY - cornerH)
+        tex:SetPoint(right and "BOTTOMRIGHT" or "BOTTOMLEFT",
+            window, edge, x, bottomY + cornerH)
     end
-    Side(false)
-    Side(true)
+    Vertical("Left", 8/256, 12/256, false)
+    Vertical("Right", 244/256, 248/256, true)
 end
 
 -- The ways of showing a line, by the name Addon:PlayerStyle gives each.
