@@ -16,7 +16,7 @@
 -- they are built and placed by Reflow, top to bottom. Placing them all in one pass is what lets
 -- a row be hidden (ShowWhen) and everything under it close up, rather than leaving a hole.
 
-local VERSION = 64
+local VERSION = 65
 
 -- LibStub's contract, for LibStub's reason: several addons load this file and the newest
 -- copy must win, whichever of them the client happens to load last.
@@ -873,6 +873,12 @@ function Layout:BlockInteraction(control)
     Script(shield, "OnEnter", function()
         if GameTooltip then GameTooltip:Hide() end
     end)
+    -- Track the blocker as a row region so ShowWhen/Only() hides it
+    -- whenever the setting disappears (for example, in Voice Only mode).
+    -- Otherwise an invisible shield could intercept an unrelated row after
+    -- the layout reflows and closes the gap.
+    local row = control.layoutRow
+    if row then table.insert(row.regions, shield) end
     Raise()
     self:OnRefresh(Raise)
     control.layoutInputShield = shield
