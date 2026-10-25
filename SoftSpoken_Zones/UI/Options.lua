@@ -84,10 +84,64 @@ local function Build()
     -- World Map visibility is a display preference, not automatic audio
     -- narration. It remains configurable even when narration is switched off.
     layout:Section("Voice Packs")
-    -- Show the actual compatible packs, not just a total. Both this list
-    -- and the Home count use the existing Zones registry validator.
-    layout:PackInventory(function() return R.AudioPackNames() end,
-        "No compatible Zones voice packs installed.")
+    -- Same accepted registry entries as Zones playback, with extra read-only
+    -- metadata. Coverage is counted only when a pack is expanded.
+    layout:PackInventory(function()
+        local result = {}
+        for _, pack in ipairs(R.AudioPackDetails()) do
+            local entry = pack
+            local addon = entry.addon
+            local source = entry.source
+            local version = GetAddOnMetadata and GetAddOnMetadata(addon, "Version")
+            local loaded = IsAddOnLoaded and IsAddOnLoaded(addon)
+            local demand = IsAddOnLoadOnDemand and IsAddOnLoadOnDemand(addon)
+            local fields = {
+                { label = "Addon", value = addon },
+                { label = "Pack Title", value = entry.title },
+                { label = "Content Version", value = version },
+                { label = "Data Format", value = entry.version },
+                { label = "Registered", value = YES },
+                { label = "Loaded", value = loaded and YES or NO },
+            }
+            -- Unlike Quests/Books, Zones does not always declare a language.
+            if type(entry.language) == "string" and entry.language ~= "" then
+                local language = entry.language
+                if Spoken and Spoken.Language and Spoken.Language.GetNativeName then
+                    language = Spoken.Language:GetNativeName(language)
+                end
+                table.insert(fields, { label = "Language", value = language })
+            end
+            if IsAddOnLoadOnDemand then
+                table.insert(fields, { label = "Load on Demand", value = demand and YES or NO })
+            end
+            table.insert(result, {
+                id = addon, source = source, name = entry.title,
+                version = version, status = "Registered", details = fields,
+                extra = function()
+                    local zones, subzones = 0, 0
+                    for _, recording in pairs(source.zones or {}) do
+                        if type(recording) == "table" and recording.file and recording.len then
+                            zones = zones + 1
+                        end
+                    end
+                    for _, byZone in pairs(source.subzones or {}) do
+                        if type(byZone) == "table" then
+                            for _, recording in pairs(byZone) do
+                                if type(recording) == "table" and recording.file and recording.len then
+                                    subzones = subzones + 1
+                                end
+                            end
+                        end
+                    end
+                    return {
+                        { label = "Recorded Zones", value = zones },
+                        { label = "Recorded Subzones", value = subzones },
+                    }
+                end,
+            })
+        end
+        return result
+    end, "No compatible Zones voice packs installed.")
     layout:Note("Zones reads from installed audio packs independently of the shared Quests/Books voice-language preference.", nil, 42)
 
     -- Mirrors the Books Defaults action: a confirmation, a preference-only
