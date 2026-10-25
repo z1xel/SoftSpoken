@@ -61,8 +61,6 @@ local BINDINGS = {
 local PARTS = {
     { key = "quests", label = L.OPT_PART_QUESTS, text = L.OPT_PART_QUESTS_TEXT, tip = L.OPT_PART_QUESTS_TIP,
         icon = [[Interface\Icons\INV_Scroll_03]], order = 1 },
-    { key = "gossip", label = L.OPT_PART_GOSSIP, text = L.OPT_PART_GOSSIP_TEXT, tip = L.OPT_PART_GOSSIP_TIP,
-        icon = [[Interface\Icons\INV_Misc_Note_05]], order = 1 },
     { key = "books", label = L.OPT_PART_BOOKS, text = L.OPT_PART_BOOKS_TEXT, tip = L.OPT_PART_BOOKS_TIP,
         icon = [[Interface\Icons\INV_Misc_Book_09]], order = 2 },
     { key = "zones", label = L.OPT_PART_ZONES, text = L.OPT_PART_ZONES_TEXT, tip = L.OPT_PART_ZONES_TIP,
@@ -260,11 +258,11 @@ local function Build(canvas)
         layout:Custom(Search:Build(host), Search.height, function(width) Search:Fit(width) end)
     end
 
-    -- The existing four modules, each with an icon, description, voice-pack
-    -- count, Settings button and enable checkbox. Modern Settings keeps its
-    -- cards; Vanilla uses one compact framed row per module instead.
+    -- Show the three main modules; Gossip belongs to Quests and is still
+    -- configured on its page. Keep it marked as known so the optional-source
+    -- fallback below does not recreate a separate Gossip checkbox.
     layout:Section(L.OPT_PARTS_TITLE, true)
-    local known = {}
+    local known = { gossip = true }
     local cards = {}
     for _, part in ipairs(PARTS) do
         known[part.key] = true
