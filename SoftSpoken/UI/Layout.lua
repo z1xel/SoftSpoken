@@ -2273,18 +2273,20 @@ function Layout:Download(label, read, buttonLabel, onClick, tooltip)
     return field
 end
 
---- A read-only, dynamically sized list of installed audio packs. The
---- module supplies supported packs from its existing registry; this widget
---- never loads packs, changes playback, or guesses missing versions. A live
---- inventory avoids hardcoding rows before optional packs finish loading.
---- Each entry is a name string or { name = ..., version = ... }.
+--- A read-only inventory of registered voice packs, with optional inline details.
+--- The reader returns strings, or records containing id, name, version, status,
+--- details = {{label=..., value=...}}, and optionally extra() for expensive
+--- recording counts. extra() is called only on expansion, once per source table.
+--- Pack rows do not load addons or change narration settings.
 function Layout:PackInventory(read, emptyText)
     self:Columns(nil)
     local parent = self.parent
     local holder = CreateFrame("Frame", nil, parent)
-    local inset, lineHeight = 9, 22
-    local labels, values = {}, {}
-    local visible, height = 1, lineHeight + inset * 2
+    local inset, lineHeight, detailHeight = 9, 26, 19
+    local headers, details, shown = {}, {}, {}
+    local expanded
+    local extraCache = {}
+    local height = lineHeight + inset * 2
 
     if holder.SetBackdrop then
         holder:SetBackdrop({
@@ -2297,62 +2299,145 @@ function Layout:PackInventory(read, emptyText)
         holder:SetBackdropBorderColor(0.45, 0.45, 0.45, 1)
     end
 
-    local function Line(index)
-        if labels[index] then return labels[index], values[index] end
-        local label = holder:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    local function Header(index)
+        if headers[index] then return headers[index] end
+        local button = CreateFrame("Button", nil, holder)
+        local label = button:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
         label:SetJustifyH("LEFT")
+        label:SetPoint("LEFT", button, "LEFT", 1, 0)
         if label.SetWordWrap then label:SetWordWrap(false) end
-        local detail = holder:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-        detail:SetJustifyH("RIGHT")
-        if detail.SetWordWrap then detail:SetWordWrap(false) end
-        detail:SetTextColor(0.7, 0.7, 0.7)
-        labels[index], values[index] = label, detail
-        return label, detail
+        local value = button:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+        value:SetJustifyH("RIGHT")
+        value:SetPoint("RIGHT", button, "RIGHT", -1, 0)
+        if value.SetWordWrap then value:SetWordWrap(false) end
+        value:SetTextColor(0.7, 0.7, 0.7)
+        button.label, button.value = label, value
+        Script(button, "OnClick", function()
+            if not button.packKey then return end
+            if expanded == button.packKey then
+                expanded = nil
+            else
+                expanded = button.packKey
+            end
+            self:Refresh()
+        end)
+        Script(button, "OnEnter", function()
+            if button.packKey then button.label:SetTextColor(1, 1, 1) end
+        end)
+        Script(button, "OnLeave", function()
+            button.label:SetTextColor(GOLD[1], GOLD[2], GOLD[3])
+        end)
+        Tooltip(button, "Installed Voice Pack", "Click to expand or collapse its details.")
+        headers[index] = button
+        return button
+    end
+
+    local function Detail(index, number)
+        details[index] = details[index] or {}
+        if details[index][number] then
+            return details[index][number][1], details[index][number][2]
+        end
+        local label = holder:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+        local value = holder:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+        label:SetJustifyH("LEFT")
+        value:SetJustifyH("LEFT")
+        if label.SetWordWrap then label:SetWordWrap(false) end
+        if value.SetWordWrap then value:SetWordWrap(false) end
+        label:SetTextColor(0.6, 0.6, 0.6)
+        details[index][number] = { label, value }
+        return label, value
+    end
+
+    local function PackRows(pack)
+        local rows = {}
+        for _, info in ipairs(pack.details or {}) do
+            if info.value ~= nil and info.value ~= "" then
+                table.insert(rows, info)
+            end
+        end
+        if pack.extra then
+            -- The registry table is a stable key while that installed pack is active.
+            -- A newly loaded or replaced pack gets new counts on its first expansion.
+            local key = pack.source or pack.id or pack.name
+            if not extraCache[key] then extraCache[key] = pack.extra() or {} end
+            for _, info in ipairs(extraCache[key]) do table.insert(rows, info) end
+        end
+        return rows
     end
 
     local function Refresh()
         local packs = read() or {}
         local count = type(packs) == "table" and Count(packs) or 0
-        visible = math.max(1, count)
-        height = inset * 2 + visible * lineHeight
-        for index = 1, visible do
-            local label, detail = Line(index)
-            if count == 0 then
-                label:SetText(emptyText or "No compatible voice packs installed.")
-                label:SetTextColor(0.65, 0.65, 0.65)
-                detail:SetText("")
-            else
-                local pack = packs[index]
-                local name = type(pack) == "table" and
-                    (pack.name or pack.title or pack.addon) or pack
-                local version = type(pack) == "table" and pack.version or nil
-                label:SetText(tostring(name or "Unknown pack"))
-                label:SetTextColor(GOLD[1], GOLD[2], GOLD[3])
-                detail:SetText(version and tostring(version) or "")
+        local cursor = inset
+        shown = {}
+        for index = 1, math.max(1, count) do
+            local pack = count > 0 and packs[index] or nil
+            if type(pack) ~= "table" then pack = { name = pack } end
+            local key = pack.id or pack.addon or (pack.name and tostring(pack.name)) or tostring(index)
+            local expandable = count > 0 and (pack.details ~= nil or pack.extra ~= nil)
+            local opened = expandable and expanded == key
+            local rows = opened and PackRows(pack) or {}
+            local name = pack.name or pack.title or pack.addon or "Unknown pack"
+            local button = Header(index)
+            button.packKey = expandable and key or nil
+            button:EnableMouse(expandable and true or false)
+            button.label:SetText((expandable and (opened and "- " or "+ ") or "") .. tostring(name))
+            button.label:SetTextColor(GOLD[1], GOLD[2], GOLD[3])
+            local suffix = pack.status or ""
+            if pack.version and pack.version ~= "" then
+                suffix = (suffix ~= "" and suffix .. "  |  " or "") .. tostring(pack.version)
             end
-            label:Show()
-            detail:Show()
+            button.value:SetText(suffix)
+            table.insert(shown, { button = button, start = cursor, rows = rows })
+            cursor = cursor + lineHeight
+            if opened and Count(rows) > 0 then
+                cursor = cursor + 4 + Count(rows) * detailHeight + 6
+            end
+            for number, info in ipairs(rows) do
+                local label, value = Detail(index, number)
+                label:SetText(tostring(info.label or ""))
+                value:SetText(tostring(info.value or ""))
+                label:Show()
+                value:Show()
+            end
+            for number = Count(rows) + 1, Count(details[index] or {}) do
+                details[index][number][1]:Hide()
+                details[index][number][2]:Hide()
+            end
+            button:Show()
         end
-        for index = visible + 1, Count(labels) do
-            labels[index]:Hide()
-            values[index]:Hide()
+        for index = math.max(1, count) + 1, Count(headers) do
+            headers[index]:Hide()
+            for _, fields in ipairs(details[index] or {}) do
+                fields[1]:Hide()
+                fields[2]:Hide()
+            end
         end
+        height = cursor + inset
     end
+
     Updater(self, Refresh)
     local row = self:AddRow(height, holder, { holder }, function(top, x)
         local width = self:Width()
         holder:SetWidth(width)
         holder:SetHeight(height)
         Put(holder, parent, x, top)
-        local labelWidth = math.floor((width - inset * 2) * 0.72)
-        for index = 1, visible do
-            local label, detail = labels[index], values[index]
-            label:ClearAllPoints()
-            label:SetPoint("TOPLEFT", holder, "TOPLEFT", inset, -inset - (index - 1) * lineHeight - 3)
-            label:SetWidth(labelWidth)
-            detail:ClearAllPoints()
-            detail:SetPoint("TOPRIGHT", holder, "TOPRIGHT", -inset, -inset - (index - 1) * lineHeight - 3)
-            detail:SetWidth(width - inset * 2 - labelWidth)
+        local labelWidth = math.floor((width - inset * 2) * 0.69)
+        for index, item in ipairs(shown) do
+            local button = item.button
+            button:SetWidth(width - inset * 2)
+            button:SetHeight(lineHeight)
+            Put(button, holder, inset, -item.start)
+            button.label:SetWidth(labelWidth)
+            button.value:SetWidth(width - inset * 2 - labelWidth - 6)
+            local detailTop = item.start + lineHeight + 4
+            for number, info in ipairs(item.rows) do
+                local label, value = Detail(index, number)
+                label:SetWidth(112)
+                value:SetWidth(math.max(100, width - inset * 2 - 135))
+                Put(label, holder, inset + 18, -detailTop - (number - 1) * detailHeight)
+                Put(value, holder, inset + 128, -detailTop - (number - 1) * detailHeight)
+            end
         end
     end)
     row.measure = function() return height end
