@@ -13,20 +13,20 @@ The original portrait icon, circular metal ring, close/minimize buttons, frame d
 
 ## Repeated center and fixed ends
 
-The *fixed left* uses source x=65..220 and y=0..120 from Character TopLeft, rendered at screen x=54..209. Its new 10px left extension sits behind the existing portrait ring; the ring and icon stay unchanged.
+The *fixed left* now uses original Blizzard Character TopLeft source x=0..220 and y=0..120, at the **native portrait frame origin x=-14, y=+11**. This restores the complete left corner and ensures that the embedded original ring and the existing icon/overlay ring occupy the same coordinates.
 
-The *middle* uses source x=128..220 and y=0..120 from the same Character TopLeft, repeated as a 92px native-resolution tile from x=209 to (window width - 96). It is driven by the existing pooled `tiled()` code.
+The *middle* continues to use original Character TopLeft source x=128..220 and y=0..120, repeated as a 92-unit strip between the fixed ends. At compact width (~340), its available length is about 6 UI units, so neither end needs to overlap.
 
-The *fixed right* uses source x=0..96 and y=0..120 from Character TopRight. It anchors to the window's right end and follows any width change. Existing Blizzard close/minimize artwork stays above it.
+The *fixed right* now uses **the entire 128px source width** x=0..128 from Character TopRight (previously truncated at 96px) and y=0..120, right-anchored at full native pixel width.
 
-All three are positioned 26 UI units above the root frame top. This preserves the original on-screen alignment of the previous source y=20..90 at +6; it simply includes the missing upper/lower source pixels. Their lower source boundary is beneath the existing Compendium insets, where it should not appear as a horizontal crop. Both end pieces remain at 1:1 source aspect ratio while resizing. The unchanged `OnSizeChanged -> Reflow()` callback only changes how many center tiles are visible.
+The previous header was artificially raised **26 UI units**, while the approved portrait ring is raised only **11 UI units**. The corrected source artwork now shares the ring's +11 vertical anchor. This shifts the actual character art downward by 15 UI units into the existing title bar position without moving the Compendium title, buttons, or content. Both ends remain at 1:1 native scale.
 
 ## What to test in-game
 
 1. Compare at default Compendium width against the Character Frame reference.
 2. Resize very wide and inspect the repeated middle for visible seams. The source was not authored as a repeating tile: **the center is experimental, not guaranteed seamless**.
 3. Collapse and expand (the compact-width midsection is short). Check both ends do not overlap.
-4. Verify the added 10px of genuine ring-side stone integrates with the original portrait ring and introduces no second ring or detached rectangular edge.
+4. Verify the complete native left corner aligns with the existing portrait icon/ring, with no duplicate ring or detached vertical seam.
 5. Check the right end with minimize, close, hover and pressed states.
 6. Check that search, navigation, parchment, tabs and scrollbars remain unchanged.
 
