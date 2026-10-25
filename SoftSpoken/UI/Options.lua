@@ -47,7 +47,7 @@ local function DrawOrnateHeaderBand(window)
     local art = [[Interface\ChatFrame\UI-ChatInputBorder-]]
     -- Align both silver side edges with the legacy settings window itself.
     -- The previous 20px inset made this header shorter than the outer frame.
-    local leftX, rightX = 0, 0
+    local leftX, rightX = 2, -2
     local topY, bottomY = -17, -111
     local cornerW, cornerH = 28, 16
 
