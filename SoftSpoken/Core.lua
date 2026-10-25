@@ -99,7 +99,7 @@ Defaults = {
             -- right-click away.
             Commands = {
                 LeftButton = "Settings",
-                MiddleButton = "PlayPause",
+                MiddleButton = "Compendium",
                 RightButton = "Menu",
             },
         },
