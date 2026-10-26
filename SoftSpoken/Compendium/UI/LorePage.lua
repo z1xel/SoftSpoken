@@ -111,7 +111,7 @@ function Page:Resize(resetScroll)
         local width=self.sub:GetWidth() or 0
         if width>50 then
             local height=self.sub.text:GetStringHeight() or 16
-            self.sub:SetHeight(math.max(16,math.ceil(height)+2))
+            self.sub:SetHeight(height>18 and math.ceil(height)+2 or 16)
         end
     end
     self:FitDecorations()
