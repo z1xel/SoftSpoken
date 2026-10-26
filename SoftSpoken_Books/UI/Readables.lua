@@ -125,7 +125,25 @@ local function FirstVoiced(id)
 end
 local function Voiced(id) return FirstVoiced(id)~=nil end
 local function OnlyFound() return Settings().compendiumFoundOnly==true end
-local function OnlyVoiced() return Settings().compendiumVoicedOnly==true end
+-- The writings and their text are bundled locally; sound packs are optional.
+-- When none are present, an old "Voiced Only" preference must not make the
+-- entire Books Compendium disappear. Keep the saved choice for when audio returns.
+local hasVoicePacks
+local function HasVoicePacks()
+    if hasVoicePacks == nil then
+        hasVoicePacks = false
+        for _, pack in ipairs(B:GetAudioPacks()) do
+            if next(pack.pages) then
+                hasVoicePacks = true
+                break
+            end
+        end
+    end
+    return hasVoicePacks
+end
+local function OnlyVoiced()
+    return Settings().compendiumVoicedOnly==true and HasVoicePacks()
+end
 local function Unlocked() return Settings().unlockUnfound==true end
 local function ByZone() return Settings().compendiumByZone~=false end
 local function Visible(id)
@@ -506,6 +524,8 @@ end
 
 function B:RefreshReadablesPlayback()
     voiced={}
+    hasVoicePacks=nil
+    if list then B:RefreshReadables() end
     if page and page.play and page.play.Refresh then page.play:Refresh() end
 end
 local function Build(panelFrame)
@@ -516,6 +536,7 @@ local function Build(panelFrame)
         onlySet=function(on) Settings().compendiumFoundOnly=on end,
         checks={
             {label="Voiced Only",get=OnlyVoiced,
+                disabled=function() return not HasVoicePacks() end,
                 set=function(on) Settings().compendiumVoicedOnly=on end},
             {label="Unlock Unfound",get=Unlocked,
                 set=function(on) Settings().unlockUnfound=on end},
@@ -577,6 +598,7 @@ end
 function B:RefreshReadables(scrollToSelection)
     if not list then return end
     voiced={}
+    hasVoicePacks=nil
     local items=list:Render()
     if scrollToSelection then list:ScrollToSelection(items) end
     ShowEntry()
