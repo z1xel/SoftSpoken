@@ -117,19 +117,29 @@ local function Reflow(frame)
     if frame.sszShowStreaks then
         tiled(frame,"BORDER",HORIZ,{0,1,0.671875,0.9609375},true,0,21,w-2,37)
     end
-    -- Horizontal lower edge, from x=8 to (w - 11), aligned with 14px/11px corners.
-    -- Compact map attachments sit at the bottom edge of the World Map.
-    -- The normal frame deliberately extends its 14px and 11px bottom
-    -- corners five units below the frame, which can get clipped there.
-    -- Shift only the compact bottom rail/vertical ends up by five units to
-    -- meet its bottom corners entirely *inside* the map attachment.
+    -- The compact frame's parchment/scrollbar are child frames above this
+    -- frame's texture layers. Draw its *whole* lower edge and both sides on
+    -- the same mouse-pass-through foreground frame as the native bottom
+    -- corners. Merely choosing OVERLAY on the parent does not overdraw
+    -- higher-level children and previously left a flat, broken bottom rim.
     if frame.sszCompactFrame then
-        tiled(frame,"BORDER",HORIZ,{0,1,0.203125,0.2734375},true,8,h-9,w-19,9)
-        tiled(frame,"BORDER",VERT,{0.359375,0.609375,0,1},false,-6,32,h-44,16)
-        tiled(frame,"BORDER",VERT,{0.171875,0.328125,0,1},false,w-9,32,h-43,10)
+        local trim=frame.sszCompactTrim
+        if trim then
+            trim:SetFrameLevel(frame:GetFrameLevel()+10)
+            clearSegments(trim)
+            -- Native 14px/11px bottom corners are kept at their actual
+            -- size. Left begins at x=-6; the rail connects at x=8.
+            -- Right starts at x=w-11; both end inside the attachment.
+            tiled(trim,"ARTWORK",HORIZ,{0,1,0.203125,0.2734375},true,8,h-9,w-19,9)
+            tiled(trim,"ARTWORK",VERT,{0.359375,0.609375,0,1},false,-6,32,h-44,16)
+            tiled(trim,"ARTWORK",VERT,{0.171875,0.328125,0,1},false,w-9,32,h-43,10)
+            for i=trim.sszSegmentUsed+1,table.getn(trim.sszSegments) do
+                trim.sszSegments[i]:Hide()
+            end
+        end
     else
+        -- Leave the approved full-size Compendium frame untouched.
         tiled(frame,"BORDER",HORIZ,{0,1,0.203125,0.2734375},true,8,h-4,w-19,9)
-        -- Preserve the proven full Compendium portrait-frame geometry.
         tiled(frame,"BORDER",VERT,{0.359375,0.609375,0,1},false,-6,67,h-74,16)
         tiled(frame,"BORDER",VERT,{0.171875,0.328125,0,1},false,w-9,32,h-38,10)
     end
@@ -169,12 +179,21 @@ function Skin.Apply(self, title, options)
         -- top-right crop. Match Blizzard's original top-left -6,+1 anchor.
         fixed(self,"OVERLAY",FRAME,32,32,
             {0.6328125,0.8828125,0.28125,0.53125},"TOPLEFT",-6,1)
-        -- The original bottom-corner slices already existed, but BORDER
-        -- let later border strips obscure them. Raise them to OVERLAY and
-        -- keep their full shapes within the map panel's clipped bounds.
-        fixed(self,"OVERLAY",FRAME,14,14,
+        -- Native bottom corners are smaller than the title corners in the
+        -- original Blizzard atlas. The problem was layering, not their UVs:
+        -- the map's parchment hides parent-frame OVERLAY textures. This
+        -- foreground trim brings both caps and the connecting strokes above
+        -- the parchment, without catching mouse input or changing its size.
+        local trim=CreateFrame("Frame",nil,self)
+        trim:SetAllPoints(self)
+        trim:SetFrameLevel(self:GetFrameLevel()+10)
+        trim:EnableMouse(false)
+        trim.sszSegments={}
+        trim.sszSegmentUsed=0
+        self.sszCompactTrim=trim
+        fixed(trim,"OVERLAY",FRAME,14,14,
             {0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,0)
-        fixed(self,"OVERLAY",FRAME,11,11,
+        fixed(trim,"OVERLAY",FRAME,11,11,
             {0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,0)
     else
         fixed(self,"BORDER",FRAME,14,14,{0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,-5)
