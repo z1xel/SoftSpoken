@@ -51,7 +51,7 @@ local function circularIcon(parent, texturePath, x, y, size, radius)
     return slices
 end
 
-local function tiled(parent, layer, path, coords, horizontal, start, span, length, thickness)
+local function tiled(parent, layer, path, coords, horizontal, start, span, length, thickness, bottomAligned)
     -- Pixel-accurate repetition: never stretch a 256px source border to window width.
     -- Coordinates start/span are offsets in parent top-left (x rightwards/y downwards).
     if length <= 0 then return end
@@ -77,7 +77,15 @@ local function tiled(parent, layer, path, coords, horizontal, start, span, lengt
             t:SetWidth(run)
             t:SetHeight(thickness)
             t:SetTexCoord(coords[1], coords[1] + (coords[2] - coords[1]) * run / src, coords[3], coords[4])
-            t:SetPoint("TOPLEFT",parent,"TOPLEFT", start + (i - 1)*src, -span)
+            if bottomAligned then
+                -- The bottom rail must follow the panel's actual bottom even
+                -- when the World Map changes height after our first Reflow.
+                t:SetPoint("BOTTOMLEFT",parent,"BOTTOMLEFT",
+                    start + (i - 1)*src, span)
+            else
+                t:SetPoint("TOPLEFT",parent,"TOPLEFT",
+                    start + (i - 1)*src, -span)
+            end
         else
             t:SetWidth(thickness)
             t:SetHeight(run)
@@ -130,12 +138,15 @@ local function Reflow(frame)
             -- Native 14px/11px bottom corners are kept at their actual
             -- size. Left begins at x=-6; the rail connects at x=8.
             -- Right starts at x=w-11; both end inside the attachment.
-            tiled(trim,"ARTWORK",HORIZ,{0,1,0.203125,0.2734375},true,8,h-9,w-19,9)
+            tiled(trim,"ARTWORK",HORIZ,{0,1,0.203125,0.2734375},
+                true,8,0,w-19,9,true)
             tiled(trim,"ARTWORK",VERT,{0.359375,0.609375,0,1},false,-6,32,h-44,16)
             tiled(trim,"ARTWORK",VERT,{0.171875,0.328125,0,1},false,w-9,32,h-43,10)
             for i=trim.sszSegmentUsed+1,table.getn(trim.sszSegments) do
                 trim.sszSegments[i]:Hide()
             end
+            frame.sszLastCompactWidth=w
+            frame.sszLastCompactHeight=h
         end
     else
         -- Leave the approved full-size Compendium frame untouched.
@@ -145,6 +156,18 @@ local function Reflow(frame)
     end
     for i = frame.sszSegmentUsed + 1, table.getn(frame.sszSegments) do
         frame.sszSegments[i]:Hide()
+    end
+end
+
+-- WorldMapFrame can resize via anchors after a child has laid out; certain
+-- 1.12 map variants do not consistently dispatch OnSizeChanged for that.
+-- Poll only geometry (not artwork creation) and reflow on actual size changes.
+function Skin.RefreshCompact(frame)
+    if not frame or not frame.sszCompactFrame then return end
+    local w,h=frame:GetWidth(),frame:GetHeight()
+    if w and h and (w~=frame.sszLastCompactWidth or
+        h~=frame.sszLastCompactHeight) then
+        Reflow(frame)
     end
 end
 
