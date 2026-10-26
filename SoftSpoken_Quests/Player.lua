@@ -574,12 +574,7 @@ function Player:Setup()
         end)
     end
 
-    -- The shared minimap already provides a Settings entry that opens the
-    -- unified window. Do not add duplicate Quests/Gossip settings entries:
-    -- they created otherwise-empty Quests and Gossip groups in that menu.
-    -- Keep the standalone settings methods and the existing settings link.
-    if Spoken.AddSettingsLink then
-        Spoken:AddSettingsLink(L.OPT_MINIMAP_SETTINGS, function() Options:OpenSettings() end)
-    end
+    -- Quests is reached through its registered shared Settings page.
+    -- No separate minimap link, Quests/Gossip menu entry or second window.
     return true
 end

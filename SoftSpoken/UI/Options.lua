@@ -5,7 +5,7 @@ setfenv(1, SpokenEnv)
 --
 -- Settings.RegisterCanvasLayoutCategory is the modern path and exists on every current
 -- client. The three legacy clients have no Settings API at all; there the same
--- panel is a movable window opened with /spoken options. One builder, two hosts.
+-- panel is a movable window opened with /spoken. One builder, two hosts.
 Options = {}
 
 -- The game's settings list sets its rows 25 in from the canvas's left.
@@ -24,7 +24,6 @@ local LEGACY_SCROLL_TOP = -116
 local panel
 local scroller
 local legacyScrollChild
-local pendingLinks = {}
 local legacyNavButtons = {}
 
 -- Rows, headings and the spacing between them come from UI/Layout.lua, the file every
@@ -748,14 +747,6 @@ local function Build(canvas)
         end)
     end, L.OPT_RESET_ALL_TIP)
 
-    -- Feature addons register a button here to reach their own settings. The section is
-    -- created with the first of them: with no feature addon installed there is nothing
-    -- to head.
-    panel.links = {}
-    for _, link in ipairs(pendingLinks) do
-        Options:AddLink(link.text, link.onClick)
-    end
-    pendingLinks = {}
     if panel.HookScript then
         panel:HookScript("OnShow", function() Options:UpdateRows() end)
         -- The sample is for placing the subtitle while the settings are open, not after.
@@ -1142,7 +1133,7 @@ function Options:Setup()
         for _, page in ipairs(pendingPages) do self:RegisterPage(page) end
         pendingPages = {}
     else
-        -- No Settings API: a window of our own, opened by /spoken options. Sized to its
+        -- No Settings API: our unified window, opened by /spoken. Sized to its
         -- rows, which vary by client, rather than a fixed height the rows can outgrow.
         panel.isWindow = true
         local screenHeight = (UIParent and UIParent.GetHeight and UIParent:GetHeight()) or 768
@@ -1203,8 +1194,7 @@ end
 
 --- A feature addon's page, as a tab on Spoken's. A feature addon may build its panel before
 --- this one exists, at its own load, so the page waits until it does. `page.Open` opens Spoken
---- on its tab, and `page.category` is Spoken's own entry once registered. Nil where the client
---- has no settings canvas, and the feature addon registers a page of its own.
+--- on its tab; legacy clients share one bounded window instead of separate pages.
 function Options:AddPage(frame, name, order, layout, pageScroller)
     if not frame or not layout then return nil end
     -- The layout and its scroller come along so the search on Home can reach this page's rows.
@@ -1235,29 +1225,6 @@ end
 
 function Options:RegisterPage(page)
     page.category = Settings.RegisterCanvasLayoutSubcategory(self.category, page.frame, page.name)
-end
-
---- A button on the player's panel that opens a feature addon's own settings. The
---- quests addon uses this because AceConfigDialog owns its frame lifecycle and nesting
---- it as a canvas subcategory is fragile across six clients.
-function Options:AddLink(text, onClick)
-    -- Registered module pages are reachable from the navigation on every client.
-    -- Do not grow a second set of links in the Home page.
-    if Settings and Settings.RegisterCanvasLayoutSubcategory then return end
-    for _, page in ipairs(self.pages or {}) do
-        if string.find(string.lower(text or ""), string.lower(page.name or ""), 1, true) then return end
-    end
-    -- Feature addons call this from ADDON_LOADED; the panel is built at PLAYER_LOGIN.
-    if not panel then
-        table.insert(pendingLinks, { text = text, onClick = onClick })
-        return
-    end
-    if not panel.linksSection then
-        panel.linksSection = true
-        panel.layout:Section(L.OPT_ADDONS_TITLE)
-    end
-    table.insert(panel.links, panel.layout:Button(text, 200, onClick))
-    FitWindow()
 end
 
 function Options:Open()

@@ -363,10 +363,11 @@ function Spoken:ShowsCompendium()
     return true
 end
 
---- A button on the player's panel that opens a feature addon's own settings, for the
---- addons whose panel cannot be nested.
+--- Deprecated API compatibility shim. Older external addons may still call this;
+--- the 1.12 settings window uses registered pages exclusively and never adds
+--- separate settings-link buttons.
 function Spoken:AddSettingsLink(text, onClick)
-    Options:AddLink(text, onClick)
+    return false
 end
 
 --- Open/close the shared Compendium when it has a usable tab, from either
