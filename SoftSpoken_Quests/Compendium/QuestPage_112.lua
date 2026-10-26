@@ -152,13 +152,11 @@ end
 -- Use normal 2D artwork inside the quest scroll child. Native models are
 -- intentionally not created by this page: they were rendered outside their
 -- parent ScrollFrame on Turtle WoW 1.12, and caused a crash on UI reload.
--- Use the ornate full Alliance crest supplied by the player as a custom
--- transparent TGA inside SoftSpoken_Quests/Assets. The 1.12 character-creation
--- atlas is retained only as a fallback for Horde, pending matching artwork.
--- The crest belongs to the PLAYER, never the quest giver.
+-- Display the corresponding full, transparent 256x256 crest for both factions
+-- from SoftSpoken_Quests/Assets. The crest belongs to the PLAYER, not the
+-- quest giver; no character-creation atlas cropping is needed.
 local ALLIANCE_CREST="Interface\\AddOns\\SoftSpoken_Quests\\Assets\\AllianceCrest"
-local HORDE_ATLAS="Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Factions"
-local HORDE_COORDS={.53,.97,.03,.97}
+local HORDE_CREST="Interface\\AddOns\\SoftSpoken_Quests\\Assets\\HordeCrest"
 local ALLIANCE_RACES={human=true,dwarf=true,gnome=true,nightelf=true,highelf=true,highborne=true}
 local HORDE_RACES={orc=true,undead=true,scourge=true,tauren=true,troll=true,goblin=true}
 local function PlayerFaction()
@@ -206,8 +204,7 @@ local function PaintCrest(holder)
         icon:SetTexture(ALLIANCE_CREST)
         holder.affiliationLabel="Alliance crest (your faction)"
     elseif faction=="Horde" then
-        icon:SetTexture(HORDE_ATLAS)
-        icon:SetTexCoord(HORDE_COORDS[1],HORDE_COORDS[2],HORDE_COORDS[3],HORDE_COORDS[4])
+        icon:SetTexture(HORDE_CREST)
         holder.affiliationLabel="Horde crest (your faction)"
     else
         icon:SetTexture(FALLBACK_ICON)
