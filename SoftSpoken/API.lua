@@ -345,6 +345,83 @@ function Spoken:SetLanguageChoice(which, value)
     return true
 end
 
+-- One startup warning for ALL installed narration modules. The player knows
+-- sources and their pack availability; Quests, Books and Zones should never
+-- create competing missing-pack popups of their own.
+local missingVoicePacksWarned = false
+local packModuleNames = {
+    quests = "Quests",
+    books = "Books",
+    zones = "Zones",
+}
+
+--- Check after login and deferred load-on-demand packs. Returns false while a
+--- module is still loading, so the caller can retry without a false warning.
+--- Disabled modules and addons that were not installed are not errors.
+function Spoken:CheckMissingVoicePacks()
+    if missingVoicePacksWarned then return true end
+
+    -- Never warn before a pending pack loader has had a chance to register data.
+    for _, key in ipairs({ "quests", "books", "zones" }) do
+        local source = Sources:Get(key)
+        if source and not Sources:IsTurnedOff(source) and
+           type(source.voicePacksPending) == "function" then
+            local ok, pending = pcall(source.voicePacksPending)
+            if ok and pending then return false end
+        end
+    end
+
+    local missing, checked = {}, 0
+    for _, key in ipairs({ "quests", "books", "zones" }) do
+        local source = Sources:Get(key)
+        if source and not Sources:IsTurnedOff(source) then
+            local hasPacks
+            if type(source.hasUsablePacks) == "function" then
+                local ok, result = pcall(source.hasUsablePacks)
+                if ok and type(result) == "boolean" then hasPacks = result end
+            elseif type(source.packs) == "function" then
+                local ok, packs = pcall(source.packs)
+                if ok and type(packs) == "table" then
+                    hasPacks = getn(packs) > 0
+                end
+            end
+            -- A failing provider is not evidence of missing audio. Its own
+            -- diagnostic output is the appropriate place for that failure.
+            if hasPacks ~= nil then
+                checked = checked + 1
+                if not hasPacks then
+                    table.insert(missing, packModuleNames[key])
+                end
+            end
+        end
+    end
+
+    if checked == 0 or getn(missing) == 0 then return true end
+    missingVoicePacksWarned = true
+    local modules = table.concat(missing, ", ")
+    local message = "No compatible voice packs are loaded for: " .. modules ..
+        ". Install or enable the corresponding voice-pack addons and /reload." ..
+        " You can check each module's Voice Packs section in SoftSpoken Settings."
+
+    -- On the gamepad UI a popup can taint protected bindings and hang the
+    -- client; print instead, matching the existing Quests safety workaround.
+    local ok, style = pcall(GetCVar, "InputDeviceInterfaceStyle")
+    if ok and style == "1" then
+        if DEFAULT_CHAT_FRAME then
+            DEFAULT_CHAT_FRAME:AddMessage("|cff66bbffSoftSpoken:|r " .. message)
+        end
+    else
+        StaticPopupDialogs["SOFTSPOKEN_MISSING_VOICE_PACKS"] = {
+            text = "SoftSpoken|n|n" .. message,
+            button1 = OKAY,
+            timeout = 0,
+            whileDead = 1,
+        }
+        StaticPopup_Show("SOFTSPOKEN_MISSING_VOICE_PACKS")
+    end
+    return true
+end
+
 -- Data packs are installed by feature modules; one notification lets all
 -- consumers discard any derived voice-availability results.
 function Spoken:NotifyVoicePacksChanged()

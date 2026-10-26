@@ -167,49 +167,6 @@ local function GetVisibleQuestEvent()
     return lastQuestEvent
 end
 
--- The Forever client's gamepad UI takes over every popup as it opens, inside the code that
--- opened it. Opened by an addon, that taints the gamepad's bindings: the next close is blocked,
--- and the "blocked from an action" dialog it raises hangs the client (#165). What this addon
--- would pop up unasked goes to chat there instead. A copy of Spoken's own (Core.lua), because
--- the player may be the addon that is missing. pcall, because 1.12 raises on a CVar it has never
--- heard of.
-local function IsGamepadUI()
-    local ok, style = pcall(GetCVar, "InputDeviceInterfaceStyle")
-    return ok and style == "1"
-end
-
-local function Say(text)
-    DEFAULT_CHAT_FRAME:AddMessage("|cff66bbffSpoken Quests:|r " .. text)
-end
-
-function Addon:ShowMissingDataModulePopup()
-    if DataModules:HasRegisteredModules() then
-        return
-    end
-
-    local loadDetails = {}
-    for _, module in DataModules:GetPresentModules() do
-        local reason = DataModules:GetModuleLoadError(module.AddonName)
-        if reason then
-            table.insert(loadDetails, format("%s: %s", module.AddonName, reason))
-        end
-    end
-    local details = next(loadDetails) and ("|n|nDetected but not loaded:|n" .. table.concat(loadDetails, "|n")) or ""
-    local text = [[No usable sound packs were loaded.|n|nKeep a sound pack installed beside this addon - "Spoken Audio: Quests", or the older "AI_VoiceOverData_Vanilla". Open SoftSpoken Settings > Quests > Fix a Problem and use Diagnostics for details.]] .. details
-    if IsGamepadUI() then
-        Say(text)
-        return
-    end
-    StaticPopupDialogs["VOICEOVER_NO_REGISTERED_DATA_MODULES"] =
-    {
-        text = "Spoken Quests|n|n" .. text,
-        button1 = OKAY,
-        timeout = 0,
-        whileDead = 1,
-    }
-    StaticPopup_Show("VOICEOVER_NO_REGISTERED_DATA_MODULES")
-end
-
 --- Every read goes through here, automatic or not. `manual` is a player asking for this
 --- line - the Play button, /spq read - rather than the client reporting a dialog, so it reads
 --- whatever autoplay and the greeting frequency say.
@@ -550,7 +507,6 @@ function Addon:OnInitialize()
         end
         -- The settings pages were built before this, with every pack still to register.
         Spoken:NotifyVoicePacksChanged()
-        self:ShowMissingDataModulePopup()
     end
     local function ScheduleDeferredDataLoad()
         if C_Timer and C_Timer.After then

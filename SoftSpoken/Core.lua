@@ -287,6 +287,18 @@ function Addon:Enable()
     Minimap:Setup()
     Options:Setup()
 
+    -- Wait until feature addons have registered their sources and Quests'
+    -- deferred load-on-demand packs have finished. Only SoftSpoken decides
+    -- whether to show the one missing-voice-pack warning for this login.
+    local voicePackCheckAttempts = 0
+    local function CheckVoicePacksAfterLogin()
+        voicePackCheckAttempts = voicePackCheckAttempts + 1
+        if Spoken:CheckMissingVoicePacks() == false and voicePackCheckAttempts < 6 then
+            Addon:ScheduleTimer(CheckVoicePacksAfterLogin, 2)
+        end
+    end
+    self:ScheduleTimer(CheckVoicePacksAfterLogin, 3)
+
     -- These are the ONLY public SoftSpoken chat commands. Playback and
     -- debugging have in-game controls, keybindings, or internal APIs instead.
     -- Register slash aliases globally: the implementation runs in SpokenEnv.

@@ -586,6 +586,8 @@ function B:ShowReadables()
         self:Print("Books browsing requires SoftSpoken (shared Compendium)")
         return
     end
+    -- Opening through /ssb or a module button must not unfold a hidden tab.
+    if not self:IsPartOn() then return end
     search=""
     if list then list:ClearSearch() end
     C:Open("readables")
