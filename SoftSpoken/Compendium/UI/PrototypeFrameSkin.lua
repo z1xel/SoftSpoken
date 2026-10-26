@@ -51,7 +51,7 @@ local function circularIcon(parent, texturePath, x, y, size, radius)
     return slices
 end
 
-local function tiled(parent, layer, path, coords, horizontal, start, span, length, thickness, bottomAligned)
+local function tiled(parent, layer, path, coords, horizontal, start, span, length, thickness, bottomAligned, lastBottomOffset)
     -- Pixel-accurate repetition: never stretch a 256px source border to window width.
     -- Coordinates start/span are offsets in parent top-left (x rightwards/y downwards).
     if length <= 0 then return end
@@ -90,7 +90,14 @@ local function tiled(parent, layer, path, coords, horizontal, start, span, lengt
             t:SetWidth(thickness)
             t:SetHeight(run)
             t:SetTexCoord(coords[1], coords[2], coords[3], coords[3] + (coords[4] - coords[3]) * run / src)
-            t:SetPoint("TOPLEFT",parent,"TOPLEFT", start, -(span + (i - 1)*src))
+            if lastBottomOffset and i==count then
+                -- Pin the final side tile to the real bottom corner, even if
+                -- a map resize happened after the top segments were laid out.
+                t:SetPoint("BOTTOMLEFT",parent,"BOTTOMLEFT",start,lastBottomOffset)
+            else
+                t:SetPoint("TOPLEFT",parent,"TOPLEFT",
+                    start,-(span + (i - 1)*src))
+            end
         end
     end
 end
@@ -101,9 +108,25 @@ local function clearSegments(frame)
     frame.sszSegmentUsed = 0
 end
 
+-- On 1.12's anchored World Map frames, GetHeight() can reflect an old
+-- layout size while the visual edges have already moved. The Compendium
+-- scrollbar uses the same edge-to-edge measurement for this reason.
+-- Restrict this measurement to compact panels: the approved full-size
+-- Compendium frame keeps its original GetWidth/GetHeight behavior.
+local function FrameSize(frame)
+    local w,h=frame:GetWidth(),frame:GetHeight()
+    if frame.sszCompactFrame then
+        local left,right=frame:GetLeft(),frame:GetRight()
+        local top,bottom=frame:GetTop(),frame:GetBottom()
+        if left and right and right>left then w=right-left end
+        if top and bottom and top>bottom then h=top-bottom end
+    end
+    return w,h
+end
+
 local function Reflow(frame)
     if not frame or not frame.sszInitialized then return end
-    local w, h = frame:GetWidth(), frame:GetHeight()
+    local w,h=FrameSize(frame)
     if not w or not h or w < 220 or h < 180 then return end
     clearSegments(frame)
 
@@ -143,8 +166,13 @@ local function Reflow(frame)
             -- End at y=h-14, the top of the native 14px bottom-left cap.
             -- Previously h-44 ran two pixels into the cap; the opposite
             -- side already ends at y=h-11 for its 11px corner.
-            tiled(trim,"ARTWORK",VERT,{0.359375,0.609375,0,1},false,-6,32,h-46,16)
-            tiled(trim,"ARTWORK",VERT,{0.171875,0.328125,0,1},false,w-9,32,h-43,10)
+            -- Tile the sides from the top, but pin the last segment of
+            -- each side to its matching native corner at the actual bottom.
+            -- The intermediate pieces are still the unchanged 256-unit art.
+            tiled(trim,"ARTWORK",VERT,{0.359375,0.609375,0,1},
+                false,-6,32,h-46,16,nil,14)
+            tiled(trim,"ARTWORK",VERT,{0.171875,0.328125,0,1},
+                false,w-9,32,h-43,10,nil,11)
             for i=trim.sszSegmentUsed+1,table.getn(trim.sszSegments) do
                 trim.sszSegments[i]:Hide()
             end
@@ -167,7 +195,7 @@ end
 -- Poll only geometry (not artwork creation) and reflow on actual size changes.
 function Skin.RefreshCompact(frame)
     if not frame or not frame.sszCompactFrame then return end
-    local w,h=frame:GetWidth(),frame:GetHeight()
+    local w,h=FrameSize(frame)
     if w and h and (w~=frame.sszLastCompactWidth or
         h~=frame.sszLastCompactHeight) then
         Reflow(frame)
