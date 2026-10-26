@@ -668,8 +668,8 @@ function Spoken:GetDeveloperSettings()
 end
 
 --- A feature addon's diagnostics, for the debug log and its copies: fn(detailed) returns a list of
---- lines, what its own diagnostics command says, and with `detailed` what an AI agent reading the
---- log needs besides.
+--- lines, without printing to chat, and with `detailed` what an agent reading the
+--- internal report needs besides.
 function Spoken:AddDiagnostics(name, fn)
     Developer:AddDiagnostics(name, fn)
 end

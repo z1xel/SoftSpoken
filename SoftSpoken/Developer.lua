@@ -13,7 +13,7 @@ setfenv(1, SpokenEnv)
 --   ShowMenu(anchor)          the menu a Report button's right-click opens
 --   MenuHint()                the tooltip line saying so, or nil
 --   SwitchLabel(), SwitchTip() the welcome window's switch
---   Command(rest)             optional developer-only command dispatch
+--   Command(rest)             internal developer provider hook (no public slash command)
 --   Describe()                a concise internal diagnostic summary
 --
 -- Parsed by the 1.12 client too (addon.xml is shared), so Lua 5.0 syntax throughout.

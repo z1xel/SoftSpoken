@@ -35,7 +35,7 @@ end
 --------------------------------------------------------------------------------
 --
 -- Every stage recorded above also goes to the log, as `quests <stage>: <message>`: the stages are
--- what /spq diagnostics calls the last runtime stage, and in the log they read as the whole story
+-- what the internal diagnostics report calls the last runtime stage, and what the log records
 -- of a quest window, from the event to the line queued or the reason it was not. Note covers the
 -- decisions that record no stage. Nothing happens without the module, or while its log is off.
 --

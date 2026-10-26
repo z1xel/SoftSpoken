@@ -101,8 +101,10 @@ function B:SetupOptions()
     end, "No compatible Books voice packs installed.")
     layout:Note("Voice language is selected on Home. An installed pack may not have a recording for every book in that language.", nil, 38)
     layout:Button("Audio Download Address", 220, function()
-        B:Print("Books audio: " .. DOWNLOAD)
-    end, "Print the existing Books voice-pack download address.")
+        if Spoken and Spoken.ShowDiagnostics then
+            Spoken:ShowDiagnostics("Books Voice Pack", { "Download audio packs from:", DOWNLOAD })
+        end
+    end, "Show the Books voice-pack download address in a copyable window.")
 
     layout:Section(S("OPT_SECTION_READ", "Reading History"))
     layout:Button("Forget What Was Read", 205, function()
