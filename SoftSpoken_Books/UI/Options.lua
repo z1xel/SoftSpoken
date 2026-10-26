@@ -117,7 +117,7 @@ function B:SetupOptions()
 
     layout:Section("Fix a Problem")
     layout:Button("Show Diagnostics", 205, function() B:ShowBooksStatus() end,
-        "Print the existing Books data, discovery and audio-pack report.")
+        "Open the Books data, discovery and audio-pack report.")
 
     layout:Defaults(function()
         Layout.Confirm("Reset Books preferences? Discoveries and reading history are kept.",
@@ -149,15 +149,27 @@ loader:SetScript("OnEvent", function()
     B:SetupOptions()
 end)
 
+function B:BooksStatusLines()
+    local books, pages, clips = 0, 0, 0
+    local data = self:Data()
+    for _ in pairs(data and data.books or {}) do books = books + 1 end
+    for _ in pairs(data and data.pages or {}) do pages = pages + 1 end
+    local packs = self:GetAudioPacks()
+    for _, pack in ipairs(packs) do
+        for _ in pairs(pack.pages or {}) do clips = clips + 1 end
+    end
+    local found, read = 0, 0
+    for _ in pairs(SSBCharacter and SSBCharacter.found or {}) do found = found + 1 end
+    for _ in pairs(SSBCharacter and SSBCharacter.read or {}) do read = read + 1 end
+    return {
+        tostring(books) .. " books / " .. tostring(pages) .. " pages",
+        tostring(found) .. " discovered / " .. tostring(read) .. " read",
+        tostring(table.getn(packs)) .. " compatible packs / " .. tostring(clips) .. " audio pages",
+    }
+end
+
 function B:ShowBooksStatus()
-    local books,pages,clips=0,0,0
-    for _ in pairs(self:Data() and self:Data().books or {}) do books=books+1 end
-    for _ in pairs(self:Data() and self:Data().pages or {}) do pages=pages+1 end
-    local packs=self:GetAudioPacks()
-    for _,p in ipairs(packs) do for _ in pairs(p.pages) do clips=clips+1 end end
-    local found,read=0,0
-    for _ in pairs(SSBCharacter and SSBCharacter.found or {}) do found=found+1 end
-    for _ in pairs(SSBCharacter and SSBCharacter.read or {}) do read=read+1 end
-    self:Print(tostring(books).." books / "..tostring(pages).." pages; "..tostring(found).." discovered / "..tostring(read).." read")
-    self:Print(tostring(table.getn(packs)).." compatible packs / "..tostring(clips).." audio pages")
+    if Spoken and Spoken.ShowDiagnostics then
+        Spoken:ShowDiagnostics("Books Diagnostics", self:BooksStatusLines())
+    end
 end

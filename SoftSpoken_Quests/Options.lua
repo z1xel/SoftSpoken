@@ -255,19 +255,21 @@ function Options:RunSelfTest()
             end
 end
 
---- What to paste into a bug report: the client, the sound settings, and what loaded.
-function Options:PrintDiagnostics()
-            print(format("|cFF00CCFFSpoken Quests %s|r - client %s, interface %d",
+--- Build diagnostics as lines: no chat side effects, also usable by the Developer provider.
+function Options:DiagnosticsLines()
+    local lines = {}
+    local function Add(line) table.insert(lines, tostring(line)) end
+            Add(format("|cFF00CCFFSpoken Quests %s|r - client %s, interface %d",
                 AddonVersion, Version.Client or "unknown", Version.Interface or 0))
-            print("AddOn API: " .. (C_AddOns and "C_AddOns compatibility layer" or "legacy globals"))
+            Add("AddOn API: " .. (C_AddOns and "C_AddOns compatibility layer" or "legacy globals"))
 
             local channel = Player.source and Player.source:GetChannel() or "unknown"
-            print(format("Playback: channel=%s, paused=%s, queue=%d, player=%s", channel,
+            Add(format("Playback: channel=%s, paused=%s, queue=%d, player=%s", channel,
                 tostring(Spoken and Spoken:IsPaused()), Spoken and Spoken:GetQueueSize() or 0,
                 Spoken and Spoken.ADDON_VERSION or "missing"))
-            print("NPC greetings: " ..
+            Add("NPC greetings: " ..
                 (Enums.GossipFrequency:GetName(Addon.db.profile.Audio.GossipFrequency) or "unknown"))
-            print(format("Sound CVars: all=%s, master=%s, SFX=%s/%s, dialog=%s/%s",
+            Add(format("Sound CVars: all=%s, master=%s, SFX=%s/%s, dialog=%s/%s",
                 tostring(GetCVar("Sound_EnableAllSound")), tostring(GetCVar("Sound_MasterVolume")),
                 tostring(GetCVar("Sound_EnableSFX")), tostring(GetCVar("Sound_SFXVolume")),
                 tostring(GetCVar("Sound_EnableDialog")), tostring(GetCVar("Sound_DialogVolume"))))
@@ -280,37 +282,45 @@ function Options:PrintDiagnostics()
                     registeredCount = registeredCount + 1
                 end
                 local status = registered and "loaded" or (DataModules:GetModuleLoadError(module.AddonName) or "not loaded")
-                print(format("Data: %s (%s) - %s", module.AddonName,
+                Add(format("Data: %s (%s) - %s", module.AddonName,
                     module.ContentVersion or "unknown version", status))
             end
             if presentCount == 0 then
-                print("Data: no sound packs were detected")
+                Add("Data: no sound packs were detected")
             else
-                print(format("Data modules: %d detected, %d loaded", presentCount, registeredCount))
+                Add(format("Data modules: %d detected, %d loaded", presentCount, registeredCount))
             end
             local stage, message = Debug:GetRuntimeStatus()
-            print(format("Last runtime stage: %s - %s", stage or "none", message or "no details"))
+            Add(format("Last runtime stage: %s - %s", stage or "none", message or "no details"))
             if Addon.eventBridgeErrors then
                 for _, warning in ipairs(Addon.eventBridgeErrors) do
-                    print("Bridge warning: " .. warning)
+                    Add("Bridge warning: " .. warning)
                 end
             end
 
             if Addon.optionsInitializationError then
-                print("Options startup warning: " .. Addon.optionsInitializationError)
+                Add("Options startup warning: " .. Addon.optionsInitializationError)
             end
             if Addon.dataModulesPending then
-                print("Data startup: loading is deferred until one second after entering the world")
+                Add("Data startup: loading is deferred until one second after entering the world")
             elseif Addon.dataModulesDeferredError then
-                print("Data startup warning: " .. Addon.dataModulesDeferredError)
+                Add("Data startup warning: " .. Addon.dataModulesDeferredError)
             end
             if Options.initializationErrors then
                 for _, warning in ipairs(Options.initializationErrors) do
-                    print("Options warning: " .. warning)
+                    Add("Options warning: " .. warning)
                 end
             end
+    return lines
 end
 
+
+
+function Options:ShowDiagnostics()
+    if Spoken and Spoken.ShowDiagnostics then
+        Spoken:ShowDiagnostics("Quests Diagnostics", self:DiagnosticsLines())
+    end
+end
 function Options:Initialize()
     self.initializationErrors = {}
     local function RunOptionalStep(name, callback)

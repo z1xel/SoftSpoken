@@ -24,6 +24,7 @@
     <Include file="UI\MinimapButton.lua"/>
     <Include file="UI\MinimapIconFit.lua"/>
     <Include file="UI\Options.lua"/>
+    <Include file="UI\Diagnostics.lua"/>
     <Include file="API.lua"/>
     <!-- Shared Compendium: available to Zones, Books, and future modules. -->
     <Include file="Compendium\UI\Layout.lua"/>

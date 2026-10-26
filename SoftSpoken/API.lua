@@ -674,8 +674,14 @@ function Spoken:AddDiagnostics(name, fn)
     Developer:AddDiagnostics(name, fn)
 end
 
---- What `/spoken diagnostics` says, then each feature addon's diagnostics, as lines; with
+--- The internal diagnostic report, then each feature addon's diagnostics, as lines; with
 --- `detailed`, the state of the client, the narrator, the sound settings and the queue too.
 function Spoken:Diagnostics(detailed)
     return Developer:Diagnostics(detailed)
+end
+
+--- Display a readable/copyable report without posting it to public chat.
+function Spoken:ShowDiagnostics(title, lines)
+    if not (DiagnosticsViewer and DiagnosticsViewer.Show) then return false end
+    return DiagnosticsViewer:Show(title, lines)
 end
