@@ -172,12 +172,10 @@ local function ApplyAnchors()
         -- Crucially, WorldMapFrame itself is NEVER touched.
         panel:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",GAP,0)
         panel:SetPoint("BOTTOMLEFT",WorldMapFrame,"BOTTOMRIGHT",GAP,0)
-        -- The 64x64 Spellbook atlas is mostly transparent beyond its metal
-        -- bezel. A -32 anchor puts the VISIBLE tab 40px inside the map.
-        -- Anchor the button 8px outside instead: the bezel overlaps the
-        -- map's right frame by ~2px and projects to the right like Spellbook.
-        -- At -75 the top of the bezel meets the parchment/header joint.
-        toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",8,-75)
+        -- Match the visible Spellbook metal housing to the map's right
+        -- border. The previous +8 x anchor left a visible gap; move the
+        -- housing 16px left while retaining its approved -75 y alignment.
+        toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",-8,-75)
     else
         -- Fullscreen 1.12 and windowed maps too near the screen edge:
         -- leave the Blizzard map geometry alone and display an inset overlay.
