@@ -24,7 +24,15 @@ end
 
 local function NewPanel()
     local frame=CreateFrame("Frame","SSZMapLorePanel",WorldMapFrame)
-    SSZUI.AddBorder(frame)
+    -- Share the Compendium's actual outer PortraitFrame metal and tiled rock,
+    -- not just the parchment inside it. In compact mode it has no portrait
+    -- or minimize button, and its native Close collapses the map attachment.
+    SSCPrototypeFrameSkin.Apply(frame,"Zone Lore",{
+        compact=true,
+        onClose=function() M.SetMapPanelCollapsed(true) end,
+    })
+    frame.title=frame.sszTitle
+    frame.close=frame.sszClose
     return frame
 end
 local function BuildPanel()
@@ -35,14 +43,6 @@ local function BuildPanel()
     end
     panel:SetWidth(WIDTH)
     panel:EnableMouse(true)
-    local title=panel:CreateFontString(nil,"ARTWORK","GameFontNormalLarge")
-    title:SetPoint("TOPLEFT",panel,"TOPLEFT",18,-13)
-    title:SetText("Zone Lore")
-    panel.title=title
-    local close=CreateFrame("Button",nil,panel,"UIPanelCloseButton")
-    close:SetPoint("TOPRIGHT",panel,"TOPRIGHT",-4,-4)
-    close:SetScript("OnClick",function() M.SetMapPanelCollapsed(true) end)
-    panel.close=close
     -- Use the SAME book-style parchment, silver inset and native scrollbar
     -- housing as the Compendium's Places page. Only placement is map-specific.
     -- Keep the map-only Open in Compendium button without maintaining a
