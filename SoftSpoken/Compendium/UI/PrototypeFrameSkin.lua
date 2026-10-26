@@ -140,7 +140,10 @@ local function Reflow(frame)
             -- Right starts at x=w-11; both end inside the attachment.
             tiled(trim,"ARTWORK",HORIZ,{0,1,0.203125,0.2734375},
                 true,8,0,w-19,9,true)
-            tiled(trim,"ARTWORK",VERT,{0.359375,0.609375,0,1},false,-6,32,h-44,16)
+            -- End at y=h-14, the top of the native 14px bottom-left cap.
+            -- Previously h-44 ran two pixels into the cap; the opposite
+            -- side already ends at y=h-11 for its 11px corner.
+            tiled(trim,"ARTWORK",VERT,{0.359375,0.609375,0,1},false,-6,32,h-46,16)
             tiled(trim,"ARTWORK",VERT,{0.171875,0.328125,0,1},false,w-9,32,h-43,10)
             for i=trim.sszSegmentUsed+1,table.getn(trim.sszSegments) do
                 trim.sszSegments[i]:Hide()
