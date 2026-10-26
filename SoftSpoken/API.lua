@@ -350,9 +350,9 @@ end
 -- create competing missing-pack popups of their own.
 local missingVoicePacksWarned = false
 local packModuleNames = {
-    quests = "Quests",
-    books = "Books",
-    zones = "Zones",
+    quests = "Stories",
+    books = "Writings",
+    zones = "Places",
 }
 
 --- Check after login and deferred load-on-demand packs. Returns false while a

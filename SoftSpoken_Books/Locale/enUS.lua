@@ -37,7 +37,7 @@ L.STOP = "Stop"
 L.PLAY_TIP = "Read this book aloud"
 L.STOP_TIP = "Stop reading this book"
 L.OPT_NO_PACK_AUDIO = "The installed voice pack has no narration for this page yet."
-L.OPT_NO_PACK_INSTALLED = "No Books voice pack is installed."
+L.OPT_NO_PACK_INSTALLED = "No Writings voice pack is installed."
 
 
 

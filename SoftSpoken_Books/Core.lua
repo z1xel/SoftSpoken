@@ -14,7 +14,7 @@ local defaults = {
 }
 function B:Print(message)
     if DEFAULT_CHAT_FRAME and DEFAULT_CHAT_FRAME.AddMessage then
-        DEFAULT_CHAT_FRAME:AddMessage("|cff80c0ffSpoken Books 1.12|r: "..tostring(message))
+        DEFAULT_CHAT_FRAME:AddMessage("|cff80c0ffSoftSpoken Writings 1.12|r: "..tostring(message))
     end
 end
 function B:InitDB()
@@ -80,7 +80,7 @@ function B:SetupSource()
     if self.source then return self.source end
     if not self:PlayerAvailable() then return nil end
     self.source=Spoken:RegisterSource("books", {
-        title="Spoken Books", addon="SoftSpoken_Books", order=3,
+        title="SoftSpoken Writings", addon="SoftSpoken_Books", order=3,
         interClipGap=0.35, testBeforeQueue=true,
         packs=function()
             local names={}

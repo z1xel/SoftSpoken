@@ -26,9 +26,9 @@ function SettingsPanel:Build()
     frame:SetHeight(1)
     frame:Hide()
     layout = UI.New(frame, 25, -16)
-    layout:Intro([[Interface\Icons\INV_Scroll_03]], "Quests & Gossip")
+    layout:Intro([[Interface\Icons\INV_Scroll_03]], "Stories & Gossip")
 
-    layout:Checkbox("Enable Quests", "Allow quest narration to play.",
+    layout:Checkbox("Enable Stories", "Allow quest narration to play.",
         function() return Spoken:IsPartOn("quests") end,
         function(on) Spoken:SetPartOn("quests", on) end, Refresh)
     layout:Checkbox("Enable Gossip", "Allow NPC gossip narration independently of quests.",
@@ -41,7 +41,7 @@ function SettingsPanel:Build()
         function(on) Addon:SetAutoplay(on) end, Refresh)
     layout:Requires(autoplay, function()
         return Spoken:IsPartOn("quests") or Spoken:IsPartOn("gossip")
-    end, "Enable Quests or Gossip to use this.")
+    end, "Enable Stories or Gossip to use this.")
     layout:Indent()
     local followup = layout:Checkbox(L.OPT_PANEL_FOLLOWUP or "Read Follow-up Lines", nil,
         function() return Audio().FollowupLines ~= false end,
@@ -49,19 +49,19 @@ function SettingsPanel:Build()
     layout:Outdent()
     layout:Requires(followup, function()
         return Spoken:IsPartOn("quests") and Addon:IsAutoplayOn()
-    end, "Enable Quests and automatic narration to use this.")
+    end, "Enable Stories and automatic narration to use this.")
     local stopOnClose = layout:Checkbox(L.OPT_PANEL_STOP_ON_CLOSE or "Stop When Window Closes", nil,
         function() return Audio().StopAudioOnDisengage end,
         function(on) Audio().StopAudioOnDisengage = on end)
     layout:Requires(stopOnClose, function() return Spoken:IsPartOn("quests") end,
-        "Enable Quests to use this.")
+        "Enable Stories to use this.")
     local afterClose = layout:Checkbox(L.OPT_PANEL_READ_AFTER_CLOSE or "Read When Window Closes",
         "Start an automatic quest reading when the quest window closes.",
         function() return Audio().ReadAfterClose end,
         function(on) Audio().ReadAfterClose = on end)
     layout:Requires(afterClose, function()
         return Spoken:IsPartOn("quests") and Addon:IsAutoplayOn()
-    end, "Enable Quests and automatic narration to use this.")
+    end, "Enable Stories and automatic narration to use this.")
     local gameFirst = layout:Checkbox(L.OPT_PANEL_GAME_GREETING_FIRST or "Game Greeting First",
         "Allow the game's own NPC greeting before reading the line.",
         function() return Audio().GreetingFirst end,
@@ -74,12 +74,12 @@ function SettingsPanel:Build()
     layout:Requires(gameFirst, function()
         return (Spoken:IsPartOn("quests") or Spoken:IsPartOn("gossip"))
             and Addon:IsAutoplayOn()
-    end, "Enable Quests or Gossip and automatic narration to use this.")
+    end, "Enable Stories or Gossip and automatic narration to use this.")
     local originalThrall = layout:Checkbox(L.OPT_OG_THRALL or "Original Thrall Voice", L.OPT_OG_THRALL_TIP,
         function() return Audio().OGThrall end,
         function(on) Audio().OGThrall = on end)
     layout:Requires(originalThrall, function() return Spoken:IsPartOn("quests") end,
-        "Enable Quests to use this.")
+        "Enable Stories to use this.")
 
     layout:Section("NPC Gossip")
     local frequencies = {
@@ -144,7 +144,7 @@ function SettingsPanel:Build()
             })
         end
         return packs
-    end, "No Quests voice packs detected.")
+    end, "No Stories voice packs detected.")
 
     -- Keep the known download destinations visible for reference, but disable
     -- the entire section until downloading is supported here. Match Home's
@@ -184,13 +184,13 @@ function SettingsPanel:Build()
     layout:Section("Fix a Problem")
     layout:Columns(2)
     layout:Button("Test Voice Line", 200, function() Options:RunSelfTest() end,
-        "Play the Quests module's existing audio self-test.")
+        "Play the Stories module's existing audio self-test.")
     layout:Button("Diagnostics", 200, function() Options:ShowDiagnostics() end,
-        "Print the existing Quests diagnostic report.")
+        "Open the Stories diagnostic report.")
     layout:Columns(nil)
 
     layout:Defaults(function()
-        UI.Confirm("Reset Quests and Gossip preferences? Their profiles are reset; reading history is kept.",
+        UI.Confirm("Reset Stories and Gossip preferences? Their profiles are reset; reading history is kept.",
             "Reset", "Cancel", function()
                 Addon.db:ResetProfile()
                 Refresh()
@@ -200,7 +200,7 @@ function SettingsPanel:Build()
     -- Build/refresh every control before publishing the page to the core.
     -- A failed builder leaves the working AceGUI route untouched.
     Refresh()
-    page = Spoken:AddSettingsPage(frame, "Quests", 1, layout)
+    page = Spoken:AddSettingsPage(frame, "Stories", 1, layout)
 end
 
 function SettingsPanel:Setup()

@@ -425,7 +425,7 @@ function Addon:OnInitialize()
 
     StaticPopupDialogs["VOICEOVER_ERROR"] =
     {
-        text = "Spoken Quests|n|n%s",
+        text = "SoftSpoken Stories|n|n%s",
         button1 = OKAY,
         timeout = 0,
         whileDead = 1,
@@ -900,7 +900,7 @@ function Addon:OnInitialize()
     if next(disabled) and not self.db.profile.SeenDuplicatePlayerDialog then
         StaticPopupDialogs["VOICEOVER_REDUX_DUPLICATE_ADDON"] =
         {
-            text = format([[Spoken Quests|n|n%s was also enabled. It has been disabled for the next login, and its event handler was stopped for this session.|n|nKeep your sound pack enabled - "Spoken Audio: Quests" or the older "AI_VoiceOverData_Vanilla", either works. You can delete or leave the old player disabled, then /reload.]],
+            text = format([[SoftSpoken Stories|n|n%s was also enabled. It has been disabled for the next login, and its event handler was stopped for this session.|n|nKeep your sound pack enabled - "Spoken Audio: Quests" or the older "AI_VoiceOverData_Vanilla", either works. You can delete or leave the old player disabled, then /reload.]],
                 table.concat(disabled, " and ")),
             button1 = OKAY,
             timeout = 0,

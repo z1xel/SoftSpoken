@@ -17,7 +17,7 @@ for id, entry in pairs(SSZLore and SSZLore.zones or {}) do
 end
 
 local function Say(message)
-    DEFAULT_CHAT_FRAME:AddMessage("[Spoken Zones] " .. message)
+    DEFAULT_CHAT_FRAME:AddMessage("[SoftSpoken Places] " .. message)
 end
 
 -- Match the canonical English subzone keys in Spoken's generated lore/audio.

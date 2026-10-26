@@ -20,11 +20,11 @@ end
 function Debug:Print(msg, header)
     if Addon and Addon.db and Addon.db.profile.DebugEnabled then
         if header then
-            print(Utils:ColorizeText("Spoken Quests", NORMAL_FONT_COLOR_CODE) ..
+            print(Utils:ColorizeText("SoftSpoken Stories", NORMAL_FONT_COLOR_CODE) ..
                 Utils:ColorizeText(" (" .. header .. ")", GRAY_FONT_COLOR_CODE) ..
                 " - " .. msg)
         else
-            print(Utils:ColorizeText("Spoken Quests", NORMAL_FONT_COLOR_CODE) ..
+            print(Utils:ColorizeText("SoftSpoken Stories", NORMAL_FONT_COLOR_CODE) ..
                 " - " .. msg)
         end
     end
@@ -130,7 +130,7 @@ local reminder = CreateFrame("Frame")
 reminder:RegisterEvent("PLAYER_LOGIN")
 reminder:SetScript("OnEvent", function()
     if Debug:IsMockingMissingVoice() then
-        print("|cFF00CCFFSpoken Quests:|r " .. L.OPT_DEV_MOCK_ON)
+        print("|cFF00CCFFSoftSpoken Stories:|r " .. L.OPT_DEV_MOCK_ON)
     end
 end)
 
@@ -248,7 +248,7 @@ local function ContextLines(lines)
 end
 
 if Spoken and Spoken.AddDiagnostics then
-    Spoken:AddDiagnostics("Spoken Quests", function(detailed)
+    Spoken:AddDiagnostics("SoftSpoken Stories", function(detailed)
         local lines = {}
         DiagnosticsLines(lines)
         if detailed then

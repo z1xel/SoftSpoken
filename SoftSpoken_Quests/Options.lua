@@ -121,7 +121,7 @@ local DataModulesTab =
 
 ---@type AceConfigOptionsTable
 Options.table = {
-    name = "Spoken Quests",
+    name = "SoftSpoken Stories",
     type = "group",
     childGroups = "tab",
     args = {
@@ -231,14 +231,14 @@ function Options:RunSelfTest()
             local soundData = {
                 event = Enums.SoundEvent.QuestAccept,
                 questID = 3441,
-                name = "Spoken Quests self-test",
-                title = "Spoken Quests self-test",
-                text = "Spoken Quests self-test",
+                name = "SoftSpoken Stories self-test",
+                title = "SoftSpoken Stories self-test",
+                text = "SoftSpoken Stories self-test",
                 origin = "Quests Settings: Test Voice Line",
             }
             if not DataModules:PrepareSound(soundData) then
                 Debug:Record("self-test-data-failed", "The Vanilla Data module did not provide the known 3441-accept test sound")
-                print("|cFFFF4040Spoken Quests test failed: the known Vanilla test sound was not found in the loaded sound packs.|r")
+                print("|cFFFF4040SoftSpoken Stories test failed: the known Vanilla test sound was not found in the loaded sound packs.|r")
                 return
             end
 
@@ -248,10 +248,10 @@ function Options:RunSelfTest()
             local channel = Player.source and Player.source:GetChannel() or "unknown"
             if Player:Enqueue(soundData, true) then
                 Debug:Record("self-test-playing", format("Self-test queued on %s: %s", channel, soundData.filePath))
-                print(format("|cFF40FF40Spoken Quests test started on %s.|r You should hear a short voice line.", channel))
+                print(format("|cFF40FF40SoftSpoken Stories test started on %s.|r You should hear a short voice line.", channel))
             else
                 local stage, message = Debug:GetRuntimeStatus()
-                print(format("|cFFFF4040Spoken Quests test failed: %s (%s).|r", message or "refused", stage or "unknown"))
+                print(format("|cFFFF4040SoftSpoken Stories test failed: %s (%s).|r", message or "refused", stage or "unknown"))
             end
 end
 
@@ -259,7 +259,7 @@ end
 function Options:DiagnosticsLines()
     local lines = {}
     local function Add(line) table.insert(lines, tostring(line)) end
-            Add(format("|cFF00CCFFSpoken Quests %s|r - client %s, interface %d",
+            Add(format("|cFF00CCFFSoftSpoken Stories %s|r - client %s, interface %d",
                 AddonVersion, Version.Client or "unknown", Version.Interface or 0))
             Add("AddOn API: " .. (C_AddOns and "C_AddOns compatibility layer" or "legacy globals"))
 
@@ -318,7 +318,7 @@ end
 
 function Options:ShowDiagnostics()
     if Spoken and Spoken.ShowDiagnostics then
-        Spoken:ShowDiagnostics("Quests Diagnostics", self:DiagnosticsLines())
+        Spoken:ShowDiagnostics("Stories Diagnostics", self:DiagnosticsLines())
     end
 end
 function Options:Initialize()
@@ -393,12 +393,12 @@ end
 
 function Options:OpenConfigWindow()
     if not self.frame then
-        print("|cFFFF4040Spoken Quests: neither settings view could be opened.|r")
+        print("|cFFFF4040SoftSpoken Stories: neither settings view could be opened.|r")
         if SettingsPanel and SettingsPanel.lastError then
-            print("Shared Quests settings: " .. SettingsPanel.lastError)
+            print("Shared Stories settings: " .. SettingsPanel.lastError)
         end
         for _, warning in ipairs(self.initializationErrors or {}) do
-            print("Legacy Quests settings: " .. tostring(warning))
+            print("Legacy Stories settings: " .. tostring(warning))
         end
         return
     end

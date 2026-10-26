@@ -129,10 +129,10 @@ function Q:IsSelected(item)
 end
 local function PageEntry()
     if Q.loadError and not tree then
-        return {title="Quests",subtitle="Missing companion data",text=Q.loadError,empty=true}
+        return {title="Stories",subtitle="Missing companion data",text=Q.loadError,empty=true}
     end
     if not selectedID then
-        return {title="Quests",subtitle="Azeroth's Compendium",
+        return {title="Stories",subtitle="Azeroth's Compendium",
             text="Select a discovered quest on the left to read its dialogue and replay available recordings.",empty=true}
     end
     local entry=M:Entry(selectedID)
@@ -220,7 +220,7 @@ end
 -- after this one without requiring a window rewrite.
 if C and C.Register and not C:Tab("quests") then
     C:Register("quests",{
-        label="Quests",order=0,title="Azeroth's Compendium",
+        label="Stories",order=0,title="Azeroth's Compendium",
         build=Build,
         onShow=function() S:ReadLog() end,
         -- The Quests module switch governs both audio and its Compendium page.

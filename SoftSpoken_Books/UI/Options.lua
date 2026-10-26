@@ -29,9 +29,9 @@ function B:SetupOptions()
     frame:SetHeight(1)
     frame:Hide()
     layout = Layout.New(frame, 25, -16)
-    layout:Intro([[Interface\Icons\INV_Misc_Book_09]], "Books")
+    layout:Intro([[Interface\Icons\INV_Misc_Book_09]], "Writings")
 
-    layout:Checkbox("Enable Books", "Allow book and letter narration.",
+    layout:Checkbox("Enable Writings", "Allow book and letter narration.",
         function() return B:IsPartOn() end,
         function(on) Spoken:SetPartOn("books", on) end, Refresh)
     layout:Section(S("OPT_SECTION_READING", "When to Read"))
@@ -40,24 +40,24 @@ function B:SetupOptions()
         function() return Settings().autoplay end,
         function(on) Settings().autoplay = on end, Refresh)
     layout:Requires(autoplay, function() return B:IsPartOn() end,
-        "Enable Books to use automatic reading.")
+        "Enable Writings to use automatic reading.")
     layout:Indent()
     local once = layout:Checkbox(S("OPT_READ_ONCE", "Read Only Once"), L.OPT_READ_ONCE_TIP,
         function() return Settings().readOnce end,
         function(on) Settings().readOnce = on end)
     layout:Outdent()
     layout:Requires(once, function() return B:IsPartOn() and Settings().autoplay end,
-        "Enable Books and automatic reading to use this.")
+        "Enable Writings and automatic reading to use this.")
     local stopOnClose = layout:Checkbox(S("OPT_STOP_ON_CLOSE", "Stop When Book Closes"), L.OPT_STOP_ON_CLOSE_TIP,
         function() return Settings().stopOnClose end,
         function(on) Settings().stopOnClose = on end)
     layout:Requires(stopOnClose, function() return B:IsPartOn() end,
-        "Enable Books to use this.")
+        "Enable Writings to use this.")
     local closeWhenRead = layout:Checkbox(S("OPT_CLOSE_WHEN_READ", "Close Book When Done Reading"), L.OPT_CLOSE_WHEN_READ_TIP,
         function() return Settings().closeWhenRead end,
         function(on) Settings().closeWhenRead = on end)
     layout:Requires(closeWhenRead, function() return B:IsPartOn() end,
-        "Enable Books to use this.")
+        "Enable Writings to use this.")
     layout:Note("In the world, the narration follows your page turns. In the Compendium, it plays the whole book.", nil, 40)
 
     layout:Section(S("OPT_SECTION_PACKS", "Voice Packs"))
@@ -98,34 +98,34 @@ function B:SetupOptions()
             })
         end
         return result
-    end, "No compatible Books voice packs installed.")
+    end, "No compatible Writings voice packs installed.")
     layout:Note("Voice language is selected on Home. An installed pack may not have a recording for every book in that language.", nil, 38)
     layout:Button("Audio Download Address", 220, function()
         if Spoken and Spoken.ShowDiagnostics then
-            Spoken:ShowDiagnostics("Books Voice Pack", { "Download audio packs from:", DOWNLOAD })
+            Spoken:ShowDiagnostics("Writings Voice Pack", { "Download audio packs from:", DOWNLOAD })
         end
-    end, "Show the Books voice-pack download address in a copyable window.")
+    end, "Show the Writings voice-pack download address in a copyable window.")
 
     layout:Section(S("OPT_SECTION_READ", "Reading History"))
     layout:Button("Forget What Was Read", 205, function()
-        Layout.Confirm("Forget this character's Books reading history?", "Forget", "Cancel", function()
+        Layout.Confirm("Forget this character's Writings reading history?", "Forget", "Cancel", function()
             B:Print("Forgot " .. tostring(B:ForgetRead()) .. " readings (discoveries kept)")
             Refresh()
         end)
     end, "Clear read-once history without forgetting discovered books.")
-    layout:Button("Open Books Compendium", 205, function()
+    layout:Button("Open Writings Compendium", 205, function()
         if B.ShowReadables then B:ShowReadables() end
     end)
 
     layout:Section("Fix a Problem")
     layout:Button("Show Diagnostics", 205, function() B:ShowBooksStatus() end,
-        "Open the Books data, discovery and audio-pack report.")
+        "Open the Writings data, discovery and audio-pack report.")
 
     layout:Defaults(function()
-        Layout.Confirm("Reset Books preferences? Discoveries and reading history are kept.",
+        Layout.Confirm("Reset Writings preferences? Discoveries and reading history are kept.",
             "Reset", "Cancel", function()
                 B:ResetOptions()
-                B:Print("Books settings reset; discoveries and reading history preserved")
+                B:Print("Writings settings reset; discoveries and reading history preserved")
                 Refresh()
             end)
     end)
@@ -133,7 +133,7 @@ function B:SetupOptions()
     -- Reading history, discovery, pack diagnostics and reset remain available
     -- when Books narration is off; only audio-dependent controls are disabled.
     frame:SetScript("OnShow", Refresh)
-    page = Spoken:AddSettingsPage(frame, "Books", 2, layout)
+    page = Spoken:AddSettingsPage(frame, "Writings", 2, layout)
     Refresh()
     return frame
 end
@@ -172,6 +172,6 @@ end
 
 function B:ShowBooksStatus()
     if Spoken and Spoken.ShowDiagnostics then
-        Spoken:ShowDiagnostics("Books Diagnostics", self:BooksStatusLines())
+        Spoken:ShowDiagnostics("Writings Diagnostics", self:BooksStatusLines())
     end
 end

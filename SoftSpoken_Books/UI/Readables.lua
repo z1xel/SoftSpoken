@@ -405,7 +405,7 @@ end
 local function ShowEntry()
     if not page then return end
     if not selected then
-        page:Show({title="Readables",subtitle="Books, letters, notes and plaques",
+        page:Show({title="Writings",subtitle="Books, letters, notes and plaques",
             text="Choose a writing from the list to read its pages."})
         return
     end
@@ -583,7 +583,7 @@ function B:RefreshReadables(scrollToSelection)
 end
 function B:ShowReadables()
     if not C or not C:Tab("readables") then
-        self:Print("Books browsing requires SoftSpoken (shared Compendium)")
+        self:Print("Writings browsing requires SoftSpoken (shared Compendium)")
         return
     end
     -- Opening through /ssb or a module button must not unfold a hidden tab.
@@ -597,7 +597,7 @@ end
 function B:SetupReadables()
     if C:Tab("readables") then return end
     C:Register("readables",{
-        label="Books",order=2,title="Azeroth's Compendium",build=Build,
+        label="Writings",order=2,title="Azeroth's Compendium",build=Build,
         onShow=function() B:RefreshReadables() end,
         store={
             get=function(key) return Settings()["compendium"..key] end,

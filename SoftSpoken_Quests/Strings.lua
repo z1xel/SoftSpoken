@@ -32,7 +32,7 @@ L = {}
 
 L.OPT_GROUP_GENERAL = "General"
 L.OPT_GROUP_AUDIO = "Audio"
-L.OPT_DEBUG = "Quests Debug Messages"
+L.OPT_DEBUG = "Stories Debug Messages"
 -- Spoken > Developer: every quest line taken for one no pack has (DataModules:PrepareSound).
 L.OPT_DEV_MOCK_MISSING = "Mock Missing Voice Over"
 L.OPT_DEV_MOCK_MISSING_TIP = "No quest line plays, to show a quest without a voice."
@@ -115,29 +115,29 @@ L.OPT_PLAY_TIP = "Hear this quest read aloud."
 L.OPT_DIALOG_STOP_TIP = "Stop reading"
 L.OPT_READ_TIP = "Read this aloud"
 L.OPT_GREETING = "Greeting"
-L.OPT_AUTOPLAY_OFF_TIP = "Read Automatically is turned off on the Quests page of the Spoken settings."
+L.OPT_AUTOPLAY_OFF_TIP = "Read Automatically is turned off on the Stories page of the SoftSpoken settings."
 L.OPT_NEVER_TIP = "Read Greetings is set to Never on the Gossip page of the Spoken settings."
 L.OPT_CONTRIBUTE = "Contribute"
 L.OPT_REPORT = "Report"
-L.OPT_CONTRIBUTE_TIP_LINE = "Spoken Quests doesn't have this line"
-L.OPT_CONTRIBUTE_TIP_QUEST = "Spoken Quests doesn't have this quest"
+L.OPT_CONTRIBUTE_TIP_LINE = "SoftSpoken Stories doesn't have this line"
+L.OPT_CONTRIBUTE_TIP_QUEST = "SoftSpoken Stories doesn't have this quest"
 L.OPT_CONTRIBUTE_TIP_SHARE = "Contribute your data by sharing data from your client"
-L.OPT_REPORT_COPY = "Spoken Quests|n|nCopy this address and open it in your web browser."
+L.OPT_REPORT_COPY = "SoftSpoken Stories|n|nCopy this address and open it in your web browser."
 
 --------------------------------------------------------------------------------
 -- Minimap menu and player settings link
 --------------------------------------------------------------------------------
 
-L.OPT_MINIMAP_SETTINGS = "Quests Settings"
+L.OPT_MINIMAP_SETTINGS = "Stories Settings"
 
 -- The page under Spoken in the game's settings.
-L.OPT_PAGE_TITLE = "Quests"
+L.OPT_PAGE_TITLE = "Stories"
 
 L.OPT_GOSSIP_PAGE_TITLE = "Gossip"
 L.OPT_GOSSIP_MINIMAP_SETTINGS = "Gossip Settings"
 L.REASON_AUTOPLAY = "Turn on Read Automatically to use this."
-L.REASON_AUTOPLAY_ON_QUESTS = "Turn on Read Automatically on the Quests page to use this."
-L.OPT_RESET_PROFILE_CONFIRM = "Reset every Quests and Gossip setting in the profile in use to its default?"
+L.REASON_AUTOPLAY_ON_QUESTS = "Turn on Read Automatically on the Stories page to use this."
+L.OPT_RESET_PROFILE_CONFIRM = "Reset every Stories and Gossip setting in the profile in use to its default?"
 L.OPT_CANCEL = "Cancel"
 
 
@@ -164,7 +164,7 @@ L.OPT_NEXT_GOSSIP = "Next Gossip"
 -- Azeroth's Compendium: the Quests tab (UI/QuestsTab.lua)
 --------------------------------------------------------------------------------
 
-L.COMPENDIUM_QUESTS = "Quests"
+L.COMPENDIUM_QUESTS = "Stories"
 L.OPEN_IN_COMPENDIUM = "Open in Azeroth's Compendium"
 L.OPEN_QUEST_IN_COMPENDIUM_TIP = "This quest's words in Azeroth's Compendium, beside every other quest's."
 L.QUESTS_SEARCH = "Search quests"
