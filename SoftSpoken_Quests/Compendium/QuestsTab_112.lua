@@ -223,6 +223,8 @@ if C and C.Register and not C:Tab("quests") then
         label="Quests",order=0,title="Azeroth's Compendium",
         build=Build,
         onShow=function() S:ReadLog() end,
-        enabled=function() return true end,
+        -- The Quests module switch governs both audio and its Compendium page.
+        -- Gossip has its own independent narration switch.
+        enabled=function() return Spoken and Spoken.IsPartOn and Spoken:IsPartOn("quests") end,
     })
 end

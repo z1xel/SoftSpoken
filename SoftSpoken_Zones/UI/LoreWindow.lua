@@ -496,10 +496,11 @@ function M.OpenSelectionFromPlayer(mapID,areaKey)
 end
 -- Match the original's explicit ShowLoreFor/ToggleLoreWindow affordances.
 function M.ToggleLoreWindow()
+    if Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones") then return end
     C:Toggle()
 end
 function M.ShowLoreFor(mapID,areaKey)
-    if not mapID then return end
+    if not mapID or (Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones")) then return end
     M.OpenSelectionFromPlayer(mapID,areaKey)
     C:Open("places")
     -- Upstream: an explicit request for lore unfolds a collapsed Compendium.
@@ -520,8 +521,10 @@ function M.SetupLoreWindow()
             get=function(key) return Settings()["compendium"..key] end,
             set=function(key,value) Settings()["compendium"..key]=value end,
         },
-        open=function() M.OpenSelectionFromPlayer();C:Open("places") end,
-        enabled=function() return true end,
+        open=function() if Spoken and Spoken.IsPartOn and Spoken:IsPartOn("zones") then
+            M.OpenSelectionFromPlayer();C:Open("places")
+        end end,
+        enabled=function() return Spoken and Spoken.IsPartOn and Spoken:IsPartOn("zones") end,
         unlock={
             get=function() return Settings().compendiumUnlockUndiscovered==true end,
             set=function(on) M.SetUnlockUndiscovered(on) end,
