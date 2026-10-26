@@ -102,7 +102,12 @@ local function Reflow(frame)
     -- Older Blizzard placements, sourced from PortraitFrameTemplateNoCloseButton:
     -- portrait: x=-6/y=+8, 61x61; circular metal: x=-14/y=+11, 78x78.
     -- title metal spans from right of portrait (x=64) to top-right corner (x=w-33).
-    tiled(frame,"ARTWORK",HORIZ,{0,1,0.4375,0.65625},true,64,-1,w-97,28)
+    -- No portrait on compact attachments: connect the same title trim
+    -- directly between the two top corners.
+    local titleStart = frame.sszCompactFrame and 32 or 64
+    local titleLength = frame.sszCompactFrame and (w-65) or (w-97)
+    tiled(frame,"ARTWORK",HORIZ,{0,1,0.4375,0.65625},true,
+        titleStart,-1,titleLength,28)
     -- Tile the background of the title behind the visible top border.
     tiled(frame,"BACKGROUND",HORIZ,{0,1,0.2890625,0.421875},true,2,3,w-27,17)
     -- Top streaks deliberately disabled by default; they cover 37px under the header.
@@ -112,14 +117,17 @@ local function Reflow(frame)
     -- Horizontal lower edge, from x=8 to (w - 11), aligned with 14px/11px corners.
     tiled(frame,"BORDER",HORIZ,{0,1,0.203125,0.2734375},true,8,h-4,w-19,9)
     -- Vertical borders use the original !UI-Frame atlas, 256px each repetition.
-    tiled(frame,"BORDER",VERT,{0.359375,0.609375,0,1},false,-6,67,h-74,16)
+    tiled(frame,"BORDER",VERT,{0.359375,0.609375,0,1},false,-6,
+        frame.sszCompactFrame and 32 or 67,
+        frame.sszCompactFrame and (h-39) or (h-74),16)
     tiled(frame,"BORDER",VERT,{0.171875,0.328125,0,1},false,w-9,32,h-38,10)
     for i = frame.sszSegmentUsed + 1, table.getn(frame.sszSegments) do
         frame.sszSegments[i]:Hide()
     end
 end
 
-function Skin.Apply(self, title)
+function Skin.Apply(self, title, options)
+    local compact=options and options.compact==true
     -- No call to a modern Blizzard XML template. Draw using real old Blizzard textures.
     -- Blizzard PortraitFrameTemplate's background:
     --   Interface\FrameGeneral\UI-Background-Rock
@@ -137,13 +145,23 @@ function Skin.Apply(self, title)
 
     self.sszSegments = {}
     self.sszInitialized = true
-    self.sszShowStreaks = true
+    self.sszCompactFrame = compact
+    -- The narrow map attachment uses a short title strip, not the taller
+    -- Compendium portrait/header background.
+    self.sszShowStreaks = not compact
 
     -- Window metal corners: exact coords from the older Blizzard UI-Frame atlas.
     fixed(self,"OVERLAY",FRAME,33,33,{0.6328125,0.890625,0.0078125,0.265625},"TOPRIGHT",0,1)
+    if compact then
+        -- The normal left corner is covered by the Compendium portrait ring.
+        -- Mirror its matching right corner where the map has no portrait.
+        local left=fixed(self,"OVERLAY",FRAME,33,33,
+            {0.890625,0.6328125,0.0078125,0.265625},"TOPLEFT",0,1)
+    end
     fixed(self,"BORDER",FRAME,14,14,{0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,-5)
     fixed(self,"BORDER",FRAME,11,11,{0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,-5)
 
+    if not compact then
     self.sszPortraitSlices = circularIcon(
         self, "Interface\\Icons\\INV_Misc_Book_09", -6, 8, 61, 29
     )
@@ -151,17 +169,31 @@ function Skin.Apply(self, title)
     -- The portrait ring is drawn after the icon so it stays in front.
     self.sszPortraitRing = fixed(self,"OVERLAY",FRAME,78,78,
         {0.0078125,0.6171875,0.0078125,0.6171875},"TOPLEFT",-14,11)
+    end
+
     self.sszTitle = self:CreateFontString(nil,"OVERLAY","GameFontNormal")
-    self.sszTitle:SetWidth(490)
     self.sszTitle:SetHeight(20)
-    self.sszTitle:SetPoint("TOP",self,"TOP",0,-3)
+    if compact then
+        -- Keep the title inside the short header without overlapping Close.
+        self.sszTitle:SetPoint("TOPLEFT",self,"TOPLEFT",22,-3)
+        self.sszTitle:SetPoint("TOPRIGHT",self,"TOPRIGHT",-40,-3)
+    else
+        self.sszTitle:SetWidth(490)
+        self.sszTitle:SetPoint("TOP",self,"TOP",0,-3)
+    end
+    self.sszTitle:SetJustifyH("CENTER")
     self.sszTitle:SetText("Azeroth's Compendium")
     self.sszClose = CreateFrame("Button",nil,self,"UIPanelCloseButton")
     self.sszClose:SetWidth(32)
     self.sszClose:SetHeight(32)
     self.sszClose:SetPoint("TOPRIGHT",self,"TOPRIGHT",4,5)
-    self.sszClose:SetScript("OnClick",function() self:Hide() end)
+    if options and options.onClose then
+        self.sszClose:SetScript("OnClick",options.onClose)
+    else
+        self.sszClose:SetScript("OnClick",function() self:Hide() end)
+    end
 
+    if not compact then
     -- Borrow the *actual Turtle WoW* World Map minimizer's client artwork.
     -- This is a built-in Turtle WorldMapFrame control, NOT a Cartographer icon.
     -- Do not ship screenshot crops or guess at later-version BLP filenames.
@@ -249,6 +281,8 @@ function Skin.Apply(self, title)
                 this:SetScript("OnUpdate",nil)
             end
         end)
+    end
+
     end
 
     -- Production Compendium integration aliases. These add no visual sprites.
