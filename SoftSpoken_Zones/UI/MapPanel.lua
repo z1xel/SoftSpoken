@@ -5,9 +5,8 @@ local M = SSZMapPanel
 local Compat = SSZMapCompat
 local L = SSZLoreWindow
 local P = SSZLorePage
-local Art = "Interface\\AddOns\\SoftSpoken_Zones\\Textures\\Art\\"
 local WIDTH, GAP = 338, 2
-local panel, page, toggle, rim
+local panel, page, toggle, pageInset
 local lastMapID, lastContinent, lastZone
 local ready = false
 local selectedMapID, selectedAreaKey, selectedCityID
@@ -21,43 +20,6 @@ local function Settings()
     if s.mapPanelCollapsed == nil then s.mapPanelCollapsed = false end
     if s.showMapPanel == nil then s.showMapPanel = true end
     return s
-end
-
--- Direct 1.12 adaptation of upstream Art.NineSlice("questlog-frame").
--- The nine pieces keep their original corner sizes, unlike a stretched border.
-local function NineSlice(frame)
-    local m = 56/214
-    local u = {0, .835938*m, .835938*(1-m), .835938}
-    local v = {0, .835938*m, .835938*(1-m), .835938}
-    local w = math.floor(107*m+.5)
-    local grid={}
-    for row=1,3 do
-        grid[row]={}
-        for col=1,3 do
-            local piece=frame:CreateTexture(nil,"OVERLAY")
-            piece:SetTexture(Art.."questlog-frame")
-            piece:SetTexCoord(u[col],u[col+1],v[row],v[row+1])
-            grid[row][col]=piece
-        end
-    end
-    local tl,tr,bl,br=grid[1][1],grid[1][3],grid[3][1],grid[3][3]
-    for _,corner in ipairs({tl,tr,bl,br}) do
-        corner:SetWidth(w);corner:SetHeight(w)
-    end
-    tl:SetPoint("TOPLEFT",frame,"TOPLEFT",0,0)
-    tr:SetPoint("TOPRIGHT",frame,"TOPRIGHT",0,0)
-    bl:SetPoint("BOTTOMLEFT",frame,"BOTTOMLEFT",0,0)
-    br:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",0,0)
-    local function Between(piece,first,a,second,b)
-        piece:SetPoint("TOPLEFT",first,a,0,0)
-        piece:SetPoint("BOTTOMRIGHT",second,b,0,0)
-    end
-    Between(grid[1][2],tl,"TOPRIGHT",tr,"BOTTOMLEFT")
-    Between(grid[3][2],bl,"TOPRIGHT",br,"BOTTOMLEFT")
-    Between(grid[2][1],tl,"BOTTOMLEFT",bl,"TOPRIGHT")
-    Between(grid[2][3],tr,"BOTTOMLEFT",br,"TOPRIGHT")
-    Between(grid[2][2],tl,"BOTTOMRIGHT",br,"TOPLEFT")
-    return grid
 end
 
 local function NewPanel()
@@ -81,26 +43,16 @@ local function BuildPanel()
     close:SetPoint("TOPRIGHT",panel,"TOPRIGHT",-4,-4)
     close:SetScript("OnClick",function() M.SetMapPanelCollapsed(true) end)
     panel.close=close
-    local holder=CreateFrame("Frame",nil,panel)
-    holder:SetPoint("TOPLEFT",panel,"TOPLEFT",12,-40)
-    holder:SetPoint("BOTTOMRIGHT",panel,"BOTTOMRIGHT",-12,12)
-    page=P.CreateLorePage(holder,"log")
+    -- Use the SAME book-style parchment, silver inset and native scrollbar
+    -- housing as the Compendium's Places page. Only placement is map-specific.
+    -- Keep the map-only Open in Compendium button without maintaining a
+    -- separate quest-log renderer or decorative nine-slice.
+    pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
+        return P.CreateLorePage(holder,"book",nil,{openInCompendium=true})
+    end,{left=8,right=8,top=38,bottom=8})
     if SSZAudioButton and SSZAudioButton.Bind then SSZAudioButton.Bind(page.play) end
+    panel.pageInset=pageInset
     panel.page=page
-    rim=CreateFrame("Frame",nil,holder)
-    rim:SetPoint("TOPLEFT",holder,"TOPLEFT",-2,3)
-    rim:SetPoint("BOTTOMRIGHT",holder,"BOTTOMRIGHT",2,-3)
-    if rim.SetFrameLevel then rim:SetFrameLevel(holder:GetFrameLevel()+12) end
-    if SSZOriginalArt then
-        rim.pieces=NineSlice(rim)
-        local filigree=rim:CreateTexture(nil,"OVERLAY")
-        filigree:SetTexture(Art.."questlog-frame-filigree")
-        filigree:SetTexCoord(0,.75,0,.59375)
-        filigree:SetWidth(48);filigree:SetHeight(19)
-        filigree:SetPoint("TOP",rim,"TOP",0,1)
-        rim.filigree=filigree
-    end
-    panel.rim=rim
     panel:Hide()
 end
 
