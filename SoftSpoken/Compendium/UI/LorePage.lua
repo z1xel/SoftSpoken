@@ -153,7 +153,7 @@ function Page:Show(entry)
     self:Resize(false)
 end
 
-function P.CreateLorePage(parent,style,left)
+function P.CreateLorePage(parent,style,left,options)
     local page=setmetatable({style=style or "book",
         inset=INSET[style] or INSET.book},Page)
     local frame=CreateFrame("Frame",nil,parent)
@@ -241,8 +241,9 @@ function P.CreateLorePage(parent,style,left)
     page.divider=divider
 
     page.play=A.Create(frame)
-    if page.style=="log" then
-        -- Upstream's Open in Compendium action: a round map/book icon beside Play.
+    if page.style=="log" or (options and options.openInCompendium) then
+        -- Preserve the map reader's Open in Compendium action even while
+        -- showing the standard book-style parchment used by Places.
         local open=CreateFrame("Button",nil,frame)
         open:SetWidth(24); open:SetHeight(24)
         local art=open:CreateTexture(nil,"ARTWORK")
