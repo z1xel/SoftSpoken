@@ -280,6 +280,27 @@ function Skin.Apply(self, title, options)
     self.sszClose:SetWidth(32)
     self.sszClose:SetHeight(32)
     self.sszClose:SetPoint("TOPRIGHT",self,"TOPRIGHT",4,5)
+    if compact then
+        -- UIPanelCloseButton is a 32x32 widget with a smaller visible X.
+        -- Align *all* button state artwork to its actual hit frame. The
+        -- shared map title corner and this clickable widget must not drift
+        -- apart on hover or while pressed, especially at non-default UI scale.
+        for _, getter in ipairs({
+            "GetNormalTexture", "GetPushedTexture", "GetHighlightTexture",
+        }) do
+            local texture=self.sszClose[getter](self.sszClose)
+            if texture then
+                texture:ClearAllPoints()
+                texture:SetAllPoints(self.sszClose)
+            end
+        end
+        -- Restrict clicks to the visible centre of the native 32px button;
+        -- the surrounding silver frame is decorative, not a hit target.
+        if self.sszClose.SetHitRectInsets then
+            self.sszClose:SetHitRectInsets(4,4,4,4)
+        end
+        self.sszClose:EnableMouse(true)
+    end
     if options and options.onClose then
         self.sszClose:SetScript("OnClick",options.onClose)
     else
