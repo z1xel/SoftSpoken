@@ -460,7 +460,7 @@ end
 -- Upstream's public tab interfaces retained, instead of bespoke zone-window calls.
 function C:Register(key,def)
     C.tabs[key]=def
-    if window then LayOutTabs();PaintTabs() end
+    if window then self:Relayout() end
 end
 function C:Tab(key) return C.tabs[key] end
 function C:Window()
@@ -488,6 +488,10 @@ function C:Select(key)
     return panel
 end
 function C:Open(key,areaKey)
+    -- Refuse direct opens of disabled tabs *before* expanding the window or
+    -- modifying the current map/selection. This covers /ssz and module buttons.
+    local requested=(type(key)=="number" or key==nil) and "places" or key
+    if not C.tabs[requested] or not Enabled(C.tabs[requested]) then return nil end
     -- Preserve the existing Turtle-specific callers C:Open(mapID, areaKey),
     -- while also exposing the upstream C:Open("places") API.
     if type(key)=="number" or key==nil then
@@ -517,8 +521,32 @@ function C:Available()
 end
 function C:Relayout()
     if not window then return end
-    LayOutTabs();PaintTabs()
-    if active and C.tabs[active] and not Enabled(C.tabs[active]) then window:Hide() end
+    local selected=active and C.tabs[active]
+    if not (selected and Enabled(selected)) then
+        -- When the active module is disabled, move to the next available
+        -- Compendium page rather than closing the whole window.
+        local fallback
+        for _,def in ipairs(Ordered()) do
+            if Enabled(def) then fallback=def;break end
+        end
+        if fallback then
+            self:Select(fallback.key)
+        else
+            -- Every module is off: leave no page visible and close the
+            -- Compendium. No saved history or per-tab state is altered.
+            active=nil
+            for _,def in pairs(C.tabs) do
+                if def.panel then def.panel:Hide() end
+            end
+            LayOutTabs()
+            PaintTabs()
+            if window:IsShown() then window:Hide() end
+        end
+    else
+        -- Adding or removing a non-active tab only changes the tab bar.
+        LayOutTabs()
+        PaintTabs()
+    end
 end
 function C:Toggle()
     if window and window:IsShown() then window:Hide();return end
@@ -536,6 +564,16 @@ function C:Refresh()
     if not window then return end
     local tab=active and C.tabs[active]
     if tab and tab.panel and tab.panel.Refresh then tab.panel:Refresh() end
+end
+
+-- Home's module toggles fire PART_SWITCHED synchronously; keep the Compendium
+-- navigation in step whether a module was switched off or back on.
+if Spoken and Spoken.RegisterCallback then
+    Spoken:RegisterCallback("PART_SWITCHED",function(key)
+        if key=="quests" or key=="books" or key=="zones" then
+            C:Relayout()
+        end
+    end)
 end
 
 -- Virtualized list renderer: a fixed pool of 42 rows for the 1.12 client.
