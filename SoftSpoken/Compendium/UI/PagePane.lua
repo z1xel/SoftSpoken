@@ -44,11 +44,8 @@ function C.CreateStandalonePagePane(panel, createPage, margins)
         margins.left or 8, -(margins.top or 40))
     inset:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT",
         -(margins.right or 8), margins.bottom or 8)
-    local page = BuildPage(inset, createPage)
-    -- World-map addons can change the panel's height/scale without selecting
-    -- a new zone. Reflow the existing text and image; never create another page.
-    inset:SetScript("OnSizeChanged", function()
-        if page and page.Resize then page:Resize(false) end
-    end)
-    return inset, page
+    -- The LorePage/TextView already reflows when its own page frame
+    -- changes size. The holder follows these inset anchors, so a second
+    -- OnSizeChanged handler here would cause duplicate layout passes.
+    return inset, BuildPage(inset, createPage)
 end
