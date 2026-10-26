@@ -103,6 +103,17 @@ function Page:FitDecorations()
 end
 
 function Page:Resize(resetScroll)
+    -- The attached World Map reader is much narrower than the Compendium.
+    -- Let its breadcrumb/subtitle consume a second line when necessary,
+    -- instead of letting wrapped text cross the divider. Compendium pages
+    -- retain their original fixed 16-unit subtitle geometry.
+    if self.expandSubtitle and self.sub and self.sub.text and self.sub:IsShown() then
+        local width=self.sub:GetWidth() or 0
+        if width>50 then
+            local height=self.sub.text:GetStringHeight() or 16
+            self.sub:SetHeight(height>18 and math.ceil(height)+2 or 16)
+        end
+    end
     self:FitDecorations()
     if self.body then self.body:Reflow(resetScroll) end
 end
@@ -153,9 +164,10 @@ function Page:Show(entry)
     self:Resize(false)
 end
 
-function P.CreateLorePage(parent,style,left)
+function P.CreateLorePage(parent,style,left,options)
     local page=setmetatable({style=style or "book",
-        inset=INSET[style] or INSET.book},Page)
+        inset=INSET[style] or INSET.book,
+        expandSubtitle=options and options.expandSubtitle==true},Page)
     local frame=CreateFrame("Frame",nil,parent)
     -- The caller supplies a page holder inside the right-hand inset.
     frame:SetAllPoints(parent)
@@ -241,8 +253,9 @@ function P.CreateLorePage(parent,style,left)
     page.divider=divider
 
     page.play=A.Create(frame)
-    if page.style=="log" then
-        -- Upstream's Open in Compendium action: a round map/book icon beside Play.
+    if page.style=="log" or (options and options.openInCompendium) then
+        -- Preserve the map reader's Open in Compendium action even while
+        -- showing the standard book-style parchment used by Places.
         local open=CreateFrame("Button",nil,frame)
         open:SetWidth(24); open:SetHeight(24)
         local art=open:CreateTexture(nil,"ARTWORK")

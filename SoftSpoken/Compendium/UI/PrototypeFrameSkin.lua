@@ -51,7 +51,7 @@ local function circularIcon(parent, texturePath, x, y, size, radius)
     return slices
 end
 
-local function tiled(parent, layer, path, coords, horizontal, start, span, length, thickness)
+local function tiled(parent, layer, path, coords, horizontal, start, span, length, thickness, bottomAligned, lastBottomOffset)
     -- Pixel-accurate repetition: never stretch a 256px source border to window width.
     -- Coordinates start/span are offsets in parent top-left (x rightwards/y downwards).
     if length <= 0 then return end
@@ -77,12 +77,27 @@ local function tiled(parent, layer, path, coords, horizontal, start, span, lengt
             t:SetWidth(run)
             t:SetHeight(thickness)
             t:SetTexCoord(coords[1], coords[1] + (coords[2] - coords[1]) * run / src, coords[3], coords[4])
-            t:SetPoint("TOPLEFT",parent,"TOPLEFT", start + (i - 1)*src, -span)
+            if bottomAligned then
+                -- The bottom rail must follow the panel's actual bottom even
+                -- when the World Map changes height after our first Reflow.
+                t:SetPoint("BOTTOMLEFT",parent,"BOTTOMLEFT",
+                    start + (i - 1)*src, span)
+            else
+                t:SetPoint("TOPLEFT",parent,"TOPLEFT",
+                    start + (i - 1)*src, -span)
+            end
         else
             t:SetWidth(thickness)
             t:SetHeight(run)
             t:SetTexCoord(coords[1], coords[2], coords[3], coords[3] + (coords[4] - coords[3]) * run / src)
-            t:SetPoint("TOPLEFT",parent,"TOPLEFT", start, -(span + (i - 1)*src))
+            if lastBottomOffset and i==count then
+                -- Pin the final side tile to the real bottom corner, even if
+                -- a map resize happened after the top segments were laid out.
+                t:SetPoint("BOTTOMLEFT",parent,"BOTTOMLEFT",start,lastBottomOffset)
+            else
+                t:SetPoint("TOPLEFT",parent,"TOPLEFT",
+                    start,-(span + (i - 1)*src))
+            end
         end
     end
 end
@@ -93,33 +108,102 @@ local function clearSegments(frame)
     frame.sszSegmentUsed = 0
 end
 
+-- On 1.12's anchored World Map frames, GetHeight() can reflect an old
+-- layout size while the visual edges have already moved. The Compendium
+-- scrollbar uses the same edge-to-edge measurement for this reason.
+-- Restrict this measurement to compact panels: the approved full-size
+-- Compendium frame keeps its original GetWidth/GetHeight behavior.
+local function FrameSize(frame)
+    local w,h=frame:GetWidth(),frame:GetHeight()
+    if frame.sszCompactFrame then
+        local left,right=frame:GetLeft(),frame:GetRight()
+        local top,bottom=frame:GetTop(),frame:GetBottom()
+        if left and right and right>left then w=right-left end
+        if top and bottom and top>bottom then h=top-bottom end
+    end
+    return w,h
+end
+
 local function Reflow(frame)
     if not frame or not frame.sszInitialized then return end
-    local w, h = frame:GetWidth(), frame:GetHeight()
+    local w,h=FrameSize(frame)
     if not w or not h or w < 220 or h < 180 then return end
     clearSegments(frame)
 
     -- Older Blizzard placements, sourced from PortraitFrameTemplateNoCloseButton:
     -- portrait: x=-6/y=+8, 61x61; circular metal: x=-14/y=+11, 78x78.
     -- title metal spans from right of portrait (x=64) to top-right corner (x=w-33).
-    tiled(frame,"ARTWORK",HORIZ,{0,1,0.4375,0.65625},true,64,-1,w-97,28)
+    -- No portrait on compact attachments: connect the same title trim
+    -- directly between the two top corners.
+    -- Blizzard's real 32px TopLeftCorner anchors at x=-6: its right edge
+    -- is x=26. Join the native title bar there (not at the old mirrored
+    -- right-corner width of x=32), ending at the right corner's x=w-33.
+    local titleStart = frame.sszCompactFrame and 26 or 64
+    local titleLength = frame.sszCompactFrame and (w-59) or (w-97)
+    tiled(frame,"ARTWORK",HORIZ,{0,1,0.4375,0.65625},true,
+        titleStart,-1,titleLength,28)
     -- Tile the background of the title behind the visible top border.
     tiled(frame,"BACKGROUND",HORIZ,{0,1,0.2890625,0.421875},true,2,3,w-27,17)
     -- Top streaks deliberately disabled by default; they cover 37px under the header.
     if frame.sszShowStreaks then
         tiled(frame,"BORDER",HORIZ,{0,1,0.671875,0.9609375},true,0,21,w-2,37)
     end
-    -- Horizontal lower edge, from x=8 to (w - 11), aligned with 14px/11px corners.
-    tiled(frame,"BORDER",HORIZ,{0,1,0.203125,0.2734375},true,8,h-4,w-19,9)
-    -- Vertical borders use the original !UI-Frame atlas, 256px each repetition.
-    tiled(frame,"BORDER",VERT,{0.359375,0.609375,0,1},false,-6,67,h-74,16)
-    tiled(frame,"BORDER",VERT,{0.171875,0.328125,0,1},false,w-9,32,h-38,10)
+    -- The compact frame's parchment/scrollbar are child frames above this
+    -- frame's texture layers. Draw its *whole* lower edge and both sides on
+    -- the same mouse-pass-through foreground frame as the native bottom
+    -- corners. Merely choosing OVERLAY on the parent does not overdraw
+    -- higher-level children and previously left a flat, broken bottom rim.
+    if frame.sszCompactFrame then
+        local trim=frame.sszCompactTrim
+        if trim then
+            trim:SetFrameLevel(frame:GetFrameLevel()+10)
+            clearSegments(trim)
+            -- Native 14px/11px bottom corners are kept at their actual
+            -- size. Left begins at x=-6; the rail connects at x=8.
+            -- Right starts at x=w-11; both end inside the attachment.
+            tiled(trim,"ARTWORK",HORIZ,{0,1,0.203125,0.2734375},
+                true,8,0,w-19,9,true)
+            -- End at y=h-14, the top of the native 14px bottom-left cap.
+            -- Previously h-44 ran two pixels into the cap; the opposite
+            -- side already ends at y=h-11 for its 11px corner.
+            -- Tile the sides from the top, but pin the last segment of
+            -- each side to its matching native corner at the actual bottom.
+            -- The intermediate pieces are still the unchanged 256-unit art.
+            tiled(trim,"ARTWORK",VERT,{0.359375,0.609375,0,1},
+                false,-6,32,h-46,16,nil,14)
+            tiled(trim,"ARTWORK",VERT,{0.171875,0.328125,0,1},
+                false,w-9,32,h-43,10,nil,11)
+            for i=trim.sszSegmentUsed+1,table.getn(trim.sszSegments) do
+                trim.sszSegments[i]:Hide()
+            end
+            frame.sszLastCompactWidth=w
+            frame.sszLastCompactHeight=h
+        end
+    else
+        -- Leave the approved full-size Compendium frame untouched.
+        tiled(frame,"BORDER",HORIZ,{0,1,0.203125,0.2734375},true,8,h-4,w-19,9)
+        tiled(frame,"BORDER",VERT,{0.359375,0.609375,0,1},false,-6,67,h-74,16)
+        tiled(frame,"BORDER",VERT,{0.171875,0.328125,0,1},false,w-9,32,h-38,10)
+    end
     for i = frame.sszSegmentUsed + 1, table.getn(frame.sszSegments) do
         frame.sszSegments[i]:Hide()
     end
 end
 
-function Skin.Apply(self, title)
+-- WorldMapFrame can resize via anchors after a child has laid out; certain
+-- 1.12 map variants do not consistently dispatch OnSizeChanged for that.
+-- Poll only geometry (not artwork creation) and reflow on actual size changes.
+function Skin.RefreshCompact(frame)
+    if not frame or not frame.sszCompactFrame then return end
+    local w,h=FrameSize(frame)
+    if w and h and (w~=frame.sszLastCompactWidth or
+        h~=frame.sszLastCompactHeight) then
+        Reflow(frame)
+    end
+end
+
+function Skin.Apply(self, title, options)
+    local compact=options and options.compact==true
     -- No call to a modern Blizzard XML template. Draw using real old Blizzard textures.
     -- Blizzard PortraitFrameTemplate's background:
     --   Interface\FrameGeneral\UI-Background-Rock
@@ -137,13 +221,40 @@ function Skin.Apply(self, title)
 
     self.sszSegments = {}
     self.sszInitialized = true
-    self.sszShowStreaks = true
+    self.sszCompactFrame = compact
+    -- The narrow map attachment uses a short title strip, not the taller
+    -- Compendium portrait/header background.
+    self.sszShowStreaks = not compact
 
     -- Window metal corners: exact coords from the older Blizzard UI-Frame atlas.
     fixed(self,"OVERLAY",FRAME,33,33,{0.6328125,0.890625,0.0078125,0.265625},"TOPRIGHT",0,1)
-    fixed(self,"BORDER",FRAME,14,14,{0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,-5)
-    fixed(self,"BORDER",FRAME,11,11,{0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,-5)
+    if compact then
+        -- Authentic UI-Frame-TopLeftCorner (32x32), not a reversed
+        -- top-right crop. Match Blizzard's original top-left -6,+1 anchor.
+        fixed(self,"OVERLAY",FRAME,32,32,
+            {0.6328125,0.8828125,0.28125,0.53125},"TOPLEFT",-6,1)
+        -- Native bottom corners are smaller than the title corners in the
+        -- original Blizzard atlas. The problem was layering, not their UVs:
+        -- the map's parchment hides parent-frame OVERLAY textures. This
+        -- foreground trim brings both caps and the connecting strokes above
+        -- the parchment, without catching mouse input or changing its size.
+        local trim=CreateFrame("Frame",nil,self)
+        trim:SetAllPoints(self)
+        trim:SetFrameLevel(self:GetFrameLevel()+10)
+        trim:EnableMouse(false)
+        trim.sszSegments={}
+        trim.sszSegmentUsed=0
+        self.sszCompactTrim=trim
+        fixed(trim,"OVERLAY",FRAME,14,14,
+            {0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,0)
+        fixed(trim,"OVERLAY",FRAME,11,11,
+            {0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,0)
+    else
+        fixed(self,"BORDER",FRAME,14,14,{0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,-5)
+        fixed(self,"BORDER",FRAME,11,11,{0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,-5)
+    end
 
+    if not compact then
     self.sszPortraitSlices = circularIcon(
         self, "Interface\\Icons\\INV_Misc_Book_09", -6, 8, 61, 29
     )
@@ -151,17 +262,52 @@ function Skin.Apply(self, title)
     -- The portrait ring is drawn after the icon so it stays in front.
     self.sszPortraitRing = fixed(self,"OVERLAY",FRAME,78,78,
         {0.0078125,0.6171875,0.0078125,0.6171875},"TOPLEFT",-14,11)
+    end
+
     self.sszTitle = self:CreateFontString(nil,"OVERLAY","GameFontNormal")
-    self.sszTitle:SetWidth(490)
     self.sszTitle:SetHeight(20)
-    self.sszTitle:SetPoint("TOP",self,"TOP",0,-3)
+    if compact then
+        -- Keep the title inside the short header without overlapping Close.
+        self.sszTitle:SetPoint("TOPLEFT",self,"TOPLEFT",22,-3)
+        self.sszTitle:SetPoint("TOPRIGHT",self,"TOPRIGHT",-40,-3)
+    else
+        self.sszTitle:SetWidth(490)
+        self.sszTitle:SetPoint("TOP",self,"TOP",0,-3)
+    end
+    self.sszTitle:SetJustifyH("CENTER")
     self.sszTitle:SetText("Azeroth's Compendium")
     self.sszClose = CreateFrame("Button",nil,self,"UIPanelCloseButton")
     self.sszClose:SetWidth(32)
     self.sszClose:SetHeight(32)
     self.sszClose:SetPoint("TOPRIGHT",self,"TOPRIGHT",4,5)
-    self.sszClose:SetScript("OnClick",function() self:Hide() end)
+    if compact then
+        -- UIPanelCloseButton is a 32x32 widget with a smaller visible X.
+        -- Align *all* button state artwork to its actual hit frame. The
+        -- shared map title corner and this clickable widget must not drift
+        -- apart on hover or while pressed, especially at non-default UI scale.
+        for _, getter in ipairs({
+            "GetNormalTexture", "GetPushedTexture", "GetHighlightTexture",
+        }) do
+            local texture=self.sszClose[getter](self.sszClose)
+            if texture then
+                texture:ClearAllPoints()
+                texture:SetAllPoints(self.sszClose)
+            end
+        end
+        -- Restrict clicks to the visible centre of the native 32px button;
+        -- the surrounding silver frame is decorative, not a hit target.
+        if self.sszClose.SetHitRectInsets then
+            self.sszClose:SetHitRectInsets(4,4,4,4)
+        end
+        self.sszClose:EnableMouse(true)
+    end
+    if options and options.onClose then
+        self.sszClose:SetScript("OnClick",options.onClose)
+    else
+        self.sszClose:SetScript("OnClick",function() self:Hide() end)
+    end
 
+    if not compact then
     -- Borrow the *actual Turtle WoW* World Map minimizer's client artwork.
     -- This is a built-in Turtle WorldMapFrame control, NOT a Cartographer icon.
     -- Do not ship screenshot crops or guess at later-version BLP filenames.
@@ -249,6 +395,8 @@ function Skin.Apply(self, title)
                 this:SetScript("OnUpdate",nil)
             end
         end)
+    end
+
     end
 
     -- Production Compendium integration aliases. These add no visual sprites.

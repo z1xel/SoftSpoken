@@ -399,6 +399,19 @@ function PlayerFrame:CreateRow(i)
         local texture, size = BulletFor(clip, hovered)
         self.iconWidget:SetTexture(texture)
         self.iconWidget:SetSize(size, size)
+        -- Queued clips keep their type glyphs, but in grayscale. Reset the
+        -- shader for the playing clip and the red remove icon on hover:
+        -- these texture widgets are reused as the queue advances.
+        local waiting = not isHead and not hovered
+        local supported
+        if self.iconWidget.SetDesaturated then
+            -- Vanilla 1.12 uses 1/nil rather than modern true/false.
+            supported = self.iconWidget:SetDesaturated(waiting and 1 or nil)
+        end
+        -- Older graphics hardware may lack the desaturation shader.
+        -- Use Blizzard's traditional dimmed fallback in that case.
+        local shade = waiting and not supported and 0.55 or 1
+        self.iconWidget:SetVertexColor(shade, shade, shade)
         if hovered then
             local r, g, b = unpack(RemoveColor)
             if pushed then r, g, b = r * 0.75, g * 0.75, b * 0.75 end

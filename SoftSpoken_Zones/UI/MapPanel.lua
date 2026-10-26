@@ -5,9 +5,8 @@ local M = SSZMapPanel
 local Compat = SSZMapCompat
 local L = SSZLoreWindow
 local P = SSZLorePage
-local Art = "Interface\\AddOns\\SoftSpoken_Zones\\Textures\\Art\\"
 local WIDTH, GAP = 338, 2
-local panel, page, toggle, rim
+local panel, page, toggle, pageInset
 local lastMapID, lastContinent, lastZone
 local ready = false
 local selectedMapID, selectedAreaKey, selectedCityID
@@ -23,46 +22,17 @@ local function Settings()
     return s
 end
 
--- Direct 1.12 adaptation of upstream Art.NineSlice("questlog-frame").
--- The nine pieces keep their original corner sizes, unlike a stretched border.
-local function NineSlice(frame)
-    local m = 56/214
-    local u = {0, .835938*m, .835938*(1-m), .835938}
-    local v = {0, .835938*m, .835938*(1-m), .835938}
-    local w = math.floor(107*m+.5)
-    local grid={}
-    for row=1,3 do
-        grid[row]={}
-        for col=1,3 do
-            local piece=frame:CreateTexture(nil,"OVERLAY")
-            piece:SetTexture(Art.."questlog-frame")
-            piece:SetTexCoord(u[col],u[col+1],v[row],v[row+1])
-            grid[row][col]=piece
-        end
-    end
-    local tl,tr,bl,br=grid[1][1],grid[1][3],grid[3][1],grid[3][3]
-    for _,corner in ipairs({tl,tr,bl,br}) do
-        corner:SetWidth(w);corner:SetHeight(w)
-    end
-    tl:SetPoint("TOPLEFT",frame,"TOPLEFT",0,0)
-    tr:SetPoint("TOPRIGHT",frame,"TOPRIGHT",0,0)
-    bl:SetPoint("BOTTOMLEFT",frame,"BOTTOMLEFT",0,0)
-    br:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",0,0)
-    local function Between(piece,first,a,second,b)
-        piece:SetPoint("TOPLEFT",first,a,0,0)
-        piece:SetPoint("BOTTOMRIGHT",second,b,0,0)
-    end
-    Between(grid[1][2],tl,"TOPRIGHT",tr,"BOTTOMLEFT")
-    Between(grid[3][2],bl,"TOPRIGHT",br,"BOTTOMLEFT")
-    Between(grid[2][1],tl,"BOTTOMLEFT",bl,"TOPRIGHT")
-    Between(grid[2][3],tr,"BOTTOMLEFT",br,"TOPRIGHT")
-    Between(grid[2][2],tl,"BOTTOMRIGHT",br,"TOPLEFT")
-    return grid
-end
-
 local function NewPanel()
     local frame=CreateFrame("Frame","SSZMapLorePanel",WorldMapFrame)
-    SSZUI.AddBorder(frame)
+    -- Share the Compendium's actual outer PortraitFrame metal and tiled rock,
+    -- not just the parchment inside it. In compact mode it has no portrait
+    -- or minimize button, and its native Close collapses the map attachment.
+    SSCPrototypeFrameSkin.Apply(frame,"Zone Lore",{
+        compact=true,
+        onClose=function() M.SetMapPanelCollapsed(true) end,
+    })
+    frame.title=frame.sszTitle
+    frame.close=frame.sszClose
     return frame
 end
 local function BuildPanel()
@@ -73,34 +43,24 @@ local function BuildPanel()
     end
     panel:SetWidth(WIDTH)
     panel:EnableMouse(true)
-    local title=panel:CreateFontString(nil,"ARTWORK","GameFontNormalLarge")
-    title:SetPoint("TOPLEFT",panel,"TOPLEFT",18,-13)
-    title:SetText("Zone Lore")
-    panel.title=title
-    local close=CreateFrame("Button",nil,panel,"UIPanelCloseButton")
-    close:SetPoint("TOPRIGHT",panel,"TOPRIGHT",-4,-4)
-    close:SetScript("OnClick",function() M.SetMapPanelCollapsed(true) end)
-    panel.close=close
-    local holder=CreateFrame("Frame",nil,panel)
-    holder:SetPoint("TOPLEFT",panel,"TOPLEFT",12,-40)
-    holder:SetPoint("BOTTOMRIGHT",panel,"BOTTOMRIGHT",-12,12)
-    page=P.CreateLorePage(holder,"log")
+    -- Use the SAME book-style parchment, silver inset and native scrollbar
+    -- housing as the Compendium's Places page. Only placement is map-specific.
+    -- Keep the map-only Open in Compendium button without maintaining a
+    -- separate quest-log renderer or decorative nine-slice.
+    pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
+        return P.CreateLorePage(holder,"book",nil,{openInCompendium=true,expandSubtitle=true})
+    end,{left=8,right=8,top=38,bottom=8})
     if SSZAudioButton and SSZAudioButton.Bind then SSZAudioButton.Bind(page.play) end
+    panel.pageInset=pageInset
     panel.page=page
-    rim=CreateFrame("Frame",nil,holder)
-    rim:SetPoint("TOPLEFT",holder,"TOPLEFT",-2,3)
-    rim:SetPoint("BOTTOMRIGHT",holder,"BOTTOMRIGHT",2,-3)
-    if rim.SetFrameLevel then rim:SetFrameLevel(holder:GetFrameLevel()+12) end
-    if SSZOriginalArt then
-        rim.pieces=NineSlice(rim)
-        local filigree=rim:CreateTexture(nil,"OVERLAY")
-        filigree:SetTexture(Art.."questlog-frame-filigree")
-        filigree:SetTexCoord(0,.75,0,.59375)
-        filigree:SetWidth(48);filigree:SetHeight(19)
-        filigree:SetPoint("TOP",rim,"TOP",0,1)
-        rim.filigree=filigree
+    -- Apply the final map frame level *after* constructing parchment and
+    -- scrollbar children. Their frame levels, and the decorative compact
+    -- trim (+10), must not sit above the native close button's hit target.
+    -- In particular, the visible X, its highlight and its OnClick handler
+    -- must all belong to the same highest button frame.
+    if panel.sszClose then
+        panel.sszClose:SetFrameLevel(panel:GetFrameLevel()+15)
     end
-    panel.rim=rim
     panel:Hide()
 end
 
@@ -172,19 +132,12 @@ local function ApplyAnchors()
         -- Crucially, WorldMapFrame itself is NEVER touched.
         panel:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",GAP,0)
         panel:SetPoint("BOTTOMLEFT",WorldMapFrame,"BOTTOMRIGHT",GAP,0)
-        -- Match the visible Spellbook metal housing to the map's right
-        -- border. The previous +8 x anchor left a visible gap; move the
-        -- housing 16px left while retaining its approved -75 y alignment.
         toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",-2,-75)
     else
         -- Fullscreen 1.12 and windowed maps too near the screen edge:
         -- leave the Blizzard map geometry alone and display an inset overlay.
         panel:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-28,-62)
         panel:SetPoint("BOTTOMRIGHT",WorldMapFrame,"BOTTOMRIGHT",-28,54)
-        -- Fullscreen maps need the entire clickable area within the screen.
-        -- Retain the inward inset, matching the native tab's 65px baseline.
-        -- In fullscreen, keep the toggle on-screen while retaining the
-        -- same vertical join to the parchment.
         toggle:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-35,-75)
     end
     return true
@@ -419,6 +372,12 @@ watch:SetScript("OnUpdate",function(self,dt)
     end
     if not WorldMapFrame:IsShown() then return end
     ApplyAnchors()
+    -- World Map height can change through anchor geometry without firing the
+    -- panel's OnSizeChanged on some 1.12 clients. Only redraw the compact
+    -- border when its measured width/height actually changed.
+    if panel and SSCPrototypeFrameSkin and SSCPrototypeFrameSkin.RefreshCompact then
+        SSCPrototypeFrameSkin.RefreshCompact(panel)
+    end
     local mapID,_,continent,zone=Compat.GetDisplayedMapID()
     if mapID~=lastMapID or continent~=lastContinent or zone~=lastZone then
         if Compat.ClearOverlayCache then Compat.ClearOverlayCache() end
