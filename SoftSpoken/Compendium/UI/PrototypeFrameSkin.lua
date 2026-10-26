@@ -104,8 +104,11 @@ local function Reflow(frame)
     -- title metal spans from right of portrait (x=64) to top-right corner (x=w-33).
     -- No portrait on compact attachments: connect the same title trim
     -- directly between the two top corners.
-    local titleStart = frame.sszCompactFrame and 32 or 64
-    local titleLength = frame.sszCompactFrame and (w-65) or (w-97)
+    -- Blizzard's real 32px TopLeftCorner anchors at x=-6: its right edge
+    -- is x=26. Join the native title bar there (not at the old mirrored
+    -- right-corner width of x=32), ending at the right corner's x=w-33.
+    local titleStart = frame.sszCompactFrame and 26 or 64
+    local titleLength = frame.sszCompactFrame and (w-59) or (w-97)
     tiled(frame,"ARTWORK",HORIZ,{0,1,0.4375,0.65625},true,
         titleStart,-1,titleLength,28)
     -- Tile the background of the title behind the visible top border.
@@ -115,12 +118,21 @@ local function Reflow(frame)
         tiled(frame,"BORDER",HORIZ,{0,1,0.671875,0.9609375},true,0,21,w-2,37)
     end
     -- Horizontal lower edge, from x=8 to (w - 11), aligned with 14px/11px corners.
-    tiled(frame,"BORDER",HORIZ,{0,1,0.203125,0.2734375},true,8,h-4,w-19,9)
-    -- Vertical borders use the original !UI-Frame atlas, 256px each repetition.
-    tiled(frame,"BORDER",VERT,{0.359375,0.609375,0,1},false,-6,
-        frame.sszCompactFrame and 32 or 67,
-        frame.sszCompactFrame and (h-39) or (h-74),16)
-    tiled(frame,"BORDER",VERT,{0.171875,0.328125,0,1},false,w-9,32,h-38,10)
+    -- Compact map attachments sit at the bottom edge of the World Map.
+    -- The normal frame deliberately extends its 14px and 11px bottom
+    -- corners five units below the frame, which can get clipped there.
+    -- Shift only the compact bottom rail/vertical ends up by five units to
+    -- meet its bottom corners entirely *inside* the map attachment.
+    if frame.sszCompactFrame then
+        tiled(frame,"BORDER",HORIZ,{0,1,0.203125,0.2734375},true,8,h-9,w-19,9)
+        tiled(frame,"BORDER",VERT,{0.359375,0.609375,0,1},false,-6,32,h-44,16)
+        tiled(frame,"BORDER",VERT,{0.171875,0.328125,0,1},false,w-9,32,h-43,10)
+    else
+        tiled(frame,"BORDER",HORIZ,{0,1,0.203125,0.2734375},true,8,h-4,w-19,9)
+        -- Preserve the proven full Compendium portrait-frame geometry.
+        tiled(frame,"BORDER",VERT,{0.359375,0.609375,0,1},false,-6,67,h-74,16)
+        tiled(frame,"BORDER",VERT,{0.171875,0.328125,0,1},false,w-9,32,h-38,10)
+    end
     for i = frame.sszSegmentUsed + 1, table.getn(frame.sszSegments) do
         frame.sszSegments[i]:Hide()
     end
@@ -153,13 +165,21 @@ function Skin.Apply(self, title, options)
     -- Window metal corners: exact coords from the older Blizzard UI-Frame atlas.
     fixed(self,"OVERLAY",FRAME,33,33,{0.6328125,0.890625,0.0078125,0.265625},"TOPRIGHT",0,1)
     if compact then
-        -- The normal left corner is covered by the Compendium portrait ring.
-        -- Mirror its matching right corner where the map has no portrait.
-        local left=fixed(self,"OVERLAY",FRAME,33,33,
-            {0.890625,0.6328125,0.0078125,0.265625},"TOPLEFT",0,1)
+        -- Authentic UI-Frame-TopLeftCorner (32x32), not a reversed
+        -- top-right crop. Match Blizzard's original top-left -6,+1 anchor.
+        fixed(self,"OVERLAY",FRAME,32,32,
+            {0.6328125,0.8828125,0.28125,0.53125},"TOPLEFT",-6,1)
+        -- The original bottom-corner slices already existed, but BORDER
+        -- let later border strips obscure them. Raise them to OVERLAY and
+        -- keep their full shapes within the map panel's clipped bounds.
+        fixed(self,"OVERLAY",FRAME,14,14,
+            {0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,0)
+        fixed(self,"OVERLAY",FRAME,11,11,
+            {0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,0)
+    else
+        fixed(self,"BORDER",FRAME,14,14,{0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,-5)
+        fixed(self,"BORDER",FRAME,11,11,{0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,-5)
     end
-    fixed(self,"BORDER",FRAME,14,14,{0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,-5)
-    fixed(self,"BORDER",FRAME,11,11,{0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,-5)
 
     if not compact then
     self.sszPortraitSlices = circularIcon(
