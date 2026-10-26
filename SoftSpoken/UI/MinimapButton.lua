@@ -312,7 +312,7 @@ function Minimap:Setup()
 
     ldbObject = LibDataBroker:NewDataObject("Spoken", {
         type = "launcher",
-        text = "Spoken",
+        text = "SoftSpoken",
         icon = ICON,
         OnClick = function(button, mouseButton)
             -- Blizzard's compartment calls the registered entry with its own menu frame,
@@ -347,7 +347,7 @@ function Minimap:Setup()
                 tooltip:Hide()
                 return
             end
-            tooltip:SetText("Spoken")
+            tooltip:SetText("SoftSpoken")
             local head = SoundQueue:GetCurrentSound()
             if head and head.present then
                 tooltip:AddLine(head.present.header or "", 1, 0.82, 0)

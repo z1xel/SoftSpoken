@@ -904,8 +904,12 @@ function List:DrawRows()
                 b.toggle:SetPoint("LEFT",b,"LEFT",8+indent,0)
                 local count=item.count or 0
                 local onlyFound=self.opts.onlyGet and self.opts.onlyGet()
+                -- Stories displays completions but tracks discoveries separately.
+                -- When filtering to discovered entries, use discovery progress
+                -- to decide whether a branch has an active expand/collapse icon.
+                local discovered=item.found or count
                 if ((item.total or count)>0) and not item.locked and
-                   not (onlyFound and count==0) then
+                   not (onlyFound and discovered==0) then
                     b.toggle:SetTexture(item.open and
                         "Interface\\Buttons\\UI-MinusButton-Up" or
                         "Interface\\Buttons\\UI-PlusButton-Up")
