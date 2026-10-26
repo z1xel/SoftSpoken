@@ -617,7 +617,11 @@ function C.NewList(panel,opts)
     end
     -- Make callbacks with arguments captured per function call for Lua 5.0.
     local function ToggleCheck(check)
-        return function() check.set(not check.get());Changed() end
+        return function()
+            if check.disabled and check.disabled() then return end
+            check.set(not check.get())
+            Changed()
+        end
     end
     filterMenuSerial=filterMenuSerial+1
     local menuName=NAME.."FilterMenu"..filterMenuSerial
@@ -636,6 +640,7 @@ function C.NewList(panel,opts)
                 local info=UIDropDownMenu_CreateInfo()
                 info.text=check.label;info.isNotRadio=1;info.keepShownOnClick=1
                 info.checked=check.get() and 1 or nil
+                info.disabled=check.disabled and check.disabled() and 1 or nil
                 info.func=ToggleCheck(check)
                 UIDropDownMenu_AddButton(info)
             end
