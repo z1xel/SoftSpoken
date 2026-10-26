@@ -103,6 +103,17 @@ function Page:FitDecorations()
 end
 
 function Page:Resize(resetScroll)
+    -- The attached World Map reader is much narrower than the Compendium.
+    -- Let its breadcrumb/subtitle consume a second line when necessary,
+    -- instead of letting wrapped text cross the divider. Compendium pages
+    -- retain their original fixed 16-unit subtitle geometry.
+    if self.expandSubtitle and self.sub and self.sub.text and self.sub:IsShown() then
+        local width=self.sub:GetWidth() or 0
+        if width>50 then
+            local height=self.sub.text:GetStringHeight() or 16
+            self.sub:SetHeight(math.max(16,math.ceil(height)+2))
+        end
+    end
     self:FitDecorations()
     if self.body then self.body:Reflow(resetScroll) end
 end
@@ -155,7 +166,8 @@ end
 
 function P.CreateLorePage(parent,style,left,options)
     local page=setmetatable({style=style or "book",
-        inset=INSET[style] or INSET.book},Page)
+        inset=INSET[style] or INSET.book,
+        expandSubtitle=options and options.expandSubtitle==true},Page)
     local frame=CreateFrame("Frame",nil,parent)
     -- The caller supplies a page holder inside the right-hand inset.
     frame:SetAllPoints(parent)
