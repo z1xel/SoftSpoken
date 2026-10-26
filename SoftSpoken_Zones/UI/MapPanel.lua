@@ -362,6 +362,12 @@ watch:SetScript("OnUpdate",function(self,dt)
     end
     if not WorldMapFrame:IsShown() then return end
     ApplyAnchors()
+    -- World Map height can change through anchor geometry without firing the
+    -- panel's OnSizeChanged on some 1.12 clients. Only redraw the compact
+    -- border when its measured width/height actually changed.
+    if panel and SSCPrototypeFrameSkin and SSCPrototypeFrameSkin.RefreshCompact then
+        SSCPrototypeFrameSkin.RefreshCompact(panel)
+    end
     local mapID,_,continent,zone=Compat.GetDisplayedMapID()
     if mapID~=lastMapID or continent~=lastContinent or zone~=lastZone then
         if Compat.ClearOverlayCache then Compat.ClearOverlayCache() end
