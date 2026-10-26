@@ -104,13 +104,3 @@ function B:SetupSource()
     end
     return self.source
 end
-
--- One player-facing shortcut for the Books tab of Azeroth's Compendium.
-SLASH_SOFTSPOKENBOOKS1 = "/ssb"
-SlashCmdList["SOFTSPOKENBOOKS"] = function()
-    if B.ShowReadables then
-        B:ShowReadables()
-    else
-        B:Print("Books Compendium requires SoftSpoken (shared Compendium)")
-    end
-end

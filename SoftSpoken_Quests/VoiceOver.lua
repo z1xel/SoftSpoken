@@ -195,7 +195,7 @@ function Addon:ShowMissingDataModulePopup()
         end
     end
     local details = next(loadDetails) and ("|n|nDetected but not loaded:|n" .. table.concat(loadDetails, "|n")) or ""
-    local text = [[No usable sound packs were loaded.|n|nKeep a sound pack installed beside this addon - "Spoken Audio: Quests", or the older "AI_VoiceOverData_Vanilla". Run "/spq diagnostics" for details.]] .. details
+    local text = [[No usable sound packs were loaded.|n|nKeep a sound pack installed beside this addon - "Spoken Audio: Quests", or the older "AI_VoiceOverData_Vanilla". Open SoftSpoken Settings > Quests > Fix a Problem and use Diagnostics for details.]] .. details
     if IsGamepadUI() then
         Say(text)
         return
@@ -731,16 +731,6 @@ function Addon:OnInitialize()
         else
             Debug:Record("auto-watcher-install-failed", tostring(tickerOrError))
         end
-    end
-
-    local slashInstalled, slashError = pcall(function()
-        _G.SLASH_SPOKENQUESTSREAD1 = "/spqread"
-        _G.SlashCmdList.SPOKENQUESTSREAD = function()
-            self:ReadVisibleQuest("/spqread")
-        end
-    end)
-    if not slashInstalled then
-        Debug:Record("standalone-slash-failed", tostring(slashError))
     end
 
     self.eventBridgeErrors = {}

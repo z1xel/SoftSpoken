@@ -120,81 +120,6 @@ local DataModulesTab =
 }
 
 ---@type AceConfigOptionsTable
-local SlashCommands = {
-    type = "group",
-    name = L.OPT_CMD_GROUP,
-    order = 110,
-    inline = true,
-    dialogHidden = true,
-    -- Stop or Replay and Stop All are Spoken's (/sp replay, /sp stopall), not repeated here.
-    args = {
-        Skip = {
-            type = "execute",
-            order = 4,
-            name = L.OPT_CMD_SKIP,
-            desc = L.OPT_CMD_SKIP_DESC,
-            func = function(info)
-                if Spoken then Spoken:Skip() end
-            end
-        },
-        Read = {
-            type = "execute",
-            order = 70,
-            name = L.OPT_CMD_READ,
-            desc = L.OPT_CMD_READ_DESC,
-            dropdownHidden = true,
-            func = function(info)
-                if not Addon:ReadVisibleQuest("/spq read") then
-                    print("|cFFFF4040Spoken Quests: no visible quest detail, progress, reward, greeting, or gossip panel was found.|r")
-                end
-            end
-        },
-        Test = {
-            type = "execute",
-            order = 80,
-            name = L.OPT_CMD_TEST,
-            desc = L.OPT_CMD_TEST_DESC,
-            dropdownHidden = true,
-            func = function() Options:RunSelfTest() end
-        },
-        Followup = {
-            type = "input",
-            order = 85,
-            name = L.OPT_CMD_FOLLOWUP,
-            desc = L.OPT_CMD_FOLLOWUP_DESC,
-            dropdownHidden = true,
-            guiHidden = true,
-            get = function() return "" end,
-            set = function(info, value) Followup:Simulate(value) end
-        },
-        Diagnostics = {
-            type = "execute",
-            order = 90,
-            name = L.OPT_CMD_DIAG,
-            desc = L.OPT_CMD_DIAG_DESC,
-            dropdownHidden = true,
-            func = function() Options:PrintDiagnostics() end
-        },
-        -- The settings page where the client has one, and the window where it has not.
-        Options = {
-            type = "execute",
-            order = 100,
-            name = L.OPT_CMD_OPTIONS,
-            desc = L.OPT_CMD_OPTIONS_DESC,
-            func = function(info) Options:OpenSettings() end
-        },
-        Settings = {
-            type = "execute",
-            order = 101,
-            name = L.OPT_CMD_OPTIONS,
-            desc = L.OPT_CMD_OPTIONS_DESC,
-            hidden = true,
-            func = function(info) Options:OpenSettings() end
-        },
-    }
-}
-
----@type AceConfigOptionsTable
 Options.table = {
     name = "Spoken Quests",
     type = "group",
@@ -204,7 +129,6 @@ Options.table = {
         DataModules = DataModulesTab,
         Profiles = nil, -- Filled in Options:OnInitialize, order is implicitly 100
 
-        SlashCommands = SlashCommands,
     }
 }
 ------------------------------------------------------------
@@ -302,8 +226,7 @@ end
 
 ---Initialization of opens panel
 --- Play a known line the way a real one goes: through the player, on the configured
---- channel. Called by `/spq test` and by the button on the settings panel, so the two
---- cannot answer differently.
+--- channel. Called by the Quests Settings self-test button.
 function Options:RunSelfTest()
             local soundData = {
                 event = Enums.SoundEvent.QuestAccept,
@@ -311,7 +234,7 @@ function Options:RunSelfTest()
                 name = "Spoken Quests self-test",
                 title = "Spoken Quests self-test",
                 text = "Spoken Quests self-test",
-                origin = "/spq test",
+                origin = "Quests Settings: Test Voice Line",
             }
             if not DataModules:PrepareSound(soundData) then
                 Debug:Record("self-test-data-failed", "The Vanilla Data module did not provide the known 3441-accept test sound")
@@ -410,12 +333,9 @@ function Options:Initialize()
         -- Embedded version for 1.12
         AceConfig = Addon
     end
-    RunOptionalStep("AceConfig slash registration", function()
-        -- A table, not a string: AceConfig registers each as a slash command for the same
-        -- options table. The pre-rename "vo" is not among them: the addon answers to one
-        -- name, and a command that still worked would keep the retired one alive in macros
-        -- and in what players tell each other.
-        AceConfig:RegisterOptionsTable("SpokenQuests", self.table, { "spokenquests", "spq" })
+    RunOptionalStep("AceConfig table registration (no chat commands)", function()
+        -- Keep the table for the old AceGUI emergency fallback, not for slash routing.
+        AceConfig:RegisterOptionsTable("SpokenQuests", self.table)
     end)
     -- Turtle WoW 1.12 has no modern Settings canvas. Use the existing
     -- AceConfig/AceGUI window for settings, modules, and profiles.

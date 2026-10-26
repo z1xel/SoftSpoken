@@ -369,6 +369,16 @@ function Spoken:AddSettingsLink(text, onClick)
     Options:AddLink(text, onClick)
 end
 
+--- Open/close the shared Compendium when it has a usable tab, from either
+--- the minimap, keybinding, or /compendium. One action means consistent gating.
+function Spoken:ToggleCompendium()
+    local compendium = _G.SSCCompendium or _G.SpokenZones112Compendium or _G.SpokenCompendium
+    if not (compendium and compendium.Toggle) then return false end
+    if compendium.Available and not compendium:Available() then return false end
+    compendium:Toggle()
+    return true
+end
+
 --- Menu entries for the one minimap button. entry = { id, text, icon, order, onClick,
 --- tooltip, visible }.
 Spoken.Minimap = {}

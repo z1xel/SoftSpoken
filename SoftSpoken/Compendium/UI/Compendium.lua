@@ -963,9 +963,3 @@ end
 function List:Matches(text)
     return self.filter=="" or (text and string.find(string.lower(text),self.filter,1,true)~=nil)
 end
-
--- The one player-facing command: always open the Places compendium.
-SLASH_SOFTSPOKENZONES1 = "/ssz"
-SlashCmdList["SOFTSPOKENZONES"] = function()
-    C:Open("places")
-end
