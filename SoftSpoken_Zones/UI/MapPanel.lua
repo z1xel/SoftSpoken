@@ -53,6 +53,14 @@ local function BuildPanel()
     if SSZAudioButton and SSZAudioButton.Bind then SSZAudioButton.Bind(page.play) end
     panel.pageInset=pageInset
     panel.page=page
+    -- Apply the final map frame level *after* constructing parchment and
+    -- scrollbar children. Their frame levels, and the decorative compact
+    -- trim (+10), must not sit above the native close button's hit target.
+    -- In particular, the visible X, its highlight and its OnClick handler
+    -- must all belong to the same highest button frame.
+    if panel.sszClose then
+        panel.sszClose:SetFrameLevel(panel:GetFrameLevel()+15)
+    end
     panel:Hide()
 end
 
