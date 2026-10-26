@@ -525,7 +525,8 @@ end
 function B:RefreshReadablesPlayback()
     voiced={}
     hasVoicePacks=nil
-    if list then B:RefreshReadables() end
+    -- This also runs for routine audio events: do not rebuild the entire
+    -- catalogue on every play/stop. The next list refresh checks packs again.
     if page and page.play and page.play.Refresh then page.play:Refresh() end
 end
 local function Build(panelFrame)
