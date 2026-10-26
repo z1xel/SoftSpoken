@@ -37,6 +37,11 @@ frame:SetScript("OnEvent", function(self, firedEvent, a, b, c)
         if Spoken.ImportLegacyCaptionPreference then
             Spoken:ImportLegacyCaptionPreference(CharDB().settings.captions)
         end
+        -- The native Vanilla world-map icon distinguishes Places narration
+        -- from Stories and Writings in both the head and queued rows.
+        if Spoken.RegisterBullet then
+            Spoken:RegisterBullet("zone", [[Interface\WorldMap\WorldMap-Icon]], 14)
+        end
         R.source = Spoken:GetSource("zones")
         if not R.source then
             R.source = Spoken:RegisterSource("zones", {

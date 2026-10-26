@@ -152,6 +152,7 @@ local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay)
         present = {
             header = zoneName,
             label = areaLabel,
+            bullet = "zone",
             -- Supply content only. The shared player owns whether/how to show it.
             transcript = transcript,
             portrait = PlacePortrait(mapID, areaKey),

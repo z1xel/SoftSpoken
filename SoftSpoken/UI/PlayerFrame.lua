@@ -332,14 +332,14 @@ function PlayerFrame:LayoutCaptions()
     self.frame.background:SetPoint("BOTTOMRIGHT")
 end
 
-local function BulletFor(clip, isHead, hovered)
+local function BulletFor(clip, hovered)
     if hovered then
         return TEXTURES .. "SoundQueueBulletDelete", 14
     end
-    if isHead then
-        local bullet = Bullets[clip.present and clip.present.bullet]
-        if bullet then return bullet.texture, bullet.size or 14 end
-    end
+    -- Keep each audio type visible while it waits in the queue, not just
+    -- when the clip reaches the head. Unknown types retain the queue dot.
+    local bullet = Bullets[clip.present and clip.present.bullet]
+    if bullet then return bullet.texture, bullet.size or 14 end
     return TEXTURES .. "SoundQueueBulletQueue", 22
 end
 
@@ -396,7 +396,7 @@ function PlayerFrame:CreateRow(i)
         self:SetWidth(math.min(WidthOf(self:GetParent()), 16 + 5 + self.textWidget:GetWidth() + 1))
         self.textWidget:SetPoint("RIGHT")
 
-        local texture, size = BulletFor(clip, isHead, hovered)
+        local texture, size = BulletFor(clip, hovered)
         self.iconWidget:SetTexture(texture)
         self.iconWidget:SetSize(size, size)
         if hovered then
