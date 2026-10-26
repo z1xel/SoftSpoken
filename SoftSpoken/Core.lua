@@ -302,7 +302,7 @@ function Addon:Enable()
     -- These are the ONLY public SoftSpoken chat commands. Playback and
     -- debugging have in-game controls, keybindings, or internal APIs instead.
     -- Register slash aliases globally: the implementation runs in SpokenEnv.
-    _G.SLASH_SPOKEN1 = "/spoken"
+    _G.SLASH_SPOKEN1 = "/softspoken"
     SlashCmdList.SPOKEN = function() Options:Open() end
 
     _G.SLASH_SPOKENCOMPENDIUM1 = "/compendium"
