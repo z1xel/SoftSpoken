@@ -175,7 +175,7 @@ local function ApplyAnchors()
         -- Match the visible Spellbook metal housing to the map's right
         -- border. The previous +8 x anchor left a visible gap; move the
         -- housing 16px left while retaining its approved -75 y alignment.
-        toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",-4,-75)
+        toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",-2,-75)
     else
         -- Fullscreen 1.12 and windowed maps too near the screen edge:
         -- leave the Blizzard map geometry alone and display an inset overlay.
