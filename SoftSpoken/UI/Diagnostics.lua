@@ -49,6 +49,7 @@ local function Build()
 
     edit = CreateFrame("EditBox", nil, content)
     edit:SetMultiLine(true)
+    edit:SetMaxLetters(0) -- Full diagnostic reports can exceed the default input limit.
     edit:SetAutoFocus(false)
     edit:SetFontObject("ChatFontNormal")
     edit:SetWidth(470)
@@ -78,11 +79,16 @@ function DiagnosticsViewer:Show(title, lines)
     if type(lines) == "table" then
         local formatted = {}
         for _, line in ipairs(lines) do
-            table.insert(formatted, tostring(line))
+            local plain = tostring(line)
+            plain = string.gsub(plain, "|c%x%x%x%x%x%x%x%x", "")
+            plain = string.gsub(plain, "|r", "")
+            table.insert(formatted, plain)
         end
         text = table.concat(formatted, "\n")
     else
         text = tostring(lines or "No diagnostics available.")
+        text = string.gsub(text, "|c%x%x%x%x%x%x%x%x", "")
+        text = string.gsub(text, "|r", "")
     end
     if text == "" then text = "No diagnostics available." end
     heading:SetText(title or "SoftSpoken Diagnostics")
