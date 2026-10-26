@@ -48,7 +48,7 @@ local function BuildPanel()
     -- Keep the map-only Open in Compendium button without maintaining a
     -- separate quest-log renderer or decorative nine-slice.
     pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
-        return P.CreateLorePage(holder,"book",nil,{openInCompendium=true})
+        return P.CreateLorePage(holder,"book",nil,{openInCompendium=true,expandSubtitle=true})
     end,{left=8,right=8,top=38,bottom=8})
     if SSZAudioButton and SSZAudioButton.Bind then SSZAudioButton.Bind(page.play) end
     panel.pageInset=pageInset
