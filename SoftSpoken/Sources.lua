@@ -23,6 +23,8 @@ SourceMethods.__index = SourceMethods
 ---@field onQueueEnter? fun()
 ---@field onQueueEmpty? fun()
 ---@field packs? fun():string[] -- the voice packs this source found installed, by name
+---@field hasUsablePacks? fun():boolean -- registered audio, not just pack metadata
+---@field voicePacksPending? fun():boolean -- initial deferred pack loading not complete
 
 ---@param key string
 ---@param info SpokenSourceInfo
@@ -43,6 +45,8 @@ function Sources:Register(key, info)
         onQueueEnter = info.onQueueEnter,
         onQueueEmpty = info.onQueueEmpty,
         packs = info.packs,
+        hasUsablePacks = info.hasUsablePacks,
+        voicePacksPending = info.voicePacksPending,
         -- A part's settings kept in AceDB profiles: a function returning its AceDB object, so
         -- Spoken's own Profiles section switches it with the player's (Options:ProfileDBs).
         profiles = info.profiles,

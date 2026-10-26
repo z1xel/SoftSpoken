@@ -287,6 +287,18 @@ function Addon:Enable()
     Minimap:Setup()
     Options:Setup()
 
+    -- Wait until feature addons have registered their sources and Quests'
+    -- deferred load-on-demand packs have finished. Only SoftSpoken decides
+    -- whether to show the one missing-voice-pack warning for this login.
+    local voicePackCheckAttempts = 0
+    local function CheckVoicePacksAfterLogin()
+        voicePackCheckAttempts = voicePackCheckAttempts + 1
+        if Spoken:CheckMissingVoicePacks() == false and voicePackCheckAttempts < 6 then
+            Addon:ScheduleTimer(CheckVoicePacksAfterLogin, 2)
+        end
+    end
+    self:ScheduleTimer(CheckVoicePacksAfterLogin, 3)
+
     -- Through _G, not bare. Every file here runs inside a private environment whose
     -- metatable falls back to _G: reads fall through, writes do not. A bare assignment
     -- lands in the environment, and the client never hears of the command.

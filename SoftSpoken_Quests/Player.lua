@@ -503,6 +503,11 @@ function Player:Setup()
         profiles = function() return Addon.db end,
         -- Printed after Spoken's own by its Show Diagnostics.
         diagnostics = function() Options:PrintDiagnostics() end,
+        -- Quests' installed-pack inventory can include load-on-demand addons
+        -- whose recordings failed to register. The core's startup warning
+        -- must use the registered data, not the merely installed list.
+        hasUsablePacks = function() return DataModules:HasRegisteredModules() end,
+        voicePacksPending = function() return Addon.dataModulesPending end,
         -- What Spoken's settings show on this part's card: which voice packs are installed.
         packs = function()
             local names = {}
