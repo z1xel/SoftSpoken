@@ -172,9 +172,12 @@ local function ApplyAnchors()
         -- Crucially, WorldMapFrame itself is NEVER touched.
         panel:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",GAP,0)
         panel:SetPoint("BOTTOMLEFT",WorldMapFrame,"BOTTOMRIGHT",GAP,0)
-        -- Blizzard's first Spellbook tab is tucked 32px into its window,
-        -- 65px below the top, so the metal art bridges the outside edge.
-        toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",-32,-65)
+        -- The 64x64 Spellbook atlas is mostly transparent beyond its metal
+        -- bezel. A -32 anchor puts the VISIBLE tab 40px inside the map.
+        -- Anchor the button 8px outside instead: the bezel overlaps the
+        -- map's right frame by ~2px and projects to the right like Spellbook.
+        -- At -75 the top of the bezel meets the parchment/header joint.
+        toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",8,-75)
     else
         -- Fullscreen 1.12 and windowed maps too near the screen edge:
         -- leave the Blizzard map geometry alone and display an inset overlay.
@@ -182,7 +185,9 @@ local function ApplyAnchors()
         panel:SetPoint("BOTTOMRIGHT",WorldMapFrame,"BOTTOMRIGHT",-28,54)
         -- Fullscreen maps need the entire clickable area within the screen.
         -- Retain the inward inset, matching the native tab's 65px baseline.
-        toggle:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-35,-65)
+        -- In fullscreen, keep the toggle on-screen while retaining the
+        -- same vertical join to the parchment.
+        toggle:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-35,-75)
     end
     return true
 end
