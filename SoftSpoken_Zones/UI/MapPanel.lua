@@ -105,22 +105,24 @@ local function BuildPanel()
 end
 
 local function BuildToggle()
-    -- Upstream's 1.12-safe action slot fallback. This belongs to the MAP,
-    -- never the collapsed panel, so it remains available when panel is closed.
+    -- Reproduce Blizzard 1.12's SpellBookSkillLineTabTemplate, rather than
+    -- framing this as an action-bar slot. Keep the independent map toggle
+    -- parent/click handler so it still opens the lore panel when collapsed.
     toggle=CreateFrame("Button","SSZMapLoreToggle",WorldMapFrame)
     if toggle.SetFrameLevel and WorldMapFrame.GetFrameLevel then
         toggle:SetFrameLevel(WorldMapFrame:GetFrameLevel() + 36)
     end
-    toggle:SetWidth(40);toggle:SetHeight(40)
+    toggle:SetWidth(32);toggle:SetHeight(32)
+    -- Stock SpellBookFrame.xml: a 64x64 metal side-tab texture anchored
+    -- (-3,+11) from a 32x32 button, with the game icon above it.
+    local housing=toggle:CreateTexture(nil,"BACKGROUND")
+    housing:SetTexture("Interface\\SpellBook\\SpellBook-SkillLineTab")
+    housing:SetWidth(64);housing:SetHeight(64)
+    housing:SetPoint("TOPLEFT",toggle,"TOPLEFT",-3,11)
     local icon=toggle:CreateTexture(nil,"ARTWORK")
     icon:SetAllPoints(toggle)
     icon:SetTexture("Interface\\AddOns\\SoftSpoken\\Textures\\INV_Misc_Map02.tga")
     icon:SetTexCoord(.08,.92,.08,.92)
-    local border=toggle:CreateTexture(nil,"OVERLAY")
-    border:SetTexture("Interface\\Buttons\\UI-Quickslot2")
-    border:SetWidth(74);border:SetHeight(74)
-    border:SetPoint("CENTER",toggle,"CENTER")
-    toggle:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")
     toggle:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square","ADD")
     -- Original UI remains full-screen on 1.12: put the reopen button within it.
     -- ApplyAnchors positions the toggle together with its panel.
@@ -170,13 +172,17 @@ local function ApplyAnchors()
         -- Crucially, WorldMapFrame itself is NEVER touched.
         panel:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",GAP,0)
         panel:SetPoint("BOTTOMLEFT",WorldMapFrame,"BOTTOMRIGHT",GAP,0)
-        toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",-2,-40)
+        -- Blizzard's first Spellbook tab is tucked 32px into its window,
+        -- 65px below the top, so the metal art bridges the outside edge.
+        toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",-32,-65)
     else
         -- Fullscreen 1.12 and windowed maps too near the screen edge:
         -- leave the Blizzard map geometry alone and display an inset overlay.
         panel:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-28,-62)
         panel:SetPoint("BOTTOMRIGHT",WorldMapFrame,"BOTTOMRIGHT",-28,54)
-        toggle:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-35,-62)
+        -- Fullscreen maps need the entire clickable area within the screen.
+        -- Retain the inward inset, matching the native tab's 65px baseline.
+        toggle:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-35,-65)
     end
     return true
 end
