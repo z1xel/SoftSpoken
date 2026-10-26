@@ -13,8 +13,8 @@ setfenv(1, SpokenEnv)
 --   ShowMenu(anchor)          the menu a Report button's right-click opens
 --   MenuHint()                the tooltip line saying so, or nil
 --   SwitchLabel(), SwitchTip() the welcome window's switch
---   Command(rest)             `/spoken log <rest>`
---   Describe()                one line for `/spoken diagnostics`
+--   Command(rest)             internal developer provider hook (no public slash command)
+--   Describe()                a concise internal diagnostic summary
 --
 -- Parsed by the 1.12 client too (addon.xml is shared), so Lua 5.0 syntax throughout.
 
@@ -87,28 +87,26 @@ function Developer:AddDiagnostics(name, fn)
     table.insert(self.diagnostics, { name = name, fn = fn })
 end
 
-local function Join(a, b, c, d)
-    local parts = {}
-    if a ~= nil then table.insert(parts, tostring(a)) end
-    if b ~= nil then table.insert(parts, tostring(b)) end
-    if c ~= nil then table.insert(parts, tostring(c)) end
-    if d ~= nil then table.insert(parts, tostring(d)) end
-    return table.concat(parts, " ")
-end
-
---- What `/spoken diagnostics` prints, as lines rather than in chat: the command itself runs, with
---- `print` caught for the time it takes, so the two never say different things.
+-- Build the same diagnostic summary directly from the runtime. Diagnostics
+-- must never depend on public slash commands or temporarily hijack chat print.
 local function SpokenLines(lines)
-    local command = SlashCmdList and SlashCmdList.SPOKEN
-    if not command then
+    if not (Addon and Addon.db and Spoken and SoundQueue) then
         table.insert(lines, "Spoken " .. tostring(AddonVersion) .. ": not enabled yet")
         return
     end
-    local saved = rawget(SpokenEnv, "print")
-    SpokenEnv.print = function(a, b, c, d) table.insert(lines, Join(a, b, c, d)) end
-    local ok, err = pcall(command, "diagnostics")
-    SpokenEnv.print = saved
-    if not ok then table.insert(lines, "diagnostics error: " .. tostring(err)) end
+    table.insert(lines, format("Spoken %s, API %d, %d queued, %s", AddonVersion,
+        Spoken.API_VERSION, SoundQueue:GetQueueSize(),
+        SoundQueue:IsPaused() and "paused" or "playing"))
+    table.insert(lines, "  " .. (Developer:Call("Describe") or
+        "debug log: no Spoken Developer module"))
+    for key, source in Sources:Iterate() do
+        table.insert(lines, format("  source %s (%s)", key, source.addon or "?"))
+    end
+    for _, line in ipairs(PlayerFrame:Describe()) do table.insert(lines, "  " .. line) end
+    table.insert(lines, "  " .. Transcript:Describe())
+    for _, err in ipairs(Callbacks.errors) do
+        table.insert(lines, "  callback error: " .. err)
+    end
 end
 
 --- The state an agent needs and the diagnostics leave out: the client, the narrator, the sound

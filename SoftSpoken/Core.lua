@@ -276,8 +276,8 @@ function Addon:SeedCompendiumBinding()
     self.db.global.CompendiumKeySeeded = true
 end
 
---- Everything that needs the world: the frame, the button, the settings, the slash
---- command. Idempotent, so the harness and PLAYER_LOGIN can both call it.
+--- Initialize the player's UI and its two public commands. Idempotent, so
+--- the harness and PLAYER_LOGIN can both call it.
 function Addon:Enable()
     if self.enabled then return end
     self:InitDB()
@@ -299,71 +299,14 @@ function Addon:Enable()
     end
     self:ScheduleTimer(CheckVoicePacksAfterLogin, 3)
 
-    -- Through _G, not bare. Every file here runs inside a private environment whose
-    -- metatable falls back to _G: reads fall through, writes do not. A bare assignment
-    -- lands in the environment, and the client never hears of the command.
-    -- One scheme across the three addons: the long name and a two-or-three letter short
-    -- form. /sp here, /spq for quests, /spz for zones.
+    -- These are the ONLY public SoftSpoken chat commands. Playback and
+    -- debugging have in-game controls, keybindings, or internal APIs instead.
+    -- Register slash aliases globally: the implementation runs in SpokenEnv.
     _G.SLASH_SPOKEN1 = "/spoken"
-    _G.SLASH_SPOKEN2 = "/sp"
-    SlashCmdList.SPOKEN = function(input)
-        local command = strlower(strtrim(input or ""))
-        if command == "play" or command == "pause" or command == "" then
-            SoundQueue:TogglePauseQueue()
-        elseif command == "stop" then
-            SoundQueue:RemoveAllSoundsFromQueue()
-        elseif command == "skip" then
-            SoundQueue:Skip()
-        elseif command == "compendium" then
-            -- Use the same available/visible action as the minimap, so
-            -- the keyboard shortcut and button always behave alike.
-            local entry = Minimap:FindEntry("Compendium")
-            if entry and entry.onClick then entry.onClick() end
-        elseif command == "transcript" then
-            Transcript:SetEnabled(not Addon.db.profile.Transcript.Enabled)
-        elseif command == "transcript on" then
-            Transcript:SetEnabled(true)
-        elseif command == "transcript off" then
-            Transcript:SetEnabled(false)
-        elseif command == "transcript reset" then
-            Transcript:Reset()
-        elseif command == "transcript 1" or command == "transcript 2" then
-            Addon.db.profile.Transcript.Lines = tonumber(string.sub(command, -1))
-            Transcript:RefreshConfig()
-        elseif command == "player classic" or command == "player none" then
-            Addon:SetPlayerStyle(string.sub(command, 8))
-            PlayerFrame:RefreshConfig()
-            Transcript:RefreshConfig()
-        elseif command == "options" or command == "settings" then
-            Options:Open()
-        elseif command == "share" and Gather then
-            Spoken:ShowGatherInstructions()
-        elseif command == "reset" then
-            PlayerFrame:Reset()
-            -- Not on 1.12, which has no captions and so no subtitles to move.
-            if Subtitle then Subtitle:Reset() end
-        elseif command == "log" or string.find(command, "^log ") then
-            -- The debug log is the Spoken_Developer module's; this only hands the words on.
-            local _, _, rest = string.find(command, "^log%s*(.-)$")
-            if Developer.provider then
-                Developer:Call("Command", rest)
-            else
-                print("Spoken: the debug log comes with the Spoken Developer module, which is not installed")
-            end
-        elseif command == "diagnostics" then
-            print(format("Spoken %s, API %d, %d queued, %s", AddonVersion, Spoken.API_VERSION,
-                SoundQueue:GetQueueSize(), SoundQueue:IsPaused() and "paused" or "playing"))
-            print("  " .. (Developer:Call("Describe") or "debug log: no Spoken Developer module"))
-            for key, source in Sources:Iterate() do
-                print(format("  source %s (%s)", key, source.addon or "?"))
-            end
-            for _, line in ipairs(PlayerFrame:Describe()) do print("  " .. line) end
-            print("  " .. Transcript:Describe())
-            for _, err in ipairs(Callbacks.errors) do print("  callback error: " .. err) end
-        else
-            print("Spoken: /spoken play | stop | skip | compendium | player [classic|none] | transcript [on|off|1|2|reset] | log | options | reset | diagnostics")
-        end
-    end
+    SlashCmdList.SPOKEN = function() Options:Open() end
+
+    _G.SLASH_SPOKENCOMPENDIUM1 = "/compendium"
+    SlashCmdList.SPOKENCOMPENDIUM = function() Spoken:ToggleCompendium() end
     self:SeedCompendiumBinding()
 end
 

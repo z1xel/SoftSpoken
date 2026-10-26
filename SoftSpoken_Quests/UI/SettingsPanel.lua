@@ -185,7 +185,7 @@ function SettingsPanel:Build()
     layout:Columns(2)
     layout:Button("Test Voice Line", 200, function() Options:RunSelfTest() end,
         "Play the Quests module's existing audio self-test.")
-    layout:Button("Diagnostics", 200, function() Options:PrintDiagnostics() end,
+    layout:Button("Diagnostics", 200, function() Options:ShowDiagnostics() end,
         "Print the existing Quests diagnostic report.")
     layout:Columns(nil)
 

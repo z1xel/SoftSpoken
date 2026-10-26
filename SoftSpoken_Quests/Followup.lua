@@ -334,58 +334,6 @@ local function TitleFor(questID)
     return title or (GetTitleText and NotSecret(GetTitleText())) or nil
 end
 
--- The event each exported chat label arrives as, for /spq followup to replay it through.
-local CHAT_EVENTS = {
-    say = "CHAT_MSG_MONSTER_SAY",
-    yell = "CHAT_MSG_MONSTER_YELL",
-    whisper = "CHAT_MSG_MONSTER_WHISPER",
-}
-
---- `/spq followup <questID> [start]`: arm the quest as if it had just been turned in (or
---- accepted) and replay its script's chat on its own delays, one line per script step.
---- The lines only reach this client, never the server, but go through the same arm, match
---- and play path as the real chat - so a line that is not heard here would not be heard in
---- the world either, without walking a character to the NPC to find out.
-function Followup:Simulate(input)
-    local _, _, questID, kind = string.find(input or "", "^%s*(%d+)%s*(%a*)")
-    questID = tonumber(questID)
-    kind = (kind == "start" or kind == "accept") and "start" or "end"
-    local print = function(message) DEFAULT_CHAT_FRAME:AddMessage("|cFF00CCFFSpoken follow-up:|r " .. message) end
-
-    if not questID then
-        print("usage: /spq followup <questID> [start]  -- e.g. /spq followup 3364")
-        return
-    end
-    if not self:IsEnabled() then
-        print("off - both autoplay and the follow-up lines option must be on.")
-        return
-    end
-    local lines = FollowupLines and FollowupLines[kind] and FollowupLines[kind][questID]
-    if not lines then
-        print(format("quest %d has no %s lines.", questID, kind == "end" and "turn-in" or "accept"))
-        return
-    end
-
-    self:Arm(kind, questID, TitleFor(questID))
-    local seen = {}
-    for _, line in ipairs(lines) do
-        -- An export from before steps groups by speaker and delay, as Consume does.
-        local group = line.step and tostring(line.step) or format("%d:%d", line.delay or 0, line.speaker or 0)
-        if not seen[group] then
-            seen[group] = true
-            local name = line.speaker and DataModules:GetObjectName(Enums.GUID.Creature, line.speaker) or "NPC"
-            local guid = line.speaker and Utils:MakeGUID(Enums.GUID.Creature, line.speaker) or nil
-            local event = CHAT_EVENTS[line.chat] or "CHAT_MSG_MONSTER_SAY"
-            local text = Render(line.male, name)
-            print(format("line %d in %ds, %s: %s%s", line.id, line.delay or 0, name, text,
-                OwnClip(line) and "" or "  |cFFFF8040(no recording yet — silent)|r"))
-            Addon:ScheduleTimer(function()
-                Followup:OnChat(event, text, name, guid, true)
-            end, line.delay or 0)
-        end
-    end
-end
-
 function Followup:Setup()
     if self.frame then
         return

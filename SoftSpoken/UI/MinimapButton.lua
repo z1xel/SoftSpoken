@@ -21,10 +21,7 @@ local PLAYER_ENTRIES = {
             local compendium = _G.SSCCompendium or _G.SpokenZones112Compendium or _G.SpokenCompendium
             return compendium ~= nil and compendium.Available ~= nil and compendium:Available()
         end,
-        onClick = function()
-            local compendium = _G.SSCCompendium or _G.SpokenZones112Compendium or _G.SpokenCompendium
-            if compendium and compendium.Toggle then compendium:Toggle() end
-        end },
+        onClick = function() Spoken:ToggleCompendium() end },
     { id = "Settings",  text = L.SETTINGS,     order = 4, onClick = function() Options:Open() end },
 }
 

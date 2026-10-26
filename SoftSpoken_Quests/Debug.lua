@@ -35,7 +35,7 @@ end
 --------------------------------------------------------------------------------
 --
 -- Every stage recorded above also goes to the log, as `quests <stage>: <message>`: the stages are
--- what /spq diagnostics calls the last runtime stage, and in the log they read as the whole story
+-- what the internal diagnostics report calls the last runtime stage, and what the log records
 -- of a quest window, from the event to the line queued or the reason it was not. Note covers the
 -- decisions that record no stage. Nothing happens without the module, or while its log is off.
 --
@@ -138,21 +138,14 @@ end)
 -- Diagnostics, for the log and its copies
 --------------------------------------------------------------------------------
 
--- Colour codes are for chat; the copies are plain text.
-local function Plain(text)
-    text = string.gsub(tostring(text), "|c%x%x%x%x%x%x%x%x", "")
-    text = string.gsub(text, "|r", "")
-    return text
-end
-
---- What /spq diagnostics prints, as lines: the command's own function runs with `print` caught,
---- so the two never say different things.
+-- Collect the same lines as Quests Settings, without overriding print.
 local function DiagnosticsLines(lines)
-    local saved = rawget(VoiceOver, "print")
-    VoiceOver.print = function(text) table.insert(lines, Plain(text)) end
-    local ok, err = pcall(Options.PrintDiagnostics, Options)
-    VoiceOver.print = saved
-    if not ok then table.insert(lines, "diagnostics error: " .. tostring(err)) end
+    local ok, result = pcall(Options.DiagnosticsLines, Options)
+    if not ok then
+        table.insert(lines, "diagnostics error: " .. tostring(result))
+    elseif type(result) == "table" then
+        for _, line in ipairs(result) do table.insert(lines, tostring(line)) end
+    end
 end
 
 local function Safe(fn)

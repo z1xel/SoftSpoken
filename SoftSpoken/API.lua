@@ -440,10 +440,21 @@ function Spoken:ShowsCompendium()
     return true
 end
 
---- A button on the player's panel that opens a feature addon's own settings, for the
---- addons whose panel cannot be nested.
+--- Deprecated API compatibility shim. Older external addons may still call this;
+--- the 1.12 settings window uses registered pages exclusively and never adds
+--- separate settings-link buttons.
 function Spoken:AddSettingsLink(text, onClick)
-    Options:AddLink(text, onClick)
+    return false
+end
+
+--- Open/close the shared Compendium when it has a usable tab, from either
+--- the minimap, keybinding, or /compendium. One action means consistent gating.
+function Spoken:ToggleCompendium()
+    local compendium = _G.SSCCompendium or _G.SpokenZones112Compendium or _G.SpokenCompendium
+    if not (compendium and compendium.Toggle) then return false end
+    if compendium.Available and not compendium:Available() then return false end
+    compendium:Toggle()
+    return true
 end
 
 --- Menu entries for the one minimap button. entry = { id, text, icon, order, onClick,
@@ -734,14 +745,20 @@ function Spoken:GetDeveloperSettings()
 end
 
 --- A feature addon's diagnostics, for the debug log and its copies: fn(detailed) returns a list of
---- lines, what its own diagnostics command says, and with `detailed` what an AI agent reading the
---- log needs besides.
+--- lines, without printing to chat, and with `detailed` what an agent reading the
+--- internal report needs besides.
 function Spoken:AddDiagnostics(name, fn)
     Developer:AddDiagnostics(name, fn)
 end
 
---- What `/spoken diagnostics` says, then each feature addon's diagnostics, as lines; with
+--- The internal diagnostic report, then each feature addon's diagnostics, as lines; with
 --- `detailed`, the state of the client, the narrator, the sound settings and the queue too.
 function Spoken:Diagnostics(detailed)
     return Developer:Diagnostics(detailed)
+end
+
+--- Display a readable/copyable report without posting it to public chat.
+function Spoken:ShowDiagnostics(title, lines)
+    if not (DiagnosticsViewer and DiagnosticsViewer.Show) then return false end
+    return DiagnosticsViewer:Show(title, lines)
 end

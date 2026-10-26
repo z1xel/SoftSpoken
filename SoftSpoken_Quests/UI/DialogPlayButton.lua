@@ -1,7 +1,7 @@
 setfenv(1, VoiceOver)
 
 -- The Listen/Stop button on the Blizzard quest and gossip frames, for a player who turned
--- autoplay off. "Do not start by yourself" must not mean "give me no way to start it", and /spq read is
+-- autoplay off. "Do not start by yourself" must not mean "give me no way to start it"; the Play button is
 -- not a way most players will find -- the reason SpokenBooks/UI/PlayButton.lua exists too.
 --
 -- Shown only while autoplay is off. With it on the line is already playing by the time the
@@ -17,7 +17,7 @@ setfenv(1, VoiceOver)
 -- copied here rather than borrowed from it.
 --
 -- Not drawn under a replacement dialog addon: DialogueUI hides QuestFrame and GossipFrame, and
--- a button parented to UIParent would float over nothing. /spq read still works there.
+-- a button parented to UIParent would float over nothing. Players can use the native quest-log button.
 
 local BUTTON_HEIGHT = 20
 local BUTTON_WIDTH = 60

@@ -689,16 +689,6 @@ function Addon:OnInitialize()
         end
     end
 
-    local slashInstalled, slashError = pcall(function()
-        _G.SLASH_SPOKENQUESTSREAD1 = "/spqread"
-        _G.SlashCmdList.SPOKENQUESTSREAD = function()
-            self:ReadVisibleQuest("/spqread")
-        end
-    end)
-    if not slashInstalled then
-        Debug:Record("standalone-slash-failed", tostring(slashError))
-    end
-
     self.eventBridgeErrors = {}
     local aceRegistered, aceError = pcall(self.RegisterEvent, self, "ADDON_LOADED")
     if not aceRegistered then

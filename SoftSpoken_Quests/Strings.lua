@@ -7,14 +7,14 @@ setfenv(1, VoiceOver)
 -- hold English literals. Chat and diagnostics prints are deliberately not among
 -- them: those answer bug reports, where one language beats nine translations.
 --
---   Options.lua            General and sound-pack tabs of the options window
+--   Options.lua            legacy AceGUI General and sound-pack fallback (Phase 3)
 --   UI/SettingsPanel.lua   the same settings on the interface-settings canvas
 --   UI/DialogPlayButton.lua  Play/Stop button on quest and gossip windows
 --   Compatibility.lua      Play/Stop button on the quest-log details panel
 --   UI/ContributeButton.lua  Contribute button on quest and gossip windows
 --   Contribute.lua         Contribute button tooltip
 --   ReportButton.lua       the copy-link dialog for reporting a line
---   Player.lua             minimap menu entries and player settings link
+--   Player.lua             queue integration and voice-pack metadata
 --   UI/QuestsTab.lua       the Quests tab of Azeroth's Compendium
 --
 -- FORMAT ARGUMENTS ARE POSITIONAL (%1$s, %2$d), even where there is only one and
@@ -62,26 +62,13 @@ L.OPT_CONTENT_VERSION_FMT = "%1$s"
 L.OPT_CONTENT_VERSION_UPDATE_FMT = "%2$s -> |cFF00CCFF%1$s|r"
 
 --------------------------------------------------------------------------------
--- Slash commands (also listed in the options window)
+-- Quest-window Play/Stop labels (not slash commands)
 --------------------------------------------------------------------------------
 
-L.OPT_CMD_GROUP = "Commands"
 L.OPT_STOP = "Stop"
 L.OPT_STOP_TIP = "Stops this quest's line. Replay starts it again from the beginning."
 L.OPT_REPLAY = "Replay"
 L.OPT_REPLAY_TIP = "Plays this quest's line again from the beginning."
-L.OPT_CMD_SKIP = "Skip Line"
-L.OPT_CMD_SKIP_DESC = "Skips the line being read"
-L.OPT_CMD_READ = "Read Visible Quest"
-L.OPT_CMD_READ_DESC = "Reads the quest window that is open"
-L.OPT_CMD_TEST = "Play a Test Line"
-L.OPT_CMD_TEST_DESC = "Plays a known quest line to check that you can hear it"
-L.OPT_CMD_FOLLOWUP = "Follow-up"
-L.OPT_CMD_FOLLOWUP_DESC = "Replay a quest's follow-up NPC lines as if you had just turned it in (or accepted it, with start): /spq followup <questID> [start]"
-L.OPT_CMD_DIAG = "Show Diagnostics"
-L.OPT_CMD_DIAG_DESC = "Prints client, API and voice pack status"
-L.OPT_CMD_OPTIONS = "Settings"
-L.OPT_CMD_OPTIONS_DESC = "Opens this module's settings page"
 
 --------------------------------------------------------------------------------
 -- Interface-settings canvas
