@@ -37,10 +37,10 @@ frame:SetScript("OnEvent", function(self, firedEvent, a, b, c)
         if Spoken.ImportLegacyCaptionPreference then
             Spoken:ImportLegacyCaptionPreference(CharDB().settings.captions)
         end
-        -- The native Vanilla world-map icon distinguishes Places narration
-        -- from Stories and Writings in both the head and queued rows.
+        -- Packaged 32-bit TGA map-location cursor artwork for Vanilla 1.12;
+        -- the player keeps its existing type glyphs and queued grayscale.
         if Spoken.RegisterBullet then
-            Spoken:RegisterBullet("zone", [[Interface\WorldMap\WorldMap-Icon]], 14)
+            Spoken:RegisterBullet("zone", [[Interface\AddOns\SoftSpoken\Textures\SoundQueueBulletMaploc]], 16)
         end
         R.source = Spoken:GetSource("zones")
         if not R.source then

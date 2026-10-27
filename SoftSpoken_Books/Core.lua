@@ -91,7 +91,7 @@ function B:SetupSource()
         end
     })
     if Spoken.RegisterBullet then
-        Spoken:RegisterBullet("book", [[Interface\AddOns\SoftSpoken\Textures\Book]],14)
+        Spoken:RegisterBullet("book", [[Interface\AddOns\SoftSpoken\Textures\SoundQueueBulletInspect]],16)
     end
     if Spoken.RegisterCallback then
         Spoken:RegisterCallback("PART_SWITCHED",function(key)
