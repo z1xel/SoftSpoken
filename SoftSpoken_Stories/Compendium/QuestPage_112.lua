@@ -153,10 +153,10 @@ end
 -- intentionally not created by this page: they were rendered outside their
 -- parent ScrollFrame on Turtle WoW 1.12, and caused a crash on UI reload.
 -- Display the corresponding full, transparent 256x256 crest for both factions
--- from SoftSpoken_Quests/Assets. The crest belongs to the PLAYER, not the
+-- from SoftSpoken_Stories/Assets. The crest belongs to the PLAYER, not the
 -- quest giver; no character-creation atlas cropping is needed.
-local ALLIANCE_CREST="Interface\\AddOns\\SoftSpoken_Quests\\Assets\\AllianceCrest"
-local HORDE_CREST="Interface\\AddOns\\SoftSpoken_Quests\\Assets\\HordeCrest"
+local ALLIANCE_CREST="Interface\\AddOns\\SoftSpoken_Stories\\Assets\\AllianceCrest"
+local HORDE_CREST="Interface\\AddOns\\SoftSpoken_Stories\\Assets\\HordeCrest"
 local ALLIANCE_RACES={human=true,dwarf=true,gnome=true,nightelf=true,highelf=true,highborne=true}
 local HORDE_RACES={orc=true,undead=true,scourge=true,tauren=true,troll=true,goblin=true}
 local function PlayerFaction()

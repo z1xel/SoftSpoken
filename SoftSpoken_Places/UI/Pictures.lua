@@ -1,8 +1,8 @@
--- SoftSpoken_Zones: upstream picture lookup, using locally converted .tga files.
+-- SoftSpoken_Places: upstream picture lookup, using locally converted .tga files.
 -- Masks from the original DXT5 BLPs have already been baked into TGA alpha.
 SSZPicturesUI = SSZPicturesUI or {}
 local P = SSZPicturesUI
-local ROOT = "Interface\\AddOns\\SoftSpoken_Zones\\Textures\\Pictures\\"
+local ROOT = "Interface\\AddOns\\SoftSpoken_Places\\Textures\\Pictures\\"
 function P.Get(mapID, areaKey)
     local maps = SSZPictures
     local entries = maps and maps[mapID]

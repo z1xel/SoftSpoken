@@ -34,7 +34,7 @@ local function Settings(key,value)
 end
 local function EnsureCatalog()
     if not _G.SpokenQuestsCompendium then
-        Q.loadError="Quest catalog data is unavailable. Reinstall SoftSpoken_Quests."
+        Q.loadError="Quest catalog data is unavailable. Reinstall SoftSpoken_Stories."
         return nil
     end
     Q.loadError=nil

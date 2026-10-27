@@ -30,7 +30,7 @@ local Spoken = rawget(_G, "Spoken")
 
 VoiceOver = setmetatable({
     _G = _G,
-    AddonFolder = "SoftSpoken_Quests",
+    AddonFolder = "SoftSpoken_Stories",
     -- What /spq diagnostics prints. A literal because this file loads before the addon has any
     -- metadata API; scripts/package.sh refuses to build when it disagrees with the .toc.
     AddonVersion = "3.4.0",

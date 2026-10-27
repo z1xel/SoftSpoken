@@ -46,7 +46,7 @@ frame:SetScript("OnEvent", function(self, firedEvent, a, b, c)
         if not R.source then
             R.source = Spoken:RegisterSource("zones", {
                 title = "SoftSpoken Places",
-                addon = "SoftSpoken_Zones",
+                addon = "SoftSpoken_Places",
                 order = 2,
                 queueLimit = 3,
                 interClipGap = 0.25,

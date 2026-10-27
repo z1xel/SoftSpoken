@@ -499,7 +499,7 @@ local function EquipPlay(pageObject)
         b:Refresh()
     end)
     -- The original Zones button polls only when it has a zone mapID. Books' own
-    -- button gets AUDIO_CHANGED events through SoftSpoken_Books/Core.lua.
+    -- button gets AUDIO_CHANGED events through SoftSpoken_Writings/Core.lua.
     button:SetScript("OnUpdate", nil)
     button:SetTarget(nil,nil)
 end

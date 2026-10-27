@@ -1,10 +1,10 @@
 -- Spoken Books for Turtle WoW 1.12 (Lua 5.0).
--- Independent module: does not modify Spoken or SoftSpoken_Zones.
+-- Independent module: does not modify Spoken or SoftSpoken_Places.
 -- Book recognition/playlist adapted from rusty-key/spoken-wow (MIT).
 SSB = SSB or {}
 local B = SSB
 B.version = "1.12-B3"
-B.name = "SoftSpoken_Books"
+B.name = "SoftSpoken_Writings"
 local defaults = {
     autoplay=true, readWholeBook=true, bookAsOneLine=true, readOnce=false,
     stopOnClose=false, closeWhenRead=false,
@@ -80,7 +80,7 @@ function B:SetupSource()
     if self.source then return self.source end
     if not self:PlayerAvailable() then return nil end
     self.source=Spoken:RegisterSource("books", {
-        title="SoftSpoken Writings", addon="SoftSpoken_Books", order=3,
+        title="SoftSpoken Writings", addon="SoftSpoken_Writings", order=3,
         interClipGap=0.35, testBeforeQueue=true,
         packs=function()
             local names={}
