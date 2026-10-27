@@ -13,7 +13,8 @@ setfenv(1, VoiceOver)
 Player = { source = nil, gossipSource = nil }
 
 local TEXTURES = format([[Interface\AddOns\%s\Textures\]], AddonFolder)
-local BOOK = TEXTURES .. "Book"
+-- Keep the generic fallback consistent with Writings and Vanilla's native art.
+local BOOK = [[Interface\Icons\INV_Misc_Book_09]]
 
 -- The packs that hold quests alone. Every other pack holds gossip too.
 local QUEST_ONLY = {
@@ -179,7 +180,7 @@ local function PortraitFor(soundData)
         kind = "model",
         creatureID = CreatureFor(soundData),
         animation = 60,
-        fallback = { kind = "texture", texture = BOOK },
+        fallback = { kind = "texture", texture = BOOK, texCoord = ICON_CROP },
     }
     -- Rendering is strictly optional and cannot block an audio clip.
     -- Emergency switch: /run SoftSpokenClassicPortraits=false
@@ -191,7 +192,7 @@ local function PortraitFor(soundData)
                 displayID = displayID,
                 -- A quest-log replay without an NPC must not show the old
                 -- 1.12 live-npc PlayerModel as an empty black rectangle.
-                fallback = fromQuestDatabase and { kind = "texture", texture = BOOK } or original,
+                fallback = fromQuestDatabase and { kind = "texture", texture = BOOK, texCoord = ICON_CROP } or original,
             }
         end
     end

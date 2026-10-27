@@ -16,10 +16,9 @@ local L = SpokenBooks.L
 -- plays silence and reports nothing.
 local PACK_FORMAT = 1
 
--- The player's own book art. Pointed at rather than copied: Spoken is installed
--- alongside this addon by definition -- it is what the clips are queued through -- and a
--- second copy of the same texture is a second thing to keep in step.
-local BOOK_TEXTURE = [[Interface\AddOns\SoftSpoken\Textures\Book]]
+-- Use the original Vanilla inventory book icon, not the bundled enlarged
+-- VoiceOver-era Book.blp portrait. This is available in the 1.12 client.
+local BOOK_TEXTURE = [[Interface\Icons\INV_Misc_Book_09]]
 
 -- A page's picture: a bag item's own icon, else the material it is on, else the book.
 local ICON_CROP = { 0.08, 0.92, 0.08, 0.92 }
@@ -45,7 +44,7 @@ function SpokenBooks:PagePicture()
 			return { kind = "texture", texture = MATERIALS[material], texCoord = ICON_CROP }
 		end
 	end
-	return { kind = "texture", texture = BOOK_TEXTURE }
+	return { kind = "texture", texture = BOOK_TEXTURE, texCoord = ICON_CROP }
 end
 
 --- What the open page is written on (ItemTextGetMaterial: Parchment, Stone, Marble...), or nil
