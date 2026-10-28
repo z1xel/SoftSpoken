@@ -3,7 +3,7 @@
 -- Book recognition/playlist adapted from rusty-key/spoken-wow (MIT).
 SSB = SSB or {}
 local B = SSB
-B.version = "1.12-B3"
+B.version = "v0.8.0"
 B.name = "SoftSpoken_Writings"
 local defaults = {
     autoplay=true, readWholeBook=true, bookAsOneLine=true, readOnce=false,

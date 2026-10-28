@@ -1,6 +1,7 @@
 ## Interface: 11200
 ## Title: SoftSpoken Places
 ## Notes: Turtle WoW lore narration, discovery, persistent history, captions, compendium
+## Version: v0.8.0
 ## Dependencies: SoftSpoken
 ## OptionalDeps: SpokenZonesAudio
 ## SavedVariablesPerCharacter: SSZCharacter
