@@ -27,13 +27,6 @@ body:
     validations:
       required: true
   - type: textarea
-    id: motivation
-    attributes:
-      label: Why would this be useful?
-      description: A gameplay situation, problem, or example can help explain the idea.
-    validations:
-      required: false
-  - type: textarea
     id: details
     attributes:
       label: Additional details
