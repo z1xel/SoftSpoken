@@ -15,6 +15,32 @@ SoftSpoken is an ongoing effort to bring [Spoken](https://github.com/rusty-key/s
 
 Whether you're already familiar with the projects SoftSpoken builds upon, or are encountering them for the first time, the following overview introduces its capabilities.
 
+## How SoftSpoken Works
+
+SoftSpoken consists of a central module, simply titled **SoftSpoken**, which provides the narration player and shared audio system that the specialized modules rely on for playback. It also hosts the underlying framework of the **Compendium**, a unified interface for browsing the game's narrated content.
+
+There are currently three specialized modules, with at least one more planned:
+
+- **SoftSpoken Stories** — Handles the narration of quests and NPC conversations, keeping a record of quests you've undertaken and their associated dialogue, from acceptance to completion.
+
+- **SoftSpoken Places** — Provides narrated lore for Azeroth's zones and subzones as you explore, tracking the places you've discovered and integrating with the World Map.
+
+- **SoftSpoken Writings** — Narrates books, letters, notes, and other readable objects encountered throughout the world, maintaining a record of your discoveries and reading history.
+
+### The Compendium
+
+Each module has a dedicated tab within the Compendium, containing a catalogue of its respective entries.
+
+By default, the Compendium follows a **discovery-based approach**, intended to complement exploration and preserve the experience of a blind playthrough. Content is progressively unlocked through your adventures:
+
+- **Stories:** Quests are recorded as they're accepted, with completion dialogue becoming available once the quest has been completed.
+- **Places:** Lore is unlocked as you encounter and discover locations throughout Azeroth.
+- **Writings:** Books and other readable objects are unlocked as you discover and inspect them.
+
+Undiscovered entries remain locked, allowing the Compendium to grow alongside your character's journey rather than reveal everything from the outset.
+
+However, this behavior is entirely optional. Players who prefer to explore the lore without these restrictions can unlock undiscovered entries, effectively turning the Compendium into a more traditional **encyclopedia of Azeroth**.
+
 ## Installation and module folders
 
 Install the four folders directly in your WoW 1.12 `Interface/AddOns/` directory:
