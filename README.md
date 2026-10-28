@@ -1,6 +1,9 @@
 # SoftSpoken v0.8.0
-
 *Voiced dialogue, lore, and text for World of Warcraft Vanilla.*
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/15cad23a-80c1-4e0b-81cd-d8f975d1ba6a" width="320" alt="SoftSpoken icon">
+</p>
 
 SoftSpoken brings Azeroth to life through narrated quests, NPC conversations, books, and exploration, alongside an in-game Compendium for revisiting the world you've discovered.
 
