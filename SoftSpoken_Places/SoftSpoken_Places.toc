@@ -3,7 +3,7 @@
 ## Notes: Turtle WoW lore narration, discovery, persistent history, captions, compendium
 ## Version: v0.8.0
 ## Dependencies: SoftSpoken
-## OptionalDeps: SpokenZonesAudio
+## OptionalDeps: SpokenPlacesAudio, SpokenZonesAudio
 ## SavedVariablesPerCharacter: SSZCharacter
 LoreBridge.lua
 Data\Zones.lua
