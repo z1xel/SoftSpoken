@@ -24,7 +24,7 @@ body:
     attributes:
       label: Game client and server
       description: Which Vanilla 1.12-based client and server are you playing on?
-      placeholder: "e.g. Turtle WoW 1.12 or Octo WoW"
+      placeholder: "e.g. Octo WoW or Capybara Paradise ..."
     validations:
       required: true
   - type: textarea
@@ -35,25 +35,6 @@ body:
       placeholder: "Actual behavior ... Expected behavior ..."
     validations:
       required: true
-  - type: textarea
-    id: steps
-    attributes:
-      label: Steps to reproduce
-      description: What were you doing when the problem occurred?
-      placeholder: |
-        1. Open ...
-        2. Select ...
-        3. Observe ...
-    validations:
-      required: true
-  - type: textarea
-    id: environment
-    attributes:
-      label: Client extensions and audio packs
-      description: If relevant, list installed ClassicAPI / SuperWoW versions, voice-pack folder names, and other addons that could affect the behavior.
-      placeholder: "ClassicAPI: ...; SuperWoW: ...; voice packs: ..."
-    validations:
-      required: false
   - type: textarea
     id: evidence
     attributes:
