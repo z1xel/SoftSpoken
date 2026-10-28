@@ -36,7 +36,7 @@ local function HasVoice(id,key)
     if SSZBridge and SSZBridge.HasVoice then
         return SSZBridge:HasVoice(id,key)
     end
-    local registries={SpokenZonesAudioPacks,ZoneLoreAudioPacks}
+    local registries={SpokenPlacesAudioPacks,SpokenZonesAudioPacks,ZoneLoreAudioPacks}
     for _,registry in pairs(registries) do
         if type(registry)=="table" then
             for _,pack in pairs(registry) do
