@@ -1,4 +1,3 @@
-
 # SoftSpoken v0.8.0
 *Voiced dialogue, lore, and text for World of Warcraft Vanilla.*
 
@@ -19,6 +18,10 @@ Whether you're already familiar with the projects SoftSpoken builds upon, or are
 ## How SoftSpoken Works
 
 SoftSpoken consists of a central module, simply titled **SoftSpoken**, which provides the narration player and shared audio system that the specialized modules rely on for playback. It also hosts the underlying framework of the **Compendium**, a unified interface for browsing the game's narrated content.
+
+
+<img width="1530" height="1019" alt="image (33)" src="https://github.com/user-attachments/assets/cb94d9d0-86ca-46e8-a659-24f9956b88f7" />
+
 
 There are currently three specialized modules, with at least one more planned:
 
