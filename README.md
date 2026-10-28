@@ -1,3 +1,4 @@
+
 # SoftSpoken v0.8.0
 *Voiced dialogue, lore, and text for World of Warcraft Vanilla.*
 
@@ -28,6 +29,8 @@ There are currently three specialized modules, with at least one more planned:
 - **SoftSpoken Writings** — Narrates books, letters, notes, and other readable objects encountered throughout the world, maintaining a record of your discoveries and reading history.
 
 ### The Compendium
+
+<img width="2254" height="1501" alt="image (32)" src="https://github.com/user-attachments/assets/93b80205-386d-4cab-b6d0-36a652f72bc5" />
 
 Each module has a dedicated tab within the Compendium, containing a catalogue of its respective entries.
 
