@@ -256,7 +256,7 @@ function Skin.Apply(self, title, options)
 
     if not compact then
     self.sszPortraitSlices = circularIcon(
-        self, "Interface\\Icons\\INV_Misc_Book_09", -6, 8, 61, 29
+        self, "Interface\\Icons\\INV_Misc_Book_11", -6, 8, 61, 29
     )
     -- Recreate portrait ring above icon rather than relying on texture layering order.
     -- The portrait ring is drawn after the icon so it stays in front.
