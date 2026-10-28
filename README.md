@@ -19,9 +19,7 @@ Whether you're already familiar with the projects SoftSpoken builds upon, or are
 
 SoftSpoken consists of a central module, simply titled **SoftSpoken**, which provides the narration player and shared audio system that the specialized modules rely on for playback. It also hosts the underlying framework of the **Compendium**, a unified interface for browsing the game's narrated content.
 
-
 <img width="1530" height="1019" alt="image (33)" src="https://github.com/user-attachments/assets/cb94d9d0-86ca-46e8-a659-24f9956b88f7" />
-
 
 There are currently three specialized modules, with at least one more planned:
 
@@ -30,6 +28,13 @@ There are currently three specialized modules, with at least one more planned:
 - **SoftSpoken Places** — Provides narrated lore for Azeroth's zones and subzones as you explore, tracking the places you've discovered and integrating with the World Map.
 
 - **SoftSpoken Writings** — Narrates books, letters, notes, and other readable objects encountered throughout the world, maintaining a record of your discoveries and reading history.
+
+
+SoftSpoken does not generate speech itself. Audio is provided through separately installed voice packs, which the corresponding modules recognize and use for playback.
+
+This allows different voice packs to be installed, combined, or updated independently of SoftSpoken itself.
+
+Instructions for obtaining and installing compatible voice packs are provided below.
 
 ### The Compendium
 
