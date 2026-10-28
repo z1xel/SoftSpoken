@@ -21,7 +21,7 @@ local function Build()
     frame:Hide()
     local layout = Layout.New(frame, 25, -16)
     optionsLayout = layout
-    layout:Intro([[Interface\WorldMap\WorldMap-Icon]], "Places")
+    layout:Intro([[Interface\Icons\INV_Misc_Map_01]], "Places")
 
     layout:Checkbox("Enable Places", "Allow narrated zone lore to play.",
         function() return Spoken:IsPartOn("zones") end,
