@@ -54,6 +54,7 @@ function R.AudioPackDetails()
     end
     -- These are independent optional registries; a missing one must never
     -- hide another, especially with Lua 5.0's nil-terminating ipairs.
+    AddRegistry(SpokenPlacesAudioPacks)
     AddRegistry(SpokenZonesAudioPacks)
     AddRegistry(ZoneLoreAudioPacks)
     if type(ZoneLoreAudioData) == "table" then
@@ -76,7 +77,9 @@ function R.AudioPackNames()
 end
 
 local function FindRecording(mapID, areaKey)
-    local pack, recording = FindInRegistry(SpokenZonesAudioPacks, mapID, areaKey)
+    local pack, recording = FindInRegistry(SpokenPlacesAudioPacks, mapID, areaKey)
+    if pack then return pack, recording end
+    pack, recording = FindInRegistry(SpokenZonesAudioPacks, mapID, areaKey)
     if pack then return pack, recording end
     pack, recording = FindInRegistry(ZoneLoreAudioPacks, mapID, areaKey)
     if pack then return pack, recording end
