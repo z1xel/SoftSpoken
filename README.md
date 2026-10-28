@@ -52,6 +52,28 @@ Undiscovered entries remain locked, allowing the Compendium to grow alongside yo
 
 However, this behavior is entirely optional. Players who prefer to explore the lore without these restrictions can unlock undiscovered entries, effectively turning the Compendium into a more traditional **encyclopedia of Azeroth**.
 
+## SoftSpoken Stories
+
+SoftSpoken Stories provides narration for quests and NPC gossip throughout the game. Narration can play automatically as you interact with NPCs, with configurable behavior for greetings, conversations, and quest dialogue.
+
+Within the Compendium, Stories maintains a record of the quests you've encountered, organizing them by location and quest chain. Each entry provides access to its associated dialogue and available recordings, allowing you to revisit earlier encounters without returning to the original NPC.
+
+## SoftSpoken Places
+
+SoftSpoken Places brings narrated lore to the world's zones and subzones, providing historical background and descriptions of the locations you encounter throughout your travels.
+
+Narration can be triggered automatically as you discover new areas or played manually through the Compendium. Places keeps a record of the locations you've visited, independently of whether their narration has been played.
+
+Places also integrates directly with the in-game World Map, providing access to its lore without having to leave the map interface.
+
+## SoftSpoken Writings
+
+SoftSpoken Writings provides narration for supported books, letters, scrolls, notes, and other readable objects encountered during your adventures.
+
+Unlike ordinary dialogue, written material often spans multiple pages. Writings accounts for this distinction: when reading an object in the world, narration follows the page currently being viewed. When revisiting it through the Compendium, playback can continue through the entire work.
+
+Discovered writings remain available for later reading and narration, allowing you to gradually assemble a personal collection of Azeroth's written history.
+
 ## Installation and module folders
 
 Install the four folders directly in your WoW 1.12 `Interface/AddOns/` directory:
