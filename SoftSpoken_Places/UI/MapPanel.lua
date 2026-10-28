@@ -81,7 +81,7 @@ local function BuildToggle()
     housing:SetPoint("TOPLEFT",toggle,"TOPLEFT",-3,11)
     local icon=toggle:CreateTexture(nil,"ARTWORK")
     icon:SetAllPoints(toggle)
-    icon:SetTexture("Interface\\AddOns\\SoftSpoken\\Textures\\INV_Misc_Map02.tga")
+    icon:SetTexture("Interface\\WorldMap\\WorldMap-Icon")
     icon:SetTexCoord(.08,.92,.08,.92)
     toggle:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square","ADD")
     -- Original UI remains full-screen on 1.12: put the reopen button within it.
