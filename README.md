@@ -1,4 +1,4 @@
-# SoftSpoken v0.8.0. Beta
+# SoftSpoken v0.8.0 βeta
 *Voiced dialogue, lore, and text for World of Warcraft Vanilla.*
 
 <p align="center">
