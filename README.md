@@ -58,27 +58,20 @@ SoftSpoken Stories provides narration for quests and NPC gossip throughout the g
 
 Within the Compendium, Stories maintains a record of the quests you've encountered, organizing them by location and quest chain. Each entry provides access to its associated dialogue and available recordings, allowing you to revisit earlier encounters without returning to the original NPC.
 
+<img width="2254" height="1501" alt="image (34)" src="https://github.com/user-attachments/assets/a4ae5547-77cc-4d2b-b624-b1cfc71ccd19" />
+
 ## SoftSpoken Places
 
-SoftSpoken Places brings narrated lore to the world's zones and subzones, providing historical background and descriptions of the locations you encounter throughout your travels.
-
-Narration can be triggered automatically as you discover new areas or played manually through the Compendium. Places keeps a record of the locations you've visited, independently of whether their narration has been played.
+SoftSpoken Places brings narrated lore to the world's zones and subzones, providing historical background and descriptions of the locations you encounter throughout your travels. Narration can be triggered automatically as you discover new areas or played manually through the Compendium.
 
 Places also integrates directly with the in-game World Map, providing access to its lore without having to leave the map interface.
+
+<img width="2254" height="1501" alt="image (35)" src="https://github.com/user-attachments/assets/97f0a168-ad10-4e7d-a03e-90471923720a" />
 
 ## SoftSpoken Writings
 
 SoftSpoken Writings provides narration for supported books, letters, scrolls, notes, and other readable objects encountered during your adventures.
 
-Unlike ordinary dialogue, written material often spans multiple pages. Writings accounts for this distinction: when reading an object in the world, narration follows the page currently being viewed. When revisiting it through the Compendium, playback can continue through the entire work.
+When reading an object in the world, narration follows the page currently being viewed. When revisiting it through the Compendium, playback can continue through the entire work.
 
-Discovered writings remain available for later reading and narration, allowing you to gradually assemble a personal collection of Azeroth's written history.
-
-## Installation and module folders
-
-Install the four folders directly in your WoW 1.12 `Interface/AddOns/` directory:
-
-- `SoftSpoken/` — shared player and Compendium
-- `SoftSpoken_Stories/` — quests and NPC conversations
-- `SoftSpoken_Places/` — zone lore and discoveries
-- `SoftSpoken_Writings/` — books, letters and other readable objects
+<img width="1925" height="1282" alt="image (36)" src="https://github.com/user-attachments/assets/046b846c-5394-4592-b4b1-949d730a74a2" />
