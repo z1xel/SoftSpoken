@@ -1,0 +1,63 @@
+name: Bug report
+description: Report a problem with SoftSpoken
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing SoftSpoken. Please share enough detail to reproduce the problem. Avoid including private information in screenshots or logs.
+  - type: dropdown
+    id: module
+    attributes:
+      label: Affected module
+      options:
+        - Core / narration player / Compendium
+        - Stories (quests and NPC gossip)
+        - Places (zone lore and world map)
+        - Writings (books and readable objects)
+        - Installation / voice packs
+        - Not sure / multiple
+    validations:
+      required: true
+  - type: input
+    id: client
+    attributes:
+      label: Game client and server
+      description: Which Vanilla 1.12-based client and server are you playing on?
+      placeholder: "e.g. Turtle WoW 1.12 or Octo WoW"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the problem and what you expected instead.
+      placeholder: "Actual behavior ... Expected behavior ..."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What were you doing when the problem occurred?
+      placeholder: |
+        1. Open ...
+        2. Select ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Client extensions and audio packs
+      description: If relevant, list installed ClassicAPI / SuperWoW versions, voice-pack folder names, and other addons that could affect the behavior.
+      placeholder: "ClassicAPI: ...; SuperWoW: ...; voice packs: ..."
+    validations:
+      required: false
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots or error messages
+      description: Attach screenshots, exact Lua errors, or other details if available.
+    validations:
+      required: false
