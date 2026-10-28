@@ -156,11 +156,35 @@ DataModules =
     },
 }
 
+-- The quest/gossip audio packs ship with unrelated priorities (Spoken: 100,
+-- Turtle: 101, Combined: much lower). Enforce SoftSpoken's listening preference
+-- independently of third-party TOCs so updating a pack cannot reverse it:
+-- Spoken -> VanillaCombined -> Turtle -> any other compatible packs.
+--
+-- Match folder names, not display titles. All current and future
+-- SpokenQuestsAudio* packs belong to the same family; priority from their TOC
+-- still decides ties *within* a family. Unknown packs retain their own TOC
+-- priority relative to one another. No addon files are changed.
+local function PackPreferenceTier(name)
+    if string.sub(name, 1, string.len("SpokenQuestsAudio")) == "SpokenQuestsAudio" then
+        return 3
+    elseif name == "SSVOFallback_VanillaCombined" then
+        return 2
+    elseif name == "AI_VoiceOverData_Turtle" then
+        return 1
+    end
+    return 0
+end
+
 ---@param a DataModule|DataModuleMetadata
 ---@param b DataModule|DataModuleMetadata
 local function SortModules(a, b)
     a = a.METADATA or a
     b = b.METADATA or b
+    local aTier, bTier = PackPreferenceTier(a.AddonName), PackPreferenceTier(b.AddonName)
+    if aTier ~= bTier then
+        return aTier > bTier
+    end
     if a.ModulePriority ~= b.ModulePriority then
         return a.ModulePriority > b.ModulePriority
     end
