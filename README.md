@@ -76,6 +76,12 @@ When reading an object in the world, narration follows the page currently being 
 
 <img width="1925" height="1282" alt="image (36)" src="https://github.com/user-attachments/assets/046b846c-5394-4592-b4b1-949d730a74a2" />
 
+## Development and Feedback
+
+SoftSpoken is under active development, and bugs or incomplete functionality should be expected while the beta is being prepared. Feedback is welcome: please use [GitHub Issues](https://github.com/z1xel/SoftSpoken/issues/new/choose) to report bugs, compatibility problems, or suggest improvements.
+
+For the time being, development is maintainer-led and **external pull requests are not being accepted**. Bug reports, testing, and suggestions are still very much appreciated.
+
 ## Installation
 
 SoftSpoken is installed manually in your World of Warcraft 1.12 `Interface\AddOns` directory.
