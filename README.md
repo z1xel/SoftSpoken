@@ -1,9 +1,6 @@
 # SoftSpoken v0.8.0 βeta
 *Voiced dialogue, lore, and text for World of Warcraft Vanilla.*
 
-Developed and maintained by **[z1xel](https://github.com/z1xel)**, based on
-[Spoken](https://github.com/rusty-key/spoken-wow) by Rusty Key.
-
 <p align="center">
   <img src="docs/images/softspoken-icon-320.png" width="320" height="320" alt="SoftSpoken icon">
 </p>
