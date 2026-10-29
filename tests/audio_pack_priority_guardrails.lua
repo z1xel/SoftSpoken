@@ -129,4 +129,22 @@ reset()
 install("AI_VoiceOverData_Turtle", 101, { shared = 2 })
 enumerate()
 expect(selected("shared"), "AI_VoiceOverData_Turtle")
-print("PASS: Spoken > SSS_VOFallback > Turtle, with fallback intact")
+-- Load the REAL fallback registration module under its installed folder name,
+-- then verify that both original lookup-table aliases merge into the module.
+reset()
+install("SSS_VOFallback", -9899, {})
+modules:EnumerateAddons(false)
+soundEvent.IsQuestEvent = function(self, event) return event == soundEvent.QuestAccept end
+soundEvent.IsGossipEvent = function(self, event) return event == soundEvent.Gossip end
+dofile("Data_Packs/SSS_VOFallback/Module.lua")
+local fallback = assert(modules:GetModule("SSS_VOFallback"), "fallback did not register")
+AI_VoiceOverData_Vanilla.SoundLengthLookupByFileName = { quest_clip = 8 }
+AI_VoiceOverData_VanillaExtra.SoundLengthLookupByFileName = { gossip_clip = 9 }
+assert(fallback.SoundLengthLookupByFileName.quest_clip == 8, "Vanilla alias lost")
+assert(fallback.SoundLengthLookupByFileName.gossip_clip == 9, "Extra alias lost")
+local addonRoot = "Interface\\AddOns\\" .. fallback.METADATA.AddonName .. "\\"
+expect(addonRoot .. fallback:GetSoundPath("quest_clip", soundEvent.QuestAccept),
+    "Interface\\AddOns\\SSS_VOFallback\\generated\\sounds\\quests\\quest_clip.mp3")
+expect(addonRoot .. fallback:GetSoundPath("gossip_clip", soundEvent.Gossip),
+    "Interface\\AddOns\\SSS_VOFallback\\generated\\sounds\\gossip\\gossip_clip.mp3")
+print("PASS: Spoken > SSS_VOFallback > Turtle, fallback registration, aliases and paths")
