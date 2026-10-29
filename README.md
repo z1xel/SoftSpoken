@@ -55,7 +55,7 @@ Undiscovered entries remain locked, allowing the Compendium to grow alongside yo
 
 However, this behavior is entirely optional. Players who prefer to explore the lore without these restrictions can unlock undiscovered entries, effectively turning the Compendium into a more traditional **encyclopedia of Azeroth**.
 
-## SoftSpoken Stories
+## Stories
 
 SoftSpoken Stories provides narration for quests and NPC gossip throughout the game. Narration can play automatically as you interact with NPCs, with configurable behavior for greetings, conversations, and quest dialogue.
 
@@ -63,7 +63,7 @@ Within the Compendium, Stories maintains a record of the quests you've encounter
 
 <img width="2254" height="1501" alt="image (34)" src="https://github.com/user-attachments/assets/a4ae5547-77cc-4d2b-b624-b1cfc71ccd19" />
 
-## SoftSpoken Places
+## Places
 
 SoftSpoken Places brings narrated lore to the world's zones and subzones, providing historical background and descriptions of the locations you encounter throughout your travels. Narration can be triggered automatically as you discover new areas or played manually through the Compendium.
 
@@ -71,7 +71,7 @@ Places also integrates directly with the in-game World Map, providing access to 
 
 <img width="2254" height="1501" alt="image (35)" src="https://github.com/user-attachments/assets/97f0a168-ad10-4e7d-a03e-90471923720a" />
 
-## SoftSpoken Writings
+## Writings
 
 SoftSpoken Writings provides narration for supported books, letters, scrolls, notes, and other readable objects encountered during your adventures.
 
