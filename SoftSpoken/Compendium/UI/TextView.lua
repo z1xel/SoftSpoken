@@ -26,6 +26,16 @@ local function Clamp(n,low,high)
     return n
 end
 
+-- GetStringHeight was added in WoW 2.3, so native 1.12 FontStrings
+-- must use their auto-sized region height instead. The lore body has
+-- an explicit width, but deliberately has no fixed height.
+local function MeasuredTextHeight(fontString)
+    if fontString.GetStringHeight then
+        return fontString:GetStringHeight() or 0
+    end
+    return fontString:GetHeight() or 0
+end
+
 -- Keep the current scroll offset across geometry-only changes. A new story,
 -- unlike a resize, starts at the top.
 function View:ScrollTo(value)
@@ -62,9 +72,12 @@ function View:Reflow(resetScroll)
     end
     body:ClearAllPoints()
     body:SetPoint("TOPLEFT",child,"TOPLEFT",0,-TEXT_PAD_TOP-pictureRoom)
-    local height=(body:GetStringHeight() or 0)+pictureRoom+
+    local height=MeasuredTextHeight(body)+pictureRoom+
         TEXT_PAD_TOP+TEXT_PAD_BOTTOM
     child:SetHeight(math.max(height,scroll:GetHeight() or 1))
+    -- On 1.12 the scroll rectangle is not refreshed automatically after a
+    -- child resize. Do this before restoring the offset or painting the bar.
+    if scroll.UpdateScrollChildRect then scroll:UpdateScrollChildRect() end
     local maximum=U.ScrollMax(scroll,child)
     if slider then
         slider:SetMinMaxValues(0,maximum)
