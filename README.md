@@ -125,7 +125,7 @@ I've also prepared **SSS_VOFallback** (SoftSpoken Stories VoiceOver Fallback), a
 | Voice pack | Description | Download |
 |---|---|---|
 | **Turtle WoW VoiceOver** | AI-generated narration for Turtle WoW's custom quests and NPC dialogue. | [Download Turtle WoW Voice Data](https://github.com/lightbladeninja/wow-voiceover/releases/download/v1.5.0/AI_VoiceOverData_Turtle.zip) |
-| **SSS_VOFallback** | Additional Vanilla and VanillaExtra recordings that fill gaps in Spoken's quest and gossip coverage. | [SSS_VOFallback Pack](https://github.com/z1xel/SoftSpoken/tree/main/Data_Packs/SSS_VOFallback) |
+| **SSS_VOFallback** | Additional Vanilla and VanillaExtra recordings that fill gaps in Spoken's quest and gossip coverage. | [SSS_VOFallback Pack](sha256:241cbc19eb077da52d1a5d8f3bca8b8ecba20b905e28c82c2660ed272ef572aa) |
 
 **Installation:** Place the `AI_VoiceOverData_Turtle` and/or `SSS_VOFallback` folders directly inside `Interface\AddOns`, alongside the SoftSpoken modules.
 
