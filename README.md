@@ -136,4 +136,4 @@ When multiple packs contain the same recording, SoftSpoken automatically priorit
 **SoftSpoken is developed and maintained by [z1xel](https://github.com/z1xel).**
 It builds upon [Spoken](https://github.com/rusty-key/spoken-wow) by Rusty Key.
 
-buy me a coffee
+If you want to support my work consider [buying me a coffee](https://buymeacoffee.com/zaxl).
