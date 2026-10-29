@@ -15,6 +15,7 @@
     <Include file="UI\DialogPlayButton.lua"/>
     <Include file="EasterEggs.lua"/>
     <Include file="DataModules.lua"/>
+    <Include file="FactionCrest.lua"/>
     <Include file="Player.lua"/>
     <Include file="GreetingFirst.lua"/>
     <Include file="VoiceOver.lua"/>
