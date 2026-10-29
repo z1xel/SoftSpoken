@@ -381,14 +381,6 @@ local function SourceSummary(place)
     end
     return "Location unknown"
 end
-local function DiscoverySummary(id)
-    local locations=B:BookLocations(id)
-    local names={}
-    for mapID in pairs(locations or {}) do table.insert(names,ZoneName(mapID)) end
-    table.sort(names)
-    if table.getn(names)>0 then return "Discovered in "..table.concat(names,", ") end
-    return "Discovered (location unknown)"
-end
 local function OtherKnownLocations(id,place)
     if not place then return nil end
     local names={}
@@ -415,7 +407,7 @@ local function ShowEntry()
         local book=data and data.books[id]
         if not book then return end
         local place=Places()[id]
-        local location=Found(id) and DiscoverySummary(id) or SourceSummary(place)
+        local location=Found(id) and B:DiscoverySummary(id) or SourceSummary(place)
         if not Found(id) and not Unlocked() then
             page:Show({title=Title(id),subtitle=location,
                 text="This writing has not been discovered yet."})
