@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "SoftSpoken/UI/Options.lua"
+      - "SoftSpoken/Compendium/UI/Compendium.lua"
       - "SoftSpoken/Strings.lua"
       - "SoftSpoken_Stories/Compendium/QuestsTab_112.lua"
       - "SoftSpoken_Places/**"
@@ -15,6 +16,7 @@ on:
   pull_request:
     paths:
       - "SoftSpoken/UI/Options.lua"
+      - "SoftSpoken/Compendium/UI/Compendium.lua"
       - "SoftSpoken/Strings.lua"
       - "SoftSpoken_Stories/Compendium/QuestsTab_112.lua"
       - "SoftSpoken_Places/**"
@@ -37,7 +39,9 @@ jobs:
       - name: Check changed addon Lua syntax
         run: |
           luac5.1 -p SoftSpoken/UI/Options.lua SoftSpoken/Strings.lua
+          luac5.1 -p SoftSpoken/Compendium/UI/Compendium.lua
           luac5.1 -p SoftSpoken_Places/UI/LoreWindow.lua SoftSpoken_Writings/UI/Readables.lua
+          luac5.1 -p SoftSpoken_Places/UI/Options.lua SoftSpoken_Writings/UI/Options.lua
           luac5.1 -p SoftSpoken_Stories/Compendium/QuestsTab_112.lua SoftSpoken_Stories/DataModules.lua
           luac5.1 -p Data_Packs/SSS_VOFallback/Module.lua
       - name: Check official pack priority and fallback
