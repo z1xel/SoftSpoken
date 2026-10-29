@@ -29,13 +29,6 @@ There are currently three specialized modules, with at least one more planned:
 
 - **[SoftSpoken Writings](#writings)** — Narrates books, letters, notes, and other readable objects encountered throughout the world, maintaining a record of your discoveries and reading history.
 
-
-SoftSpoken does not generate speech itself. Audio is provided through separately installed voice packs, which the corresponding modules recognize and use for playback.
-
-This allows different voice packs to be installed, combined, or updated independently of SoftSpoken itself.
-
-Instructions for obtaining and installing compatible voice packs are provided below.
-
 ### The Compendium
 
 <img width="2254" height="1501" alt="image (32)" src="https://github.com/user-attachments/assets/93b80205-386d-4cab-b6d0-36a652f72bc5" />
@@ -86,8 +79,6 @@ In the meantime, bug reports, testing, and suggestions are greatly appreciated.
 
 ## Installation
 
-Download the **[SoftSpoken v0.8.0 Beta 1 release](https://github.com/z1xel/SoftSpoken/releases/tag/v0.8.00-beta.1)** rather than using GitHub's **Code → Download ZIP**, which downloads the entire source repository.
-
 1. Download **[SoftSpoken-v0.8.0-beta.1.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.8.00-beta.1/SoftSpoken-v0.8.0-beta.1.zip)** and extract it.
 2. Find the following four addon folders in the extracted contents and copy them into your World of Warcraft 1.12 `Interface\AddOns` directory:
 
@@ -99,17 +90,19 @@ Download the **[SoftSpoken v0.8.0 Beta 1 release](https://github.com/z1xel/SoftS
        ├── SoftSpoken_Places/
        └── SoftSpoken_Writings/
    ```
-
-3. Make sure the four folders are **directly inside `AddOns`**, not inside an additional extracted archive folder. For example, the file `Interface\AddOns\SoftSpoken\SoftSpoken.toc` should exist.
-4. Launch the game and enable SoftSpoken and its modules in the **AddOns** menu.
+3. Launch the game and enable SoftSpoken and its modules in the **AddOns** menu.
 
 Use `/softspoken` to open settings or `/compendium` to open Azeroth's Compendium. The Compendium also has a default keybinding of **J**, provided that key was not already assigned to another action.
 
-**Voice packs are installed separately** as described below; the four core addon modules do not include narrated voice recordings.
+**Voice packs are installed separately** as described below.
 
 ### Voice Packs
 
-To enable narration, install compatible voice packs for whichever modules you intend to use. The core SoftSpoken modules do not contain the voice packs themselves.
+SoftSpoken does not generate speech itself. Audio is provided through separately installed voice packs, which the corresponding modules recognize and use for playback.
+
+This allows different voice packs to be installed, combined, or updated independently of SoftSpoken itself.
+
+To enable narration, install compatible voice packs for whichever modules you intend to use.
 
 | Module | Voice pack |
 |---|---|
@@ -119,39 +112,19 @@ To enable narration, install compatible voice packs for whichever modules you in
 
 These packs are developed for the original [Spoken](https://github.com/rusty-key/spoken-wow) project. They are separate from the addon itself and can be installed or updated independently.
 
-**Installing voice packs:** Download and extract the desired archives, then place their audio-pack folders directly alongside the SoftSpoken modules in `Interface\AddOns`. Each pack should retain its original folder name and `.toc` file.
+**Installing voice packs:** Download and extract the desired archives, then place their audio-pack folders directly alongside the SoftSpoken modules in `Interface\AddOns`.
 
-**Vanilla 1.12 compatibility:** The upstream audio packs are built for newer WoW clients, so they may appear as *Out of Date* in the 1.12 AddOns menu. Enable **Load out of date AddOns** if necessary. ClassicAPI's Lua compatibility support is needed for newer Places and Writings pack loaders. You should not need to rename pack folders or edit their `.toc` files. After login, open `/softspoken` and check the **Voice Packs** section of each module to confirm it detected your installation.
-
-For Stories, the complete GitHub audio archive is a large download. Alternatively, the individual [Alliance](https://www.curseforge.com/wow/addons/spoken-audio-quests-alliance), [Horde](https://www.curseforge.com/wow/addons/spoken-audio-quests-horde), [Shared Quests](https://www.curseforge.com/wow/addons/spoken-audio-quests-shared), and [Gossip](https://www.curseforge.com/wow/addons/spoken-audio-gossip) packs can be downloaded separately.
-
-The **Spoken Audio: Quests – All** package on CurseForge is intended for addon managers and does not contain the recordings itself. For manual installation, use the GitHub archive or download the individual packs.
+**Vanilla 1.12 compatibility:** Enable **Load out of date AddOns** if necessary. After login, open `/softspoken` and check the **Voice Packs** section of each module to confirm it detected your installation.
 
 ### Additional Quest Audio
 
-SoftSpoken Stories also supports additional recordings through the `SSS_VOFallback` pack (remaining Vanilla/VanillaExtra audio not covered by Spoken) and AI VoiceOver's Turtle WoW audio. Install the `SSS_VOFallback` folder directly inside `Interface\AddOns`; no manual priority edits are required.
+A susbtantial amount of Turtle WoW's custom content was voiced by AI VoiceOver. SoftSpoken Stories supports these recordings with plug-and-play ease. simply LINK and Install the ... folder directly inside `Interface\AddOns`; no manual edits are required.
 
-When multiple supported packs are installed, SoftSpoken prioritizes recordings in the following order:
-
-1. Official Spoken quest audio
-2. `SSS_VOFallback` (VanillaCombined fallback)
-3. Turtle WoW fallback
-
-This ordering is handled by SoftSpoken itself, without requiring manual changes to the packs' audio-priority settings.
-
-### Upgrading from Older Versions
-
-If upgrading from an earlier SoftSpoken installation, remove the obsolete `SoftSpoken_Quests`, `SoftSpoken_Zones`, and `SoftSpoken_Books` folders before installing the renamed modules.
-
-Your existing voice packs can remain installed. Do not delete your `WTF` directory, which contains saved preferences and character data.
+Aditionally ive prepared a `SSS_VOFallback` pack (SoftSpoken Storied VoiceOver fallpack what a moutful that covers remaining Vanilla audio not covered by Spoken). 
 
 ## Credits and licensing
 
 **SoftSpoken is developed and maintained by [z1xel](https://github.com/z1xel).**
-It builds upon [Spoken](https://github.com/rusty-key/spoken-wow) by Rusty Key,
-with earlier quest-narration roots in
-[AI VoiceOver](https://github.com/mrthinger/wow-voiceover).
+It builds upon [Spoken](https://github.com/rusty-key/spoken-wow) by Rusty Key.
 
-See [LICENSE](LICENSE) for the source-code license and
-[THIRD_PARTY.md](THIRD_PARTY.md) for library, game-content, artwork and
-audio credits. Different third-party components retain their own terms.
+buy me a coffee
