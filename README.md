@@ -47,9 +47,9 @@ Each module has a dedicated tab within the Compendium, containing a catalogue of
 
 By default, the Compendium follows a **discovery-based approach**, intended to complement exploration and preserve the experience of a blind playthrough. Content is progressively unlocked through your adventures:
 
-- **Stories:** Quests are recorded as they're accepted, with completion dialogue becoming available once the quest has been completed.
-- **Places:** Lore is unlocked as you encounter and discover locations throughout Azeroth.
-- **Writings:** Books and other readable objects are unlocked as you discover and inspect them.
+- **[Stories](#stories):** Quests are recorded as they're accepted, with completion dialogue becoming available once the quest has been completed.
+- **[Places](#places):** Lore is unlocked as you encounter and discover locations throughout Azeroth.
+- **[Writings](#writings):** Books and other readable objects are unlocked as you discover and inspect them.
 
 Undiscovered entries remain locked, allowing the Compendium to grow alongside your character's journey rather than reveal everything from the outset.
 
