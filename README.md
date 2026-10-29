@@ -117,6 +117,8 @@ These packs are developed for the original [Spoken](https://github.com/rusty-key
 
 **Installing voice packs:** Download and extract the desired archives, then place their audio-pack folders directly alongside the SoftSpoken modules in `Interface\AddOns`. Each pack should retain its original folder name and `.toc` file.
 
+**Vanilla 1.12 compatibility:** The upstream audio packs are built for newer WoW clients, so they may appear as *Out of Date* in the 1.12 AddOns menu. Enable **Load out of date AddOns** if necessary. ClassicAPI's Lua compatibility support is needed for newer Places and Writings pack loaders. You should not need to rename pack folders or edit their `.toc` files. After login, open `/softspoken` and check the **Voice Packs** section of each module to confirm it detected your installation.
+
 For Stories, the complete GitHub audio archive is a large download. Alternatively, the individual [Alliance](https://www.curseforge.com/wow/addons/spoken-audio-quests-alliance), [Horde](https://www.curseforge.com/wow/addons/spoken-audio-quests-horde), [Shared Quests](https://www.curseforge.com/wow/addons/spoken-audio-quests-shared), and [Gossip](https://www.curseforge.com/wow/addons/spoken-audio-gossip) packs can be downloaded separately.
 
 The **Spoken Audio: Quests – All** package on CurseForge is intended for addon managers and does not contain the recordings itself. For manual installation, use the GitHub archive or download the individual packs.

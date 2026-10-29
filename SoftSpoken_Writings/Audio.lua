@@ -83,13 +83,23 @@ end
 
 --- Every installed pack this version can read, newest format first.
 function SpokenBooks:GetAudioPacks()
-	local packs = {}
-	for name, pack in pairs(_G.SpokenBooksAudioPacks or {}) do
-		if type(pack) == "table" and pack.version == PACK_FORMAT and type(pack.pages) == "table" then
-			pack.addon = pack.addon or name
-			table.insert(packs, pack)
+	local packs, seen = {}, {}
+	local function AddRegistry(registry)
+		if type(registry) ~= "table" then return end
+		for name, pack in pairs(registry) do
+			if type(pack) == "table" and pack.version == PACK_FORMAT and type(pack.pages) == "table" then
+				local addon = pack.addon or name
+				if type(addon) == "string" and addon ~= "" and not seen[addon] then
+					seen[addon] = true
+					pack.addon = addon
+					table.insert(packs, pack)
+				end
+			end
 		end
 	end
+	-- Upstream renamed Books to Readables; accept either pack registry.
+	AddRegistry(_G.SpokenReadablesAudioPacks)
+	AddRegistry(_G.SpokenBooksAudioPacks)
 	table.sort(packs, function(a, b) return (a.addon or "") < (b.addon or "") end)
 	return packs
 end

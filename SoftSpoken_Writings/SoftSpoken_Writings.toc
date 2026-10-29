@@ -3,7 +3,7 @@
 ## Notes: Turtle WoW book, note, letter and plaque narration using Spoken
 ## Version: v0.8.0
 ## Dependencies: SoftSpoken
-## OptionalDeps: SpokenBooksAudio
+## OptionalDeps: SpokenReadablesAudio, SpokenBooksAudio
 ## SavedVariables: SSBSettings
 ## SavedVariablesPerCharacter: SSBCharacter
 Data\Books.lua
