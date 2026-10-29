@@ -132,8 +132,8 @@ local function PageEntry()
         return {title="Stories",subtitle="Missing companion data",text=Q.loadError,empty=true}
     end
     if not selectedID then
-        return {title="Stories",subtitle="Azeroth's Compendium",
-            text="Select a discovered quest on the left to read its dialogue and replay available recordings.",empty=true}
+        return {title="Stories",subtitle="Quest acceptance, progress and completion",
+            text="Select a quest to read its dialogue and replay available recordings."}
     end
     local entry=M:Entry(selectedID)
     local title=M:Title(selectedID,true)
@@ -185,7 +185,7 @@ local function Build(panelFrame)
     panel=panelFrame
     EnsureCatalog()
     list=C.NewList(panelFrame,{
-        search="Search quests",
+        search="Search",
         none="No matching quests.",
         only="Discovered Only",
         onlyGet=function() return Settings("foundOnly") end,
@@ -226,6 +226,9 @@ if C and C.Register and not C:Tab("quests") then
         label="Stories",order=0,title="Azeroth's Compendium",
         build=Build,
         onShow=function() S:ReadLog() end,
+        -- A second click on the currently selected tab returns to its landing
+        -- page; switching away and back never clears the current quest.
+        onReselect=function() selectedID=nil;Q:Refresh() end,
         -- The Quests module switch governs both audio and its Compendium page.
         -- Gossip has its own independent narration switch.
         enabled=function() return Spoken and Spoken.IsPartOn and Spoken:IsPartOn("quests") end,
