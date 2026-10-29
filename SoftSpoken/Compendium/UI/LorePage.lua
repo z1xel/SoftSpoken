@@ -110,7 +110,13 @@ function Page:Resize(resetScroll)
     if self.expandSubtitle and self.sub and self.sub.text and self.sub:IsShown() then
         local width=self.sub:GetWidth() or 0
         if width>50 then
-            local height=self.sub.text:GetStringHeight() or 16
+            -- A real 1.12 FontString has no GetStringHeight(). The map
+            -- subtitle uses an auto-height FontString, so GetHeight()
+            -- reports its wrapped content rather than its button height.
+            local height=self.sub.text:GetHeight() or 16
+            if self.sub.text.GetStringHeight then
+                height=self.sub.text:GetStringHeight() or height
+            end
             self.sub:SetHeight(height>18 and math.ceil(height)+2 or 16)
         end
     end
@@ -226,7 +232,15 @@ function P.CreateLorePage(parent,style,left,options)
     sub:SetPoint("TOPLEFT",title,"BOTTOMLEFT",0,-2)
     sub:SetPoint("RIGHT",frame,"RIGHT",-page.inset.right,0)
     local subtitle=sub:CreateFontString(nil,"ARTWORK","GameFontNormal")
-    subtitle:SetAllPoints(sub)
+    if page.expandSubtitle then
+        -- Don't pin the FontString to the button's bottom: on 1.12 that
+        -- forces GetHeight() to stay at 16 even when the subtitle wraps.
+        subtitle:SetPoint("TOPLEFT",sub,"TOPLEFT",0,0)
+        subtitle:SetPoint("RIGHT",sub,"RIGHT",0,0)
+        subtitle:SetJustifyV("TOP")
+    else
+        subtitle:SetAllPoints(sub)
+    end
     subtitle:SetJustifyH("LEFT")
     sub.text=subtitle
     sub:SetScript("OnClick",function(self)
