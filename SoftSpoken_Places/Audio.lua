@@ -109,31 +109,19 @@ local function FindTranscript(mapID, areaKey)
     return nil
 end
 
--- The Spoken player already renders present.portrait. Reuse the exact
--- illustration shown by the Places compendium for the narrated entry.
--- Pictures.lua is loaded after Core.lua in the TOC, but is available by
--- the time a recording is requested (including automatic narration).
-local function PlacePortrait(mapID, areaKey)
-    local picture
-    local pictures = SSZPicturesUI
-    if pictures and pictures.Get then
-        picture = pictures.Get(mapID, areaKey)
-        -- Not every subzone has its own illustration; use the zone art then.
-        if not picture and areaKey then
-            picture = pictures.Get(mapID)
-        end
+-- Follow upstream Spoken Places: the narrator's circular portrait shows
+-- the zone emblem, even when speaking about one of its subzones. The scenic
+-- Places illustrations remain available to the Compendium's parchment.
+-- All client generations use the packaged badges in SoftSpoken/Textures/Zones.
+local function PlacePortrait(mapID)
+    local icon, crop
+    if Spoken and type(Spoken.ZoneIcon) == "function" then
+        local ok, texture, coords = pcall(Spoken.ZoneIcon, Spoken, mapID)
+        if ok then icon, crop = texture, coords end
     end
-    local portrait = {
-        kind = "texture",
-        texture = picture or "Interface\\Icons\\INV_Misc_Book_09",
-    }
-    -- Supply the artwork's shape; SoftSpoken owns crop coordinates and fitting.
-    -- No fit rule on the fallback book icon, preserving its native inset.
-    if picture then
-        portrait.fit = "cover"
-        portrait.aspectRatio = 2
-    end
-    return portrait
+    if icon then return { kind = "texture", texture = icon, texCoord = crop } end
+    -- Match upstream's fallback when a map has no icon or a lookup fails.
+    return { kind = "texture", texture = [[Interface\AddOns\SoftSpoken\Textures\Book]] }
 end
 
 local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay)
@@ -158,7 +146,7 @@ local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay)
             bullet = "zone",
             -- Supply content only. The shared player owns whether/how to show it.
             transcript = transcript,
-            portrait = PlacePortrait(mapID, areaKey),
+            portrait = PlacePortrait(mapID),
         },
     }
 
