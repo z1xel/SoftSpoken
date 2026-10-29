@@ -13,9 +13,6 @@ setfenv(1, VoiceOver)
 Player = { source = nil, gossipSource = nil }
 
 local TEXTURES = format([[Interface\AddOns\%s\Textures\]], AddonFolder)
--- Keep the generic fallback consistent with Writings and Vanilla's native art.
-local BOOK = [[Interface\Icons\INV_Misc_Book_09]]
-
 -- The packs that hold quests alone. Every other pack holds gossip too.
 local QUEST_ONLY = {
     SpokenQuestsAudioAlliance = true,
@@ -168,6 +165,12 @@ end
 -- A line from something faceless shows the item that starts the quest, else a posted notice.
 local NOTICE = [[Interface\Icons\INV_Misc_Note_01]]
 local ICON_CROP = { 0.08, 0.92, 0.08, 0.92 }
+-- Mirror the exact player-faction crest rendered on the quest Compendium.
+-- Crest artwork fills the texture's UVs (unlike the cropped item icons).
+local function CrestFallback()
+    local texture = SSCQuestFactionCrest.Resolve()
+    return { kind = "texture", texture = texture, texCoord = {0,1,0,1} }
+end
 local function Faceless(soundData)
     local icon, crop
     if Spoken and Spoken.QuestItemIcon then icon, crop = Spoken:QuestItemIcon(soundData.questID) end
@@ -180,7 +183,7 @@ local function PortraitFor(soundData)
         kind = "model",
         creatureID = CreatureFor(soundData),
         animation = 60,
-        fallback = { kind = "texture", texture = BOOK, texCoord = ICON_CROP },
+        fallback = CrestFallback(),
     }
     -- Rendering is strictly optional and cannot block an audio clip.
     -- Emergency switch: /run SoftSpokenClassicPortraits=false
@@ -192,7 +195,7 @@ local function PortraitFor(soundData)
                 displayID = displayID,
                 -- A quest-log replay without an NPC must not show the old
                 -- 1.12 live-npc PlayerModel as an empty black rectangle.
-                fallback = fromQuestDatabase and { kind = "texture", texture = BOOK, texCoord = ICON_CROP } or original,
+                fallback = fromQuestDatabase and CrestFallback() or original,
             }
         end
     end
