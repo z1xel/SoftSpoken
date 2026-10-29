@@ -188,8 +188,6 @@ local function Build(panelFrame)
         checks={
             {label="Voiced Only",get=function() return Settings("voicedOnly") end,
                 set=function(on) Settings("voicedOnly",on) end},
-            {label="Unlock Undiscovered",get=function() return Settings("unlock") end,
-                set=function(on) Settings("unlock",on) end},
         },
         build=function() return Q:BuildRows() end,
         isSelected=function(item) return Q:IsSelected(item) end,
@@ -226,5 +224,12 @@ if C and C.Register and not C:Tab("quests") then
         -- The Quests module switch governs both audio and its Compendium page.
         -- Gossip has its own independent narration switch.
         enabled=function() return Spoken and Spoken.IsPartOn and Spoken:IsPartOn("quests") end,
+        unlock={
+            get=function() return Settings("unlock") end,
+            set=function(on)
+                Settings("unlock",on)
+                Q:Refresh()
+            end,
+        },
     })
 end
