@@ -114,10 +114,10 @@ local BINDINGS = {
 local PARTS = {
     { key = "quests", label = L.OPT_PART_QUESTS, text = L.OPT_PART_QUESTS_TEXT, tip = L.OPT_PART_QUESTS_TIP,
         icon = [[Interface\Icons\INV_Scroll_03]], order = 1 },
-    { key = "books", label = L.OPT_PART_BOOKS, text = L.OPT_PART_BOOKS_TEXT, tip = L.OPT_PART_BOOKS_TIP,
-        icon = [[Interface\Icons\INV_Misc_Book_09]], order = 2 },
     { key = "zones", label = L.OPT_PART_ZONES, text = L.OPT_PART_ZONES_TEXT, tip = L.OPT_PART_ZONES_TIP,
-        icon = [[Interface\Icons\INV_Misc_Map_01]], order = 3 },
+        icon = [[Interface\Icons\INV_Misc_Map_01]], order = 2 },
+    { key = "books", label = L.OPT_PART_BOOKS, text = L.OPT_PART_BOOKS_TEXT, tip = L.OPT_PART_BOOKS_TIP,
+        icon = [[Interface\Icons\INV_Misc_Book_09]], order = 3 },
 }
 
 -- Sketches of the ways of showing a line, in flat colour, for their tiles: a portrait in
@@ -531,9 +531,9 @@ local function Build(canvas)
         return compendium ~= nil and compendium.Available ~= nil and compendium:Available()
     end, L.REASON_COMPENDIUM_OFF)
     for _, unlock in ipairs({
+        { tab = "quests", part = "quests", label = L.OPT_UNLOCK_STORIES, tip = L.OPT_UNLOCK_STORIES_TIP, module = L.OPT_PART_QUESTS },
         { tab = "places", part = "zones", label = L.OPT_UNLOCK_PLACES, tip = L.OPT_UNLOCK_PLACES_TIP, module = L.OPT_PART_ZONES },
         { tab = "readables", part = "books", label = L.OPT_UNLOCK_WRITINGS, tip = L.OPT_UNLOCK_WRITINGS_TIP, module = L.OPT_PART_BOOKS },
-        { tab = "quests", part = "quests", label = L.OPT_UNLOCK_STORIES, tip = L.OPT_UNLOCK_STORIES_TIP, module = L.OPT_PART_QUESTS },
     }) do
         -- Lua 5.0 reuses 'unlock' and resets it to nil after the last iteration.
         -- Capture keys for each checkbox callback instead of closing over that variable.
@@ -1036,7 +1036,7 @@ function Options:RefreshNavigation()
     for _, page in ipairs(self.pages or {}) do
         table.insert(pages, page)
     end
-    -- Four pages fit the native Vanilla window: Home, Quests, Books, Zones.
+    -- Four pages fit the native Vanilla window: Home, Stories, Places, Writings.
     -- The currently selected Blizzard button is greyed out/disabled, exactly
     -- as it was before the extra gold selection rule was introduced.
     local width = math.floor(LEGACY_NAV_WIDTH / table.getn(pages))
