@@ -3,6 +3,9 @@ name: Audio pack regression
 on:
   push:
     paths:
+      - "SoftSpoken/UI/Options.lua"
+      - "SoftSpoken/Strings.lua"
+      - "SoftSpoken_Stories/Compendium/QuestsTab_112.lua"
       - "SoftSpoken_Places/**"
       - "SoftSpoken_Writings/**"
       - "SoftSpoken_Stories/DataModules.lua"
@@ -11,6 +14,9 @@ on:
       - ".github/workflows/audio-pack-regression.yml"
   pull_request:
     paths:
+      - "SoftSpoken/UI/Options.lua"
+      - "SoftSpoken/Strings.lua"
+      - "SoftSpoken_Stories/Compendium/QuestsTab_112.lua"
       - "SoftSpoken_Places/**"
       - "SoftSpoken_Writings/**"
       - "SoftSpoken_Stories/DataModules.lua"
@@ -28,6 +34,12 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y lua5.1
+      - name: Check changed addon Lua syntax
+        run: |
+          luac5.1 -p SoftSpoken/UI/Options.lua SoftSpoken/Strings.lua
+          luac5.1 -p SoftSpoken_Places/UI/LoreWindow.lua SoftSpoken_Writings/UI/Readables.lua
+          luac5.1 -p SoftSpoken_Stories/Compendium/QuestsTab_112.lua SoftSpoken_Stories/DataModules.lua
+          luac5.1 -p Data_Packs/SSS_VOFallback/Module.lua
       - name: Check official pack priority and fallback
         run: lua5.1 tests/audio_pack_priority_guardrails.lua
       - name: Check legacy and current voice pack registries
