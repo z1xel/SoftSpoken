@@ -265,15 +265,15 @@ Renderers["model"] = {
 }
 
 -- Request creature appearance data independently of audio and quest dispatch.
--- ClassicAPI's creature cache is populated asynchronously for NPCs the player
--- has not met. Its completion event can also fire synchronously on a cache hit;
--- defer the UI refresh to OnUpdate to avoid reentering Portrait:Configure.
+-- ClassicAPI's creature cache can populate asynchronously. A completion may
+-- also fire synchronously during RequestLoadCreatureByID; defer player refresh
+-- until OnUpdate to avoid reentering Portrait:Configure.
 local requestedCreatures = {}
 local creatureLoadFrame
 
 local function OnCreatureDataLoaded(frame, eventName, id, success)
-    -- A stock 1.12 OnEvent callback receives data via event/arg1/arg2 globals;
-    -- ClassicAPI/compatibility wrappers may also pass explicit arguments.
+    -- Stock 1.12 events use global event/arg1/arg2; Compat.lua's CreateFrame
+    -- shim passes them to the handler explicitly.
     frame = frame or creatureLoadFrame
     eventName = eventName or event
     id = id or arg1
@@ -281,25 +281,29 @@ local function OnCreatureDataLoaded(frame, eventName, id, success)
     if eventName ~= "CREATURE_DATA_LOAD_RESULT" then return end
     id = tonumber(id)
     if not id or id <= 0 then return end
-    if not success then
-        requestedCreatures[id] = nil -- allow a later explicit retry
+    if success == false or success == nil or success == 0 then
+        requestedCreatures[id] = nil -- permit a later retry after a failure
         return
     end
-    frame.refreshID = id
+    -- More than one request can finish before a frame update. Do not let
+    -- the most recent response overwrite an earlier, currently speaking NPC.
+    frame.pendingIDs = frame.pendingIDs or {}
+    frame.pendingIDs[id] = true
     frame:SetScript("OnUpdate", function(self)
         self = self or creatureLoadFrame
         self:SetScript("OnUpdate", nil)
-        local loadedID = self.refreshID
-        self.refreshID = nil
-        if rawget(_G, "SoftSpokenClassicPortraits") == false then return end
-        -- Refresh only if this speaker is still the current clip. Never replay
-        -- the sound, alter the queue or revive an NPC that has stopped talking.
+        local ready = self.pendingIDs
+        self.pendingIDs = nil
+        if not ready or rawget(_G, "SoftSpokenClassicPortraits") == false then return end
+        -- Never restart a clip or revive a previous speaker after the queue
+        -- moves on. Only repaint the portrait for the current creature.
         local ok, clip = pcall(function()
             return Spoken and Spoken.GetCurrent and Spoken:GetCurrent()
         end)
         if not ok then return end
         local spec = clip and clip.present and clip.present.portrait
-        if spec and spec.kind == "creature" and tonumber(spec.creatureID) == loadedID and
+        local currentID = spec and tonumber(spec.creatureID)
+        if spec and spec.kind == "creature" and currentID and ready[currentID] and
            Spoken and type(Spoken.RefreshPlayer) == "function" then
             pcall(Spoken.RefreshPlayer, Spoken)
         end
@@ -322,7 +326,7 @@ function Portrait:RequestCreatureData(creatureID)
         frame:SetScript("OnEvent", OnCreatureDataLoaded)
         creatureLoadFrame = frame
     end
-    -- Mark before requesting: ClassicAPI can fire the event synchronously.
+    -- Mark before requesting: a cache hit can dispatch the event immediately.
     requestedCreatures[creatureID] = true
     local ok, accepted = pcall(api.RequestLoadCreatureByID, creatureID)
     if not ok or accepted == false then
@@ -332,25 +336,57 @@ function Portrait:RequestCreatureData(creatureID)
     return true
 end
 
--- Optional ClassicAPI creature renderer. It is visual only: never a requirement
--- for narration, quest lookup, or a successful player-frame update.
+-- ClassicAPI changed the owner of SetDisplayInfo in October 2026:
+--   old: Model:SetDisplayInfo, manual SetCamera and SetLight
+--   new: PlayerModel:SetDisplayInfo, native skins/light/camera/portrait zoom
+-- Detect frame capabilities, not version strings (forks can cherry-pick APIs).
+-- Vanilla's Compat.lua adds a no-op SetCreature shim, so its presence alone
+-- MUST NOT be used to detect model support.
+local function Candidate(portrait, key, frameType)
+    if portrait[key] == nil then
+        local ok, frame = pcall(CreateFrame, frameType, nil, portrait)
+        if ok and frame then
+            frame:Hide()
+            portrait[key] = frame
+        else
+            portrait[key] = false
+        end
+    end
+    return portrait[key] or nil
+end
+
+function Portrait:AcquireCreatureModel(portrait)
+    local modern = Candidate(portrait, "creaturePlayerModel", "PlayerModel")
+    if modern and type(modern.SetDisplayInfo) == "function" then
+        modern._spokenBackend = "player"
+        modern:SetAllPoints(portrait)
+        portrait.creatureModel = modern
+        return modern
+    end
+    local legacy = Candidate(portrait, "creatureLegacyModel", "Model")
+    if legacy and type(legacy.SetDisplayInfo) == "function" then
+        legacy._spokenBackend = "model"
+        legacy:SetAllPoints(portrait)
+        portrait.creatureModel = legacy
+        return legacy
+    end
+    return nil
+end
+
+-- Optional ClassicAPI creature renderer. It is visual only: failures must not
+-- affect narration, quest lookup, or the player-frame update.
 Renderers["creature"] = {
     Acquire = function(portrait)
-        if not portrait.creatureModel then
-            local model = CreateFrame("Model", nil, portrait)
-            model:SetAllPoints(portrait)
-            portrait.creatureModel = model
-        end
-        portrait.creatureModel:Show()
-        return portrait.creatureModel
+        -- Keep candidates hidden until a valid display has been assigned.
+        return Portrait:AcquireCreatureModel(portrait)
     end,
     Update = function(model, clip, spec)
-        if rawget(_G, "SoftSpokenClassicPortraits") == false then return false end
+        if not model or rawget(_G, "SoftSpokenClassicPortraits") == false then return false end
         local displayID = tonumber(spec.displayID)
         local creatureID = tonumber(spec.creatureID)
         if creatureID and creatureID <= 0 then creatureID = nil end
         if displayID and displayID <= 0 then displayID = nil end
-        if type(model.SetDisplayInfo) ~= "function" then return false end
+
         if not displayID and creatureID and C_CreatureInfo and
            type(C_CreatureInfo.GetCreatureInfoByID) == "function" then
             local ok, info = pcall(C_CreatureInfo.GetCreatureInfoByID, creatureID)
@@ -360,35 +396,49 @@ Renderers["creature"] = {
             end
         end
         if not displayID then
-            -- The quest giver may never have appeared in this client's world.
-            -- The frame stays on its texture fallback until the cache fills.
+            -- Never show the last speaker while a new NPC is being fetched.
+            model:Hide()
+            model._spokenDisplayID = nil
             Portrait:RequestCreatureData(creatureID)
             return false
         end
         if model._spokenDisplayID ~= displayID then
+            -- Assignment happens before showing, so a reused frame cannot
+            -- briefly display the previous NPC. The modern PlayerModel owns
+            -- its appearance record, skins and camera; do not manually light
+            -- it or call SetCamera as in the old plain-Model implementation.
+            model:Hide()
             model._spokenDisplayID = nil
-            model:ClearModel()
+            if model._spokenBackend == "model" then model:ClearModel() end
             model:SetDisplayInfo(displayID)
-            -- 1.12 Model uses the portrait camera; it does not inherit the
-            -- PlayerModel camera/lighting automatically.
-            if type(model.SetCamera) == "function" then
-                pcall(model.SetCamera, model, 0)
-            end
-            if type(model.SetLight) == "function" then
-                -- Vanilla signature: enabled, omni, direction XYZ,
-                -- ambient intensity/RGB. A bad native signature is cosmetic.
-                pcall(model.SetLight, model, 1, 0, 0, 0, -1, 0.85, 1, 1, 1)
+            if model._spokenBackend == "model" then
+                if type(model.SetCamera) == "function" then
+                    pcall(model.SetCamera, model, 0)
+                end
+                if type(model.SetLight) == "function" then
+                    pcall(model.SetLight, model, 1, 0, 0, 0, -1, 0.85, 1, 1, 1)
+                end
+            elseif type(model.SetPortraitZoom) == "function" then
+                pcall(model.SetPortraitZoom, model, 1)
             end
             model._spokenDisplayID = displayID
         end
-        -- SetDisplayInfo may load a missing asset as nothing; in that case
-        -- use the upstream portrait fallback rather than an empty square.
-        if model.GetModel and not model:GetModel() then return false end
+        model:Show()
+        if model._spokenBackend == "model" then
+            -- Old Model:GetModel is a useful immediate validity check.
+            if model.GetModel and not model:GetModel() then return false end
+        end
+        -- New PlayerModel finishes building skins/camera asynchronously.
+        -- An immediate GetModel() == nil is not proof of failure; hiding the
+        -- frame at this point prevents the native asynchronous load completing.
         return true
     end,
     Release = function(model)
+        if not model then return end
         model:Hide()
-        model:ClearModel()
+        if model._spokenBackend == "model" then model:ClearModel() end
+        -- New PlayerModel retains its display record even across Hide/Show.
+        -- Forget the ID so a later speaker always assigns a fresh one.
         model._spokenDisplayID = nil
     end,
 }
