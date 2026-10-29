@@ -48,6 +48,7 @@ expect(label,"Your faction is unavailable","unknown faction tooltip")
 UnitFactionGroup=function() return "Alliance" end
 VoiceOver=setmetatable({
     AddonFolder="SoftSpoken_Stories",
+    format=string.format, -- supplied by the addon environment in-game
     L={},
     Enums={
         SoundEvent={
