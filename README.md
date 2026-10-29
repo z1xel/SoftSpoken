@@ -1,6 +1,9 @@
 # SoftSpoken v0.8.0 βeta
 *Voiced dialogue, lore, and text for World of Warcraft Vanilla.*
 
+Developed and maintained by **[z1xel](https://github.com/z1xel)**, based on
+[Spoken](https://github.com/rusty-key/spoken-wow) by Rusty Key.
+
 <p align="center">
   <img src="docs/images/softspoken-icon-320.png" width="320" height="320" alt="SoftSpoken icon">
 </p>
@@ -143,8 +146,9 @@ Your existing voice packs can remain installed. Do not delete your `WTF` directo
 
 ## Credits and licensing
 
-SoftSpoken is based on [Spoken](https://github.com/rusty-key/spoken-wow) by
-Rusty Key, with earlier quest-narration roots in
+**SoftSpoken is developed and maintained by [z1xel](https://github.com/z1xel).**
+It builds upon [Spoken](https://github.com/rusty-key/spoken-wow) by Rusty Key,
+with earlier quest-narration roots in
 [AI VoiceOver](https://github.com/mrthinger/wow-voiceover).
 
 See [LICENSE](LICENSE) for the source-code license and

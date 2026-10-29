@@ -1,6 +1,7 @@
 # Credits and third-party content
 
-SoftSpoken is a free, fan-made addon for World of Warcraft 1.12. It adapts
+SoftSpoken is a free, fan-made addon for World of Warcraft 1.12, **developed
+and maintained by [z1xel](https://github.com/z1xel)**. It adapts
 [Spoken](https://github.com/rusty-key/spoken-wow) for Vanilla clients,
 including Turtle WoW. Thank you to the people and projects whose work makes
 this possible.
@@ -15,8 +16,10 @@ this possible.
   and other contributors: an earlier foundation for the quest narration
   system and audio-data formats. Its source-code notice is preserved in
   [LICENSES/AI-VoiceOver-UNLICENSE.txt](LICENSES/AI-VoiceOver-UNLICENSE.txt).
-- **SoftSpoken contributors**: the Vanilla 1.12 port, integrations,
-  interface adaptations, and additional development.
+- **[z1xel](https://github.com/z1xel)**: creator and maintainer of SoftSpoken,
+  responsible for the Vanilla 1.12 port, unified Compendium, interface
+  adaptations, integrations and continued development. Thanks also to
+  other SoftSpoken contributors.
 
 ## Bundled Lua libraries
 
