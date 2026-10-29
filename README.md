@@ -118,9 +118,18 @@ These packs are developed for the original [Spoken](https://github.com/rusty-key
 
 ### Additional Quest Audio
 
-A susbtantial amount of Turtle WoW's custom content was voiced by AI VoiceOver. SoftSpoken Stories supports these recordings with plug-and-play ease. simply LINK and Install the ... folder directly inside `Interface\AddOns`; no manual edits are required.
+A substantial amount of Turtle WoW's custom quest and NPC dialogue has been voiced through the AI VoiceOver project. **SoftSpoken Stories supports these recordings directly**, without requiring the original AI VoiceOver addon or manual configuration.
 
-Aditionally ive prepared a `SSS_VOFallback` pack (SoftSpoken Storied VoiceOver fallpack what a moutful that covers remaining Vanilla audio not covered by Spoken). 
+I've also prepared **SSS_VOFallback** (SoftSpoken Stories VoiceOver Fallback), a supplementary pack containing Vanilla quest and gossip recordings not already covered by Spoken.
+
+| Voice pack | Description | Download |
+|---|---|---|
+| **Turtle WoW VoiceOver** | AI-generated narration for Turtle WoW's custom quests and NPC dialogue. | [Download Turtle WoW Voice Data](https://github.com/lightbladeninja/wow-voiceover/releases/download/v1.5.0/AI_VoiceOverData_Turtle.zip) |
+| **SSS_VOFallback** | Additional Vanilla and VanillaExtra recordings that fill gaps in Spoken's quest and gossip coverage. | [SSS_VOFallback Pack](https://github.com/z1xel/SoftSpoken/tree/main/Data_Packs/SSS_VOFallback) |
+
+**Installation:** Place the `AI_VoiceOverData_Turtle` and/or `SSS_VOFallback` folders directly inside `Interface\AddOns`, alongside the SoftSpoken modules.
+
+When multiple packs contain the same recording, SoftSpoken automatically prioritizes **Spoken → SSS_VOFallback → Turtle WoW**, without requiring manual edits to audio priorities.
 
 ## Credits and licensing
 
