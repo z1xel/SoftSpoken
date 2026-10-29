@@ -1,161 +1,73 @@
-# Third-party licenses, credits, and content provenance
+# Credits and third-party content
 
-SoftSpoken is a fan-made World of Warcraft 1.12 addon and an adaptation of
-[Spoken](https://github.com/rusty-key/spoken-wow) by Rusty Key. It includes
-code and assets with **different owners and different terms**. This page is
-an attribution/provenance index; attribution by itself does not establish
-redistribution permission.
+SoftSpoken is a free, fan-made addon for World of Warcraft 1.12. It adapts
+[Spoken](https://github.com/rusty-key/spoken-wow) for Vanilla clients,
+including Turtle WoW. Thank you to the people and projects whose work makes
+this possible.
 
-The [root MIT license](LICENSE) applies **only to code** for which its
-copyright holders have granted MIT rights. It is **not** a blanket license
-for everything in this repository. See the verbatim
-[Spoken LICENSE](LICENSES/Spoken-MIT.txt) for the original notice and
-[Spoken's third-party inventory](https://github.com/rusty-key/spoken-wow/blob/master/THIRD_PARTY.md)
-for more detail on inherited assets and text.
+## Projects
 
-## Code lineage
-
-- **Spoken** (Rusty Key): the shared player, quest/story narration,
-  Places/Writings features, data, and UI mechanisms are adapted from
-  [rusty-key/spoken-wow](https://github.com/rusty-key/spoken-wow). The
-  original author's MIT notice is preserved in this repository.
-- **AI VoiceOver** (MrThinger and subsequent contributors): prior code
-  ancestry of Spoken's quest playback and data-module loading systems.
-  The [original project's source](https://github.com/mrthinger/wow-voiceover)
-  carries the [Unlicense](LICENSES/AI-VoiceOver-UNLICENSE.txt), which applies
-  to source code, **not automatically to its distributed audio, voices or
-  Blizzard game text**.
-- **SoftSpoken contributors:** additional code and changes to port and
-  integrate the addons with Vanilla 1.12, ClassicAPI and SuperWoW. The
-  names of upstream authors and copyright holders are not replaced by
-  the SoftSpoken name.
+- **[Spoken](https://github.com/rusty-key/spoken-wow)**, by **Rusty Key**:
+  the original narration player, Stories, Places and Writings functionality,
+  data, and much of the artwork that SoftSpoken builds upon. Its original
+  copyright and MIT notice are preserved in [LICENSES/Spoken-MIT.txt](LICENSES/Spoken-MIT.txt).
+  See [Spoken's credits](https://github.com/rusty-key/spoken-wow/blob/master/THIRD_PARTY.md)
+  for further source details.
+- **[AI VoiceOver](https://github.com/mrthinger/wow-voiceover)**, by **MrThinger**
+  and other contributors: an earlier foundation for the quest narration
+  system and audio-data formats. Its source-code notice is preserved in
+  [LICENSES/AI-VoiceOver-UNLICENSE.txt](LICENSES/AI-VoiceOver-UNLICENSE.txt).
+- **SoftSpoken contributors**: the Vanilla 1.12 port, integrations,
+  interface adaptations, and additional development.
 
 ## Bundled Lua libraries
 
-Vendored libraries remain under their own licenses. They are loaded
-from `SoftSpoken/Libs/` and `SoftSpoken_Stories/Libs/`; their source
-files and embedded notices must remain intact when packaging.
+The addons bundle libraries in `SoftSpoken/Libs/` and
+`SoftSpoken_Stories/Libs/`. These retain their own licenses:
 
-| Library | Bundled path(s) | License / notice |
-| --- | --- | --- |
-| LibStub | `SoftSpoken/Libs/LibStub/` | Public domain; credits and dedication in the Lua file header |
-| CallbackHandler-1.0 | `SoftSpoken/Libs/CallbackHandler-1.0/` | Ace3 project license; [full notice](LICENSES/Ace3.txt) |
-| Ace3 components (AceDB, AceTimer; AceAddon, AceConsole, AceConfig, AceDBOptions, AceEvent, AceGUI) | `SoftSpoken/Libs/AceDB-3.0/`, `SoftSpoken/Libs/AceTimer-3.0/`, and `SoftSpoken_Stories/Libs/Ace*/` | [Ace3 license](LICENSES/Ace3.txt), copyright 2007 Ace3 Development Team; includes a restriction on redistributing Ace3 **standalone** |
-| AceCore-3.0 (legacy compatibility library) | `SoftSpoken/Libs/AceCore-3.0/` | **Provenance and precise license not yet verified**; do not assume it is MIT without checking |
-| LibDataBroker-1.1 | `SoftSpoken/Libs/LibDataBroker-1.1/` | Upstream reports public-domain / CC0 status; the bundled Lua has no explicit license header. [Project source](https://github.com/tekkub/libdatabroker-1-1) |
-| LibDBIcon-1.0 | `SoftSpoken/Libs/LibDBIcon-1.0/` | **GPL-2.0-or-later**, copyright (C) 2008–2010 Rabbit, stated explicitly in the bundled source header. [GPL v2 full text](LICENSES/GPL-2.0.txt). **Not MIT or public domain.** |
+- **Ace3 components and CallbackHandler-1.0** — Ace3 Development Team,
+  [Ace3 license](LICENSES/Ace3.txt). Includes AceDB, AceTimer, AceAddon,
+  AceConsole, AceConfig, AceDBOptions, AceEvent and AceGUI.
+- **LibDBIcon-1.0** — Rabbit, **GPL v2 or later**, as specified in its
+  source header; [GPL v2 text](LICENSES/GPL-2.0.txt).
+- **LibStub** — public-domain dedication and credits in its source header.
+- **LibDataBroker-1.1** — [original project](https://github.com/tekkub/libdatabroker-1-1);
+  commonly distributed as public-domain/CC0; its bundled Lua file does not
+  contain an explicit license notice.
+- **AceCore-3.0** — bundled legacy compatibility library; its exact
+  origin and license are not identified in the source copy.
 
-This inventory reflects the version bundled here and should be revisited
-when libraries are upgraded. The presence of a GPL library may require
-additional compatibility/compliance assessment for the **combined
-distribution**, even when the rest of the addon code is MIT; the root
-license does not supersede those obligations. Preserve complete library
-source and notices with released archives.
+The [root MIT license](LICENSE) covers code appropriately licensed under
+MIT, not the bundled libraries under different terms. Retain the original
+library notices when distributing the addon.
 
-## Game text and lore databases
+## Warcraft content and artwork
 
-- **Quest, NPC, gossip, book, and item texts**, names and associated
-  World of Warcraft game data under
-  `SoftSpoken_Stories/Data/` and `SoftSpoken_Writings/Data/` derive
-  principally from Blizzard Entertainment game content and the
-  community-maintained world databases referenced by
-  [Spoken](https://github.com/rusty-key/spoken-wow/blob/master/THIRD_PARTY.md).
-  Neither this repository's MIT license nor those databases' code
-  licenses grant ownership of Blizzard's text.
-- **Places zone/subzone prose**, under `SoftSpoken_Places/Data/`,
-  is adapted from Spoken's lore dataset derived from
-  [Warcraft Wiki](https://warcraft.wiki.gg).
-  Warcraft Wiki publishes its contributed text under
-  [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/);
-  relevant attribution, indication of changes and share-alike terms
-  should be observed for adapted wiki text.
-- Other collected metadata, including book location/source information,
-  may contain data from community world databases. Consult
-  Spoken's third-party inventory for source-by-source provenance.
+- **World of Warcraft quest dialogue, NPC names, books and game data**
+  belong to Blizzard Entertainment. The text databases were adapted
+  through Spoken and earlier community projects.
+- **Places lore text** was adapted from [Warcraft Wiki](https://warcraft.wiki.gg),
+  whose contributed text is licensed under
+  [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+- **Interface artwork, map icons and zone emblems** include Blizzard
+  game assets and Spoken-derived artwork.
+- **Places illustrations** are adapted game screenshots. The
+  [per-picture source credits](SoftSpoken_Places/Textures/Pictures/CREDITS.md)
+  identify the original images and their source pages.
+- Other player textures and service icons inherit their original
+  sources and trademarks; further details appear in
+  [Spoken's third-party credits](https://github.com/rusty-key/spoken-wow/blob/master/THIRD_PARTY.md).
 
-## Artwork, textures and screenshots
+## Voice recordings
 
-- **Blizzard game UI art:** various parchment, metal frames, spellbook,
-  quest-log and map elements under `SoftSpoken/Compendium/Textures/`,
-  `SoftSpoken_Places/Textures/Art/`, and related UI assets are adapted
-  from World of Warcraft UI artwork. Blizzard owns the underlying game
-  artwork; the MIT code license does not license these textures.
-- **Zone emblems and map icons:** `SoftSpoken/Textures/Zones/` and
-  game icon textures include Blizzard imagery as well as pieces
-  supplied by Spoken or its contributors. Attribution for
-  Spoken-sourced zone icons is discussed in
-  [upstream THIRD_PARTY.md](https://github.com/rusty-key/spoken-wow/blob/master/THIRD_PARTY.md);
-  do not treat all icons as original SoftSpoken artwork.
-- **Zone illustrations:** `SoftSpoken_Places/Textures/Pictures/`
-  consists primarily of processed World of Warcraft screenshots,
-  carried over from Spoken. A **per-picture source link index** is
-  retained at
-  [`SoftSpoken_Places/Textures/Pictures/CREDITS.md`](SoftSpoken_Places/Textures/Pictures/CREDITS.md).
-  Source pages identify uploaders and their individual terms. These
-  pictures were cleaned, sharpened, cropped, tinted or edged as
-  described in that file; this does not erase the source rights.
-  **Wiki-hosted images do not all necessarily carry the same license.**
-- **Inherited AI VoiceOver/Spoken player UI assets**, including legacy
-  `Book.blp`, `PortraitFrameAtlas.blp`,
-  `QuestLogPlayButton.blp`, queue bullets and other `SoftSpoken/Textures/`
-  elements, retain their original provenance. See Spoken's
-  [third-party asset descriptions](https://github.com/rusty-key/spoken-wow/blob/master/THIRD_PARTY.md).
-- **Link/service icons:** `SoftSpoken/Textures/Link*.tga` include
-  third-party service marks and may include art from
-  [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons)
-  and [Simple Icons](https://github.com/simple-icons/simple-icons), as
-  described upstream. Trademark ownership remains with the respective
-  organizations.
-- **SoftSpoken icon and edited/new art:** assess each original or
-  transformed image on its own merits. Project creation and inclusion
-  do not automatically grant a license to third-party source art.
+The official Spoken quest, zone and book recordings are distributed
+separately by [Spoken](https://github.com/rusty-key/spoken-wow/releases).
+The optional `Data_Packs/SSS_VOFallback/` contains 1,121 recordings
+from AI VoiceOver Vanilla/VanillaExtra material, credited to the original
+project and recording contributors. Other Turtle WoW voice packs are
+distributed by their respective authors. Audio and game dialogue have
+their own applicable terms; the MIT code license does not license them.
 
-## Audio and voice packs
-
-- The **four core addon folders** do not contain the official Spoken
-  quest, zone or book voice packs. These are downloaded from
-  [Spoken releases](https://github.com/rusty-key/spoken-wow/releases)
-  separately, subject to their own applicable terms.
-- `Data_Packs/SSS_VOFallback/` is an **optional** reduced combination
-  of AI VoiceOver Vanilla/VanillaExtra material. The current repository
-  contains **1,121 MP3 files (700 quest, 421 gossip)** as well as
-  accompanying generated lookup/duration tables. Credit for original
-  VoiceOver work belongs to MrThinger and the relevant recording
-  contributors; the original game dialogue belongs to Blizzard.
-- The licenses covering the **player/source code** (MIT or Unlicense)
-  do **not automatically establish redistribution rights for those MP3
-  recordings**, voice models, or underlying spoken game text. The
-  precise audio-pack and speech-provider terms should be confirmed
-  **before publishing the optional pack as a release asset**. No
-  blanket MIT license is asserted for the recordings.
-- Turtle WoW / third-party voice packs are **not** bundled here and
-  remain the responsibility of their respective authors/distributors.
-
-## Pre-release rights checks
-
-The notices above improve attribution; they do not certify that every
-asset is cleared for redistribution. Before shipping public archives:
-
-1. Confirm the provenance and redistribution terms of the **1,121
-   optional fallback recordings**. If not cleared, omit that optional
-   pack from release assets until permission/terms are verified.
-2. Verify the **AceCore-3.0** origin/license and confirm compliance
-   when bundled alongside the GPL-licensed **LibDBIcon-1.0**. Preserve
-   original library headers, the Ace3 terms and the complete GPL text.
-3. Check relevant **Warcraft Wiki / individual screenshot file**
-   license and attribution conditions, including source authors,
-   modifications and any share-alike obligations.
-4. Audit new branding, copied Blizzard textures and any later-added
-   assets (including changes on open pull requests) for provenance.
-5. Ensure release ZIPs retain `LICENSE`, `THIRD_PARTY.md`,
-   required license texts and picture credits.
-
-These are release checks, **not evidence of infringement**; unresolved
-rights should be reported explicitly rather than silently assumed.
-
-## Fan project notice
-
-SoftSpoken is an independent fan project, not affiliated with, endorsed
-or sponsored by Blizzard Entertainment. World of Warcraft and Blizzard
-Entertainment are trademarks or registered trademarks of Blizzard
-Entertainment, Inc.
+SoftSpoken is an independent fan project and is not affiliated with,
+endorsed by or sponsored by Blizzard Entertainment. World of Warcraft
+and Blizzard are trademarks of Blizzard Entertainment.

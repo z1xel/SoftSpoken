@@ -141,17 +141,12 @@ If upgrading from an earlier SoftSpoken installation, remove the obsolete `SoftS
 
 Your existing voice packs can remain installed. Do not delete your `WTF` directory, which contains saved preferences and character data.
 
-## Licenses, credits and third-party content
+## Credits and licensing
 
-SoftSpoken is a derivative of [Spoken](https://github.com/rusty-key/spoken-wow) by
-Rusty Key, with earlier quest-player lineage from
+SoftSpoken is based on [Spoken](https://github.com/rusty-key/spoken-wow) by
+Rusty Key, with earlier quest-narration roots in
 [AI VoiceOver](https://github.com/mrthinger/wow-voiceover).
-See [LICENSE](LICENSE) for the license applicable to project-owned and
-appropriately licensed source code and [THIRD_PARTY.md](THIRD_PARTY.md)
-for bundled libraries, Blizzard game content, artwork, screenshot
-sources and audio provenance. Third-party content is **not** covered
-by a blanket MIT grant.
 
-The optional `Data_Packs/SSS_VOFallback` recordings have separate
-rights questions and should not be treated as MIT-licensed merely
-because the player code is.
+See [LICENSE](LICENSE) for the source-code license and
+[THIRD_PARTY.md](THIRD_PARTY.md) for library, game-content, artwork and
+audio credits. Different third-party components retain their own terms.
