@@ -86,10 +86,10 @@ In the meantime, bug reports, testing, and suggestions are greatly appreciated.
 
 ## Installation
 
-SoftSpoken is installed manually in your World of Warcraft 1.12 `Interface\AddOns` directory.
+Download the **[SoftSpoken v0.8.0 Beta 1 release](https://github.com/z1xel/SoftSpoken/releases/tag/v0.8.00-beta.1)** rather than using GitHub's **Code → Download ZIP**, which downloads the entire source repository.
 
-1. Download SoftSpoken from [GitHub](https://github.com/z1xel/SoftSpoken) using **Code → Download ZIP**, then extract the archive.
-2. Copy the following four folders into your game's `Interface\AddOns` directory:
+1. Download **[SoftSpoken-v0.8.0-beta.1.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.8.00-beta.1/SoftSpoken-v0.8.0-beta.1.zip)** and extract it.
+2. Find the following four addon folders in the extracted contents and copy them into your World of Warcraft 1.12 `Interface\AddOns` directory:
 
    ```text
    Interface/
@@ -100,14 +100,16 @@ SoftSpoken is installed manually in your World of Warcraft 1.12 `Interface\AddOn
        └── SoftSpoken_Writings/
    ```
 
-3. Make sure these folders are directly inside `AddOns`, rather than nested inside an additional `SoftSpoken-main` directory.
-4. Launch the game and enable the modules from the AddOns menu.
+3. Make sure the four folders are **directly inside `AddOns`**, not inside an additional extracted archive folder. For example, the file `Interface\AddOns\SoftSpoken\SoftSpoken.toc` should exist.
+4. Launch the game and enable SoftSpoken and its modules in the **AddOns** menu.
 
-Once installed, use `/softspoken` to open the settings or `/compendium` to open Azeroth's Compendium. The Compendium also has a default keybinding of **J**, provided that key was not already assigned to another action.
+Use `/softspoken` to open settings or `/compendium` to open Azeroth's Compendium. The Compendium also has a default keybinding of **J**, provided that key was not already assigned to another action.
+
+**Voice packs are installed separately** as described below; the four core addon modules do not include narrated voice recordings.
 
 ### Voice Packs
 
-SoftSpoken does not include audio recordings. To enable narration, install compatible voice packs separately for whichever modules you intend to use.
+To enable narration, install compatible voice packs for whichever modules you intend to use. The core SoftSpoken modules do not contain the voice packs themselves.
 
 | Module | Voice pack |
 |---|---|
