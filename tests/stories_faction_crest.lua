@@ -90,6 +90,20 @@ local original=prep(345)
 expect(original.kind,"model","no indexed giver keeps legacy model")
 expect(original.fallback.texture,ALLIANCE,"legacy model fallback also uses crest")
 
+-- A live identified NPC should also fall directly to the faction crest if
+-- enhanced ClassicAPI rendering fails (rather than showing an old speaker).
+UnitName=function(unit) return unit=="npc" and "Sample quest giver" or nil end
+UnitGUID=function(unit) return unit=="npc" and "npc:448" or nil end
+C_CreatureInfo.GetCreatureID=function(guid)
+    return guid=="npc:448" and 448 or nil
+end
+local live=prep(345)
+expect(live.kind,"creature","identified live NPC uses ClassicAPI")
+expect(live.fallback.texture,ALLIANCE,"live NPC fallback is faction crest")
+UnitName=nil
+UnitGUID=nil
+C_CreatureInfo.GetCreatureID=nil
+
 local object=prep(345,true)
 expect(object.kind,"texture","quest objects retain item/note art")
 assert(object.texture~=ALLIANCE,"quest object must not become faction crest")
