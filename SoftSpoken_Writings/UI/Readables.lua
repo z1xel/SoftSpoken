@@ -517,8 +517,6 @@ local function Build(panelFrame)
         checks={
             {label="Voiced Only",get=OnlyVoiced,
                 set=function(on) Settings().compendiumVoicedOnly=on end},
-            {label="Unlock Unfound",get=Unlocked,
-                set=function(on) Settings().unlockUnfound=on end},
             {label="Arrange by Type",get=function() return not ByZone() end,
                 set=function(on) Settings().compendiumByZone=not on end},
         },
