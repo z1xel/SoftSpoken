@@ -341,7 +341,8 @@ end
 -- ShowEntry(). LorePage can render this without changing its 1.12 appearance.
 local function ShowEntry()
     if not selectedID then
-        return {title="Choose a place",text="Select a location from the list to read its history.",empty=true}
+        return {title="Places",subtitle="Zones, cities and subzones",
+            text="Select a place to read its history and replay available recordings."}
     end
     local id,key=selectedID,selectedKey
     local zone=Lore().zones[id]
@@ -454,9 +455,6 @@ local function BuildPanel(p)
             {label="Voiced Only",
                 get=function() return Settings().compendiumVoicedOnly==true end,
                 set=function(on) Settings().compendiumVoicedOnly=on end},
-            {label="Unlock Undiscovered",
-                get=function() return Settings().compendiumUnlockUndiscovered==true end,
-                set=function(on) M.SetUnlockUndiscovered(on) end},
         },
         build=M.RebuildRows,
         isSelected=M.IsSelected,
@@ -512,6 +510,10 @@ function M.SetupLoreWindow()
     C:Register("places",{
         label="Places",order=1,title="Azeroth's Compendium",
         build=BuildPanel,
+        onReselect=function()
+            selectedID,selectedKey=nil,nil
+            M.Refresh()
+        end,
         onShow=function()
             if SSZBridge and SSZBridge.RefreshFound then
                 SSZBridge:RefreshFound()

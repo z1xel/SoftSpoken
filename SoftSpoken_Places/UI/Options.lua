@@ -161,7 +161,7 @@ local function Build()
     end)
 
     frame:SetScript("OnShow", Refresh)
-    optionsPage = Spoken:AddSettingsPage(frame, "Places", 3, layout)
+    optionsPage = Spoken:AddSettingsPage(frame, "Places", 2, layout)
     Refresh()
 end
 

@@ -132,8 +132,8 @@ local function PageEntry()
         return {title="Stories",subtitle="Missing companion data",text=Q.loadError,empty=true}
     end
     if not selectedID then
-        return {title="Stories",subtitle="Azeroth's Compendium",
-            text="Select a discovered quest on the left to read its dialogue and replay available recordings.",empty=true}
+        return {title="Stories",subtitle="Quest acceptance, progress and completion",
+            text="Select a quest to read its dialogue and replay available recordings."}
     end
     local entry=M:Entry(selectedID)
     local title=M:Title(selectedID,true)
@@ -155,6 +155,11 @@ local function PageEntry()
 end
 function Q:Refresh()
     if not list then return end
+    -- Turning off the Settings unlock checkbox must also revoke any
+    -- previously selected undiscovered quest's detail page.
+    if selectedID and not S:IsSeen(selectedID) and not Settings("unlock") then
+        selectedID=nil
+    end
     list:Render()
     if page then
         local entry=PageEntry()
@@ -180,7 +185,7 @@ local function Build(panelFrame)
     panel=panelFrame
     EnsureCatalog()
     list=C.NewList(panelFrame,{
-        search="Search quests",
+        search="Search",
         none="No matching quests.",
         only="Discovered Only",
         onlyGet=function() return Settings("foundOnly") end,
@@ -188,8 +193,6 @@ local function Build(panelFrame)
         checks={
             {label="Voiced Only",get=function() return Settings("voicedOnly") end,
                 set=function(on) Settings("voicedOnly",on) end},
-            {label="Unlock Undiscovered",get=function() return Settings("unlock") end,
-                set=function(on) Settings("unlock",on) end},
         },
         build=function() return Q:BuildRows() end,
         isSelected=function(item) return Q:IsSelected(item) end,
@@ -223,8 +226,18 @@ if C and C.Register and not C:Tab("quests") then
         label="Stories",order=0,title="Azeroth's Compendium",
         build=Build,
         onShow=function() S:ReadLog() end,
+        -- A second click on the currently selected tab returns to its landing
+        -- page; switching away and back never clears the current quest.
+        onReselect=function() selectedID=nil;Q:Refresh() end,
         -- The Quests module switch governs both audio and its Compendium page.
         -- Gossip has its own independent narration switch.
         enabled=function() return Spoken and Spoken.IsPartOn and Spoken:IsPartOn("quests") end,
+        unlock={
+            get=function() return Settings("unlock") end,
+            set=function(on)
+                Settings("unlock",on)
+                Q:Refresh()
+            end,
+        },
     })
 end

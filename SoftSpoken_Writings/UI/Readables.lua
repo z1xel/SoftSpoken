@@ -406,7 +406,7 @@ local function ShowEntry()
     if not page then return end
     if not selected then
         page:Show({title="Writings",subtitle="Books, letters, notes and plaques",
-            text="Choose a writing from the list to read its pages."})
+            text="Select a writing to read its pages and replay available recordings."})
         return
     end
     if selected.kind=="readable" then
@@ -463,7 +463,7 @@ local function Select(row)
         elseif row.kind=="group" then openedGroup[row.which]=not openedGroup[row.which]
         elseif row.kind=="type" then
             local key=row.mapID and (tostring(row.mapID)..":"..row.which) or row.which
-            if row.mapID then expandedType[key]=expandedType[key]==false and nil or false
+            if row.mapID then expandedType[key]=not expandedType[key]
             else openedType[key]=not openedType[key] end
         end
     end
@@ -511,14 +511,12 @@ end
 local function Build(panelFrame)
     panel=panelFrame
     list=C.NewList(panel,{
-        search="Search writings",none="No matching writings.",
+        search="Search",none="No matching writings.",
         only="Discovered Only", onlyGet=OnlyFound,
         onlySet=function(on) Settings().compendiumFoundOnly=on end,
         checks={
             {label="Voiced Only",get=OnlyVoiced,
                 set=function(on) Settings().compendiumVoicedOnly=on end},
-            {label="Unlock Unfound",get=Unlocked,
-                set=function(on) Settings().unlockUnfound=on end},
             {label="Arrange by Type",get=function() return not ByZone() end,
                 set=function(on) Settings().compendiumByZone=not on end},
         },
@@ -599,6 +597,10 @@ function B:SetupReadables()
     C:Register("readables",{
         label="Writings",order=2,title="Azeroth's Compendium",build=Build,
         onShow=function() B:RefreshReadables() end,
+        onReselect=function()
+            selected=nil
+            B:RefreshReadables()
+        end,
         store={
             get=function(key) return Settings()["compendium"..key] end,
             set=function(key,value) Settings()["compendium"..key]=value end,

@@ -25,6 +25,8 @@ local panel
 local scroller
 local legacyScrollChild
 local legacyNavButtons = {}
+local legacyMaxHeight
+local FitWindow
 
 -- Rows, headings and the spacing between them come from UI/Layout.lua, the file every
 -- Spoken addon carries a copy of, so the three panels read alike.
@@ -112,10 +114,10 @@ local BINDINGS = {
 local PARTS = {
     { key = "quests", label = L.OPT_PART_QUESTS, text = L.OPT_PART_QUESTS_TEXT, tip = L.OPT_PART_QUESTS_TIP,
         icon = [[Interface\Icons\INV_Scroll_03]], order = 1 },
-    { key = "books", label = L.OPT_PART_BOOKS, text = L.OPT_PART_BOOKS_TEXT, tip = L.OPT_PART_BOOKS_TIP,
-        icon = [[Interface\Icons\INV_Misc_Book_09]], order = 2 },
     { key = "zones", label = L.OPT_PART_ZONES, text = L.OPT_PART_ZONES_TEXT, tip = L.OPT_PART_ZONES_TIP,
-        icon = [[Interface\Icons\INV_Misc_Map_01]], order = 3 },
+        icon = [[Interface\Icons\INV_Misc_Map_01]], order = 2 },
+    { key = "books", label = L.OPT_PART_BOOKS, text = L.OPT_PART_BOOKS_TEXT, tip = L.OPT_PART_BOOKS_TIP,
+        icon = [[Interface\Icons\INV_Misc_Book_09]], order = 3 },
 }
 
 -- Sketches of the ways of showing a line, in flat colour, for their tiles: a portrait in
@@ -510,10 +512,9 @@ local function Build(canvas)
     -- The narrator style's settings end here; what follows is Spoken's whatever the style.
     layout:EndGroup()
 
-    -- Azeroth's Compendium, after the narrator style's settings: the window Zones and Books each
-    -- add a tab to, opened here and from the minimap menu, with each tab's Unlock switch. The tabs
-    -- register once the world is up, after this page is built, so the rows ask for them each time
-    -- they are drawn; with neither part installed the section has nothing showing and hides.
+    -- Azeroth's Compendium: Places, Writings and Stories each supply their
+    -- own persisted unlock preference via the registered tab. The rows query
+    -- the tab on refresh because feature modules register after this page.
     local function Compendium() return _G.SSCCompendium or _G.SpokenZones112Compendium or _G.SpokenCompendium end
     local function Tab(key)
         local compendium = Compendium()
@@ -530,6 +531,7 @@ local function Build(canvas)
         return compendium ~= nil and compendium.Available ~= nil and compendium:Available()
     end, L.REASON_COMPENDIUM_OFF)
     for _, unlock in ipairs({
+        { tab = "quests", part = "quests", label = L.OPT_UNLOCK_STORIES, tip = L.OPT_UNLOCK_STORIES_TIP, module = L.OPT_PART_QUESTS },
         { tab = "places", part = "zones", label = L.OPT_UNLOCK_PLACES, tip = L.OPT_UNLOCK_PLACES_TIP, module = L.OPT_PART_ZONES },
         { tab = "readables", part = "books", label = L.OPT_UNLOCK_WRITINGS, tip = L.OPT_UNLOCK_WRITINGS_TIP, module = L.OPT_PART_BOOKS },
     }) do
@@ -737,7 +739,7 @@ local function Build(canvas)
         Layout.Confirm(L.OPT_RESET_ALL_CONFIRM, L.OPT_RESET_AND_RELOAD, L.CANCEL, function()
             -- The Unlock switches are on this page but kept with each part's settings, which
             -- ResetProfile does not reach, and each part's own Reset skips them.
-            for _, key in ipairs({ "places", "readables" }) do
+            for _, key in ipairs({ "places", "readables", "quests" }) do
                 local tab = Tab(key)
                 if tab and tab.unlock then tab.unlock.set(false) end
             end
@@ -1034,7 +1036,7 @@ function Options:RefreshNavigation()
     for _, page in ipairs(self.pages or {}) do
         table.insert(pages, page)
     end
-    -- Four pages fit the native Vanilla window: Home, Quests, Books, Zones.
+    -- Four pages fit the native Vanilla window: Home, Stories, Places, Writings.
     -- The currently selected Blizzard button is greyed out/disabled, exactly
     -- as it was before the extra gold selection rule was introduced.
     local width = math.floor(LEGACY_NAV_WIDTH / table.getn(pages))
@@ -1094,20 +1096,54 @@ function Options:SelectLegacyPage(order)
     if scroller.SetVerticalScroll then scroller:SetVerticalScroll(0) end
     local layout = chosen and chosen.layout or panel.layout
     if layout then layout:Refresh() end
+    -- Feature pages can have their own resize callback; always recalculate
+    -- the shared 1.12 ScrollFrame after swapping its ScrollChild.
+    if FitWindow then FitWindow() end
     self:RefreshNavigation()
     return true
 end
 
 -- Keep the scroll child tall enough for the active page without growing the
 -- bounded Vanilla window. Modern clients size the canvas content instead.
-local function FitWindow()
+FitWindow = function()
     if not panel then return end
     local activeLayout = Options.activePage and Options.activePage.layout or panel.layout
-    local needed = TOP + activeLayout:Height() + BOTTOM
+    if not activeLayout then return end
+    local needed = math.max(1, TOP + activeLayout:Height() + BOTTOM)
     if legacyScrollChild then
-        -- The currently selected module owns the scroll child and its height.
+        -- Keep a full-height settings window except for Voice Only on Home,
+        -- where the narrator controls disappear and the empty space should
+        -- collapse. Module tabs and Large Window retain the normal height.
+        if panel.isWindow and legacyMaxHeight then
+            local target = legacyMaxHeight
+            if not Options.activePage and Addon:PlayerStyle() == "none" then
+                -- Viewport = panel height + LEGACY_SCROLL_TOP - 20.
+                -- Leave an 8px safety margin under the final setting.
+                target = math.min(target,
+                    math.max(300, needed - LEGACY_SCROLL_TOP + 28))
+            end
+            if math.abs((panel:GetHeight() or 0) - target) > 0.5 then
+                panel:SetHeight(target)
+            end
+        end
         local child = Options.activePage and Options.activePage.frame or legacyScrollChild
         child:SetHeight(needed)
+        -- Native UIPanelScrollFrameTemplate does not run the modern custom
+        -- scroller's Recalculate() when a row is hidden or a tab is swapped.
+        -- Refresh its scroll rectangle and native slider after every reflow.
+        if scroller then
+            if scroller.UpdateScrollChildRect then scroller:UpdateScrollChildRect() end
+            local maximum = math.max(0, needed - (scroller:GetHeight() or 0))
+            local current = scroller.GetVerticalScroll and scroller:GetVerticalScroll() or 0
+            local offset = math.max(0, math.min(current or 0, maximum))
+            local name = scroller.GetName and scroller:GetName()
+            local scrollbar = name and getglobal(name .. "ScrollBar")
+            if scrollbar and scrollbar.SetMinMaxValues then
+                scrollbar:SetMinMaxValues(0, maximum)
+            end
+            if scroller.SetVerticalScroll then scroller:SetVerticalScroll(offset) end
+            if scrollbar and scrollbar.SetValue then scrollbar:SetValue(offset) end
+        end
     elseif scroller and scroller.SetContentHeight then
         scroller:SetContentHeight(needed)
     elseif panel.isWindow and needed > (panel:GetHeight() or 0) then
@@ -1137,7 +1173,8 @@ function Options:Setup()
         -- rows, which vary by client, rather than a fixed height the rows can outgrow.
         panel.isWindow = true
         local screenHeight = (UIParent and UIParent.GetHeight and UIParent:GetHeight()) or 768
-        panel:SetSize(LEGACY_WIDTH, math.min(620, math.max(300, screenHeight - 80)))
+        legacyMaxHeight = math.min(620, math.max(300, screenHeight - 80))
+        panel:SetSize(LEGACY_WIDTH, legacyMaxHeight)
         panel:SetPoint("CENTER")
         panel:SetMovable(true)
         panel:EnableMouse(true)
