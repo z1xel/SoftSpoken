@@ -3,8 +3,8 @@
 -- merge every table assignment into a single registered VoiceOver module.
 if not VoiceOver or not VoiceOver.DataModules then return end
 
-SSVOFallback_VanillaCombined = {}
-local combined = SSVOFallback_VanillaCombined
+SSS_VOFallback = {}
+local combined = SSS_VOFallback
 
 local function ExtraOverwrites(base, incoming)
     for key, value in pairs(incoming) do
@@ -41,4 +41,4 @@ function combined:GetSoundPath(fileName, event)
     end
 end
 
-VoiceOver.DataModules:Register("SSVOFallback_VanillaCombined", combined)
+VoiceOver.DataModules:Register("SSS_VOFallback", combined)
