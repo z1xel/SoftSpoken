@@ -463,7 +463,7 @@ local function Select(row)
         elseif row.kind=="group" then openedGroup[row.which]=not openedGroup[row.which]
         elseif row.kind=="type" then
             local key=row.mapID and (tostring(row.mapID)..":"..row.which) or row.which
-            if row.mapID then expandedType[key]=expandedType[key]==false and nil or false
+            if row.mapID then expandedType[key]=not expandedType[key]
             else openedType[key]=not openedType[key] end
         end
     end
