@@ -27,7 +27,10 @@ local function Scenario(version)
         function obj:RegisterEvent(name) self.event=name end
         function obj:SetCamera(value) self:Call("SetCamera",value) end
         function obj:SetLight(...) self:Call("SetLight") end
-        function obj:GetModel() return self.modelPath end
+        function obj:GetModel()
+            if kind=="PlayerModel" and version=="new" then return nil end
+            return self.modelPath
+        end
         if (kind=="PlayerModel" and version=="new") or
            (kind=="Model" and version=="old") then
             function obj:SetDisplayInfo(id)
@@ -115,6 +118,8 @@ local function Scenario(version)
             expect(FindCall(model,"SetPortraitZoom")~=nil,true,"native portrait zoom")
             expect(FindCall(model,"SetCamera"),nil,"no manual camera with PlayerModel")
             expect(FindCall(model,"SetLight"),nil,"no manual light with PlayerModel")
+            expect(model:GetModel(),nil,"new model can load asynchronously")
+            expect(model.shown,true,"new renderer stays visible while loading")
         else
             expect(FindCall(model,"SetCamera")~=nil,true,"legacy camera")
             expect(FindCall(model,"SetLight")~=nil,true,"legacy lighting")
@@ -144,6 +149,10 @@ local function Scenario(version)
         Configure(Clip(303))
         expect(portrait.active,"creature","loaded creature becomes visible")
         expect(model.display,555,"loaded creature appearance")
+        SoftSpokenClassicPortraits = false
+        Configure(Clip(303,555))
+        expect(portrait.active,"texture","disabled optional API uses fallback")
+        SoftSpokenClassicPortraits = nil
     else
         Configure(Clip(101,330))
         expect(portrait.active,"texture","no model API texture fallback")
