@@ -1,5 +1,11 @@
 -- Run from the repo root: lua5.1 tests/audio_pack_priority_guardrails.lua
 -- Tests the actual SoftSpoken_Stories/DataModules.lua with stubbed WoW APIs.
+-- The data-module file builds its sound-event dispatch table at load time.
+-- This harness tests pack priority, not gameplay event lookup, so stub those
+-- symbolic event IDs before executing the real loader.
+local soundEvent = {QuestAccept=1, QuestProgress=2, QuestComplete=3, QuestGreeting=4, Gossip=5}
+Enums = {SoundEvent = soundEvent}
+
 VoiceOver = setmetatable({
     format = string.format,
     Version = { Interface = 11200 },
