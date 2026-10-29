@@ -25,6 +25,8 @@ local panel
 local scroller
 local legacyScrollChild
 local legacyNavButtons = {}
+local legacyMaxHeight
+local FitWindow
 
 -- Rows, headings and the spacing between them come from UI/Layout.lua, the file every
 -- Spoken addon carries a copy of, so the three panels read alike.
@@ -1094,20 +1096,54 @@ function Options:SelectLegacyPage(order)
     if scroller.SetVerticalScroll then scroller:SetVerticalScroll(0) end
     local layout = chosen and chosen.layout or panel.layout
     if layout then layout:Refresh() end
+    -- Feature pages can have their own resize callback; always recalculate
+    -- the shared 1.12 ScrollFrame after swapping its ScrollChild.
+    if FitWindow then FitWindow() end
     self:RefreshNavigation()
     return true
 end
 
 -- Keep the scroll child tall enough for the active page without growing the
 -- bounded Vanilla window. Modern clients size the canvas content instead.
-local function FitWindow()
+FitWindow = function()
     if not panel then return end
     local activeLayout = Options.activePage and Options.activePage.layout or panel.layout
-    local needed = TOP + activeLayout:Height() + BOTTOM
+    if not activeLayout then return end
+    local needed = math.max(1, TOP + activeLayout:Height() + BOTTOM)
     if legacyScrollChild then
-        -- The currently selected module owns the scroll child and its height.
+        -- Keep a full-height settings window except for Voice Only on Home,
+        -- where the narrator controls disappear and the empty space should
+        -- collapse. Module tabs and Large Window retain the normal height.
+        if panel.isWindow and legacyMaxHeight then
+            local target = legacyMaxHeight
+            if not Options.activePage and Addon:PlayerStyle() == "none" then
+                -- Viewport = panel height + LEGACY_SCROLL_TOP - 20.
+                -- Leave an 8px safety margin under the final setting.
+                target = math.min(target,
+                    math.max(300, needed - LEGACY_SCROLL_TOP + 28))
+            end
+            if math.abs((panel:GetHeight() or 0) - target) > 0.5 then
+                panel:SetHeight(target)
+            end
+        end
         local child = Options.activePage and Options.activePage.frame or legacyScrollChild
         child:SetHeight(needed)
+        -- Native UIPanelScrollFrameTemplate does not run the modern custom
+        -- scroller's Recalculate() when a row is hidden or a tab is swapped.
+        -- Refresh its scroll rectangle and native slider after every reflow.
+        if scroller then
+            if scroller.UpdateScrollChildRect then scroller:UpdateScrollChildRect() end
+            local maximum = math.max(0, needed - (scroller:GetHeight() or 0))
+            local current = scroller.GetVerticalScroll and scroller:GetVerticalScroll() or 0
+            local offset = math.max(0, math.min(current or 0, maximum))
+            local name = scroller.GetName and scroller:GetName()
+            local scrollbar = name and getglobal(name .. "ScrollBar")
+            if scrollbar and scrollbar.SetMinMaxValues then
+                scrollbar:SetMinMaxValues(0, maximum)
+            end
+            if scroller.SetVerticalScroll then scroller:SetVerticalScroll(offset) end
+            if scrollbar and scrollbar.SetValue then scrollbar:SetValue(offset) end
+        end
     elseif scroller and scroller.SetContentHeight then
         scroller:SetContentHeight(needed)
     elseif panel.isWindow and needed > (panel:GetHeight() or 0) then
@@ -1137,7 +1173,8 @@ function Options:Setup()
         -- rows, which vary by client, rather than a fixed height the rows can outgrow.
         panel.isWindow = true
         local screenHeight = (UIParent and UIParent.GetHeight and UIParent:GetHeight()) or 768
-        panel:SetSize(LEGACY_WIDTH, math.min(620, math.max(300, screenHeight - 80)))
+        legacyMaxHeight = math.min(620, math.max(300, screenHeight - 80))
+        panel:SetSize(LEGACY_WIDTH, legacyMaxHeight)
         panel:SetPoint("CENTER")
         panel:SetMovable(true)
         panel:EnableMouse(true)
