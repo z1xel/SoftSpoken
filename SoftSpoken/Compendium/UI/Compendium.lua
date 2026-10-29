@@ -252,6 +252,22 @@ local function NewTab(index,label)
         tab.selectionWash=wash
     end
     if tab.SetID then tab:SetID(index) end
+    -- Blizzard's PanelTemplates_SelectTab disables the active native tab.
+    -- A transparent sibling button retains the original selected-tab art
+    -- while allowing the player to click that tab again to return home.
+    -- Parent it to the Compendium, not the disabled tab itself.
+    local reselect=CreateFrame("Button",nil,window)
+    reselect:SetAllPoints(tab)
+    reselect:EnableMouse(true)
+    reselect:Hide()
+    reselect:SetScript("OnClick",function()
+        if tab.key==active then
+            local def=C.tabs[active]
+            if def and def.onReselect then def.onReselect() end
+            if PlaySound then PlaySound("igCharacterInfoTab") end
+        end
+    end)
+    tab.sszReselect=reselect
     return tab
 end
 local function LayOutTabs()
@@ -272,6 +288,9 @@ local function LayOutTabs()
         -- Give the tab a higher frame level than the interior's chrome.
         -- Do not change any tab positions, size, template, or selection APIs.
         button:SetFrameLevel(window:GetFrameLevel()+12)
+        if button.sszReselect then
+            button.sszReselect:SetFrameLevel(button:GetFrameLevel()+1)
+        end
         button:SetText(def.label or def.key)
         if button.template=="CharacterFrameTabButtonTemplate" and PanelTemplates_TabResize then
             pcall(PanelTemplates_TabResize,0,button)
@@ -297,6 +316,7 @@ local function LayOutTabs()
     for i=table.getn(defs)+1,table.getn(tabButtons) do
         tabButtons[i].sszTabEnabled=false
         tabButtons[i]:Hide()
+        if tabButtons[i].sszReselect then tabButtons[i].sszReselect:Hide() end
     end
     -- The visual master registers its CharacterFrame tabs as a Blizzard tab
     -- group. Keep production's dynamic registration, with the same native API.
@@ -314,6 +334,17 @@ local function PaintTabs()
         if button.sszTabEnabled then
             if button.template~="CharacterFrameTabButtonTemplate" then allNative=false end
             if button.key==active then selectedIndex=i end
+        end
+    end
+    -- Only the active tab needs a separate hit target; the native selected
+    -- tab is disabled by Blizzard. Other tabs keep their ordinary OnClick.
+    for _,button in ipairs(tabButtons) do
+        if button.sszReselect then
+            if button.sszTabEnabled and button.key==active then
+                button.sszReselect:Show()
+            else
+                button.sszReselect:Hide()
+            end
         end
     end
     if selectedIndex and allNative and PanelTemplates_SetTab then
