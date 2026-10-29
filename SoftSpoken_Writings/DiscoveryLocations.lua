@@ -50,6 +50,31 @@ function B:BookFoundAt(book, mapID)
     local locations = self:BookLocations(book)
     return locations and locations[mapID] ~= nil or false
 end
+
+-- Only the character's recorded locations count as a discovery. The static
+-- SSBPlaces list describes where a book *might* appear, not where it was found.
+-- Both the Writings Compendium and narrator must use this same summary.
+function B:KnownDiscoverySummary(book)
+    local locations = self:BookLocations(book)
+    local names = {}
+    for mapID in pairs(locations or {}) do
+        if type(mapID) == "number" and C and C.MapName then
+            local name = C.MapName(mapID)
+            if type(name) == "string" and name ~= "" then
+                table.insert(names, name)
+            end
+        end
+    end
+    table.sort(names)
+    if table.getn(names) > 0 then
+        return "Discovered in " .. table.concat(names, ", ")
+    end
+    return nil
+end
+
+function B:DiscoverySummary(book)
+    return self:KnownDiscoverySummary(book) or "Discovered (location unknown)"
+end
 function B:RecordBookLocation(book, mapID, how)
     if not book or not mapID or not (C and C.MapName) then return false end
     local db=Character()
