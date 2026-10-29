@@ -131,9 +131,16 @@ I've also prepared **SSS_VOFallback** (SoftSpoken Stories VoiceOver Fallback), a
 
 When multiple packs contain the same recording, SoftSpoken automatically prioritizes **Spoken → SSS_VOFallback → Turtle WoW**, without requiring manual edits to audio priorities.
 
+## Support SoftSpoken
+
+SoftSpoken is a free project, but developing and maintaining it takes a considerable amount of time and effort.
+
+If you're enjoying SoftSpoken and would like to see its continued development, **please consider [supporting my work on Buy Me a Coffee](https://buymeacoffee.com/zaxl)**.
+
+Your support helps me dedicate more time to improving the addon, fixing bugs, and developing new features. Every contribution is genuinely appreciated!
+
 ## Credits and licensing
 
-**SoftSpoken is developed and maintained by [z1xel](https://github.com/z1xel).**
-It builds upon [Spoken](https://github.com/rusty-key/spoken-wow) by Rusty Key.
+**SoftSpoken is developed and maintained by [z1xel](https://github.com/z1xel).** It builds upon [Spoken](https://github.com/rusty-key/spoken-wow) by Rusty Key.
 
-If you want to support my work consider [buying me a coffee](https://buymeacoffee.com/zaxl).
+For licensing information and third-party acknowledgments, see [LICENSE](LICENSE) and [THIRD_PARTY.md](THIRD_PARTY.md).
