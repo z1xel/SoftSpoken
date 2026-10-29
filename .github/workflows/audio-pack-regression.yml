@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "SoftSpoken/UI/Options.lua"
+      - "SoftSpoken/UI/Portrait.lua"
       - "SoftSpoken/Compendium/UI/Compendium.lua"
       - "SoftSpoken/Strings.lua"
       - "SoftSpoken_Stories/Compendium/QuestsTab_112.lua"
@@ -12,10 +13,12 @@ on:
       - "SoftSpoken_Stories/DataModules.lua"
       - "Data_Packs/SSS_VOFallback/**"
       - "tests/audio_pack_*.lua"
+      - "tests/classicapi_portrait_compatibility.lua"
       - ".github/workflows/audio-pack-regression.yml"
   pull_request:
     paths:
       - "SoftSpoken/UI/Options.lua"
+      - "SoftSpoken/UI/Portrait.lua"
       - "SoftSpoken/Compendium/UI/Compendium.lua"
       - "SoftSpoken/Strings.lua"
       - "SoftSpoken_Stories/Compendium/QuestsTab_112.lua"
@@ -24,6 +27,7 @@ on:
       - "SoftSpoken_Stories/DataModules.lua"
       - "Data_Packs/SSS_VOFallback/**"
       - "tests/audio_pack_*.lua"
+      - "tests/classicapi_portrait_compatibility.lua"
       - ".github/workflows/audio-pack-regression.yml"
 
 jobs:
@@ -40,10 +44,14 @@ jobs:
         run: |
           luac5.1 -p SoftSpoken/UI/Options.lua SoftSpoken/Strings.lua
           luac5.1 -p SoftSpoken/Compendium/UI/Compendium.lua
+          luac5.1 -p SoftSpoken/UI/Portrait.lua SoftSpoken/Compat.lua
+          luac5.1 -p tests/classicapi_portrait_compatibility.lua
           luac5.1 -p SoftSpoken_Places/UI/LoreWindow.lua SoftSpoken_Writings/UI/Readables.lua
           luac5.1 -p SoftSpoken_Places/UI/Options.lua SoftSpoken_Writings/UI/Options.lua
           luac5.1 -p SoftSpoken_Stories/Compendium/QuestsTab_112.lua SoftSpoken_Stories/DataModules.lua
           luac5.1 -p Data_Packs/SSS_VOFallback/Module.lua
+      - name: Check ClassicAPI portrait version compatibility
+        run: lua5.1 tests/classicapi_portrait_compatibility.lua
       - name: Check official pack priority and fallback
         run: lua5.1 tests/audio_pack_priority_guardrails.lua
       - name: Check legacy and current voice pack registries
