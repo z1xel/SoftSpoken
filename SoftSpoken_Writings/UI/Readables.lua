@@ -406,7 +406,7 @@ local function ShowEntry()
     if not page then return end
     if not selected then
         page:Show({title="Writings",subtitle="Books, letters, notes and plaques",
-            text="Choose a writing from the list to read its pages."})
+            text="Select a writing to read its pages and replay available recordings."})
         return
     end
     if selected.kind=="readable" then
@@ -511,7 +511,7 @@ end
 local function Build(panelFrame)
     panel=panelFrame
     list=C.NewList(panel,{
-        search="Search writings",none="No matching writings.",
+        search="Search",none="No matching writings.",
         only="Discovered Only", onlyGet=OnlyFound,
         onlySet=function(on) Settings().compendiumFoundOnly=on end,
         checks={
@@ -597,6 +597,10 @@ function B:SetupReadables()
     C:Register("readables",{
         label="Writings",order=2,title="Azeroth's Compendium",build=Build,
         onShow=function() B:RefreshReadables() end,
+        onReselect=function()
+            selected=nil
+            B:RefreshReadables()
+        end,
         store={
             get=function(key) return Settings()["compendium"..key] end,
             set=function(key,value) Settings()["compendium"..key]=value end,
