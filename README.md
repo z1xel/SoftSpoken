@@ -81,9 +81,11 @@ When reading an object in the world, narration follows the page currently being 
 
 ## Development and Feedback
 
-SoftSpoken is under active development, and bugs or incomplete functionality should be expected while in beta state. Feedback is welcome: please use [GitHub Issues](https://github.com/z1xel/SoftSpoken/issues/new/choose) to report bugs, compatibility problems, or suggest improvements.
+SoftSpoken is currently in beta and under active development. Some features may be incomplete, and bugs are to be expected. Feedback is encouraged: please use [GitHub Issues](https://github.com/z1xel/SoftSpoken/issues/new/choose) to report bugs, compatibility problems, or suggest improvements.
 
-For the time being, development is maintainer-led and **external pull requests are not being accepted**. Bug reports, testing, and suggestions are still very much appreciated. sooon to open tho
+For the time being, development remains maintainer-led, and external pull requests are not yet being accepted. However, contributions are planned to be welcomed in the future, with technical documentation to be published in the coming months to help others understand the codebase and facilitate their involvement.
+
+In the meantime, bug reports, testing, and suggestions are greatly appreciated.
 
 ## Installation
 
