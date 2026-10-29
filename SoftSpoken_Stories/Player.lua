@@ -13,9 +13,6 @@ setfenv(1, VoiceOver)
 Player = { source = nil, gossipSource = nil }
 
 local TEXTURES = format([[Interface\AddOns\%s\Textures\]], AddonFolder)
--- Keep the generic fallback consistent with Writings and Vanilla's native art.
-local BOOK = [[Interface\Icons\INV_Misc_Book_09]]
-
 -- The packs that hold quests alone. Every other pack holds gossip too.
 local QUEST_ONLY = {
     SpokenQuestsAudioAlliance = true,
@@ -140,7 +137,6 @@ local function ClassicCreatureFor(soundData)
         end
     end
 
-    local fromQuestDatabase = false
     -- Manual PlayNow/replay clips have no live NPC. Use the indexed quest
     -- giver for ALL quest dialogue stages, not only QuestAccept. Live GUIDs
     -- always take precedence when an NPC is actually speaking.
@@ -149,7 +145,6 @@ local function ClassicCreatureFor(soundData)
         local npcType, npcID = DataModules:GetQuestLogQuestGiverTypeAndID(soundData.questID)
         if npcID and Enums.GUID:IsCreature(npcType) then
             id = tonumber(npcID)
-            fromQuestDatabase = true
         end
     end
     if not id or id <= 0 then return nil end
@@ -162,12 +157,18 @@ local function ClassicCreatureFor(soundData)
     end
     -- An uncached creature is still renderable: the shared portrait renderer
     -- requests it asynchronously and refreshes when the client supplies its data.
-    return id, displayID, fromQuestDatabase
+    return id, displayID
 end
 
 -- A line from something faceless shows the item that starts the quest, else a posted notice.
 local NOTICE = [[Interface\Icons\INV_Misc_Note_01]]
 local ICON_CROP = { 0.08, 0.92, 0.08, 0.92 }
+-- Mirror the exact player-faction crest rendered on the quest Compendium.
+-- Crest artwork fills the texture's UVs (unlike the cropped item icons).
+local function CrestFallback()
+    local texture = SSCQuestFactionCrest.Resolve()
+    return { kind = "texture", texture = texture, texCoord = {0,1,0,1} }
+end
 local function Faceless(soundData)
     local icon, crop
     if Spoken and Spoken.QuestItemIcon then icon, crop = Spoken:QuestItemIcon(soundData.questID) end
@@ -180,19 +181,19 @@ local function PortraitFor(soundData)
         kind = "model",
         creatureID = CreatureFor(soundData),
         animation = 60,
-        fallback = { kind = "texture", texture = BOOK, texCoord = ICON_CROP },
+        fallback = CrestFallback(),
     }
     -- Rendering is strictly optional and cannot block an audio clip.
     -- Emergency switch: /run SoftSpokenClassicPortraits=false
     if rawget(_G, "SoftSpokenClassicPortraits") ~= false then
-        local ok, creatureID, displayID, fromQuestDatabase = pcall(ClassicCreatureFor, soundData)
+        local ok, creatureID, displayID = pcall(ClassicCreatureFor, soundData)
         if ok and creatureID then
             return {
                 kind = "creature", creatureID = creatureID,
                 displayID = displayID,
-                -- A quest-log replay without an NPC must not show the old
-                -- 1.12 live-npc PlayerModel as an empty black rectangle.
-                fallback = fromQuestDatabase and { kind = "texture", texture = BOOK, texCoord = ICON_CROP } or original,
+                -- If ClassicAPI cannot draw this creature, show the same
+                -- faction crest as the Compendium, never a stale NPC model.
+                fallback = CrestFallback(),
             }
         end
     end

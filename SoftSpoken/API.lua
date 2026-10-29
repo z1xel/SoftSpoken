@@ -222,8 +222,9 @@ function Spoken:VoicePack(module, lang)
     return PACK_FOLDERS[module] .. "_" .. lang, url
 end
 
--- Zone icons by uiMapID, copied into Textures/Zones so every client has them. A city takes its
--- zone's icon, Teldrassil takes Darnassus's, and a map not listed takes its parent's.
+-- Zone icons by uiMapID, copied into Textures/Zones so every client has them.
+-- Cities, Moonglade and battlegrounds have their own emblems as upstream does;
+-- an unlisted map inherits its nearest ancestor's icon.
 local ZONE_ART = [[Interface\AddOns\SoftSpoken\Textures\Zones\]]
 local ZONE_ICONS = {
     [947] = "Azeroth", [1414] = "Kalimdor", [1415] = "EasternKingdoms",
@@ -238,8 +239,9 @@ local ZONE_ICONS = {
     [1445] = "DustwallowMarsh", [1446] = "Tanaris", [1447] = "Azshara", [1448] = "Felwood",
     [1449] = "UngoroCrater", [1451] = "Silithus", [1452] = "Winterspring", [1438] = "Teldrassil",
     [2482] = "MountHyjal",
-    [1453] = "ElwynnForest", [1454] = "Durotar", [1455] = "DunMorogh", [1456] = "Mulgore",
-    [1457] = "Teldrassil", [1458] = "TirisfalGlades",
+    [1450] = "Moonglade", [1459] = "AlteracValley", [1460] = "WarsongGulch", [1461] = "ArathiBasin",
+    [1453] = "Stormwind", [1454] = "Orgrimmar", [1455] = "Ironforge", [1456] = "ThunderBluff",
+    [1457] = "Darnassus", [1458] = "Undercity",
     -- Forever's own zones, drawn for Spoken.
     [2521] = "ZephrasIsle", [2524] = "DarkspearIslands", [2548] = "Riverglades", [2652] = "Shendralas",
 }

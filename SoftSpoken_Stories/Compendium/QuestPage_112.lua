@@ -152,24 +152,9 @@ end
 -- Use normal 2D artwork inside the quest scroll child. Native models are
 -- intentionally not created by this page: they were rendered outside their
 -- parent ScrollFrame on Turtle WoW 1.12, and caused a crash on UI reload.
--- Display the corresponding full, transparent 256x256 crest for both factions
--- from SoftSpoken_Stories/Assets. The crest belongs to the PLAYER, not the
--- quest giver; no character-creation atlas cropping is needed.
-local ALLIANCE_CREST="Interface\\AddOns\\SoftSpoken_Stories\\Assets\\AllianceCrest"
-local HORDE_CREST="Interface\\AddOns\\SoftSpoken_Stories\\Assets\\HordeCrest"
-local ALLIANCE_RACES={human=true,dwarf=true,gnome=true,nightelf=true,highelf=true,highborne=true}
-local HORDE_RACES={orc=true,undead=true,scourge=true,tauren=true,troll=true,goblin=true}
-local function PlayerFaction()
-    local faction=type(UnitFactionGroup)=="function" and API(UnitFactionGroup,"player") or nil
-    if faction=="Alliance" or faction=="Horde" then return faction end
-    -- Turtle 1.12 compatibility: if UnitFactionGroup isn't available yet,
-    -- the player's race still reliably distinguishes the two factions.
-    local race,english
-    if type(UnitRace)=="function" then race,english=API(UnitRace,"player") end
-    local key=string.lower(string.gsub(tostring(english or race or ""),"[^%a]",""))
-    if ALLIANCE_RACES[key] then return "Alliance" end
-    if HORDE_RACES[key] then return "Horde" end
-end
+-- The same player-faction crest is also the Stories player portrait fallback.
+-- One resolver owns these textures and their Turtle 1.12 race fallback.
+local FactionCrest=SSCQuestFactionCrest
 local function Portrait(parent)
     local holder=CreateFrame("Frame",nil,parent)
     holder:SetWidth(62);holder:SetHeight(62)
@@ -195,21 +180,12 @@ local function Portrait(parent)
     return holder
 end
 local function PaintCrest(holder)
-    local faction=PlayerFaction()
-    local icon=holder.icon
-    -- Repaint on EVERY page view, including previously encountered quests.
-    -- Clearing texture coordinates is essential when the old icon was an atlas.
-    icon:SetTexCoord(0,1,0,1)
-    if faction=="Alliance" then
-        icon:SetTexture(ALLIANCE_CREST)
-        holder.affiliationLabel="Alliance crest (your faction)"
-    elseif faction=="Horde" then
-        icon:SetTexture(HORDE_CREST)
-        holder.affiliationLabel="Horde crest (your faction)"
-    else
-        icon:SetTexture(FALLBACK_ICON)
-        holder.affiliationLabel="Your faction is unavailable"
-    end
+    -- Repaint on every page view. The portrait and this page now share the
+    -- exact same faction choice and full transparent 256x256 texture.
+    local texture,label=FactionCrest.Resolve()
+    holder.icon:SetTexCoord(0,1,0,1)
+    holder.icon:SetTexture(texture)
+    holder.affiliationLabel=label
 end
 local function NewPart(parent,stage)
     local f=CreateFrame("Frame",nil,parent)
