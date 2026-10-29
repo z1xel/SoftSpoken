@@ -97,31 +97,31 @@ local function selected(file)
     return soundData.module.METADATA.AddonName
 end
 
--- Adversarial TOC priorities: Spoken remains above Combined above Turtle.
+-- Adversarial TOC priorities: Spoken remains above SSS_VOFallback above Turtle.
 -- A higher-priority Spoken acted pack still wins within its family.
 reset()
 install("AI_VoiceOverData_Turtle", 99999, { shared = 13, turtle_only = 4 })
-install("SSVOFallback_VanillaCombined", -9898, { shared = 12, combined_only = 5 })
+install("SSS_VOFallback", -9898, { shared = 12, combined_only = 5 })
 install("SpokenQuestsAudioShared", 100, { shared = 11, spoken_only = 6 })
 install("SpokenQuestsAudioActed", 200, { shared = 10 })
 install("UnrelatedPackLow", 1, { other_only = 6 })
 install("UnrelatedPackHigh", 999999, { another_only = 6 })
 enumerate()
 expect(order(modules.registeredModulesOrdered),
-    "SpokenQuestsAudioActed,SpokenQuestsAudioShared,SSVOFallback_VanillaCombined," ..
+    "SpokenQuestsAudioActed,SpokenQuestsAudioShared,SSS_VOFallback," ..
     "AI_VoiceOverData_Turtle,UnrelatedPackHigh,UnrelatedPackLow")
 expect(selected("shared"), "SpokenQuestsAudioActed")
 expect(selected("spoken_only"), "SpokenQuestsAudioShared")
-expect(selected("combined_only"), "SSVOFallback_VanillaCombined")
+expect(selected("combined_only"), "SSS_VOFallback")
 expect(selected("turtle_only"), "AI_VoiceOverData_Turtle")
 expect(selected("another_only"), "UnrelatedPackHigh")
 
--- If Spoken lacks a clip, Combined wins; Turtle still supplies unique lines.
+-- If Spoken lacks a clip, SSS_VOFallback wins; Turtle still supplies unique lines.
 reset()
 install("AI_VoiceOverData_Turtle", 101, { shared = 2, turtle_only = 2 })
-install("SSVOFallback_VanillaCombined", -9898, { shared = 2 })
+install("SSS_VOFallback", -9898, { shared = 2 })
 enumerate()
-expect(selected("shared"), "SSVOFallback_VanillaCombined")
+expect(selected("shared"), "SSS_VOFallback")
 expect(selected("turtle_only"), "AI_VoiceOverData_Turtle")
 
 -- A Turtle-only install remains playable without editing the pack.
@@ -129,4 +129,4 @@ reset()
 install("AI_VoiceOverData_Turtle", 101, { shared = 2 })
 enumerate()
 expect(selected("shared"), "AI_VoiceOverData_Turtle")
-print("PASS: Spoken > VanillaCombined > Turtle, with fallback intact")
+print("PASS: Spoken > SSS_VOFallback > Turtle, with fallback intact")
