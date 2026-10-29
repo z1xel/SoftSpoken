@@ -54,6 +54,17 @@ function SpokenBooks:PageMaterial()
 	return ItemTextGetMaterial and ItemTextGetMaterial() or nil
 end
 
+-- Add recorded origin to the narrator's white heading, keeping the readable
+-- kind (one-line mode) or book title (per-page mode) as before. If the
+-- character's discovery has no location, never substitute possible catalogue
+-- locations or the place where the player happens to be reading.
+local function NarratorHeading(bookID, base)
+    local location = SpokenBooks.KnownDiscoverySummary and
+        SpokenBooks:KnownDiscoverySummary(bookID)
+    if location then return base .. " \194\183 " .. location end
+    return base
+end
+
 -- What a readable can be (Data/Places.lua's `type`), in the order the Compendium lists them,
 -- and the keys of its names: `one` of it, over its line in the queue, and `all`, the Compendium's.
 SpokenBooks.TYPES = { "book", "letter", "note", "scroll", "tablet", "plaque", "grave", "exhibit", "other" }
@@ -156,7 +167,8 @@ function SpokenBooks:ClipFor(pageId)
 						-- whatever page of it this is. A line per page: the book over its page,
 						-- counted only where there is more than one ("page 1 of 1" is noise on
 						-- a letter, which is most of this corpus).
-						header = oneLine and self:KindOf(place.book) or title,
+						header = NarratorHeading(place.book,
+                            oneLine and self:KindOf(place.book) or title),
 						transcript = text,
 						label = oneLine and (title ~= "" and title or nil)
 							or ((book and table.getn(book.pages) > 1)
