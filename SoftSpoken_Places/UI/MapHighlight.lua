@@ -22,7 +22,6 @@ end
 local function CanInteract()
     local cfg = SSZCharacter and SSZCharacter.settings
     if cfg and cfg.showMapPanel == false then return false end
-    if not (C_Map and C_Map.GetMapOverlays and C_Map.GetAreaInfo) then return false end
     if not (WorldMapButton and WorldMapDetailFrame and Click and Click.Position) then return false end
     if not VisibleMap() then return false end
     return true
@@ -96,6 +95,15 @@ function M.Target(x, y)
     local kind, nativeKey, resolution = Compat.ResolveAt(mapID, x, y)
     if resolution == 'native-unmapped' or resolution == 'poi-unmapped' or
         kind == 'city' then return nil end
+    if kind == 'subzone' and resolution == 'terrain' then
+        local data = SSZTerrainMap
+        local mask = data and data.HighlightFor and data.HighlightFor(mapID, nativeKey)
+        if not mask then return nil end
+        if not (Lore and Lore.IsLocked) or Lore.IsLocked(mapID, nativeKey) then
+            return nil
+        end
+        return mask, nativeKey
+    end
     local _, entry, key, overlay = Compat.AreaAt(mapID, x, y,
         kind == 'subzone' and nativeKey or nil)
     if kind == 'subzone' and nativeKey ~= key then return nil end
@@ -108,6 +116,7 @@ end
 local function HideTiles()
     for _, tile in ipairs(state.tiles) do tile:Hide() end
     state.active = nil
+    state.width, state.height = nil, nil
     if state.frame then state.frame:Hide() end
 end
 M.Hide = HideTiles
@@ -120,6 +129,34 @@ local function Light(overlay)
     local w, h = canvas and canvas:GetWidth(), canvas and canvas:GetHeight()
     if not (w and h and w > 0 and h > 0) then HideTiles(); return end
     local sx, sy = w / MAP_ART_WIDTH, h / MAP_ART_HEIGHT
+    state.width, state.height = w, h
+    if overlay.file then
+        -- Offline-generated BLP2: Gaussian-smoothed silhouette, 24-bit RGB
+        -- additive light, black outside. Alpha is 1.0, matching Blizzard's
+        -- native WorldMapHighlight rather than tinting a transparent mask.
+        local t = state.tiles[1]
+        if not t then
+            t = state.frame:CreateTexture(nil, 'ARTWORK')
+            t:SetBlendMode('ADD')
+            state.tiles[1] = t
+        end
+        t:SetTexture(overlay.file)
+        t:SetBlendMode('ADD')
+        t:SetAlpha(1)
+        t:SetVertexColor(1, 1, 1)
+        t:SetTexCoord(0, overlay.w / overlay.tw, 0, overlay.h / overlay.th)
+        t:ClearAllPoints()
+        t:SetPoint('TOPLEFT', state.frame, 'TOPLEFT', overlay.x * sx, -overlay.y * sy)
+        t:SetWidth(overlay.w * sx)
+        t:SetHeight(overlay.h * sy)
+        t:Show()
+        for i = 2, table.getn(state.tiles) do state.tiles[i]:Hide() end
+        state.frame:SetAlpha(1)
+        state.active = overlay
+        state.frame:Show()
+        return
+    end
+    state.frame:SetAlpha(HIGHLIGHT_ALPHA)
     local shown = 0
     for _, info in ipairs(overlay.tiles) do
         if type(info.file) == 'string' and info.file ~= '' and
@@ -156,7 +193,9 @@ local function OnUpdate(self, elapsed)
     -- Use the exact normalised mouse position used by SubzoneClick.lua.
     local x, y = Click.Position(WorldMapButton)
     local overlay = x and M.Target(x, y)
-    if overlay ~= state.active then
+    local w, h = WorldMapDetailFrame:GetWidth(), WorldMapDetailFrame:GetHeight()
+    if overlay ~= state.active or (overlay and
+        (w ~= state.width or h ~= state.height)) then
         if overlay then Light(overlay) else HideTiles() end
     end
 end
@@ -165,7 +204,6 @@ M.Update = OnUpdate
 function M.SetupMapHighlight()
     if state.driver then return true end
     if not (WorldMapFrame and WorldMapDetailFrame and WorldMapButton) then return false end
-    if not (C_Map and C_Map.GetMapOverlays) then return false end
     local frame = CreateFrame('Frame', 'SSZMapHoverHighlight', WorldMapDetailFrame)
     frame:SetAllPoints(WorldMapDetailFrame)
     -- Above the map's exploration textures but below map pins and our lore panel.

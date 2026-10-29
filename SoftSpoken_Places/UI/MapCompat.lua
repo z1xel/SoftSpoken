@@ -408,5 +408,14 @@ function M.ResolveAt(mapID, x, y, poiName)
     -- its matching lore area is unique: never display a choice popup.
     local _, entry, key = M.AreaAt(mapID, x, y)
     if entry and key then return "subzone", key, "overlay" end
+
+    -- Last resort: ADT terrain-chunk area identity where the client's
+    -- WorldMapOverlay/native hit tests provide no individual city district.
+    -- Never override a POI, exact native name, or valid overlay selection.
+    local terrain = SSZTerrainMap
+    local terrainKey = terrain and terrain.AreaAt and terrain.AreaAt(mapID, x, y)
+    if terrainKey and HasZoneSubzone(mapID, terrainKey) then
+        return "subzone", terrainKey, "terrain"
+    end
     return nil
 end
