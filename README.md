@@ -140,3 +140,18 @@ This ordering is handled by SoftSpoken itself, without requiring manual changes 
 If upgrading from an earlier SoftSpoken installation, remove the obsolete `SoftSpoken_Quests`, `SoftSpoken_Zones`, and `SoftSpoken_Books` folders before installing the renamed modules.
 
 Your existing voice packs can remain installed. Do not delete your `WTF` directory, which contains saved preferences and character data.
+
+## Licenses, credits and third-party content
+
+SoftSpoken is a derivative of [Spoken](https://github.com/rusty-key/spoken-wow) by
+Rusty Key, with earlier quest-player lineage from
+[AI VoiceOver](https://github.com/mrthinger/wow-voiceover).
+See [LICENSE](LICENSE) for the license applicable to project-owned and
+appropriately licensed source code and [THIRD_PARTY.md](THIRD_PARTY.md)
+for bundled libraries, Blizzard game content, artwork, screenshot
+sources and audio provenance. Third-party content is **not** covered
+by a blanket MIT grant.
+
+The optional `Data_Packs/SSS_VOFallback` recordings have separate
+rights questions and should not be treated as MIT-licensed merely
+because the player code is.
