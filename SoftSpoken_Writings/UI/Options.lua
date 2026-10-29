@@ -133,7 +133,7 @@ function B:SetupOptions()
     -- Reading history, discovery, pack diagnostics and reset remain available
     -- when Books narration is off; only audio-dependent controls are disabled.
     frame:SetScript("OnShow", Refresh)
-    page = Spoken:AddSettingsPage(frame, "Writings", 2, layout)
+    page = Spoken:AddSettingsPage(frame, "Writings", 3, layout)
     Refresh()
     return frame
 end
