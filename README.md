@@ -129,7 +129,7 @@ The **Spoken Audio: Quests – All** package on CurseForge is intended for addon
 
 ### Additional Quest Audio
 
-SoftSpoken Stories also supports additional recordings through the `SSS_VOFallback` pack (remaining Vanilla/VanillaExtra audio not covered by Spoken) and AI VoiceOver's Turtle WoW audio. Install the `SSS_VOFallback` folder directly inside `Interface\\AddOns`; no manual priority edits are required.
+SoftSpoken Stories also supports additional recordings through the `SSS_VOFallback` pack (remaining Vanilla/VanillaExtra audio not covered by Spoken) and AI VoiceOver's Turtle WoW audio. Install the `SSS_VOFallback` folder directly inside `Interface\AddOns`; no manual priority edits are required.
 
 When multiple supported packs are installed, SoftSpoken prioritizes recordings in the following order:
 
