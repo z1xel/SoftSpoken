@@ -7,9 +7,7 @@ this possible.
 
 ## Projects
 
-- **[Spoken](https://github.com/rusty-key/spoken-wow)**, by **Rusty Key**:
-  the original narration player, Stories, Places and Writings functionality,
-  data, and much of the artwork that SoftSpoken builds upon. Its original
+- **[Spoken](https://github.com/rusty-key/spoken-wow)**, by **Rusty Key**. Its original
   copyright and MIT notice are preserved in [LICENSES/Spoken-MIT.txt](LICENSES/Spoken-MIT.txt).
   See [Spoken's credits](https://github.com/rusty-key/spoken-wow/blob/master/THIRD_PARTY.md)
   for further source details.
