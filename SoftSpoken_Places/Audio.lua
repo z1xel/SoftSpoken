@@ -124,6 +124,32 @@ local function PlacePortrait(mapID)
     return { kind = "texture", texture = [[Interface\AddOns\SoftSpoken\Textures\Book]] }
 end
 
+-- In the narrator, the white heading names the *parent* of the yellow
+-- entry. Subzones already carry their enclosing zone name; for zones,
+-- capitals and continents use the Compendium's actual place hierarchy.
+-- Keeping this lookup shared means map presentation and audio don't drift.
+local function ParentHeading(mapID, zoneName, areaKey)
+    if areaKey then return zoneName end
+    -- Azeroth is the world root: repeat it until we have a better top-level
+    -- heading, as it has no parent in the Compendium.
+    if mapID == 947 then return "Azeroth" end
+    local lore = SSZLoreWindow
+    if lore and type(lore.PlaceAbove) == "function" and
+       type(lore.ZoneName) == "function" then
+        -- A missing or failing visual helper must never stop narration.
+        local ok, parentID = pcall(lore.PlaceAbove, mapID)
+        if ok and parentID then
+            local named, title = pcall(lore.ZoneName, parentID)
+            if named and type(title) == "string" and title ~= "" then
+                return title
+            end
+        end
+    end
+    -- During early addon initialization or with the Compendium disabled,
+    -- retain the previous heading instead of dropping the clip.
+    return zoneName
+end
+
 local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay)
     local areaKey
     if not isZone then areaKey = Normalise(areaLabel) end
@@ -141,7 +167,7 @@ local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay)
         length = recording.len,
         autoplay = autoplay and true or false,
         present = {
-            header = zoneName,
+            header = ParentHeading(mapID, zoneName, areaKey),
             label = areaLabel,
             bullet = "zone",
             -- Supply content only. The shared player owns whether/how to show it.

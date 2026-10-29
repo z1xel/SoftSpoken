@@ -62,6 +62,8 @@ local registryPack={
     zones={
         [1411]={file="1411/zone",len=10},
         [1457]={file="1457/zone",len=10},
+        [1438]={file="1438/zone",len=10},
+        [1414]={file="1414/zone",len=10},
         [947]={file="947/zone",len=10},
         [88888]={file="88888/zone",len=10},
     },
@@ -76,11 +78,50 @@ SSZZonesRuntime={
     CharDB=function() return {heard={}} end,
     Say=function() end,
 }
+-- Load the *real* Compendium map hierarchy and Places' parent/name
+-- resolver. Stub only the UI registration; the tested lookup is production.
+local compFile=assert(io.open("SoftSpoken/Compendium/UI/Compendium.lua","r"))
+local compSource=compFile:read("*a")
+compFile:close()
+local hierarchy=compSource:match("(C%.WORLD = 947.-end)%s+local NAME =")
+assert(hierarchy,"Compendium hierarchy section was not found")
+local C={}
+local hierarchyChunk=assert(loadstring(hierarchy))
+setfenv(hierarchyChunk,setmetatable({C=C},{__index=_G}))
+hierarchyChunk()
+function C:Tab() return true end
+SSZCompendium=C
+SSZLore={zones={
+    [947]={name="Azeroth"},
+    [1414]={name="Kalimdor"},
+    [1415]={name="Eastern Kingdoms"},
+    [1411]={name="Durotar"},
+    [1438]={name="Teldrassil"},
+    [1457]={name="Darnassus"},
+},subzones={}}
+dofile("SoftSpoken_Places/UI/LoreWindow.lua")
+
 dofile("SoftSpoken_Places/Audio.lua")
 local r=SSZZonesRuntime
 local durotar=r.MakeClip(1411,"Durotar","Durotar",true,false)
 local valley=r.MakeClip(1411,"Durotar","Valley of Trials",false,false)
 local city=r.MakeClip(1457,"Darnassus","Darnassus",true,false)
+local teldrassil=r.MakeClip(1438,"Teldrassil","Teldrassil",true,false)
+local kalimdor=r.MakeClip(1414,"Kalimdor","Kalimdor",true,false)
+local azeroth=r.MakeClip(947,"Azeroth","Azeroth",true,false)
+
+-- White heading follows the Compendium's immediate parent, whereas the
+-- yellow label continues to identify the narrated place itself.
+expect(valley.present.header,"Durotar","subzone heading is containing zone")
+expect(durotar.present.header,"Kalimdor","zone heading is continent")
+expect(city.present.header,"Teldrassil","city heading is enclosing zone")
+expect(teldrassil.present.header,"Kalimdor","Teldrassil is in Kalimdor")
+expect(kalimdor.present.header,"Azeroth","continent heading is world")
+expect(azeroth.present.header,"Azeroth","world root heading repeats Azeroth")
+expect(azeroth.present.label,"Azeroth","world yellow label unchanged")
+expect(city.present.label,"Darnassus","city yellow label unchanged")
+expect(valley.present.label,"Valley of Trials","subzone yellow label unchanged")
+
 expect(durotar.present.portrait.texture,root.."Durotar","zone narrator badge")
 expect(valley.present.portrait.texture,root.."Durotar","subzone inherits zone badge")
 expect(city.present.portrait.texture,root.."Darnassus","city-specific narrator badge")
@@ -90,6 +131,20 @@ expect(durotar.present.portrait.fit,nil,"no landscape cover crop")
 local mystery=r.MakeClip(88888,"Unknown","Unknown",true,false)
 expect(mystery.present.portrait.texture,
     "Interface\\AddOns\\SoftSpoken\\Textures\\Book","unmapped zone book fallback")
+expect(mystery.present.header,"Unknown","unmapped parent does not interrupt narration")
+
+-- Missing, early or broken Compendium UI must never block audio playback.
+local savedLoreWindow=SSZLoreWindow
+SSZLoreWindow=nil
+local early=r.MakeClip(1457,"Darnassus","Darnassus",true,false)
+expect(early.present.header,"Darnassus","legacy UI absence degrades safely")
+SSZLoreWindow={
+    PlaceAbove=function() error("broken optional UI lookup") end,
+    ZoneName=function() error("broken optional UI name") end,
+}
+local broken=r.MakeClip(1457,"Darnassus","Darnassus",true,false)
+expect(broken.present.header,"Darnassus","broken UI helper cannot stop audio")
+SSZLoreWindow=savedLoreWindow
 
 -- Compendium images stay intact. The narrator does not reuse those scenic
 -- pictures as round portraits (which was an accidental deviation from upstream).
@@ -111,4 +166,4 @@ expect(without.present.portrait.texture,
     "Interface\\AddOns\\SoftSpoken\\Textures\\Book",
     "legacy player without ZoneIcon fallback")
 
-print("PASS: zone, subzone, city and battleground emblems, 57 assets, Compendium art")
+print("PASS: parent headings, world root, zone badges, 57 assets, Compendium art")
