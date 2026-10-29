@@ -1,0 +1,46 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+    <Include file="Environment.lua"/>
+    <Include file="Version.lua"/>
+    <Include file="Core.lua"/>
+    <Include file="SoundUtils.lua"/>
+    <Include file="Callbacks.lua"/>
+    <Include file="SoundQueue.lua"/>
+    <Include file="Sources.lua"/>
+    <Include file="Developer.lua"/>
+    <Include file="Strings.lua"/>
+    <Include file="Language.lua"/>
+    <Include file="Locale\deDE.lua"/>
+    <Include file="Locale\esES.lua"/>
+    <Include file="Locale\frFR.lua"/>
+    <Include file="Locale\ptBR.lua"/>
+    <Include file="Locale\ruRU.lua"/>
+    <Include file="Locale\koKR.lua"/>
+    <Include file="Locale\zhCN.lua"/>
+    <Include file="Locale\zhTW.lua"/>
+    <Include file="UI\Layout.lua"/>
+    <Include file="UI\Portrait.lua"/>
+    <Include file="UI\Actions.lua"/>
+    <Include file="UI\PlayerFrame.lua"/>
+    <Include file="UI\MinimapButton.lua"/>
+    <Include file="UI\MinimapIconFit.lua"/>
+    <Include file="UI\Options.lua"/>
+    <Include file="UI\Diagnostics.lua"/>
+    <Include file="API.lua"/>
+    <!-- Shared Compendium: available to Zones, Books, and future modules. -->
+    <Include file="Compendium\UI\Layout.lua"/>
+    <Include file="Compendium\UI\ClassicFrameSkin.lua"/>
+    <Include file="Compendium\UI\PrototypeFrameSkin.lua"/>
+    <Include file="Compendium\UI\PrototypeInteriorSkin.lua"/>
+    <Include file="Compendium\UI\PrototypeScrollSkin.lua"/>
+    <Include file="Compendium\UI\PrototypePageSkin.lua"/>
+    <Include file="Compendium\UI\ArtReady.lua"/>
+    <Include file="Compendium\UI\TextView.lua"/>
+    <Include file="Compendium\UI\PlayButton.lua"/>
+    <Include file="Compendium\UI\LorePage.lua"/>
+    <Include file="Compendium\UI\Compendium.lua"/>
+    <Include file="Compendium\UI\PagePane.lua"/>
+    <Include file="Compendium\UI\MapNames.lua"/>
+
+
+    <Include file="Compat.lua"/>
+</Ui>

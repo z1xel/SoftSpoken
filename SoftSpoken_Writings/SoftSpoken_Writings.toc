@@ -1,0 +1,22 @@
+## Interface: 11200
+## Title: SoftSpoken Writings
+## Notes: Turtle WoW book, note, letter and plaque narration using Spoken
+## Version: v0.8.0
+## Dependencies: SoftSpoken
+## OptionalDeps: SpokenReadablesAudio, SpokenBooksAudio
+## SavedVariables: SSBSettings
+## SavedVariablesPerCharacter: SSBCharacter
+Data\Books.lua
+Data\Places.lua
+Core.lua
+DiscoveryLocations.lua
+Locale\enUS.lua
+Checksum.lua
+Language.lua
+Reader.lua
+Audio.lua
+Playlist.lua
+UI\PlayButton.lua
+Events.lua
+UI\Readables.lua
+UI\Options.lua

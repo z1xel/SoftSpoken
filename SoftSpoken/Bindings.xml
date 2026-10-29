@@ -1,0 +1,8 @@
+<Bindings>
+    <!-- Playback bindings call the public player API directly, never slash commands.
+         These remain available in Voice Only mode. -->
+    <Binding name="SPOKEN_PLAYPAUSE" header="SPOKEN">Spoken:TogglePause()</Binding>
+    <Binding name="SPOKEN_SKIP">Spoken:Skip()</Binding>
+    <Binding name="SPOKEN_STOP">Spoken:StopAll()</Binding>
+    <Binding name="SPOKEN_COMPENDIUM">Spoken:ToggleCompendium()</Binding>
+</Bindings>

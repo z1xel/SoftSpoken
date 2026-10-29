@@ -1,0 +1,1 @@
+Import-ClassicFrames-Art.cmd copies or converts UIFrameMetal, UIFrameMetalHorizontal, UIFrameMetalVertical and _UI-Frame into this folder.
