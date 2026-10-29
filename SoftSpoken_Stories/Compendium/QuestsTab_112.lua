@@ -155,6 +155,11 @@ local function PageEntry()
 end
 function Q:Refresh()
     if not list then return end
+    -- Turning off the Settings unlock checkbox must also revoke any
+    -- previously selected undiscovered quest's detail page.
+    if selectedID and not S:IsSeen(selectedID) and not Settings("unlock") then
+        selectedID=nil
+    end
     list:Render()
     if page then
         local entry=PageEntry()
