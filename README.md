@@ -107,12 +107,12 @@ To enable narration, install compatible voice packs for whichever modules you in
 | Module | Voice pack |
 |---|---|
 | **Stories** | [Spoken Quests Audio: All](https://github.com/rusty-key/spoken-wow/releases/tag/quests-audio/v2.4.0) — quests and NPC gossip |
-| **Places** | [Spoken Zones Audio](https://github.com/rusty-key/spoken-wow/releases/tag/zones-audio/v2.0.1) — zones and subzones |
-| **Writings** | [Spoken Books Audio](https://github.com/rusty-key/spoken-wow/releases/tag/books-audio/v2.1.2) — books and other readable objects |
+| **Places** | [Spoken Zones Audio — Vanilla 1.12](https://github.com/z1xel/SoftSpoken/releases/download/audio-vanilla-112-v1/SpokenZonesAudio-2.0.1-1.12.zip) — zones and subzones |
+| **Writings** | [Spoken Books Audio — Vanilla 1.12](https://github.com/z1xel/SoftSpoken/releases/download/audio-vanilla-112-v1/SpokenBooksAudio-2.1.2-1.12.zip) — books and other readable objects |
 
-These packs are developed for the original [Spoken](https://github.com/rusty-key/spoken-wow) project. They are separate from the addon itself and can be installed or updated independently.
+These voice packs originate from [Spoken](https://github.com/rusty-key/spoken-wow) by Rusty Key. The **Places** and **Writings** downloads above are [Vanilla 1.12-compatible repacks](https://github.com/z1xel/SoftSpoken/releases/tag/audio-vanilla-112-v1) of the [original Zones](https://github.com/rusty-key/spoken-wow/releases/tag/zones-audio/v2.0.1) and [Books](https://github.com/rusty-key/spoken-wow/releases/tag/books-audio/v2.1.2) releases. Only the addon manifests (`.toc` files) were adjusted; the recordings are unchanged.
 
-**Installing voice packs:** Download and extract the desired archives, then place their audio-pack folders directly alongside the SoftSpoken modules in `Interface\AddOns`.
+**Installing voice packs:** Download the packs you want and extract them directly into `Interface\AddOns`, alongside the SoftSpoken modules. No separate compatibility patch is needed for the linked Places and Writings packs.
 
 **Vanilla 1.12 compatibility:** Enable **Load out of date AddOns** if necessary. After login, open `/softspoken` and check the **Voice Packs** section of each module to confirm it detected your installation.
 
