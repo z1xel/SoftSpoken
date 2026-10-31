@@ -79,6 +79,8 @@ In the meantime, bug reports, testing, and suggestions are greatly appreciated.
 
 ## Installation
 
+The v0.8.1-beta update is in preparation. Until its release package is published, the download below is the **previous public beta**.
+
 1. Download **[SoftSpoken-v0.8.0-beta.1.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.8.0-beta.1/SoftSpoken-v0.8.0-beta.1.zip)** and extract it.
 2. Find the following four addon folders in the extracted contents and copy them into your World of Warcraft 1.12 `Interface\AddOns` directory:
 
