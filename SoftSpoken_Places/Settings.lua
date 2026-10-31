@@ -39,7 +39,7 @@ local function CharDB()
         s.discoveryDefaultMigrated = true
     end
     if s.mode ~= "unheard" and s.mode ~= "discovery" then s.mode = "discovery" end
-    if s.holdCombat == nil then s.holdCombat = true end
+    if s.holdCombat == nil then s.holdCombat = false end
     if s.greeting == nil then s.greeting = true end
     -- s.captions is a legacy saved preference, imported once into SoftSpoken
     -- on PLAYER_LOGIN. Do not create new Zones-specific captions settings.
@@ -69,7 +69,7 @@ local function ResetOptions()
     settings.subzones = true
     settings.mode = "discovery"
     settings.discoveryDefaultMigrated = true
-    settings.holdCombat = true
+    settings.holdCombat = false
     settings.greeting = true
     settings.showMapPanel = true
     settings.mapPanelCollapsed = false
