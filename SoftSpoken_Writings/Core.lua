@@ -9,7 +9,7 @@ local defaults = {
     autoplay=true, readWholeBook=true, bookAsOneLine=true, readOnce=false,
     stopOnClose=false, closeWhenRead=false,
     voiceLanguage="auto", fallbackLanguage="enUS",
-    compendiumFoundOnly=false, compendiumVoicedOnly=false,
+    compendiumFoundOnly=true, compendiumVoicedOnly=false,
     compendiumByZone=true, unlockUnfound=false
 }
 function B:Print(message)
