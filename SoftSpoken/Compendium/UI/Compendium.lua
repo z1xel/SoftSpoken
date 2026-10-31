@@ -992,7 +992,19 @@ function List:DrawRows()
         self.rows[i]:Hide()
     end
     if self.noMatch then
-        if table.getn(self.items)==0 then self.noMatch:Show() else self.noMatch:Hide() end
+        if table.getn(self.items)==0 then
+            local message=self.opts.none or "No matching entries."
+            -- This is an empty discovery journal, not an unsuccessful search.
+            -- The tab decides which secondary filters are restrictive.
+            if self.filter=="" and self.opts.noneDiscovered and
+               self.opts.discoveryOnly and self.opts.discoveryOnly() then
+                message=self.opts.noneDiscovered
+            end
+            self.noMatch:SetText(message)
+            self.noMatch:Show()
+        else
+            self.noMatch:Hide()
+        end
     end
 end
 function List:Render()
