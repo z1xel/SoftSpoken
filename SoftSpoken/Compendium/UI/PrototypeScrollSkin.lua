@@ -105,6 +105,16 @@ local function Attach(host,owner,apply,offset,slotOffset)
     if down then
         down:ClearAllPoints()
         down:SetPoint("TOP",slot,"BOTTOM",0,18)
+        -- The Compendium resize target overlaps the scrollbar's lower corner.
+        -- Keep the actual down-arrow button clickable instead of letting
+        -- the enlarged grip steal mouse input. Standalone map readers do not
+        -- have a resize grip and retain their existing frame levels.
+        local panel=host:GetParent()
+        local window=panel and panel:GetParent()
+        local grip=window and window.sszResizeGrip
+        if grip then
+            down:SetFrameLevel(math.max(down:GetFrameLevel(),grip:GetFrameLevel()+1))
+        end
     end
     PressedArrow(up);PressedArrow(down)
     bar:SetMinMaxValues(0,0)
