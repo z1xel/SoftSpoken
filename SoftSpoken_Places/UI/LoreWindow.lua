@@ -448,6 +448,8 @@ local function BuildPanel(p)
     list=C.NewList(p,{
         search="Search",
         none="No matching places.",
+        noneDiscovered="No places discovered yet.",
+        discoveryOnly=function() return OnlyFound() and not OnlyVoiced() end,
         only="Discovered Only",
         onlyGet=function() return Settings().compendiumFoundOnly==true end,
         onlySet=function(on) Settings().compendiumFoundOnly=on end,
