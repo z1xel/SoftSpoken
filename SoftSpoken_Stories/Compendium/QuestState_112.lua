@@ -12,6 +12,8 @@ local function Saved()
     if type(db.completed) ~= "table" then db.completed = {} end
     if type(db.titles) ~= "table" then db.titles = {} end
     if type(db.settings) ~= "table" then db.settings = {} end
+    -- First-use Compendium filter; preserve an explicitly saved false.
+    if db.settings.foundOnly == nil then db.settings.foundOnly = true end
     return db
 end
 S.Saved = Saved
