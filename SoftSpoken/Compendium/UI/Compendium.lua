@@ -439,7 +439,8 @@ local function BuildWindow()
     local grip=CreateFrame("Button",nil,window)
     grip:SetWidth(30);grip:SetHeight(30)
     grip:SetPoint("BOTTOMRIGHT",window,"BOTTOMRIGHT",-1,1)
-    grip:SetFrameLevel(window:GetFrameLevel()+12)
+    -- Keep the resize control above both scrollbar widgets and the page chrome.
+    grip:SetFrameLevel(window:GetFrameLevel()+30)
     grip:EnableMouse(true)
     window.sszResizeGrip=grip
     -- The 1.12 client lacks these newer Blizzard ChatFrame resize sprites.
@@ -456,13 +457,13 @@ local function BuildWindow()
         if texture then
             texture:ClearAllPoints()
             texture:SetWidth(16);texture:SetHeight(16)
-            texture:SetPoint("BOTTOMRIGHT",grip,"BOTTOMRIGHT",-4,4)
+            texture:SetPoint("BOTTOMRIGHT",grip,"BOTTOMRIGHT",-4,1)
         end
     end
     local highlight=grip:GetHighlightTexture()
     if highlight then highlight:SetBlendMode("ADD") end
-    -- The overlapping native scrollbar down button is explicitly raised
-    -- above this hit target by PrototypeScrollSkin.Attach; scroll clicks win.
+    -- The corner grip intentionally takes priority over the overlapping
+    -- scrollbar button where their mouse targets intersect.
     grip:SetScript("OnMouseDown",function()
         PinTopLeft()
         window:StartSizing("BOTTOMRIGHT")
