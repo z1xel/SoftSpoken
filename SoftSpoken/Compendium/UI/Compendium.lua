@@ -432,15 +432,31 @@ local function BuildWindow()
         minimizeGlyph:SetTextColor(1,0.82,0.15)
     end
     SetCollapseArrow()
+    -- The page and native scroll housings are raised above the window's
+    -- children; the old 16x16 grip inherited the low close-button level and
+    -- its artwork disappeared behind them. Keep the genuine Blizzard grip,
+    -- but give its hit target room without stretching the original 16px art.
     local grip=CreateFrame("Button",nil,window)
-    grip:SetWidth(16);grip:SetHeight(16)
-    if close and close.GetFrameLevel then
-        grip:SetFrameLevel(close:GetFrameLevel())
-    end
-    grip:SetPoint("BOTTOMRIGHT",window,"BOTTOMRIGHT",-7,7)
+    grip:SetWidth(30);grip:SetHeight(30)
+    grip:SetPoint("BOTTOMRIGHT",window,"BOTTOMRIGHT",-1,1)
+    grip:SetFrameLevel(window:GetFrameLevel()+12)
+    grip:EnableMouse(true)
+    window.sszResizeGrip=grip
     grip:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
     grip:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
     grip:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
+    -- The resize target is bigger than the graphic. Put the latter in the
+    -- unobstructed outer corner, away from the page scrollbar's down arrow.
+    for _,getter in ipairs({"GetNormalTexture","GetPushedTexture","GetHighlightTexture"}) do
+        local texture=grip[getter](grip)
+        if texture then
+            texture:ClearAllPoints()
+            texture:SetWidth(16);texture:SetHeight(16)
+            texture:SetPoint("BOTTOMRIGHT",grip,"BOTTOMRIGHT",1,1)
+        end
+    end
+    -- The overlapping native scrollbar down button is explicitly raised
+    -- above this hit target by PrototypeScrollSkin.Attach; scroll clicks win.
     grip:SetScript("OnMouseDown",function()
         PinTopLeft()
         window:StartSizing("BOTTOMRIGHT")
