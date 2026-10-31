@@ -1,0 +1,104 @@
+name: Publish SoftSpoken v0.8.1-beta
+
+# One-shot release job. Triggered by this file's initial commit only;
+# the explicit commit-message guard prevents accidental re-publication.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/publish-v081-beta.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    if: github.event.head_commit.message == 'chore(release): publish v0.8.1-beta'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check module versions and required files
+        shell: bash
+        run: |
+          set -euo pipefail
+          for folder in SoftSpoken SoftSpoken_Stories SoftSpoken_Places SoftSpoken_Writings; do
+            test -d "$folder"
+            test -f "$folder/$folder.toc"
+            grep -Fxq '## Version: v0.8.1-beta' "$folder/$folder.toc"
+          done
+          grep -Fq 'B.version = "v0.8.1-beta"' SoftSpoken_Writings/Core.lua
+          for state in Up Down Highlight; do
+            test -s "SoftSpoken/Compendium/Textures/Art/UI-ChatIM-SizeGrabber-${state}.tga"
+          done
+
+      - name: Package only the four installable addons
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, pathlib, zipfile
+          modules = ('SoftSpoken', 'SoftSpoken_Stories', 'SoftSpoken_Places', 'SoftSpoken_Writings')
+          destination = pathlib.Path(os.environ['RUNNER_TEMP']) / 'SoftSpoken-v0.8.1-beta.zip'
+          files = sorted(
+              p for module in modules
+              for p in pathlib.Path(module).rglob('*') if p.is_file()
+          )
+          assert files, 'no files packaged'
+          with zipfile.ZipFile(destination, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=6, allowZip64=True) as archive:
+              for file in files:
+                  assert not file.is_symlink(), f'unexpected symlink: {file}'
+                  archive.write(file, file.as_posix())
+          with zipfile.ZipFile(destination) as archive:
+              bad = archive.testzip()
+              assert bad is None, f'archive corruption: {bad}'
+              names = set(archive.namelist())
+              assert len(names) == len(files)
+              for module in modules:
+                  manifest = f'{module}/{module}.toc'
+                  assert manifest in names, manifest
+                  assert b'## Version: v0.8.1-beta' in archive.read(manifest)
+              assert all(n.split('/')[0] in modules for n in names)
+              for state in ('Up', 'Down', 'Highlight'):
+                  assert f'SoftSpoken/Compendium/Textures/Art/UI-ChatIM-SizeGrabber-{state}.tga' in names
+          print(f'Validated {destination.name}: {len(files)} files, {destination.stat().st_size:,} bytes')
+          PY
+
+      - name: Publish prerelease tag and installable ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="v0.8.1-beta"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Refusing to overwrite an existing GitHub release: $TAG"
+            exit 1
+          fi
+          cat > "$RUNNER_TEMP/release-notes.md" <<'EOF'
+          ## SoftSpoken v0.8.1-beta
+
+          Maintenance beta for the original World of Warcraft 1.12 client.
+
+          ### Changes
+          - **#74** — Hold During Combat is OFF by default for Places.
+          - **#50** — Smaller, more practical initial Compendium size (670×430).
+          - **#51** — Discovered Only defaults to ON across Stories, Places and Writings.
+          - **#53** — Clearer messages when nothing has been discovered yet.
+          - **#52** — Visible Compendium resizing grip using authentic Blizzard artwork, with correctly sized hitbox and layering.
+          - **#54** — Large Window narrator-style illustration now retains its portrait and details when selected.
+
+          ### Installation
+          Download **SoftSpoken-v0.8.1-beta.zip**, extract it and copy all four addon folders directly into the game's `Interface\\AddOns` directory:
+          `SoftSpoken`, `SoftSpoken_Stories`, `SoftSpoken_Places`, and `SoftSpoken_Writings`.
+
+          Existing compatible voice packs are installed **separately** and do not need to be replaced for this update.
+
+          See [PR #76](https://github.com/z1xel/SoftSpoken/pull/76) for the merged changes.
+          EOF
+          gh release create "$TAG" "$RUNNER_TEMP/SoftSpoken-v0.8.1-beta.zip" \
+            --target "$GITHUB_SHA" \
+            --title "SoftSpoken v0.8.1-beta" \
+            --notes-file "$RUNNER_TEMP/release-notes.md" \
+            --prerelease
+          gh release view "$TAG" --json tagName,assets,isPrerelease
