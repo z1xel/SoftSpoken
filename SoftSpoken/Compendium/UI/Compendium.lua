@@ -31,7 +31,7 @@ function C.ContinentOf(mapID)
     return KNOWN_CONTINENT[mapID]
 end
 local NAME = "SSCCompendiumWindow"
-local WIDTH, HEIGHT, VISIBLE_ROWS = 670, 600, 42
+local WIDTH, VISIBLE_ROWS = 670, 42
 -- Same row metrics as original Spoken: branch 24px, leaf 20px, 14px per depth.
 local BRANCH_ROW, LEAF_ROW, DEPTH_STEP, SCROLL_STEP = 24, 20, 14, 60
 local function RowHeight(item)
@@ -170,7 +170,7 @@ local function ExpandedWidth()
     return SavedSize("width",MinWidth(),ScreenMaxWidth(),WIDTH)
 end
 local function SavedHeight()
-    return SavedSize("height",MIN_HEIGHT,ScreenMaxHeight(),HEIGHT)
+    return SavedSize("height",MIN_HEIGHT,ScreenMaxHeight(),MIN_HEIGHT)
 end
 local function SaveWindowSize()
     if not window then return end
