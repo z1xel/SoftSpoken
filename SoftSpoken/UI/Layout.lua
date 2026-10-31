@@ -2648,10 +2648,12 @@ function Layout:Defaults(onClick, label, tooltip)
 end
 
 --- A flat rectangle inside `parent`, for the sketches on tiles: `x`, `y` from its top left.
-function Layout.Rect(parent, x, y, width, height, r, g, b, a)
+--- `layer` optionally puts solid sketch backgrounds below their foreground details.
+function Layout.Rect(parent, x, y, width, height, r, g, b, a, layer)
     -- White, tinted: Grey recolours it by its tint alone. Setting a flat colour again on this
-    -- client drops rects at random.
-    local texture = Flat(parent, "ARTWORK", 1, 1, 1, 1)
+    -- client drops rects at random. In 1.12, same-layer flat regions can obscure
+    -- subsequently drawn rectangles when their vertex colours are restored.
+    local texture = Flat(parent, layer or "ARTWORK", 1, 1, 1, 1)
     texture:SetVertexColor(r, g, b)
     texture:SetAlpha(a or 1)
     texture:SetPoint("TOPLEFT", parent, "TOPLEFT", x, -y)
