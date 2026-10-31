@@ -433,12 +433,13 @@ local function BuildWindow()
     end
     SetCollapseArrow()
     -- The page and native scroll housings are raised above the window's
-    -- children; the old 16x16 grip inherited the low close-button level and
-    -- its artwork disappeared behind them. Keep the genuine Blizzard grip,
-    -- but give its hit target room without stretching the original 16px art.
+    -- children. Keep the genuine Blizzard grip above them, but limit its
+    -- mouse target to the exact 16x16 graphic, not the former 30x30 area.
+    -- This anchor preserves the sprite's previous on-screen position:
+    -- old button corner (-1,+1) plus sprite offset (-4,+1) = (-5,+2).
     local grip=CreateFrame("Button",nil,window)
-    grip:SetWidth(30);grip:SetHeight(30)
-    grip:SetPoint("BOTTOMRIGHT",window,"BOTTOMRIGHT",-1,1)
+    grip:SetWidth(16);grip:SetHeight(16)
+    grip:SetPoint("BOTTOMRIGHT",window,"BOTTOMRIGHT",-5,2)
     -- Keep the resize control above both scrollbar widgets and the page chrome.
     grip:SetFrameLevel(window:GetFrameLevel()+30)
     grip:EnableMouse(true)
@@ -451,13 +452,13 @@ local function BuildWindow()
     grip:SetNormalTexture(gripArt.."Up")
     grip:SetPushedTexture(gripArt.."Down")
     grip:SetHighlightTexture(gripArt.."Highlight")
-    -- Keep native artwork dimensions separate from the 30px mouse target.
+    -- Match the 16x16 artwork to the button's 16x16 mouse target.
     for _,getter in ipairs({"GetNormalTexture","GetPushedTexture","GetHighlightTexture"}) do
         local texture=grip[getter](grip)
         if texture then
             texture:ClearAllPoints()
             texture:SetWidth(16);texture:SetHeight(16)
-            texture:SetPoint("BOTTOMRIGHT",grip,"BOTTOMRIGHT",-4,1)
+            texture:SetPoint("BOTTOMRIGHT",grip,"BOTTOMRIGHT",0,0)
         end
     end
     local highlight=grip:GetHighlightTexture()
