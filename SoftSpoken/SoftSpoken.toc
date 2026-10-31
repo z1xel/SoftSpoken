@@ -1,7 +1,7 @@
 ## Interface: 11200
 ## Title: SoftSpoken
 ## Notes: The voice player every SoftSpoken addon speaks through, for the 1.12 client.
-## Version: v0.8.0
+## Version: v0.8.1-beta
 ## SavedVariables: SpokenSettings
 ## X-Part-Of: SoftSpoken
 ## X-Spoken-Player: 1
