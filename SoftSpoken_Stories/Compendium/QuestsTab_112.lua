@@ -187,6 +187,10 @@ local function Build(panelFrame)
     list=C.NewList(panelFrame,{
         search="Search",
         none="No matching quests.",
+        noneDiscovered="No quests discovered yet.",
+        discoveryOnly=function()
+            return not Q.loadError and Settings("foundOnly") and not Settings("voicedOnly")
+        end,
         only="Discovered Only",
         onlyGet=function() return Settings("foundOnly") end,
         onlySet=function(on) Settings("foundOnly",on) end,

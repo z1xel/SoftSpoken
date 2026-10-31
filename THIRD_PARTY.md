@@ -52,6 +52,10 @@ library notices when distributing the addon.
   [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 - **Interface artwork, map icons and zone emblems** include Blizzard
   game assets and Spoken-derived artwork.
+- **Compendium resize grip** uses Blizzard's original
+  `UI-ChatIM-SizeGrabber-Up/Down/Highlight` interface sprites,
+  taken from [Gethe's WoW UI texture mirror](https://github.com/Gethe/wow-ui-textures/tree/live/CHATFRAME)
+  and converted pixel-for-pixel into Vanilla-compatible TGA files.
 - **Places illustrations** are adapted game screenshots. The
   [per-picture source credits](SoftSpoken_Places/Textures/Pictures/CREDITS.md)
   identify the original images and their source pages.

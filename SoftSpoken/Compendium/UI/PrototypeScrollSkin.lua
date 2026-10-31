@@ -105,6 +105,8 @@ local function Attach(host,owner,apply,offset,slotOffset)
     if down then
         down:ClearAllPoints()
         down:SetPoint("TOP",slot,"BOTTOM",0,18)
+        -- The Compendium resize grip owns the overlapping bottom-right
+        -- corner. Leave the arrow at its native level rather than covering it.
     end
     PressedArrow(up);PressedArrow(down)
     bar:SetMinMaxValues(0,0)

@@ -136,7 +136,9 @@ local SKETCHES = {
     classic = function(art)
         local R, w = Layout.Rect, art.width
         local x = (w - 96) / 2
-        R(art, x, 7, 96, 44, 0.2, 0.18, 0.15, 1)
+        -- Keep the broad dark window silhouette behind its portrait, header
+        -- and text bars even when Grey() restores selected colours on 1.12.
+        R(art, x, 7, 96, 44, 0.2, 0.18, 0.15, 1, "BACKGROUND")
         R(art, x + 4, 11, 32, 32, 0.75, 0.6, 0.3, 1)
         R(art, x + 41, 13, 46, 3, 1, 0.82, 0, 0.9)
         R(art, x + 41, 21, 50, 2, 0.9, 0.9, 0.9, 0.7)

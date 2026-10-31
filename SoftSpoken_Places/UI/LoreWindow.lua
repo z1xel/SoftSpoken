@@ -242,6 +242,19 @@ local function ContinentProgress(continent)
 end
 local function RebuildRows()
     rows={}
+    -- The permanent "Azeroth" root must not hide the empty discovery state.
+    -- Check actual eligible places, including loose zones and nested cities,
+    -- independently of which tree branches happen to be expanded.
+    if OnlyFound() then
+        local anyVisible=false
+        for _,id in ipairs(ZoneIDs()) do
+            if Found(id) and (not OnlyVoiced() or AnyVoice(id)) then
+                anyVisible=true
+                break
+            end
+        end
+        if not anyVisible then return rows end
+    end
     local hasSearch=searching~=""
     local foundContinent,totalContinents=0,2
     local continentRows={}
@@ -448,6 +461,8 @@ local function BuildPanel(p)
     list=C.NewList(p,{
         search="Search",
         none="No matching places.",
+        noneDiscovered="No places discovered yet.",
+        discoveryOnly=function() return OnlyFound() and not OnlyVoiced() end,
         only="Discovered Only",
         onlyGet=function() return Settings().compendiumFoundOnly==true end,
         onlySet=function(on) Settings().compendiumFoundOnly=on end,

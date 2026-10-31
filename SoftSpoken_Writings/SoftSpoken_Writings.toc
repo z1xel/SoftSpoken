@@ -1,7 +1,7 @@
 ## Interface: 11200
 ## Title: SoftSpoken Writings
 ## Notes: Turtle WoW book, note, letter and plaque narration using Spoken
-## Version: v0.8.0
+## Version: v0.8.1-beta
 ## Dependencies: SoftSpoken
 ## OptionalDeps: SpokenReadablesAudio, SpokenBooksAudio
 ## SavedVariables: SSBSettings

@@ -3,13 +3,13 @@
 -- Book recognition/playlist adapted from rusty-key/spoken-wow (MIT).
 SSB = SSB or {}
 local B = SSB
-B.version = "v0.8.0"
+B.version = "v0.8.1-beta"
 B.name = "SoftSpoken_Writings"
 local defaults = {
     autoplay=true, readWholeBook=true, bookAsOneLine=true, readOnce=false,
     stopOnClose=false, closeWhenRead=false,
     voiceLanguage="auto", fallbackLanguage="enUS",
-    compendiumFoundOnly=false, compendiumVoicedOnly=false,
+    compendiumFoundOnly=true, compendiumVoicedOnly=false,
     compendiumByZone=true, unlockUnfound=false
 }
 function B:Print(message)

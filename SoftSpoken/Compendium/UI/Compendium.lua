@@ -31,7 +31,7 @@ function C.ContinentOf(mapID)
     return KNOWN_CONTINENT[mapID]
 end
 local NAME = "SSCCompendiumWindow"
-local WIDTH, HEIGHT, VISIBLE_ROWS = 670, 600, 42
+local WIDTH, VISIBLE_ROWS = 670, 42
 -- Same row metrics as original Spoken: branch 24px, leaf 20px, 14px per depth.
 local BRANCH_ROW, LEAF_ROW, DEPTH_STEP, SCROLL_STEP = 24, 20, 14, 60
 local function RowHeight(item)
@@ -170,7 +170,7 @@ local function ExpandedWidth()
     return SavedSize("width",MinWidth(),ScreenMaxWidth(),WIDTH)
 end
 local function SavedHeight()
-    return SavedSize("height",MIN_HEIGHT,ScreenMaxHeight(),HEIGHT)
+    return SavedSize("height",MIN_HEIGHT,ScreenMaxHeight(),MIN_HEIGHT)
 end
 local function SaveWindowSize()
     if not window then return end
@@ -432,15 +432,39 @@ local function BuildWindow()
         minimizeGlyph:SetTextColor(1,0.82,0.15)
     end
     SetCollapseArrow()
+    -- The page and native scroll housings are raised above the window's
+    -- children. Keep the genuine Blizzard grip above them, but limit its
+    -- mouse target to the exact 16x16 graphic, not the former 30x30 area.
+    -- This anchor preserves the sprite's previous on-screen position:
+    -- old button corner (-1,+1) plus sprite offset (-4,+1) = (-5,+2).
     local grip=CreateFrame("Button",nil,window)
     grip:SetWidth(16);grip:SetHeight(16)
-    if close and close.GetFrameLevel then
-        grip:SetFrameLevel(close:GetFrameLevel())
+    grip:SetPoint("BOTTOMRIGHT",window,"BOTTOMRIGHT",-5,2)
+    -- Keep the resize control above both scrollbar widgets and the page chrome.
+    grip:SetFrameLevel(window:GetFrameLevel()+30)
+    grip:EnableMouse(true)
+    window.sszResizeGrip=grip
+    -- The 1.12 client lacks these newer Blizzard ChatFrame resize sprites.
+    -- Bundle the genuine 16x16 Up/Down/Highlight images (converted to TGA
+    -- without pixel changes) rather than drawing a replacement grip.
+    -- Source: Gethe/wow-ui-textures, CHATFRAME/UI-ChatIM-SizeGrabber-*.PNG
+    local gripArt="Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\UI-ChatIM-SizeGrabber-"
+    grip:SetNormalTexture(gripArt.."Up")
+    grip:SetPushedTexture(gripArt.."Down")
+    grip:SetHighlightTexture(gripArt.."Highlight")
+    -- Match the 16x16 artwork to the button's 16x16 mouse target.
+    for _,getter in ipairs({"GetNormalTexture","GetPushedTexture","GetHighlightTexture"}) do
+        local texture=grip[getter](grip)
+        if texture then
+            texture:ClearAllPoints()
+            texture:SetWidth(16);texture:SetHeight(16)
+            texture:SetPoint("BOTTOMRIGHT",grip,"BOTTOMRIGHT",0,0)
+        end
     end
-    grip:SetPoint("BOTTOMRIGHT",window,"BOTTOMRIGHT",-7,7)
-    grip:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
-    grip:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
-    grip:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
+    local highlight=grip:GetHighlightTexture()
+    if highlight then highlight:SetBlendMode("ADD") end
+    -- The corner grip intentionally takes priority over the overlapping
+    -- scrollbar button where their mouse targets intersect.
     grip:SetScript("OnMouseDown",function()
         PinTopLeft()
         window:StartSizing("BOTTOMRIGHT")
@@ -992,7 +1016,19 @@ function List:DrawRows()
         self.rows[i]:Hide()
     end
     if self.noMatch then
-        if table.getn(self.items)==0 then self.noMatch:Show() else self.noMatch:Hide() end
+        if table.getn(self.items)==0 then
+            local message=self.opts.none or "No matching entries."
+            -- This is an empty discovery journal, not an unsuccessful search.
+            -- The tab decides which secondary filters are restrictive.
+            if self.filter=="" and self.opts.noneDiscovered and
+               self.opts.discoveryOnly and self.opts.discoveryOnly() then
+                message=self.opts.noneDiscovered
+            end
+            self.noMatch:SetText(message)
+            self.noMatch:Show()
+        else
+            self.noMatch:Hide()
+        end
     end
 end
 function List:Render()

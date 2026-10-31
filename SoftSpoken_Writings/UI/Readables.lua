@@ -504,6 +504,9 @@ local function Build(panelFrame)
     panel=panelFrame
     list=C.NewList(panel,{
         search="Search",none="No matching writings.",
+        noneDiscovered="No writings discovered yet.",
+        -- Arrange by Type changes layout, not the visibility of entries.
+        discoveryOnly=function() return OnlyFound() and not OnlyVoiced() end,
         only="Discovered Only", onlyGet=OnlyFound,
         onlySet=function(on) Settings().compendiumFoundOnly=on end,
         checks={
