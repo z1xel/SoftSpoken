@@ -442,19 +442,27 @@ local function BuildWindow()
     grip:SetFrameLevel(window:GetFrameLevel()+12)
     grip:EnableMouse(true)
     window.sszResizeGrip=grip
-    grip:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
-    grip:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
-    grip:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
-    -- The resize target is bigger than the graphic. Put the latter in the
-    -- unobstructed outer corner, away from the page scrollbar's down arrow.
+    -- The retail ChatIM SizeGrabber textures are absent from the 1.12
+    -- interface asset set. Ship a small, transparent metal-grip sprite so
+    -- the 30x30 resize target remains visibly identifiable on Vanilla.
+    local gripArt="Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\ResizeGrip"
+    grip:SetNormalTexture(gripArt)
+    grip:SetPushedTexture(gripArt)
+    grip:SetHighlightTexture(gripArt)
+    -- Keep all three button states aligned without filling the whole
+    -- mouse target; the decorated corner stays clear of the scroll arrow.
     for _,getter in ipairs({"GetNormalTexture","GetPushedTexture","GetHighlightTexture"}) do
         local texture=grip[getter](grip)
         if texture then
             texture:ClearAllPoints()
-            texture:SetWidth(16);texture:SetHeight(16)
-            texture:SetPoint("BOTTOMRIGHT",grip,"BOTTOMRIGHT",1,1)
+            texture:SetWidth(24);texture:SetHeight(24)
+            texture:SetPoint("BOTTOMRIGHT",grip,"BOTTOMRIGHT",-3,3)
         end
     end
+    local pushed=grip:GetPushedTexture()
+    if pushed then pushed:SetVertexColor(.78,.70,.56,1) end
+    local highlight=grip:GetHighlightTexture()
+    if highlight then highlight:SetBlendMode("ADD");highlight:SetAlpha(.45) end
     -- The overlapping native scrollbar down button is explicitly raised
     -- above this hit target by PrototypeScrollSkin.Attach; scroll clicks win.
     grip:SetScript("OnMouseDown",function()
