@@ -93,9 +93,17 @@ The published ClassicAPI v1.18.14 source supports
 streams. Its file-playback bus caps concurrency at two simultaneous files.
 Source: [ClassicAPI v1.18.14 sound implementation](https://github.com/brues-code/ClassicAPI/blob/v1.18.14/src/sound/Play.cpp).
 
-SoftSpoken continues routing narration through `Master` by default;
-we are **not** adding a fake narration-volume slider or changing the
-user's global SFX/music/ambience settings.
+SoftSpoken routes narration through `Master` by default. Phase 2 now
+offers an **opt-in Narration Channel** selector under the shared Audio
+settings: `Master`, `SFX`, `Music`, `Ambience`. This chooses the
+ClassicAPI category of each **newly started** file only; it never stops
+or reroutes an already owned handle, and does not change any global
+game settings. Invalid saved values fall back to Master; a registered
+source's explicit channel callback still takes priority.
+
+We are **not** adding a fake independent narration-volume slider:
+individual MP3 gain is unsupported, and the selected game category's
+effects on actual audio volume still require real-client verification.
 The legacy client does not have a separate Dialog channel. The old
 global-`MasterSoundEffects` reset has been removed (#56).
 An NPC may still speak over SoftSpoken narration; safe ducking requires
