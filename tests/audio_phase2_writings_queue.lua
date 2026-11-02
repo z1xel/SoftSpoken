@@ -319,4 +319,34 @@ do
     eq(q:IsEmpty(),true)
 end
 
+-- #67: Writings index validation and deterministic readables-before-books
+-- selection. These tests use the real Audio.lua implementation.
+do
+    local prevBooks=SpokenBooksAudioPacks
+    local prevReadables=SpokenReadablesAudioPacks
+    SpokenBooksAudioPacks={
+        Z={version=1,addon="SpokenBooksZ",pages={[101]={file="old-book",len=5}}},
+    }
+    SpokenReadablesAudioPacks={
+        X={version=1,addon="SpokenReadablesX",pages={[101]={file="preferred",len=0}}},
+    }
+    local c=SSB:ClipFor(101)
+    assert(string.find(c.path,"SpokenReadablesX",1,true))
+    eq(c.length,nil)
+    eq(SSB:HasAudio(101),true)
+    eq(SSB:PageLength(101),nil)
+    -- Malformed preferred entry must yield to older compatible pack.
+    SpokenReadablesAudioPacks.X.pages[101]={file="../escape",len=15}
+    c=SSB:ClipFor(101)
+    assert(string.find(c.path,"SpokenBooksZ",1,true))
+    eq(SSB:PageLength(101),5)
+    -- Both entries corrupt: distinguish absent audio from a valid clip.
+    SpokenBooksAudioPacks.Z.pages[101]={file="",len=9}
+    eq(SSB:ClipFor(101),nil)
+    eq(SSB:HasAudio(101),false)
+    eq(SSB:PageLength(101),nil)
+    SpokenBooksAudioPacks=prevBooks
+    SpokenReadablesAudioPacks=prevReadables
+end
+
 print("audio_phase2_writings_queue.lua: real book playlist + native queue integration passed")
