@@ -239,8 +239,8 @@ end
 --- Volumes a previous session lowered and never put back: it ended without a logout.
 function OtherSounds:RestoreLeftovers()
     local leftover = Addon.db.global.LoweredVolumes
-    if type(leftover) ~= "table" or self.lowered then return end
-    for channel, entry in pairs(leftover) do
+    if self.lowered then return end
+    for channel, entry in pairs(type(leftover) == "table" and leftover or {}) do
         local baseline = type(entry) == "table" and tonumber(entry.original) or nil
         local lastApplied = type(entry) == "table" and tonumber(entry.applied) or nil
         local current = Read(channel)
@@ -274,10 +274,20 @@ Callbacks:Register("QUEUE_EMPTY", function() OtherSounds:Sync() end)
 local events = CreateFrame("Frame")
 events:RegisterEvent("PLAYER_LOGIN")
 events:RegisterEvent("PLAYER_LOGOUT")
-events:SetScript("OnEvent", function(_, event)
-    if event == "PLAYER_LOGOUT" then
+events:RegisterEvent("CVAR_UPDATE")
+events:SetScript("OnEvent", function(_, emitted, name)
+    -- 1.12 passes 'event'/'arg1' via globals; test shims may pass args.
+    local e = emitted or event
+    if e == "PLAYER_LOGOUT" then
         OtherSounds:Restore(true)
-    elseif Addon.db then
-        OtherSounds:RestoreLeftovers()
+    elseif e == "PLAYER_LOGIN" then
+        if Addon.db then OtherSounds:RestoreLeftovers() end
+    elseif e == "CVAR_UPDATE" and not OtherSounds.writing then
+        local changed = name or arg1
+        if type(changed) == "string" then
+            for channel, cvar in pairs(CVARS) do
+                if string.lower(changed) == string.lower(cvar) then Release() end
+            end
+        end
     end
 end)
