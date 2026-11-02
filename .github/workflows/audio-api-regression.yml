@@ -16,6 +16,9 @@ on:
       - "tests/audio_phase2_diagnostics.lua"
       - "tests/audio_phase2_routing.lua"
       - "tests/audio_phase2_ducking.lua"
+      - "tests/audio_phase3_pack_selection.lua"
+      - "SoftSpoken_Stories/DataModules.lua"
+      - "SoftSpoken_Writings/Audio.lua"
       - "SoftSpoken/OtherSounds.lua"
       - "SoftSpoken/addon.xml"
       - "SoftSpoken/Sources.lua"
@@ -47,6 +50,9 @@ on:
       - "tests/audio_phase2_diagnostics.lua"
       - "tests/audio_phase2_routing.lua"
       - "tests/audio_phase2_ducking.lua"
+      - "tests/audio_phase3_pack_selection.lua"
+      - "SoftSpoken_Stories/DataModules.lua"
+      - "SoftSpoken_Writings/Audio.lua"
       - "SoftSpoken/OtherSounds.lua"
       - "SoftSpoken/addon.xml"
       - "SoftSpoken/Sources.lua"
@@ -96,3 +102,5 @@ jobs:
         run: lua5.1 tests/audio_phase2_routing.lua
       - name: Run upstream three-category Vanilla audio mixer and recovery tests
         run: lua5.1 tests/audio_phase2_ducking.lua
+      - name: Run pack precedence, language, path and metadata regression tests
+        run: lua5.1 tests/audio_phase3_pack_selection.lua
