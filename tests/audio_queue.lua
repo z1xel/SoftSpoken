@@ -322,4 +322,99 @@ do
     eq(q:IsEmpty(),true)
 end
 
+-- A gate-interruption stop callback may remove the very clip it interrupts.
+-- This must deliver exactly one CLIP_STOPPED instead of a duplicate.
+do
+    local q=reset()
+    local A=source("places")
+    local gate=false
+    table.insert(A.gates,function() return gate and "combat" or nil end)
+    local a=clip("self-remove.mp3",2)
+    a.stopCallback=function(c,finished)
+        if not finished then q:RemoveSoundFromQueue(c) end
+    end
+    q:Add(a,A)
+    gate=true
+    eq(q:RecheckGates(A),true)
+    eq(q:IsEmpty(),true)
+    eq(countEvent("CLIP_STOPPED",a),1)
+    step(1)
+    eq(countEvent("CLIP_STOPPED",a),1)
+end
+
+-- Stop All must be a drain even if a removed clip's callback tries to
+-- immediately enqueue a replacement. The same applies to Stop Source,
+-- but another source is allowed to remain.
+do
+    local q=reset()
+    local A=source("writings")
+    local a=clip("stop-all.mp3",2)
+    local denied
+    a.stopCallback=function()
+        local added,why=q:Add(clip("unwanted.mp3",2),A)
+        denied=why
+        eq(added,nil)
+    end
+    q:Add(a,A)
+    q:RemoveAllSoundsFromQueue()
+    eq(denied,"stopped")
+    eq(q:IsEmpty(),true)
+    eq(started["unwanted.mp3"],nil)
+
+    q=reset()
+    local B=source("stories")
+    a=clip("scoped.mp3",2)
+    local other=clip("other-source.mp3",2)
+    a.stopCallback=function()
+        local own,why=q:Add(clip("same-source.mp3",2),A)
+        eq(own,nil);eq(why,"stopped")
+        q:Add(other,B)
+    end
+    q:Add(a,A)
+    q:RemoveSource(A)
+    eq(q:GetCurrentSound(),other)
+    eq(started["same-source.mp3"],nil)
+    endSound(other)
+    eq(q:IsEmpty(),true)
+end
+
+-- If a start callback immediately skips its own clip, no ghost
+-- CLIP_STARTED may be reported after its terminal notification.
+do
+    local q=reset()
+    local A=source("stories")
+    local a=clip("start-remove.mp3",2)
+    a.startCallback=function(c) eq(q:Skip(),true) end
+    q:Add(a,A)
+    eq(q:IsEmpty(),true)
+    eq(countEvent("CLIP_STARTED",a),0)
+    eq(countEvent("CLIP_STOPPED",a),1)
+    step(1)
+    eq(countEvent("CLIP_STOPPED",a),1)
+end
+
+-- Native status can transiently fail; the queue should recover, but an
+-- indefinitely alive handle cannot hold it forever (emergency watchdog).
+do
+    local q=reset()
+    local A=source("stories")
+    local a=clip("query-recovers.mp3",1)
+    q:Add(a,A)
+    failQueries[a.handle]=true
+    step(0.45)
+    failQueries[a.handle]=nil
+    step(1)
+    eq(q:GetCurrentSound(),a)
+    endSound(a)
+    eq(q:IsEmpty(),true)
+
+    q=reset()
+    a=clip("never-finishes.mp3",1)
+    q:Add(a,A)
+    step(3600.5)
+    eq(a.playState,"failed")
+    eq(countEvent("CLIP_DROPPED",a),1)
+    eq(q:IsEmpty(),true)
+end
+
 print("audio_queue.lua: engine completion, lifecycle, and race assertions passed")
