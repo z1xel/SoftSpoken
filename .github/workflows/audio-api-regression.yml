@@ -17,6 +17,7 @@ on:
       - "tests/audio_phase2_routing.lua"
       - "tests/audio_phase2_ducking.lua"
       - "tests/audio_phase3_pack_selection.lua"
+      - "scripts/audio_pack_audit.py"
       - "SoftSpoken_Stories/DataModules.lua"
       - "SoftSpoken_Writings/Audio.lua"
       - "SoftSpoken/OtherSounds.lua"
@@ -51,6 +52,7 @@ on:
       - "tests/audio_phase2_routing.lua"
       - "tests/audio_phase2_ducking.lua"
       - "tests/audio_phase3_pack_selection.lua"
+      - "scripts/audio_pack_audit.py"
       - "SoftSpoken_Stories/DataModules.lua"
       - "SoftSpoken_Writings/Audio.lua"
       - "SoftSpoken/OtherSounds.lua"
@@ -104,3 +106,7 @@ jobs:
         run: lua5.1 tests/audio_phase2_ducking.lua
       - name: Run pack precedence, language, path and metadata regression tests
         run: lua5.1 tests/audio_phase3_pack_selection.lua
+      - name: Check offline pack auditor syntax and CLI
+        run: |
+          python3 -m py_compile scripts/audio_pack_audit.py
+          python3 scripts/audio_pack_audit.py --help >/dev/null
