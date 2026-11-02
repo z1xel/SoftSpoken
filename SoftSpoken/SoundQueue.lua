@@ -298,7 +298,7 @@ function SoundQueue:RemoveSoundFromQueue(clip, finishedPlaying)
         if not finishedPlaying then
             SoundUtils:StopSound(clip, not self.sounds[1] and REMOVE_FADE_MS or nil)
         else
-            clip.handle = nil
+            SoundUtils:ReleaseSound(clip)
         end
         if clip.nextSoundTimer then
             Addon:CancelTimer(clip.nextSoundTimer)
@@ -359,12 +359,9 @@ end
 -- Playing
 --------------------------------------------------------------------------------
 
---- Silence the client's own NPC dialogue while we speak, and let it back when the queue
---- drains. `speakingOn` is the channel being spoken on, or nil when nothing is.
----
---- Never the channel we are speaking on: muting that would mute the line. On 1.12 there is
---- no Dialog channel to mute, and what the client can do is cut a bark already playing, so
---- the effects channel is toggled off and straight back on as the line starts.
+--- Legacy 1.12 has no independently controllable NPC dialogue channel.
+--- Until #63 identifies a safe replacement, preserve SFX rather than toggling
+--- MasterSoundEffects and interrupting unrelated in-game sounds.
 ---@param speakingOn string|nil
 ---@param cut boolean? switch it off at once rather than fade it out
 function SoundQueue:MuteGameDialogue(speakingOn, cut)
@@ -372,10 +369,6 @@ function SoundQueue:MuteGameDialogue(speakingOn, cut)
         return
     end
     if Version.IsLegacyVanilla then
-        if speakingOn then
-            SetCVar("MasterSoundEffects", 0)
-            SetCVar("MasterSoundEffects", 1)
-        end
         return
     end
     -- Faded, so the NPC is not cut off mid-word; cut where it should not be heard at all.
@@ -388,18 +381,15 @@ end
 local MUTE_AHEAD_SECONDS = 1.5
 local muteAheadTimer
 
---- Mute the game's dialogue now, for a line that will be queued shortly. The client
---- starts an NPC's greeting as the dialog opens, and a line needs a moment to be read off
---- the dialog after that: muting only once the line starts cut the greeting off mid-word.
---- Muted in the same frame the dialog opened, the greeting is never heard at all.
+--- On clients with a real Dialog channel, mute the game's dialogue ahead of
+--- an incoming line. On 1.12, leave global sound effects alone until #63.
 ---@param speakingOn string The channel the coming line will play on.
 function SoundQueue:MuteGameDialogueAhead(speakingOn)
-    -- Paused, the line will only queue: nothing of ours is going to speak over the greeting.
-    if self:IsPaused() then
+    if Version.IsLegacyVanilla then
         return
     end
-    -- On 1.12 muting is cutting every sound, which would cut a line already speaking.
-    if Version.IsLegacyVanilla and not self:IsEmpty() then
+    -- Paused, the line will only queue: nothing of ours is going to speak over the greeting.
+    if self:IsPaused() then
         return
     end
     -- Cut, not faded: in the frame the window opens the greeting has barely started, and a fade
