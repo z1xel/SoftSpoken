@@ -54,6 +54,7 @@ queue[1]={key="b:101",source=books,length=12.5,handle=65536,playbackErrors=1,
 local lines=dev:Context()
 local combined=table.concat(lines,"\n")
 assert(combined:find("ClassicAPI 11814, audio backend available",1,true))
+assert(combined:find("narration category Master (new recordings only)",1,true))
 assert(combined:find("state playing, channel Master",1,true))
 assert(combined:find("handle present, native playing, estimate 12.5, errors 1",1,true))
 assert(combined:find("sound categories: SFX 1/0.8, Music 1/0.4",1,true))
