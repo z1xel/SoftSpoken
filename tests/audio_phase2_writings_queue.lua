@@ -299,14 +299,18 @@ do
     eq(q:IsEmpty(),true)
 end
 
--- Invalid first-page MP3 is rejected synchronously by native playback.
--- A dead first page must not reserve 'following' or create an infinite
--- queue; the caller must be able to retry after repairing its audio pack.
+-- If the first recording is missing, the Compendium skips forward
+-- to the next *playable* page as it has always done; a failed clip must
+-- not strand playback or count as a successful completion.
 do
     resetBook()
     local path=SSB:ClipFor(101).path
     failedStarts[path]=true
-    eq(SSB:SyncTo(101,true),0)
+    eq(SSB:SyncTo(101,true),2)
+    eq(currentPage(102).pageId,102)
+    eq(SSB.following[10].clip.pageId,102)
+    eq(started[SSB:ClipFor(103).path],nil)
+    SSB:StopReading(10)
     eq(SSB.following[10],nil)
     eq(q:IsEmpty(),true)
     failedStarts[path]=nil
