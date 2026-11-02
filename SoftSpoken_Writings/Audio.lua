@@ -16,6 +16,30 @@ local L = SpokenBooks.L
 -- plays silence and reports nothing.
 local PACK_FORMAT = 1
 
+-- Validate an audio index before using it to construct a native MP3 path.
+-- Metadata lengths are only UI estimates; absent/bad durations are fine.
+local function ValidFile(file)
+    if type(file) ~= "string" or not string.find(file, "%S") then return false end
+    if string.find(file, ":", 1, true) or string.find(file, "%c") then return false end
+    local normalized = string.gsub(file, "\\", "/")
+    if string.sub(normalized, 1, 1) == "/" then return false end
+    if normalized == ".." or string.find(normalized, "^%.%./")
+        or string.find(normalized, "/%.%./") or string.find(normalized, "/%.%.$") then
+        return false
+    end
+    return true
+end
+
+local function ValidEntry(entry)
+    return type(entry) == "table" and ValidFile(entry.file)
+end
+
+local function EstimatedLength(length)
+    local n = tonumber(length)
+    if n and n > 0 and n < math.huge then return n end
+    return nil
+end
+
 -- Use the original Vanilla inventory book icon, not the bundled enlarged
 -- VoiceOver-era Book.blp portrait. This is available in the 1.12 client.
 local BOOK_TEXTURE = [[Interface\Icons\INV_Misc_Book_09]]
@@ -111,7 +135,19 @@ function SpokenBooks:GetAudioPacks()
 	-- Upstream renamed Books to Readables; accept either pack registry.
 	AddRegistry(_G.SpokenReadablesAudioPacks)
 	AddRegistry(_G.SpokenBooksAudioPacks)
-	table.sort(packs, function(a, b) return (a.addon or "") < (b.addon or "") end)
+	-- Newer Readables format first, then original Books; stable within each
+	-- family, so addon load/registration order cannot change the chosen voice.
+	table.sort(packs, function(a, b)
+		local function Tier(pack)
+			local name = pack.addon or ""
+			if string.find(name, "^SpokenReadables") then return 2 end
+			if string.find(name, "^SpokenBooks") then return 1 end
+			return 0
+		end
+		local at, bt = Tier(a), Tier(b)
+		if at ~= bt then return at > bt end
+		return (a.addon or "") < (b.addon or "")
+	end)
 	return packs
 end
 
@@ -136,7 +172,7 @@ function SpokenBooks:ClipFor(pageId)
 	for _, language in ipairs(self:LanguageOrder()) do
 		for _, pack in ipairs(packs) do
 			local entry = self:PackLanguage(pack) == language and pack.pages[pageId]
-			if entry then
+			if ValidEntry(entry) then
 				local book = self:Data().books[place.book]
 				local oneLine = self:OneLine()
 				local text = entry.text
@@ -154,7 +190,7 @@ function SpokenBooks:ClipFor(pageId)
 					-- Duration is an optional estimate for the UI. ClassicAPI
 					-- playback state, not this metadata, controls page completion.
 					-- Zero/unknown remains nil instead of fabricating a length.
-					length = (entry.len and entry.len > 0) and entry.len or nil,
+					length = EstimatedLength(entry.len),
 					pageId = pageId,
 					-- A line per page: one book is one item to the player, its pages read on
 					-- with no pause or cue between.
@@ -193,8 +229,8 @@ function SpokenBooks:PageLength(pageId)
 	for _, language in ipairs(self:LanguageOrder()) do
 		for _, pack in ipairs(packs) do
 			local entry = self:PackLanguage(pack) == language and pack.pages[pageId]
-			if entry then
-				return (entry.len and entry.len > 0) and entry.len or nil
+			if ValidEntry(entry) then
+				return EstimatedLength(entry.len)
 			end
 		end
 	end
@@ -220,7 +256,7 @@ function SpokenBooks:HasAudio(pageId)
 	local packs = self:GetAudioPacks()
 	for _, language in ipairs(self:LanguageOrder()) do
 		for _, pack in ipairs(packs) do
-			if self:PackLanguage(pack) == language and pack.pages[pageId] then
+			if self:PackLanguage(pack) == language and ValidEntry(pack.pages[pageId]) then
 				return true
 			end
 		end
