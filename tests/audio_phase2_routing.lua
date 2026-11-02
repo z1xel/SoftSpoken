@@ -18,6 +18,7 @@ PlaySound=function() end
 SOUNDKIT={IG_QUEST_LOG_CLOSE=1}
 local profile={Audio={NarrationChannel="Master"},Parts={}}
 SpokenEnv=setmetatable({
+    format=string.format,
     Addon={
         db={profile=profile},
         Profile=function(self,section) return self.db.profile[section] end
