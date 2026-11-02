@@ -51,6 +51,10 @@ Defaults = {
             -- ClassicAPI supports category routing, not a per-MP3 volume setter.
             -- Preserve existing Master behavior unless a player explicitly opts in.
             NarrationChannel = "Master",
+            -- Opt-in Vanilla 1.12 mixer: 60% of the player's EFFECTS
+            -- baseline while a Master/Music/Ambience narration speaks.
+            -- The original slider is restored afterwards. Never mute SFX.
+            SFXDucking = { Enabled = false, Level = 0.6 },
             -- Seconds of quiet between one line and the next, on top of each module's own short
             -- gap: back to back, a new line started before the last had settled.
             LineGap = 1,
