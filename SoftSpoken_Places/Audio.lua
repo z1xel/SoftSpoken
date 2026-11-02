@@ -150,7 +150,7 @@ local function ParentHeading(mapID, zoneName, areaKey)
     return zoneName
 end
 
-local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay)
+local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay, initialGreeting)
     local areaKey
     if not isZone then areaKey = Normalise(areaLabel) end
     local pack, recording = FindRecording(mapID, areaKey)
@@ -166,6 +166,7 @@ local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay)
                "\\Sounds\\" .. recording.file .. ".mp3",
         length = recording.len,
         autoplay = autoplay and true or false,
+        initialGreeting = initialGreeting and true or false,
         present = {
             header = ParentHeading(mapID, zoneName, areaKey),
             label = areaLabel,
@@ -183,6 +184,9 @@ local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay)
     -- IMPORTANT: don't burn a location's history while it is merely waiting.
     clip.startCallback = function(item)
         CharDB().heard[key] = true
+        -- The initial level-one greeting counts only once it actually starts,
+        -- not when it sits held behind the post-cinematic grace period.
+        if item.initialGreeting then CharDB().greeted = true end
         if pending[key] == item then pending[key] = nil end
         if SSZBridge and SSZBridge.NotifyAudioChanged then
             SSZBridge:NotifyAudioChanged()
@@ -200,7 +204,7 @@ end
 
 -- Return true only for an accepted request. The Spoken R.source handles audio,
 -- queue order, deduplication, trim, playback, and its on-screen controls.
-local function RequestNarration(zoneName, areaLabel, immediate, isZone, quietMissing)
+local function RequestNarration(zoneName, areaLabel, immediate, isZone, quietMissing, initialGreeting)
     if not R.source then
         if not quietMissing then Say("Spoken player is not ready.") end
         return false
@@ -217,7 +221,7 @@ local function RequestNarration(zoneName, areaLabel, immediate, isZone, quietMis
         key = HeardKey(mapID, areaLabel)
     end
     if not immediate and (WasHeard(key) or pending[key]) then return false end
-    local clip = MakeClip(mapID, zoneName, areaLabel, isZone, not immediate)
+    local clip = MakeClip(mapID, zoneName, areaLabel, isZone, not immediate, initialGreeting)
     if not clip then
         if not quietMissing then Say("No recording found for " .. zoneName .. " / " .. areaLabel) end
         return false
