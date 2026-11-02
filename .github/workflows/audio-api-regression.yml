@@ -19,6 +19,10 @@ on:
       - "SoftSpoken_Places/Settings.lua"
       - "SoftSpoken_Places/UI/Options.lua"
       - "SoftSpoken_Places/Core.lua"
+      - "SoftSpoken/UI/PlayerFrame.lua"
+      - "SoftSpoken/UI/Options.lua"
+      - "SoftSpoken/Transcript.lua"
+      - "SoftSpoken/Strings.lua"
       - ".github/workflows/audio-api-regression.yml"
   pull_request:
     paths:
@@ -36,6 +40,10 @@ on:
       - "SoftSpoken_Places/Settings.lua"
       - "SoftSpoken_Places/UI/Options.lua"
       - "SoftSpoken_Places/Core.lua"
+      - "SoftSpoken/UI/PlayerFrame.lua"
+      - "SoftSpoken/UI/Options.lua"
+      - "SoftSpoken/Transcript.lua"
+      - "SoftSpoken/Strings.lua"
       - ".github/workflows/audio-api-regression.yml"
 
 permissions:
