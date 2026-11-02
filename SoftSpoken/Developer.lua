@@ -131,6 +131,8 @@ function Developer:Context()
     table.insert(lines, format("ClassicAPI %s, audio backend %s",
         tostring(CLASSIC_API_VERSION or "not detected"),
         backend and ("unavailable: " .. backend) or "available"))
+    table.insert(lines, format("narration category %s (new recordings only)",
+        tostring(audio.NarrationChannel or "Master")))
     table.insert(lines, format("sound categories: SFX %s/%s, Music %s/%s, Ambience %s/%s",
         tostring(GetCVar("MasterSoundEffects")), tostring(GetCVar("Sound_SFXVolume")),
         tostring(GetCVar("Sound_EnableMusic")), tostring(GetCVar("Sound_MusicVolume")),
