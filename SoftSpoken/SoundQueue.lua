@@ -31,7 +31,7 @@ setfenv(1, SpokenEnv)
 ---@class SpokenClip
 ---@field key string          Caller-unique. The dedup key.
 ---@field path string         Full path handed to PlaySoundFile.
----@field length number       Seconds. The client cannot report this; the caller must know.
+---@field length? number      Metadata seconds; not authoritative for playback completion.
 ---@field delay? number       Silence before the clip. Only the 2.4.3/3.3.5 path sets it.
 ---@field priority? string    "normal" (default) or "low".
 ---@field group? string       Clips of one item, e.g. a book's pages. No pause or cue between them.
@@ -43,7 +43,9 @@ setfenv(1, SpokenEnv)
 ---@field id number
 ---@field handle number|nil
 ---@field source table
----@field nextSoundTimer any  Set ONLY while actually speaking. The liveness test.
+---@field playState string     waiting, held, starting, playing, gap, paused, interrupted, finished, failed, removed.
+---@field nextSoundTimer any  Currently scheduled poll or post-voice gap (NOT an audio liveness test).
+---@field playbackAttempt number  Invalidates stale callbacks when a clip stops/restarts.
 
 SoundQueue = {
     soundIdCounter = 0,
@@ -52,8 +54,42 @@ SoundQueue = {
 }
 
 local RETRY_INTERVAL = 1
+local POLL_INTERVAL = 0.15
+local STARTUP_GRACE = 0.45       -- decoded MP3s may not register as playing immediately
+local ENDED_CONFIRMATIONS = 2   -- suppress single-frame false results
+local MAX_QUERY_ERRORS = 8      -- fail rather than deadlock on a broken native API
+local MAX_PLAY_SECONDS = 3600   -- emergency watchdog only; not metadata-driven
 local gates = {}
 local retryTicker = nil
+local mutationDepth, advanceActive, advanceRequested = 0, false, false
+
+local function IsSpeaking(clip)
+    return clip and (clip.playState == "starting" or clip.playState == "playing")
+end
+
+local function IsBusy(clip)
+    return IsSpeaking(clip) or (clip and clip.playState == "gap")
+end
+
+local function InvalidatePlayback(clip)
+    clip.playbackAttempt = (clip.playbackAttempt or 0) + 1
+    if clip.nextSoundTimer then
+        Addon:CancelTimer(clip.nextSoundTimer)
+        clip.nextSoundTimer = nil
+    end
+end
+
+local function BeginMutation()
+    mutationDepth = mutationDepth + 1
+end
+
+local function EndMutation()
+    mutationDepth = mutationDepth - 1
+    if mutationDepth == 0 and advanceRequested then
+        advanceRequested = false
+        SoundQueue:Advance()
+    end
+end
 
 --------------------------------------------------------------------------------
 -- Reading
@@ -77,7 +113,7 @@ end
 --- silence lies.
 function SoundQueue:GetNowPlaying()
     local head = self.sounds[1]
-    if head and (head.nextSoundTimer or self:IsPaused()) then
+    if head and (IsSpeaking(head) or self:IsPaused()) then
         return head
     end
     return nil
@@ -117,7 +153,8 @@ function SoundQueue:GetClipState(clip)
     if not clip then return "absent" end
     if clip ~= self:GetCurrentSound() then return "queued" end
     if self:IsPaused() then return "paused" end
-    if self:IsPlaying(clip) then return "playing" end
+    if clip.playState == "gap" then return "gap" end
+    if IsSpeaking(clip) then return "playing" end
     return "held"
 end
 
@@ -128,10 +165,7 @@ end
 
 function SoundQueue:IsPlaying(clip)
     local head = self.sounds[1]
-    if clip then
-        return (head == clip and head.nextSoundTimer) and true or false
-    end
-    return (head and head.nextSoundTimer) and true or false
+    return (not clip or clip == head) and IsSpeaking(head) and true or false
 end
 
 function SoundQueue:IsPaused()
@@ -145,7 +179,9 @@ function SoundQueue:SetPaused(value)
 end
 
 function SoundQueue:CanBePaused()
-    return not self:IsPlaying() or self:GetCurrentSound().handle ~= nil
+    -- The owned transport can selectively stop any started recording.
+    local head = self:GetCurrentSound()
+    return not IsSpeaking(head) or head.handle ~= nil
 end
 
 local function CountFor(source)
@@ -212,13 +248,16 @@ end
 -- reaches it, since the client has no seek. Shared by the two things allowed to cut a
 -- clip off without ending it -- a human pressing Play, and a gate closing on it.
 local function StopKeeping(head)
+    if not IsSpeaking(head) then return false end
+    InvalidatePlayback(head)
+    head.playState = "interrupted"
     SoundUtils:StopSound(head)
-    Addon:CancelTimer(head.nextSoundTimer)
-    head.nextSoundTimer = nil
-    if head.stopCallback then
-        head.stopCallback(head, false)
-    end
+    BeginMutation()
+    if head.stopCallback then head.stopCallback(head, false) end
     Callbacks:Fire("CLIP_STOPPED", head, false)
+    if head.playState == "interrupted" then head.playState = "held" end
+    EndMutation()
+    return true
 end
 
 --------------------------------------------------------------------------------
