@@ -238,6 +238,7 @@ end
 
 --- Volumes a previous session lowered and never put back: it ended without a logout.
 function OtherSounds:RestoreLeftovers()
+    if not (Addon.db and Addon.db.global) then return end
     local leftover = Addon.db.global.LoweredVolumes
     if self.lowered then return end
     for channel, entry in pairs(type(leftover) == "table" and leftover or {}) do
@@ -251,7 +252,7 @@ function OtherSounds:RestoreLeftovers()
     end
     -- Convert existing single-effects prototype recovery snapshots too.
     local old = Addon.db.global.SFXDuckingRecovery
-    if type(old) == "table" and not leftover.SFX then
+    if type(old) == "table" and not (type(leftover) == "table" and leftover.SFX) then
         local current = Read("SFX")
         local baseline = tonumber(old.original)
         local applied = tonumber(old.applied)
