@@ -111,4 +111,11 @@ p:UpdateProgress()
 eq(bar.track.shown,true)
 eq(bar.fill.width,80)
 
+-- The subtitle engine must never hide text merely because metadata expired.
+local file=assert(io.open("SoftSpoken/Transcript.lua", "r"))
+local transcript=file:read("*a")
+file:close()
+assert(not transcript:find("seconds > self.duration"))
+assert(transcript:find('Callbacks:Register%("CLIP_STOPPED"'))
+
 print("audio_progress_ui.lua: Vanilla progress-line and Show Progress Bar assertions passed")
