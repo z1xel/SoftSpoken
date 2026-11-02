@@ -447,7 +447,7 @@ function SoundQueue:MuteGameDialogueAhead(speakingOn)
         -- held by a gate, or paused since -- may not speak for a long while, and must not
         -- keep the game's dialogue silent until it does.
         local head = self:GetCurrentSound()
-        if not (head and head.nextSoundTimer) then
+        if not IsSpeaking(head) then
             self:MuteGameDialogue(nil)
         end
     end, MUTE_AHEAD_SECONDS)
@@ -767,14 +767,14 @@ function SoundQueue:Add(clip, source, front)
         end
     end
 
-    if IsLow(clip) then
-        if AnyNormalQueued() then
-            Callbacks:Fire("CLIP_DROPPED", clip, "outranked")
-            return nil, "outranked"
-        end
-    else
-        DropOutrankedWaiting()
+    if IsLow(clip) and AnyNormalQueued() then
+        Callbacks:Fire("CLIP_DROPPED", clip, "outranked")
+        return nil, "outranked"
     end
+    -- Admission is atomic with respect to playback: dropping old low-priority
+    -- entries must not start another before this normal clip is queued.
+    BeginMutation()
+    if not IsLow(clip) then DropOutrankedWaiting() end
 
     self.soundIdCounter = self.soundIdCounter + 1
     clip.id = self.soundIdCounter
@@ -797,6 +797,7 @@ function SoundQueue:Add(clip, source, front)
 
     self:Advance()
     Callbacks:Fire("AUDIO_CHANGED")
+    EndMutation()
     return clip
 end
 
@@ -862,17 +863,13 @@ end
 local PAUSE_FADE_MS = 400
 
 function SoundQueue:PauseQueue()
-    if self:IsPaused() then
-        return false
-    end
+    if self:IsPaused() then return false end
     self:SetPaused(true)
-
     local head = self:GetCurrentSound()
-    -- Stopped in the pause after a line has spoken to its end: that line is over, and it is the
-    -- next one Stop holds. Replay then plays the next line rather than the one already heard.
-    if head and head.nextSoundTimer and head.spokenAt and GetTime() >= head.spokenAt then
+    -- A post-voice gap means the recording has already completed, regardless
+    -- of inaccurate duration metadata.
+    if head and head.playState == "gap" then
         self:RemoveSoundFromQueue(head, true)
-        -- It was the last: there is nothing left to hold, and nothing for the queue to stay stopped on.
         if self:IsEmpty() then
             self:SetPaused(false)
             Callbacks:Fire("AUDIO_CHANGED")
@@ -880,27 +877,25 @@ function SoundQueue:PauseQueue()
         end
         head = self:GetCurrentSound()
     end
-    if head and self:CanBePaused() then
-        -- Faded out, not cut: a pause is the player stepping away, not an interruption.
+    if head and IsSpeaking(head) then
+        InvalidatePlayback(head)
+        head.playState = "paused"
         SoundUtils:StopSound(head, PAUSE_FADE_MS)
-        if head.nextSoundTimer then
-            Addon:CancelTimer(head.nextSoundTimer)
-            head.nextSoundTimer = nil
-        end
+        head.spokenAt = nil -- replay starts the recording over
+    elseif head then
+        head.playState = "paused"
     end
-    -- Nothing of ours is speaking, so the game may. Resuming plays the line, which mutes again.
     self:MuteGameDialogue(nil)
-
     StopRetryTicker()
     Callbacks:Fire("AUDIO_CHANGED")
     return true
 end
 
 function SoundQueue:ResumeQueue()
-    if not self:IsPaused() then
-        return false
-    end
+    if not self:IsPaused() then return false end
     self:SetPaused(false)
+    local head = self:GetCurrentSound()
+    if head and head.playState == "paused" then head.playState = "waiting" end
     self:Advance()
     Callbacks:Fire("AUDIO_CHANGED")
     return true
