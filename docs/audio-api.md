@@ -2,8 +2,10 @@
 
 This document records the **initial ClassicAPI-first playback backend** for
 [#55](https://github.com/z1xel/SoftSpoken/issues/55), especially
-[#72](https://github.com/z1xel/SoftSpoken/issues/72) and
-[#56](https://github.com/z1xel/SoftSpoken/issues/56).
+[#72](https://github.com/z1xel/SoftSpoken/issues/72),
+[#56](https://github.com/z1xel/SoftSpoken/issues/56),
+[#57](https://github.com/z1xel/SoftSpoken/issues/57), and
+[#58](https://github.com/z1xel/SoftSpoken/issues/58).
 It is development guidance, **not** a change to the published v0.8.1-beta release.
 
 ## Required client extension
@@ -27,7 +29,7 @@ It is development guidance, **not** a change to the published v0.8.1-beta releas
 | --- | --- |
 | `PlaySoundFile(path, channel)` | Returns `willPlay, soundHandle`; handle is a positive number on success. `Master`, `Music`, `Ambience`, `SFX` supported. |
 | `StopSound(soundHandle, fadeMs)` | Targeted stop; fade is **milliseconds**. No global sound CVar reset. |
-| `C_Sound.IsPlaying(handle)` | Boolean play-state query, planned for #57. Not a time-position/seek API. |
+| `C_Sound.IsPlaying(handle)` | Boolean play-state query used by #57's guarded poll; not a time-position/seek API. |
 | `CLASSIC_API_VERSION` | Version encoded as major×10000 + minor×100 + patch. |
 
 ClassicAPI's internal stop implementation tracks its own started sound records.
@@ -37,10 +39,47 @@ association is removed on stop or natural queue completion. The native API
 does not report whether a `StopSound` call actually found a still-playing
 sound; a successful Lua call alone does not prove that it stopped one.
 
-**This patch deliberately leaves `SoundQueue`'s metadata-duration timers
-unchanged.** A clip may still end too early or too late due to incorrect
-metadata until #57 implements engine-driven completion. Timer-driven progress,
-pause semantics and queue reentrancy are addressed in #57, #58 and #60.
+## Engine-driven completion and lifecycle (#57 / #58)
+
+Each accepted clip has a playback-attempt token, an owned ClassicAPI handle,
+and an explicit lifecycle state: `waiting`, `held`, `starting`, `playing`,
+`gap`, `paused`, `interrupted`, `finished`, `failed`, or `removed`.
+A single one-shot poll runs every **0.15 seconds** while playing.
+`C_Sound.IsPlaying(handle)` determines end-of-voice, not `clip.length`.
+An initial **0.45-second** grace and **two consecutive false readings**
+protect against delayed initialization and transient false responses.
+Eight consecutive native query failures cause a controlled clip failure;
+a **one-hour watchdog** is the last-resort safeguard for a handle that
+appears stuck forever. Both paths drop the affected clip and move on.
+
+When the engine confirms completion, the queue releases its handle and
+transitions to `gap` before running the existing inter-clip gap and cue
+policy. Stale poll and gap timers compare the clip identity and attempt
+token before acting; callbacks can no longer complete a later playback
+attempt or a replacement clip.
+
+Queue mutations are serialized around lifecycle notifications.
+Stop callbacks (including Writings page continuation), disabled sources,
+low-priority eviction, and Stop All cannot accidentally start a new clip
+halfway through an earlier clip's terminal events. Stop All/Stop Source
+also reject same-scope requeues from stop callbacks.
+
+**Progress display remains metadata-estimated** until #60, since ClassicAPI
+reports playback state but not a playhead. Real resume/seek remains
+unsupported (#59); Pause interrupts and Resume restarts the recording.
+The ClassicAPI handle API cannot unambiguously distinguish an old
+finished handle from a newly allocated sound using a reused native
+pointer; the grace/debounce and watchdog mitigate symptoms but in-game
+stress testing is still required.
+
+### Test coverage
+
+The deterministic `tests/audio_queue.lua` harness mocks the native
+sound engine and AceTimer scheduler, including short/long/zero/nil
+metadata, rejected playback, false-status debounce, repeated query
+errors, watchdog, stop+poll races, gap cancellation, callback-driven
+Writings continuation, Pause/Resume with combat gates, cross-source
+Stop/Skip, priority admission, Stop All and reentrant callbacks.
 
 ## Important user-facing behavior change
 
@@ -70,10 +109,14 @@ Do not claim this compatibility is verified before in-game testing.
 - [ ] Exercise playback, stop, fade, skip, gate interruption, shutdown and
       failed file/channel on a real 1.12 client with ClassicAPI v1.18.14+.
 - [ ] Repeat with ClassicAPI **and** released SuperWoW; record exact versions.
-- [ ] Implement authoritative real-playback completion in #57.
+- [x] Implement engine-driven completion, gap states and queue race guards (#57 / #58).
+- [x] Run deterministic mock engine and timer regressions in Lua 5.1.
+- [ ] Verify real MP3 decode startup, sound handle reuse, and under-load concurrency on the game client.
+- [ ] Verify real Stories/Places/Writings interaction and UI timing (#60).
 
 Run the mock regression from the repository root:
 
 ```sh
 lua5.1 tests/audio_soundutils.lua
+lua5.1 tests/audio_queue.lua
 ```
