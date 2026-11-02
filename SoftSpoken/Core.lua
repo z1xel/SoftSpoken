@@ -48,6 +48,9 @@ Defaults = {
         -- Unset, each module keeps the choice it had before there was one setting for all.
         Language = {},
         Audio = {
+            -- ClassicAPI supports category routing, not a per-MP3 volume setter.
+            -- Preserve existing Master behavior unless a player explicitly opts in.
+            NarrationChannel = "Master",
             -- Seconds of quiet between one line and the next, on top of each module's own short
             -- gap: back to back, a new line started before the last had settled.
             LineGap = 1,
