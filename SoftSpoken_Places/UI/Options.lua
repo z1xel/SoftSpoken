@@ -54,13 +54,30 @@ local function Build()
     layout:Requires(mode, function()
         return Spoken:IsPartOn("zones") and Settings().auto
     end, "Enable Places and automatic narration to use this.")
-    local combat = layout:Checkbox("Hold During Combat",
-        "Delay automatic Places narration while in combat.",
+    local combat = layout:Checkbox("Hold Narration in Combat",
+        "Do not start new automatic Places narration during combat. A recording already speaking is allowed to finish.",
         function() return Settings().holdCombat end,
-        function(on) Settings().holdCombat = on; if R.Recheck then R.Recheck() end end)
+        function(on)
+            Settings().holdCombat = on and true or false
+            if not on then Settings().stopCombat = false end
+            if R.Recheck then R.Recheck() end
+            Refresh()
+        end)
     layout:Requires(combat, function()
         return Spoken:IsPartOn("zones") and Settings().auto
     end, "Enable Places and automatic narration to use this.")
+    local stop = layout:Checkbox("Stop Narration in Combat",
+        "Also interrupt currently playing automatic Places narration when combat starts. The line stays queued and replays from the beginning after combat.",
+        function() return Settings().stopCombat == true end,
+        function(on)
+            Settings().stopCombat = on and true or false
+            if on then Settings().holdCombat = true end
+            if R.Recheck then R.Recheck() end
+            Refresh()
+        end)
+    layout:Requires(stop, function()
+        return Spoken:IsPartOn("zones") and Settings().auto and Settings().holdCombat
+    end, "Enable Hold Narration in Combat first.")
     local greeting = layout:Checkbox("Starting Character Greeting",
         "Narrate a starting-area introduction for a new level-one character.",
         function() return Settings().greeting end,
