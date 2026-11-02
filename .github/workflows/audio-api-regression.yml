@@ -10,6 +10,12 @@ on:
       - "tests/audio_soundutils.lua"
       - "tests/audio_queue.lua"
       - "tests/audio_progress_ui.lua"
+      - "tests/audio_phase2_places.lua"
+      - "SoftSpoken_Places/Autoplay.lua"
+      - "SoftSpoken_Places/Audio.lua"
+      - "SoftSpoken_Places/Settings.lua"
+      - "SoftSpoken_Places/UI/Options.lua"
+      - "SoftSpoken_Places/Core.lua"
       - ".github/workflows/audio-api-regression.yml"
   pull_request:
     paths:
@@ -18,6 +24,12 @@ on:
       - "tests/audio_soundutils.lua"
       - "tests/audio_queue.lua"
       - "tests/audio_progress_ui.lua"
+      - "tests/audio_phase2_places.lua"
+      - "SoftSpoken_Places/Autoplay.lua"
+      - "SoftSpoken_Places/Audio.lua"
+      - "SoftSpoken_Places/Settings.lua"
+      - "SoftSpoken_Places/UI/Options.lua"
+      - "SoftSpoken_Places/Core.lua"
       - ".github/workflows/audio-api-regression.yml"
 
 permissions:
@@ -38,3 +50,5 @@ jobs:
         run: lua5.1 tests/audio_queue.lua
       - name: Run estimated progress and Vanilla UI tests
         run: lua5.1 tests/audio_progress_ui.lua
+      - name: Run Places combat, setting migration and startup tests
+        run: lua5.1 tests/audio_phase2_places.lua
