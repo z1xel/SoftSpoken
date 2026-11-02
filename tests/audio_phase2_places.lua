@@ -22,6 +22,7 @@ SpokenPlacesAudioPacks = {{
     zones={[1429]={file="Forest",len=5}},
     subzones={[1429]={["northshire valley"]={file="Northshire",len=6}}},
 }}
+local chatMessages={}
 SSZZonesRuntime = {
     Normalise=function(s) return string.lower(s or "") end,
     HeardKey=function(id,area) return area and ("s:"..id..":"..string.lower(area)) or ("z:"..id) end,
@@ -31,7 +32,7 @@ SSZZonesRuntime = {
     InvalidateExploration=function() end,
     VisitKey=function() return "seen" end,
     ZONE_NAMES={[1429]="Elwynn Forest"},
-    Say=function() end,
+    Say=function(message) chatMessages[#chatMessages+1]=message end,
     startupActive=true,firstWorldReady=true,
 }
 local R=SSZZonesRuntime
@@ -148,5 +149,24 @@ R.StabilizeStartingLocation(0.8)
 eq(#calls,1)
 eq(SSZCharacter.greeted,nil)
 eq(R.HoldAutoplay(calls[1]),"starting area")
+
+-- A manual PlayNow may accept a selection behind a different clip. Report
+-- "Queued", not "Playing", until the player really starts its recording.
+do
+    local orig=R.source.PlayNow
+    R.source.PlayNow=function(self,c)
+        c.playState="waiting"
+        return self:Enqueue(c)
+    end
+    eq(R.RequestNarration("Elwynn Forest","Elwynn Forest",true,true,false),true)
+    eq(chatMessages[#chatMessages],"Queued: Elwynn Forest")
+    R.source.PlayNow=function(self,c)
+        c.playState="playing"
+        return self:Enqueue(c)
+    end
+    eq(R.RequestNarration("Elwynn Forest","Elwynn Forest",true,true,false),true)
+    eq(chatMessages[#chatMessages],"Playing: Elwynn Forest")
+    R.source.PlayNow=orig
+end
 
 print("audio_phase2_places.lua: combat migration, distinct gates and starting grace passed")
