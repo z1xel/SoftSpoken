@@ -53,23 +53,36 @@ existing location selection policy.
   exclusively governed by native playback state (#57).
 - No new seeks, global sound effects toggles, or artificial mid-file resume.
 
-## Queue priority: current behavior, approval required (#64)
+## Queue priority: confirmed manual selection policy (#64)
 
-**No behavioral change in this pass.** A deliberate user decision is
-needed before changing the existing source-neutral policy:
+**Decision (user-approved):** Clicking manual Play during an actively
+speaking recording **queues the selection behind it**. It does **not**
+interrupt, restart, shorten, or preempt the active recording. Existing
+waiting selections retain their order; a repeated Play click for the
+same queued key does not duplicate it.
 
-| Incoming action | Current behavior |
+| Incoming action | Policy |
 | --- | --- |
-| Manual Play when an unpaused clip already occupies the queue | Append behind currently playing/held audio (may wait) |
-| Manual Play when queue is paused or idle | Put manually requested clip at front; start it |
-| Automatic Places (source queueLimit=3) | Enqueue; trim that source's oldest waiting entries |
-| Low-priority entry while normal clip exists | Reject low entry |
-| Normal entry while low-priority clips are waiting | Evict waiting low entries; do not interrupt speaking clip |
-| Writings continuation | Front-insert next page during prior page's completion callback |
+| Manual Play while audio is speaking | Append behind the current line and already queued items (FIFO) |
+| Repeated manual Play of a queued selection | Keep the existing queued item; no duplicate |
+| Manual Play while idle or explicitly paused | Front-start that selection (the prior legacy behavior) |
+| Manually requested Places recording and queueLimit=3 | Preserve the explicit selection; trim stale automatic Places entries instead |
+| Manually requested clip originally marked low-priority | Treat the explicit Play as normal admission priority; still queue behind the active line |
+| Automatic Places (source queueLimit=3) | Enqueue; trim that source's oldest waiting automatic entries |
+| Low-priority automatic entry while normal clip exists | Reject low entry |
+| Normal entry while low-priority automatic clips wait | Evict waiting low entries; never interrupt speaking audio |
+| Writings page continuation | Front-insert during the prior page's terminal callback; never interrupt the playing line |
+| Gate-held head (combat/cinematic) | An eligible waiting clip may proceed during the hold; this does not stop live audio |
 
-A preferred future policy could prioritize explicit manual Play, but
-interrupting Stories or long Writings without approval would be a
-significant change. See #64.
+This is a retention fix for **manual intent**, not a new policy of
+manually interrupting other sources. Manual selections may still
+wait behind long Writings narration and multiple quest lines.
+
+A queue limit now counts manual waiting entries but never discards them;
+if all entries were manually requested, it can temporarily exceed the
+autoplay limit. Explicit player choices take precedence over cleanup
+of stale locations. Native end-of-clip detection remains the only
+authority for transitioning to the next item.
 
 ## Audio channels, NPC overlap, and sound-engine constraints (#62 / #63)
 
