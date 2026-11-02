@@ -7,7 +7,7 @@
 
 SoftSpoken brings Azeroth to life through narrated quests, NPC conversations, books, and exploration, alongside an in-game Compendium for revisiting the world you've discovered.
 
-The project is primarily developed for **Turtle WoW** successors and related Vanilla-based experiences, such as **Octo WoW** and **RavenCraft**.
+The project is primarily developed for **Turtle WoW** successors and related Vanilla-based experiences, such as **OctoWoW** and **RavenCraft**.
 
 Considerable effort has gone into making SoftSpoken feel at home in the original game. Its interface draws extensively from Blizzard's own artwork and design conventions, with the aim of making its additions feel like a natural extension of Vanilla's own UI.
 
