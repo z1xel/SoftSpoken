@@ -118,14 +118,19 @@ checkboxes complete based on CI alone.
 These cases **require a real game client**; GitHub's Lua mocks cannot
 verify the 1.12 audio mixer, MP3 file bus, speaker device, or SuperWoW.
 
-- [ ] **F1 — Channel baseline:** With ClassicAPI alone and normal sound
-      settings, confirm narration plays on its current **Master** route.
-- [ ] **F2 — SFX settings:** Toggle in-game sound effects OFF/ON while
-      listening; confirm whether narration continues under Master and
-      whether UI/other sound-effects respond normally. Restore setting.
-- [ ] **F3 — Music and ambience:** Change their in-game sliders/toggles
-      independently; document what remains audible. SoftSpoken must not
-      rewrite those settings. Restore each setting.
+- [ ] **F1 — Channel baseline:** In SoftSpoken Settings → Audio →
+      **Narration Channel**, verify the default is Master and Stories,
+      Places and Writings narrate normally on it.
+- [ ] **F2 — Category routing:** Select SFX, Music and Ambience in turn,
+      then start a **new** narration from each module. Verify each
+      category actually works in your released ClassicAPI client, and
+      restore Master afterward. A category change must not stop or
+      reroute a recording already playing.
+- [ ] **F3 — Mixer/settings:** With Master then each optional category,
+      toggle the corresponding game volume/mute setting while listening.
+      Document which categories truly obey which sliders. SoftSpoken
+      must NEVER change the game's global settings itself. Restore each
+      toggle and slider after the check.
 - [ ] **F4 — NPC greeting overlap:** Start a quest/gossip interaction when
       an NPC voice bark is playing. Record whether narration overlaps,
       fails to start, or delays; never require muting unrelated SFX.
