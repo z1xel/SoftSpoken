@@ -170,6 +170,8 @@ substitute for the cases above):**
 - `tests/audio_phase2_writings_queue.lua` — real Writings playlist and
   queue integration, missing first-page audio, cross-module ordering.
 - `tests/audio_phase2_diagnostics.lua` — read-only mixer and queue report.
+- `tests/audio_phase2_routing.lua` — all four ClassicAPI output categories,
+  cross-source defaults, saved-value fallback, and no CVar mutations.
 
 **Release gates:** all automated CI green; A–E major behavior tested on
 1.12; F mixer limits documented and any unsafe CVar behavior eliminated;
