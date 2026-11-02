@@ -11,6 +11,9 @@ on:
       - "tests/audio_queue.lua"
       - "tests/audio_progress_ui.lua"
       - "tests/audio_phase2_places.lua"
+      - "tests/audio_phase2_writings.lua"
+      - "SoftSpoken_Writings/Audio.lua"
+      - "SoftSpoken_Writings/Events.lua"
       - "SoftSpoken_Places/Autoplay.lua"
       - "SoftSpoken_Places/Audio.lua"
       - "SoftSpoken_Places/Settings.lua"
@@ -25,6 +28,9 @@ on:
       - "tests/audio_queue.lua"
       - "tests/audio_progress_ui.lua"
       - "tests/audio_phase2_places.lua"
+      - "tests/audio_phase2_writings.lua"
+      - "SoftSpoken_Writings/Audio.lua"
+      - "SoftSpoken_Writings/Events.lua"
       - "SoftSpoken_Places/Autoplay.lua"
       - "SoftSpoken_Places/Audio.lua"
       - "SoftSpoken_Places/Settings.lua"
@@ -52,3 +58,5 @@ jobs:
         run: lua5.1 tests/audio_progress_ui.lua
       - name: Run Places combat, setting migration and startup tests
         run: lua5.1 tests/audio_phase2_places.lua
+      - name: Run Writings page and interruption tests
+        run: lua5.1 tests/audio_phase2_writings.lua
