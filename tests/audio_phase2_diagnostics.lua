@@ -57,6 +57,8 @@ local lines=dev:Context()
 local combined=table.concat(lines,"\n")
 assert(combined:find("ClassicAPI 11814, audio backend available",1,true))
 assert(combined:find("narration category Master (new recordings only)",1,true))
+assert(combined:find("SuperWoW version not reported",1,true))
+assert(combined:find("sound capacity UncapSounds unavailable",1,true))
 assert(combined:find("state playing, channel Master",1,true))
 assert(combined:find("handle present, native playing, estimate 12.5, errors 1",1,true))
 assert(combined:find("Vanilla master 0.6, effects 0.8, music 0.4, ambience 0.7",1,true))
@@ -74,5 +76,15 @@ lines=dev:Context()
 combined=table.concat(lines,"\n")
 assert(combined:find("audio backend unavailable: Update ClassicAPI",1,true))
 assert(combined:find("state held, channel Master, handle none, native unknown",1,true))
+eq(writes,0)
+-- Re-run with a released SuperWoW marker and sound-limit CVars exposed.
+SUPERWOW_VERSION="2.2"
+cvars.UncapSounds="1"
+cvars.SoundSoftwareChannels="64"
+cvars.SoundMaxHardwareChannels="64"
+cvars.BackgroundSound="1"
+combined=table.concat(dev:Context(),"\\n")
+assert(combined:find("SuperWoW version 2.2",1,true))
+assert(combined:find("sound capacity UncapSounds 1, software channels 64, hardware channels 64, background 1",1,true))
 eq(writes,0)
 print("audio_phase2_diagnostics.lua: read-only status, channels and privacy passed")
