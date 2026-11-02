@@ -124,6 +124,17 @@ function Developer:Context()
         tostring(audio.LineGap),
         tostring(GetCVar("Sound_EnableAllSound")), tostring(GetCVar("Sound_MasterVolume")),
         tostring(GetCVar("Sound_EnableDialog")), tostring(GetCVar("Sound_DialogVolume"))))
+    -- Read-only engine report: no fake independent volume control and no
+    -- global CVars are changed to collect these details. 'handle present'
+    -- deliberately avoids exposing a native address/pointer.
+    local backend = SoundUtils:BackendError()
+    table.insert(lines, format("ClassicAPI %s, audio backend %s",
+        tostring(CLASSIC_API_VERSION or "not detected"),
+        backend and ("unavailable: " .. backend) or "available"))
+    table.insert(lines, format("sound categories: SFX %s/%s, Music %s/%s, Ambience %s/%s",
+        tostring(GetCVar("MasterSoundEffects")), tostring(GetCVar("Sound_SFXVolume")),
+        tostring(GetCVar("Sound_EnableMusic")), tostring(GetCVar("Sound_MusicVolume")),
+        tostring(GetCVar("Sound_EnableAmbience")), tostring(GetCVar("Sound_AmbienceVolume"))))
     for key, source in Sources:Iterate() do
         table.insert(lines, format("module %s (%s): %s", key, tostring(source.addon),
             Sources:IsTurnedOff(source) and "turned off" or "on"))
@@ -134,11 +145,16 @@ function Developer:Context()
     end
     for i, clip in ipairs(queue) do
         local held = SoundQueue:GetHeldReason(clip)
-        table.insert(lines, format("queue %d: %s, length %s%s%s%s", i, Developer.Describe(clip),
-            tostring(clip.length), i == 1 and (SoundQueue:IsPaused() and ", stopped" or ", head") or "",
-            held and (", held: " .. tostring(held)) or "",
-            (clip.title and (", " .. tostring(clip.title)) or "")
-                .. (clip.origin and (", from " .. tostring(clip.origin)) or "")))
+        local channel = clip.source and clip.source.GetChannel and
+            clip.source:GetChannel() or "?"
+        local state = SoundQueue:GetClipState(clip)
+        local native = clip.handle and SoundUtils:IsSoundPlaying(clip) or nil
+        table.insert(lines, format("queue %d: %s, state %s, channel %s, handle %s, native %s, estimate %s, errors %s%s",
+            i, Developer.Describe(clip), tostring(state), tostring(channel),
+            clip.handle and "present" or "none",
+            native == nil and "unknown" or (native and "playing" or "ended"),
+            tostring(clip.length), tostring(clip.playbackErrors or 0),
+            held and (", gate " .. tostring(held)) or ""))
     end
     return lines
 end
