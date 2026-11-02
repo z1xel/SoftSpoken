@@ -437,7 +437,8 @@ do
     eq(q:GetCurrentSound(),short)
     step(1.05)
     eq(q:GetCurrentSound(),nextClip)
-    eq(q:ProgressShare(nextClip),0)
+    -- The scheduler may have advanced into this new line during step(1.05).
+    assert(q:ProgressShare(nextClip) >= 0 and q:ProgressShare(nextClip) < 0.15)
     endSound(nextClip)
 end
 
