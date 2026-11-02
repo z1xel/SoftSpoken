@@ -105,27 +105,31 @@ We are **not** adding a fake independent narration-volume slider:
 individual MP3 gain is unsupported, and the selected game category's
 effects on actual audio volume still require real-client verification.
 
-**Opt-in Vanilla effects ducking (unverified in-game):** 1.12 uses
-`SoundVolume` rather than the later `Sound_SFXVolume` CVar.
-The new **Lower Sound Effects While Narrating** switch defaults OFF.
-When enabled with narration on Master/Music/Ambience, SoftSpoken
-temporarily fades `SoundVolume` to a fraction of the player's
-original level (initial slider 60%), stays low across brief queue
-gaps, then fades back to that baseline on silence. If narration
-actually plays on SFX, ducking is disabled for that voice.
+**Upstream Turn Other Sounds Down (adapted for Vanilla 1.12):**
+The default is **ON**, as upstream. Each supported category is adjusted
+independently while a native sound is speaking: Music **30%**, Ambience
+**40%**, and SFX **60%** of the player's existing slider positions.
+The real 1.12 CVars are `MusicVolume`, `AmbienceVolume`, and
+`SoundVolume`. There is **no separate Dialog/NPC Voices slider** in
+the original client, so the upstream Dialog 100% control is omitted,
+not simulated or folded into a fake slider.
 
-Only `SoundVolume` is written: not `MasterVolume`, not
-`MasterSoundEffects`, and not the music or ambience sliders. The
-baseline is saved before any change, restored on logout, and restored
-after a crash/reload **only when the present level still matches the
-last value SoftSpoken wrote**. Manual sound-slider edits mid-voice
-take priority, preventing automatic restoration to a stale setting.
-The feature needs game-client verification before being made default.
+Like upstream `OtherSounds.lua`, there is a 0.8s fade (0.05s steps),
+a 1.2s settle delay to avoid pumping between clips, immediate restoration
+on logout, crash/reload recovery, and respect for slider changes made
+during playback. The category that carries the *active* voice is
+never lowered, even if the player changes Narration Channel mid-file.
+`MasterVolume` and `MasterSoundEffects` are never modified.
 
-The legacy client has no separate Dialog category. Effects ducking
-also makes combat sounds and UI effects quieter, not exclusively NPC
-voices. Independent NPC-only ducking still requires native research
-under #63; the dangerous global-SFX mute reset remains removed.
+One extra Vanilla safeguard: crash recovery only restores an original
+value if the current slider still matches SoftSpoken's last written
+value. Existing `SFXDucking` settings from the early prototype migrate
+to the upstream-style `LowerOthers` controls without discarding the
+user's prior on/off choice. This native mixer has **not yet been
+validated in the actual 1.12 game client**.
+
+The effects category includes combat/UI sound as well as some NPC voices.
+Independent NPC-only ducking still requires #63 investigation.
 
 **Still requires an actual game-client test matrix:** categories versus
 individual game volume toggles; native bus capacity with default NPC
@@ -174,6 +178,8 @@ Automated Lua 5.1 regressions:
   no numeric handles, file paths, transcripts or global CVar writes)
 - `tests/audio_phase2_routing.lua` (all four audio categories × three sources;
   valid settings, overrides, and no global CVar mutation)
+- `tests/audio_phase2_ducking.lua` (upstream Music/Ambience/SFX fades,
+  protected voice category, settings changes, native 1.12 CVars and recovery)
 
 The exact 1.12 player-only tasks are tracked in
 [`audio-phase2-client-validation.md`](audio-phase2-client-validation.md).
