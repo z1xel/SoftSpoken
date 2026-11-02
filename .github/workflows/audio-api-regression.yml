@@ -18,6 +18,7 @@ on:
       - "tests/audio_phase2_ducking.lua"
       - "tests/audio_phase3_pack_selection.lua"
       - "scripts/audio_pack_audit.py"
+      - "tests/test_audio_pack_audit.py"
       - "SoftSpoken_Stories/DataModules.lua"
       - "SoftSpoken_Writings/Audio.lua"
       - "SoftSpoken/OtherSounds.lua"
@@ -53,6 +54,7 @@ on:
       - "tests/audio_phase2_ducking.lua"
       - "tests/audio_phase3_pack_selection.lua"
       - "scripts/audio_pack_audit.py"
+      - "tests/test_audio_pack_audit.py"
       - "SoftSpoken_Stories/DataModules.lua"
       - "SoftSpoken_Writings/Audio.lua"
       - "SoftSpoken/OtherSounds.lua"
@@ -110,3 +112,12 @@ jobs:
         run: |
           python3 -m py_compile scripts/audio_pack_audit.py
           python3 scripts/audio_pack_audit.py --help >/dev/null
+      - name: Test offline MP3 auditor without touching recordings
+        run: python3 -m unittest discover -s tests -p test_audio_pack_audit.py -v
+      - name: Measure bundled MP3 sample read-only (not pack-wide normalization)
+        run: |
+          if command -v ffmpeg >/dev/null && command -v ffprobe >/dev/null; then
+            python3 scripts/audio_pack_audit.py SoftSpoken_Stories/Sounds --loudness --limit 1
+          else
+            echo "FFmpeg not installed on runner; skip one-file measurement"
+          fi
