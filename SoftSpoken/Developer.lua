@@ -141,11 +141,12 @@ function Developer:Context()
     table.insert(lines, format("narration category %s (new recordings only)",
         tostring(audio.NarrationChannel or "Master")))
     if Version.IsLegacyVanilla then
-        table.insert(lines, format("effects toggle %s, ducking %s, target %s, active %s",
+        local mix = audio.LowerOthers or {}
+        table.insert(lines, format("effects toggle %s, other-sounds ducking %s, targets Music %s Ambience %s SFX %s, active %s, voice bus %s",
             tostring(GetCVar("MasterSoundEffects")),
-            tostring(audio.SFXDucking and audio.SFXDucking.Enabled or false),
-            tostring(audio.SFXDucking and audio.SFXDucking.Level or 0.6),
-            tostring(OtherSounds and OtherSounds.lowered or false)))
+            tostring(mix.Enabled), tostring(mix.Music), tostring(mix.Ambience),
+            tostring(mix.SFX), tostring(OtherSounds and OtherSounds.lowered or false),
+            tostring(OtherSounds and OtherSounds.voice or "none")))
     else
         table.insert(lines, format("sound categories: SFX %s/%s, Music %s/%s, Ambience %s/%s",
             tostring(GetCVar("Sound_EnableSFX")), tostring(GetCVar("Sound_SFXVolume")),
