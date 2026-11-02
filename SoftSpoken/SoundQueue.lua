@@ -625,26 +625,43 @@ end
 --- Start something if nothing is speaking and something may. Safe to call at any time;
 --- the ticker and every queue mutation route through here.
 function SoundQueue:Advance()
-    local head = self.sounds[1]
-    if not head or head.nextSoundTimer or self:IsPaused() then
-        StopRetryTicker()
+    -- Callbacks from RemoveSoundFromQueue, Discard and StopKeeping can enqueue
+    -- another recording. Postpone selection until that transaction completes.
+    if advanceActive or mutationDepth > 0 then
+        advanceRequested = true
         return
     end
-
-    -- The first clip no gate holds. A held head is skipped, not waited on.
-    local playable = FirstPlayable(1)
-    if not playable then
-        StartRetryTicker()
-        return
+    advanceActive = true
+    local passes = 0
+    repeat
+        advanceRequested = false
+        local head = self.sounds[1]
+        if not head or self:IsPaused() or IsBusy(head) then
+            StopRetryTicker()
+        else
+            local playable = FirstPlayable(1)
+            if not playable then
+                head.playState = "held"
+                StartRetryTicker()
+            else
+                if playable > 1 then
+                    local clip = table.remove(self.sounds, playable)
+                    table.insert(self.sounds, 1, clip)
+                end
+                StopRetryTicker()
+                self:PlaySound(self.sounds[1])
+                Callbacks:Fire("AUDIO_CHANGED")
+            end
+        end
+        passes = passes + 1
+    until not advanceRequested or passes >= 64
+    advanceActive = false
+    -- Prevent an endless synchronous loop if a broken source continually
+    -- re-enqueues a rejected file in its own stop callback.
+    if advanceRequested then
+        advanceRequested = false
+        Addon:ScheduleTimer(function() SoundQueue:Advance() end, 0.01)
     end
-    if playable > 1 then
-        local clip = table.remove(self.sounds, playable)
-        table.insert(self.sounds, 1, clip)
-    end
-
-    StopRetryTicker()
-    self:PlaySound(self.sounds[1])
-    Callbacks:Fire("AUDIO_CHANGED")
 end
 
 --- Ask the gates again about the clip that is speaking, if it is `source`'s. They are
@@ -657,17 +674,12 @@ end
 ---@return boolean stopped  whether a speaking clip was cut off
 function SoundQueue:RecheckGates(source)
     local head = self.sounds[1]
-    if not head or head.source ~= source or not head.nextSoundTimer or not self:GetHeldReason(head) then
-        return false
-    end
+    if not head or head.source ~= source or not IsSpeaking(head)
+        or not self:GetHeldReason(head) then return false end
     StopKeeping(head)
-    -- Nothing of ours is speaking now. Advance mutes again if something else starts.
     self:MuteGameDialogue(nil)
     self:Advance()
-    -- Advance announces a clip it starts; silence is this call's to announce.
-    if not self:IsPlaying() then
-        Callbacks:Fire("AUDIO_CHANGED")
-    end
+    if not self:IsPlaying() then Callbacks:Fire("AUDIO_CHANGED") end
     return true
 end
 
@@ -685,7 +697,7 @@ local function TrimBacklog(source, admitted)
     while true do
         local waiting, oldest = 0, nil
         for index, clip in ipairs(SoundQueue.sounds) do
-            local isHead = index == 1 and SoundQueue:IsPlaying()
+            local isHead = index == 1 and IsBusy(clip)
             if clip.source == source and not isHead then
                 waiting = waiting + 1
                 if clip ~= admitted and (not oldest or clip.id < oldest.id) then
@@ -704,7 +716,7 @@ end
 local function DropOutrankedWaiting()
     for i = SoundQueue:GetQueueSize(), 1, -1 do
         local clip = SoundQueue.sounds[i]
-        if clip and IsLow(clip) and not (i == 1 and SoundQueue:IsPlaying()) then
+        if clip and IsLow(clip) and not (i == 1 and IsBusy(clip)) then
             Discard(clip, "outranked")
         end
     end
@@ -766,6 +778,9 @@ function SoundQueue:Add(clip, source, front)
 
     self.soundIdCounter = self.soundIdCounter + 1
     clip.id = self.soundIdCounter
+    clip.playState = "waiting"
+    clip.nextSoundTimer = nil
+    clip.handle = nil
     clip.source = source
     if front then
         table.insert(self.sounds, 1, clip)
@@ -824,7 +839,7 @@ function SoundQueue:PlayNow(clip, source)
     end
 
     local head = self:GetCurrentSound()
-    if head and head.nextSoundTimer then
+    if head and IsSpeaking(head) then
         StopKeeping(head)
     end
 
