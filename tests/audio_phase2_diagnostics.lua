@@ -7,9 +7,9 @@ local backendError=nil
 local cvars={
     Sound_EnableAllSound="1",Sound_MasterVolume="0.6",
     Sound_EnableDialog="1",Sound_DialogVolume="0.5",
-    MasterSoundEffects="1",Sound_SFXVolume="0.8",
-    Sound_EnableMusic="1",Sound_MusicVolume="0.4",
-    Sound_EnableAmbience="1",Sound_AmbienceVolume="0.7"
+    MasterSoundEffects="1",SoundVolume="0.8",MasterVolume="0.6",
+    EnableMusic="1",MusicVolume="0.4",
+    EnableAmbience="1",AmbienceVolume="0.7"
 }
 local reads, writes=0,0
 function GetCVar(k) reads=reads+1;return cvars[k] or "" end
@@ -22,8 +22,10 @@ local sources={books=books}
 SpokenEnv=setmetatable({
     format=string.format,
     AddonVersion="v0.8.1-beta",
+    Version={IsLegacyVanilla=true},
+    OtherSounds={lowered=false},
     Addon={
-        db={profile={Audio={LineGap=0.2}}},
+        db={profile={Audio={LineGap=0.2,SFXDucking={Enabled=false,Level=0.6}}}},
         PlayerStyle=function() return "classic" end,
     },
     PlayerFrame={frame={IsShown=function() return true end}},
@@ -57,7 +59,8 @@ assert(combined:find("ClassicAPI 11814, audio backend available",1,true))
 assert(combined:find("narration category Master (new recordings only)",1,true))
 assert(combined:find("state playing, channel Master",1,true))
 assert(combined:find("handle present, native playing, estimate 12.5, errors 1",1,true))
-assert(combined:find("sound categories: SFX 1/0.8, Music 1/0.4",1,true))
+assert(combined:find("Vanilla master 0.6, effects 0.8, music 0.4, ambience 0.7",1,true))
+assert(combined:find("effects toggle 1, ducking false, target 0.6, active false",1,true))
 assert(not combined:find("65536",1,true),"native handle leaked")
 assert(not combined:find("PRIVATE TEXT",1,true),"transcript leaked")
 assert(not combined:find("Private",1,true),"file path leaked")
