@@ -14,6 +14,9 @@ on:
       - "tests/audio_phase2_writings.lua"
       - "tests/audio_phase2_writings_queue.lua"
       - "tests/audio_phase2_diagnostics.lua"
+      - "tests/audio_phase2_routing.lua"
+      - "SoftSpoken/Sources.lua"
+      - "SoftSpoken/Core.lua"
       - "SoftSpoken/Developer.lua"
       - "SoftSpoken_Writings/Playlist.lua"
       - "SoftSpoken_Writings/Audio.lua"
@@ -39,6 +42,9 @@ on:
       - "tests/audio_phase2_writings.lua"
       - "tests/audio_phase2_writings_queue.lua"
       - "tests/audio_phase2_diagnostics.lua"
+      - "tests/audio_phase2_routing.lua"
+      - "SoftSpoken/Sources.lua"
+      - "SoftSpoken/Core.lua"
       - "SoftSpoken/Developer.lua"
       - "SoftSpoken_Writings/Playlist.lua"
       - "SoftSpoken_Writings/Audio.lua"
@@ -80,3 +86,5 @@ jobs:
         run: lua5.1 tests/audio_phase2_writings_queue.lua
       - name: Run read-only audio diagnostic and privacy tests
         run: lua5.1 tests/audio_phase2_diagnostics.lua
+      - name: Run opt-in narration channel routing tests
+        run: lua5.1 tests/audio_phase2_routing.lua
