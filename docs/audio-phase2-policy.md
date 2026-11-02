@@ -149,10 +149,19 @@ Automated Lua 5.1 regressions:
 - `tests/audio_progress_ui.lua` (classic progress/setting)
 - `tests/audio_phase2_places.lua` (migration, cinematic/combat, greeting)
 - `tests/audio_phase2_writings.lua` (page/close/read-once semantics)
+- `tests/audio_phase2_writings_queue.lua` (**real Playlist.lua + audio + events**
+  integrated with the ClassicAPI-backed queue; continuation, Stop, missing
+  first-page recording, physical reader and cross-module fairness)
+- `tests/audio_phase2_diagnostics.lua` (read-only engine/mixer/queue report;
+  no numeric handles, file paths, transcripts or global CVar writes)
+- `tests/audio_phase2_routing.lua` (all four audio categories × three sources;
+  valid settings, overrides, and no global CVar mutation)
 
-**Before closing issues or merging:** in-game validation on a real 1.12
-client for combat reentry, settings toggles during a speaking line,
-cinematic skip/watch, startup greeting, multiple books, fade transitions
-and simultaneous Stories/Places/Writings with released ClassicAPI DLL.
-#64's manual priority policy and #62/#63 channel/ducking limitations
-still need explicit resolution.
+The exact 1.12 player-only tasks are tracked in
+[`audio-phase2-client-validation.md`](audio-phase2-client-validation.md).
+Those cases remain **untested in a real client**, even when CI is green.
+The #64 manual queue policy is approved and implemented; #62 category
+routing is implemented but requires actual channel/mixer verification.
+#63 NPC-only ducking is intentionally not fabricated, because ClassicAPI
+does not currently expose an independent MP3 gain control or game Dialog
+channel on 1.12. Voice-pack loudness normalization is unimplemented.
