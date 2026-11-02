@@ -58,6 +58,7 @@ end
 function PlayerFrame:Initialize()
     if self.frame then return end
     self:InitDisplay()
+    self:InitProgress()
     self:InitPortraitLine()
     self:InitPortrait()
     self:InitMover()
@@ -132,6 +133,75 @@ function PlayerFrame:InitDisplay()
         self.frame.container.buttons:Update()
         self:LayoutCaptions()
     end)
+end
+
+-- Upstream Spoken's fallback progress hairline: a dark track, gold fill, and
+-- subtle CastingBar spark. Original 1.12 lacks modern status-bar atlases,
+-- so use solid Blizzard-style textures without bundling new art.
+local function ProgressColor(texture, r, g, b, a)
+    if texture.SetColorTexture then
+        texture:SetColorTexture(r, g, b, a)
+    else
+        texture:SetTexture(r, g, b, a)
+    end
+end
+
+function PlayerFrame:InitProgress()
+    local track = self.frame:CreateTexture(nil, "BORDER")
+    ProgressColor(track, 0.03, 0.025, 0.015, 0.7)
+    track:SetHeight(2)
+    local fill = self.frame:CreateTexture(nil, "ARTWORK")
+    ProgressColor(fill, 1, 0.78, 0.24, 0.95)
+    fill:SetPoint("LEFT", track, "LEFT")
+    fill:SetHeight(2)
+    local spark = self.frame:CreateTexture(nil, "OVERLAY")
+    spark:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
+    spark:SetBlendMode("ADD")
+    spark:SetSize(9, 12)
+    spark:SetAlpha(0.5)
+    spark:SetPoint("CENTER", fill, "RIGHT")
+    self.progress = { track = track, fill = fill, spark = spark }
+    self:LayoutProgress()
+    -- Vanilla's captions already own their own animation driver; no additional
+    -- timer is needed. Updating the tiny fill during the visible frame's
+    -- OnUpdate is the same pattern upstream uses.
+    self.frame:SetScript("OnUpdate", function()
+        PlayerFrame:UpdateProgress()
+    end)
+end
+
+function PlayerFrame:LayoutProgress()
+    if not self.progress then return end
+    local track = self.progress.track
+    track:ClearAllPoints()
+    track:SetPoint("BOTTOMLEFT", self.frame, "BOTTOMLEFT",
+        FrameConfig().HidePortrait and 20 or PORTRAIT_SIZE + 15, 8)
+    track:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -18, 8)
+end
+
+function PlayerFrame:UpdateProgress()
+    if not self.progress then return end
+    local shown = Addon:DisplayStyle() == "classic"
+        and Addon:Profile("Transcript").SubtitleProgress ~= false
+        and self.frame:IsShown()
+    local bar = self.progress
+    bar.track:SetShown(shown)
+    if not shown then
+        bar.fill:Hide()
+        bar.spark:Hide()
+        return
+    end
+    local clip = self:Current()
+    local share = clip and SoundQueue:ProgressShare(clip)
+    if share == nil then
+        -- No duration metadata: an empty track, not an invented completion%.
+        bar.fill:Hide()
+        bar.spark:Hide()
+        return
+    end
+    bar.fill:Show()
+    bar.fill:SetWidth(math.max(0.01, (bar.track:GetWidth() or 0) * share))
+    bar.spark:SetShown(share > 0 and share < 1 and SoundQueue:IsPlaying(clip))
 end
 
 -- The vertical line and the small pause button that stand in for the portrait when the
@@ -278,6 +348,7 @@ function PlayerFrame:RefreshConfig()
     Actions.RefreshRings()
     Transcript:SetStyle(nil)
     local cfg = FrameConfig()
+    self:LayoutProgress()
     if cfg.HidePortrait then
         if self.frame.portrait:IsShown() then
             self.frame:SetWidth(self.frame:GetWidth() - PORTRAIT_SIZE)
@@ -509,6 +580,7 @@ function PlayerFrame:Update()
     local contentBottom = lastContent:GetBottom() or 0
     self.frame.container:SetHeight(contentTop - contentBottom)
     self:LayoutCaptions()
+    self:UpdateProgress()
 
     -- Again once the layout has settled: truncation and hover state both depend on where
     -- the rows ended up. Same frame on current clients, next frame on old ones.
