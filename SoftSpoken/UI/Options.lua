@@ -603,6 +603,20 @@ local function Build(canvas)
     languageNotice.layoutBaseAlpha = 1
 
     layout:Section(L.OPT_AUDIO_TITLE)
+    -- ClassicAPI v1.18.14 routes MP3s to real game categories but exposes
+    -- no per-file gain setter. New starts use this selection, never alter
+    -- game CVars or pretend to control an existing voice's native handle.
+    layout:Dropdown(L.OPT_NARRATION_CHANNEL, L.OPT_NARRATION_CHANNEL_TIP,
+        { "Master", "SFX", "Music", "Ambience" },
+        function() return audio().NarrationChannel or "Master" end,
+        function(v)
+            if v == "Master" or v == "SFX" or v == "Music" or v == "Ambience" then
+                audio().NarrationChannel = v
+            end
+        end, nil, function(v)
+            if v == "SFX" then return "Sound Effects" end
+            return v
+        end)
     -- The 1.12 client cannot independently mute NPC dialogue; the old
     -- checkbox used a global SFX reset, removed in the ClassicAPI backend.
     -- Hide the nonfunctional toggle until issue #63 supplies safe behavior.
