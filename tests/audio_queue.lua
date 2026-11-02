@@ -536,4 +536,82 @@ do
     PlaySound=function() end
 end
 
+-- #64 policy: an explicit Play while another recording speaks QUEUES. It
+-- never steals the handle, pauses the current line, or preempts another
+-- manually selected item already waiting. Repeated Play must deduplicate.
+do
+    local q=reset()
+    local Stories,Places,Writings=source("stories"),source("places"),source("writings")
+    local quest=clip("manual-policy-quest.mp3",5)
+    local book=clip("manual-policy-book.mp3",6)
+    local place=clip("manual-policy-place.mp3",7)
+    q:Add(quest,Stories)
+    local speakingHandle=quest.handle
+    eq(q:PlayNow(book,Writings),true)
+    eq(q:PlayNow(place,Places),true)
+    eq(q:PlayNow(book,Writings),true)
+    eq(q:GetQueueSize(),3) -- duplicate manual clicks do not add new entries
+    eq(q:GetCurrentSound(),quest)
+    eq(quest.handle,speakingHandle)
+    eq(q:GetQueue()[2],book)
+    eq(q:GetQueue()[3],place)
+    eq(#stopped,0)
+    eq(started["manual-policy-book.mp3"],nil)
+    eq(started["manual-policy-place.mp3"],nil)
+    endSound(quest)
+    eq(q:GetCurrentSound(),book)
+    eq(started["manual-policy-book.mp3"],1)
+    eq(started["manual-policy-place.mp3"],nil)
+    endSound(book)
+    eq(q:GetCurrentSound(),place)
+    endSound(place)
+    eq(q:IsEmpty(),true)
+    eq(#stopped,0)
+end
+
+-- A manually requested Places recording is not expendable autoplay backlog.
+-- Limit 3 should still trim stale automatic Places entries, even if the
+-- manual item was queued first behind a speaking Stories clip.
+do
+    local q=reset()
+    local Stories,Places=source("stories"),source("places")
+    Places.queueLimit=3
+    local active=clip("manual-retain-active.mp3",8)
+    local selected=clip("manual-retain-selected.mp3",8)
+    q:Add(active,Stories)
+    eq(q:PlayNow(selected,Places),true)
+    for i=1,6 do
+        local automatic=clip("automatic-place-"..i..".mp3",3)
+        q:Add(automatic,Places)
+    end
+    eq(q:FindClip(Places,selected),selected)
+    eq(q:GetCurrentSound(),active)
+    eq(#stopped,0)
+    endSound(active)
+    eq(q:GetCurrentSound(),selected)
+    endSound(selected)
+    -- Cleanup the remaining automatic backlog without assuming a choice
+    -- about how many past locations should remain after extensive travel.
+    q:RemoveAllSoundsFromQueue()
+end
+
+-- Manual selection of a low-priority registered clip is an explicit user
+-- request, not disposable autoplay. It joins behind the speaking clip.
+do
+    local q=reset()
+    local Stories,Places=source("stories"),source("places")
+    local active=clip("manual-low-active.mp3",2)
+    local selected=clip("manual-low-selected.mp3",2)
+    selected.priority="low"
+    q:Add(active,Stories)
+    eq(q:PlayNow(selected,Places),true)
+    eq(q:GetCurrentSound(),active)
+    eq(q:GetQueue()[2],selected)
+    eq(#stopped,0)
+    endSound(active)
+    eq(q:GetCurrentSound(),selected)
+    endSound(selected)
+    eq(q:IsEmpty(),true)
+end
+
 print("audio_queue.lua: engine completion, lifecycle, and race assertions passed")
