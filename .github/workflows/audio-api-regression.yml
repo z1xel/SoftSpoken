@@ -94,5 +94,5 @@ jobs:
         run: lua5.1 tests/audio_phase2_diagnostics.lua
       - name: Run opt-in narration channel routing tests
         run: lua5.1 tests/audio_phase2_routing.lua
-      - name: Run Vanilla SFX ducking, baseline restoration and user-override tests
+      - name: Run upstream three-category Vanilla audio mixer and recovery tests
         run: lua5.1 tests/audio_phase2_ducking.lua
