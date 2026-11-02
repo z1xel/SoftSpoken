@@ -2,6 +2,26 @@ setfenv(1, VoiceOver)
 
 local CURRENT_MODULE_VERSION = 1
 
+-- A TOC index is metadata, not proof of a playable on-disk MP3. Reject
+-- malformed/escaping paths without probing files or playing noise.
+local function ValidRelativeFile(file)
+    if type(file) ~= "string" or not string.find(file, "%S") then return false end
+    if string.find(file, ":", 1, true) or string.find(file, "%c") then return false end
+    local normalized = string.gsub(file, "\\", "/")
+    if string.sub(normalized, 1, 1) == "/" then return false end
+    if normalized == ".." or string.find(normalized, "^%.%./")
+        or string.find(normalized, "/%.%./") or string.find(normalized, "/%.%.$") then
+        return false
+    end
+    return true
+end
+
+local function EstimateDuration(value)
+    local n = tonumber(value)
+    if n and n > 0 and n < math.huge then return n end
+    return nil
+end
+
 -- A pack declares itself with a TOC key rather than a name, which is why a pack published
 -- years ago is still found today and why the packs kept their folder names through the
 -- rename. The key itself is being renamed, so both generations are read, newest first.
@@ -924,16 +944,24 @@ function DataModules:ResolveSoundFile(soundData, instead)
                     else
                         length = data[wantedFileName]
                     end
-                    if length then
-                        soundData.fileName = fileName
-                        soundData.filePath = format([[Interface\AddOns\%s\%s]], module.METADATA.AddonName,
-                            module.GetSoundPath and module:GetSoundPath(fileName, soundData.event) or
-                            fileName)
-                        soundData.length = length
-                        soundData.module = module
-                        soundData.language = language
-                        EasterEggs:Apply(soundData)
-                        return true
+                    if length ~= nil and ValidRelativeFile(fileName) then
+                        local relative = fileName
+                        if module.GetSoundPath then
+                            local ok, result = pcall(module.GetSoundPath, module, fileName, soundData.event)
+                            relative = ok and result or nil
+                        end
+                        -- A malformed high-priority pack must yield to the
+                        -- next compatible voice rather than fabricate a clip.
+                        if ValidRelativeFile(relative) then
+                            soundData.fileName = fileName
+                            soundData.filePath = format([[Interface\AddOns\%s\%s]],
+                                module.METADATA.AddonName, relative)
+                            soundData.length = EstimateDuration(length)
+                            soundData.module = module
+                            soundData.language = language
+                            EasterEggs:Apply(soundData)
+                            return true
+                        end
                     end
                 end
             end
