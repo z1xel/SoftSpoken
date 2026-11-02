@@ -200,7 +200,14 @@ function PlayerFrame:UpdateProgress()
         return
     end
     bar.fill:Show()
-    bar.fill:SetWidth(math.max(0.01, (bar.track:GetWidth() or 0) * share))
+    local width = bar.track:GetWidth() or 0
+    -- Two-sided texture anchors can report stale GetWidth on the 1.12
+    -- client until layout settles; prefer their measured edges when valid.
+    if Version.IsLegacyVanilla and bar.track.GetLeft and bar.track.GetRight then
+        local left, right = bar.track:GetLeft(), bar.track:GetRight()
+        if left and right and right > left then width = right - left end
+    end
+    bar.fill:SetWidth(math.max(0.01, width * share))
     bar.spark:SetShown(share > 0 and share < 1 and SoundQueue:IsPlaying(clip))
 end
 
