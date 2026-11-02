@@ -417,4 +417,71 @@ do
     eq(q:IsEmpty(),true)
 end
 
+-- Upstream-style progress is a UI estimate only. Metadata expiration must
+-- never cause the queue to move ahead of a native IsPlaying=true handle.
+do
+    local q=reset()
+    local A=source("places",1)
+    local short,nextClip=clip("estimated-short.mp3",0.2),clip("after-estimate.mp3",10)
+    q:Add(short,A);q:Add(nextClip,A)
+    eq(q:ProgressShare(short),0)
+    step(1.0)
+    eq(q:GetCurrentSound(),short)
+    eq(started["after-estimate.mp3"],nil)
+    eq(q:ProgressShare(short),0.985)
+    -- On a confirmed native stop we enter the old inter-clip gap. The
+    -- meter completes immediately, but the next recording still waits.
+    endSound(short)
+    eq(short.playState,"gap")
+    eq(q:ProgressShare(short),1)
+    eq(q:GetCurrentSound(),short)
+    step(0.25)
+    eq(q:GetCurrentSound(),nextClip)
+    eq(q:ProgressShare(nextClip),0)
+    endSound(nextClip)
+end
+
+-- Estimated progress holds when the user presses Stop, then resets on
+-- Replay. Unknown durations show no fabricated percentage.
+do
+    local q=reset()
+    local A=source("stories")
+    local a=clip("pause-estimate.mp3",10)
+    q:Add(a,A)
+    step(3)
+    local share=q:ProgressShare(a)
+    assert(share > 0.29 and share < 0.31)
+    q:PauseQueue()
+    eq(q:ProgressShare(a),share)
+    step(4)
+    eq(q:ProgressShare(a),share)
+    q:ResumeQueue()
+    eq(q:ProgressShare(a),0)
+    eq(started["pause-estimate.mp3"],2)
+    endSound(a)
+    local unknown=clip("unknown-duration.mp3",nil)
+    local zero=clip("zero-duration.mp3",0)
+    q:Add(unknown,A)
+    eq(q:ProgressShare(unknown),nil)
+    endSound(unknown)
+    q:Add(zero,A)
+    eq(q:ProgressShare(zero),nil)
+    endSound(zero)
+end
+
+-- Upstream's optional span shares an overall book's progress across pages.
+do
+    local q=reset()
+    local A=source("writings",1)
+    local page=clip("span-page.mp3",10)
+    page.span={before=10,total=30}
+    q:Add(page,A)
+    eq(q:ProgressShare(page),10/30)
+    step(5)
+    assert(math.abs(q:ProgressShare(page)-0.5)<0.001)
+    endSound(page)
+    eq(q:ProgressShare(page),20/30)
+    q:RemoveAllSoundsFromQueue()
+end
+
 print("audio_queue.lua: engine completion, lifecycle, and race assertions passed")
