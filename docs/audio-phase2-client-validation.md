@@ -126,31 +126,36 @@ verify the 1.12 audio mixer, MP3 file bus, speaker device, or SuperWoW.
       category actually works in your released ClassicAPI client, and
       restore Master afterward. A category change must not stop or
       reroute a recording already playing.
-- [ ] **F3 — Mixer/settings:** With Master then each optional category,
-      toggle the corresponding game's volume/mute slider and document
-      which sliders actually control the narration. With effects ducking
-      OFF, SoftSpoken must not change any sound CVars.
-- [ ] **F3a — Ducking baseline:** Keep Narration Channel on Master.
-      Enable **Lower Sound Effects While Narrating** (60%). Set the
-      game's Effects slider to a memorable value, e.g. 80%; play a
-      long recording. Effects should fade to about 48% while voice
-      remains clear, then return to EXACTLY 80% afterward.
-- [ ] **F3b — Queue and interruption:** Check two consecutive lines
-      don't pump effects up/down; test Stop, Replay, Skip, Stop All,
-      combat Hold and Stop, and a queue that runs empty.
-- [ ] **F3c — Manual override:** Change the game's Effects slider
-      DURING a recording. SoftSpoken must honor your new setting,
-      not overwrite it or restore an outdated baseline afterward.
-- [ ] **F3d — Logout/reload recovery:** /reload while the effects are
-      lowered and check normal baseline recovery. Test logout/login
-      as well. Crash recovery is covered in mock tests; do not
-      deliberately crash your primary client.
-- [ ] **F3e — SFX narrator route:** Choose SFX as Narration Channel,
-      then play a clip with ducking ON. It must NOT lower its own
-      category. Return Narration Channel to Master afterwards.
-- [ ] **F3f — Opt-in safety:** Disable ducking mid-voice and confirm
-      the original level returns. No changes to MasterVolume,
-      MasterSoundEffects, MusicVolume or AmbienceVolume.
+- [ ] **F3 — Upstream defaults:** In Audio settings, verify **Turn
+      Other Sounds Down** is ON. Under **Quieter Game While Spoken Talks**,
+      verify Music 30%, Ambience 40%, Effects 60%; no separate NPC voice slider.
+- [ ] **F3a — Three simultaneous fades:** Set the game's Music, Ambience
+      and Effects levels to recognizable values (e.g. 80%). Play a long
+      Master-routed narration. Music/Ambience/Effects should gently
+      become about 24%/32%/48%, then return to exactly 80%.
+- [ ] **F3b — Per-category settings:** Change each SoftSpoken level
+      during narration. It should adjust that category without touching
+      game Master Volume or altering either of the other two baselines.
+- [ ] **F3c — Protect active voice:** Route narration to Music, then
+      Ambience, then SFX on different recordings. The active voice's
+      own category should remain at normal volume; the others duck.
+      Changing a route mid-file must not reroute the existing recording.
+- [ ] **F3d — Transitions:** Queue narration across Stories, Places and
+      multi-page Writings. Between lines there should be no audible
+      volume pumping. Stop, Replay, Skip and combat Hold/Stop should
+      restore the game mix when no voice is speaking.
+- [ ] **F3e — Player overrides:** Adjust Music, Ambience or Effects
+      directly in the game's sound settings during a line. SoftSpoken
+      must respect that change rather than restore a stale baseline.
+- [ ] **F3f — Recovery:** /reload mid-voice, then normal logout/login.
+      All categories that were reduced should return to baseline.
+      Crash recovery is simulated in CI; don't intentionally crash
+      your primary client.
+- [ ] **F3g — Toggle OFF while speaking:** All three volumes fade
+      back to their original values. Turning back ON resumes ducking.
+- [ ] **F3h — Vanilla CVars:** Check for no writes to MasterVolume or
+      MasterSoundEffects; the only adjusted CVars are SoundVolume,
+      MusicVolume and AmbienceVolume. Vanilla 1.12 has no Dialog slider.
 - [ ] **F4 — NPC greeting overlap:** Start a quest/gossip interaction when
       an NPC voice bark is playing. Record whether narration overlaps,
       fails to start, or delays; never require muting unrelated SFX.
@@ -192,9 +197,9 @@ substitute for the cases above):**
 - `tests/audio_phase2_diagnostics.lua` — read-only mixer and queue report.
 - `tests/audio_phase2_routing.lua` — all four ClassicAPI output categories,
   cross-source defaults, saved-value fallback, and no CVar mutations.
-- `tests/audio_phase2_ducking.lua` — Vanilla effects volume fading,
-  baseline restore, user slider override, pause/gap/logout/crash
-  recovery, SFX self-duck prevention and opt-in default.
+- `tests/audio_phase2_ducking.lua` — upstream Music/Ambience/SFX
+  defaults, three-category fades, active-voice protection, mixer override,
+  queue gaps, logout/crash recovery, and unavailable CVar handling.
 
 **Release gates:** all automated CI green; A–E major behavior tested on
 1.12; F mixer limits documented and any unsafe CVar behavior eliminated;
