@@ -198,7 +198,10 @@ local function CountFor(source)
 end
 
 local function IsLow(clip)
-    return clip.priority == "low"
+    -- Explicit player requests are never disposable low-priority autoplay.
+    -- They still queue behind an existing voice; this is admission priority,
+    -- not a permission to interrupt the audio currently playing.
+    return clip.priority == "low" and not clip.manualRequest
 end
 
 --------------------------------------------------------------------------------
@@ -744,7 +747,10 @@ local function TrimBacklog(source, admitted)
             local isHead = index == 1 and IsBusy(clip)
             if clip.source == source and not isHead then
                 waiting = waiting + 1
-                if clip ~= admitted and (not oldest or clip.id < oldest.id) then
+                -- Queue limits may discard stale autoplay, but never a
+                -- recording the player deliberately selected with Play.
+                if clip ~= admitted and not clip.manualRequest
+                    and (not oldest or clip.id < oldest.id) then
                     oldest = clip
                 end
             end
@@ -850,11 +856,11 @@ function SoundQueue:Add(clip, source, front)
     return clip
 end
 
---- Put this at the front and start it now. The one deliberate interruption: the player
---- clicked Play, and appending would break that twice over -- behind a backlog it is a
---- wait, behind a held head it may never arrive. Whatever was speaking is stopped and
---- kept, so it resumes after. Producers append; only a human front-inserts.
----@return boolean playing
+--- An explicit Play request does NOT interrupt a line already speaking.
+--- Append it behind existing queue items; if there is no active unpaused head,
+--- start the selection at the front. Preserve manual requests from automatic
+--- Places backlog trimming. Returns true when accepted (not necessarily audible).
+---@return boolean accepted
 function SoundQueue:PlayNow(clip, source)
     if not clip then
         return false
@@ -869,8 +875,14 @@ function SoundQueue:PlayNow(clip, source)
         return false, inaudible
     end
 
-    -- A line speaking or held by a gate goes on, and this one queues behind it. Only an idle or
-    -- stopped queue plays it at once, which also ends the stop.
+    -- A manual Play is not background/autoplay. If its original clip
+    -- carried "low" from a producer, do not let normal-priority arrivals
+    -- silently evict an explicit player selection.
+    clip.manualRequest = true
+
+    -- A currently speaking line is never cut short. It and the existing
+    -- queue finish first; duplicate Play clicks leave the one waiting.
+    -- If the queue is idle or paused, the manual choice can start now.
     local current = self:GetCurrentSound()
     if current and not self:IsPaused() then
         for _, queued in ipairs(self.sounds) do
@@ -880,8 +892,8 @@ function SoundQueue:PlayNow(clip, source)
         return queued and true or false, why
     end
 
-    -- Clicking Play on something already waiting should play it, not be swallowed by
-    -- the dedup.
+    -- With the queue paused/idle, an already waiting selection can move
+    -- to the front. This branch never interrupts active unpaused audio.
     for index = self:GetQueueSize(), 1, -1 do
         if self.sounds[index].key == clip.key then
             self:RemoveSoundFromQueue(self.sounds[index])
