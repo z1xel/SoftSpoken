@@ -73,6 +73,17 @@ function SoundUtils:PlaySound(clip, channel)
     return true, handle
 end
 
+-- A three-valued query: true (playing), false (ended), nil (native API
+-- error / no ownership). Never query arbitrary, unowned or stale clip handles.
+function SoundUtils:IsSoundPlaying(clip)
+    local handle = ownedHandles[clip]
+    if not handle or clip.handle ~= handle then return nil end
+    if not C_Sound or type(C_Sound.IsPlaying) ~= "function" then return nil end
+    local ok, playing = pcall(C_Sound.IsPlaying, handle)
+    if not ok or type(playing) ~= "boolean" then return nil end
+    return playing
+end
+
 function SoundUtils:PlayCue(channel)
     PlaySound(SOUNDKIT.IG_QUEST_LOG_CLOSE)
 end
