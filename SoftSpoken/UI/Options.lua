@@ -409,6 +409,13 @@ local function Build(canvas)
         Only(by, Subtitles)
         Requires(by, function() return Words() and transcript().Typewriter end, L.REASON_TYPEWRITER)
     end
+    -- Upstream's Show Progress Bar applies to every visible narrator;
+    -- this 1.12 port currently supports Large Window and Voice Only.
+    -- The meter is an estimate; only ClassicAPI determines audio completion.
+    Only(layout:Checkbox(L.OPT_SUBTITLE_PROGRESS, L.OPT_SUBTITLE_PROGRESS_TIP,
+        function() return transcript().SubtitleProgress ~= false end,
+        function(v) transcript().SubtitleProgress = v end, refresh), InWindow)
+
     Only(layout:Checkbox(L.OPT_LOCK_FRAME, L.OPT_LOCK_FRAME_TIP,
         function() return cfg().LockFrame end, function(v) cfg().LockFrame = v end, refresh), Shown)
     Only(layout:Button(L.OPT_RESET, 160, function()
