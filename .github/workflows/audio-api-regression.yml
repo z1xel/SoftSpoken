@@ -13,6 +13,8 @@ on:
       - "tests/audio_phase2_places.lua"
       - "tests/audio_phase2_writings.lua"
       - "tests/audio_phase2_writings_queue.lua"
+      - "tests/audio_phase2_diagnostics.lua"
+      - "SoftSpoken/Developer.lua"
       - "SoftSpoken_Writings/Playlist.lua"
       - "SoftSpoken_Writings/Audio.lua"
       - "SoftSpoken_Writings/Events.lua"
@@ -36,6 +38,8 @@ on:
       - "tests/audio_phase2_places.lua"
       - "tests/audio_phase2_writings.lua"
       - "tests/audio_phase2_writings_queue.lua"
+      - "tests/audio_phase2_diagnostics.lua"
+      - "SoftSpoken/Developer.lua"
       - "SoftSpoken_Writings/Playlist.lua"
       - "SoftSpoken_Writings/Audio.lua"
       - "SoftSpoken_Writings/Events.lua"
@@ -74,3 +78,5 @@ jobs:
         run: lua5.1 tests/audio_phase2_writings.lua
       - name: Run real Writings playlist and engine queue integration tests
         run: lua5.1 tests/audio_phase2_writings_queue.lua
+      - name: Run read-only audio diagnostic and privacy tests
+        run: lua5.1 tests/audio_phase2_diagnostics.lua
