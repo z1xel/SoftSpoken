@@ -480,54 +480,104 @@ end
 -- `clip`'s voice has ended. The pause after it, and the cue halfway through that pause, only
 -- separate it from a line that will play next: the last line ends with its voice, and one a
 -- gate holds waits out the gate, which separates it well enough.
-local function AfterSpoken(clip)
+local function AfterSpoken(clip, attempt)
+    if SoundQueue.sounds[1] ~= clip or clip.playbackAttempt ~= attempt
+        or not IsSpeaking(clip) then return end
+
+    InvalidatePlayback(clip)
+    clip.playState = "gap"
+    clip.endedAt = GetTime()
+    SoundUtils:ReleaseSound(clip)
+    local gapAttempt = clip.playbackAttempt
+
     local function Finish()
+        if SoundQueue.sounds[1] ~= clip or clip.playbackAttempt ~= gapAttempt
+            or clip.playState ~= "gap" then return end
         SoundQueue:RemoveSoundFromQueue(clip, true)
     end
-    -- Spoken Books queues its following page from this clip's stopCallback,
-    -- after the current page has left the queue. Until then, that next page
-    -- is not visible to FirstPlayable(2), so use only the source's page gap:
-    -- no generic line gap and no between-line cue (even if other clips wait).
+    local function ScheduleFinish(seconds)
+        if seconds <= 0 then Finish(); return end
+        clip.nextSoundTimer = Addon:ScheduleTimer(Finish, seconds)
+    end
+
+    -- Writings queues its next page from the stop callback once this page
+    -- leaves. Do not add the normal line gap/cue when continuing a book.
     if clip.continues then
-        local gap = clip.source.interClipGap or 0
-        if gap > 0 then
-            clip.nextSoundTimer = Addon:ScheduleTimer(Finish, gap)
-        else
-            Finish()
-        end
+        ScheduleFinish(clip.source.interClipGap or 0)
         return
     end
     local _, nextClip = FirstPlayable(2)
-    if not nextClip then
-        Finish()
-        return
-    end
+    if not nextClip then Finish(); return end
     local audio = Addon.db.profile.Audio
     local sameItem = SameItem(clip, nextClip)
     local gap = (clip.source.interClipGap or 0) + (sameItem and 0 or audio.LineGap or 0)
-    if gap <= 0 then
-        Finish()
-    elseif sameItem or not audio.CueBetweenLines then
-        clip.nextSoundTimer = Addon:ScheduleTimer(Finish, gap)
+    if gap <= 0 or sameItem or not audio.CueBetweenLines then
+        ScheduleFinish(gap)
     else
         clip.nextSoundTimer = Addon:ScheduleTimer(function()
-            -- For whichever line waits now: the one that did may have gone since the voice ended.
+            if SoundQueue.sounds[1] ~= clip or clip.playbackAttempt ~= gapAttempt
+                or clip.playState ~= "gap" then return end
             local _, waiting = FirstPlayable(2)
             if waiting and not SameItem(clip, waiting) then
-                -- On the next line's channel, so it follows the voice's volume, not the effects'.
                 SoundUtils:PlayCue(SpeakingChannel(waiting))
             end
-            clip.nextSoundTimer = Addon:ScheduleTimer(Finish, gap / 2)
+            ScheduleFinish(gap / 2)
         end, gap / 2)
+    end
+end
+
+-- ClassicAPI's arbitrary MP3 playback does NOT emit SOUNDKIT_FINISHED.
+-- Poll just the clip whose owned handle was started, and disregard callbacks
+-- from earlier attempts after Skip, Pause, a gate, or source removal.
+local function PollPlayback(clip, attempt)
+    if SoundQueue.sounds[1] ~= clip or clip.playbackAttempt ~= attempt
+        or not IsSpeaking(clip) then return end
+    clip.nextSoundTimer = nil
+    local now = GetTime()
+    if now - clip.playbackStartedAt >= MAX_PLAY_SECONDS then
+        SoundUtils:StopSound(clip)
+        Discard(clip, "playback-timeout")
+        return
+    end
+
+    local playing = SoundUtils:IsSoundPlaying(clip)
+    if playing == nil then
+        clip.playbackErrors = (clip.playbackErrors or 0) + 1
+        if clip.playbackErrors >= MAX_QUERY_ERRORS then
+            SoundUtils:StopSound(clip)
+            Discard(clip, "playback-error")
+            return
+        end
+    elseif playing then
+        clip.playState = "playing"
+        clip.playbackErrors = 0
+        clip.playbackFalseCount = 0
+    elseif now - clip.playbackStartedAt >= STARTUP_GRACE then
+        clip.playbackErrors = 0
+        clip.playbackFalseCount = (clip.playbackFalseCount or 0) + 1
+        if clip.playbackFalseCount >= ENDED_CONFIRMATIONS then
+            AfterSpoken(clip, attempt)
+            return
+        end
+    end
+
+    if SoundQueue.sounds[1] == clip and clip.playbackAttempt == attempt
+        and IsSpeaking(clip) then
+        clip.nextSoundTimer = Addon:ScheduleTimer(function()
+            PollPlayback(clip, attempt)
+        end, POLL_INTERVAL)
     end
 end
 
 ---@param clip SpokenClip
 function SoundQueue:PlaySound(clip)
+    if not clip or clip ~= self.sounds[1] or IsBusy(clip) then return end
     local channel = SpeakingChannel(clip)
+    clip.playState = "starting"
+    clip.playbackAttempt = (clip.playbackAttempt or 0) + 1
+    local attempt = clip.playbackAttempt
 
-    -- On legacy 1.12 this intentionally does nothing: toggling global SFX
-    -- would interrupt unrelated sounds. Native dialogue policy is #63.
+    -- ClassicAPI-first, never reset the game's global SFX to cut NPC sounds.
     if Version.IsLegacyVanilla then
         self:MuteGameDialogue(channel, clip.cutsGameDialogue)
     end
@@ -535,31 +585,40 @@ function SoundQueue:PlaySound(clip)
     local willPlay = SoundUtils:PlaySound(clip, channel)
     if not willPlay then
         Discard(clip, "missing")
-        self:Advance()
         return
     end
 
-    -- Modern clients retain their normal dialogue-channel handling.
     if not Version.IsLegacyVanilla then
         self:MuteGameDialogue(channel, clip.cutsGameDialogue)
     end
 
-    if clip.startCallback then
-        clip.startCallback(clip)
-    end
-    Callbacks:Fire("CLIP_STARTED", clip)
-
-    -- The client fires no event when a sound finishes, so the recorded duration is the
-    -- only signal that the clip is over.
-    clip.spokenAt = GetTime() + (clip.delay or 0) + clip.length
+    clip.playState = "playing"
+    clip.playbackStartedAt = GetTime()
+    clip.endedAt = nil
+    clip.playbackFalseCount = 0
+    clip.playbackErrors = 0
+    -- Retain metadata as the UI's estimated duration until #60 provides a
+    -- progress policy. Completion below depends exclusively on IsPlaying.
+    local reportedLength = tonumber(clip.length) or 0
+    clip.spokenAt = GetTime() + (tonumber(clip.delay) or 0) + math.max(0, reportedLength)
     clip.nextSoundTimer = Addon:ScheduleTimer(function()
-        AfterSpoken(clip)
-    end, (clip.delay or 0) + clip.length)
+        PollPlayback(clip, attempt)
+    end, POLL_INTERVAL)
+
+    -- A listener can remove the clip or enqueue another one here. Do not
+    -- fire CLIP_STARTED for an already-removed/replaced clip.
+    if clip.startCallback then clip.startCallback(clip) end
+    if self.sounds[1] == clip and clip.playbackAttempt == attempt and IsSpeaking(clip) then
+        Callbacks:Fire("CLIP_STARTED", clip)
+    end
 end
 
---- Seconds of `clip`'s voice heard so far: 0 before it starts, its length once it has ended.
+--- Estimated seconds heard for legacy progress UI (#60 will redesign this).
 function SoundQueue:VoiceElapsed(clip)
-    local length = tonumber(clip.length) or 0
+    if not clip then return 0 end
+    local length = math.max(0, tonumber(clip.length) or 0)
+    if clip.playState == "gap" or clip.playState == "finished" then return length end
+    if not IsSpeaking(clip) or not clip.spokenAt then return 0 end
     return math.max(0, math.min(length, length - (clip.spokenAt - GetTime())))
 end
 
