@@ -485,4 +485,55 @@ do
     q:RemoveAllSoundsFromQueue()
 end
 
+-- #70: targeted fades, intentional gap timing, and optional cues. There
+-- must never be a fade carrying over into the next stream when skipping.
+do
+    local q=reset()
+    local A=source("stories")
+    local a=clip("fade-alone.mp3",2)
+    q:Add(a,A)
+    local handle=a.handle
+    q:Skip()
+    eq(stopped[#stopped][1],handle)
+    eq(stopped[#stopped][2],400)
+    eq(q:IsEmpty(),true)
+end
+do
+    local q=reset()
+    local A=source("stories")
+    local a,b=clip("fade-previous.mp3",2),clip("fade-next.mp3",2)
+    q:Add(a,A);q:Add(b,A)
+    local handle=a.handle
+    q:Skip()
+    eq(stopped[#stopped][1],handle)
+    eq(stopped[#stopped][2],0) -- avoid fading on top of the next line
+    eq(q:GetCurrentSound(),b)
+    endSound(b)
+    eq(q:IsEmpty(),true)
+end
+do
+    local q=reset()
+    local A=source("stories",1.5)
+    local a,b=clip("gap-previous.mp3",0.01),clip("gap-next.mp3",10)
+    local cues=0
+    PlaySound=function() cues=cues+1 end
+    env.Addon.db.profile.Audio.LineGap=0.5
+    env.Addon.db.profile.Audio.CueBetweenLines=true
+    q:Add(a,A);q:Add(b,A)
+    endSound(a)
+    eq(a.playState,"gap")
+    eq(cues,0)
+    step(0.65)
+    eq(cues,0)
+    step(0.2)
+    eq(cues,1)
+    eq(started["gap-next.mp3"],nil)
+    step(1.0)
+    eq(started["gap-next.mp3"],1)
+    eq(cues,1)
+    endSound(b)
+    eq(q:IsEmpty(),true)
+    PlaySound=function() end
+end
+
 print("audio_queue.lua: engine completion, lifecycle, and race assertions passed")
