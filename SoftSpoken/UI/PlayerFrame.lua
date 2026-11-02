@@ -464,7 +464,10 @@ function PlayerFrame:CreateRow(i)
         -- A held clip says why; otherwise narration waiting out a pull looks exactly like
         -- narration that failed.
         local text = clip.present and clip.present.label or clip.key
-        local held = SoundQueue:GetHeldReason(clip)
+        -- A Hold-only combat gate blocks the NEXT autoplay, not one that's
+        -- already speaking. Never label the active recording as held.
+        local state = SoundQueue:GetClipState(clip)
+        local held = state == "held" and SoundQueue:GetHeldReason(clip) or nil
         if held then
             text = format("%s |cff888888(%s)|r", text, held)
         end
