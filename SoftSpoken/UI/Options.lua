@@ -596,7 +596,10 @@ local function Build(canvas)
     languageNotice.layoutBaseAlpha = 1
 
     layout:Section(L.OPT_AUDIO_TITLE)
-    if audio().AutoToggleDialog ~= nil then
+    -- The 1.12 client cannot independently mute NPC dialogue; the old
+    -- checkbox used a global SFX reset, removed in the ClassicAPI backend.
+    -- Hide the nonfunctional toggle until issue #63 supplies safe behavior.
+    if audio().AutoToggleDialog ~= nil and not Version.IsLegacyVanilla then
         layout:Checkbox(L.OPT_MUTE_DIALOGUE,
             Version.IsLegacyVanilla and L.OPT_MUTE_DIALOGUE_TIP_VANILLA or L.OPT_MUTE_DIALOGUE_TIP,
             function() return audio().AutoToggleDialog end,
