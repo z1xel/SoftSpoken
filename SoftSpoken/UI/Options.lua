@@ -617,6 +617,30 @@ local function Build(canvas)
             if v == "SFX" then return "Sound Effects" end
             return v
         end)
+    -- Vanilla's SoundVolume is independent of Master and is restored
+    -- on normal completion, logout, or a recoverable crash. The duck never
+    -- changes the player's MasterSoundEffects on/off choice.
+    if Version.IsLegacyVanilla then
+        local ducking = function() return audio().SFXDucking end
+        local toggle = layout:Checkbox(L.OPT_DUCK_SFX, L.OPT_DUCK_SFX_TIP,
+            function() return ducking().Enabled end,
+            function(v)
+                ducking().Enabled = v and true or false
+                OtherSounds:RefreshConfig()
+                Options:UpdateRows()
+            end)
+        Requires(toggle, function() return OtherSounds:IsAvailable() end,
+            L.OPT_DUCK_SFX_UNAVAILABLE)
+        local strength = layout:Slider(L.OPT_DUCK_SFX_LEVEL, 0, 1, 0.05,
+            function() return ducking().Level or 0.6 end,
+            function(v)
+                ducking().Level = v
+                OtherSounds:RefreshConfig()
+            end, nil, Layout.Percent, L.OPT_DUCK_SFX_LEVEL_TIP)
+        Requires(strength, function()
+            return OtherSounds:IsAvailable() and ducking().Enabled
+        end, L.OPT_DUCK_SFX_TIP)
+    end
     -- The 1.12 client cannot independently mute NPC dialogue; the old
     -- checkbox used a global SFX reset, removed in the ClassicAPI backend.
     -- Hide the nonfunctional toggle until issue #63 supplies safe behavior.
