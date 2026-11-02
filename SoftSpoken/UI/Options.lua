@@ -617,29 +617,14 @@ local function Build(canvas)
             if v == "SFX" then return "Sound Effects" end
             return v
         end)
-    -- Vanilla's SoundVolume is independent of Master and is restored
-    -- on normal completion, logout, or a recoverable crash. The duck never
-    -- changes the player's MasterSoundEffects on/off choice.
-    if Version.IsLegacyVanilla then
-        local ducking = function() return audio().SFXDucking end
-        local toggle = layout:Checkbox(L.OPT_DUCK_SFX, L.OPT_DUCK_SFX_TIP,
-            function() return ducking().Enabled end,
-            function(v)
-                ducking().Enabled = v and true or false
-                OtherSounds:RefreshConfig()
-                Options:UpdateRows()
-            end)
-        Requires(toggle, function() return OtherSounds:IsAvailable() end,
-            L.OPT_DUCK_SFX_UNAVAILABLE)
-        local strength = layout:Slider(L.OPT_DUCK_SFX_LEVEL, 0, 1, 0.05,
-            function() return ducking().Level or 0.6 end,
-            function(v)
-                ducking().Level = v
-                OtherSounds:RefreshConfig()
-            end, nil, Layout.Percent, L.OPT_DUCK_SFX_LEVEL_TIP)
-        Requires(strength, function()
-            return OtherSounds:IsAvailable() and ducking().Enabled
-        end, L.OPT_DUCK_SFX_TIP)
+    -- Upstream Turn Other Sounds Down. Original 1.12 has Music, Ambience,
+    -- and SFX sliders but no independent NPC/Dialog volume.
+    local lower = function() return audio().LowerOthers end
+    local applyLower = function() OtherSounds:RefreshConfig(); Options:UpdateRows() end
+    if OtherSounds:IsAvailable() then
+        layout:Checkbox(L.OPT_LOWER_OTHERS, L.OPT_LOWER_OTHERS_TIP,
+            function() return lower().Enabled end,
+            function(v) lower().Enabled = v and true or false end, applyLower)
     end
     -- The 1.12 client cannot independently mute NPC dialogue; the old
     -- checkbox used a global SFX reset, removed in the ClassicAPI backend.
@@ -662,6 +647,26 @@ local function Build(canvas)
     layout:Checkbox(L.OPT_CUE_BETWEEN, L.OPT_CUE_BETWEEN_TIP,
         function() return audio().CueBetweenLines end,
         function(v) audio().CueBetweenLines = v end)
+    if OtherSounds:IsAvailable() then
+        layout:Section(L.OPT_LOWER_TITLE)
+        -- Each call has independent upvalues, including on 1.12 Lua 5.0.
+        local function AddVolumeSlider(channel, label)
+            local slider = layout:Slider(label, 0, 1, 0.05,
+                function() return lower()[channel] end,
+                function(v) lower()[channel] = v end,
+                applyLower, Layout.Percent)
+            Requires(slider, function() return lower().Enabled end, L.REASON_LOWER)
+            -- Don't offer a slider that would lower the current voice
+            -- category; it is always protected from being ducked.
+            Requires(slider, function()
+                return (audio().NarrationChannel or "Master") ~= channel
+            end, L.REASON_VOICE_CHANNEL)
+        end
+        AddVolumeSlider("Music", L.OPT_LOWER_MUSIC)
+        AddVolumeSlider("Ambience", L.OPT_LOWER_AMBIENCE)
+        AddVolumeSlider("SFX", L.OPT_LOWER_SFX)
+        layout:Note(L.OPT_LOWER_VANILLA_NO_DIALOG, nil, 36)
+    end
     -- The buttons live on Blizzard's quest, book and map frames, not on the player, but
     -- they all open the player's box, so the one switch for them is here. Absent where
     -- Contribute.xml is not loaded (the legacy clients): nothing there to hide.
