@@ -10,21 +10,54 @@ local CharDB = R.CharDB
 local Say = R.Say
 local pending = {} -- Queued but not started; deliberately not persisted.
 
+-- Records are declared in addon data packs, not typed by the player.
+-- Guard incomplete/malformed pack metadata before it becomes an MP3 path.
+-- Durations are optional estimates; an absent/invalid length must never
+-- prevent an otherwise valid recording from being selected.
+local function ValidFile(file)
+    if type(file) ~= "string" or not string.find(file, "%S") then return false end
+    if string.find(file, ":", 1, true) or string.find(file, "%c") then return false end
+    local normalized = string.gsub(file, "\\", "/")
+    if string.sub(normalized, 1, 1) == "/" then return false end
+    if normalized == ".." or string.find(normalized, "^%.%./")
+        or string.find(normalized, "/%.%./") or string.find(normalized, "/%.%.$") then
+        return false
+    end
+    return true
+end
+
+local function EstimatedLength(len)
+    local n = tonumber(len)
+    if n and n > 0 and n < math.huge then return n end
+    return nil
+end
+
 local function FindInRegistry(registry, mapID, areaKey)
     if type(registry) ~= "table" then return nil end
+    -- Do not use pairs() as the precedence policy. Hash traversal varies
+    -- between runtimes. The existing registry-family ordering still wins;
+    -- within one family, prefer a stable addon name over load order.
+    local packs = {}
     for _, pack in pairs(registry) do
-        if type(pack) == "table" and pack.version == 1 and
-           type(pack.addon) == "string" then
-            local recording
-            if areaKey then
-                local subzones = pack.subzones and pack.subzones[mapID]
-                recording = subzones and subzones[areaKey]
-            else
-                recording = pack.zones and pack.zones[mapID]
-            end
-            if recording and recording.file and recording.len then
-                return pack, recording
-            end
+        if type(pack) == "table" and pack.version == 1
+            and type(pack.addon) == "string" and pack.addon ~= "" then
+            table.insert(packs, pack)
+        end
+    end
+    table.sort(packs, function(a, b)
+        if a.addon ~= b.addon then return a.addon < b.addon end
+        return tostring(a.title or "") < tostring(b.title or "")
+    end)
+    for _, pack in ipairs(packs) do
+        local recording
+        if areaKey then
+            local subzones = pack.subzones and pack.subzones[mapID]
+            recording = subzones and subzones[areaKey]
+        else
+            recording = pack.zones and pack.zones[mapID]
+        end
+        if type(recording) == "table" and ValidFile(recording.file) then
+            return pack, recording
         end
     end
     return nil
@@ -164,7 +197,7 @@ local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay, initialGre
         areaKey = areaKey,
         path = "Interface\\AddOns\\" .. pack.addon ..
                "\\Sounds\\" .. recording.file .. ".mp3",
-        length = recording.len,
+        length = EstimatedLength(recording.len),
         autoplay = autoplay and true or false,
         initialGreeting = initialGreeting and true or false,
         present = {
