@@ -6,11 +6,13 @@ setfenv(1, SpokenEnv)
 --
 -- The policy, in one place:
 --
---  * ONE FIFO, IN ADMISSION ORDER, ACROSS EVERY SOURCE. A new clip is appended. Nothing
---    interrupts, displaces or reorders a clip that is already speaking, except a gate
---    closing on it (below). There is no cross-source priority.
---  * A LOW-PRIORITY CLIP YIELDS AT THE DOOR, both ways: refused if a normal clip is
---    queued or speaking, and a waiting low clip is dropped when a normal one arrives.
+--  * ONE FIFO FOR ACTIVE AUDIO. A manual Play while a line speaks appends behind
+--    the current line and existing waiters; it does not interrupt or jump ahead.
+--    An explicit selection is retained even as stale automatic Places backlog
+--    is trimmed. Holds may temporarily skip the head to keep other sources
+--    playing, and a paused/idle queue can front-start manual Play.
+--  * A LOW-PRIORITY AUTOMATIC CLIP YIELDS AT THE DOOR, both ways: refused if a
+--    normal clip is queued or speaking, and dropped if a normal one arrives.
 --    Never the one speaking -- that would be an interruption. This generalises
 --    VoiceOverRedux's "no gossip while a quest line is queued" and closes its hole,
 --    where a quest arriving after gossip did nothing.
@@ -21,9 +23,9 @@ setfenv(1, SpokenEnv)
 --  * A HELD HEAD IS SKIPPED, NOT BLOCKING. The first clip no gate holds moves to the
 --    front and plays; the held one plays when its gate clears. Without this a zone
 --    narration held for combat would keep a quest line waiting behind it.
---  * A SOURCE'S QUEUE LIMIT TRIMS ITS OWN WAITING CLIPS, oldest first, never the head
---    and never another source's. Narration that has fallen minutes behind is describing
---    somewhere the player already left; a quest line behind it is not.
+--  * A SOURCE'S QUEUE LIMIT TRIMS ITS OWN WAITING AUTOPLAY CLIPS, oldest first,
+--    never a manually requested recording, active head, or another source's.
+--    Stale location narration may be discarded; an explicit Play must survive.
 --
 -- Inter-clip gaps now begin only AFTER ClassicAPI confirms native playback
 -- has ended. Each source retains its own gap (e.g. Places 0.25s), and the
