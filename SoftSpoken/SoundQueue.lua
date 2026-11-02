@@ -483,7 +483,8 @@ end
 function SoundQueue:PlaySound(clip)
     local channel = SpeakingChannel(clip)
 
-    -- On Vanilla, interrupt NPC audio BEFORE playback.
+    -- On legacy 1.12 this intentionally does nothing: toggling global SFX
+    -- would interrupt unrelated sounds. Native dialogue policy is #63.
     if Version.IsLegacyVanilla then
         self:MuteGameDialogue(channel, clip.cutsGameDialogue)
     end
@@ -495,7 +496,7 @@ function SoundQueue:PlaySound(clip)
         return
     end
 
- -- Modern clients retain their normal dialogue-channel handling.
+    -- Modern clients retain their normal dialogue-channel handling.
     if not Version.IsLegacyVanilla then
         self:MuteGameDialogue(channel, clip.cutsGameDialogue)
     end
