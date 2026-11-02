@@ -604,6 +604,7 @@ function SoundQueue:PlaySound(clip)
     end
 
     clip.playState = "playing"
+    clip.pauseElapsed = nil
     clip.playbackStartedAt = GetTime()
     clip.endedAt = nil
     clip.playbackFalseCount = 0
@@ -624,13 +625,43 @@ function SoundQueue:PlaySound(clip)
     end
 end
 
---- Estimated seconds heard for legacy progress UI (#60 will redesign this).
+--- Elapsed seconds for a display estimate, not the engine's playback truth.
+--- A user stop keeps its last position; replay starts again from zero.
 function SoundQueue:VoiceElapsed(clip)
     if not clip then return 0 end
     local length = math.max(0, tonumber(clip.length) or 0)
     if clip.playState == "gap" or clip.playState == "finished" then return length end
-    if not IsSpeaking(clip) or not clip.spokenAt then return 0 end
-    return math.max(0, math.min(length, length - (clip.spokenAt - GetTime())))
+    if clip.playState == "paused" then
+        return math.max(0, math.min(length, clip.pauseElapsed or 0))
+    end
+    if not IsSpeaking(clip) or not clip.playbackStartedAt then return 0 end
+    return math.max(0, math.min(length, GetTime() - clip.playbackStartedAt))
+end
+
+-- Upstream's Share contract: fraction through this clip or an optional
+-- multi-clip span (e.g. consecutive book pages). This is UI-only; #57's
+-- actual completion continues to depend solely on C_Sound.IsPlaying.
+function SoundQueue:Share(clip, elapsed)
+    local length = tonumber(clip and clip.length) or 0
+    if length <= 0 then return nil end -- no reliable estimate: track only
+    elapsed = math.max(0, math.min(length, elapsed or 0))
+    local span = clip.span
+    local share
+    if span and tonumber(span.total) and span.total > 0 then
+        share = ((tonumber(span.before) or 0) + elapsed) / span.total
+    else
+        share = elapsed / length
+    end
+    share = math.max(0, math.min(1, share))
+    -- A duration that's too short must not render 'complete' while native
+    -- playback still says the clip is speaking.
+    if IsSpeaking(clip) then share = math.min(share, 0.985) end
+    return share
+end
+
+function SoundQueue:ProgressShare(clip)
+    if not clip then return nil end
+    return self:Share(clip, self:VoiceElapsed(clip))
 end
 
 --- Start something if nothing is speaking and something may. Safe to call at any time;
@@ -894,6 +925,7 @@ function SoundQueue:PauseQueue()
         head = self:GetCurrentSound()
     end
     if head and IsSpeaking(head) then
+        head.pauseElapsed = head.playbackStartedAt and math.max(0, GetTime() - head.playbackStartedAt) or 0
         InvalidatePlayback(head)
         head.playState = "paused"
         SoundUtils:StopSound(head, PAUSE_FADE_MS)
