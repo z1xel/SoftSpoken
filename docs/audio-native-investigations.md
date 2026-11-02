@@ -145,6 +145,19 @@ The initial 100-file limit protects against accidentally decoding
 tens of thousands of recordings. Use `--limit 0` for a full
 installation scan, after a small representative run.
 
+### One actual MP3 sanity measurement
+
+The bundled `SoftSpoken_Stories/Sounds/og-thrall.mp3` was decoded
+read-only with FFmpeg in [GitHub Actions run 41517428718](https://github.com/z1xel/SoftSpoken/actions/runs/41517428718):
+
+| Recording | Length | Codec / bitrate | Integrated loudness | True peak | LRA |
+| --- | --- | --- | --- | --- | --- |
+| `og-thrall.mp3` | 33.802 s | MP3 / 64 kbps | **-16.73 LUFS** | **-0.93 dBFS** | **9.10 LU** |
+
+This verifies the measurement process and one bundled sample only.
+It is **not representative** of the installed Spoken / Combined / Turtle
+packs; no across-pack spread or normalization improvement is established.
+
 **No source audio has been modified, gain-normalized, converted
 or replaced**. Before recommending a normalization target, collect
 a comparable sample from each installed pack (quest, gossip,
