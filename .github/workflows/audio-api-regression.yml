@@ -9,6 +9,7 @@ on:
       - "SoftSpoken/SoundQueue.lua"
       - "tests/audio_soundutils.lua"
       - "tests/audio_queue.lua"
+      - "tests/audio_progress_ui.lua"
       - ".github/workflows/audio-api-regression.yml"
   pull_request:
     paths:
@@ -16,6 +17,7 @@ on:
       - "SoftSpoken/SoundQueue.lua"
       - "tests/audio_soundutils.lua"
       - "tests/audio_queue.lua"
+      - "tests/audio_progress_ui.lua"
       - ".github/workflows/audio-api-regression.yml"
 
 permissions:
@@ -34,3 +36,5 @@ jobs:
         run: lua5.1 tests/audio_soundutils.lua
       - name: Run engine-driven queue and lifecycle tests
         run: lua5.1 tests/audio_queue.lua
+      - name: Run estimated progress and Vanilla UI tests
+        run: lua5.1 tests/audio_progress_ui.lua
