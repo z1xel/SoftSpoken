@@ -64,9 +64,20 @@ low-priority eviction, and Stop All cannot accidentally start a new clip
 halfway through an earlier clip's terminal events. Stop All/Stop Source
 also reject same-scope requeues from stop callbacks.
 
-**Progress display remains metadata-estimated** until #60, since ClassicAPI
-reports playback state but not a playhead. Real resume/seek remains
-unsupported (#59); Pause interrupts and Resume restarts the recording.
+**Progress display intentionally remains metadata-estimated** under #60:
+`SoundQueue:Share` and `VoiceElapsed` calculate the fraction to draw, but
+`C_Sound.IsPlaying` alone controls completion. The Large Window uses
+upstream Spoken's subtle dark-track/gold-fill hairline and a CastingBar
+spark (the 1.12-compatible fallback, not modern atlas textures). The
+**Show Progress Bar** setting defaults to ON; Voice Only has no meter.
+A valid estimate remains below 100% while the engine still reports
+playing, becomes complete when the voice actually ends, and stays
+empty without duration metadata. Pause freezes the estimate, Replay
+resets it. The vanilla transcript no longer disappears merely
+because a duration estimate expired.
+
+Real resume/seek remains unsupported (#59); Pause interrupts and
+Resume restarts the recording.
 The ClassicAPI handle API cannot unambiguously distinguish an old
 finished handle from a newly allocated sound using a reused native
 pointer; the grace/debounce and watchdog mitigate symptoms but in-game
@@ -111,6 +122,8 @@ Do not claim this compatibility is verified before in-game testing.
 - [ ] Repeat with ClassicAPI **and** released SuperWoW; record exact versions.
 - [x] Implement engine-driven completion, gap states and queue race guards (#57 / #58).
 - [x] Run deterministic mock engine and timer regressions in Lua 5.1.
+- [x] Restore upstream-style Large Window progress and optional Show Progress Bar toggle (#60).
+- [x] Test estimation, pause/replay, missing metadata, Voice Only and UI layout.
 - [ ] Verify real MP3 decode startup, sound handle reuse, and under-load concurrency on the game client.
 - [ ] Verify real Stories/Places/Writings interaction and UI timing (#60).
 
@@ -119,4 +132,5 @@ Run the mock regression from the repository root:
 ```sh
 lua5.1 tests/audio_soundutils.lua
 lua5.1 tests/audio_queue.lua
+lua5.1 tests/audio_progress_ui.lua
 ```
