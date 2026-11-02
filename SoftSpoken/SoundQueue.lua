@@ -25,8 +25,10 @@ setfenv(1, SpokenEnv)
 --    and never another source's. Narration that has fallen minutes behind is describing
 --    somewhere the player already left; a quest line behind it is not.
 --
--- Gap between clips is per source. Upstream's 0.55 s absorbs durations that are slightly
--- short; ZoneLore's are exact and it uses 0.25. Not worth unifying; the knob is one field.
+-- Inter-clip gaps now begin only AFTER ClassicAPI confirms native playback
+-- has ended. Each source retains its own gap (e.g. Places 0.25s), and the
+-- optional global LineGap separates different items rather than guessing
+-- audio completion from voice-pack metadata.
 
 ---@class SpokenClip
 ---@field key string          Caller-unique. The dedup key.
