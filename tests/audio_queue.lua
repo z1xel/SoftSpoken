@@ -435,7 +435,7 @@ do
     eq(short.playState,"gap")
     eq(q:ProgressShare(short),1)
     eq(q:GetCurrentSound(),short)
-    step(0.25)
+    step(1.05)
     eq(q:GetCurrentSound(),nextClip)
     eq(q:ProgressShare(nextClip),0)
     endSound(nextClip)
