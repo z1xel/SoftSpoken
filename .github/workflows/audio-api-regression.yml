@@ -12,6 +12,8 @@ on:
       - "tests/audio_progress_ui.lua"
       - "tests/audio_phase2_places.lua"
       - "tests/audio_phase2_writings.lua"
+      - "tests/audio_phase2_writings_queue.lua"
+      - "SoftSpoken_Writings/Playlist.lua"
       - "SoftSpoken_Writings/Audio.lua"
       - "SoftSpoken_Writings/Events.lua"
       - "SoftSpoken_Places/Autoplay.lua"
@@ -33,6 +35,8 @@ on:
       - "tests/audio_progress_ui.lua"
       - "tests/audio_phase2_places.lua"
       - "tests/audio_phase2_writings.lua"
+      - "tests/audio_phase2_writings_queue.lua"
+      - "SoftSpoken_Writings/Playlist.lua"
       - "SoftSpoken_Writings/Audio.lua"
       - "SoftSpoken_Writings/Events.lua"
       - "SoftSpoken_Places/Autoplay.lua"
@@ -68,3 +72,5 @@ jobs:
         run: lua5.1 tests/audio_phase2_places.lua
       - name: Run Writings page and interruption tests
         run: lua5.1 tests/audio_phase2_writings.lua
+      - name: Run real Writings playlist and engine queue integration tests
+        run: lua5.1 tests/audio_phase2_writings_queue.lua
