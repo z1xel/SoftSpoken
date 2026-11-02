@@ -86,7 +86,7 @@ eq(#calls,1)
 calls[1].startCallback(calls[1])
 eq(SSZCharacter.greeted,true)
 eq(SSZCharacter.heard[calls[1].key],true)
-local queued=R.RequestNarration("Elwynn Forest","Elwynn Forest",false,true,true,true)
+local queued=R.RequestNarration("Elwynn Forest","Northshire Valley",false,false,true,true)
 eq(queued,false) -- replay/duplicate initial greeting suppressed
 
 -- Re-entrance while combat is held must not affect other sources or manually
