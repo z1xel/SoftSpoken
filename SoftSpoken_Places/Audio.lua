@@ -248,7 +248,12 @@ local function RequestNarration(zoneName, areaLabel, immediate, isZone, quietMis
         pending[key] = clip
     end
     if not quietMissing then
-        Say((immediate and "Playing: " or "Queued: ") .. areaLabel)
+        -- PlayNow accepts manual requests behind existing narration; it does
+        -- not mean the new clip is audible yet. Never claim "Playing" for a
+        -- waiting/held selection.
+        local started = immediate and (clip.playState == "playing" or
+            clip.playState == "starting")
+        Say((started and "Playing: " or "Queued: ") .. areaLabel)
     end
     return true
 end
