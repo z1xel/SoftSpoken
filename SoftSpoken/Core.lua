@@ -288,6 +288,9 @@ end
 function Addon:Enable()
     if self.enabled then return end
     self:InitDB()
+    -- If the previous session crashed mid-duck, restore the saved player
+    -- baseline only when SoundVolume still matches our own last write.
+    if OtherSounds then OtherSounds:RestoreLeftovers() end
     self.enabled = true
     PlayerFrame:Initialize()
     Transcript:Initialize()
