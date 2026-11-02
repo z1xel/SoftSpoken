@@ -140,10 +140,18 @@ function Developer:Context()
         backend and ("unavailable: " .. backend) or "available"))
     table.insert(lines, format("narration category %s (new recordings only)",
         tostring(audio.NarrationChannel or "Master")))
-    table.insert(lines, format("sound categories: SFX %s/%s, Music %s/%s, Ambience %s/%s",
-        tostring(GetCVar("MasterSoundEffects")), tostring(GetCVar("Sound_SFXVolume")),
-        tostring(GetCVar("Sound_EnableMusic")), tostring(GetCVar("Sound_MusicVolume")),
-        tostring(GetCVar("Sound_EnableAmbience")), tostring(GetCVar("Sound_AmbienceVolume"))))
+    if Version.IsLegacyVanilla then
+        table.insert(lines, format("effects toggle %s, ducking %s, target %s, active %s",
+            tostring(GetCVar("MasterSoundEffects")),
+            tostring(audio.SFXDucking and audio.SFXDucking.Enabled or false),
+            tostring(audio.SFXDucking and audio.SFXDucking.Level or 0.6),
+            tostring(OtherSounds and OtherSounds.lowered or false)))
+    else
+        table.insert(lines, format("sound categories: SFX %s/%s, Music %s/%s, Ambience %s/%s",
+            tostring(GetCVar("Sound_EnableSFX")), tostring(GetCVar("Sound_SFXVolume")),
+            tostring(GetCVar("Sound_EnableMusic")), tostring(GetCVar("Sound_MusicVolume")),
+            tostring(GetCVar("Sound_EnableAmbience")), tostring(GetCVar("Sound_AmbienceVolume"))))
+    end
     for key, source in Sources:Iterate() do
         table.insert(lines, format("module %s (%s): %s", key, tostring(source.addon),
             Sources:IsTurnedOff(source) and "turned off" or "on"))
