@@ -611,6 +611,7 @@ function SoundQueue:PlaySound(clip)
     end
 
     clip.playState = "playing"
+    clip.playbackChannel = channel
     clip.pauseElapsed = nil
     clip.playbackStartedAt = GetTime()
     clip.endedAt = nil
