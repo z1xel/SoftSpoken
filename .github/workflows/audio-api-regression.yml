@@ -1,0 +1,32 @@
+name: Audio API transport regression
+
+on:
+  push:
+    branches:
+      - development/audio-api
+    paths:
+      - "SoftSpoken/SoundUtils.lua"
+      - "SoftSpoken/SoundQueue.lua"
+      - "tests/audio_soundutils.lua"
+      - ".github/workflows/audio-api-regression.yml"
+  pull_request:
+    paths:
+      - "SoftSpoken/SoundUtils.lua"
+      - "SoftSpoken/SoundQueue.lua"
+      - "tests/audio_soundutils.lua"
+      - ".github/workflows/audio-api-regression.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  sound-utils-lua51:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lua 5.1
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y lua5.1
+      - name: Run ClassicAPI mock playback tests
+        run: lua5.1 tests/audio_soundutils.lua
