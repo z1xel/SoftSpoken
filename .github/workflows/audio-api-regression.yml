@@ -15,6 +15,9 @@ on:
       - "tests/audio_phase2_writings_queue.lua"
       - "tests/audio_phase2_diagnostics.lua"
       - "tests/audio_phase2_routing.lua"
+      - "tests/audio_phase2_ducking.lua"
+      - "SoftSpoken/OtherSounds.lua"
+      - "SoftSpoken/addon.xml"
       - "SoftSpoken/Sources.lua"
       - "SoftSpoken/Core.lua"
       - "SoftSpoken/Developer.lua"
@@ -43,6 +46,9 @@ on:
       - "tests/audio_phase2_writings_queue.lua"
       - "tests/audio_phase2_diagnostics.lua"
       - "tests/audio_phase2_routing.lua"
+      - "tests/audio_phase2_ducking.lua"
+      - "SoftSpoken/OtherSounds.lua"
+      - "SoftSpoken/addon.xml"
       - "SoftSpoken/Sources.lua"
       - "SoftSpoken/Core.lua"
       - "SoftSpoken/Developer.lua"
@@ -88,3 +94,5 @@ jobs:
         run: lua5.1 tests/audio_phase2_diagnostics.lua
       - name: Run opt-in narration channel routing tests
         run: lua5.1 tests/audio_phase2_routing.lua
+      - name: Run Vanilla SFX ducking, baseline restoration and user-override tests
+        run: lua5.1 tests/audio_phase2_ducking.lua
