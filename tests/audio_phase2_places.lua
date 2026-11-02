@@ -169,4 +169,30 @@ do
     R.source.PlayNow=orig
 end
 
+-- #67: deterministic selection inside Places pack families and validation.
+-- Even if Lua iterates the numeric registry out of order, choose a stable
+-- addon name. A broken high-priority entry must yield to a valid fallback.
+do
+    local initial=SpokenPlacesAudioPacks
+    SpokenPlacesAudioPacks={
+        [99]={version=1,addon="ZuluPlace",zones={[1429]={file="Zulu",len=9}}},
+        [3]={version=1,addon="AlphaPlace",zones={[1429]={file="Alpha",len=0}}},
+    }
+    local c=R.MakeClip(1429,"Elwynn Forest","Elwynn Forest",true,false,false)
+    assert(string.find(c.path,"AlphaPlace",1,true))
+    eq(c.length,nil) -- unknown duration is not a missing recording
+
+    SpokenPlacesAudioPacks[3].zones[1429]={file="../outside",len=5}
+    c=R.MakeClip(1429,"Elwynn Forest","Elwynn Forest",true,false,false)
+    assert(string.find(c.path,"ZuluPlace",1,true))
+    SpokenPlacesAudioPacks[3].zones[1429]={file="C:\\windows",len=5}
+    c=R.MakeClip(1429,"Elwynn Forest","Elwynn Forest",true,false,false)
+    assert(string.find(c.path,"ZuluPlace",1,true))
+    SpokenPlacesAudioPacks[3].zones[1429]={file="Healthy",len="not-a-number"}
+    c=R.MakeClip(1429,"Elwynn Forest","Elwynn Forest",true,false,false)
+    assert(string.find(c.path,"AlphaPlace",1,true))
+    eq(c.length,nil)
+    SpokenPlacesAudioPacks=initial
+end
+
 print("audio_phase2_places.lua: combat migration, distinct gates and starting grace passed")
