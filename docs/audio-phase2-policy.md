@@ -104,10 +104,28 @@ source's explicit channel callback still takes priority.
 We are **not** adding a fake independent narration-volume slider:
 individual MP3 gain is unsupported, and the selected game category's
 effects on actual audio volume still require real-client verification.
-The legacy client does not have a separate Dialog channel. The old
-global-`MasterSoundEffects` reset has been removed (#56).
-An NPC may still speak over SoftSpoken narration; safe ducking requires
-native support and real-client verification before implementing #63.
+
+**Opt-in Vanilla effects ducking (unverified in-game):** 1.12 uses
+`SoundVolume` rather than the later `Sound_SFXVolume` CVar.
+The new **Lower Sound Effects While Narrating** switch defaults OFF.
+When enabled with narration on Master/Music/Ambience, SoftSpoken
+temporarily fades `SoundVolume` to a fraction of the player's
+original level (initial slider 60%), stays low across brief queue
+gaps, then fades back to that baseline on silence. If narration
+actually plays on SFX, ducking is disabled for that voice.
+
+Only `SoundVolume` is written: not `MasterVolume`, not
+`MasterSoundEffects`, and not the music or ambience sliders. The
+baseline is saved before any change, restored on logout, and restored
+after a crash/reload **only when the present level still matches the
+last value SoftSpoken wrote**. Manual sound-slider edits mid-voice
+take priority, preventing automatic restoration to a stale setting.
+The feature needs game-client verification before being made default.
+
+The legacy client has no separate Dialog category. Effects ducking
+also makes combat sounds and UI effects quieter, not exclusively NPC
+voices. Independent NPC-only ducking still requires native research
+under #63; the dangerous global-SFX mute reset remains removed.
 
 **Still requires an actual game-client test matrix:** categories versus
 individual game volume toggles; native bus capacity with default NPC
