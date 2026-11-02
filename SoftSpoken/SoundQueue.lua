@@ -62,6 +62,7 @@ local MAX_PLAY_SECONDS = 3600   -- emergency watchdog only; not metadata-driven
 local gates = {}
 local retryTicker = nil
 local mutationDepth, advanceActive, advanceRequested = 0, false, false
+local clearingAll, removingSources = false, {}
 
 local function IsSpeaking(clip)
     return clip and (clip.playState == "starting" or clip.playState == "playing")
@@ -254,8 +255,12 @@ local function StopKeeping(head)
     SoundUtils:StopSound(head)
     BeginMutation()
     if head.stopCallback then head.stopCallback(head, false) end
-    Callbacks:Fire("CLIP_STOPPED", head, false)
-    if head.playState == "interrupted" then head.playState = "held" end
+    -- A callback can remove its interrupted clip. In that case removal
+    -- already sent CLIP_STOPPED; do not send a second terminal event.
+    if head.playState == "interrupted" then
+        head.playState = "held"
+        Callbacks:Fire("CLIP_STOPPED", head, false)
+    end
     EndMutation()
     return true
 end
@@ -364,6 +369,8 @@ end
 --- Everything, every source, and the paused flag with it: Stop means silence, not
 --- "carry on once the pull ends".
 function SoundQueue:RemoveAllSoundsFromQueue()
+    if clearingAll then return end
+    clearingAll = true
     BeginMutation()
     for i = self:GetQueueSize(), 1, -1 do
         local clip = self.sounds[i]
@@ -376,11 +383,14 @@ function SoundQueue:RemoveAllSoundsFromQueue()
     end
     StopRetryTicker()
     self:SetPaused(false)
+    clearingAll = false
     EndMutation()
 end
 
 --- Only this source's clips; the others keep their place.
 function SoundQueue:RemoveSource(source)
+    if removingSources[source] then return end
+    removingSources[source] = true
     BeginMutation()
     for i = self:GetQueueSize(), 1, -1 do
         local clip = self.sounds[i]
@@ -388,6 +398,7 @@ function SoundQueue:RemoveSource(source)
             self:RemoveSoundFromQueue(clip)
         end
     end
+    removingSources[source] = nil
     EndMutation()
 end
 
@@ -738,6 +749,11 @@ end
 function SoundQueue:Add(clip, source, front)
     if not clip then
         return nil, "no clip"
+    end
+    -- Stop All / Stop Source is a drain operation, even when a stop callback
+    -- attempts to queue another page while its old clip is being removed.
+    if clearingAll or removingSources[source] then
+        return nil, "stopped"
     end
     if Sources:IsTurnedOff(source) then
         return nil, L.PART_TURNED_OFF
