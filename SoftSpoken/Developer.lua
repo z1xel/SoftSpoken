@@ -120,10 +120,17 @@ function Developer:Context()
     local audio = profile and profile.Audio or {}
     table.insert(lines, format("narrator style %s, window %s", tostring(Addon:PlayerStyle()),
         PlayerFrame.frame and (PlayerFrame.frame:IsShown() and "shown" or "hidden") or "not built"))
-    table.insert(lines, format("line gap %s s, master %s/%s, dialog %s/%s",
-        tostring(audio.LineGap),
-        tostring(GetCVar("Sound_EnableAllSound")), tostring(GetCVar("Sound_MasterVolume")),
-        tostring(GetCVar("Sound_EnableDialog")), tostring(GetCVar("Sound_DialogVolume"))))
+    if Version.IsLegacyVanilla then
+        table.insert(lines, format("line gap %s s, Vanilla master %s, effects %s, music %s, ambience %s",
+            tostring(audio.LineGap), tostring(GetCVar("MasterVolume")),
+            tostring(GetCVar("SoundVolume")), tostring(GetCVar("MusicVolume")),
+            tostring(GetCVar("AmbienceVolume"))))
+    else
+        table.insert(lines, format("line gap %s s, master %s/%s, dialog %s/%s",
+            tostring(audio.LineGap), tostring(GetCVar("Sound_EnableAllSound")),
+            tostring(GetCVar("Sound_MasterVolume")),
+            tostring(GetCVar("Sound_EnableDialog")), tostring(GetCVar("Sound_DialogVolume"))))
+    end
     -- Read-only engine report: no fake independent volume control and no
     -- global CVars are changed to collect these details. 'handle present'
     -- deliberately avoids exposing a native address/pointer.
