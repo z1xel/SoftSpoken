@@ -140,6 +140,21 @@ function Developer:Context()
         backend and ("unavailable: " .. backend) or "available"))
     table.insert(lines, format("narration category %s (new recordings only)",
         tostring(audio.NarrationChannel or "Master")))
+    -- SuperWoW documents UncapSounds / BackgroundSound; neither is a
+    -- per-file MP3 resume API. Read only, never change a user's settings.
+    local swVersion = SUPERWOW_VERSION
+    table.insert(lines, format("SuperWoW version %s",
+        swVersion == nil and "not reported" or tostring(swVersion)))
+    local function AudioCVar(name)
+        local ok, value = pcall(GetCVar, name)
+        if ok and value ~= nil and tostring(value) ~= "" then
+            return tostring(value)
+        end
+        return "unavailable"
+    end
+    table.insert(lines, format("sound capacity UncapSounds %s, software channels %s, hardware channels %s, background %s",
+        AudioCVar("UncapSounds"), AudioCVar("SoundSoftwareChannels"),
+        AudioCVar("SoundMaxHardwareChannels"), AudioCVar("BackgroundSound")))
     if Version.IsLegacyVanilla then
         local mix = audio.LowerOthers or {}
         table.insert(lines, format("effects toggle %s, other-sounds ducking %s, targets Music %s Ambience %s SFX %s, active %s, voice bus %s",
