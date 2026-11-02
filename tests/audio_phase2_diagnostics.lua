@@ -25,7 +25,7 @@ SpokenEnv=setmetatable({
     Version={IsLegacyVanilla=true},
     OtherSounds={lowered=false},
     Addon={
-        db={profile={Audio={LineGap=0.2,SFXDucking={Enabled=false,Level=0.6}}}},
+        db={profile={Audio={LineGap=0.2,LowerOthers={Enabled=true,Music=0.3,Ambience=0.4,SFX=0.6}}}},
         PlayerStyle=function() return "classic" end,
     },
     PlayerFrame={frame={IsShown=function() return true end}},
@@ -60,7 +60,7 @@ assert(combined:find("narration category Master (new recordings only)",1,true))
 assert(combined:find("state playing, channel Master",1,true))
 assert(combined:find("handle present, native playing, estimate 12.5, errors 1",1,true))
 assert(combined:find("Vanilla master 0.6, effects 0.8, music 0.4, ambience 0.7",1,true))
-assert(combined:find("effects toggle 1, ducking false, target 0.6, active false",1,true))
+assert(combined:find("effects toggle 1, other-sounds ducking true, targets Music 0.3 Ambience 0.4 SFX 0.6, active false",1,true))
 assert(not combined:find("65536",1,true),"native handle leaked")
 assert(not combined:find("PRIVATE TEXT",1,true),"transcript leaked")
 assert(not combined:find("Private",1,true),"file path leaked")
