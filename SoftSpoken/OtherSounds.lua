@@ -7,6 +7,7 @@ setfenv(1, SpokenEnv)
 OtherSounds = {
     original = nil, applied = nil, lowered = false, restoring = false,
     voiceChannel = nil, fadeTimer = nil, settleTimer = nil, writing = false,
+    manualOverrideClip = nil,
 }
 
 local CVAR = "SoundVolume"
@@ -60,6 +61,9 @@ function OtherSounds:ReleaseIfChanged()
     if self.original == nil or self.applied == nil then return false end
     local current = Read()
     if current == nil or math.abs(current - self.applied) > EPSILON then
+        -- Never immediately reapply ducking to the same clip if the player
+        -- just changed the game's Sound Effects slider.
+        self.manualOverrideClip = SoundQueue and SoundQueue:GetCurrentSound() or nil
         self:Cancel("fadeTimer")
         self:Cancel("settleTimer")
         self.original, self.applied = nil, nil
@@ -160,6 +164,8 @@ function OtherSounds:Sync()
         return
     end
     local clip = SoundQueue:GetCurrentSound()
+    if self.manualOverrideClip and self.manualOverrideClip == clip then return end
+    if self.manualOverrideClip ~= clip then self.manualOverrideClip = nil end
     local speaking = clip and SoundQueue:IsPlaying(clip) and not clip.textOnly
     if speaking then
         -- Source channel can change while an MP3 is already speaking.
