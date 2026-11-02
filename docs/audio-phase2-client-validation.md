@@ -176,9 +176,67 @@ verify the 1.12 audio mixer, MP3 file bus, speaker device, or SuperWoW.
       Note extreme loudness jumps; offline normalization is NOT yet
       implemented and no unsafe independent MP3 volume slider is exposed.
 
+## G. Voice-pack selection and actual files (#67)
+
+The Lua unit tests check deterministic metadata order, not whether
+every referenced MP3 exists in the player's installed pack directories.
+
+- [ ] **G1 — Stories priority:** With overlapping packs installed,
+      confirm a clip covered by Spoken Quests uses Spoken ahead of
+      SSS_VOFallback and AI_VoiceOverData_Turtle, irrespective of TOC
+      priority and addon load order.
+- [ ] **G2 — Fallback gaps:** Find a quest/gossip line not covered by
+      Spoken but present in Combined or Turtle. Confirm the fallback
+      plays and the queue advances correctly.
+- [ ] **G3 — Physical missing MP3:** On a disposable copy of the
+      installation, remove an MP3 indexed by a high-priority pack.
+      Report whether the start fails and how the queue recovers; a
+      missing *physical* file does not currently guarantee a retry
+      through lower-priority packs. Restore the file after testing.
+- [ ] **G4 — Places collisions:** For duplicate zone/subzone entries
+      in compatible Places packs, verify deterministic choice;
+      a malformed entry should yield rather than fabricate audio.
+- [ ] **G5 — Writings partial pack:** Test a multi-page book with some
+      pages absent from the preferred-language pack. Each page should
+      use an available recorded fallback independently, once/in order.
+- [ ] **G6 — Installed index audit:** Run the [offline audit script]
+      (../scripts/audio_pack_audit.py) with a small --limit sample;
+      compare returned filenames with voice packs' audio indexes.
+      Report missing/bad files without changing original recordings.
+
+## H. Released native extensions and sound contention (#69 / #72 / #63 / #59)
+
+- [ ] **H1 — Extensions:** Record exact `CLASSIC_API_VERSION` and
+      `SUPERWOW_VERSION` if installed, plus read-only diagnostic
+      values for `UncapSounds`, `BackgroundSound`,
+      `SoundSoftwareChannels`, `SoundMaxHardwareChannels`.
+- [ ] **H2 — ClassicAPI-only A/B:** Start a long narration, trigger
+      normal NPC greeting/combat/UI sounds and a second external MP3
+      (if available). Record failed sound starts and queue recovery.
+- [ ] **H3 — SuperWoW 2.2 A/B:** Repeat H2 and F7 with released
+      SuperWoW enabled, keeping existing sound settings at first.
+      Optionally change `UncapSounds` and channel limits manually,
+      then restore. Do not assume this lifts ClassicAPI's 2-file bus cap.
+- [ ] **H4 — NPC voice source identification:** If NPC barks remain
+      disruptive, check `C_Sound.GetRecentSoundFiles()` around a
+      known NPC interaction to identify exact file paths. Do not mute
+      unknown paths automatically. Report the path and event timing.
+- [ ] **H5 — Real pause semantics:** On a long book, Stop/Replay
+      currently restarts from the beginning. Confirm that the UI
+      does not promise true seek/pause-resume (unsupported by current DLLs).
+
+## I. Loudness sample for #70
+
+- [ ] **I1 — Real audio pack measurements:** Run
+      `python scripts/audio_pack_audit.py "C:\\TurtleWoW\\Interface\\AddOns" --loudness --limit 100 --csv loudness.csv`
+      with FFmpeg installed, choosing comparable clips across
+      Spoken / Combined / Turtle / Places / Writings. Compare LUFS
+      and true peaks; listen before changing any audio. This tool
+      never writes to the source MP3s.
+
 ## What to send back after testing
 
-A short **PASS / FAIL / NOT TESTED** for each ID (A1–F9), plus the
+A short **PASS / FAIL / NOT TESTED** for each ID (A1–I1), plus the
 recording/module and reproduction steps for any failure. If something
 fails, record ClassicAPI and SuperWoW versions, narrator style, whether
 the recording was manual/automatic, and the diagnostics if available.
