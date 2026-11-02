@@ -6,6 +6,7 @@ SSBSettings={autoplay=true,readOnce=false,stopOnClose=true,closeWhenRead=true,
     bookAsOneLine=false}
 CloseItemText=function() closeCount=closeCount+1 end
 SSB={
+    source={}, -- registered by SetupSource during PLAYER_ENTERING_WORLD in game
     L={READABLE_BOOK="Book"},
     BASE_LANGUAGE="enUS",
     lastPage=nil,
