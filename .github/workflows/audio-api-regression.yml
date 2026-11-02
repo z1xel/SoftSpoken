@@ -8,12 +8,14 @@ on:
       - "SoftSpoken/SoundUtils.lua"
       - "SoftSpoken/SoundQueue.lua"
       - "tests/audio_soundutils.lua"
+      - "tests/audio_queue.lua"
       - ".github/workflows/audio-api-regression.yml"
   pull_request:
     paths:
       - "SoftSpoken/SoundUtils.lua"
       - "SoftSpoken/SoundQueue.lua"
       - "tests/audio_soundutils.lua"
+      - "tests/audio_queue.lua"
       - ".github/workflows/audio-api-regression.yml"
 
 permissions:
@@ -30,3 +32,5 @@ jobs:
           sudo apt-get install -y lua5.1
       - name: Run ClassicAPI mock playback tests
         run: lua5.1 tests/audio_soundutils.lua
+      - name: Run engine-driven queue and lifecycle tests
+        run: lua5.1 tests/audio_queue.lua
