@@ -290,20 +290,27 @@ end
 -- It is not stopped -- there was nothing to stop -- and its stopCallback still fires so a
 -- caller that set one up on admission gets to tear it down.
 local function Discard(clip, reason)
+    local removed = false
     for index, queued in ipairs(SoundQueue.sounds) do
         if queued == clip then
             table.remove(SoundQueue.sounds, index)
+            removed = true
             break
         end
     end
-    if clip.stopCallback then
-        clip.stopCallback(clip, false)
-    end
+    if not removed then return false end -- a prior poll or callback already discarded it
+    BeginMutation()
+    InvalidatePlayback(clip)
+    clip.playState = (reason == "missing" or reason == "playback-error"
+        or reason == "playback-timeout") and "failed" or "removed"
+    SoundUtils:ReleaseSound(clip)
+    if clip.stopCallback then clip.stopCallback(clip, false) end
     Callbacks:Fire("CLIP_DROPPED", clip, reason)
-    if clip.source then
-        LeftFor(clip.source)
-    end
+    if clip.source then LeftFor(clip.source) end
     AfterRemoval()
+    advanceRequested = true
+    EndMutation()
+    return true
 end
 
 -- The last line, skipped or taken away mid-word, fades out as Stop does rather than cutting
@@ -313,13 +320,10 @@ local REMOVE_FADE_MS = 400
 ---@param clip SpokenClip
 ---@param finishedPlaying? boolean
 function SoundQueue:RemoveSoundFromQueue(clip, finishedPlaying)
-    if not clip then
-        return false
-    end
-
-    local removedIndex = nil
+    if not clip then return false end
+    local removedIndex
     for index, queued in ipairs(self.sounds) do
-        if queued.id == clip.id then
+        if queued == clip then
             if index == 1 and not self:CanBePaused() and not finishedPlaying then
                 return false
             end
@@ -328,42 +332,39 @@ function SoundQueue:RemoveSoundFromQueue(clip, finishedPlaying)
             break
         end
     end
-    if not removedIndex then
-        return false
-    end
+    if not removedIndex then return false end
 
-    local wasSpeaking = clip.nextSoundTimer ~= nil
+    BeginMutation()
+    local hadAudio = IsBusy(clip)
+    InvalidatePlayback(clip) -- invalidate active poll and delayed gap callbacks first
     if removedIndex == 1 then
-        if not finishedPlaying then
-            SoundUtils:StopSound(clip, not self.sounds[1] and REMOVE_FADE_MS or nil)
-        else
+        if finishedPlaying then
             SoundUtils:ReleaseSound(clip)
+        else
+            SoundUtils:StopSound(clip, not self.sounds[1] and REMOVE_FADE_MS or nil)
         end
-        if clip.nextSoundTimer then
-            Addon:CancelTimer(clip.nextSoundTimer)
-            clip.nextSoundTimer = nil
-        end
+    else
+        SoundUtils:ReleaseSound(clip)
     end
+    clip.playState = finishedPlaying and "finished" or "removed"
 
-    if clip.stopCallback then
-        clip.stopCallback(clip, finishedPlaying and true or false)
-    end
+    -- The clip is already out of the queue before notifying anybody. Writings'
+    -- continuation callback may enqueue another page; it cannot advance until
+    -- all callbacks for this removal have finished.
+    if clip.stopCallback then clip.stopCallback(clip, finishedPlaying and true or false) end
     Callbacks:Fire("CLIP_STOPPED", clip, finishedPlaying and true or false)
-    if clip.source then
-        LeftFor(clip.source)
-    end
-
-    if removedIndex == 1 or wasSpeaking then
-        self:Advance()
-    end
+    if clip.source then LeftFor(clip.source) end
     AfterRemoval()
     Callbacks:Fire("AUDIO_CHANGED")
+    if removedIndex == 1 or hadAudio then advanceRequested = true end
+    EndMutation()
     return true
 end
 
 --- Everything, every source, and the paused flag with it: Stop means silence, not
 --- "carry on once the pull ends".
 function SoundQueue:RemoveAllSoundsFromQueue()
+    BeginMutation()
     for i = self:GetQueueSize(), 1, -1 do
         local clip = self.sounds[i]
         if clip then
@@ -375,16 +376,19 @@ function SoundQueue:RemoveAllSoundsFromQueue()
     end
     StopRetryTicker()
     self:SetPaused(false)
+    EndMutation()
 end
 
 --- Only this source's clips; the others keep their place.
 function SoundQueue:RemoveSource(source)
+    BeginMutation()
     for i = self:GetQueueSize(), 1, -1 do
         local clip = self.sounds[i]
         if clip and clip.source == source then
             self:RemoveSoundFromQueue(clip)
         end
     end
+    EndMutation()
 end
 
 --- End the head and let the backlog run. A stopped queue plays again: skipping is asking for
