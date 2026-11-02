@@ -56,10 +56,11 @@ function SoundUtils:TestSound(clip, channel)
 end
 
 function SoundUtils:PlaySound(clip, channel)
+    -- A second start on the same clip must not overwrite a live owned handle.
+    if ownedHandles[clip] then return false, nil end
     clip.handle = nil
     if self:BackendError() then return false, nil end
     if type(clip.path) ~= "string" or clip.path == "" then return false, nil end
-    if ownedHandles[clip] then return false, nil end
 
     -- ClassicAPI returns *two* values. Do not interpret Vanilla's one-value
     -- success as a handle and never invent a placeholder handle.
