@@ -114,6 +114,9 @@ Defaults = {
     char = {
         IsPaused = false,
     },
+    -- The native SoundVolume baseline must survive crashes/reloads until
+    -- checked; never store it in the active audio profile.
+    global = {},
 }
 
 --- Idempotent, so the test harness and ADDON_LOADED can both call it.
