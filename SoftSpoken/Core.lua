@@ -51,10 +51,9 @@ Defaults = {
             -- ClassicAPI supports category routing, not a per-MP3 volume setter.
             -- Preserve existing Master behavior unless a player explicitly opts in.
             NarrationChannel = "Master",
-            -- Opt-in Vanilla 1.12 mixer: 60% of the player's EFFECTS
-            -- baseline while a Master/Music/Ambience narration speaks.
-            -- The original slider is restored afterwards. Never mute SFX.
-            SFXDucking = { Enabled = false, Level = 0.6 },
+            -- Upstream Spoken's Turn Other Sounds Down defaults. Original
+            -- 1.12 exposes Music/Ambience/SFX volumes, no separate Dialog.
+            LowerOthers = { Enabled = true, Music = 0.3, Ambience = 0.4, SFX = 0.6 },
             -- Seconds of quiet between one line and the next, on top of each module's own short
             -- gap: back to back, a new line started before the last had settled.
             LineGap = 1,
@@ -127,6 +126,18 @@ function Addon:InitDB()
     self.db = LibStub("AceDB-3.0"):New("SpokenSettings", Defaults)
     -- A saved AutoScroll = false predates ScrollMode: carry it over as "off", in every profile.
     for _, profile in pairs(self.db.sv and self.db.sv.profiles or {}) do
+        -- Migrate our early one-channel prototype to upstream's full mixer
+        -- without losing a saved on/off choice or previously selected SFX level.
+        local audio = type(profile) == "table" and profile.Audio
+        if type(audio) == "table" and audio.LowerOthers == nil
+            and type(audio.SFXDucking) == "table" then
+            audio.LowerOthers = {
+                Enabled = audio.SFXDucking.Enabled ~= false,
+                Music = 0.3, Ambience = 0.4,
+                SFX = tonumber(audio.SFXDucking.Level) or 0.6,
+            }
+            audio.SFXDucking = nil
+        end
         local transcript = type(profile) == "table" and profile.Transcript
         if type(transcript) == "table" and transcript.AutoScroll ~= nil then
             if transcript.AutoScroll == false and (transcript.ScrollMode or "line") == "line" then
@@ -291,8 +302,8 @@ end
 function Addon:Enable()
     if self.enabled then return end
     self:InitDB()
-    -- If the previous session crashed mid-duck, restore the saved player
-    -- baseline only when SoundVolume still matches our own last write.
+    -- If the previous session crashed mid-duck, restore each saved
+    -- baseline only when that category still matches our last write.
     if OtherSounds then OtherSounds:RestoreLeftovers() end
     self.enabled = true
     PlayerFrame:Initialize()
