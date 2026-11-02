@@ -116,8 +116,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p test_audio_pack_audit.py -v
       - name: Measure bundled MP3 sample read-only (not pack-wide normalization)
         run: |
-          if command -v ffmpeg >/dev/null && command -v ffprobe >/dev/null; then
-            python3 scripts/audio_pack_audit.py SoftSpoken_Stories/Sounds --loudness --limit 1
-          else
-            echo "FFmpeg not installed on runner; skip one-file measurement"
+          if ! command -v ffmpeg >/dev/null || ! command -v ffprobe >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y ffmpeg
           fi
+          python3 scripts/audio_pack_audit.py SoftSpoken_Stories/Sounds --loudness --limit 1
