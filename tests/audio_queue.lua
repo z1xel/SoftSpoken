@@ -150,6 +150,50 @@ do
     eq(q:GetQueueSize(),0)
 end
 
+-- Missing physical MP3 falls back within the original queue entry. The
+-- original high-priority index can lie; the next voice pack must start
+-- without producing a dropped callback or duplicating the line.
+do
+    local q = reset()
+    local A = source("stories")
+    failedStarts["spoken.mp3"] = true
+    failedStarts["combined.mp3"] = true
+    local c = clip("spoken.mp3", 10)
+    c.fallbacks = {
+        {path="combined.mp3", filePath="combined.mp3", fileName="accept", length=11, language="enUS"},
+        {path="turtle.mp3", filePath="turtle.mp3", fileName="accept", length=12, language="enUS"},
+    }
+    q:Add(c, A)
+    eq(started["spoken.mp3"],1)
+    eq(started["combined.mp3"],1)
+    eq(started["turtle.mp3"],1)
+    eq(c.path,"turtle.mp3")
+    eq(c.length,12)
+    eq(c.fallbackIndex,2)
+    eq(q:GetClipState(c),"playing")
+    eq(countEvent("CLIP_STARTED",c),1)
+    eq(countEvent("CLIP_DROPPED",c),0)
+    endSound(c)
+    eq(q:IsEmpty(),true)
+    eq(countEvent("CLIP_STOPPED",c),1)
+end
+
+-- A fully missing set still fails exactly once, releases the queue and
+-- allows the next clip to play. No infinite fallback retry loop.
+do
+    local q = reset()
+    local A = source("stories")
+    failedStarts["first-missing.mp3"] = true
+    failedStarts["second-missing.mp3"] = true
+    local c = clip("first-missing.mp3", nil)
+    c.fallbacks = {{path="second-missing.mp3", filePath="second-missing.mp3"}}
+    q:Add(c,A)
+    eq(started["second-missing.mp3"],1)
+    eq(q:IsEmpty(),true)
+    eq(countEvent("CLIP_DROPPED",c),1)
+    eq(c.playState,"failed")
+end
+
 -- Stop/Skip while a previously scheduled poll is ready: a stale poll cannot
 -- finish, stop, or advance the replacement. Neither source can stop another.
 do
