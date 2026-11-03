@@ -64,18 +64,28 @@ low-priority eviction, and Stop All cannot accidentally start a new clip
 halfway through an earlier clip's terminal events. Stop All/Stop Source
 also reject same-scope requeues from stop callbacks.
 
-**Progress display intentionally remains metadata-estimated** under #60:
-`SoundQueue:Share` and `VoiceElapsed` calculate the fraction to draw, but
-`C_Sound.IsPlaying` alone controls completion. The Large Window uses
-upstream Spoken's subtle dark-track/gold-fill hairline and a CastingBar
-spark (the 1.12-compatible fallback, not modern atlas textures). The
-**Show Progress Bar** setting defaults to ON; Voice Only has no meter.
-A valid estimate remains below 100% while the engine still reports
-playing, becomes complete when the voice actually ends, and stays
-empty without duration metadata. Pause freezes the estimate, Replay
-resets it. The vanilla transcript no longer disappears merely
-because a duration estimate expired.
+**Progress display remains metadata-estimated**, but its rendering now uses
+ClassicAPI's **native duration-driven StatusBar** (v1.19.0 or newer):
+`C_DurationUtil.CreateDuration()`, `duration:SetTimeFromStart()`, and
+`bar:SetTimerDuration(..., Immediate, ElapsedTime)`. The track, gold hairline,
+and 1.12 CastingBar spark preserve the existing Large Window appearance.
+There is no per-frame Lua width update. The native status-bar fill geometry
+also lets the spark stay attached to its edge (v1.19.1+ fixes that geometry).
 
+The audio backend still supports ClassicAPI v1.18.14+. On older releases
+without the duration API, the StatusBar displays the most recently provided
+static estimate rather than attempting to bind an unavailable native timer.
+**v1.19.1+ is recommended for the animated progress indicator**; this does not
+change the minimum requirement of the audio transport.
+
+`SoundQueue:Share` and `VoiceElapsed` still supply the duration estimate;
+`C_Sound.IsPlaying` alone controls completion. A one-shot guard switches the
+native bar to a static 98.5% cap near the metadata end while audio continues,
+and a progress-only queue notification displays the final share on entry into
+the post-voice gap. Missing duration metadata leaves an empty track. Pause
+freezes the share, Replay binds a fresh duration, and book-page spans start
+at their existing aggregate offset. Voice Only hides the bar. The transcript
+continues to remain visible until native playback actually ends.
 Real resume/seek remains unsupported (#59); Pause interrupts and
 Resume restarts the recording.
 The ClassicAPI handle API cannot unambiguously distinguish an old
