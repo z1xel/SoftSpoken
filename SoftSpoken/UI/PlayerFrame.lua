@@ -65,6 +65,7 @@ function PlayerFrame:Initialize()
     Actions:Build(self.frame)
     self:RefreshConfig()
     Callbacks:Register("AUDIO_CHANGED", function() PlayerFrame:Update() end)
+    Callbacks:Register("PROGRESS_STATE_CHANGED", function() PlayerFrame:UpdateProgress() end)
 end
 
 function PlayerFrame:InitDisplay()
