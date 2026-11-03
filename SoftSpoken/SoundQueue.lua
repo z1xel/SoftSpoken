@@ -620,6 +620,9 @@ function SoundQueue:PlaySound(clip)
                 clip.length = alternative.length
                 clip.module = alternative.module
                 clip.language = alternative.language
+                -- Translated book pages can carry different transcript/title
+                -- text in the fallback pack. Keep UI text aligned with voice.
+                if alternative.present then clip.present = alternative.present end
                 willPlay = SoundUtils:PlaySound(clip, channel)
             end
         end
