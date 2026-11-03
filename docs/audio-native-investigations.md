@@ -94,6 +94,8 @@ SoftSpoken's own MP3s.
 
 ## #59 — Real MP3 pause / resume / seek: feasibility
 
+**Decision (2026-11-02): not planned.** Exact seek/resume will not be implemented; replay from the beginning remains the intended behavior. See [#59](https://github.com/z1xel/SoftSpoken/issues/59).
+
 **Verdict for released ClassicAPI v1.19.0 and SuperWoW 2.2: not
 available through their public Lua APIs.** The supported per-file
 operations are `PlaySoundFile`, `StopSound`,
