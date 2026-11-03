@@ -250,6 +250,7 @@ function P:RefreshPendingPortraits()
             if checks>60 then
                 -- Stop after about 15 seconds; a missing WDB/server record
                 -- should not be queried forever. Reopening retries the lookup.
+                requestedCreatureInfo[npcID]=nil
                 holder.pendingCreatureID=nil
                 holder.pendingChecks=nil
             else
