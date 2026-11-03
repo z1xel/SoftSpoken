@@ -191,8 +191,10 @@ every referenced MP3 exists in the player's installed pack directories.
 - [ ] **G3 — Physical missing MP3:** On a disposable copy of the
       installation, remove an MP3 indexed by a high-priority pack.
       Verify that a native rejected start retries lower-priority indexed
-      Stories/Followup recordings in language/pack precedence without
-      duplicate lines, and that exhausting alternatives fails cleanly.
+      Stories, Places and Writings recordings in their established
+      language/pack precedence without duplicate lines. For Writings,
+      verify the fallback transcript follows the recorded language,
+      and that exhausting alternatives fails cleanly.
       A rejection may also mean bus saturation rather than a missing file.
       Restore the file after testing.
 - [ ] **G4 — Places collisions:** For duplicate zone/subzone entries
