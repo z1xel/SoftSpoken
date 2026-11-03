@@ -155,6 +155,9 @@ end
 -- The same player-faction crest is also the Stories player portrait fallback.
 -- One resolver owns these textures and their Turtle 1.12 race fallback.
 local FactionCrest=SSCQuestFactionCrest
+-- Creature appearance records can be loaded asynchronously by ClassicAPI.
+-- Keep this independent of Spoken narration and request each missing ID once.
+local requestedCreatureInfo={}
 local function Portrait(parent)
     local holder=CreateFrame("Frame",nil,parent)
     holder:SetWidth(62);holder:SetHeight(62)
@@ -191,6 +194,8 @@ local function PaintCrest(holder)
     holder.icon:SetTexture(texture)
     holder.affiliationLabel=label
     holder.creatureID=nil
+    holder.pendingCreatureID=nil
+    holder.pendingChecks=nil
 end
 -- Experimental, visual-only enhancement. No model frame enters the scroll
 -- child, and no quest/gameplay information is added. The faction crest stays
@@ -203,15 +208,61 @@ local function PaintCreaturePortrait(holder,kind,npc,speaker)
     if not (e and e.IsCreature and kind and e:IsCreature(kind)) then return end
     npc=Number(npc)
     if not npc then return end
-    local info=C_CreatureInfo and API(C_CreatureInfo.GetCreatureInfoByID,npc)
+    local creatureInfo=C_CreatureInfo
+    local info=creatureInfo and API(creatureInfo.GetCreatureInfoByID,npc)
     local displayID=type(info)=="table" and Number(info.displayID) or nil
-    if not displayID then return end
+    if not displayID then
+        -- Narration already requests this missing record. Compendium browsing
+        -- must do the same without requiring the player to play a clip.
+        if holder.pendingCreatureID~=npc then
+            holder.pendingCreatureID=npc
+            holder.pendingChecks=0
+        end
+        if creatureInfo and type(creatureInfo.RequestLoadCreatureByID)=="function" and
+           not requestedCreatureInfo[npc] then
+            requestedCreatureInfo[npc]=true
+            local ok,accepted=pcall(creatureInfo.RequestLoadCreatureByID,npc)
+            if not ok or accepted==false then requestedCreatureInfo[npc]=nil end
+        end
+        return
+    end
+    holder.pendingCreatureID=nil
+    holder.pendingChecks=nil
     -- The ClassicAPI worker rejects stale requests when the page changes;
     -- failures leave the crest untouched.
     local ok,accepted=pcall(render,holder.icon,displayID)
     if ok and accepted~=false then
         holder.creatureID=npc
         holder.affiliationLabel=speaker or "Creature portrait"
+    end
+end
+-- Poll only pending appearances, on the page's existing 0.25s update timer.
+-- This works whether the creature-load event is synchronous or asynchronous,
+-- and doesn't introduce another event listener or a model into the scroll child.
+function P:RefreshPendingPortraits()
+    if not self.active or not self.id then return end
+    for _,stage in ipairs(MOMENTS) do
+        local part=self.parts[stage]
+        local holder=part and part.face
+        if part and part:IsShown() and holder and holder.pendingCreatureID then
+            local npcID=holder.pendingCreatureID
+            local checks=(holder.pendingChecks or 0)+1
+            if checks>60 then
+                -- Stop after about 15 seconds; a missing WDB/server record
+                -- should not be queried forever. Reopening retries the lookup.
+                holder.pendingCreatureID=nil
+                holder.pendingChecks=nil
+            else
+                holder.pendingChecks=checks
+                local speaker,kind,npc=SpeakerLabel(self.id,stage)
+                if Number(npc)==npcID then
+                    PaintCreaturePortrait(holder,kind,npc,speaker)
+                else
+                    holder.pendingCreatureID=nil
+                    holder.pendingChecks=nil
+                end
+            end
+        end
     end
 end
 local function NewPart(parent,stage)
@@ -299,6 +350,7 @@ function P.Create(page)
         if self.elapsed>=.25 then
             self.elapsed=0
             self:RefreshButtons()
+            self:RefreshPendingPortraits()
         end
     end)
     for _,f in pairs(self.parts) do f:Hide() end
