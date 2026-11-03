@@ -199,7 +199,8 @@ local function Portrait(parent,stage)
     local badge=chrome:CreateTexture(nil,"OVERLAY")
     badge:SetWidth(badgeSize);badge:SetHeight(badgeSize)
     badge:SetPoint("CENTER",holder,"TOPLEFT",At(56.5),-At(56.5))
-    badge:SetTexture(PORTRAIT_ART..(PORTRAIT_BADGES[stage] or "BulletAccept"))
+    -- Badge files use "MinimalBullet*", not "MinimalPortraitBullet*".
+    badge:SetTexture("Interface\\AddOns\\SoftSpoken\\Textures\\Minimal"..(PORTRAIT_BADGES[stage] or "BulletAccept"))
     holder.background=background
     holder.ring=ring
     holder.badge=badge
