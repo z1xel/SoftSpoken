@@ -182,10 +182,34 @@ end
 local function PaintCrest(holder)
     -- Repaint on every page view. The portrait and this page now share the
     -- exact same faction choice and full transparent 256x256 texture.
+    -- Cancel the prior request before this texture is reused for another page.
+    if type(_G.ClassicAPI_CancelPortraitTextureRequest)=="function" then
+        _G.ClassicAPI_CancelPortraitTextureRequest(holder.icon)
+    end
     local texture,label=FactionCrest.Resolve()
     holder.icon:SetTexCoord(0,1,0,1)
     holder.icon:SetTexture(texture)
     holder.affiliationLabel=label
+    holder.creatureID=nil
+end
+-- Experimental, visual-only enhancement. No model frame enters the scroll
+-- child, and no quest/gameplay information is added. The faction crest stays
+-- visible when ClassicAPI or the creature display record is unavailable.
+local function PaintCreaturePortrait(holder,kind,npc)
+    if rawget(_G,"SoftSpokenExperimentalStaticPortraits")~=true then return end
+    local render=rawget(_G,"SetPortraitTextureFromCreatureDisplayID")
+    if type(render)~="function" then return end
+    local e=VoiceOver and VoiceOver.Enums and VoiceOver.Enums.GUID
+    if not (e and e.IsCreature and kind and e:IsCreature(kind)) then return end
+    npc=Number(npc)
+    if not npc then return end
+    local info=C_CreatureInfo and API(C_CreatureInfo.GetCreatureInfoByID,npc)
+    local displayID=type(info)=="table" and Number(info.displayID) or nil
+    if not displayID then return end
+    -- The ClassicAPI worker rejects stale requests when the page changes;
+    -- failures leave the crest untouched.
+    local ok=pcall(render,holder.icon,displayID)
+    if ok then holder.creatureID=npc end
 end
 local function NewPart(parent,stage)
     local f=CreateFrame("Frame",nil,parent)
@@ -346,9 +370,10 @@ function P:Show(id,entry)
             else
                 part.button:Disable();part.button:Hide()
             end
-            local speaker=SpeakerLabel(id,stage)
+            local speaker,kind,npc=SpeakerLabel(id,stage)
             part.speaker:SetText(speaker)
             PaintCrest(part.face)
+            PaintCreaturePortrait(part.face,kind,npc)
             part.content:SetText(text or (voiced and "Audio available. Dialogue text not recorded." or "No dialogue text available."))
         end
     end
