@@ -333,6 +333,10 @@ do
     local c=SSB:ClipFor(101)
     assert(string.find(c.path,"SpokenReadablesX",1,true))
     eq(c.length,nil)
+    eq(#c.fallbacks,1)
+    assert(string.find(c.fallbacks[1].path,"SpokenBooksZ",1,true))
+    eq(c.fallbacks[1].length,5)
+    assert(c.fallbacks[1].present and c.fallbacks[1].present.transcript ~= nil)
     eq(SSB:HasAudio(101),true)
     eq(SSB:PageLength(101),nil)
     -- Malformed preferred entry must yield to older compatible pack.
