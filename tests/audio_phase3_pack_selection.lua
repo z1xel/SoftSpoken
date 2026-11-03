@@ -38,9 +38,11 @@ local function resolve()
 end
 local ok,c=resolve()
 eq(ok,true);eq(c.module,spoken);eq(c.length,7)
+eq(#c.fallbacks,2);eq(c.fallbacks[1].module,combined);eq(c.fallbacks[2].module,turtle)
 -- Invalid high-priority path must fall through to Combined, not fabricate.
 spoken.GetSoundPath=function() return "../escaped.mp3" end
 ok,c=resolve();eq(ok,true);eq(c.module,combined)
+eq(#c.fallbacks,1);eq(c.fallbacks[1].module,turtle)
 combined.GetSoundPath=function() error("broken pack path builder") end
 ok,c=resolve();eq(ok,true);eq(c.module,turtle)
 -- An invalid duration is metadata for the progress estimate; the file
