@@ -59,6 +59,10 @@ library notices when distributing the addon.
   the accompanying background, mask, and quest-stage glyphs are game-derived.
   See [Spoken's artwork-source notes](https://github.com/rusty-key/spoken-wow/blob/master/docs/minimal-classic/ARTWORK.md).
   These textures are not covered by SoftSpoken's MIT source-code license.
+- **Experimental target portrait ring** (`SoftSpoken/Textures/TargetPortraitRing.tga`):
+  a contributor-edited crop of Blizzard's Vanilla `UI-TargetingFrame` artwork.
+  The original circular frame and quest-badge socket are preserved; this
+  derivative game artwork is not covered by SoftSpoken's MIT license.
 - **Compendium resize grip** uses Blizzard's original
   `UI-ChatIM-SizeGrabber-Up/Down/Highlight` interface sprites,
   taken from [Gethe's WoW UI texture mirror](https://github.com/Gethe/wow-ui-textures/tree/live/CHATFRAME)

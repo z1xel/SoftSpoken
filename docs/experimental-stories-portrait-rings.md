@@ -31,3 +31,8 @@ when the function exists.
 
 Artwork origins are credited in `THIRD_PARTY.md`. This is a
 visual-only teaser branch, not a production release.
+
+The current ring is a contributor-edited crop of Vanilla's target-frame art
+(`TargetPortraitRing.tga`). It retains the small quest-badge socket. The 75x75
+source is padded transparently to 128x128 in the TGA and cropped in Lua to
+avoid filtering the extra space. In-game positioning may need adjustment.

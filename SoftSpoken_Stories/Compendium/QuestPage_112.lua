@@ -192,7 +192,10 @@ local function Portrait(parent,stage)
     badgeBackground:SetVertexColor(.04,.04,.035,1)
     local ring=chrome:CreateTexture(nil,"ARTWORK")
     ring:SetAllPoints(chrome)
-    ring:SetTexture(PORTRAIT_ART.."Ring")
+    -- The original cropped Vanilla target-frame ring is 75x75. Its TGA is
+    -- padded to 128x128 for the 1.12 renderer, so crop away the padding.
+    ring:SetTexture("Interface\\AddOns\\SoftSpoken\\Textures\\TargetPortraitRing")
+    ring:SetTexCoord(0,75/128,0,75/128)
     local badge=chrome:CreateTexture(nil,"OVERLAY")
     badge:SetWidth(badgeSize);badge:SetHeight(badgeSize)
     badge:SetPoint("CENTER",holder,"TOPLEFT",At(56.5),-At(56.5))
