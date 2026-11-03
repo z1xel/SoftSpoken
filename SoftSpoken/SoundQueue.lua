@@ -601,6 +601,29 @@ function SoundQueue:PlaySound(clip)
     end
 
     local willPlay = SoundUtils:PlaySound(clip, channel)
+    -- An index entry is not proof that its MP3 exists on disk. If the
+    -- preferred recording fails at the native start, try alternate indexed
+    -- packs for this same line, preserving language and pack precedence.
+    -- The attempt belongs to this clip: no extra queue entry or callback.
+    -- Bound retries to avoid a huge broken pack index monopolizing a frame.
+    if not willPlay and type(clip.fallbacks) == "table" then
+        local tried = 0
+        while not willPlay and (clip.fallbackIndex or 0) < table.getn(clip.fallbacks)
+            and tried < 12 do
+            clip.fallbackIndex = (clip.fallbackIndex or 0) + 1
+            tried = tried + 1
+            local alternative = clip.fallbacks[clip.fallbackIndex]
+            if alternative and alternative.path and alternative.path ~= clip.path then
+                clip.path = alternative.path
+                clip.filePath = alternative.filePath
+                clip.fileName = alternative.fileName
+                clip.length = alternative.length
+                clip.module = alternative.module
+                clip.language = alternative.language
+                willPlay = SoundUtils:PlaySound(clip, channel)
+            end
+        end
+    end
     if not willPlay then
         Discard(clip, "missing")
         return
