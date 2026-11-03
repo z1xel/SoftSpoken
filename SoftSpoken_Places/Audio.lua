@@ -48,6 +48,7 @@ local function FindInRegistry(registry, mapID, areaKey)
         if a.addon ~= b.addon then return a.addon < b.addon end
         return tostring(a.title or "") < tostring(b.title or "")
     end)
+    local matches = {}
     for _, pack in ipairs(packs) do
         local recording
         if areaKey then
@@ -57,10 +58,11 @@ local function FindInRegistry(registry, mapID, areaKey)
             recording = pack.zones and pack.zones[mapID]
         end
         if type(recording) == "table" and ValidFile(recording.file) then
-            return pack, recording
+            table.insert(matches, { pack = pack, recording = recording })
         end
     end
-    return nil
+    local first = matches[1]
+    return first and first.pack, first and first.recording, matches
 end
 
 -- Read-only pack records for settings. Preserve the same format/registry
@@ -110,18 +112,30 @@ function R.AudioPackNames()
 end
 
 local function FindRecording(mapID, areaKey)
-    local pack, recording = FindInRegistry(SpokenPlacesAudioPacks, mapID, areaKey)
-    if pack then return pack, recording end
-    pack, recording = FindInRegistry(SpokenZonesAudioPacks, mapID, areaKey)
-    if pack then return pack, recording end
-    pack, recording = FindInRegistry(ZoneLoreAudioPacks, mapID, areaKey)
-    if pack then return pack, recording end
+    -- Registry family precedence first, then sorted addon names within
+    -- each family. Retain alternatives for a missing physical MP3.
+    local matches, seen = {}, {}
+    local function Collect(registry)
+        local _, _, candidates = FindInRegistry(registry, mapID, areaKey)
+        for _, choice in ipairs(candidates or {}) do
+            local path = "Interface\\AddOns\\" .. choice.pack.addon ..
+                "\\Sounds\\" .. choice.recording.file .. ".mp3"
+            if not seen[path] then
+                seen[path] = true
+                table.insert(matches, choice)
+            end
+        end
+    end
+    Collect(SpokenPlacesAudioPacks)
+    Collect(SpokenZonesAudioPacks)
+    Collect(ZoneLoreAudioPacks)
     if type(ZoneLoreAudioData) == "table" then
         local legacy = ZoneLoreAudioData
         legacy.addon = legacy.addon or "ZoneLoreAudio"
-        return FindInRegistry({legacy}, mapID, areaKey)
+        Collect({legacy})
     end
-    return nil
+    local first = matches[1]
+    return first and first.pack, first and first.recording, matches
 end
 
 -- The English transcripts are loaded through LoreBridge.lua and keyed exactly
@@ -186,8 +200,17 @@ end
 local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay, initialGreeting)
     local areaKey
     if not isZone then areaKey = Normalise(areaLabel) end
-    local pack, recording = FindRecording(mapID, areaKey)
+    local pack, recording, choices = FindRecording(mapID, areaKey)
     if not pack then return nil end
+    local fallbacks = {}
+    for i = 2, table.getn(choices) do
+        local choice = choices[i]
+        table.insert(fallbacks, {
+            path = "Interface\\AddOns\\" .. choice.pack.addon ..
+                   "\\Sounds\\" .. choice.recording.file .. ".mp3",
+            length = EstimatedLength(choice.recording.len),
+        })
+    end
 
     local key = HeardKey(mapID, areaKey)
     local transcript = FindTranscript(mapID, areaKey)
@@ -198,6 +221,7 @@ local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay, initialGre
         path = "Interface\\AddOns\\" .. pack.addon ..
                "\\Sounds\\" .. recording.file .. ".mp3",
         length = EstimatedLength(recording.len),
+        fallbacks = fallbacks,
         autoplay = autoplay and true or false,
         initialGreeting = initialGreeting and true or false,
         present = {
