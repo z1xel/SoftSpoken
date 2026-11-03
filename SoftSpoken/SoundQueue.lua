@@ -506,6 +506,9 @@ local function AfterSpoken(clip, attempt)
     clip.playState = "gap"
     clip.endedAt = GetTime()
     SoundUtils:ReleaseSound(clip)
+    -- Native progress bars must leave their timer state as soon as the MP3
+    -- ends, even if a source-specific inter-clip gap keeps this head queued.
+    Callbacks:Fire("PROGRESS_STATE_CHANGED", clip)
     local gapAttempt = clip.playbackAttempt
 
     local function Finish()
