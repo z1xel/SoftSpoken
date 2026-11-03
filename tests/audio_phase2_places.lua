@@ -181,6 +181,9 @@ do
     local c=R.MakeClip(1429,"Elwynn Forest","Elwynn Forest",true,false,false)
     assert(string.find(c.path,"AlphaPlace",1,true))
     eq(c.length,nil) -- unknown duration is not a missing recording
+    assert(c.fallbacks and #c.fallbacks >= 1)
+    assert(string.find(c.fallbacks[1].path,"ZuluPlace",1,true))
+    eq(c.fallbacks[1].length,9)
 
     SpokenPlacesAudioPacks[3].zones[1429]={file="../outside",len=5}
     c=R.MakeClip(1429,"Elwynn Forest","Elwynn Forest",true,false,false)
