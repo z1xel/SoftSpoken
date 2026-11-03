@@ -158,14 +158,49 @@ local FactionCrest=SSCQuestFactionCrest
 -- Creature appearance records can be loaded asynchronously by ClassicAPI.
 -- Keep this independent of Spoken narration and request each missing ID once.
 local requestedCreatureInfo={}
-local function Portrait(parent)
+-- Spoken Minimal Classic ring art, adapted at the original 71-unit layout scale.
+-- All portrait elements remain 2D inside the Compendium's scroll child.
+local PORTRAIT_ART="Interface\\AddOns\\SoftSpoken\\Textures\\MinimalPortrait"
+local PORTRAIT_BADGES={accept="BulletAccept",progress="BulletProgress",complete="BulletComplete"}
+local PORTRAIT_SIZE=62
+local function Portrait(parent,stage)
     local holder=CreateFrame("Frame",nil,parent)
-    holder:SetWidth(62);holder:SetHeight(62)
-    -- The crest itself should read as a shield on parchment, not as an
-    -- item icon inside a dark square. Keep it a normal scroll-child texture.
+    holder:SetWidth(PORTRAIT_SIZE);holder:SetHeight(PORTRAIT_SIZE)
+    local function At(units) return PORTRAIT_SIZE*units/71 end
+    local background=holder:CreateTexture(nil,"BACKGROUND")
+    background:SetAllPoints(holder)
+    background:SetTexture(PORTRAIT_ART.."Background")
+
+    -- Spoken's 78/90 viewport, positioned on its original 71-unit grid.
+    -- ClassicAPI already bakes the circular alpha mask into the 2D portrait.
     local icon=holder:CreateTexture(nil,"ARTWORK")
-    icon:SetAllPoints(holder)
+    icon:SetWidth(PORTRAIT_SIZE*78/90)
+    icon:SetHeight(PORTRAIT_SIZE*78/90)
+    icon:SetPoint("CENTER",holder,"TOPLEFT",At(35),-At(34))
     holder.icon=icon
+
+    -- The badge socket covers the portrait in the lower-right ring opening.
+    local chrome=CreateFrame("Frame",nil,holder)
+    chrome:SetAllPoints(holder)
+    chrome:SetFrameLevel(holder:GetFrameLevel()+1)
+    local badgeSize=math.max(PORTRAIT_SIZE*16/90,12)
+    local badgeBackground=chrome:CreateTexture(nil,"BACKGROUND")
+    badgeBackground:SetWidth(badgeSize*1.5)
+    badgeBackground:SetHeight(badgeSize*1.5)
+    badgeBackground:SetPoint("CENTER",holder,"TOPLEFT",At(56.5),-At(56.5))
+    badgeBackground:SetTexture(PORTRAIT_ART.."Mask")
+    badgeBackground:SetVertexColor(.04,.04,.035,1)
+    local ring=chrome:CreateTexture(nil,"ARTWORK")
+    ring:SetAllPoints(chrome)
+    ring:SetTexture(PORTRAIT_ART.."Ring")
+    local badge=chrome:CreateTexture(nil,"OVERLAY")
+    badge:SetWidth(badgeSize);badge:SetHeight(badgeSize)
+    badge:SetPoint("CENTER",holder,"TOPLEFT",At(56.5),-At(56.5))
+    badge:SetTexture(PORTRAIT_ART..(PORTRAIT_BADGES[stage] or "BulletAccept"))
+    holder.background=background
+    holder.ring=ring
+    holder.badge=badge
+
     holder.creatureID=nil
     holder:EnableMouse(true)
     holder:SetScript("OnEnter",function()
@@ -201,7 +236,9 @@ end
 -- child, and no quest/gameplay information is added. The faction crest stays
 -- visible when ClassicAPI or the creature display record is unavailable.
 local function PaintCreaturePortrait(holder,kind,npc,speaker)
-    if rawget(_G,"SoftSpokenExperimentalStaticPortraits")~=true then return end
+    -- This branch uses native portraits whenever the ClassicAPI API exists.
+    -- Explicitly set the global false to preview the crest-only fallback.
+    if rawget(_G,"SoftSpokenExperimentalStaticPortraits")==false then return end
     local render=rawget(_G,"SetPortraitTextureFromCreatureDisplayID")
     if type(render)~="function" then return end
     local e=VoiceOver and VoiceOver.Enums and VoiceOver.Enums.GUID
@@ -274,7 +311,7 @@ local function NewPart(parent,stage)
     title:SetText(NAMES[stage]); title:SetTextColor(ALT[1],ALT[2],ALT[3],1)
     title:SetPoint("TOPLEFT",f,"TOPLEFT",0,-2)
     f.title=title
-    local face=Portrait(f)
+    local face=Portrait(f,stage)
     face:SetPoint("TOPLEFT",f,"TOPLEFT",1,-30)
     f.face=face
     local speaker=Font(f,"GameFontNormal")
