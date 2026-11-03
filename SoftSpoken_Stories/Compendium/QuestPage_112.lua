@@ -195,7 +195,7 @@ end
 -- Experimental, visual-only enhancement. No model frame enters the scroll
 -- child, and no quest/gameplay information is added. The faction crest stays
 -- visible when ClassicAPI or the creature display record is unavailable.
-local function PaintCreaturePortrait(holder,kind,npc)
+local function PaintCreaturePortrait(holder,kind,npc,speaker)
     if rawget(_G,"SoftSpokenExperimentalStaticPortraits")~=true then return end
     local render=rawget(_G,"SetPortraitTextureFromCreatureDisplayID")
     if type(render)~="function" then return end
@@ -208,8 +208,11 @@ local function PaintCreaturePortrait(holder,kind,npc)
     if not displayID then return end
     -- The ClassicAPI worker rejects stale requests when the page changes;
     -- failures leave the crest untouched.
-    local ok=pcall(render,holder.icon,displayID)
-    if ok then holder.creatureID=npc end
+    local ok,accepted=pcall(render,holder.icon,displayID)
+    if ok and accepted~=false then
+        holder.creatureID=npc
+        holder.affiliationLabel=speaker or "Creature portrait"
+    end
 end
 local function NewPart(parent,stage)
     local f=CreateFrame("Frame",nil,parent)
@@ -373,7 +376,7 @@ function P:Show(id,entry)
             local speaker,kind,npc=SpeakerLabel(id,stage)
             part.speaker:SetText(speaker)
             PaintCrest(part.face)
-            PaintCreaturePortrait(part.face,kind,npc)
+            PaintCreaturePortrait(part.face,kind,npc,speaker)
             part.content:SetText(text or (voiced and "Audio available. Dialogue text not recorded." or "No dialogue text available."))
         end
     end
