@@ -931,6 +931,11 @@ function DataModules:ResolveSoundFile(soundData, instead)
             end
         end
     end
+    -- Keep playable alternatives in the same language/alias/pack order. Metadata
+    -- only tells us where a file *should* be; ClassicAPI is the first authority
+    -- that can reject an absent physical MP3. The queue can then try the next
+    -- indexed recording without losing the player's requested line.
+    local selected, alternatives, seen = nil, {}, {}
     for _, language in ipairs(languages) do
         for _, wantedFileName in ipairs(candidates) do
             local playerGenderedFileName = DataModules:AddPlayerGenderToFilename(wantedFileName)
@@ -950,24 +955,37 @@ function DataModules:ResolveSoundFile(soundData, instead)
                             local ok, result = pcall(module.GetSoundPath, module, fileName, soundData.event)
                             relative = ok and result or nil
                         end
-                        -- A malformed high-priority pack must yield to the
-                        -- next compatible voice rather than fabricate a clip.
                         if ValidRelativeFile(relative) then
-                            soundData.fileName = fileName
-                            soundData.filePath = format([[Interface\AddOns\%s\%s]],
+                            local filePath = format([[Interface\AddOns\%s\%s]],
                                 module.METADATA.AddonName, relative)
-                            soundData.length = EstimateDuration(length)
-                            soundData.module = module
-                            soundData.language = language
-                            EasterEggs:Apply(soundData)
-                            return true
+                            if not seen[filePath] then
+                                seen[filePath] = true
+                                local option = {
+                                    fileName = fileName,
+                                    filePath = filePath,
+                                    path = filePath,
+                                    length = EstimateDuration(length),
+                                    module = module,
+                                    language = language,
+                                }
+                                if not selected then selected = option
+                                else table.insert(alternatives, option) end
+                            end
                         end
                     end
                 end
             end
         end
     end
-    return false
+    if not selected then return false end
+    soundData.fileName = selected.fileName
+    soundData.filePath = selected.filePath
+    soundData.length = selected.length
+    soundData.module = selected.module
+    soundData.language = selected.language
+    soundData.fallbacks = alternatives
+    EasterEggs:Apply(soundData)
+    return true
 end
 
 function DataModules:AddPlayerGenderToFilename(fileName)
