@@ -190,9 +190,11 @@ every referenced MP3 exists in the player's installed pack directories.
       plays and the queue advances correctly.
 - [ ] **G3 — Physical missing MP3:** On a disposable copy of the
       installation, remove an MP3 indexed by a high-priority pack.
-      Report whether the start fails and how the queue recovers; a
-      missing *physical* file does not currently guarantee a retry
-      through lower-priority packs. Restore the file after testing.
+      Verify that a native rejected start retries lower-priority indexed
+      Stories/Followup recordings in language/pack precedence without
+      duplicate lines, and that exhausting alternatives fails cleanly.
+      A rejection may also mean bus saturation rather than a missing file.
+      Restore the file after testing.
 - [ ] **G4 — Places collisions:** For duplicate zone/subzone entries
       in compatible Places packs, verify deterministic choice;
       a malformed entry should yield rather than fabricate audio.
