@@ -169,6 +169,7 @@ function SpokenBooks:ClipFor(pageId)
 	end
 
 	local packs = self:GetAudioPacks()
+	local selected, alternatives, seen = nil, {}, {}
 	for _, language in ipairs(self:LanguageOrder()) do
 		for _, pack in ipairs(packs) do
 			local entry = self:PackLanguage(pack) == language and pack.pages[pageId]
@@ -184,7 +185,7 @@ function SpokenBooks:ClipFor(pageId)
 				-- corpus's own is English.
 				local title = self.bookTitle and self.bookTitle[language] and self.bookTitle[language][place.book]
 					or (book and book.title) or ""
-				return {
+				local candidate = {
 					key = "b:" .. pageId,
 					path = [[Interface\AddOns\]] .. pack.addon .. [[\Sounds\]] .. entry.file .. ".mp3",
 					-- Duration is an optional estimate for the UI. ClassicAPI
@@ -215,11 +216,17 @@ function SpokenBooks:ClipFor(pageId)
 					},
 					stopCallback = PageStopped,
 				}
+				if not seen[candidate.path] then
+					seen[candidate.path] = true
+					if not selected then selected = candidate
+					else table.insert(alternatives, candidate) end
+				end
 			end
 		end
 	end
 
-	return nil
+	if selected then selected.fallbacks = alternatives end
+	return selected
 end
 
 --- A page's length in seconds, from the pack ClipFor would read it from; nil where that pack
