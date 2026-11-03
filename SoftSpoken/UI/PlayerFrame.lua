@@ -135,9 +135,13 @@ function PlayerFrame:InitDisplay()
     end)
 end
 
--- Upstream Spoken's fallback progress hairline: a dark track, gold fill, and
--- subtle CastingBar spark. Original 1.12 lacks modern status-bar atlases,
--- so use solid Blizzard-style textures without bundling new art.
+-- ClassicAPI v1.19+: a native duration-driven StatusBar, keeping the same
+-- understated dark track / gold hairline / CastingBar spark as the 1.12 port.
+-- Metadata only estimates UI progress. The queue's native sound handle, not
+-- this duration object, decides whether a recording is finished.
+local PROGRESS_CAP = 0.985
+local PROGRESS_GUARD_AT = 0.98
+
 local function ProgressColor(texture, r, g, b, a)
     if texture.SetColorTexture then
         texture:SetColorTexture(r, g, b, a)
@@ -146,69 +150,127 @@ local function ProgressColor(texture, r, g, b, a)
     end
 end
 
+local function CancelProgressGuard(progress)
+    if progress.guardTimer then
+        Addon:CancelTimer(progress.guardTimer, true)
+        progress.guardTimer = nil
+    end
+end
+
+local function StaticProgress(progress, fraction)
+    CancelProgressGuard(progress)
+    -- SetMinMaxValues ends an active native timer (unlike SetValue).
+    progress.bar:SetMinMaxValues(0, 1)
+    progress.bar:SetValue(fraction or 0)
+    progress.mode = "static"
+end
+
 function PlayerFrame:InitProgress()
-    local track = self.frame:CreateTexture(nil, "BORDER")
+    local bar = CreateFrame("StatusBar", nil, self.frame)
+    bar:SetHeight(2)
+    local track = bar:CreateTexture(nil, "BACKGROUND")
     ProgressColor(track, 0.03, 0.025, 0.015, 0.7)
-    track:SetHeight(2)
-    local fill = self.frame:CreateTexture(nil, "ARTWORK")
+    track:SetAllPoints(bar)
+    local fill = bar:CreateTexture(nil, "ARTWORK")
     ProgressColor(fill, 1, 0.78, 0.24, 0.95)
-    fill:SetPoint("LEFT", track, "LEFT")
-    fill:SetHeight(2)
-    local spark = self.frame:CreateTexture(nil, "OVERLAY")
+    bar:SetStatusBarTexture(fill)
+    bar:SetMinMaxValues(0, 1)
+    bar:SetValue(0)
+    local spark = bar:CreateTexture(nil, "OVERLAY")
     spark:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
     spark:SetBlendMode("ADD")
     spark:SetSize(9, 12)
     spark:SetAlpha(0.5)
+    -- v1.19.1 moves the status-bar texture's actual rect with its fill,
+    -- so the spark follows without a Lua frame-by-frame update.
     spark:SetPoint("CENTER", fill, "RIGHT")
-    self.progress = { track = track, fill = fill, spark = spark }
+    spark:Hide()
+    self.progress = { bar = bar, track = track, fill = fill, spark = spark }
     self:LayoutProgress()
-    -- Vanilla's captions already own their own animation driver; no additional
-    -- timer is needed. Updating the tiny fill during the visible frame's
-    -- OnUpdate is the same pattern upstream uses.
-    self.frame:SetScript("OnUpdate", function()
-        PlayerFrame:UpdateProgress()
-    end)
 end
 
 function PlayerFrame:LayoutProgress()
     if not self.progress then return end
-    local track = self.progress.track
-    track:ClearAllPoints()
-    track:SetPoint("BOTTOMLEFT", self.frame, "BOTTOMLEFT",
+    local bar = self.progress.bar
+    bar:ClearAllPoints()
+    bar:SetPoint("BOTTOMLEFT", self.frame, "BOTTOMLEFT",
         FrameConfig().HidePortrait and 20 or PORTRAIT_SIZE + 15, 8)
-    track:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -18, 8)
+    bar:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -18, 8)
 end
 
 function PlayerFrame:UpdateProgress()
-    if not self.progress then return end
+    local progress = self.progress
+    if not progress then return end
     local shown = Addon:DisplayStyle() == "classic"
         and Addon:Profile("Transcript").SubtitleProgress ~= false
         and self.frame:IsShown()
-    local bar = self.progress
-    bar.track:SetShown(shown)
+    progress.bar:SetShown(shown)
     if not shown then
-        bar.fill:Hide()
-        bar.spark:Hide()
+        progress.spark:Hide()
         return
     end
+
     local clip = self:Current()
-    local share = clip and SoundQueue:ProgressShare(clip)
-    if share == nil then
-        -- No duration metadata: an empty track, not an invented completion%.
-        bar.fill:Hide()
-        bar.spark:Hide()
+    local fraction = clip and SoundQueue:ProgressShare(clip)
+    if fraction == nil then
+        StaticProgress(progress, 0)
+        progress.clip, progress.attempt = nil, nil
+        progress.spark:Hide()
         return
     end
-    bar.fill:Show()
-    local width = bar.track:GetWidth() or 0
-    -- Two-sided texture anchors can report stale GetWidth on the 1.12
-    -- client until layout settles; prefer their measured edges when valid.
-    if Version.IsLegacyVanilla and bar.track.GetLeft and bar.track.GetRight then
-        local left, right = bar.track:GetLeft(), bar.track:GetRight()
-        if left and right and right > left then width = right - left end
+
+    local playing = SoundQueue:IsPlaying(clip)
+    local startedAt = tonumber(clip.playbackStartedAt)
+    local length = tonumber(clip.length)
+    local native = C_DurationUtil and type(C_DurationUtil.CreateDuration) == "function"
+        and type(progress.bar.SetTimerDuration) == "function"
+        and Enum and Enum.StatusBarInterpolation and Enum.StatusBarTimerDirection
+    if playing and native and startedAt and length and length > 0 then
+        local attempt = clip.playbackAttempt
+        if progress.clip ~= clip or progress.attempt ~= attempt
+            or (progress.mode ~= "native" and progress.mode ~= "capped") then
+            CancelProgressGuard(progress)
+            progress.clip, progress.attempt = clip, attempt
+            local total, origin = length, startedAt
+            local span = clip.span
+            if span and tonumber(span.total) and tonumber(span.total) > 0 then
+                total = tonumber(span.total)
+                origin = startedAt - (tonumber(span.before) or 0)
+            end
+            progress.duration = C_DurationUtil.CreateDuration()
+            progress.duration:SetTimeFromStart(origin, total)
+            progress.bar:SetTimerDuration(progress.duration,
+                Enum.StatusBarInterpolation.Immediate,
+                Enum.StatusBarTimerDirection.ElapsedTime)
+            progress.mode = "native"
+
+            -- The duration is an estimate, not an MP3 playhead. Near its end
+            -- freeze the native bar below 100% while audio is still speaking.
+            -- One-shot timer only; no Lua OnUpdate driver or texture resizing.
+            local secondsToCap = origin + total * PROGRESS_GUARD_AT - GetTime()
+            if secondsToCap <= 0 then
+                StaticProgress(progress, PROGRESS_CAP)
+                progress.mode = "capped"
+            else
+                progress.guardTimer = Addon:ScheduleTimer(function()
+                    progress.guardTimer = nil
+                    if progress.clip ~= clip or progress.attempt ~= attempt
+                        or progress.mode ~= "native" or not SoundQueue:IsPlaying(clip) then
+                        return
+                    end
+                    StaticProgress(progress, PROGRESS_CAP)
+                    progress.mode = "capped"
+                end, secondsToCap)
+            end
+        end
+        progress.spark:Show()
+    else
+        -- Pause/hold, completed voice, or ClassicAPI before v1.19: display
+        -- only the queue's current estimate; never pretend it is seeking.
+        StaticProgress(progress, fraction)
+        progress.clip, progress.attempt = clip, clip and clip.playbackAttempt
+        progress.spark:SetShown(playing)
     end
-    bar.fill:SetWidth(math.max(0.01, width * share))
-    bar.spark:SetShown(share > 0 and share < 1 and SoundQueue:IsPlaying(clip))
 end
 
 -- The vertical line and the small pause button that stand in for the portrait when the
