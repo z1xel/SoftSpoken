@@ -173,16 +173,6 @@ Open `/softspoken` and check the **Voice Packs** section of each module to confi
 
 Refer to the [Voice Packs](#voice-packs) section for installation instructions and compatible downloads.
 
-### Lua Errors or Unexpected Behavior
-
-Enable Lua error reporting by entering the following command in chat:
-
-`/console scriptErrors 1`
-
-Then enter `/reload` to reload the interface.
-
-If an error appears, include a screenshot or the complete error message when reporting the issue.
-
 ### Still Having Trouble?
 
 Bug reports, compatibility issues, and suggestions are always welcome!
