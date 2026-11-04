@@ -115,6 +115,8 @@ The OctoWoW launcher may not recognize manually installed copies of SoftSpoken c
 
 **These warnings do not necessarily indicate a broken installation.**
 
+<img width="2048" height="1363" alt="IGNORE" src="https://github.com/user-attachments/assets/81aab28c-1564-43d1-839c-d13042726086" />
+
 If chat commands work and the addon functions normally, the launcher's dependency warnings can be safely ignored.
 
 ### Voice Packs
