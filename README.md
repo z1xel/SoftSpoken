@@ -69,14 +69,6 @@ When reading an object in the world, narration follows the page currently being 
 
 <img width="1925" height="1282" alt="image (36)" src="https://github.com/user-attachments/assets/046b846c-5394-4592-b4b1-949d730a74a2" />
 
-## Development and Feedback
-
-SoftSpoken is currently in beta and under active development. Some features may be incomplete, and bugs are to be expected. Feedback is encouraged: please use [GitHub Issues](https://github.com/z1xel/SoftSpoken/issues/new/choose) to report bugs, compatibility problems, or suggest improvements.
-
-For the time being, development remains maintainer-led, and external pull requests are not being accepted. However, I plan to open contributions in the future, with technical documentation to be published in the coming months to help others understand the codebase.
-
-In the meantime, bug reports, testing, and suggestions are greatly appreciated.
-
 ## Requirements
 
 SoftSpoken is designed for World of Warcraft 1.12 clients, primarily OctoWoW and related Vanilla-based environments.
@@ -119,17 +111,13 @@ Use `/softspoken` to open settings or `/compendium` to open Azeroth's Compendium
 
 **Voice packs are installed separately** as described below.
 
-### OctoWoW Launcher Compatibility
+#### OctoWoW Launcher Compatibility
 
 The OctoWoW launcher may not recognize manually installed copies of SoftSpoken correctly. As a result, it may display SoftSpoken as missing or report missing dependencies for SoftSpoken Stories, Places, or Writings.
 
 **These warnings do not necessarily indicate a broken installation.**
 
-If you installed SoftSpoken manually, verify that all four modules appear and are enabled in the in-game **AddOns** menu at character selection.
-
-Once in-game, use `/softspoken` to open settings or `/compendium` to access Azeroth's Compendium.
-
-If both commands work and the addon functions normally, the launcher's dependency warnings can be safely ignored.
+If chat commands work and the addon functions normally, the launcher's dependency warnings can be safely ignored.
 
 ### Voice Packs
 
@@ -204,6 +192,14 @@ If an error appears, include a screenshot or the complete error message when rep
 Bug reports, compatibility issues, and suggestions are always welcome!
 
 You can report problems through [GitHub Issues](https://github.com/z1xel/SoftSpoken/issues) or ask for help in the [OctoWoW Discord thread](https://discord.com/channels/1547014756463026197/1565378252959129600).
+
+## Development and Feedback
+
+SoftSpoken is currently in beta and under active development. Some features may be incomplete, and bugs are to be expected. Feedback is encouraged: please use [GitHub Issues](https://github.com/z1xel/SoftSpoken/issues/new/choose) to report bugs, compatibility problems, or suggest improvements.
+
+For the time being, development remains maintainer-led, and external pull requests are not being accepted. However, I plan to open contributions in the future, with technical documentation to be published in the coming months to help others understand the codebase.
+
+In the meantime, bug reports, testing, and suggestions are greatly appreciated.
 
 ## Support SoftSpoken
 
