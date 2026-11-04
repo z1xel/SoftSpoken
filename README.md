@@ -77,10 +77,33 @@ For the time being, development remains maintainer-led, and external pull reques
 
 In the meantime, bug reports, testing, and suggestions are greatly appreciated.
 
+## Requirements
+
+SoftSpoken is designed for World of Warcraft 1.12 clients, primarily OctoWoW and related Vanilla-based environments.
+
+**[ClassicAPI](https://github.com/brues-code/ClassicAPI) is a mandatory dependency.** SoftSpoken relies on functionality provided by ClassicAPI and will not function correctly without it.
+
+### OctoWoW Users
+
+Before launching the game, open the **OctoWoW launcher**, navigate to the **Mods** tab, and ensure that **ClassicAPI is enabled**.
+
+Simply having a ClassicAPI-related addon in your `Interface\AddOns` folder does not necessarily mean the client modification is active. ClassicAPI must be enabled through the launcher itself.
+
+### ClassicAPI Versions
+
+The version currently provided through the OctoWoW launcher has been confirmed to initialize SoftSpoken v0.8.1-beta in user testing.
+
+However, some newer and upcoming features may depend on more recent versions of ClassicAPI. Future SoftSpoken releases may therefore introduce additional version requirements.
+
+When an update requires a newer ClassicAPI version, the minimum supported version and instructions for updating it will be provided.
+
+For more information, visit the [ClassicAPI repository](https://github.com/brues-code/ClassicAPI).
+
 ## Installation
 
-1. Download **[SoftSpoken-v0.8.1-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.8.1-beta/SoftSpoken-v0.8.1-beta.zip)** and extract it.
-2. Find the following four addon folders in the extracted contents and copy them into your World of Warcraft 1.12 `Interface\AddOns` directory:
+1. **Enable ClassicAPI** in the **Mods** tab of the OctoWoW launcher (or install and activate ClassicAPI for your supported client) before starting the game.
+2. Download **[SoftSpoken-v0.8.1-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.8.1-beta/SoftSpoken-v0.8.1-beta.zip)** and extract it.
+3. Find the following four addon folders in the extracted contents and copy them into your World of Warcraft 1.12 `Interface\AddOns` directory:
 
    ```text
    Interface/
@@ -90,11 +113,23 @@ In the meantime, bug reports, testing, and suggestions are greatly appreciated.
        ├── SoftSpoken_Places/
        └── SoftSpoken_Writings/
    ```
-3. Launch the game and enable SoftSpoken and its modules in the **AddOns** menu.
+4. Launch the game and enable SoftSpoken and its modules in the **AddOns** menu.
 
 Use `/softspoken` to open settings or `/compendium` to open Azeroth's Compendium. The Compendium also has a default keybinding of **J**, provided that key was not already assigned to another action.
 
 **Voice packs are installed separately** as described below.
+
+### OctoWoW Launcher Compatibility
+
+The OctoWoW launcher may not recognize manually installed copies of SoftSpoken correctly. As a result, it may display SoftSpoken as missing or report missing dependencies for SoftSpoken Stories, Places, or Writings.
+
+**These warnings do not necessarily indicate a broken installation.**
+
+If you installed SoftSpoken manually, verify that all four modules appear and are enabled in the in-game **AddOns** menu at character selection.
+
+Once in-game, use `/softspoken` to open settings or `/compendium` to access Azeroth's Compendium.
+
+If both commands work and the addon functions normally, the launcher's dependency warnings can be safely ignored.
 
 ### Voice Packs
 
@@ -130,6 +165,45 @@ I've also prepared **SSS_VOFallback** (SoftSpoken Stories VoiceOver Fallback), a
 **Installation:** Place the `AI_VoiceOverData_Turtle` and/or `SSS_VOFallback` folders directly inside `Interface\AddOns`, alongside the SoftSpoken modules.
 
 When multiple packs contain the same recording, SoftSpoken automatically prioritizes **Spoken → SSS_VOFallback → Turtle WoW**, without requiring manual edits to audio priorities.
+
+## Troubleshooting
+
+### SoftSpoken Doesn't Load or Its Commands Don't Work
+
+First, verify that ClassicAPI is enabled in the OctoWoW launcher's **Mods** tab, then restart the game client completely.
+
+Next, confirm that SoftSpoken and its three modules are enabled in the in-game AddOns menu.
+
+Common symptoms of missing or inactive ClassicAPI include:
+
+- The SoftSpoken minimap button does not appear.
+- `/softspoken` and `/compendium` do not respond.
+- Narration and other addon features fail to initialize.
+- Lua errors appear during gameplay.
+
+### The Interface Works, but No Audio Plays
+
+Verify that the appropriate voice packs are installed and enabled. SoftSpoken's interface and narration system are separate from the audio files themselves.
+
+Open `/softspoken` and check the **Voice Packs** section of each module to confirm that its recordings are detected.
+
+Refer to the [Voice Packs](#voice-packs) section for installation instructions and compatible downloads.
+
+### Lua Errors or Unexpected Behavior
+
+Enable Lua error reporting by entering the following command in chat:
+
+`/console scriptErrors 1`
+
+Then enter `/reload` to reload the interface.
+
+If an error appears, include a screenshot or the complete error message when reporting the issue.
+
+### Still Having Trouble?
+
+Bug reports, compatibility issues, and suggestions are always welcome!
+
+You can report problems through [GitHub Issues](https://github.com/z1xel/SoftSpoken/issues) or ask for help in the [OctoWoW Discord thread](https://discord.com/channels/1547014756463026197/1565378252959129600).
 
 ## Support SoftSpoken
 
