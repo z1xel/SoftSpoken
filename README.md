@@ -83,11 +83,7 @@ Simply having a ClassicAPI-related addon in your `Interface\AddOns` folder does 
 
 ### ClassicAPI Versions
 
-The version currently provided through the OctoWoW launcher has been confirmed to initialize SoftSpoken v0.8.1-beta in user testing.
-
-However, some newer and upcoming features may depend on more recent versions of ClassicAPI. Future SoftSpoken releases may therefore introduce additional version requirements.
-
-When an update requires a newer ClassicAPI version, the minimum supported version and instructions for updating it will be provided.
+The version of ClassicAPI currently provided through the OctoWoW launcher has been confirmed to work with SoftSpoken v0.8.1-beta. Some newer features may require more recent versions, and any future minimum version requirements and update instructions will be documented alongside their respective releases.
 
 For more information, visit the [ClassicAPI repository](https://github.com/brues-code/ClassicAPI).
 
@@ -105,13 +101,13 @@ For more information, visit the [ClassicAPI repository](https://github.com/brues
        ├── SoftSpoken_Places/
        └── SoftSpoken_Writings/
    ```
-4. Launch the game and enable SoftSpoken and its modules in the **AddOns** menu.
+4. Launch the game and enable SoftSpoken and its modules in the **AddOns** menu at character selection. Enable **Load out of date AddOns** if necessary.
 
 Use `/softspoken` to open settings or `/compendium` to open Azeroth's Compendium. The Compendium also has a default keybinding of **J**, provided that key was not already assigned to another action.
 
 **Voice packs are installed separately** as described below.
 
-#### OctoWoW Launcher Compatibility
+### OctoWoW Launcher Compatibility
 
 The OctoWoW launcher may not recognize manually installed copies of SoftSpoken correctly. As a result, it may display SoftSpoken as missing or report missing dependencies for SoftSpoken Stories, Places, or Writings.
 
@@ -137,7 +133,7 @@ These voice packs originate from [Spoken](https://github.com/rusty-key/spoken-wo
 
 **Installing voice packs:** Download the packs you want and extract them directly into `Interface\AddOns`, alongside the SoftSpoken modules. No separate compatibility patch is needed for the linked Places and Writings packs.
 
-**Vanilla 1.12 compatibility:** Enable **Load out of date AddOns** if necessary. After login, open `/softspoken` and check the **Voice Packs** section of each module to confirm it detected your installation.
+After login, open `/softspoken` and check the **Voice Packs** section of each module to confirm it detected your installation.
 
 ### Additional Quest Audio
 
@@ -195,11 +191,9 @@ You can report problems through [GitHub Issues](https://github.com/z1xel/SoftSpo
 
 ## Development and Feedback
 
-SoftSpoken is currently in beta and under active development. Some features may be incomplete, and bugs are to be expected. Feedback is encouraged: please use [GitHub Issues](https://github.com/z1xel/SoftSpoken/issues/new/choose) to report bugs, compatibility problems, or suggest improvements.
+SoftSpoken is currently in beta and under active development. Some features may be incomplete, and bugs are to be expected.
 
 For the time being, development remains maintainer-led, and external pull requests are not being accepted. However, I plan to open contributions in the future, with technical documentation to be published in the coming months to help others understand the codebase.
-
-In the meantime, bug reports, testing, and suggestions are greatly appreciated.
 
 ## Support SoftSpoken
 
