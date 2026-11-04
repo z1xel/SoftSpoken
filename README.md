@@ -79,7 +79,9 @@ SoftSpoken is designed for World of Warcraft 1.12 clients, primarily OctoWoW and
 
 Before launching the game, open the **OctoWoW launcher**, navigate to the **Mods** tab, and ensure that **ClassicAPI is enabled**.
 
-<img width="2048" height="1363" alt="image (33)" src="https://github.com/user-attachments/assets/af663811-6534-49ab-8573-cd3b2eb10491" />
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/af663811-6534-49ab-8573-cd3b2eb10491" width="760" alt="ClassicAPI enabled in the OctoWoW launcher Mods tab" />
+</p>
 
 Simply having a ClassicAPI-related addon in your `Interface\AddOns` folder does not necessarily mean the client modification is active. ClassicAPI must be enabled through the launcher itself.
 
@@ -115,7 +117,9 @@ The OctoWoW launcher may not recognize manually installed copies of SoftSpoken c
 
 **These warnings do not necessarily indicate a broken installation.**
 
-<img width="2048" height="1363" alt="IGNORE" src="https://github.com/user-attachments/assets/81aab28c-1564-43d1-839c-d13042726086" />
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/81aab28c-1564-43d1-839c-d13042726086" width="800" alt="OctoWoW launcher displaying misleading SoftSpoken dependency warnings" />
+</p>
 
 If chat commands work and the addon functions normally, the launcher's dependency warnings can be safely ignored.
 
