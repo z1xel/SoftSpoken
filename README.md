@@ -79,6 +79,8 @@ SoftSpoken is designed for World of Warcraft 1.12 clients, primarily OctoWoW and
 
 Before launching the game, open the **OctoWoW launcher**, navigate to the **Mods** tab, and ensure that **ClassicAPI is enabled**.
 
+<img width="2048" height="1363" alt="image (33)" src="https://github.com/user-attachments/assets/af663811-6534-49ab-8573-cd3b2eb10491" />
+
 Simply having a ClassicAPI-related addon in your `Interface\AddOns` folder does not necessarily mean the client modification is active. ClassicAPI must be enabled through the launcher itself.
 
 ### ClassicAPI Versions
