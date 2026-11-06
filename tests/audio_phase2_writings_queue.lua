@@ -136,7 +136,7 @@ function books:Enqueue(c) return q:Add(c,self) end
 function books:Continue(c) return q:Add(c,self,true) end
 function books:FindClip(m) return q:FindClip(self,m) end
 function books:HasClip(m) return self:FindClip(m) ~= nil end
-function books:Remove(c) return q:RemoveSoundFromQueue(c) end
+function books:Remove(c, immediate) return q:RemoveSoundFromQueue(c, nil, immediate) end
 function books:StopAll() return q:RemoveSource(self) end
 
 Spoken={
@@ -208,7 +208,7 @@ local function resetBook()
     function books:Continue(c) return q:Add(c,self,true) end
     function books:FindClip(m) return q:FindClip(self,m) end
     function books:HasClip(m) return self:FindClip(m) ~= nil end
-    function books:Remove(c) return q:RemoveSoundFromQueue(c) end
+    function books:Remove(c, immediate) return q:RemoveSoundFromQueue(c, nil, immediate) end
     function books:StopAll() return q:RemoveSource(self) end
     SSB.source=books
     SSB.following={}
