@@ -82,6 +82,10 @@ sound({event=3,questID=101}, 8, 2020, "manual completion")
 sound({event=2,questID=102,unitIsObjectOrItem=true},11,3030,"object completion")
 sound({event=3,questID=101,unitGUID="creature:888"},8,888,"real GUID overrides corpus")
 sound({event=1,questID=101,unitGUID="creature:1010"},8,1010,"synthetic giver identity")
+sound({event=3,questID=101,unitGUID="creature:1010",portraitGUID="creature:888"},
+    8,888,"live dialog snapshot overrides synthetic GUID")
+sound({event=3,questID=101,unitGUID="creature:1010",portraitGUID="invalid"},
+    8,1010,"bad snapshot falls back to synthetic GUID")
 sound({event=3,questID=101,unitGUID="object:3030"},11,nil,"explicit object GUID")
 sound({event=3,questID=101,unitIsObjectOrItem=true},nil,nil,"explicit faceless actor")
 sound({event=1,questID=999,unitIsObjectOrItem=true},nil,nil,"unknown item")
@@ -99,6 +103,9 @@ assert(string.find(page, "resolver:ForQuest(id,stage)", 1, true),
     "Compendium and narrator must use shared stage resolver")
 assert(not string.find(page, "local function Speaker(id,stage)", 1, true),
     "Compendium must not duplicate quest speaker selection")
+local voiceSource = assert(io.open("SoftSpoken_Stories/VoiceOver.lua", "r")):read("*a")
+assert(string.find(voiceSource, "portraitGUID = PortraitSpeakerGUID(speakerName)", 1, true),
+    "quest-dialog snapshot should preserve an actual portrait GUID")
 local xml = assert(io.open("SoftSpoken_Stories/addon.xml", "r")):read("*a")
 local resolverPos = assert(string.find(xml, 'file="SpeakerResolver.lua"', 1, true))
 local playerPos = assert(string.find(xml, 'file="Player.lua"', 1, true))

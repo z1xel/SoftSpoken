@@ -90,14 +90,17 @@ function R:ForSound(soundData)
         return nil
     end
 
-    local guid = soundData.unitGUID
-    if type(guid) == "string" and guid ~= "" then
-        local kind = GUIDKind(guid)
-        if kind == Enums.GUID.Item or kind == Enums.GUID.GameObject then
-            return kind, nil
+    -- A quest dialog's portrait-only GUID is captured while its NPC exists,
+    -- and outranks a synthetic quest-log GUID. The audio identity is unchanged.
+    for _, guid in ipairs({ soundData.portraitGUID or false, soundData.unitGUID or false }) do
+        if type(guid) == "string" and guid ~= "" then
+            local kind = GUIDKind(guid)
+            if kind == Enums.GUID.Item or kind == Enums.GUID.GameObject then
+                return kind, nil
+            end
+            local creatureID = CreatureFromGUID(guid)
+            if creatureID then return Enums.GUID.Creature, creatureID end
         end
-        local creatureID = CreatureFromGUID(guid)
-        if creatureID then return Enums.GUID.Creature, creatureID end
     end
 
     if indexedKind then return indexedKind, indexedID end

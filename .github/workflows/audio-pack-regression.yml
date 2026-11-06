@@ -74,7 +74,7 @@ jobs:
           luac5.1 -p SoftSpoken_Places/UI/LoreWindow.lua SoftSpoken_Writings/UI/Readables.lua
           luac5.1 -p SoftSpoken_Writings/Audio.lua SoftSpoken_Writings/DiscoveryLocations.lua tests/writings_narrator_discovery.lua
           luac5.1 -p SoftSpoken_Places/UI/Options.lua SoftSpoken_Writings/UI/Options.lua
-          luac5.1 -p SoftSpoken_Stories/Compendium/QuestsTab_112.lua SoftSpoken_Stories/DataModules.lua
+          luac5.1 -p SoftSpoken_Stories/Compendium/QuestsTab_112.lua SoftSpoken_Stories/DataModules.lua SoftSpoken_Stories/VoiceOver.lua
           luac5.1 -p Data_Packs/SSS_VOFallback/Module.lua
       - name: Check Writings discovery locations in narrator headings
         run: lua5.1 tests/writings_narrator_discovery.lua

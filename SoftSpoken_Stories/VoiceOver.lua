@@ -103,6 +103,18 @@ function Addon:DialogQuestID(event)
         Utils:GetNPCName() or "", quest.text(), true) or 0
 end
 
+-- The 1.12 audio compatibility layer deliberately leaves GetNPCGUID nil.
+-- Capture a separate, verified live unit GUID for portraits only, without
+-- changing pack lookup, gossip deduplication or the narrator's sound identity.
+local function PortraitSpeakerGUID(name)
+    if type(name) ~= "string" or name == "" or
+       type(UnitName) ~= "function" or type(UnitGUID) ~= "function" then return nil end
+    local okName, liveName = pcall(UnitName, "npc")
+    if not okName or liveName ~= name then return nil end
+    local okGUID, guid = pcall(UnitGUID, "npc")
+    if okGUID and type(guid) == "string" and guid ~= "" then return guid end
+end
+
 local function CaptureQuestSnapshot(event)
     local quest = QUEST_EVENTS[event]
     if not quest then
@@ -111,6 +123,7 @@ local function CaptureQuestSnapshot(event)
     local readText = quest.text
     local questID = QuestIDFor(event)
     local questTitle = QuestTitle()
+    local speakerName = Utils:GetNPCName()
     -- Nothing to replay, and nothing to identify a quest by either.
     if (not questID or questID == 0) and questTitle == "" then
         return
@@ -121,8 +134,9 @@ local function CaptureQuestSnapshot(event)
         title = questTitle,
         text = readText(),
         guid = Utils:GetNPCGUID(),
-        targetName = Utils:GetNPCName(),
+        targetName = speakerName,
         isObjectOrItem = Utils:IsNPCObjectOrItem(),
+        portraitGUID = PortraitSpeakerGUID(speakerName),
     }
 end
 
@@ -131,10 +145,11 @@ local function ReadQuestFields(event)
     local snapshot = questSnapshotInUse
     if snapshot then
         return snapshot.questID, snapshot.title, snapshot.text, snapshot.guid, snapshot.targetName,
-            snapshot.isObjectOrItem
+            snapshot.isObjectOrItem, snapshot.portraitGUID
     end
+    local speakerName = Utils:GetNPCName()
     return QuestIDFor(event), QuestTitle(), QUEST_EVENTS[event].text(), Utils:GetNPCGUID(),
-        Utils:GetNPCName(), Utils:IsNPCObjectOrItem()
+        speakerName, Utils:IsNPCObjectOrItem(), PortraitSpeakerGUID(speakerName)
 end
 
 local function GetVisibleQuestEvent()
@@ -1107,7 +1122,7 @@ local function QueueRead(soundData, manual)
 end
 
 function Addon:QUEST_DETAIL(_, manual)
-    local questID, questTitle, questText, guid, targetName, isObjectOrItem = ReadQuestFields("QUEST_DETAIL")
+    local questID, questTitle, questText, guid, targetName, isObjectOrItem, portraitGUID = ReadQuestFields("QUEST_DETAIL")
 
     Debug:Record("quest-detail", format("QUEST_DETAIL: raw ID %s, title %q, NPC %q",
         tostring(questID or "nil"), questTitle or "", targetName or ""))
@@ -1140,6 +1155,7 @@ function Addon:QUEST_DETAIL(_, manual)
         title = questTitle,
         text = questText,
         unitGUID = guid,
+        portraitGUID = portraitGUID,
         unitIsObjectOrItem = isObjectOrItem,
         addedCallback = QuestSoundDataAdded,
     }
@@ -1147,7 +1163,7 @@ function Addon:QUEST_DETAIL(_, manual)
 end
 
 function Addon:QUEST_PROGRESS(_, manual)
-    local questID, questTitle, questText, guid, targetName, isObjectOrItem = ReadQuestFields("QUEST_PROGRESS")
+    local questID, questTitle, questText, guid, targetName, isObjectOrItem, portraitGUID = ReadQuestFields("QUEST_PROGRESS")
 
     Debug:Record("quest-progress", format("QUEST_PROGRESS: raw ID %s, title %q, NPC %q",
         tostring(questID or "nil"), questTitle or "", targetName or ""))
@@ -1168,6 +1184,7 @@ function Addon:QUEST_PROGRESS(_, manual)
         title = questTitle,
         text = questText,
         unitGUID = guid,
+        portraitGUID = portraitGUID,
         unitIsObjectOrItem = isObjectOrItem,
         addedCallback = QuestSoundDataAdded,
     }
@@ -1175,7 +1192,7 @@ function Addon:QUEST_PROGRESS(_, manual)
 end
 
 function Addon:QUEST_COMPLETE(_, manual)
-    local questID, questTitle, questText, guid, targetName, isObjectOrItem = ReadQuestFields("QUEST_COMPLETE")
+    local questID, questTitle, questText, guid, targetName, isObjectOrItem, portraitGUID = ReadQuestFields("QUEST_COMPLETE")
 
     Debug:Record("quest-complete", format("QUEST_COMPLETE: raw ID %s, title %q, NPC %q",
         tostring(questID or "nil"), questTitle or "", targetName or ""))
@@ -1197,6 +1214,7 @@ function Addon:QUEST_COMPLETE(_, manual)
         title = questTitle,
         text = questText,
         unitGUID = guid,
+        portraitGUID = portraitGUID,
         unitIsObjectOrItem = isObjectOrItem,
         addedCallback = QuestSoundDataAdded,
     }
@@ -1346,6 +1364,7 @@ function Addon:QUEST_GREETING(event, manual)
         name = targetName,
         text = greetingText,
         unitGUID = guid,
+        portraitGUID = PortraitSpeakerGUID(targetName),
         unitIsObjectOrItem = Utils:IsNPCObjectOrItem(),
         addedCallback = GossipSoundDataAdded,
         startCallback = function()
@@ -1407,6 +1426,7 @@ function Addon:GOSSIP_SHOW(event, manual)
         title = shownGossipTitle,
         text = gossipText,
         unitGUID = guid,
+        portraitGUID = PortraitSpeakerGUID(targetName),
         unitIsObjectOrItem = Utils:IsNPCObjectOrItem(),
         addedCallback = GossipSoundDataAdded,
         startCallback = function()
