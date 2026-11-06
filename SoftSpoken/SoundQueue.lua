@@ -331,7 +331,7 @@ local REMOVE_FADE_MS = 400
 
 ---@param clip SpokenClip
 ---@param finishedPlaying? boolean
-function SoundQueue:RemoveSoundFromQueue(clip, finishedPlaying)
+function SoundQueue:RemoveSoundFromQueue(clip, finishedPlaying, immediate)
     if not clip then return false end
     local removedIndex
     for index, queued in ipairs(self.sounds) do
@@ -353,7 +353,11 @@ function SoundQueue:RemoveSoundFromQueue(clip, finishedPlaying)
         if finishedPlaying then
             SoundUtils:ReleaseSound(clip)
         else
-            SoundUtils:StopSound(clip, not self.sounds[1] and REMOVE_FADE_MS or nil)
+            -- A replacement must free its native file-bus slot before the new
+            -- MP3 starts. A 400ms fade retains that stream and repeated fast
+            -- replacements can exhaust ClassicAPI's two-file bus.
+            SoundUtils:StopSound(clip,
+                not immediate and not self.sounds[1] and REMOVE_FADE_MS or 0)
         end
     else
         SoundUtils:ReleaseSound(clip)
@@ -953,7 +957,8 @@ end
 -- There is no pause: the client cannot seek or report how far a sound has played. Stop ends the
 -- voice and keeps the line at the head; Replay plays it from the start. The functions keep their
 -- old names, which the public API carries.
-local PAUSE_FADE_MS = 400
+-- Stop/Replay is intentionally immediate: a fading MP3 still occupies one
+-- of ClassicAPI's two file streams, even though its Lua handle is released.
 
 function SoundQueue:PauseQueue()
     if self:IsPaused() then return false end
@@ -974,7 +979,7 @@ function SoundQueue:PauseQueue()
         head.pauseElapsed = head.playbackStartedAt and math.max(0, GetTime() - head.playbackStartedAt) or 0
         InvalidatePlayback(head)
         head.playState = "paused"
-        SoundUtils:StopSound(head, PAUSE_FADE_MS)
+        SoundUtils:StopSound(head, 0)
         head.spokenAt = nil -- replay starts the recording over
     elseif head then
         head.playState = "paused"
