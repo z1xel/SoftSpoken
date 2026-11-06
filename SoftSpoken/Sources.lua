@@ -163,8 +163,10 @@ function SourceMethods:GetClipState(matcher)
     return SoundQueue:GetClipState(self:FindClip(matcher))
 end
 
-function SourceMethods:Remove(clip)
-    return SoundQueue:RemoveSoundFromQueue(clip)
+-- A caller replacing a clip immediately (e.g. a physical book page turn)
+-- can request a hard stop so the next file has a free native bus slot.
+function SourceMethods:Remove(clip, immediate)
+    return SoundQueue:RemoveSoundFromQueue(clip, nil, immediate)
 end
 
 function SourceMethods:StopAll()
