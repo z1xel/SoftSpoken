@@ -213,14 +213,16 @@ function SpokenBooks:SyncTo(pageId, browsing)
     if browsing and self:IsComing(pageId) then return 0 end
 
     if book and self:IsNarrating(book) then
-        self:StopReading(book)
+        -- Page replacement immediately starts another recording: do not
+        -- leave the old page fading on the two-stream PlaySoundFile bus.
+        self:StopReading(book, true)
     end
     return self:PlayFrom(pageId, browsing)
 end
 
 --- Stop `book`, or every readable with none, and nothing else: a quest line may be queued too.
 --- Not on closing the frame: a book reads on after it is shut.
-function SpokenBooks:StopReading(book)
+function SpokenBooks:StopReading(book, immediate)
 	if not book then
 		if self.source then
 			self.source:StopAll()
@@ -232,7 +234,7 @@ function SpokenBooks:StopReading(book)
 	if self.source then
 		for _, clip in ipairs(Spoken:GetQueue()) do
 			if clip.pageId and self:PlaceOf(clip.pageId) == book then
-				self.source:Remove(clip)
+				self.source:Remove(clip, immediate)
 			end
 		end
 	end
