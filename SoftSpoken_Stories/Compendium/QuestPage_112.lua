@@ -53,26 +53,11 @@ local function SavedText(id,stage)
     local r=db and db[id]
     return r and r[stage]
 end
-local function Speaker(id,stage)
-    local v=VoiceOver
-    local d=Data()
-    local e=v and v.Enums and v.Enums.GUID
-    if not d or not e then return end
-    local quest=M:Entry(id)
-    -- Original Spoken: progress and reward belong to the ENDING speaker.
-    if stage~="accept" and quest then
-        if Number(quest.ender) then return e.Creature,quest.ender end
-        if Number(quest.enderObject) then return e.GameObject,quest.enderObject end
-    end
-    if type(d.GetQuestLogQuestGiverTypeAndID)=="function" then
-        return API(d.GetQuestLogQuestGiverTypeAndID,d,id)
-    end
-end
 local function SpeakerLabel(id,stage)
-    local kind,npc=Speaker(id,stage)
-    local d=Data()
-    local name=kind and npc and d and API(d.GetObjectName,d,kind,npc)
-    return name or M:Title(id),kind,npc
+    local resolver=VoiceOver and VoiceOver.SpeakerResolver
+    local kind,npc=resolver and resolver:ForQuest(id,stage)
+    local title=M:Title(id)
+    return resolver and resolver:Name(kind,npc,title) or title,kind,npc
 end
 local function SoundData(id,stage)
     local v=VoiceOver
