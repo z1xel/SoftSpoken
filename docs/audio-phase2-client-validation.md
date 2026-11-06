@@ -36,6 +36,12 @@ checkboxes complete based on CI alone.
       Each Replay must start audibly and the narrator must remain open;
       no dropped clip or stale controls. Repeat near busy game sounds.
       Stop/Replay immediately frees its native stream, with no fade tail.
+- [ ] **A5a — Removing the last stopped clip:** Play a long book page,
+      press Stop (showing Replay), then remove that final queued recording
+      from the narrator. Open another physical book or play a different Story.
+      It must start immediately, not inherit a stopped/replay state. When
+      another clip remains queued, removing the paused head must retain
+      the existing queue-wide pause until Replay is explicitly requested.
 - [ ] **A6 — Missing/damaged recording (optional):** In a *copied* test
       installation, remove or break an individual MP3. A failed start should
       be reported/cleared without claiming it is playing or blocking future
