@@ -699,4 +699,85 @@ do
     busLimit = nil
 end
 
+-- Removing the LAST PAUSED clip must end the paused session. A new book
+-- or quest added afterward is a new playback request, not a paused old queue.
+do
+    local q=reset()
+    local A,B=source("writings"),source("stories")
+    local old=clip("stopped-last-page.mp3",30)
+    q:Add(old,A)
+    eq(q:PauseQueue(),true)
+    eq(q:GetClipState(old),"paused")
+    eq(q:RemoveSoundFromQueue(old),true) -- queue row removed while stopped
+    eq(q:IsEmpty(),true)
+    eq(q:IsPaused(),false)
+    local fresh=clip("fresh-book.mp3",30)
+    q:Add(fresh,B)
+    eq(q:GetClipState(fresh),"playing","new item inherited old pause")
+    eq(started[fresh.path],1)
+    endSound(fresh)
+end
+
+-- A module-scoped removal should clear pause only if its removal emptied
+-- the queue, and no unrelated source should inherit the stale flag.
+do
+    local q=reset()
+    local A,B=source("writings"),source("places")
+    local old=clip("stopped-book.mp3",30)
+    q:Add(old,A)
+    q:PauseQueue()
+    q:RemoveSource(A)
+    eq(q:IsEmpty(),true)
+    eq(q:IsPaused(),false)
+    local fresh=clip("fresh-place.mp3",30)
+    q:Add(fresh,B)
+    eq(q:GetClipState(fresh),"playing")
+    endSound(fresh)
+end
+
+-- Preserve the intentional global pause if another queued item remains.
+do
+    local q=reset()
+    local A=source("stories")
+    local a,b=clip("paused-a.mp3",30),clip("paused-b.mp3",30)
+    q:Add(a,A); q:Add(b,A)
+    q:PauseQueue()
+    q:RemoveSoundFromQueue(a)
+    eq(q:IsPaused(),true)
+    eq(q:GetClipState(b),"paused")
+    q:ResumeQueue()
+    eq(q:GetClipState(b),"playing")
+    endSound(b)
+end
+
+-- A stop callback may replace the final paused clip before AfterRemoval
+-- runs; it must not transfer the previous pause to that fresh clip.
+do
+    local q=reset()
+    local A=source("writings")
+    local old=clip("paused-old.mp3",30)
+    local fresh=clip("callback-book.mp3",30)
+    old.stopCallback=function() q:Add(fresh,A) end
+    q:Add(old,A)
+    q:PauseQueue()
+    q:RemoveSoundFromQueue(old)
+    eq(q:GetCurrentSound(),fresh)
+    eq(q:IsPaused(),false)
+    eq(q:GetClipState(fresh),"playing")
+    endSound(fresh)
+end
+
+-- Defensive recovery from a character saved with a paused but empty
+-- queue (e.g. after a previous version or reload).
+do
+    local q=reset()
+    local A=source("writings")
+    env.Addon.db.char.IsPaused=true
+    local fresh=clip("persisted-stale-pause.mp3",30)
+    q:Add(fresh,A)
+    eq(q:IsPaused(),false)
+    eq(q:GetClipState(fresh),"playing")
+    endSound(fresh)
+end
+
 print("audio_queue.lua: engine completion, lifecycle, and race assertions passed")
