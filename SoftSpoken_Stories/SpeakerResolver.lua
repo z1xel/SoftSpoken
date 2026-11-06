@@ -59,7 +59,9 @@ function R:ForQuest(questID, stage)
     -- Missing ender metadata means the ender is the giver in this corpus.
     -- Pack lookups cover quest givers absent from the Compendium dataset.
     local data = DataModules
-    local kind, speaker = data and SafeCall(data.GetQuestLogQuestGiverTypeAndID, data, id)
+    -- Do not use "data and SafeCall(...)": Lua truncates the second return.
+    local kind, speaker
+    if data then kind, speaker = SafeCall(data.GetQuestLogQuestGiverTypeAndID, data, id) end
     speaker = PositiveID(speaker)
     if kind and speaker then return kind, speaker end
 end

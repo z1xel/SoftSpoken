@@ -55,7 +55,8 @@ local function SavedText(id,stage)
 end
 local function SpeakerLabel(id,stage)
     local resolver=VoiceOver and VoiceOver.SpeakerResolver
-    local kind,npc=resolver and resolver:ForQuest(id,stage)
+    local kind,npc
+    if resolver then kind,npc=resolver:ForQuest(id,stage) end
     local title=M:Title(id)
     return resolver and resolver:Name(kind,npc,title) or title,kind,npc
 end
