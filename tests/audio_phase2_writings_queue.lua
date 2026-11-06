@@ -2,6 +2,8 @@
 -- Run from repository root: lua5.1 tests/audio_queue.lua
 local now, timers, nextTimer = 0, {}, 0
 local playing, stopped, started, failedStarts, failQueries = {}, {}, {}, {}, {}
+-- Optional ClassicAPI file bus simulation: two streams, including fading tails.
+local busLimit, fadeEnds = nil, {}
 local handleCounter = 9100
 local events, listeners = {}, {}
 CLASSIC_API_VERSION = 11814
@@ -13,13 +15,27 @@ PlaySound = function() end
 PlaySoundFile = function(path, channel)
     started[path] = (started[path] or 0) + 1
     if failedStarts[path] then return false, nil end
+    if busLimit then
+        local live = 0
+        for handle, active in pairs(playing) do
+            if fadeEnds[handle] and now >= fadeEnds[handle] then
+                playing[handle], fadeEnds[handle] = false, nil
+            end
+            if playing[handle] then live = live + 1 end
+        end
+        if live >= busLimit then return false, nil end
+    end
     handleCounter = handleCounter + 1
     playing[handleCounter] = true
     return true, handleCounter
 end
 StopSound = function(handle, fadeMs)
     table.insert(stopped, {handle, fadeMs})
-    playing[handle] = false
+    if busLimit and fadeMs and fadeMs >= 100 and playing[handle] then
+        fadeEnds[handle] = now + fadeMs / 1000
+    else
+        playing[handle], fadeEnds[handle] = false, nil
+    end
 end
 C_Sound = {IsPlaying = function(handle)
     if failQueries[handle] then error("native playback state unavailable") end
@@ -80,6 +96,7 @@ local sound = env.SoundUtils
 local function reset()
     now, timers, nextTimer = 0, {}, 0
     playing, stopped, started, failedStarts, failQueries = {}, {}, {}, {}, {}
+    busLimit, fadeEnds = nil, {}
     events, listeners = {}, {}
     env.Addon.db.char.IsPaused = false
     env.Addon.db.profile.Audio.LineGap = 0
@@ -374,6 +391,24 @@ do
     eq(SSB:PageLength(101),nil)
     SpokenBooksAudioPacks=prevBooks
     SpokenReadablesAudioPacks=prevReadables
+end
+
+-- Rapid physical book page turns must not exhaust the native two-file bus.
+-- Each new page replaces its predecessor immediately; retained fade tails
+-- otherwise make the third/fourth page's start fail and close the narrator.
+do
+    resetBook()
+    busLimit = 2
+    for _, id in ipairs({101, 102, 103, 101, 102, 103}) do
+        SSB.testPage = id
+        eq(SSB:OnTextReady(),1,"rapid reader page change")
+        local active = currentPage(id)
+        eq(active.ssbPlayback,"reader")
+        eq(q:GetClipState(active),"playing")
+    end
+    eq(q:GetQueueSize(),1)
+    SSB:StopReading(10)
+    busLimit = nil
 end
 
 print("audio_phase2_writings_queue.lua: real book playlist + native queue integration passed")
