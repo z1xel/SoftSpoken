@@ -2,6 +2,8 @@
 -- Run from repository root: lua5.1 tests/audio_queue.lua
 local now, timers, nextTimer = 0, {}, 0
 local playing, stopped, started, failedStarts, failQueries = {}, {}, {}, {}, {}
+-- Optional ClassicAPI file bus simulation: two streams, including fading tails.
+local busLimit, fadeEnds = nil, {}
 local handleCounter = 9100
 local events, listeners = {}, {}
 CLASSIC_API_VERSION = 11814
@@ -13,13 +15,27 @@ PlaySound = function() end
 PlaySoundFile = function(path, channel)
     started[path] = (started[path] or 0) + 1
     if failedStarts[path] then return false, nil end
+    if busLimit then
+        local live = 0
+        for handle, active in pairs(playing) do
+            if fadeEnds[handle] and now >= fadeEnds[handle] then
+                playing[handle], fadeEnds[handle] = false, nil
+            end
+            if playing[handle] then live = live + 1 end
+        end
+        if live >= busLimit then return false, nil end
+    end
     handleCounter = handleCounter + 1
     playing[handleCounter] = true
     return true, handleCounter
 end
 StopSound = function(handle, fadeMs)
     table.insert(stopped, {handle, fadeMs})
-    playing[handle] = false
+    if busLimit and fadeMs and fadeMs >= 100 and playing[handle] then
+        fadeEnds[handle] = now + fadeMs / 1000
+    else
+        playing[handle], fadeEnds[handle] = false, nil
+    end
 end
 C_Sound = {IsPlaying = function(handle)
     if failQueries[handle] then error("native playback state unavailable") end
@@ -80,6 +96,7 @@ local sound = env.SoundUtils
 local function reset()
     now, timers, nextTimer = 0, {}, 0
     playing, stopped, started, failedStarts, failQueries = {}, {}, {}, {}, {}
+    busLimit, fadeEnds = nil, {}
     events, listeners = {}, {}
     env.Addon.db.char.IsPaused = false
     env.Addon.db.profile.Audio.LineGap = 0
@@ -656,6 +673,30 @@ do
     eq(q:GetCurrentSound(),selected)
     endSound(selected)
     eq(q:IsEmpty(),true)
+end
+
+-- A rapid Stop/Replay cycle must not exhaust ClassicAPI's two-file bus.
+-- Native StopSound(400ms) keeps the old stream alive while fading; a third
+-- PlaySoundFile during that window is rejected and the player disappears.
+do
+    local q = reset()
+    busLimit = 2
+    local A = source("stories")
+    local c = clip("rapid-replay.mp3", 60)
+    q:Add(c, A)
+    for i = 1, 8 do
+        eq(q:GetCurrentSound(),c,"rapid replay before stop")
+        eq(q:PauseQueue(),true)
+        eq(q:GetClipState(c),"paused")
+        eq(q:ResumeQueue(),true)
+        eq(q:GetCurrentSound(),c,"rapid replay lost clip")
+        eq(q:GetClipState(c),"playing","rapid replay rejected by file bus")
+        eq(q:IsEmpty(),false)
+    end
+    eq(started[c.path],9)
+    eq(countEvent("CLIP_DROPPED",c),0)
+    q:RemoveAllSoundsFromQueue()
+    busLimit = nil
 end
 
 print("audio_queue.lua: engine completion, lifecycle, and race assertions passed")
