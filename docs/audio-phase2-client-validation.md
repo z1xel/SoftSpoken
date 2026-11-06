@@ -31,8 +31,11 @@ checkboxes complete based on CI alone.
 - [ ] **A4 — Skip/Stop All:** Queue two or three lines. Skip affects only the
       current line; Stop All clears the queue. No duplicated callbacks/audio,
       lingering queue entries, or global SFX interruption.
-- [ ] **A5 — Rapid controls:** Rapid Stop, Replay, Skip and select different
-      clips; no stuck progress, stale control state, or wrong clip stopping.
+- [ ] **A5 — Rapid controls / native bus cap:** Start a long recording;
+      alternate Stop/Replay at least eight times in under two seconds.
+      Each Replay must start audibly and the narrator must remain open;
+      no dropped clip or stale controls. Repeat near busy game sounds.
+      Stop/Replay immediately frees its native stream, with no fade tail.
 - [ ] **A6 — Missing/damaged recording (optional):** In a *copied* test
       installation, remove or break an individual MP3. A failed start should
       be reported/cleared without claiming it is playing or blocking future
@@ -82,10 +85,12 @@ checkboxes complete based on CI alone.
       short intentional page transition and no overlap.
 - [ ] **D2 — Interrupt:** Stop a Compendium reading midway. Its remaining
       pages must not start later; other sources can continue.
-- [ ] **D3 — In-world reader:** Open a multi-page physical book and turn
-      pages rapidly. Each newly displayed page narrates correctly; duplicate
-      ITEM_TEXT_READY must not replay the same page. Unlike Compendium,
-      the reader should wait for player page turns.
+- [ ] **D3 — In-world reader / native bus cap:** Open a multi-page physical
+      book and rapidly change pages six times in under two seconds. Each
+      newly displayed page must narrate, with no silent third/fourth page
+      or vanishing narrator. The previous page stops immediately to free
+      its file-bus slot. Duplicate ITEM_TEXT_READY must not replay a page;
+      the reader waits for actual player turns.
 - [ ] **D4 — Close/reopen:** Verify Stop on Close OFF allows existing audio
       to continue and ON stops that book, not an unrelated quest.
       Reopening works; Read Once suppresses already finished books as intended.
