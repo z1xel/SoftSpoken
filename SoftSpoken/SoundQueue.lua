@@ -292,6 +292,9 @@ end
 
 local function AfterRemoval()
     if SoundQueue:IsEmpty() then
+        -- Pausing belongs to the current queue, not to a future narration.
+        -- Removing its final clip must leave the next book/quest playable.
+        SoundQueue:SetPaused(false)
         StopRetryTicker()
         SoundQueue:MuteGameDialogue(nil)
         Callbacks:Fire("QUEUE_EMPTY")
@@ -862,6 +865,10 @@ function SoundQueue:Add(clip, source, front)
         Callbacks:Fire("CLIP_DROPPED", clip, "outranked")
         return nil, "outranked"
     end
+    -- Recover from a saved stale pause, or from a stop callback that adds a
+    -- new clip during final removal before AfterRemoval has run. Do not
+    -- unpause if any older recording is still queued.
+    if self:IsEmpty() and self:IsPaused() then self:SetPaused(false) end
     -- Admission is atomic with respect to playback: dropping old low-priority
     -- entries must not start another before this normal clip is queued.
     BeginMutation()
