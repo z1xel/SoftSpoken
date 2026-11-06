@@ -206,8 +206,24 @@ end
 -- Compendium 3-page narration continues in order and does not allow a
 -- waiting quest/Places line to interrupt the same book's next page.
 do
+    -- Enqueue starts page one synchronously. The book-wide span MUST exist
+    -- by CLIP_STARTED, not be attached afterward (the native progress bar
+    -- binds during the same queue/UI notification).
+    local startedSpan
+    listeners.CLIP_STARTED = function(c)
+        if c.pageId == 101 then
+            startedSpan = c.span and {before=c.span.before,total=c.span.total}
+            eq(c.continues,true)
+        end
+    end
     eq(SSB:SyncTo(101,true),3)
     local first=currentPage(101)
+    eq(first.ssbPlayback,"compendium")
+    eq(first.span.before,0)
+    eq(first.span.total,3)
+    eq(startedSpan and startedSpan.before,0)
+    eq(startedSpan and startedSpan.total,3)
+    listeners.CLIP_STARTED = nil
     eq(SSB:SyncTo(101,true),0)
     eq(q:PlayNow(clip("queued-quest.mp3",2),stories),true)
     eq(q:PlayNow(clip("queued-place.mp3",2),places),true)
@@ -216,11 +232,15 @@ do
     step(0.5) -- Writings' intentional 0.35s native-end inter-page gap
     local second=currentPage(102)
     eq(second.ssbPlayback,"compendium")
+    eq(second.span.before,1)
+    eq(second.span.total,3)
     eq(started[second.path],1)
     eq(started["queued-quest.mp3"],nil)
     endSound(second)
     step(0.5)
     local third=currentPage(103)
+    eq(third.span.before,2)
+    eq(third.span.total,3)
     eq(started[third.path],1)
     eq(SSB.following[10].clip,third)
     endSound(third)
@@ -263,6 +283,7 @@ do
     eq(SSB:OnTextReady(),1)
     local first=currentPage(101)
     eq(first.ssbPlayback,"reader")
+    eq(first.span,nil) -- physical book reader tracks only the current page
     eq(SSB:OnTextReady(),0)
     SSB.testPage=102
     eq(SSB:OnTextReady(),1)
@@ -308,6 +329,8 @@ do
     failedStarts[path]=true
     eq(SSB:SyncTo(101,true),2)
     eq(currentPage(102).pageId,102)
+    eq(currentPage(102).span.before,0)
+    eq(currentPage(102).span.total,2)
     eq(SSB.following[10].clip.pageId,102)
     eq(started[SSB:ClipFor(103).path],nil)
     SSB:StopReading(10)
