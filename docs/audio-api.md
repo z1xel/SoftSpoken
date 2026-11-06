@@ -19,9 +19,18 @@ It is development guidance, **not** a change to the published v0.8.1-beta releas
   `PlaySoundFile`, `StopSound`, and `C_Sound.IsPlaying`. If these are absent
   or too old, SoftSpoken refuses narration admission with a versioned error
   instead of treating a Vanilla playback result as a usable handle.
-- Load the extension with VanillaFixes, placing `ClassicAPI.dll` next to
-  the client and listing it in `dlls.txt` (see [installation instructions](https://github.com/brues-code/ClassicAPI#installation)).
-  SoftSpoken does not package or modify that DLL.
+- **Progress bar tiers:** v1.19.0+ exposes native duration-driven status bars;
+  **v1.19.1+ is recommended** for correct status-fill geometry and spark
+  anchoring. The playback transport still accepts v1.18.14+, using a static
+  progress estimate when native duration objects are unavailable.
+- **OctoWoW:** enable ClassicAPI through the **launcher Mods tab** before
+  starting the client. An `!!!ClassicAPI` addon folder alone does not prove
+  the native extension is active. For manually managed Vanilla clients,
+  follow the [ClassicAPI installation instructions](https://github.com/brues-code/ClassicAPI#installation)
+  (including VanillaFixes/`dlls.txt` when applicable).
+  SoftSpoken does not package or modify the DLL.
+- Later ClassicAPI releases may work, but compatibility with any specific
+  installed launcher build or second native extension must be verified in game.
 
 ## API contract used here
 

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - development/audio-api
+      - main
     paths:
       - "SoftSpoken/SoundUtils.lua"
       - "SoftSpoken/SoundQueue.lua"
@@ -26,9 +27,8 @@ on:
       - "SoftSpoken/addon.xml"
       - "SoftSpoken/Sources.lua"
       - "SoftSpoken/Core.lua"
+      - "SoftSpoken/Environment.lua"
       - "SoftSpoken/Developer.lua"
-      - "SoftSpoken_Writings/Playlist.lua"
-      - "SoftSpoken_Writings/Audio.lua"
       - "SoftSpoken_Writings/Playlist.lua"
       - "SoftSpoken_Writings/Events.lua"
       - "SoftSpoken_Places/Autoplay.lua"
@@ -64,9 +64,8 @@ on:
       - "SoftSpoken/addon.xml"
       - "SoftSpoken/Sources.lua"
       - "SoftSpoken/Core.lua"
+      - "SoftSpoken/Environment.lua"
       - "SoftSpoken/Developer.lua"
-      - "SoftSpoken_Writings/Playlist.lua"
-      - "SoftSpoken_Writings/Audio.lua"
       - "SoftSpoken_Writings/Playlist.lua"
       - "SoftSpoken_Writings/Events.lua"
       - "SoftSpoken_Places/Autoplay.lua"
