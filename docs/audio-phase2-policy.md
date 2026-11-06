@@ -151,8 +151,12 @@ tests now load the real `Audio.lua` and `Events.lua`.
 - Ending a **last** line by Stop uses a **400ms** targeted fade.
 - Skipping to an already waiting line stops the previous handle
   immediately to avoid unintended simultaneous streams.
-- Stop/Replay uses a targeted **400ms** fade; game sound effects are
-  untouched. Engine-driven natural endings have no artificial fade.
+- The player-window Stop/Replay control immediately releases its native
+  MP3 stream so rapid Replay cannot exhaust ClassicAPI's two-file bus.
+- Rapid physical Writings page turns immediately stop the old page before
+  starting the replacement. Ordinary last-line Stop/Skip retains its targeted
+  **400ms** fade. Game sound effects remain untouched.
+- Engine-driven natural endings have no artificial fade.
 - Inter-clip pauses use each source's `interClipGap` plus the user's
   `LineGap` for different items. Consecutive Writings pages of the
   same group do not receive that extra generic gap or cue.
