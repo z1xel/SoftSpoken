@@ -143,9 +143,9 @@ local primed = {}
 
 local function PrimeGiver(questID)
     if primed[questID] or not (Spoken and Spoken.PrimePortrait) then return end
-    local type, id = DataModules:GetQuestLogQuestGiverTypeAndID(questID)
-    if not type then return end
-    if not Enums.GUID:IsCreature(type) then
+    local kind, id = DataModules:GetQuestLogQuestGiverTypeAndID(questID)
+    if not kind then return end
+    if not Enums.GUID:IsCreature(kind) then
         primed[questID] = true -- An object/item never needs a creature query.
         return
     end

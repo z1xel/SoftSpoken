@@ -24,6 +24,7 @@ Spoken={
 }
 VoiceOver=setmetatable({
     AddonFolder="SoftSpoken_Stories",
+    format=string.format,
     Enums={GUID={Creature=8,GameObject=11,IsCreature=function(self,k) return k==8 end}},
     DataModules={GetQuestLogQuestGiverTypeAndID=function(self,quest)
         return typeByQuest[quest],idByQuest[quest]
