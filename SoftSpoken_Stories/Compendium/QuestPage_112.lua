@@ -141,17 +141,14 @@ end
 -- The same player-faction crest is also the Stories player portrait fallback.
 -- One resolver owns these textures and their Turtle 1.12 race fallback.
 local FactionCrest=SSCQuestFactionCrest
--- Creature data requests belong to the shared core service. The page's
--- temporary visual retry loop remains until Step 3's lifecycle integration.
+-- Portraits are plain 2D Texture regions inside the scroll child: never
+-- create Model/PlayerModel frames here (they break 1.12 scroll clipping).
 local function Portrait(parent)
     local holder=CreateFrame("Frame",nil,parent)
     holder:SetWidth(62);holder:SetHeight(62)
-    -- The crest itself should read as a shield on parchment, not as an
-    -- item icon inside a dark square. Keep it a normal scroll-child texture.
     local icon=holder:CreateTexture(nil,"ARTWORK")
     icon:SetAllPoints(holder)
     holder.icon=icon
-    holder.creatureID=nil
     holder:EnableMouse(true)
     holder:SetScript("OnEnter",function()
         local h=this or holder
@@ -167,84 +164,111 @@ local function Portrait(parent)
     end)
     return holder
 end
+
 local function PaintCrest(holder)
-    -- Repaint on every page view. The portrait and this page now share the
-    -- exact same faction choice and full transparent 256x256 texture.
-    -- Cancel the prior request before this texture is reused for another page.
-    if type(_G.ClassicAPI_CancelPortraitTextureRequest)=="function" then
-        _G.ClassicAPI_CancelPortraitTextureRequest(holder.icon)
-    end
+    -- Rebinding the same region to an ordinary texture detaches any previous
+    -- native portrait. ClassicAPI owns its rendering jobs and display cache.
     local texture,label=FactionCrest.Resolve()
     holder.icon:SetTexCoord(0,1,0,1)
     holder.icon:SetTexture(texture)
     holder.affiliationLabel=label
     holder.creatureID=nil
     holder.pendingCreatureID=nil
-    holder.pendingChecks=nil
+    holder.binding=nil
 end
--- Experimental, visual-only enhancement. No model frame enters the scroll
--- child, and no quest/gameplay information is added. The faction crest stays
--- visible when ClassicAPI or the creature display record is unavailable.
-local function PaintCreaturePortrait(holder,kind,npc,speaker)
-    -- Use native texture portraits when ClassicAPI supports them.
-    -- Set this global to false for the faction-crest-only fallback.
-    if rawget(_G,"SoftSpokenExperimentalStaticPortraits")==false then return end
+
+local function CanDrawCreature(kind,npc)
+    if rawget(_G,"SoftSpokenExperimentalStaticPortraits")==false or
+       type(rawget(_G,"SetPortraitTextureFromCreatureDisplayID"))~="function" then
+        return nil
+    end
+    local e=VoiceOver and VoiceOver.Enums and VoiceOver.Enums.GUID
+    if not (e and e.IsCreature and kind and e:IsCreature(kind)) then return nil end
+    if not (Spoken and type(Spoken.GetCreatureDisplayID)=="function") then return nil end
+    return Number(npc)
+end
+
+local function ApplyPortrait(holder,displayID)
+    displayID=Number(displayID)
+    if not displayID then return end
     local render=rawget(_G,"SetPortraitTextureFromCreatureDisplayID")
     if type(render)~="function" then return end
-    local e=VoiceOver and VoiceOver.Enums and VoiceOver.Enums.GUID
-    if not (e and e.IsCreature and kind and e:IsCreature(kind)) then return end
-    npc=Number(npc)
-    if not npc then return end
-    local displayID=Spoken and Number(API(Spoken.GetCreatureDisplayID,Spoken,npc)) or nil
-    if not displayID then
-        -- This request is shared with the narrator and quest-log preloader.
-        -- Keep the faction crest until the client supplies a display ID.
-        if holder.pendingCreatureID~=npc then
-            holder.pendingCreatureID=npc
-            holder.pendingChecks=0
-        end
-        if Spoken then API(Spoken.RequestCreatureAppearance,Spoken,npc) end
-        return
-    end
-    holder.pendingCreatureID=nil
-    holder.pendingChecks=nil
-    -- The ClassicAPI worker rejects stale requests when the page changes;
-    -- failures leave the crest untouched.
-    local ok,accepted=pcall(render,holder.icon,displayID)
-    if ok and accepted~=false then
-        holder.creatureID=npc
-        holder.affiliationLabel=speaker or "Creature portrait"
+    -- The native function has no success return or completion callback. A
+    -- successful Lua call only means the texture was submitted to ClassicAPI.
+    local ok=pcall(render,holder.icon,displayID)
+    if ok then
+        holder.creatureID=holder.binding and holder.binding.creatureID or nil
+        holder.affiliationLabel=holder.binding and holder.binding.speaker or "Creature portrait"
+        holder.pendingCreatureID=nil
     end
 end
--- Poll only pending appearances, on the page's existing 0.25s update timer.
--- This works whether the creature-load event is synchronous or asynchronous,
--- and doesn't introduce another event listener or a model into the scroll child.
-function P:RefreshPendingPortraits()
-    if not self.active or not self.id then return end
+
+function P:BindPortrait(part,questID,stage,kind,npc,speaker)
+    local holder=part.face
+    PaintCrest(holder)
+    npc=CanDrawCreature(kind,npc)
+    if not npc then return end
+    -- A reused holder must never accept an old page/stage/creature result.
+    holder.binding={questID=questID,stage=stage,creatureID=npc,
+        generation=self.generation,speaker=speaker}
+    local displayID=Number(API(Spoken.GetCreatureDisplayID,Spoken,npc))
+    if displayID then
+        ApplyPortrait(holder,displayID)
+    else
+        holder.pendingCreatureID=npc
+        if type(Spoken.RequestCreatureAppearance)=="function" then
+            API(Spoken.RequestCreatureAppearance,Spoken,npc)
+        end
+    end
+end
+
+function P:OnCreatureAppearance(creatureID,displayID,success)
+    if not self.active or not self.id or not self.page.frame:IsShown() then return end
+    creatureID=Number(creatureID)
+    if not creatureID then return end
     for _,stage in ipairs(MOMENTS) do
         local part=self.parts[stage]
         local holder=part and part.face
-        if part and part:IsShown() and holder and holder.pendingCreatureID then
-            local npcID=holder.pendingCreatureID
-            local checks=(holder.pendingChecks or 0)+1
-            if checks>60 then
-                -- Stop after about 15 seconds; a missing WDB/server record
-                -- should not be queried forever. Reopening retries the lookup.
-                holder.pendingCreatureID=nil
-                holder.pendingChecks=nil
-            else
-                holder.pendingChecks=checks
-                local speaker,kind,npc=SpeakerLabel(self.id,stage)
-                if Number(npc)==npcID then
-                    PaintCreaturePortrait(holder,kind,npc,speaker)
-                else
-                    holder.pendingCreatureID=nil
-                    holder.pendingChecks=nil
-                end
-            end
+        local bound=holder and holder.binding
+        if part and part:IsShown() and bound and
+           holder.pendingCreatureID==creatureID and
+           bound.creatureID==creatureID and bound.questID==self.id and
+           bound.stage==stage and bound.generation==self.generation then
+            holder.pendingCreatureID=nil
+            if success and Number(displayID) then ApplyPortrait(holder,displayID) end
         end
     end
 end
+
+function P:SubscribePortraits()
+    if self.portraitSubscribed or not self.active or
+       not (Spoken and type(Spoken.SubscribeCreatureAppearance)=="function") then return end
+    self.portraitSubscribed=API(Spoken.SubscribeCreatureAppearance,Spoken,self.portraitCallback)==true
+end
+
+function P:UnsubscribePortraits()
+    if not self.portraitSubscribed then return end
+    self.portraitSubscribed=false
+    if Spoken and type(Spoken.UnsubscribeCreatureAppearance)=="function" then
+        API(Spoken.UnsubscribeCreatureAppearance,Spoken,self.portraitCallback)
+    end
+end
+
+-- Rebind on tab/window reopen: an NPC may have finished loading while the
+-- page was hidden and its callback unsubscribed.
+function P:RebindPortraits()
+    if not self.active or not self.id then return end
+    self.generation=self.generation+1
+    for _,stage in ipairs(MOMENTS) do
+        local part=self.parts[stage]
+        if part:IsShown() then
+            local speaker,kind,npc=SpeakerLabel(self.id,stage)
+            part.speaker:SetText(speaker)
+            self:BindPortrait(part,self.id,stage,kind,npc,speaker)
+        end
+    end
+end
+
 local function NewPart(parent,stage)
     local f=CreateFrame("Frame",nil,parent)
     f.stage=stage
@@ -300,7 +324,7 @@ function P:ApplyTypography()
 end
 function P.Create(page)
     local view=page.body
-    local self={page=page,view=view,parts={},id=nil,active=false,source=""}
+    local self={page=page,view=view,parts={},id=nil,active=false,source="",generation=0,portraitSubscribed=false}
     setmetatable(self,{__index=P})
     for _,stage in ipairs(MOMENTS) do self.parts[stage]=NewPart(view.child,stage) end
 
@@ -320,8 +344,24 @@ function P.Create(page)
     end
     P.current=self
     self:ApplyTypography()
-    -- Keep only the lightweight playback-button refresh. No model frames,
-    -- model-load events, scroll polling, lighting, or camera state remain.
+    self.portraitCallback=function(id,displayID,success)
+        self:OnCreatureAppearance(id,displayID,success)
+    end
+    page.frame:SetScript("OnShow",function()
+        if not self.active then return end
+        self:SubscribePortraits()
+        self:RebindPortraits()
+    end)
+    page.frame:SetScript("OnHide",function()
+        self:UnsubscribePortraits()
+        self.generation=self.generation+1
+        for _,part in pairs(self.parts) do
+            part.face.pendingCreatureID=nil
+            part.face.binding=nil
+        end
+    end)
+    -- The remaining 0.25s ticker updates playback buttons only. Creature
+    -- portraits now respond to shared ClassicAPI completion notifications.
     self.events=CreateFrame("Frame",nil,page.frame)
     self.elapsed=0
     self.events:SetScript("OnUpdate",function(_,elapsed)
@@ -330,7 +370,6 @@ function P.Create(page)
         if self.elapsed>=.25 then
             self.elapsed=0
             self:RefreshButtons()
-            self:RefreshPendingPortraits()
         end
     end)
     for _,f in pairs(self.parts) do f:Hide() end
@@ -376,9 +415,15 @@ function P:Layout(reset)
     view:ScrollTo(reset and 0 or SSCUI.ScrollOffset(view.scroll))
 end
 function P:Show(id,entry)
+    self.generation=self.generation+1
     if not id or not SSCQuestState:IsSeen(id) and not SSCQuestState:Setting("unlock") then
         self.active=false;self.id=nil
-        for _,part in pairs(self.parts) do part:Hide() end
+        self:UnsubscribePortraits()
+        for _,part in pairs(self.parts) do
+            PaintCrest(part.face)
+            part.button.questID=nil
+            part:Hide()
+        end
         self.view.body:Show()
         self.view:Reflow(false)
         return
@@ -386,6 +431,7 @@ function P:Show(id,entry)
     local changed=self.id~=id
     self.id=id
     self.active=true
+    if self.page.frame:IsShown() then self:SubscribePortraits() end
     self.view.body:Hide()
     local completed=S:IsCompleted(id)
     local unlocked=S:Setting("unlock")
@@ -396,6 +442,8 @@ function P:Show(id,entry)
         local voiced=allowed and HasVoice(id,stage)
         local visible=allowed and (stage~="progress" or text or voiced)
         if not visible then
+            PaintCrest(part.face)
+            part.button.questID=nil
             part:Hide()
         else
             part:Show()
@@ -407,8 +455,7 @@ function P:Show(id,entry)
             end
             local speaker,kind,npc=SpeakerLabel(id,stage)
             part.speaker:SetText(speaker)
-            PaintCrest(part.face)
-            PaintCreaturePortrait(part.face,kind,npc,speaker)
+            self:BindPortrait(part,id,stage,kind,npc,speaker)
             part.content:SetText(text or (voiced and "Audio available. Dialogue text not recorded." or "No dialogue text available."))
         end
     end
