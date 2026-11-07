@@ -77,23 +77,31 @@ SoftSpoken is designed for World of Warcraft 1.12 clients, primarily OctoWoW and
 
 ### OctoWoW Users
 
-Before launching the game, open the **OctoWoW launcher**, navigate to the **Mods** tab, and ensure that **ClassicAPI is enabled**.
+SoftSpoken needs **ClassicAPI** to be loaded by the game client, not simply present as an addon in `Interface\\AddOns`.
+
+The OctoWoW launcher includes ClassicAPI under the **Mods** tab, but its bundled version may be older than the latest [official release](https://github.com/brues-code/ClassicAPI/releases/latest). Some users have experienced **WoW Error #132 crashes while loading into a character** with older ClassicAPI versions. In one reported case, upgrading from the launcher-provided v1.15.16 to v1.20.4 resolved the crashes.
+
+**We recommend updating ClassicAPI when possible**, especially if you experience crashes or other compatibility issues. The launcher-provided version has also worked in testing with SoftSpoken v0.8.1-beta, so this is a recommendation rather than a new minimum version requirement.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/af663811-6534-49ab-8573-cd3b2eb10491" width="800" alt="ClassicAPI enabled in the OctoWoW launcher Mods tab" />
+  <img src="https://github.com/user-attachments/assets/af663811-6534-49ab-8573-cd3b2eb10491" width="800" alt="Built-in ClassicAPI option in the OctoWoW launcher Mods tab" />
 </p>
 
-Simply having a ClassicAPI-related addon in your `Interface\AddOns` folder does not necessarily mean the client modification is active. ClassicAPI must be enabled through the launcher itself.
+#### Updating ClassicAPI in OctoWoW
 
-### ClassicAPI Versions
+1. Open the OctoWoW launcher, go to **Mods**, and **uncheck the built-in ClassicAPI** option.
+2. Download `ClassicAPI.dll` from the [latest ClassicAPI release](https://github.com/brues-code/ClassicAPI/releases/latest). It is a DLL file; no extraction is needed if you download it directly.
+3. Rename the file to something recognizable, such as `NewClassicAPI.dll` (keep the `.dll` extension), and put it in the main OctoWoW folder alongside `WoW.exe`.
+4. In the launcher's **Mods** tab, scroll to **Your DLL Mods**, choose **Add DLL**, and select your downloaded DLL.
+5. Enable the new DLL in the launcher, then start the game normally.
 
-The version of ClassicAPI currently provided through the OctoWoW launcher has been confirmed to work with SoftSpoken v0.8.1-beta. Some newer features may require more recent versions, and any future minimum version requirements and update instructions will be documented alongside their respective releases.
+**Do not enable two versions of ClassicAPI at once.** Leave the built-in ClassicAPI unchecked while using your manually installed copy.
 
-For more information, visit the [ClassicAPI repository](https://github.com/brues-code/ClassicAPI).
+You can find the source code and releases in the [ClassicAPI repository](https://github.com/brues-code/ClassicAPI).
 
 ## Installation
 
-1. **Enable ClassicAPI** in the **Mods** tab of the OctoWoW launcher (or install and activate ClassicAPI for your supported client) before starting the game.
+1. **Enable ClassicAPI**, preferably the [latest version](https://github.com/brues-code/ClassicAPI/releases/latest), before starting the game. OctoWoW users can follow the [update instructions above](#updating-classicapi-in-octowow).
 2. Download **[SoftSpoken-v0.8.1-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.8.1-beta/SoftSpoken-v0.8.1-beta.zip)** and extract it.
 3. Find the following four addon folders in the extracted contents and copy them into your World of Warcraft 1.12 `Interface\AddOns` directory:
 
@@ -172,6 +180,12 @@ Common symptoms of missing or inactive ClassicAPI include:
 - `/softspoken` and `/compendium` do not respond.
 - Narration and other addon features fail to initialize.
 - Lua errors appear during gameplay.
+
+### WoW Crashes When Loading a Character
+
+If you encounter **WoW Error #132** while logging in, check which version of ClassicAPI is active. Some crashes with older OctoWoW launcher builds have been resolved by [updating ClassicAPI](#updating-classicapi-in-octowow).
+
+An update will not necessarily fix every Error #132. If the game still crashes, try disabling unrelated addons to rule out a conflict and include the most recent crash report when asking for help.
 
 ### The Interface Works, but No Audio Plays
 
