@@ -23,6 +23,15 @@ local ROCK = DIR .. "UI-Background-Rock-Classic"
 local CHARACTER_LEFT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft"
 local CHARACTER_RIGHT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight"
 
+-- The inset panels begin 62 UI units below the top of the full-size
+-- Compendium (Compendium.lua VISUAL_GEOMETRY.listTop). The Character art
+-- remains at original 1:1 size, even where the inset itself covers it.
+local FULL_INSET_START_Y = 62
+local FULL_LEFT_ART_WIDTH, FULL_LEFT_ART_HEIGHT = 256, 92
+local FULL_RIGHT_ART_WIDTH, FULL_RIGHT_ART_HEIGHT = 128, 76
+local FULL_LEFT_ART_X, FULL_LEFT_ART_Y = -14, 12
+local FULL_RIGHT_ART_X, FULL_RIGHT_ART_Y = 34, 13
+
 local function fixed(parent, layer, path, w, h, coords, p, x, y)
     local t = parent:CreateTexture(nil, layer)
     t:SetTexture(path)
@@ -46,7 +55,10 @@ local function circularIcon(parent, texturePath, x, y, size, radius)
         if half > 0 then
             local left = center - half
             local right = center + half
-            local t = parent:CreateTexture(nil, "ARTWORK")
+            -- The full Character corner is OVERLAY. Draw the book icon
+            -- later on OVERLAY too, so opaque native corner art cannot
+            -- hide the icon beneath the metal portrait ring.
+            local t = parent:CreateTexture(nil, "OVERLAY")
             t:SetTexture(texturePath)
             t:SetWidth(right - left)
             t:SetHeight(1)
@@ -85,10 +97,12 @@ local function applyNativeFullFrameTiles(frame)
         "TOPLEFT",0,-21, "TOPRIGHT",-2,-21, 37)
     nativeTile(frame, "BORDER", HORIZ, {0,1,0.203125,0.2734375}, true,
         "BOTTOMLEFT",8,-5, "BOTTOMRIGHT",-11,-5, 9)
+    -- Sides begin at the inset shoulder. Any overlap is deliberately
+    -- hidden beneath the original fixed Character Frame corners.
     nativeTile(frame, "BORDER", VERT, {0.359375,0.609375,0,1}, false,
-        "TOPLEFT",-6,-67, "BOTTOMLEFT",-6,7, 16)
+        "TOPLEFT",-6,-FULL_INSET_START_Y, "BOTTOMLEFT",-6,7, 16)
     nativeTile(frame, "BORDER", VERT, {0.171875,0.328125,0,1}, false,
-        "TOPRIGHT",1,-32, "BOTTOMRIGHT",1,6, 10)
+        "TOPRIGHT",1,-FULL_INSET_START_Y, "BOTTOMRIGHT",1,6, 10)
     frame.sszNativeFrameTiles = true
 end
 
@@ -231,10 +245,13 @@ local function Reflow(frame)
             frame.sszLastCompactHeight=h
         end
     else
-        -- Leave the approved full-size Compendium frame untouched.
+        -- Match the native tiling geometry in the no-ClassicAPI fallback.
+        -- The original Character corners draw over the upper border joins.
         tiled(frame,"BORDER",HORIZ,{0,1,0.203125,0.2734375},true,8,h-4,w-19,9)
-        tiled(frame,"BORDER",VERT,{0.359375,0.609375,0,1},false,-6,67,h-74,16)
-        tiled(frame,"BORDER",VERT,{0.171875,0.328125,0,1},false,w-9,32,h-38,10)
+        tiled(frame,"BORDER",VERT,{0.359375,0.609375,0,1},
+            false,-6,FULL_INSET_START_Y,h-FULL_INSET_START_Y-7,16)
+        tiled(frame,"BORDER",VERT,{0.171875,0.328125,0,1},
+            false,w-9,FULL_INSET_START_Y,h-FULL_INSET_START_Y-6,10)
     end
     for i = frame.sszSegmentUsed + 1, table.getn(frame.sszSegments) do
         frame.sszSegments[i]:Hide()
@@ -303,14 +320,19 @@ function Skin.Apply(self, title, options)
         fixed(trim,"OVERLAY",FRAME,11,11,
             {0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,0)
     else
-        -- Documented, seam-aligned crops from ui/top-rock-shadow-pass:
-        -- left source x=0..78, y=0..68 ends exactly where title starts x=64;
-        -- right source x=56..101, y=14..52 overlaps the final 15px of rail.
-        -- Both are at 1:1 source-pixel size, never scaled or repeated.
-        self.sszCharacterHeaderLeft = fixed(self,"BORDER",CHARACTER_LEFT,
-            78,68,{0,78/256,0,68/256},"TOPLEFT",-14,12)
+        -- Restore the broad original Character Frame top-left/right sheets
+        -- from ui/top-rock-shadow-pass, rather than the small cropped accents.
+        -- Their opaque rock and frame details must prevail over FrameGeneral
+        -- metal/underlay; only the uncovered central span shows tiled art.
+        -- Both images retain 1:1 source dimensions and native alignment.
+        self.sszCharacterHeaderLeft = fixed(self,"OVERLAY",CHARACTER_LEFT,
+            FULL_LEFT_ART_WIDTH,FULL_LEFT_ART_HEIGHT,
+            {0,1,0,FULL_LEFT_ART_HEIGHT/256},"TOPLEFT",
+            FULL_LEFT_ART_X,FULL_LEFT_ART_Y)
         self.sszCharacterHeaderRight = fixed(self,"OVERLAY",CHARACTER_RIGHT,
-            45,38,{56/128,101/128,14/256,52/256},"TOPRIGHT",-3,-2)
+            FULL_RIGHT_ART_WIDTH,FULL_RIGHT_ART_HEIGHT,
+            {0,1,0,FULL_RIGHT_ART_HEIGHT/256},"TOPRIGHT",
+            FULL_RIGHT_ART_X,FULL_RIGHT_ART_Y)
         fixed(self,"BORDER",FRAME,14,14,{0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,-5)
         fixed(self,"BORDER",FRAME,11,11,{0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,-5)
         if self.sszCharacterHeaderLeft.SetHorizTile and
