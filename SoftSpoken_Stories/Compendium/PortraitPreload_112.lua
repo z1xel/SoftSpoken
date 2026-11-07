@@ -36,10 +36,17 @@ local function Cached(id)
 end
 
 local function Enabled()
-    return C_CreatureInfo and type(C_CreatureInfo.RequestLoadCreatureByID) == "function" and
-        Spoken and type(Spoken.RequestCreatureAppearance) == "function" and
-        type(Spoken.SubscribeCreatureAppearance) == "function" and
-        rawget(_G,"SoftSpokenClassicPortraits") ~= false or false
+    -- This is Compendium *portrait* preloading, not a generic creature-data
+    -- scanner. Do not query unseen creatures if native static portraits cannot
+    -- be displayed, even when the creature-cache API is installed.
+    return rawget(_G,"SoftSpokenExperimentalStaticPortraits") ~= false and
+        rawget(_G,"SoftSpokenClassicPortraits") ~= false and
+        type(rawget(_G,"SetPortraitTextureFromCreatureDisplayID")) == "function" and
+        C_CreatureInfo and type(C_CreatureInfo.GetCreatureInfoByID) == "function" and
+        type(C_CreatureInfo.RequestLoadCreatureByID) == "function" and
+        Spoken and type(Spoken.GetCreatureDisplayID) == "function" and
+        type(Spoken.RequestCreatureAppearance) == "function" and
+        type(Spoken.SubscribeCreatureAppearance) == "function" or false
 end
 
 function P:Remember(id)
@@ -96,6 +103,7 @@ end
 
 function P:Pump()
     if not self.active then return end
+    if not Enabled() then self:Stop(); return end
     self.clock=self.clock or 0
     self.inFlight=self.inFlight or {}
     self.queue=self.queue or {}
@@ -110,10 +118,16 @@ function P:Pump()
         self.queued[id]=nil
         if not (self.selectedIDs and self.selectedIDs[id]) and not Cached(id) and
            not (self.recent and self.recent[id]) then
-            self:Remember(id)
             self.inFlight[id]=self.clock
             local accepted=Call(Spoken.RequestCreatureAppearance,Spoken,id)
-            if not accepted then self.inFlight[id]=nil end
+            if accepted then
+                self:Remember(id)
+            else
+                -- An overloaded/unsupported native query may be retried on
+                -- a future viewport visit. Do not turn rejection into a
+                -- long-lived negative cache entry.
+                self.inFlight[id]=nil
+            end
             self.nextAt=self.clock+MIN_GAP
         end
     end
@@ -161,6 +175,7 @@ end
 -- can queue speculative work. Never prefetch undiscovered or locked quests.
 function P:Selected(questID)
     if not self.active then return end
+    if not Enabled() then self:Stop(); return end
     questID=ID(questID)
     if questID == self.selectedQuest then return end
     self.selectedQuest=questID
@@ -179,6 +194,7 @@ function P:Selected(questID)
 end
 
 function P:Hover(item)
+    if self.active and not Enabled() then self:Stop(); return end
     if not self.active or not item or not item.leaf or item.locked or
        not S:IsSeen(item.id) then return end
     self:Queue(Speaker(item.id,"accept"),true)
@@ -190,6 +206,7 @@ end
 -- when scrolling so off-screen creatures are not preloaded needlessly.
 function P:Visible(items,first,last)
     if not self.active then return end
+    if not Enabled() then self:Stop(); return end
     if self.lastItems==items and self.lastFirst==first and self.lastLast==last then
         return
     end

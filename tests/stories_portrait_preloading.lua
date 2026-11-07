@@ -13,7 +13,13 @@ local function Frame()
 end
 CreateFrame=Frame
 UIParent={}
-C_CreatureInfo={RequestLoadCreatureByID=function() return true end}
+C_CreatureInfo={
+    GetCreatureInfoByID=function(id)
+        return cached[id] and {displayID=cached[id]} or nil
+    end,
+    RequestLoadCreatureByID=function() return true end,
+}
+SetPortraitTextureFromCreatureDisplayID=function() end
 local giver={}
 for i=1,25 do giver[i]=1000+i end
 SSCQuestState={IsSeen=function(self,id) return id~=24 and id~=25 end}
@@ -121,8 +127,50 @@ P:Stop()
 SoftSpokenClassicPortraits=false
 eq(P:Start(),false,"disabled narrator preloading")
 SoftSpokenClassicPortraits=nil
+SoftSpokenExperimentalStaticPortraits=false
+eq(P:Start(),false,"disabled static Compendium portraits")
+SoftSpokenExperimentalStaticPortraits=nil
+SetPortraitTextureFromCreatureDisplayID=nil
+eq(P:Start(),false,"missing native static portrait renderer")
+SetPortraitTextureFromCreatureDisplayID=function() end
+C_CreatureInfo.GetCreatureInfoByID=nil
+eq(P:Start(),false,"missing creature cache lookup")
 C_CreatureInfo=nil
 eq(P:Start(),false,"missing ClassicAPI")
+
+
+-- Rejected speculative requests are not retained in the recent history.
+C_CreatureInfo={
+    GetCreatureInfoByID=function(id)
+        return cached[id] and {displayID=cached[id]} or nil
+    end,
+    RequestLoadCreatureByID=function() return true end,
+}
+SetPortraitTextureFromCreatureDisplayID=function() end
+local previousRequest=Spoken.RequestCreatureAppearance
+local rejectID=1006
+Spoken.RequestCreatureAppearance=function(self,id)
+    table.insert(requested,id)
+    if id==rejectID then return false end
+    return true
+end
+eq(P:Start(),true,"restart for rejected-query regression")
+P:Visible({{leaf=true,id=6}},1,1)
+eq(requested[#requested],rejectID,"native rejected speculative query was attempted")
+eq(P.recent[rejectID],nil,"native rejection is not negatively cached")
+P:Stop()
+Spoken.RequestCreatureAppearance=previousRequest
+
+-- A running preloader must stop when native support disappears.
+eq(P:Start(),true,"restart with native support")
+P:Visible({{leaf=true,id=7}},1,1)
+eq(P.active,true,"worker active")
+SetPortraitTextureFromCreatureDisplayID=nil
+Tick(.5)
+eq(P.active,false,"worker shuts down if native renderer disappears")
+local remaining=0
+for _ in pairs(callbacks) do remaining=remaining+1 end
+eq(remaining,0,"native loss removes shared callback")
 -- Only the actual viewport should be reported, not the 42 pooled rows.
 local core=assert(io.open("SoftSpoken/Compendium/UI/Compendium.lua","r")):read("*a")
 assert(string.find(core,"self.opts.onVisibleRows(self.items,index,last)",1,true),
