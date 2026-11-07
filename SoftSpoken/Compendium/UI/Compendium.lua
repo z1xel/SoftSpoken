@@ -593,6 +593,9 @@ function C:Relayout()
         else
             -- Every module is off: leave no page visible and close the
             -- Compendium. No saved history or per-tab state is altered.
+            if active and C.tabs[active] and C.tabs[active].onHide then
+                C.tabs[active].onHide(C.tabs[active].panel)
+            end
             active=nil
             for _,def in pairs(C.tabs) do
                 if def.panel then def.panel:Hide() end
@@ -1022,7 +1025,9 @@ function List:DrawRows()
             if self.rowStarts[i]>=offset+viewport then break end
             last=i
         end
-        if last>=index then self.opts.onVisibleRows(self.items,index,last) end
+        -- Also report an empty viewport after filtering; the consumer can
+        -- discard speculative work for rows that no longer exist.
+        self.opts.onVisibleRows(self.items,index,last)
     end
     -- Hide any surplus pooled rows left from a previously taller viewport.
     for i=needed+1,table.getn(self.rows) do

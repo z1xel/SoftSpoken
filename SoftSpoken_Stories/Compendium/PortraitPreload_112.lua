@@ -131,6 +131,7 @@ function P:Start()
     if not Enabled() then return false end
     self.queue={};self.queued={};self.inFlight={};self.selectedIDs={}
     self.selectedQuest=nil
+    self.lastItems=nil
     self.clock=self.clock or 0
     self.nextAt=self.clock
     self.callback=self.callback or function(id) P:OnAppearance(id) end
@@ -147,6 +148,9 @@ function P:Stop()
     self.active=false
     self.selectedQuest=nil
     self.selectedIDs={}
+    self.lastItems=nil
+    self.lastFirst=nil
+    self.lastLast=nil
     self.queue={}
     self.queued={}
     self.inFlight={}
@@ -161,6 +165,7 @@ function P:Selected(questID)
     if questID == self.selectedQuest then return end
     self.selectedQuest=questID
     self.selectedIDs={}
+    self.lastItems=nil
     if not questID or not S:IsSeen(questID) then return end
     for _,stage in ipairs({"accept","progress"}) do
         local id=Speaker(questID,stage)
@@ -185,6 +190,10 @@ end
 -- when scrolling so off-screen creatures are not preloaded needlessly.
 function P:Visible(items,first,last)
     if not self.active then return end
+    if self.lastItems==items and self.lastFirst==first and self.lastLast==last then
+        return
+    end
+    self.lastItems,self.lastFirst,self.lastLast=items,first,last
     self.queue={};self.queued={}
     local from=tonumber(first) or 1
     local through=math.min(tonumber(last) or from-1,from+MAX_VISIBLE_ROWS-1)
