@@ -30,6 +30,8 @@ lua5.1 tests/stories_faction_crest.lua
 
 The workflow also runs the Places/Writings and audio pack regression tests and `luac5.1 -p` checks. Mocked Lua 5.1 tests **do not substitute for** running the Vanilla 1.12 client and Lua 5.0 runtime.
 
+**Post-audio-overhaul integration check:** The complete `audio-api-regression.yml` Lua and Python test commands were additionally run against the combined portrait/audio branch in [GitHub Actions run 42344572879](https://github.com/z1xel/SoftSpoken/actions/runs/42344572879) (passed). The temporary duplicated test commands were then removed from the portrait workflow; the standalone audio API workflow remains unchanged and will run under its normal branch/PR triggers.
+
 ## Required client-side checks
 
 1. **Cold creature cache:** With a genuinely uncached NPC, open an already-discovered quest's Stories page. The faction crest should appear immediately; when the creature query finishes, its speaker should receive the correct static portrait. Confirm no blank/transparent portrait remains indefinitely. For repeatable tests, use an isolated client/cache copy, not an unbacked-up player installation.
