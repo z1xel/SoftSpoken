@@ -8,13 +8,20 @@ local Skin=SSCPrototypeFrameSkin
 
 -- Standalone 1.12 port of the older Blizzard PortraitFrameTemplate visual geometry.
 -- Reference: SharedUIPanelTemplates.xml (older version, PortraitFrameTemplateNoCloseButton).
--- No modern mixins, NineSlice APIs, masks, texture-sublevels or ClassicAPI requirements.
+-- No modern mixins, NineSlice APIs, masks or texture-sublevels.
+-- ClassicAPI native tiling is optional; the 1.12 segment renderer remains the fallback.
 
 local DIR = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\"
 local FRAME = DIR .. "UI-Frame"
 local HORIZ = DIR .. "_UI-Frame"
 local VERT = DIR .. "!UI-Frame"
 local ROCK = DIR .. "UI-Background-Rock-Classic"
+
+-- Full-size header experiment: fixed pixels from the stock Character Frame
+-- meet repeating strips from Blizzard's FrameGeneral atlas. Never tile the
+-- opaque Character Frame sheets themselves or stretch their corner details.
+local CHARACTER_LEFT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft"
+local CHARACTER_RIGHT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight"
 
 local function fixed(parent, layer, path, w, h, coords, p, x, y)
     local t = parent:CreateTexture(nil, layer)
@@ -49,6 +56,40 @@ local function circularIcon(parent, texturePath, x, y, size, radius)
         end
     end
     return slices
+end
+
+-- ClassicAPI's SetHorizTile/SetVertTile repeat the complete 256px source
+-- along the chosen axis while preserving the perpendicular source UV crop.
+-- Two opposite anchors let the engine resize the strip without any Reflow.
+local function nativeTile(parent, layer, path, coords, horizontal,
+    firstAnchor, firstX, firstY, lastAnchor, lastX, lastY, thickness)
+    local t = parent:CreateTexture(nil, layer)
+    t:SetTexture(path)
+    t:SetTexCoord(coords[1], coords[2], coords[3], coords[4])
+    if horizontal then t:SetHeight(thickness) else t:SetWidth(thickness) end
+    t:SetPoint(firstAnchor, parent, firstAnchor, firstX, firstY)
+    t:SetPoint(lastAnchor, parent, lastAnchor, lastX, lastY)
+    if horizontal then t:SetHorizTile(true) else t:SetVertTile(true) end
+    return t
+end
+
+local function applyNativeFullFrameTiles(frame)
+    -- All coordinate endpoints match the original main-branch tiled() calls.
+    -- Unlike manual segments, these textures follow parent anchors directly.
+    nativeTile(frame, "ARTWORK", HORIZ, {0,1,0.4375,0.65625}, true,
+        "TOPLEFT",64,1, "TOPRIGHT",-33,1, 28)
+    nativeTile(frame, "BACKGROUND", HORIZ, {0,1,0.2890625,0.421875}, true,
+        "TOPLEFT",2,-3, "TOPRIGHT",-25,-3, 17)
+    frame.sszNativeStreaks = nativeTile(frame, "BORDER", HORIZ,
+        {0,1,0.671875,0.9609375}, true,
+        "TOPLEFT",0,-21, "TOPRIGHT",-2,-21, 37)
+    nativeTile(frame, "BORDER", HORIZ, {0,1,0.203125,0.2734375}, true,
+        "BOTTOMLEFT",8,-5, "BOTTOMRIGHT",-11,-5, 9)
+    nativeTile(frame, "BORDER", VERT, {0.359375,0.609375,0,1}, false,
+        "TOPLEFT",-6,-67, "BOTTOMLEFT",-6,7, 16)
+    nativeTile(frame, "BORDER", VERT, {0.171875,0.328125,0,1}, false,
+        "TOPRIGHT",1,-32, "BOTTOMRIGHT",1,6, 10)
+    frame.sszNativeFrameTiles = true
 end
 
 local function tiled(parent, layer, path, coords, horizontal, start, span, length, thickness, bottomAligned, lastBottomOffset)
@@ -126,6 +167,16 @@ end
 
 local function Reflow(frame)
     if not frame or not frame.sszInitialized then return end
+    if frame.sszNativeFrameTiles then
+        -- Anchors and ClassicAPI handle resize. Only the optional streak
+        -- visibility needs refresh; no segment pool or geometry work.
+        if frame.sszShowStreaks then
+            frame.sszNativeStreaks:Show()
+        else
+            frame.sszNativeStreaks:Hide()
+        end
+        return
+    end
     local w,h=FrameSize(frame)
     if not w or not h or w < 220 or h < 180 then return end
     clearSegments(frame)
@@ -226,9 +277,11 @@ function Skin.Apply(self, title, options)
     -- Compendium portrait/header background.
     self.sszShowStreaks = not compact
 
-    -- Window metal corners: exact coords from the older Blizzard UI-Frame atlas.
-    fixed(self,"OVERLAY",FRAME,33,33,{0.6328125,0.890625,0.0078125,0.265625},"TOPRIGHT",0,1)
+    -- Map attachment stays on its approved native FrameGeneral corners.
+    -- Full-size header uses the fixed Character Frame corner art instead.
     if compact then
+        fixed(self,"OVERLAY",FRAME,33,33,
+            {0.6328125,0.890625,0.0078125,0.265625},"TOPRIGHT",0,1)
         -- Authentic UI-Frame-TopLeftCorner (32x32), not a reversed
         -- top-right crop. Match Blizzard's original top-left -6,+1 anchor.
         fixed(self,"OVERLAY",FRAME,32,32,
@@ -250,8 +303,20 @@ function Skin.Apply(self, title, options)
         fixed(trim,"OVERLAY",FRAME,11,11,
             {0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,0)
     else
+        -- Documented, seam-aligned crops from ui/top-rock-shadow-pass:
+        -- left source x=0..78, y=0..68 ends exactly where title starts x=64;
+        -- right source x=56..101, y=14..52 overlaps the final 15px of rail.
+        -- Both are at 1:1 source-pixel size, never scaled or repeated.
+        self.sszCharacterHeaderLeft = fixed(self,"BORDER",CHARACTER_LEFT,
+            78,68,{0,78/256,0,68/256},"TOPLEFT",-14,12)
+        self.sszCharacterHeaderRight = fixed(self,"OVERLAY",CHARACTER_RIGHT,
+            45,38,{56/128,101/128,14/256,52/256},"TOPRIGHT",-3,-2)
         fixed(self,"BORDER",FRAME,14,14,{0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,-5)
         fixed(self,"BORDER",FRAME,11,11,{0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,-5)
+        if self.sszCharacterHeaderLeft.SetHorizTile and
+            self.sszCharacterHeaderLeft.SetVertTile then
+            applyNativeFullFrameTiles(self)
+        end
     end
 
     if not compact then
