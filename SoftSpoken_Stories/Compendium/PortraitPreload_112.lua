@@ -60,6 +60,17 @@ function P:Remember(id)
     end
 end
 
+-- Native failures are not permanent negative-cache entries. A later viewport
+-- visit can retry; the queue's pacing still prevents a request flood.
+function P:Forget(id)
+    if not (self.recent and self.recent[id]) then return end
+    self.recent[id]=nil
+    local order=self.recentOrder or {}
+    for i=table.getn(order),1,-1 do
+        if order[i]==id then table.remove(order,i) end
+    end
+end
+
 function P:Queue(id,front)
     id=ID(id)
     if not id or not self.active or (self.selectedIDs and self.selectedIDs[id]) or
@@ -134,9 +145,10 @@ function P:Pump()
     self:UpdateTicker()
 end
 
-function P:OnAppearance(id)
+function P:OnAppearance(id,displayID,success)
     id=ID(id)
     if id and self.inFlight then self.inFlight[id]=nil end
+    if id and (not success or not ID(displayID)) then self:Forget(id) end
     if self.active then self:Pump() end
 end
 
@@ -148,7 +160,9 @@ function P:Start()
     self.lastItems=nil
     self.clock=self.clock or 0
     self.nextAt=self.clock
-    self.callback=self.callback or function(id) P:OnAppearance(id) end
+    self.callback=self.callback or function(id,displayID,success)
+        P:OnAppearance(id,displayID,success)
+    end
     local accepted=Call(Spoken.SubscribeCreatureAppearance,Spoken,self.callback)
     if not accepted then return false end
     self.active=true
