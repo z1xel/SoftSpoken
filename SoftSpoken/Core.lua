@@ -48,14 +48,15 @@ Defaults = {
         -- Unset, each module keeps the choice it had before there was one setting for all.
         Language = {},
         Audio = {
+            -- ClassicAPI supports category routing, not a per-MP3 volume setter.
+            -- Preserve existing Master behavior unless a player explicitly opts in.
+            NarrationChannel = "Master",
+            -- Upstream Spoken's Turn Other Sounds Down defaults. Original
+            -- 1.12 exposes Music/Ambience/SFX volumes, no separate Dialog.
+            LowerOthers = { Enabled = true, Music = 0.3, Ambience = 0.4, SFX = 0.6 },
             -- Seconds of quiet between one line and the next, on top of each module's own short
             -- gap: back to back, a new line started before the last had settled.
             LineGap = 1,
-            -- The client speaks its own NPC barks on the Dialog channel, over the top of a
-            -- line being read. Muting it while we speak belongs to the player: any addon's
-            -- clip is the one being talked over. Not on clients without the channel, where
-            -- Compat.lua interrupts the bark a different way.
-            AutoToggleDialog = (Version.IsLegacyVanilla or Version:IsRetailOrAboveLegacyVersion(60100)) or false,
             -- A short sound in the pause between one line and the next (#142): at a quest hub a hand-in
             -- and the next pickup otherwise run together, often in the same NPC's voice.
             -- Off by default, as the queue has always played without it.
@@ -107,6 +108,9 @@ Defaults = {
     char = {
         IsPaused = false,
     },
+    -- The native SoundVolume baseline must survive crashes/reloads until
+    -- checked; never store it in the active audio profile.
+    global = {},
 }
 
 --- Idempotent, so the test harness and ADDON_LOADED can both call it.
@@ -117,6 +121,18 @@ function Addon:InitDB()
     self.db = LibStub("AceDB-3.0"):New("SpokenSettings", Defaults)
     -- A saved AutoScroll = false predates ScrollMode: carry it over as "off", in every profile.
     for _, profile in pairs(self.db.sv and self.db.sv.profiles or {}) do
+        -- Migrate our early one-channel prototype to upstream's full mixer
+        -- without losing a saved on/off choice or previously selected SFX level.
+        local audio = type(profile) == "table" and profile.Audio
+        if type(audio) == "table" and audio.LowerOthers == nil
+            and type(audio.SFXDucking) == "table" then
+            audio.LowerOthers = {
+                Enabled = audio.SFXDucking.Enabled ~= false,
+                Music = 0.3, Ambience = 0.4,
+                SFX = tonumber(audio.SFXDucking.Level) or 0.6,
+            }
+            audio.SFXDucking = nil
+        end
         local transcript = type(profile) == "table" and profile.Transcript
         if type(transcript) == "table" and transcript.AutoScroll ~= nil then
             if transcript.AutoScroll == false and (transcript.ScrollMode or "line") == "line" then
@@ -281,6 +297,9 @@ end
 function Addon:Enable()
     if self.enabled then return end
     self:InitDB()
+    -- If the previous session crashed mid-duck, restore each saved
+    -- baseline only when that category still matches our last write.
+    if OtherSounds then OtherSounds:RestoreLeftovers() end
     self.enabled = true
     PlayerFrame:Initialize()
     Transcript:Initialize()

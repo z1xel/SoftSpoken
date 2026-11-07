@@ -39,7 +39,18 @@ local function CharDB()
         s.discoveryDefaultMigrated = true
     end
     if s.mode ~= "unheard" and s.mode ~= "discovery" then s.mode = "discovery" end
+    -- v0.8.1 used one flag for BOTH blocking new autoplay and interrupting
+    -- active narration. Retain that user's exact behavior on migration:
+    -- old ON -> Hold+Stop ON, old OFF -> both OFF. New characters default OFF.
+    if not s.combatModesMigrated then
+        local legacy = s.holdCombat == true
+        s.holdCombat = legacy
+        s.stopCombat = legacy
+        s.combatModesMigrated = true
+    end
     if s.holdCombat == nil then s.holdCombat = false end
+    if s.stopCombat == nil then s.stopCombat = false end
+    if s.stopCombat then s.holdCombat = true end
     if s.greeting == nil then s.greeting = true end
     -- Default the Compendium to discoveries without overriding saved OFF.
     if s.compendiumFoundOnly == nil then s.compendiumFoundOnly = true end
@@ -72,6 +83,8 @@ local function ResetOptions()
     settings.mode = "discovery"
     settings.discoveryDefaultMigrated = true
     settings.holdCombat = false
+    settings.stopCombat = false
+    settings.combatModesMigrated = true
     settings.greeting = true
     settings.showMapPanel = true
     settings.mapPanelCollapsed = false

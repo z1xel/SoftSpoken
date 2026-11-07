@@ -19,7 +19,6 @@ SourceMethods.__index = SourceMethods
 ---@field interClipGap? number
 ---@field channel? fun():string
 ---@field admit? fun(clip, queue):boolean, string?
----@field testBeforeQueue? boolean
 ---@field onQueueEnter? fun()
 ---@field onQueueEmpty? fun()
 ---@field packs? fun():string[] -- the voice packs this source found installed, by name
@@ -41,7 +40,6 @@ function Sources:Register(key, info)
         interClipGap = info.interClipGap or 0.55,
         channel = info.channel,
         admit = info.admit,
-        testBeforeQueue = info.testBeforeQueue,
         onQueueEnter = info.onQueueEnter,
         onQueueEmpty = info.onQueueEmpty,
         packs = info.packs,
@@ -106,12 +104,19 @@ function Sources:Iterate()
     end
 end
 
---- The channel a clip from this source plays on: its own if it names one, else Master. There is
---- no setting for it: on Dialog, Silence NPC Voices would silence Spoken's voices with the NPCs',
---- and Game Greeting First could not tell them from an NPC's. A string, as PlaySoundFile takes.
+--- ClassicAPI's supported file categories. A source-specific callback still
+--- takes precedence; otherwise all three narration modules share the user's
+--- opt-in category. A corrupted/retired value safely falls back to Master.
+--- Changing the preference affects the NEXT file, never the owned live sound.
 function SourceMethods:GetChannel()
     if self.channel then
         return self.channel()
+    end
+    local profile = Addon:Profile("Audio")
+    local choice = profile and profile.NarrationChannel or "Master"
+    if choice == "Master" or choice == "SFX" or choice == "Music"
+        or choice == "Ambience" then
+        return choice
     end
     return "Master"
 end
@@ -156,8 +161,10 @@ function SourceMethods:GetClipState(matcher)
     return SoundQueue:GetClipState(self:FindClip(matcher))
 end
 
-function SourceMethods:Remove(clip)
-    return SoundQueue:RemoveSoundFromQueue(clip)
+-- A caller replacing a clip immediately (e.g. a physical book page turn)
+-- can request a hard stop so the next file has a free native bus slot.
+function SourceMethods:Remove(clip, immediate)
+    return SoundQueue:RemoveSoundFromQueue(clip, nil, immediate)
 end
 
 function SourceMethods:StopAll()

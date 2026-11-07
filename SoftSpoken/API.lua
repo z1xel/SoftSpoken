@@ -541,21 +541,17 @@ function Spoken:StopAll()
     SoundQueue:RemoveAllSoundsFromQueue()
 end
 
---- A gate that applies to every source: fn(clip) -> reason | nil.
---- Switch a channel off on a source's behalf, e.g. Dialog while a quest line speaks.
---- Unlike a channel the user disabled, clips on it are still admitted, and the mute is
---- lifted before one plays.
+--- Retained upstream API for third-party callers. Vanilla has no separate
+--- NPC Dialog bus, so this intentionally does not mute unrelated game effects.
 function Spoken:MuteChannel(channel, muted)
     SoundUtils:MuteChannel(channel, muted)
 end
 
---- The source is about to queue a line: silence the game's NPC dialogue now rather than
---- when the line starts, so an NPC's greeting is never heard instead of being cut short.
---- Honours the player's "mute game dialogue" setting, and lifts itself if nothing comes.
+--- Upstream compatibility entry point, intentionally inert on Vanilla 1.12.
 function Spoken:MuteGameDialogueAhead(source)
-    SoundQueue:MuteGameDialogueAhead(source:GetChannel())
 end
 
+--- A gate applying to all registered sources: fn(clip) -> reason | nil.
 function Spoken:AddGate(fn)
     SoundQueue:AddGate(fn)
 end

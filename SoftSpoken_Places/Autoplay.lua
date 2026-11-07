@@ -15,6 +15,8 @@ local ZONE_NAMES = R.ZONE_NAMES
 local lastLocation
 local lastZone
 local STARTUP_SETTLE_SECONDS = 0.75
+local STARTUP_GREETING_GRACE_SECONDS = 1.5
+local CinematicUp -- declared here so startup stabilization can inspect it
 
 -- Greet new level-one characters exactly once, preferring the starting subzone.
 -- The greeting never queues both subzone and parent overview on login.
@@ -27,12 +29,14 @@ local function TryGreeting(zone, subzone)
     if settings.subzones and mapID and Normalise(subzone) ~= "" and
        Normalise(subzone) ~= Normalise(zone) and
        FindRecording(mapID, Normalise(subzone)) then
-        queued = RequestNarration(zone, subzone, false, false, true)
+        queued = RequestNarration(zone, subzone, false, false, true, true)
     end
     if not queued then
-        queued = RequestNarration(zone, zone, false, true, true)
+        queued = RequestNarration(zone, zone, false, true, true, true)
     end
-    if queued then CharDB().greeted = true end
+    -- Do NOT persist delivery at enqueue: a held recording can disappear on
+    -- reload, source disable, or low-priority eviction before it is ever heard.
+    -- The clip's startCallback records greeted only on actual playback start.
 end
 
 -- "unheard" mode narrates supported areas on actual movement only.
@@ -80,7 +84,11 @@ local function StabilizeStartingLocation(elapsed)
     if type(delta) ~= "number" then return end
     R.startupStableElapsed = R.startupStableElapsed + delta
     if R.startupStableElapsed < STARTUP_SETTLE_SECONDS then return end
+    -- The grace begins after BOTH location stabilization and the opening
+    -- cinematic ending; it must not elapse while the movie is still visible.
+    if CinematicUp() then return end
 
+    R.initialGreetingGraceUntil = (GetTime and GetTime() or 0) + STARTUP_GREETING_GRACE_SECONDS
     R.startupActive = false
     lastLocation = key
     lastZone = zone
@@ -182,7 +190,8 @@ local function OnDiscovered(area)
     end
 end
 
-local function CinematicUp()
+CinematicUp = function()
+    if R.cinematicEventActive then return true end
     if InCinematic and InCinematic() then return true end
     if CinematicFrame and CinematicFrame.IsShown and CinematicFrame:IsShown() then return true end
     if MovieFrame and MovieFrame.IsShown and MovieFrame:IsShown() then return true end
@@ -193,17 +202,28 @@ end
 local function HoldAutoplay(item)
     if not item.autoplay then return nil end
     local settings = CharDB().settings
-    if settings.holdCombat and UnitAffectingCombat and
+    if CinematicUp() then return "cinematic" end
+    if (settings.holdCombat or settings.stopCombat) and UnitAffectingCombat and
        UnitAffectingCombat("player") then
         return "combat"
     end
-    if CinematicUp() then return "cinematic" end
+    if item.initialGreeting and R.initialGreetingGraceUntil and
+       GetTime and GetTime() < R.initialGreetingGraceUntil then
+        return "starting area"
+    end
     return nil
 end
 
 local function Recheck()
     if not R.source then return end
-    if R.source.RecheckGates then R.source:RecheckGates() end
+    -- Hold-only must NEVER cut a line in progress. RecheckGates is the
+    -- interrupting operation; request it only for cinematics or Stop mode.
+    local settings = CharDB().settings
+    local stopping = (settings.stopCombat == true) and UnitAffectingCombat and
+        UnitAffectingCombat("player")
+    if (CinematicUp() or stopping) and R.source.RecheckGates then
+        R.source:RecheckGates()
+    end
     if R.source.Retry then R.source:Retry() end
 end
 

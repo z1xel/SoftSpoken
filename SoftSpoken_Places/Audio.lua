@@ -10,24 +10,59 @@ local CharDB = R.CharDB
 local Say = R.Say
 local pending = {} -- Queued but not started; deliberately not persisted.
 
+-- Records are declared in addon data packs, not typed by the player.
+-- Guard incomplete/malformed pack metadata before it becomes an MP3 path.
+-- Durations are optional estimates; an absent/invalid length must never
+-- prevent an otherwise valid recording from being selected.
+local function ValidFile(file)
+    if type(file) ~= "string" or not string.find(file, "%S") then return false end
+    if string.find(file, ":", 1, true) or string.find(file, "%c") then return false end
+    local normalized = string.gsub(file, "\\", "/")
+    if string.sub(normalized, 1, 1) == "/" then return false end
+    if normalized == ".." or string.find(normalized, "^%.%./")
+        or string.find(normalized, "/%.%./") or string.find(normalized, "/%.%.$") then
+        return false
+    end
+    return true
+end
+
+local function EstimatedLength(len)
+    local n = tonumber(len)
+    if n and n > 0 and n < math.huge then return n end
+    return nil
+end
+
 local function FindInRegistry(registry, mapID, areaKey)
     if type(registry) ~= "table" then return nil end
+    -- Do not use pairs() as the precedence policy. Hash traversal varies
+    -- between runtimes. The existing registry-family ordering still wins;
+    -- within one family, prefer a stable addon name over load order.
+    local packs = {}
     for _, pack in pairs(registry) do
-        if type(pack) == "table" and pack.version == 1 and
-           type(pack.addon) == "string" then
-            local recording
-            if areaKey then
-                local subzones = pack.subzones and pack.subzones[mapID]
-                recording = subzones and subzones[areaKey]
-            else
-                recording = pack.zones and pack.zones[mapID]
-            end
-            if recording and recording.file and recording.len then
-                return pack, recording
-            end
+        if type(pack) == "table" and pack.version == 1
+            and type(pack.addon) == "string" and pack.addon ~= "" then
+            table.insert(packs, pack)
         end
     end
-    return nil
+    table.sort(packs, function(a, b)
+        if a.addon ~= b.addon then return a.addon < b.addon end
+        return tostring(a.title or "") < tostring(b.title or "")
+    end)
+    local matches = {}
+    for _, pack in ipairs(packs) do
+        local recording
+        if areaKey then
+            local subzones = pack.subzones and pack.subzones[mapID]
+            recording = subzones and subzones[areaKey]
+        else
+            recording = pack.zones and pack.zones[mapID]
+        end
+        if type(recording) == "table" and ValidFile(recording.file) then
+            table.insert(matches, { pack = pack, recording = recording })
+        end
+    end
+    local first = matches[1]
+    return first and first.pack, first and first.recording, matches
 end
 
 -- Read-only pack records for settings. Preserve the same format/registry
@@ -77,18 +112,30 @@ function R.AudioPackNames()
 end
 
 local function FindRecording(mapID, areaKey)
-    local pack, recording = FindInRegistry(SpokenPlacesAudioPacks, mapID, areaKey)
-    if pack then return pack, recording end
-    pack, recording = FindInRegistry(SpokenZonesAudioPacks, mapID, areaKey)
-    if pack then return pack, recording end
-    pack, recording = FindInRegistry(ZoneLoreAudioPacks, mapID, areaKey)
-    if pack then return pack, recording end
+    -- Registry family precedence first, then sorted addon names within
+    -- each family. Retain alternatives for a missing physical MP3.
+    local matches, seen = {}, {}
+    local function Collect(registry)
+        local _, _, candidates = FindInRegistry(registry, mapID, areaKey)
+        for _, choice in ipairs(candidates or {}) do
+            local path = "Interface\\AddOns\\" .. choice.pack.addon ..
+                "\\Sounds\\" .. choice.recording.file .. ".mp3"
+            if not seen[path] then
+                seen[path] = true
+                table.insert(matches, choice)
+            end
+        end
+    end
+    Collect(SpokenPlacesAudioPacks)
+    Collect(SpokenZonesAudioPacks)
+    Collect(ZoneLoreAudioPacks)
     if type(ZoneLoreAudioData) == "table" then
         local legacy = ZoneLoreAudioData
         legacy.addon = legacy.addon or "ZoneLoreAudio"
-        return FindInRegistry({legacy}, mapID, areaKey)
+        Collect({legacy})
     end
-    return nil
+    local first = matches[1]
+    return first and first.pack, first and first.recording, matches
 end
 
 -- The English transcripts are loaded through LoreBridge.lua and keyed exactly
@@ -150,11 +197,20 @@ local function ParentHeading(mapID, zoneName, areaKey)
     return zoneName
 end
 
-local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay)
+local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay, initialGreeting)
     local areaKey
     if not isZone then areaKey = Normalise(areaLabel) end
-    local pack, recording = FindRecording(mapID, areaKey)
+    local pack, recording, choices = FindRecording(mapID, areaKey)
     if not pack then return nil end
+    local fallbacks = {}
+    for i = 2, table.getn(choices) do
+        local choice = choices[i]
+        table.insert(fallbacks, {
+            path = "Interface\\AddOns\\" .. choice.pack.addon ..
+                   "\\Sounds\\" .. choice.recording.file .. ".mp3",
+            length = EstimatedLength(choice.recording.len),
+        })
+    end
 
     local key = HeardKey(mapID, areaKey)
     local transcript = FindTranscript(mapID, areaKey)
@@ -164,8 +220,10 @@ local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay)
         areaKey = areaKey,
         path = "Interface\\AddOns\\" .. pack.addon ..
                "\\Sounds\\" .. recording.file .. ".mp3",
-        length = recording.len,
+        length = EstimatedLength(recording.len),
+        fallbacks = fallbacks,
         autoplay = autoplay and true or false,
+        initialGreeting = initialGreeting and true or false,
         present = {
             header = ParentHeading(mapID, zoneName, areaKey),
             label = areaLabel,
@@ -183,6 +241,9 @@ local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay)
     -- IMPORTANT: don't burn a location's history while it is merely waiting.
     clip.startCallback = function(item)
         CharDB().heard[key] = true
+        -- The initial level-one greeting counts only once it actually starts,
+        -- not when it sits held behind the post-cinematic grace period.
+        if item.initialGreeting then CharDB().greeted = true end
         if pending[key] == item then pending[key] = nil end
         if SSZBridge and SSZBridge.NotifyAudioChanged then
             SSZBridge:NotifyAudioChanged()
@@ -200,7 +261,7 @@ end
 
 -- Return true only for an accepted request. The Spoken R.source handles audio,
 -- queue order, deduplication, trim, playback, and its on-screen controls.
-local function RequestNarration(zoneName, areaLabel, immediate, isZone, quietMissing)
+local function RequestNarration(zoneName, areaLabel, immediate, isZone, quietMissing, initialGreeting)
     if not R.source then
         if not quietMissing then Say("Spoken player is not ready.") end
         return false
@@ -217,7 +278,7 @@ local function RequestNarration(zoneName, areaLabel, immediate, isZone, quietMis
         key = HeardKey(mapID, areaLabel)
     end
     if not immediate and (WasHeard(key) or pending[key]) then return false end
-    local clip = MakeClip(mapID, zoneName, areaLabel, isZone, not immediate)
+    local clip = MakeClip(mapID, zoneName, areaLabel, isZone, not immediate, initialGreeting)
     if not clip then
         if not quietMissing then Say("No recording found for " .. zoneName .. " / " .. areaLabel) end
         return false
@@ -244,7 +305,12 @@ local function RequestNarration(zoneName, areaLabel, immediate, isZone, quietMis
         pending[key] = clip
     end
     if not quietMissing then
-        Say((immediate and "Playing: " or "Queued: ") .. areaLabel)
+        -- PlayNow accepts manual requests behind existing narration; it does
+        -- not mean the new clip is audible yet. Never claim "Playing" for a
+        -- waiting/held selection.
+        local started = immediate and (clip.playState == "playing" or
+            clip.playState == "starting")
+        Say((started and "Playing: " or "Queued: ") .. areaLabel)
     end
     return true
 end

@@ -1,0 +1,120 @@
+name: Audio API transport regression
+
+on:
+  push:
+    branches:
+      - development/audio-api
+      - main
+    paths:
+      - "SoftSpoken/SoundUtils.lua"
+      - "SoftSpoken/SoundQueue.lua"
+      - "tests/audio_soundutils.lua"
+      - "tests/audio_queue.lua"
+      - "tests/audio_progress_ui.lua"
+      - "tests/audio_phase2_places.lua"
+      - "tests/audio_phase2_writings.lua"
+      - "tests/audio_phase2_writings_queue.lua"
+      - "tests/audio_phase2_diagnostics.lua"
+      - "tests/audio_phase2_routing.lua"
+      - "tests/audio_phase2_ducking.lua"
+      - "tests/audio_phase3_pack_selection.lua"
+      - "scripts/audio_pack_audit.py"
+      - "tests/test_audio_pack_audit.py"
+      - "SoftSpoken_Stories/DataModules.lua"
+      - "SoftSpoken_Stories/Followup.lua"
+      - "SoftSpoken_Writings/Audio.lua"
+      - "SoftSpoken/OtherSounds.lua"
+      - "SoftSpoken/addon.xml"
+      - "SoftSpoken/Sources.lua"
+      - "SoftSpoken/Core.lua"
+      - "SoftSpoken/Environment.lua"
+      - "SoftSpoken/Developer.lua"
+      - "SoftSpoken_Writings/Playlist.lua"
+      - "SoftSpoken_Writings/Events.lua"
+      - "SoftSpoken_Places/Autoplay.lua"
+      - "SoftSpoken_Places/Audio.lua"
+      - "SoftSpoken_Places/Settings.lua"
+      - "SoftSpoken_Places/UI/Options.lua"
+      - "SoftSpoken_Places/Core.lua"
+      - "SoftSpoken/UI/PlayerFrame.lua"
+      - "SoftSpoken/UI/Options.lua"
+      - "SoftSpoken/Transcript.lua"
+      - "SoftSpoken/Strings.lua"
+      - ".github/workflows/audio-api-regression.yml"
+  pull_request:
+    paths:
+      - "SoftSpoken/SoundUtils.lua"
+      - "SoftSpoken/SoundQueue.lua"
+      - "tests/audio_soundutils.lua"
+      - "tests/audio_queue.lua"
+      - "tests/audio_progress_ui.lua"
+      - "tests/audio_phase2_places.lua"
+      - "tests/audio_phase2_writings.lua"
+      - "tests/audio_phase2_writings_queue.lua"
+      - "tests/audio_phase2_diagnostics.lua"
+      - "tests/audio_phase2_routing.lua"
+      - "tests/audio_phase2_ducking.lua"
+      - "tests/audio_phase3_pack_selection.lua"
+      - "scripts/audio_pack_audit.py"
+      - "tests/test_audio_pack_audit.py"
+      - "SoftSpoken_Stories/DataModules.lua"
+      - "SoftSpoken_Stories/Followup.lua"
+      - "SoftSpoken_Writings/Audio.lua"
+      - "SoftSpoken/OtherSounds.lua"
+      - "SoftSpoken/addon.xml"
+      - "SoftSpoken/Sources.lua"
+      - "SoftSpoken/Core.lua"
+      - "SoftSpoken/Environment.lua"
+      - "SoftSpoken/Developer.lua"
+      - "SoftSpoken_Writings/Playlist.lua"
+      - "SoftSpoken_Writings/Events.lua"
+      - "SoftSpoken_Places/Autoplay.lua"
+      - "SoftSpoken_Places/Audio.lua"
+      - "SoftSpoken_Places/Settings.lua"
+      - "SoftSpoken_Places/UI/Options.lua"
+      - "SoftSpoken_Places/Core.lua"
+      - "SoftSpoken/UI/PlayerFrame.lua"
+      - "SoftSpoken/UI/Options.lua"
+      - "SoftSpoken/Transcript.lua"
+      - "SoftSpoken/Strings.lua"
+      - ".github/workflows/audio-api-regression.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  sound-utils-lua51:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lua 5.1
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y lua5.1
+      - name: Run ClassicAPI mock playback tests
+        run: lua5.1 tests/audio_soundutils.lua
+      - name: Run engine-driven queue and lifecycle tests
+        run: lua5.1 tests/audio_queue.lua
+      - name: Run estimated progress and Vanilla UI tests
+        run: lua5.1 tests/audio_progress_ui.lua
+      - name: Run Places combat, setting migration and startup tests
+        run: lua5.1 tests/audio_phase2_places.lua
+      - name: Run Writings page and interruption tests
+        run: lua5.1 tests/audio_phase2_writings.lua
+      - name: Run real Writings playlist and engine queue integration tests
+        run: lua5.1 tests/audio_phase2_writings_queue.lua
+      - name: Run read-only audio diagnostic and privacy tests
+        run: lua5.1 tests/audio_phase2_diagnostics.lua
+      - name: Run opt-in narration channel routing tests
+        run: lua5.1 tests/audio_phase2_routing.lua
+      - name: Run upstream three-category Vanilla audio mixer and recovery tests
+        run: lua5.1 tests/audio_phase2_ducking.lua
+      - name: Run pack precedence, language, path and metadata regression tests
+        run: lua5.1 tests/audio_phase3_pack_selection.lua
+      - name: Check offline pack auditor syntax and CLI
+        run: |
+          python3 -m py_compile scripts/audio_pack_audit.py
+          python3 scripts/audio_pack_audit.py --help >/dev/null
+      - name: Test offline MP3 auditor without touching recordings
+        run: python3 -m unittest discover -s tests -p test_audio_pack_audit.py -v
+

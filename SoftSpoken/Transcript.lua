@@ -434,11 +434,9 @@ function Transcript:Tick(elapsed)
     self.throttle = (self.throttle or 0) + (elapsed or 0)
     if self.throttle < 0.06 then return end
     self.throttle = 0
-    local seconds = self:GetElapsed()
-    if self.duration > 0 and seconds > self.duration + 0.75 then
-        self:StopClip()
-        return
-    end
+    -- Estimated duration is for subtitle pagination, never for its lifetime.
+    -- The CLIP_STOPPED / AUDIO_CHANGED callbacks follow the native audio state.
+    -- A recording that runs long must keep its words on screen.
     local progress = self:GetProgress()
     local wordIndex = self:WordAt(progress)
     local pageWord = wordIndex
