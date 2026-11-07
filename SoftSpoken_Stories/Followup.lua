@@ -318,6 +318,7 @@ function Followup:Play(entry, message, sender, guid, npcID, asked)
         length = clip.length,
         module = clip.module,
         language = clip.language,
+        fallbacks = clip.fallbacks,
     }
     -- Appended like any other line, so it waits for the turn-in's own voiceover to finish.
     return Player:EnqueuePrepared(soundData, asked)

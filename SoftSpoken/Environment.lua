@@ -22,9 +22,8 @@ local _G = getfenv(0)
 SpokenEnv = setmetatable({
     _G = _G,
     AddonFolder = "SoftSpoken",
-    -- A literal because this file loads before any metadata API exists;
-    -- scripts/quests/package.sh refuses to build when it disagrees with the .toc.
-    AddonVersion = "v0.8.0",
+    -- Initialized before metadata APIs exist; keep aligned with SoftSpoken.toc.
+    AddonVersion = "v0.8.1-beta",
 }, { __index = _G })
 
 -- Created here, filled by API.lua. Reusing an existing table keeps a feature addon's

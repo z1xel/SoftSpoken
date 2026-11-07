@@ -239,9 +239,6 @@ function Player:Prepare(soundData)
     soundData.key = soundData.fileName
     soundData.path = soundData.filePath
     soundData.priority = gossip and "low" or "normal"
-    -- Cut, so none of the NPC's greeting is heard under the line. With Game Greeting First the NPC
-    -- has had its say, so a greeting the wait fell short of fades instead.
-    soundData.cutsGameDialogue = not (GreetingFirst and GreetingFirst:IsOn())
     soundData.present = {
         header = soundData.name or "",
         label = soundData.title or (event == Enums.SoundEvent.QuestGreeting and L.OPT_GREETING or (gossip and L.OPT_PACK_GOSSIP or "")),
@@ -445,7 +442,6 @@ function Player:Setup()
         -- transcodes, and the extra gap absorbs one that is slightly short.
         interClipGap = 0.55,
         -- Play-and-stop the file before admitting it, as the queue always did here.
-        testBeforeQueue = true,
         -- Its settings follow the profile chosen in Spoken's own settings.
         profiles = function() return Addon.db end,
         -- Printed after Spoken's own by its Show Diagnostics.
@@ -470,7 +466,6 @@ function Player:Setup()
         addon = AddonFolder,
         order = 2,
         interClipGap = 0.55,
-        testBeforeQueue = true,
         profiles = function() return Addon.db end,
         -- The voice packs that hold gossip.
         packs = function()

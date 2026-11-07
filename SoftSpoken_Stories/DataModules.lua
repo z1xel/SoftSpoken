@@ -2,6 +2,26 @@ setfenv(1, VoiceOver)
 
 local CURRENT_MODULE_VERSION = 1
 
+-- A TOC index is metadata, not proof of a playable on-disk MP3. Reject
+-- malformed/escaping paths without probing files or playing noise.
+local function ValidRelativeFile(file)
+    if type(file) ~= "string" or not string.find(file, "%S") then return false end
+    if string.find(file, ":", 1, true) or string.find(file, "%c") then return false end
+    local normalized = string.gsub(file, "\\", "/")
+    if string.sub(normalized, 1, 1) == "/" then return false end
+    if normalized == ".." or string.find(normalized, "^%.%./")
+        or string.find(normalized, "/%.%./") or string.find(normalized, "/%.%.$") then
+        return false
+    end
+    return true
+end
+
+local function EstimateDuration(value)
+    local n = tonumber(value)
+    if n and n > 0 and n < math.huge then return n end
+    return nil
+end
+
 -- A pack declares itself with a TOC key rather than a name, which is why a pack published
 -- years ago is still found today and why the packs kept their folder names through the
 -- rename. The key itself is being renamed, so both generations are read, newest first.
@@ -911,6 +931,11 @@ function DataModules:ResolveSoundFile(soundData, instead)
             end
         end
     end
+    -- Keep playable alternatives in the same language/alias/pack order. Metadata
+    -- only tells us where a file *should* be; ClassicAPI is the first authority
+    -- that can reject an absent physical MP3. The queue can then try the next
+    -- indexed recording without losing the player's requested line.
+    local selected, alternatives, seen = nil, {}, {}
     for _, language in ipairs(languages) do
         for _, wantedFileName in ipairs(candidates) do
             local playerGenderedFileName = DataModules:AddPlayerGenderToFilename(wantedFileName)
@@ -924,22 +949,43 @@ function DataModules:ResolveSoundFile(soundData, instead)
                     else
                         length = data[wantedFileName]
                     end
-                    if length then
-                        soundData.fileName = fileName
-                        soundData.filePath = format([[Interface\AddOns\%s\%s]], module.METADATA.AddonName,
-                            module.GetSoundPath and module:GetSoundPath(fileName, soundData.event) or
-                            fileName)
-                        soundData.length = length
-                        soundData.module = module
-                        soundData.language = language
-                        EasterEggs:Apply(soundData)
-                        return true
+                    if length ~= nil and ValidRelativeFile(fileName) then
+                        local relative = fileName
+                        if module.GetSoundPath then
+                            local ok, result = pcall(module.GetSoundPath, module, fileName, soundData.event)
+                            relative = ok and result or nil
+                        end
+                        if ValidRelativeFile(relative) then
+                            local filePath = format([[Interface\AddOns\%s\%s]],
+                                module.METADATA.AddonName, relative)
+                            if not seen[filePath] then
+                                seen[filePath] = true
+                                local option = {
+                                    fileName = fileName,
+                                    filePath = filePath,
+                                    path = filePath,
+                                    length = EstimateDuration(length),
+                                    module = module,
+                                    language = language,
+                                }
+                                if not selected then selected = option
+                                else table.insert(alternatives, option) end
+                            end
+                        end
                     end
                 end
             end
         end
     end
-    return false
+    if not selected then return false end
+    soundData.fileName = selected.fileName
+    soundData.filePath = selected.filePath
+    soundData.length = selected.length
+    soundData.module = selected.module
+    soundData.language = selected.language
+    soundData.fallbacks = alternatives
+    EasterEggs:Apply(soundData)
+    return true
 end
 
 function DataModules:AddPlayerGenderToFilename(fileName)

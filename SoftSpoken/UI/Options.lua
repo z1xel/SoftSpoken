@@ -409,6 +409,13 @@ local function Build(canvas)
         Only(by, Subtitles)
         Requires(by, function() return Words() and transcript().Typewriter end, L.REASON_TYPEWRITER)
     end
+    -- Upstream's Show Progress Bar applies to every visible narrator;
+    -- this 1.12 port currently supports Large Window and Voice Only.
+    -- The meter is an estimate; only ClassicAPI determines audio completion.
+    Only(layout:Checkbox(L.OPT_SUBTITLE_PROGRESS, L.OPT_SUBTITLE_PROGRESS_TIP,
+        function() return transcript().SubtitleProgress ~= false end,
+        function(v) transcript().SubtitleProgress = v end, refresh), InWindow)
+
     Only(layout:Checkbox(L.OPT_LOCK_FRAME, L.OPT_LOCK_FRAME_TIP,
         function() return cfg().LockFrame end, function(v) cfg().LockFrame = v end, refresh), Shown)
     Only(layout:Button(L.OPT_RESET, 160, function()
@@ -596,17 +603,28 @@ local function Build(canvas)
     languageNotice.layoutBaseAlpha = 1
 
     layout:Section(L.OPT_AUDIO_TITLE)
-    if audio().AutoToggleDialog ~= nil then
-        layout:Checkbox(L.OPT_MUTE_DIALOGUE,
-            Version.IsLegacyVanilla and L.OPT_MUTE_DIALOGUE_TIP_VANILLA or L.OPT_MUTE_DIALOGUE_TIP,
-            function() return audio().AutoToggleDialog end,
-            function(v)
-                audio().AutoToggleDialog = v
-                -- Turning it off while it holds the channel down would leave it muted.
-                if not v then
-                    SoundUtils:MuteChannel("Dialog", false)
-                end
-            end, function() Options:UpdateRows() end)
+    -- ClassicAPI v1.18.14 routes MP3s to real game categories but exposes
+    -- no per-file gain setter. New starts use this selection, never alter
+    -- game CVars or pretend to control an existing voice's native handle.
+    layout:Dropdown(L.OPT_NARRATION_CHANNEL, L.OPT_NARRATION_CHANNEL_TIP,
+        { "Master", "SFX", "Music", "Ambience" },
+        function() return audio().NarrationChannel or "Master" end,
+        function(v)
+            if v == "Master" or v == "SFX" or v == "Music" or v == "Ambience" then
+                audio().NarrationChannel = v
+            end
+        end, nil, function(v)
+            if v == "SFX" then return "Sound Effects" end
+            return v
+        end)
+    -- Upstream Turn Other Sounds Down. Original 1.12 has Music, Ambience,
+    -- and SFX sliders but no independent NPC/Dialog volume.
+    local lower = function() return audio().LowerOthers end
+    local applyLower = function() OtherSounds:RefreshConfig(); Options:UpdateRows() end
+    if OtherSounds:IsAvailable() then
+        layout:Checkbox(L.OPT_LOWER_OTHERS, L.OPT_LOWER_OTHERS_TIP,
+            function() return lower().Enabled end,
+            function(v) lower().Enabled = v and true or false end, applyLower)
     end
     layout:Slider(L.OPT_LINE_GAP, 0, 5, 0.25,
         function() return audio().LineGap or 0 end, function(v) audio().LineGap = v end,
@@ -614,6 +632,26 @@ local function Build(canvas)
     layout:Checkbox(L.OPT_CUE_BETWEEN, L.OPT_CUE_BETWEEN_TIP,
         function() return audio().CueBetweenLines end,
         function(v) audio().CueBetweenLines = v end)
+    if OtherSounds:IsAvailable() then
+        layout:Section(L.OPT_LOWER_TITLE)
+        -- Each call has independent upvalues, including on 1.12 Lua 5.0.
+        local function AddVolumeSlider(channel, label)
+            local slider = layout:Slider(label, 0, 1, 0.05,
+                function() return lower()[channel] end,
+                function(v) lower()[channel] = v end,
+                applyLower, Layout.Percent)
+            Requires(slider, function() return lower().Enabled end, L.REASON_LOWER)
+            -- Don't offer a slider that would lower the current voice
+            -- category; it is always protected from being ducked.
+            Requires(slider, function()
+                return (audio().NarrationChannel or "Master") ~= channel
+            end, L.REASON_VOICE_CHANNEL)
+        end
+        AddVolumeSlider("Music", L.OPT_LOWER_MUSIC)
+        AddVolumeSlider("Ambience", L.OPT_LOWER_AMBIENCE)
+        AddVolumeSlider("SFX", L.OPT_LOWER_SFX)
+        layout:Note(L.OPT_LOWER_VANILLA_NO_DIALOG, nil, 36)
+    end
     -- The buttons live on Blizzard's quest, book and map frames, not on the player, but
     -- they all open the player's box, so the one switch for them is here. Absent where
     -- Contribute.xml is not loaded (the legacy clients): nothing there to hide.

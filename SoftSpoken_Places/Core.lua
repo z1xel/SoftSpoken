@@ -112,6 +112,9 @@ frame:SetScript("OnEvent", function(self, firedEvent, a, b, c)
         end
     elseif eventName == "PLAYER_REGEN_DISABLED" or eventName == "PLAYER_REGEN_ENABLED" or
            eventName == "CINEMATIC_START" or eventName == "CINEMATIC_STOP" then
+        -- The start event may precede the cinematic frame becoming visible.
+        if eventName == "CINEMATIC_START" then R.cinematicEventActive = true end
+        if eventName == "CINEMATIC_STOP" then R.cinematicEventActive = false end
         R.Recheck()
     end
 end)
