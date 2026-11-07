@@ -71,6 +71,12 @@ C_CreatureInfo={
         if id==777 then return {displayID=770} end
     end,
 }
+Spoken={
+    GetCreatureDisplayID=function(self, id)
+        local info=C_CreatureInfo.GetCreatureInfoByID(id)
+        return info and info.displayID
+    end,
+}
 dofile("SoftSpoken_Stories/SpeakerResolver.lua")
 dofile("SoftSpoken_Stories/Player.lua")
 local Player=VoiceOver.Player

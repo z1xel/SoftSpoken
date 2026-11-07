@@ -141,9 +141,8 @@ end
 -- The same player-faction crest is also the Stories player portrait fallback.
 -- One resolver owns these textures and their Turtle 1.12 race fallback.
 local FactionCrest=SSCQuestFactionCrest
--- Creature appearance records can be loaded asynchronously by ClassicAPI.
--- Keep this independent of Spoken narration and request each missing ID once.
-local requestedCreatureInfo={}
+-- Creature data requests belong to the shared core service. The page's
+-- temporary visual retry loop remains until Step 3's lifecycle integration.
 local function Portrait(parent)
     local holder=CreateFrame("Frame",nil,parent)
     holder:SetWidth(62);holder:SetHeight(62)
@@ -196,22 +195,15 @@ local function PaintCreaturePortrait(holder,kind,npc,speaker)
     if not (e and e.IsCreature and kind and e:IsCreature(kind)) then return end
     npc=Number(npc)
     if not npc then return end
-    local creatureInfo=C_CreatureInfo
-    local info=creatureInfo and API(creatureInfo.GetCreatureInfoByID,npc)
-    local displayID=type(info)=="table" and Number(info.displayID) or nil
+    local displayID=Spoken and Number(API(Spoken.GetCreatureDisplayID,Spoken,npc)) or nil
     if not displayID then
-        -- Narration already requests this missing record. Compendium browsing
-        -- must do the same without requiring the player to play a clip.
+        -- This request is shared with the narrator and quest-log preloader.
+        -- Keep the faction crest until the client supplies a display ID.
         if holder.pendingCreatureID~=npc then
             holder.pendingCreatureID=npc
             holder.pendingChecks=0
         end
-        if creatureInfo and type(creatureInfo.RequestLoadCreatureByID)=="function" and
-           not requestedCreatureInfo[npc] then
-            requestedCreatureInfo[npc]=true
-            local ok,accepted=pcall(creatureInfo.RequestLoadCreatureByID,npc)
-            if not ok or accepted==false then requestedCreatureInfo[npc]=nil end
-        end
+        if Spoken then API(Spoken.RequestCreatureAppearance,Spoken,npc) end
         return
     end
     holder.pendingCreatureID=nil
@@ -238,7 +230,6 @@ function P:RefreshPendingPortraits()
             if checks>60 then
                 -- Stop after about 15 seconds; a missing WDB/server record
                 -- should not be queried forever. Reopening retries the lookup.
-                requestedCreatureInfo[npcID]=nil
                 holder.pendingCreatureID=nil
                 holder.pendingChecks=nil
             else

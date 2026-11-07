@@ -149,9 +149,9 @@ local function PrimeGiver(questID)
     if Enums.GUID:IsCreature(type) then
         -- ClassicAPI can request even an NPC never encountered in-game.
         -- Preload when this quest-log button is bound, before the user clicks it.
-        if C_CreatureInfo and C_CreatureInfo.RequestLoadCreatureByID and id and
+        if Spoken and type(Spoken.RequestCreatureAppearance) == "function" and id and
            rawget(_G, "SoftSpokenClassicPortraits") ~= false then
-            pcall(C_CreatureInfo.RequestLoadCreatureByID, id)
+            pcall(Spoken.RequestCreatureAppearance, Spoken, id)
         end
         Spoken:PrimePortrait(id)
     end

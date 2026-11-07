@@ -130,10 +130,10 @@ local function PortraitFor(soundData)
         fallback = CrestFallback(),
     }
     if rawget(_G, "SoftSpokenClassicPortraits") ~= false and creatureID and
-       C_CreatureInfo and type(C_CreatureInfo.GetCreatureInfoByID) == "function" then
-        local okInfo, info = pcall(C_CreatureInfo.GetCreatureInfoByID, creatureID)
-        local displayID = okInfo and type(info) == "table" and tonumber(info.displayID) or nil
-        if displayID and displayID <= 0 then displayID = nil end
+       C_CreatureInfo and type(C_CreatureInfo.GetCreatureInfoByID) == "function" and
+       Spoken and type(Spoken.GetCreatureDisplayID) == "function" then
+        local okInfo, displayID = pcall(Spoken.GetCreatureDisplayID, Spoken, creatureID)
+        if not okInfo then displayID = nil end
         return {
             kind = "creature", creatureID = creatureID,
             displayID = displayID,

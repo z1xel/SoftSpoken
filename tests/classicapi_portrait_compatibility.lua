@@ -73,6 +73,7 @@ local function Scenario(version)
     }, {__index=_G})
     SpokenEnv = env
     SoftSpokenClassicPortraits = nil
+    dofile("SoftSpoken/CreatureAppearance.lua")
     dofile("SoftSpoken/UI/Portrait.lua")
 
     local portrait = {shown=true}
@@ -172,6 +173,7 @@ local function Scenario(version)
             end
         end
         assert(eventFrame,"registered ClassicAPI cache event")
+        known[701],known[702] = 1001,1002
         eventFrame.scripts.OnEvent(eventFrame,"CREATURE_DATA_LOAD_RESULT",701,true)
         eventFrame.scripts.OnEvent(eventFrame,"CREATURE_DATA_LOAD_RESULT",702,true)
         current=Clip(701)
