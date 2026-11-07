@@ -9,6 +9,7 @@ local function Frame(kind,parent)
     local f={kind=kind or "Frame",parent=parent,shown=true,scripts={},height=400,width=400}
     local methods={}
     function methods:SetScript(name,fn) self.scripts[name]=fn end
+    function methods:GetScript(name) return self.scripts[name] end
     function methods:CreateTexture() return Frame("Texture",self) end
     function methods:CreateFontString() return Frame("FontString",self) end
     function methods:SetTexture(value) self.texture=value end
@@ -183,6 +184,8 @@ eq(face("progress").icon.texture,"portrait:5202","cached display paints immediat
 -- through the core's cached display, with no stale callback to a hidden page.
 page.frame:Hide()
 eq(ListenerCount(),0,"unsubscribed on hide")
+eq(face("accept").icon.texture,"crest.tga","hide detaches native texture")
+eq(face("progress").binding,nil,"hide invalidates stage binding")
 local before=#nativePaints
 Load(2001,5201,true)
 eq(#nativePaints,before,"hidden page never paints native textures")

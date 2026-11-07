@@ -347,17 +347,23 @@ function P.Create(page)
     self.portraitCallback=function(id,displayID,success)
         self:OnCreatureAppearance(id,displayID,success)
     end
-    page.frame:SetScript("OnShow",function()
+    -- Preserve any pre-existing page skin handlers; our lifecycle hooks
+    -- must not replace layout or other Compendium behavior.
+    local priorShow=page.frame.GetScript and page.frame:GetScript("OnShow")
+    local priorHide=page.frame.GetScript and page.frame:GetScript("OnHide")
+    page.frame:SetScript("OnShow",function(frame)
+        if priorShow then priorShow(frame) end
         if not self.active then return end
         self:SubscribePortraits()
         self:RebindPortraits()
     end)
-    page.frame:SetScript("OnHide",function()
+    page.frame:SetScript("OnHide",function(frame)
+        if priorHide then priorHide(frame) end
         self:UnsubscribePortraits()
         self.generation=self.generation+1
         for _,part in pairs(self.parts) do
-            part.face.pendingCreatureID=nil
-            part.face.binding=nil
+            -- Detach baked native textures immediately on tab/window hide.
+            PaintCrest(part.face)
         end
     end)
     -- The remaining 0.25s ticker updates playback buttons only. Creature
