@@ -780,4 +780,11 @@ do
     endSound(fresh)
 end
 
+-- Legacy sound-bus muting and admission probes do not belong in the 1.12 queue.
+local sourceCode = assert(io.open("SoftSpoken/SoundQueue.lua", "r"))
+local queueCode = sourceCode:read("*a")
+sourceCode:close()
+assert(not queueCode:find("MuteGameDialogue", 1, true))
+assert(not queueCode:find("testBeforeQueue", 1, true))
+
 print("audio_queue.lua: engine completion, lifecycle, and race assertions passed")

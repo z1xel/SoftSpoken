@@ -23,6 +23,10 @@ SOUNDKIT = { IG_QUEST_LOG_CLOSE = 1 }
 SpokenEnv = setmetatable({}, {__index = _G})
 dofile("SoftSpoken/SoundUtils.lua")
 local util = SpokenEnv.SoundUtils
+-- No eager file probes (they consume native stream slots and are unreliable).
+assert(util.TestSound == nil)
+-- The retained legacy API must be inert and must never toggle global SFX.
+util:MuteChannel("Dialog", true)
 local function eq(a,b)
     assert(a==b, tostring(a).." ~= "..tostring(b))
 end

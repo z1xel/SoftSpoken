@@ -626,21 +626,6 @@ local function Build(canvas)
             function() return lower().Enabled end,
             function(v) lower().Enabled = v and true or false end, applyLower)
     end
-    -- The 1.12 client cannot independently mute NPC dialogue; the old
-    -- checkbox used a global SFX reset, removed in the ClassicAPI backend.
-    -- Hide the nonfunctional toggle until issue #63 supplies safe behavior.
-    if audio().AutoToggleDialog ~= nil and not Version.IsLegacyVanilla then
-        layout:Checkbox(L.OPT_MUTE_DIALOGUE,
-            Version.IsLegacyVanilla and L.OPT_MUTE_DIALOGUE_TIP_VANILLA or L.OPT_MUTE_DIALOGUE_TIP,
-            function() return audio().AutoToggleDialog end,
-            function(v)
-                audio().AutoToggleDialog = v
-                -- Turning it off while it holds the channel down would leave it muted.
-                if not v then
-                    SoundUtils:MuteChannel("Dialog", false)
-                end
-            end, function() Options:UpdateRows() end)
-    end
     layout:Slider(L.OPT_LINE_GAP, 0, 5, 0.25,
         function() return audio().LineGap or 0 end, function(v) audio().LineGap = v end,
         nil, Layout.Seconds, L.OPT_LINE_GAP_TIP)

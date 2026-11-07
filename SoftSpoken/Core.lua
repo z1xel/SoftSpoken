@@ -57,11 +57,6 @@ Defaults = {
             -- Seconds of quiet between one line and the next, on top of each module's own short
             -- gap: back to back, a new line started before the last had settled.
             LineGap = 1,
-            -- The client speaks its own NPC barks on the Dialog channel, over the top of a
-            -- line being read. Muting it while we speak belongs to the player: any addon's
-            -- clip is the one being talked over. Not on clients without the channel, where
-            -- Compat.lua interrupts the bark a different way.
-            AutoToggleDialog = (Version.IsLegacyVanilla or Version:IsRetailOrAboveLegacyVersion(60100)) or false,
             -- A short sound in the pause between one line and the next (#142): at a quest hub a hand-in
             -- and the next pickup otherwise run together, often in the same NPC's voice.
             -- Off by default, as the queue has always played without it.

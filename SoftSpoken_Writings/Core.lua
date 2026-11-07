@@ -81,7 +81,7 @@ function B:SetupSource()
     if not self:PlayerAvailable() then return nil end
     self.source=Spoken:RegisterSource("books", {
         title="SoftSpoken Writings", addon="SoftSpoken_Writings", order=3,
-        interClipGap=0.35, testBeforeQueue=true,
+        interClipGap=0.35,
         packs=function()
             local names={}
             for _,p in ipairs(B:GetAudioPacks()) do
