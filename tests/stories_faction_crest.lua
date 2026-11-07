@@ -57,7 +57,7 @@ VoiceOver=setmetatable({
             IsGossipEvent=function(self,event) return event==4 or event==5 end,
             IsQuestEvent=function(self,event) return event==1 or event==2 or event==3 end,
         },
-        GUID={IsCreature=function(self,kind) return kind=="Creature" end},
+        GUID={Creature="Creature",IsCreature=function(self,kind) return kind=="Creature" end},
     },
     DataModules={
         GetQuestLogQuestGiverTypeAndID=function(self,id)
@@ -66,8 +66,18 @@ VoiceOver=setmetatable({
     },
 }, {__index=_G})
 C_CreatureInfo={
-    GetCreatureInfoByID=function(id) return id==448 and {displayID=330} end,
+    GetCreatureInfoByID=function(id)
+        if id==448 then return {displayID=330} end
+        if id==777 then return {displayID=770} end
+    end,
 }
+Spoken={
+    GetCreatureDisplayID=function(self, id)
+        local info=C_CreatureInfo.GetCreatureInfoByID(id)
+        return info and info.displayID
+    end,
+}
+dofile("SoftSpoken_Stories/SpeakerResolver.lua")
 dofile("SoftSpoken_Stories/Player.lua")
 local Player=VoiceOver.Player
 local function prep(id, faceless)
@@ -87,6 +97,12 @@ expect(quest.fallback.texCoord[2],1,"crest uncropped right")
 expect(quest.fallback.texCoord[3],0,"crest uncropped top")
 expect(quest.fallback.texCoord[4],1,"crest uncropped bottom")
 
+-- A completion must use the indexed quest ender, not the quest giver.
+SpokenQuestsCompendium={quests={[123]={ender=777}}}
+local completion=Player:Prepare({event=VoiceOver.Enums.SoundEvent.QuestComplete,
+    questID=123,name="Quest giver",fileName="123-complete",filePath="sample.mp3"})
+expect(completion.present.portrait.creatureID,777,"completion narrator uses quest ender")
+expect(completion.present.portrait.displayID,770,"completion narrator gets ender display")
 local original=prep(345)
 expect(original.kind,"model","no indexed giver keeps legacy model")
 expect(original.fallback.texture,ALLIANCE,"legacy model fallback also uses crest")

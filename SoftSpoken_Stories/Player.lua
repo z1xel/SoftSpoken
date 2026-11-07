@@ -97,78 +97,16 @@ end
 -- Presentation
 --------------------------------------------------------------------------------
 
--- Creature portrait fallback for Turtle 1.12. When an optional extension
--- provides GUIDs, use its creature ID; otherwise retain the Vanilla "npc"
--- model fallback. Objects and items intentionally have no creature portrait.
-local function CreatureFor(soundData)
-    if soundData.unitIsObjectOrItem then return nil end
-    local guid = soundData.unitGUID
-    if guid and Utils.GetGUIDType and Utils.GetIDFromGUID then
-        return Utils:GetCreatureIDFromGUID(guid)
-    end
-    return soundData.questID or soundData.name
-end
-
--- Give ClassicAPI a real creature ID even for quest-log replay away from an NPC.
--- Live dialogue prefers the NPC actually speaking. Quest-log acceptance lines may
--- instead use the quest giver ID already shipped in Spoken's audio database.
--- Everything here is visual and called through pcall by PortraitFor.
-local function ClassicCreatureFor(soundData)
-    if not C_CreatureInfo or type(C_CreatureInfo.GetCreatureInfoByID) ~= "function" then
-        return nil
-    end
-    local function FromGUID(guid)
-        if type(guid) ~= "string" or guid == "" or
-           type(C_CreatureInfo.GetCreatureID) ~= "function" then return nil end
-        local id = C_CreatureInfo.GetCreatureID(guid)
-        if type(id) == "number" and id > 0 then return id end
-    end
-
-    local id = FromGUID(soundData.unitGUID)
-    if not id and type(UnitGUID) == "function" and
-       type(soundData.name) == "string" and soundData.name ~= "" then
-        for _, unit in ipairs({ "npc", "target" }) do
-            local okName, name = pcall(UnitName, unit)
-            if okName and name == soundData.name then
-                local okGUID, guid = pcall(UnitGUID, unit)
-                if okGUID then id = FromGUID(guid) end
-                if id then break end
-            end
-        end
-    end
-
-    -- Manual PlayNow/replay clips have no live NPC. Use the indexed quest
-    -- giver for ALL quest dialogue stages, not only QuestAccept. Live GUIDs
-    -- always take precedence when an NPC is actually speaking.
-    if not id and Enums.SoundEvent:IsQuestEvent(soundData.event) and
-       type(soundData.questID) == "number" and soundData.questID > 0 then
-        local npcType, npcID = DataModules:GetQuestLogQuestGiverTypeAndID(soundData.questID)
-        if npcID and Enums.GUID:IsCreature(npcType) then
-            id = tonumber(npcID)
-        end
-    end
-    if not id or id <= 0 then return nil end
-
-    local displayID
-    local info = C_CreatureInfo.GetCreatureInfoByID(id)
-    if type(info) == "table" then
-        displayID = tonumber(info.displayID)
-        if displayID and displayID <= 0 then displayID = nil end
-    end
-    -- An uncached creature is still renderable: the shared portrait renderer
-    -- requests it asynchronously and refreshes when the client supplies its data.
-    return id, displayID
-end
-
--- A line from something faceless shows the item that starts the quest, else a posted notice.
+-- Speaker identity comes from Stories' shared resolver, not from the quest ID.
+-- Only appearance lookup stays here; the core's model renderer remains unchanged.
 local NOTICE = [[Interface\Icons\INV_Misc_Note_01]]
 local ICON_CROP = { 0.08, 0.92, 0.08, 0.92 }
--- Mirror the exact player-faction crest rendered on the quest Compendium.
--- Crest artwork fills the texture's UVs (unlike the cropped item icons).
+
 local function CrestFallback()
     local texture = SSCQuestFactionCrest.Resolve()
     return { kind = "texture", texture = texture, texCoord = {0,1,0,1} }
 end
+
 local function Faceless(soundData)
     local icon, crop
     if Spoken and Spoken.QuestItemIcon then icon, crop = Spoken:QuestItemIcon(soundData.questID) end
@@ -176,26 +114,33 @@ local function Faceless(soundData)
 end
 
 local function PortraitFor(soundData)
-    if soundData.unitIsObjectOrItem then return Faceless(soundData) end
+    -- Speaker resolution must never interrupt a narration clip.
+    local ok, kind, speakerID = pcall(SpeakerResolver.ForSound, SpeakerResolver, soundData)
+    if not ok then kind, speakerID = nil, nil end
+    if soundData.unitIsObjectOrItem or (kind and not Enums.GUID:IsCreature(kind)) then
+        return Faceless(soundData)
+    end
+    local creatureID = kind and Enums.GUID:IsCreature(kind) and speakerID or nil
+    -- On unextended Vanilla, retain the legacy name-based model attempt.
+    -- Never interpret a quest ID as a creature ID.
     local original = {
         kind = "model",
-        creatureID = CreatureFor(soundData),
+        creatureID = creatureID or soundData.name,
         animation = 60,
         fallback = CrestFallback(),
     }
-    -- Rendering is strictly optional and cannot block an audio clip.
-    -- Emergency switch: /run SoftSpokenClassicPortraits=false
-    if rawget(_G, "SoftSpokenClassicPortraits") ~= false then
-        local ok, creatureID, displayID = pcall(ClassicCreatureFor, soundData)
-        if ok and creatureID then
-            return {
-                kind = "creature", creatureID = creatureID,
-                displayID = displayID,
-                -- If ClassicAPI cannot draw this creature, show the same
-                -- faction crest as the Compendium, never a stale NPC model.
-                fallback = CrestFallback(),
-            }
-        end
+    if rawget(_G, "SoftSpokenClassicPortraits") ~= false and creatureID and
+       C_CreatureInfo and type(C_CreatureInfo.GetCreatureInfoByID) == "function" and
+       Spoken and type(Spoken.GetCreatureDisplayID) == "function" then
+        local okInfo, displayID = pcall(Spoken.GetCreatureDisplayID, Spoken, creatureID)
+        if not okInfo then displayID = nil end
+        return {
+            kind = "creature", creatureID = creatureID,
+            displayID = displayID,
+            -- The renderer requests uncached data asynchronously; the
+            -- same faction crest is used by the Compendium.
+            fallback = CrestFallback(),
+        }
     end
     return original
 end
@@ -496,6 +441,7 @@ function Player:Setup()
         -- Upstream's figure: quest durations come from a lookup that has drifted across
         -- transcodes, and the extra gap absorbs one that is slightly short.
         interClipGap = 0.55,
+        -- Play-and-stop the file before admitting it, as the queue always did here.
         -- Its settings follow the profile chosen in Spoken's own settings.
         profiles = function() return Addon.db end,
         -- Printed after Spoken's own by its Show Diagnostics.

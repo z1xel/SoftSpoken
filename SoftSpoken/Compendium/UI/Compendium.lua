@@ -486,6 +486,7 @@ local function BuildWindow()
         if tab and tab.panel and tab.panel.list and tab.panel.list.searchBox then
             tab.panel.list.searchBox:ClearFocus()
         end
+        if tab and tab.onHide then tab.onHide(tab.panel) end
         if PlaySound then PlaySound("igSpellBookClose") end
     end)
     if UISpecialFrames then table.insert(UISpecialFrames,NAME) end
@@ -527,6 +528,9 @@ function C:Select(key)
     self:Window()
     LayOutTabs()
     local previous=active
+    if previous and previous~=key and C.tabs[previous] and C.tabs[previous].onHide then
+        C.tabs[previous].onHide(C.tabs[previous].panel)
+    end
     active=key
     for k,def in pairs(C.tabs) do
         if def.panel then
@@ -589,6 +593,9 @@ function C:Relayout()
         else
             -- Every module is off: leave no page visible and close the
             -- Compendium. No saved history or per-tab state is altered.
+            if active and C.tabs[active] and C.tabs[active].onHide then
+                C.tabs[active].onHide(C.tabs[active].panel)
+            end
             active=nil
             for _,def in pairs(C.tabs) do
                 if def.panel then def.panel:Hide() end
@@ -885,6 +892,7 @@ function List:AcquireRow(index)
         if b and b.item then
             b.over=not b.item.locked
             HighlightRow(b,b.item,b.list.opts.isSelected and b.list.opts.isSelected(b.item))
+            if not b.item.locked and b.list.opts.onHover then b.list.opts.onHover(b.item) end
         end
     end)
     button:SetScript("OnLeave",function(self)
@@ -1008,6 +1016,18 @@ function List:DrawRows()
             b.over=false
             b:Hide()
         end
+    end
+    -- Optional domain callback: report actual viewport intersections, not
+    -- the extra pooled rows created for smooth 1.12 scrolling.
+    if self.opts.onVisibleRows and viewport>0 then
+        local last=index-1
+        for i=index,math.min(table.getn(self.items),index+needed-1) do
+            if self.rowStarts[i]>=offset+viewport then break end
+            last=i
+        end
+        -- Also report an empty viewport after filtering; the consumer can
+        -- discard speculative work for rows that no longer exist.
+        self.opts.onVisibleRows(self.items,index,last)
     end
     -- Hide any surplus pooled rows left from a previously taller viewport.
     for i=needed+1,table.getn(self.rows) do

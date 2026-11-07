@@ -143,18 +143,27 @@ local primed = {}
 
 local function PrimeGiver(questID)
     if primed[questID] or not (Spoken and Spoken.PrimePortrait) then return end
-    local type, id = DataModules:GetQuestLogQuestGiverTypeAndID(questID)
-    if not type then return end
-    primed[questID] = true
-    if Enums.GUID:IsCreature(type) then
-        -- ClassicAPI can request even an NPC never encountered in-game.
-        -- Preload when this quest-log button is bound, before the user clicks it.
-        if C_CreatureInfo and C_CreatureInfo.RequestLoadCreatureByID and id and
-           rawget(_G, "SoftSpokenClassicPortraits") ~= false then
-            pcall(C_CreatureInfo.RequestLoadCreatureByID, id)
-        end
-        Spoken:PrimePortrait(id)
+    local kind, id = DataModules:GetQuestLogQuestGiverTypeAndID(questID)
+    if not kind then return end
+    if not Enums.GUID:IsCreature(kind) then
+        primed[questID] = true -- An object/item never needs a creature query.
+        return
     end
+    id = tonumber(id)
+    if not id or id <= 0 or math.floor(id) ~= id then return end
+    -- Unsupported clients use the existing model/name fallback and do not
+    -- fetch creature data. A rejected native query remains retryable when the
+    -- quest-log row is rebound; a successful/cached request is shared in Core.
+    if rawget(_G, "SoftSpokenClassicPortraits") == false or
+       not (C_CreatureInfo and type(C_CreatureInfo.GetCreatureInfoByID) == "function" and
+            type(C_CreatureInfo.RequestLoadCreatureByID) == "function") or
+       type(Spoken.RequestCreatureAppearance) ~= "function" then
+        primed[questID] = true
+    else
+        local ok, accepted = pcall(Spoken.RequestCreatureAppearance, Spoken, id)
+        if ok and accepted then primed[questID] = true end
+    end
+    Spoken:PrimePortrait(id)
 end
 
 --- What a play button does when it is clicked, for whichever quest it currently stands for.

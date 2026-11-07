@@ -96,6 +96,21 @@ function Spoken:GetPortraitRenderer(kind)
     return Renderers[kind]
 end
 
+-- Shared creature appearance lookup and request coordination for feature addons.
+-- Listeners are invoked on a later UI frame, not inside native cache callbacks.
+function Spoken:GetCreatureDisplayID(creatureID)
+    return CreatureAppearance:GetDisplayID(creatureID)
+end
+function Spoken:RequestCreatureAppearance(creatureID)
+    return CreatureAppearance:Request(creatureID)
+end
+function Spoken:SubscribeCreatureAppearance(callback)
+    return CreatureAppearance:Subscribe(callback)
+end
+function Spoken:UnsubscribeCreatureAppearance(callback)
+    return CreatureAppearance:Unsubscribe(callback)
+end
+
 --- Kept for source compatibility; the classic window uses its 3D model directly.
 function Spoken:PrimePortrait(creatureID)
 end

@@ -6,6 +6,7 @@ local Q=SSCQuestsTab
 local C=SSCCompendium
 local S=SSCQuestState
 local M=SSCQuestCatalog
+local Preload=SSCQuestPortraitPreload
 local list,panel,page,details,tree
 local treeRevision=-1
 local selectedID
@@ -160,6 +161,15 @@ function Q:Refresh()
     if selectedID and not S:IsSeen(selectedID) and not Settings("unlock") then
         selectedID=nil
     end
+    -- Selected quest first; visible-row work starts only after the list redraw.
+    if Preload then
+        if C and C.IsOpen and C:IsOpen("quests") then
+            Preload:Start()
+            Preload:Selected(selectedID)
+        else
+            Preload:Stop()
+        end
+    end
     list:Render()
     if page then
         local entry=PageEntry()
@@ -201,6 +211,14 @@ local function Build(panelFrame)
         build=function() return Q:BuildRows() end,
         isSelected=function(item) return Q:IsSelected(item) end,
         onClick=function(item) Q:Select(item) end,
+        onHover=function(item)
+            if Preload and C and C.IsOpen and C:IsOpen("quests") then Preload:Hover(item) end
+        end,
+        onVisibleRows=function(items,first,last)
+            if Preload and C and C.IsOpen and C:IsOpen("quests") then
+                Preload:Visible(items,first,last)
+            end
+        end,
         onSearch=function(text)
             filter=Lower(string.gsub(string.gsub(text or "","^%s+",""),"%s+$",""))
             searchClosed={}
@@ -230,6 +248,7 @@ if C and C.Register and not C:Tab("quests") then
         label="Stories",order=0,title="Azeroth's Compendium",
         build=Build,
         onShow=function() S:ReadLog() end,
+        onHide=function() if Preload then Preload:Stop() end end,
         -- A second click on the currently selected tab returns to its landing
         -- page; switching away and back never clears the current quest.
         onReselect=function() selectedID=nil;Q:Refresh() end,

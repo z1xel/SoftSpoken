@@ -264,76 +264,26 @@ Renderers["model"] = {
     end,
 }
 
--- Request creature appearance data independently of audio and quest dispatch.
--- ClassicAPI's creature cache can populate asynchronously. A completion may
--- also fire synchronously during RequestLoadCreatureByID; defer player refresh
--- until OnUpdate to avoid reentering Portrait:Configure.
-local requestedCreatures = {}
-local creatureLoadFrame
-
-local function OnCreatureDataLoaded(frame, eventName, id, success)
-    -- Stock 1.12 events use global event/arg1/arg2; Compat.lua's CreateFrame
-    -- shim passes them to the handler explicitly.
-    frame = frame or creatureLoadFrame
-    eventName = eventName or event
-    id = id or arg1
-    if success == nil then success = arg2 end
-    if eventName ~= "CREATURE_DATA_LOAD_RESULT" then return end
-    id = tonumber(id)
-    if not id or id <= 0 then return end
-    if success == false or success == nil or success == 0 then
-        requestedCreatures[id] = nil -- permit a later retry after a failure
-        return
-    end
-    -- More than one request can finish before a frame update. Do not let
-    -- the most recent response overwrite an earlier, currently speaking NPC.
-    frame.pendingIDs = frame.pendingIDs or {}
-    frame.pendingIDs[id] = true
-    frame:SetScript("OnUpdate", function(self)
-        self = self or creatureLoadFrame
-        self:SetScript("OnUpdate", nil)
-        local ready = self.pendingIDs
-        self.pendingIDs = nil
-        if not ready or rawget(_G, "SoftSpokenClassicPortraits") == false then return end
-        -- Never restart a clip or revive a previous speaker after the queue
-        -- moves on. Only repaint the portrait for the current creature.
-        local ok, clip = pcall(function()
-            return Spoken and Spoken.GetCurrent and Spoken:GetCurrent()
-        end)
-        if not ok then return end
-        local spec = clip and clip.present and clip.present.portrait
-        local currentID = spec and tonumber(spec.creatureID)
-        if spec and spec.kind == "creature" and currentID and ready[currentID] and
-           Spoken and type(Spoken.RefreshPlayer) == "function" then
-            pcall(Spoken.RefreshPlayer, Spoken)
-        end
+-- Creature data requests and native completion events are shared across
+-- narrator, Compendium and quest-log preloading. The service defers callbacks
+-- until OnUpdate, so refreshing the player cannot reenter a native API call.
+local function OnCreatureAppearance(id, displayID, success)
+    if not success or not displayID or rawget(_G, "SoftSpokenClassicPortraits") == false then return end
+    local ok, clip = pcall(function()
+        return Spoken and Spoken.GetCurrent and Spoken:GetCurrent()
     end)
+    if not ok then return end
+    local spec = clip and clip.present and clip.present.portrait
+    if spec and spec.kind == "creature" and tonumber(spec.creatureID) == id and
+       Spoken and type(Spoken.RefreshPlayer) == "function" then
+        pcall(Spoken.RefreshPlayer, Spoken)
+    end
 end
+CreatureAppearance:Subscribe(OnCreatureAppearance)
 
 function Portrait:RequestCreatureData(creatureID)
-    local api = C_CreatureInfo
-    creatureID = tonumber(creatureID)
-    if rawget(_G, "SoftSpokenClassicPortraits") == false or not api or
-       not creatureID or creatureID <= 0 or
-       type(api.RequestLoadCreatureByID) ~= "function" then return false end
-    if requestedCreatures[creatureID] then return true end
-
-    if not creatureLoadFrame then
-        local ok, frame = pcall(CreateFrame, "Frame", nil, UIParent)
-        if not ok or not frame then return false end
-        local registered = pcall(frame.RegisterEvent, frame, "CREATURE_DATA_LOAD_RESULT")
-        if not registered then return false end
-        frame:SetScript("OnEvent", OnCreatureDataLoaded)
-        creatureLoadFrame = frame
-    end
-    -- Mark before requesting: a cache hit can dispatch the event immediately.
-    requestedCreatures[creatureID] = true
-    local ok, accepted = pcall(api.RequestLoadCreatureByID, creatureID)
-    if not ok or accepted == false then
-        requestedCreatures[creatureID] = nil
-        return false
-    end
-    return true
+    if rawget(_G, "SoftSpokenClassicPortraits") == false then return false end
+    return CreatureAppearance:Request(creatureID)
 end
 
 -- ClassicAPI changed the owner of SetDisplayInfo in October 2026:
@@ -387,13 +337,8 @@ Renderers["creature"] = {
         if creatureID and creatureID <= 0 then creatureID = nil end
         if displayID and displayID <= 0 then displayID = nil end
 
-        if not displayID and creatureID and C_CreatureInfo and
-           type(C_CreatureInfo.GetCreatureInfoByID) == "function" then
-            local ok, info = pcall(C_CreatureInfo.GetCreatureInfoByID, creatureID)
-            if ok and type(info) == "table" then
-                displayID = tonumber(info.displayID)
-                if displayID and displayID <= 0 then displayID = nil end
-            end
+        if not displayID and creatureID then
+            displayID = CreatureAppearance:GetDisplayID(creatureID)
         end
         if not displayID then
             -- Never show the last speaker while a new NPC is being fetched.
