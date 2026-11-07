@@ -180,11 +180,17 @@ local function Scenario(version)
         eventFrame.scripts.OnUpdate(eventFrame,0)
         expect(refreshes,1,"both responses retained until refresh")
         expect(eventFrame.scripts.OnUpdate,nil,"remove completed update handler")
-        -- If the current clip is unrelated, responses must not refresh it.
-        eventFrame.scripts.OnEvent(eventFrame,"CREATURE_DATA_LOAD_RESULT",702,true)
+        -- A real pending completion after switching speakers must not
+        -- repaint an unrelated current clip (and must not restart audio).
+        Configure(Clip(703))
+        known[703]=1003
+        eventFrame.scripts.OnEvent(eventFrame,"CREATURE_DATA_LOAD_RESULT",703,true)
         current=Clip(900)
         eventFrame.scripts.OnUpdate(eventFrame,0)
         expect(refreshes,1,"do not refresh wrong speaker")
+        -- Duplicated native events for settled IDs cannot schedule repaint.
+        eventFrame.scripts.OnEvent(eventFrame,"CREATURE_DATA_LOAD_RESULT",703,true)
+        expect(eventFrame.scripts.OnUpdate,nil,"ignore unsolicited completion")
     end
     return true
 end
