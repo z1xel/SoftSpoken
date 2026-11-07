@@ -5,7 +5,9 @@ on:
     paths:
       - "SoftSpoken/UI/Options.lua"
       - "SoftSpoken/UI/Portrait.lua"
+      - "SoftSpoken/CreatureAppearance.lua"
       - "SoftSpoken/API.lua"
+      - "SoftSpoken/addon.xml"
       - "SoftSpoken/Compendium/UI/Compendium.lua"
       - "SoftSpoken/Strings.lua"
       - "SoftSpoken_Stories/Compendium/QuestsTab_112.lua"
@@ -21,6 +23,7 @@ on:
       - "Data_Packs/SSS_VOFallback/**"
       - "tests/audio_pack_*.lua"
       - "tests/classicapi_portrait_compatibility.lua"
+      - "tests/creature_appearance_service.lua"
       - "tests/stories_faction_crest.lua"
       - "tests/stories_speaker_resolution.lua"
       - "tests/places_zone_portrait_emblems.lua"
@@ -31,7 +34,9 @@ on:
     paths:
       - "SoftSpoken/UI/Options.lua"
       - "SoftSpoken/UI/Portrait.lua"
+      - "SoftSpoken/CreatureAppearance.lua"
       - "SoftSpoken/API.lua"
+      - "SoftSpoken/addon.xml"
       - "SoftSpoken/Compendium/UI/Compendium.lua"
       - "SoftSpoken/Strings.lua"
       - "SoftSpoken_Stories/Compendium/QuestsTab_112.lua"
@@ -47,6 +52,7 @@ on:
       - "Data_Packs/SSS_VOFallback/**"
       - "tests/audio_pack_*.lua"
       - "tests/classicapi_portrait_compatibility.lua"
+      - "tests/creature_appearance_service.lua"
       - "tests/stories_faction_crest.lua"
       - "tests/stories_speaker_resolution.lua"
       - "tests/places_zone_portrait_emblems.lua"
@@ -68,9 +74,9 @@ jobs:
         run: |
           luac5.1 -p SoftSpoken/UI/Options.lua SoftSpoken/Strings.lua
           luac5.1 -p SoftSpoken/Compendium/UI/Compendium.lua
-          luac5.1 -p SoftSpoken/UI/Portrait.lua SoftSpoken/Compat.lua SoftSpoken/API.lua
+          luac5.1 -p SoftSpoken/UI/Portrait.lua SoftSpoken/CreatureAppearance.lua SoftSpoken/Compat.lua SoftSpoken/API.lua
           luac5.1 -p SoftSpoken_Places/Audio.lua tests/places_zone_portrait_emblems.lua
-          luac5.1 -p tests/classicapi_portrait_compatibility.lua tests/stories_faction_crest.lua
+          luac5.1 -p tests/classicapi_portrait_compatibility.lua tests/creature_appearance_service.lua tests/stories_faction_crest.lua
           luac5.1 -p SoftSpoken_Stories/FactionCrest.lua SoftSpoken_Stories/SpeakerResolver.lua SoftSpoken_Stories/Player.lua SoftSpoken_Stories/Compendium/QuestPage_112.lua
           luac5.1 -p tests/stories_speaker_resolution.lua
           luac5.1 -p SoftSpoken_Places/UI/LoreWindow.lua SoftSpoken_Writings/UI/Readables.lua
@@ -86,6 +92,8 @@ jobs:
         run: lua5.1 tests/stories_faction_crest.lua
       - name: Check Stories shared speaker resolution
         run: lua5.1 tests/stories_speaker_resolution.lua
+      - name: Check shared creature appearance service
+        run: lua5.1 tests/creature_appearance_service.lua
       - name: Check ClassicAPI portrait version compatibility
         run: lua5.1 tests/classicapi_portrait_compatibility.lua
       - name: Check official pack priority and fallback
