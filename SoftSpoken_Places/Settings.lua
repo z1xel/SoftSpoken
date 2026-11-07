@@ -56,7 +56,8 @@ local function CharDB()
     if s.compendiumFoundOnly == nil then s.compendiumFoundOnly = true end
     -- s.captions is a legacy saved preference, imported once into SoftSpoken
     -- on PLAYER_LOGIN. Do not create new Zones-specific captions settings.
-    -- Quest-text base size (the parchment adds one point, as upstream does).
+    -- Base size 14 maps to the native QuestFont's 13 on parchment;
+    -- the shared reader subtracts one, retaining existing slider values.
     -- Existing characters get the default without losing other preferences.
     local size = tonumber(s.loreFontSize)
     if not size or size < 10 or size > 24 then s.loreFontSize = 14 end
