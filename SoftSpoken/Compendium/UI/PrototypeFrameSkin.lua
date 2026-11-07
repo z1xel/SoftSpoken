@@ -28,9 +28,22 @@ local CHARACTER_RIGHT = "Interface\\PaperDollInfoFrame\\UI-Character-General-Top
 -- remains at original 1:1 size, even where the inset itself covers it.
 local FULL_INSET_START_Y = 62
 local FULL_LEFT_ART_WIDTH, FULL_LEFT_ART_HEIGHT = 256, 92
-local FULL_RIGHT_ART_WIDTH, FULL_RIGHT_ART_HEIGHT = 128, 76
-local FULL_LEFT_ART_X, FULL_LEFT_ART_Y = -14, 12
+local FULL_RIGHT_ART_WIDTH, FULL_RIGHT_ART_HEIGHT = 128, 88
+-- Both sheets now share a common top baseline. The original Character
+-- artwork, not generic FrameGeneral metal, supplies the title rail.
+local FULL_LEFT_ART_X, FULL_LEFT_ART_Y = -14, 13
 local FULL_RIGHT_ART_X, FULL_RIGHT_ART_Y = 34, 13
+
+-- The genuine Character Frame left sheet contains a continuously styled
+-- header through source x=256. Repeat its last 64 columns at their native
+-- scale between the fixed left and right sheets. A cropped subregion cannot
+-- use ClassicAPI's SetHorizTile: that API repeats the ENTIRE source image,
+-- including the portrait. The bounded segment pool below repeats only this
+-- exact source region instead; no new or re-encoded texture asset is needed.
+local CHARACTER_TILE_X0, CHARACTER_TILE_WIDTH = 192, 64
+local CHARACTER_TILE_HEIGHT = FULL_LEFT_ART_HEIGHT
+local CHARACTER_CENTER_START = FULL_LEFT_ART_X + FULL_LEFT_ART_WIDTH
+local CHARACTER_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
 
 local function fixed(parent, layer, path, w, h, coords, p, x, y)
     local t = parent:CreateTexture(nil, layer)
@@ -70,9 +83,11 @@ local function circularIcon(parent, texturePath, x, y, size, radius)
     return slices
 end
 
--- ClassicAPI's SetHorizTile/SetVertTile repeat the complete 256px source
--- along the chosen axis while preserving the perpendicular source UV crop.
--- Two opposite anchors let the engine resize the strip without any Reflow.
+-- ClassicAPI's SetHorizTile/SetVertTile repeat the full source along the
+-- chosen axis while preserving the perpendicular UV crop. Use that for
+-- the unchanged lower and side rails; the original Character Frame center
+-- needs subregion cropping and therefore uses an explicit tile pool.
+-- Two opposite anchors resize the native rails without any Reflow.
 local function nativeTile(parent, layer, path, coords, horizontal,
     firstAnchor, firstX, firstY, lastAnchor, lastX, lastY, thickness)
     local t = parent:CreateTexture(nil, layer)
@@ -86,15 +101,8 @@ local function nativeTile(parent, layer, path, coords, horizontal,
 end
 
 local function applyNativeFullFrameTiles(frame)
-    -- All coordinate endpoints match the original main-branch tiled() calls.
-    -- Unlike manual segments, these textures follow parent anchors directly.
-    nativeTile(frame, "ARTWORK", HORIZ, {0,1,0.4375,0.65625}, true,
-        "TOPLEFT",64,1, "TOPRIGHT",-33,1, 28)
-    nativeTile(frame, "BACKGROUND", HORIZ, {0,1,0.2890625,0.421875}, true,
-        "TOPLEFT",2,-3, "TOPRIGHT",-25,-3, 17)
-    frame.sszNativeStreaks = nativeTile(frame, "BORDER", HORIZ,
-        {0,1,0.671875,0.9609375}, true,
-        "TOPLEFT",0,-21, "TOPRIGHT",-2,-21, 37)
+    -- Only the lower and side rails remain FrameGeneral. The top center
+    -- is composed from the original Character Frame sheet below.
     nativeTile(frame, "BORDER", HORIZ, {0,1,0.203125,0.2734375}, true,
         "BOTTOMLEFT",8,-5, "BOTTOMRIGHT",-11,-5, 9)
     -- Sides begin at the inset shoulder. Any overlap is deliberately
@@ -157,6 +165,41 @@ local function tiled(parent, layer, path, coords, horizontal, start, span, lengt
     end
 end
 
+-- Reflow only the exposed center between the two fixed, opaque Character
+-- Frame pieces. Tiles are 64 genuine source pixels wide, never stretched;
+-- the final partial tile trims its UVs at exactly the right end cap.
+local function ReflowCharacterCenter(frame, width)
+    local length = width - CHARACTER_CENTER_START - CHARACTER_CENTER_END_MARGIN
+    if length <= 0 then return end
+    local pool = frame.sszCharacterHeaderTiles
+    if not pool then
+        pool = {}
+        frame.sszCharacterHeaderTiles = pool
+    end
+    local count = math.ceil(length / CHARACTER_TILE_WIDTH)
+    for i=1,count do
+        local run = math.min(CHARACTER_TILE_WIDTH,
+            length - (i-1)*CHARACTER_TILE_WIDTH)
+        local t = pool[i]
+        if not t then
+            t = frame:CreateTexture(nil,"ARTWORK")
+            t:SetTexture(CHARACTER_LEFT)
+            pool[i]=t
+        end
+        t:ClearAllPoints()
+        t:SetWidth(run)
+        t:SetHeight(CHARACTER_TILE_HEIGHT)
+        t:SetTexCoord(CHARACTER_TILE_X0/256,
+            (CHARACTER_TILE_X0+run)/256,
+            0, CHARACTER_TILE_HEIGHT/256)
+        t:SetPoint("TOPLEFT",frame,"TOPLEFT",
+            CHARACTER_CENTER_START+(i-1)*CHARACTER_TILE_WIDTH,
+            FULL_LEFT_ART_Y)
+        t:Show()
+    end
+    for i=count+1,table.getn(pool) do pool[i]:Hide() end
+end
+
 local function clearSegments(frame)
     -- Reset the ACTIVE count without losing the pooled textures. Hidden
     -- textures are reused rather than orphaned on every drag update.
@@ -181,18 +224,14 @@ end
 
 local function Reflow(frame)
     if not frame or not frame.sszInitialized then return end
-    if frame.sszNativeFrameTiles then
-        -- Anchors and ClassicAPI handle resize. Only the optional streak
-        -- visibility needs refresh; no segment pool or geometry work.
-        if frame.sszShowStreaks then
-            frame.sszNativeStreaks:Show()
-        else
-            frame.sszNativeStreaks:Hide()
-        end
-        return
-    end
     local w,h=FrameSize(frame)
     if not w or not h or w < 220 or h < 180 then return end
+    if not frame.sszCompactFrame then
+        ReflowCharacterCenter(frame,w)
+    end
+    -- ClassicAPI anchors resize the side and lower borders automatically.
+    -- The cropped Character center above still needs a bounded reflow.
+    if frame.sszNativeFrameTiles then return end
     clearSegments(frame)
 
     -- Older Blizzard placements, sourced from PortraitFrameTemplateNoCloseButton:
@@ -203,15 +242,16 @@ local function Reflow(frame)
     -- Blizzard's real 32px TopLeftCorner anchors at x=-6: its right edge
     -- is x=26. Join the native title bar there (not at the old mirrored
     -- right-corner width of x=32), ending at the right corner's x=w-33.
-    local titleStart = frame.sszCompactFrame and 26 or 64
-    local titleLength = frame.sszCompactFrame and (w-59) or (w-97)
-    tiled(frame,"ARTWORK",HORIZ,{0,1,0.4375,0.65625},true,
-        titleStart,-1,titleLength,28)
-    -- Tile the background of the title behind the visible top border.
-    tiled(frame,"BACKGROUND",HORIZ,{0,1,0.2890625,0.421875},true,2,3,w-27,17)
-    -- Top streaks deliberately disabled by default; they cover 37px under the header.
-    if frame.sszShowStreaks then
-        tiled(frame,"BORDER",HORIZ,{0,1,0.671875,0.9609375},true,0,21,w-2,37)
+    if frame.sszCompactFrame then
+        -- Preserve the map attachment's approved FrameGeneral title rail.
+        -- The full-size Compendium instead repeats Character Frame source
+        -- pixels through ReflowCharacterCenter above.
+        local titleStart = 26
+        local titleLength = w-59
+        tiled(frame,"ARTWORK",HORIZ,{0,1,0.4375,0.65625},true,
+            titleStart,-1,titleLength,28)
+        tiled(frame,"BACKGROUND",HORIZ,{0,1,0.2890625,0.421875},
+            true,2,3,w-27,17)
     end
     -- The compact frame's parchment/scrollbar are child frames above this
     -- frame's texture layers. Draw its *whole* lower edge and both sides on
@@ -290,9 +330,9 @@ function Skin.Apply(self, title, options)
     self.sszSegments = {}
     self.sszInitialized = true
     self.sszCompactFrame = compact
-    -- The narrow map attachment uses a short title strip, not the taller
-    -- Compendium portrait/header background.
-    self.sszShowStreaks = not compact
+    -- All full-size header pixels now come from the original Character Frame.
+    -- The map attachment retains its approved independent title trim.
+    self.sszShowStreaks = false
 
     -- Map attachment stays on its approved native FrameGeneral corners.
     -- Full-size header uses the fixed Character Frame corner art instead.
@@ -322,9 +362,10 @@ function Skin.Apply(self, title, options)
     else
         -- Restore the broad original Character Frame top-left/right sheets
         -- from ui/top-rock-shadow-pass, rather than the small cropped accents.
-        -- Their opaque rock and frame details must prevail over FrameGeneral
-        -- metal/underlay; only the uncovered central span shows tiled art.
-        -- Both images retain 1:1 source dimensions and native alignment.
+        -- The 64px native-scale center above repeats THE SAME Character left
+        -- sheet (not the generic FrameGeneral title rail). The left and right
+        -- source origins share a baseline; opaque corners cover both joins.
+        -- Both fixed sheets retain native source dimensions.
         self.sszCharacterHeaderLeft = fixed(self,"OVERLAY",CHARACTER_LEFT,
             FULL_LEFT_ART_WIDTH,FULL_LEFT_ART_HEIGHT,
             {0,1,0,FULL_LEFT_ART_HEIGHT/256},"TOPLEFT",
