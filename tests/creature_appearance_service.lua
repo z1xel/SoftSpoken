@@ -80,6 +80,11 @@ behavior=function(id) if id==105 then return false end return true end
 equal(A:Request(105),false,"rejected native request")
 equal(A:Request(105),false,"rejected request retryable")
 equal(#requests,7,"rejected reissued")
+-- A nil return must not become a permanently pending request.
+behavior=function(id) if id==109 then return nil end return true end
+equal(A:Request(109),false,"nil native request is rejected")
+equal(A:Request(109),false,"nil request does not latch pending ID")
+equal(#requests,9,"nil request was actually retried")
 behavior=nil
 
 -- Native completion can arrive during the API call itself.
@@ -113,7 +118,21 @@ A:Unsubscribe(cb2)
 SpokenEnv.C_CreatureInfo=nil
 equal(A:GetDisplayID(108),nil,"no API cache")
 equal(A:Request(108),false,"no API requests")
-equal(#requests,9,"no extra request without API")
+equal(#requests,11,"no extra request without API")
 Event(101,true)
 equal(frames[1].scripts.OnUpdate,nil,"unsolicited completion ignored")
+-- Explicitly false event registration must not claim that a native request
+-- was initiated, even if CreateFrame itself succeeded.
+SpokenEnv.C_CreatureInfo=api
+SpokenEnv.CreateFrame=function()
+    local f={scripts={}}
+    function f:RegisterEvent() return false end
+    function f:SetScript(name,fn) self.scripts[name]=fn end
+    return f
+end
+dofile("SoftSpoken/CreatureAppearance.lua")
+equal(SpokenEnv.CreatureAppearance:Request(110),false,
+    "unavailable custom event does not start a request")
+equal(#requests,11,"no request without a registered completion event")
+
 print("PASS: shared appearance service, deduplication, sync/async, failure and subscribers")

@@ -60,7 +60,10 @@ local function EnsureEventFrame()
     if eventFrame then return true end
     local ok, frame = pcall(CreateFrame, "Frame", nil, UIParent)
     if not ok or not frame then return false end
-    if not pcall(frame.RegisterEvent, frame, "CREATURE_DATA_LOAD_RESULT") then return false end
+    local okRegister, registered = pcall(frame.RegisterEvent, frame, "CREATURE_DATA_LOAD_RESULT")
+    -- Vanilla RegisterEvent returns nil on success; some compatibility
+    -- implementations return false for an unsupported custom event.
+    if not okRegister or registered == false then return false end
     frame:SetScript("OnEvent", OnEvent)
     eventFrame = frame
     return true
@@ -73,12 +76,15 @@ function A:Request(creatureID)
     if not id then return false end
     if self:GetDisplayID(id) then return true end
     local api = C_CreatureInfo
-    if not api or type(api.RequestLoadCreatureByID) ~= "function" then return false end
+    if not api or type(api.GetCreatureInfoByID) ~= "function" or
+       type(api.RequestLoadCreatureByID) ~= "function" then return false end
     if pending[id] then return true end
     if not EnsureEventFrame() then return false end
     pending[id] = true
     local ok, accepted = pcall(api.RequestLoadCreatureByID, id)
-    if not ok or accepted == false then
+    -- ClassicAPI explicitly returns a boolean. Nil from a broken or older
+    -- compatibility function is not proof of an accepted query.
+    if not ok or (accepted ~= true and accepted ~= 1) then
         pending[id] = nil
         return false
     end
