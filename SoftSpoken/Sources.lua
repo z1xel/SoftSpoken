@@ -19,7 +19,6 @@ SourceMethods.__index = SourceMethods
 ---@field interClipGap? number
 ---@field channel? fun():string
 ---@field admit? fun(clip, queue):boolean, string?
----@field testBeforeQueue? boolean
 ---@field onQueueEnter? fun()
 ---@field onQueueEmpty? fun()
 ---@field packs? fun():string[] -- the voice packs this source found installed, by name
@@ -41,7 +40,6 @@ function Sources:Register(key, info)
         interClipGap = info.interClipGap or 0.55,
         channel = info.channel,
         admit = info.admit,
-        testBeforeQueue = info.testBeforeQueue,
         onQueueEnter = info.onQueueEnter,
         onQueueEmpty = info.onQueueEmpty,
         packs = info.packs,

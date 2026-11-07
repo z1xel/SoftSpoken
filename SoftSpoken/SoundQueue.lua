@@ -276,8 +276,8 @@ end
 -- Leaving the queue
 --------------------------------------------------------------------------------
 
--- Notify a source when its first clip enters and its last leaves. The quests addon
--- hangs the Sound_EnableDialog toggle off these.
+-- Notify a source when its first clip enters and its last leaves.
+-- Domain-specific sources may use these lifecycle hooks.
 local function EnteredFor(source)
     if source.onQueueEnter and CountFor(source) == 1 then
         source.onQueueEnter()
@@ -296,7 +296,6 @@ local function AfterRemoval()
         -- Removing its final clip must leave the next book/quest playable.
         SoundQueue:SetPaused(false)
         StopRetryTicker()
-        SoundQueue:MuteGameDialogue(nil)
         Callbacks:Fire("QUEUE_EMPTY")
     end
 end
@@ -427,67 +426,6 @@ end
 -- Playing
 --------------------------------------------------------------------------------
 
---- Legacy 1.12 has no independently controllable NPC dialogue channel.
---- Until #63 identifies a safe replacement, preserve SFX rather than toggling
---- MasterSoundEffects and interrupting unrelated in-game sounds.
----@param speakingOn string|nil
----@param cut boolean? switch it off at once rather than fade it out
-function SoundQueue:MuteGameDialogue(speakingOn, cut)
-    if not Addon.db.profile.Audio.AutoToggleDialog then
-        return
-    end
-    if Version.IsLegacyVanilla then
-        return
-    end
-    -- Faded, so the NPC is not cut off mid-word; cut where it should not be heard at all.
-    SoundUtils:MuteChannel("Dialog", speakingOn ~= nil and speakingOn ~= "Dialog", not cut)
-end
-
--- How long a mute taken ahead of a line holds with nothing queued. Quest lines are read
--- once the dialog's globals have held still for 0.4s, gossip 0.1s after its event; past
--- this nothing is coming, and the next NPC's greeting should be heard.
-local MUTE_AHEAD_SECONDS = 1.5
-local muteAheadTimer
-
---- On clients with a real Dialog channel, mute the game's dialogue ahead of
---- an incoming line. On 1.12, leave global sound effects alone until #63.
----@param speakingOn string The channel the coming line will play on.
-function SoundQueue:MuteGameDialogueAhead(speakingOn)
-    if Version.IsLegacyVanilla then
-        return
-    end
-    -- Paused, the line will only queue: nothing of ours is going to speak over the greeting.
-    if self:IsPaused() then
-        return
-    end
-    -- Cut, not faded: in the frame the window opens the greeting has barely started, and a fade
-    -- lets its first half-second through.
-    self:MuteGameDialogue(speakingOn, true)
-    if muteAheadTimer then
-        Addon:CancelTimer(muteAheadTimer)
-    end
-    muteAheadTimer = Addon:ScheduleTimer(function()
-        muteAheadTimer = nil
-        -- A line speaking lifts the mute itself when the queue drains. One merely queued --
-        -- held by a gate, or paused since -- may not speak for a long while, and must not
-        -- keep the game's dialogue silent until it does.
-        local head = self:GetCurrentSound()
-        if not IsSpeaking(head) then
-            self:MuteGameDialogue(nil)
-        end
-    end, MUTE_AHEAD_SECONDS)
-end
-
--- The channel a clip speaks on, ready for it. Whatever we muted, we cannot speak on, so it
--- is lifted first: a clip on the very channel the last line silenced is heard.
-local function SpeakingChannel(clip)
-    local channel = clip.source:GetChannel()
-    if SoundUtils:IsMutedByPlayer(channel) then
-        SoundUtils:MuteChannel(channel, false)
-    end
-    return channel
-end
-
 -- Clips of one item, a book's pages, read on as one: no LineGap between them, and no cue.
 local function SameItem(clip, nextClip)
     return clip.group ~= nil and clip.group == nextClip.group
@@ -547,7 +485,7 @@ local function AfterSpoken(clip, attempt)
                 or clip.playState ~= "gap" then return end
             local _, waiting = FirstPlayable(2)
             if waiting and not SameItem(clip, waiting) then
-                SoundUtils:PlayCue(SpeakingChannel(waiting))
+                SoundUtils:PlayCue(waiting.source:GetChannel())
             end
             ScheduleFinish(gap / 2)
         end, gap / 2)
@@ -600,15 +538,10 @@ end
 ---@param clip SpokenClip
 function SoundQueue:PlaySound(clip)
     if not clip or clip ~= self.sounds[1] or IsBusy(clip) then return end
-    local channel = SpeakingChannel(clip)
+    local channel = clip.source:GetChannel()
     clip.playState = "starting"
     clip.playbackAttempt = (clip.playbackAttempt or 0) + 1
     local attempt = clip.playbackAttempt
-
-    -- ClassicAPI-first, never reset the game's global SFX to cut NPC sounds.
-    if Version.IsLegacyVanilla then
-        self:MuteGameDialogue(channel, clip.cutsGameDialogue)
-    end
 
     local willPlay = SoundUtils:PlaySound(clip, channel)
     -- An index entry is not proof that its MP3 exists on disk. If the
@@ -640,10 +573,6 @@ function SoundQueue:PlaySound(clip)
     if not willPlay then
         Discard(clip, "missing")
         return
-    end
-
-    if not Version.IsLegacyVanilla then
-        self:MuteGameDialogue(channel, clip.cutsGameDialogue)
     end
 
     clip.playState = "playing"
@@ -763,7 +692,6 @@ function SoundQueue:RecheckGates(source)
     if not head or head.source ~= source or not IsSpeaking(head)
         or not self:GetHeldReason(head) then return false end
     StopKeeping(head)
-    self:MuteGameDialogue(nil)
     self:Advance()
     if not self:IsPlaying() then Callbacks:Fire("AUDIO_CHANGED") end
     return true
@@ -838,7 +766,7 @@ function SoundQueue:Add(clip, source, front)
     end
 
     local inaudible = SoundUtils:WhyInaudible(source:GetChannel())
-    if inaudible and not SoundUtils:IsMutedByPlayer(source:GetChannel()) then
+    if inaudible then
         return nil, inaudible
     end
 
@@ -851,9 +779,6 @@ function SoundQueue:Add(clip, source, front)
         end
     end
 
-    if source.testBeforeQueue and not SoundUtils:TestSound(clip, source:GetChannel()) then
-        return nil, "missing"
-    end
 
     for _, queued in ipairs(self.sounds) do
         if queued.key == clip.key then
@@ -914,7 +839,7 @@ function SoundQueue:PlayNow(clip, source)
     end
 
     local inaudible = SoundUtils:WhyInaudible(source:GetChannel())
-    if inaudible and not SoundUtils:IsMutedByPlayer(source:GetChannel()) then
+    if inaudible then
         return false, inaudible
     end
 
@@ -991,7 +916,6 @@ function SoundQueue:PauseQueue()
     elseif head then
         head.playState = "paused"
     end
-    self:MuteGameDialogue(nil)
     StopRetryTicker()
     Callbacks:Fire("AUDIO_CHANGED")
     return true

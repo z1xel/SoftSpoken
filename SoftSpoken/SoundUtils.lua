@@ -26,11 +26,8 @@ end
 -- No independent Dialog channel exists in the 1.12 engine. In particular,
 -- toggling MasterSoundEffects to silence an NPC also stops unrelated game SFX.
 -- We do not do that; targeted NPC handling belongs to issue #63.
+-- Keep the no-op hook for the existing public Spoken:MuteChannel API.
 function SoundUtils:MuteChannel(channel, muted, fadeOut)
-end
-
-function SoundUtils:IsMutedByPlayer(channel)
-    return false
 end
 
 function SoundUtils:WhyInaudible(channel)
@@ -49,11 +46,8 @@ function SoundUtils:IsSoundEnabled(channel)
     return self:WhyInaudible(channel) == nil
 end
 
--- Playing a file just to test it would produce unwanted audio, and an MP3
--- filename in an index is not proof the file is present on disk.
-function SoundUtils:TestSound(clip, channel)
-    return true
-end
+-- Never probe a file by playing it: start failure is ambiguous between
+-- a missing recording and native sound-bus contention.
 
 function SoundUtils:PlaySound(clip, channel)
     -- A second start on the same clip must not overwrite a live owned handle.
