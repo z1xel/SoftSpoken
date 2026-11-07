@@ -28,6 +28,7 @@ on:
       - "tests/creature_appearance_service.lua"
       - "tests/stories_compendium_portrait_lifecycle.lua"
       - "tests/stories_portrait_preloading.lua"
+      - "tests/stories_questlog_portrait_prime.lua"
       - "tests/stories_faction_crest.lua"
       - "tests/stories_speaker_resolution.lua"
       - "tests/places_zone_portrait_emblems.lua"
@@ -61,6 +62,7 @@ on:
       - "tests/creature_appearance_service.lua"
       - "tests/stories_compendium_portrait_lifecycle.lua"
       - "tests/stories_portrait_preloading.lua"
+      - "tests/stories_questlog_portrait_prime.lua"
       - "tests/stories_faction_crest.lua"
       - "tests/stories_speaker_resolution.lua"
       - "tests/places_zone_portrait_emblems.lua"
@@ -86,7 +88,7 @@ jobs:
           luac5.1 -p SoftSpoken_Places/Audio.lua tests/places_zone_portrait_emblems.lua
           luac5.1 -p tests/classicapi_portrait_compatibility.lua tests/creature_appearance_service.lua tests/stories_faction_crest.lua tests/stories_compendium_portrait_lifecycle.lua
           luac5.1 -p SoftSpoken_Stories/FactionCrest.lua SoftSpoken_Stories/SpeakerResolver.lua SoftSpoken_Stories/Player.lua SoftSpoken_Stories/Compendium/QuestPage_112.lua
-          luac5.1 -p tests/stories_speaker_resolution.lua tests/stories_portrait_preloading.lua
+          luac5.1 -p tests/stories_speaker_resolution.lua tests/stories_portrait_preloading.lua tests/stories_questlog_portrait_prime.lua
           luac5.1 -p SoftSpoken_Places/UI/LoreWindow.lua SoftSpoken_Writings/UI/Readables.lua
           luac5.1 -p SoftSpoken_Writings/Audio.lua SoftSpoken_Writings/DiscoveryLocations.lua tests/writings_narrator_discovery.lua
           luac5.1 -p SoftSpoken_Places/UI/Options.lua SoftSpoken_Writings/UI/Options.lua
@@ -104,6 +106,8 @@ jobs:
         run: lua5.1 tests/stories_compendium_portrait_lifecycle.lua
       - name: Check bounded Stories portrait preloading
         run: lua5.1 tests/stories_portrait_preloading.lua
+      - name: Check quest-log portrait preloading and retry
+        run: lua5.1 tests/stories_questlog_portrait_prime.lua
       - name: Check shared creature appearance service
         run: lua5.1 tests/creature_appearance_service.lua
       - name: Check ClassicAPI portrait version compatibility
