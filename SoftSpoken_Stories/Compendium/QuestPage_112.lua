@@ -11,7 +11,6 @@ local NAMES={accept="Description",progress="Progress",complete="Completion"}
 -- Use the same parchment ink as the shared Places reader.
 local COLOR={.25,.16,.08}
 local ALT={.53,.24,.10}
-local FALLBACK_ICON="Interface\\Icons\\INV_Misc_Book_11"
 local function Number(id)
     id=tonumber(id)
     if id and id>0 and id==math.floor(id) then return id end
