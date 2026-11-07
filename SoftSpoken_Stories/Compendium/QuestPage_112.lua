@@ -223,7 +223,7 @@ function P:BindPortrait(part,questID,stage,kind,npc,speaker)
 end
 
 function P:OnCreatureAppearance(creatureID,displayID,success)
-    if not self.active or not self.id or not self.page.frame:IsShown() then return end
+    if not self.active or not self.id or not self.page.frame:IsVisible() then return end
     creatureID=Number(creatureID)
     if not creatureID then return end
     for _,stage in ipairs(MOMENTS) do
@@ -365,7 +365,7 @@ function P.Create(page)
     self.events=CreateFrame("Frame",nil,page.frame)
     self.elapsed=0
     self.events:SetScript("OnUpdate",function(_,elapsed)
-        if not self.active or not self.page.frame:IsShown() then return end
+        if not self.active or not self.page.frame:IsVisible() then return end
         self.elapsed=self.elapsed+(tonumber(elapsed) or tonumber(_G.arg1) or 0)
         if self.elapsed>=.25 then
             self.elapsed=0
@@ -431,7 +431,7 @@ function P:Show(id,entry)
     local changed=self.id~=id
     self.id=id
     self.active=true
-    if self.page.frame:IsShown() then self:SubscribePortraits() end
+    if self.page.frame:IsVisible() then self:SubscribePortraits() end
     self.view.body:Hide()
     local completed=S:IsCompleted(id)
     local unlocked=S:Setting("unlock")

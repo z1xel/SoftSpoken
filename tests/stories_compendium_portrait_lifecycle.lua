@@ -21,8 +21,10 @@ local function Frame(kind,parent)
     function methods:GetStringHeight() return 20 end
     function methods:GetFont() return nil end
     function methods:IsShown()
-        return self.shown and (not self.parent or self.parent:IsShown())
+        local parent=rawget(self,"parent")
+        return self.shown and (not parent or parent:IsShown())
     end
+    function methods:IsVisible() return self:IsShown() end
     function methods:Show()
         local was=self:IsShown()
         self.shown=true
