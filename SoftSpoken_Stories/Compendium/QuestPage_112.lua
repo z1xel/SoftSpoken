@@ -9,7 +9,7 @@ local EVENTS={accept=1,progress=2,complete=3}
 local MOMENTS={"accept","progress","complete"}
 local NAMES={accept="Description",progress="Progress",complete="Completion"}
 -- Use the same parchment ink as the shared Places reader.
-local COLOR={.25,.16,.08}
+local COLOR={0,0,0}
 local ALT={.53,.24,.10}
 local function Number(id)
     id=tonumber(id)
@@ -122,7 +122,7 @@ local function Font(parent,template)
     if fs.SetWordWrap then fs:SetWordWrap(true) end
     return fs
 end
-local function MatchFont(font,reference,sizeAdjust,fallback)
+local function MatchFont(font,reference,sizeAdjust,fallback,asQuestTitle)
     local path,size
     if reference and reference.GetFont then path,size=reference:GetFont() end
     if not path and fallback and fallback.GetFont then
@@ -131,8 +131,15 @@ local function MatchFont(font,reference,sizeAdjust,fallback)
     if path and font.SetFont then
         font:SetFont(path,math.max(10,(tonumber(size) or 15)+(sizeAdjust or 0)),"")
     end
-    if font.SetShadowColor then font:SetShadowColor(0,0,0,0) end
-    if font.SetShadowOffset then font:SetShadowOffset(0,0) end
+    if asQuestTitle then
+        -- WoW 1.12 QuestTitleFont: black Morpheus with warm gold (1,-1) shadow.
+        font:SetTextColor(0,0,0,1)
+        if font.SetShadowColor then font:SetShadowColor(.49,.35,.05,1) end
+        if font.SetShadowOffset then font:SetShadowOffset(1,-1) end
+    else
+        if font.SetShadowColor then font:SetShadowColor(0,0,0,0) end
+        if font.SetShadowOffset then font:SetShadowOffset(0,0) end
+    end
 end
 -- Use normal 2D artwork inside the quest scroll child. Native models are
 -- intentionally not created by this page: they were rendered outside their
@@ -272,7 +279,7 @@ local function NewPart(parent,stage)
     local f=CreateFrame("Frame",nil,parent)
     f.stage=stage
     f:SetHeight(100)
-    local title=Font(f,"GameFontNormalLarge")
+    local title=Font(f,"QuestTitleFont")
     title:SetText(NAMES[stage]); title:SetTextColor(ALT[1],ALT[2],ALT[3],1)
     title:SetPoint("TOPLEFT",f,"TOPLEFT",0,-2)
     f.title=title
@@ -295,7 +302,7 @@ local function NewPart(parent,stage)
     end)
     f.button=btn
     local content=Font(f,"GameFontHighlight")
-    if content.SetSpacing then content:SetSpacing(2) end
+    if content.SetSpacing then content:SetSpacing(0) end
     content:SetPoint("TOPLEFT",f,"TOPLEFT",0,-106)
     f.content=content
     local divider=f:CreateTexture(nil,"ARTWORK")
@@ -305,20 +312,18 @@ local function NewPart(parent,stage)
     divider:SetPoint("BOTTOMRIGHT",f,"BOTTOMRIGHT",-4,1)
     return f
 end
--- The same client-side QuestFont and dynamic font size that the Places and
--- Books reader uses.  Don't replace those values with independently tuned
--- sizes (doing so makes Quest paragraphs look larger/heavier).
+-- Match the native quest log: QuestFont body and QuestTitleFont section headings.
+-- Reuse the shared reader's adjustable font size, so all three tabs still scale together.
 function P:ApplyTypography()
     local reference=self.view and self.view.body
     local heading=self.page and self.page.title
     for _,stage in ipairs(MOMENTS) do
         local part=self.parts[stage]
         MatchFont(part.content,reference,0,QuestFont)
-        if part.content.SetSpacing then part.content:SetSpacing(2) end
+        if part.content.SetSpacing then part.content:SetSpacing(0) end
         MatchFont(part.speaker,reference,-2,QuestFont)
         part.speaker:SetTextColor(.38,.23,.12,1)
-        MatchFont(part.title,heading,-9,QuestTitleFont)
-        part.title:SetTextColor(ALT[1],ALT[2],ALT[3],1)
+        MatchFont(part.title,heading,0,QuestTitleFont,true)
     end
 end
 function P.Create(page)

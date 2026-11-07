@@ -26,7 +26,10 @@ local PAD = 24
 local INSET = { book={top=36,right=36}, log={top=28,right=28} }
 local BOOK_TOP_BAND = .07
 local BACKPLATE_CUT = 40
-local INK = { .25,.16,.08 }
+-- Blizzard's QuestFont uses solid black ink on parchment.
+local INK = { 0,0,0 }
+-- Keep the existing warmer scroll thumb, which isn't part of the font preset.
+local SCROLL_INK = { .25,.16,.08 }
 local LINK = { .5,.12,.04 }
 
 local function Ink(font,c)
@@ -36,15 +39,22 @@ local function Ink(font,c)
     if font.SetShadowColor then font:SetShadowColor(0,0,0,0) end
 end
 
--- Preserve upstream's parchment-title typography when its font is available;
--- vanilla GameFontNormalLarge is a safe fallback.
+-- Match the original WoW 1.12 quest log: QuestTitleFont is Morpheus at 18.
+-- The built-in font's muted gold shadow is restored by TitleInk below.
+local function TitleInk(font)
+    if not font then return end
+    font:SetTextColor(0,0,0,1)
+    if font.SetShadowColor then font:SetShadowColor(.49,.35,.05,1) end
+    if font.SetShadowOffset then font:SetShadowOffset(1,-1) end
+end
+
 local function SetHeadingFont(title)
     local font
     if QuestTitleFont and QuestTitleFont.GetFont then font=QuestTitleFont:GetFont() end
     if not font and GameFontNormalLarge and GameFontNormalLarge.GetFont then
         font=GameFontNormalLarge:GetFont()
     end
-    if font and title.SetFont then title:SetFont(font,26,"") end
+    if font and title.SetFont then title:SetFont(font,18,"") end
 end
 
 function Page:PaintSubtitle()
@@ -220,11 +230,7 @@ function P.CreateLorePage(parent,style,left,options)
     title:SetJustifyH("LEFT")
     if title.SetWordWrap then title:SetWordWrap(page.style=="book") end
     SetHeadingFont(title)
-    if page.style=="log" and title.GetFont and title.SetFont then
-        local face=title:GetFont()
-        if face then title:SetFont(face,20,"") end
-    end
-    Ink(title)
+    TitleInk(title)
     page.title=title
 
     local sub=CreateFrame("Button",nil,frame)
@@ -341,7 +347,7 @@ function P.CreateLorePage(parent,style,left,options)
     view.slider:SetPoint("TOPLEFT",view.scroll,"TOPRIGHT",5,0)
     view.slider:SetPoint("BOTTOMLEFT",view.scroll,"BOTTOMRIGHT",5,0)
     view:SetInk(INK[1],INK[2],INK[3])
-    view:SetThumbColor(INK[1],INK[2],INK[3])
+    view:SetThumbColor(SCROLL_INK[1],SCROLL_INK[2],SCROLL_INK[3])
     local mark=frame:CreateTexture(nil,"BORDER")
     mark:SetWidth(96);mark:SetHeight(96)
     mark:SetPoint("CENTER",frame,"CENTER",0,40)

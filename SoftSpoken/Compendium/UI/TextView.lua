@@ -9,9 +9,9 @@ View.__index = View
 T.View = View
 local PICTURE_MOST, PICTURE_GAP = 400, 10
 -- With fading deliberately disabled, use small breathing room rather than
--- upstream's 18/33px fade clearances. Keep upstream's 2px line spacing.
+-- upstream's 18/33px fade clearances. Use the original quest log's line spacing.
 local TEXT_PAD_TOP, TEXT_PAD_BOTTOM = 8, 12
-local LINE_SPACING = 2
+local LINE_SPACING = 0
 local function FontSize()
     if SSCCompendium and SSCCompendium.TextSize then
         return SSCCompendium:TextSize()
@@ -87,15 +87,16 @@ function View:Reflow(resetScroll)
     self:ScrollTo(Clamp(previous,0,maximum))
 end
 
--- Upstream uses QuestFont on inked parchment at fontSize+1 and 2px spacing.
--- The font comes from the client; no separate font files are required.
+-- Vanilla 1.12 QuestFont is Friz Quadrata at 13. The existing base size
+-- default is 14, so use -1 for inked parchment while retaining the slider.
+-- The font file comes from the client; no bundled font files are needed.
 function View:ApplyTypography()
     if not self.body then return end
     local fontObject=(self.ink and QuestFont) or GameFontHighlight
     local file=fontObject and fontObject.GetFont and fontObject:GetFont()
     if file and self.body.SetFont then
         self.body:SetFont(file,(self.fontSize or FontSize())+
-            (self.ink and 1 or 0),"")
+            (self.ink and -1 or 0),"")
     end
     if self.body.SetSpacing then self.body:SetSpacing(LINE_SPACING) end
 end
