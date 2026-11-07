@@ -36,7 +36,12 @@ local function Frame(kind,parent)
         if was and self.scripts.OnHide then self.scripts.OnHide(self) end
     end
     setmetatable(f,{__index=function(_,key)
-        return methods[key] or function() end
+        if methods[key] then return methods[key] end
+        -- Missing data fields must read nil, not a synthesized method.
+        local prefix=string.sub(key,1,3)
+        if prefix=="Set" or prefix=="Get" or prefix=="Cle" or
+           prefix=="Ena" or prefix=="Dis" then return function() end end
+        return nil
     end})
     return f
 end
@@ -164,6 +169,12 @@ Load(2001,nil,false)
 eq(face("accept").icon.texture,"crest.tga","failure retains faction crest")
 eq(face("accept").pendingCreatureID,nil,"failure clears pending state")
 local prevReq=requests[2001]
+-- A rejected shared request must not leave a permanently pending holder.
+local previousRequest=Spoken.RequestCreatureAppearance
+Spoken.RequestCreatureAppearance=function() return false end
+details:Show(102)
+eq(face("accept").pendingCreatureID,nil,"rejected request is not left pending")
+Spoken.RequestCreatureAppearance=previousRequest
 details:Show(102)
 eq(requests[2001],prevReq+1,"refresh may retry failed creature")
 eq(face("progress").icon.texture,"portrait:5202","cached display paints immediately")

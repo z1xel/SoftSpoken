@@ -216,9 +216,9 @@ function P:BindPortrait(part,questID,stage,kind,npc,speaker)
         ApplyPortrait(holder,displayID)
     else
         holder.pendingCreatureID=npc
-        if type(Spoken.RequestCreatureAppearance)=="function" then
+        local accepted=type(Spoken.RequestCreatureAppearance)=="function" and
             API(Spoken.RequestCreatureAppearance,Spoken,npc)
-        end
+        if not accepted then holder.pendingCreatureID=nil end
     end
 end
 
