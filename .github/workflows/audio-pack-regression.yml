@@ -124,3 +124,26 @@ jobs:
         run: lua5.1 tests/audio_pack_priority_guardrails.lua
       - name: Check legacy and current voice pack registries
         run: lua5.1 tests/audio_pack_registry_compatibility.lua
+
+      # TEMPORARY AUDIO INTEGRATION: run the merged main's full audio transport
+      # suite here because its standalone push workflow targets main only.
+      - name: Check full audio API suite with portrait integration
+        run: |
+          set -e
+          for test in \
+            tests/audio_soundutils.lua \
+            tests/audio_queue.lua \
+            tests/audio_progress_ui.lua \
+            tests/audio_phase2_places.lua \
+            tests/audio_phase2_writings.lua \
+            tests/audio_phase2_writings_queue.lua \
+            tests/audio_phase2_diagnostics.lua \
+            tests/audio_phase2_routing.lua \
+            tests/audio_phase2_ducking.lua \
+            tests/audio_phase3_pack_selection.lua; do
+            echo "Testing ${test}"
+            lua5.1 "$test"
+          done
+          python3 -m py_compile scripts/audio_pack_audit.py
+          python3 scripts/audio_pack_audit.py --help >/dev/null
+          python3 -m unittest discover -s tests -p test_audio_pack_audit.py -v
