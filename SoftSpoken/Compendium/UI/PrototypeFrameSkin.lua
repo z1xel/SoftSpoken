@@ -17,34 +17,41 @@ local HORIZ = DIR .. "_UI-Frame"
 local VERT = DIR .. "!UI-Frame"
 local ROCK = DIR .. "UI-Background-Rock-Classic"
 
--- Full-size header experiment: fixed pixels from the stock Character Frame
--- meet repeating strips from Blizzard's FrameGeneral atlas. Never tile the
--- opaque Character Frame sheets themselves or stretch their corner details.
-local CHARACTER_LEFT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft"
-local CHARACTER_RIGHT = "Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight"
+-- Full-size frame experiment: native artwork from the *wide* dual-pane
+-- Quest Log. These files are 512x512 (left) and 256x512 (right), unlike the
+-- narrow 256x256/128x256 Character sheets they replace. Their header
+-- regions are cropped at native pixel scale; only the exposed middle tiles.
+local QUESTLOG_LEFT = "Interface\\QuestFrame\\UI-QuestLogDualPane-Left"
+local QUESTLOG_RIGHT = "Interface\\QuestFrame\\UI-QuestLogDualPane-Right"
 
--- The inset panels begin 62 UI units below the top of the full-size
--- Compendium (Compendium.lua VISUAL_GEOMETRY.listTop). The Character art
--- remains at original 1:1 size, even where the inset itself covers it.
+-- Preserve the proven Compendium frame geometry from the Character phase.
+-- Source UVs below account for the larger 512px-tall dual-pane sheets.
 local FULL_INSET_START_Y = 62
 local FULL_LEFT_ART_WIDTH, FULL_LEFT_ART_HEIGHT = 256, 92
 local FULL_RIGHT_ART_WIDTH, FULL_RIGHT_ART_HEIGHT = 128, 88
--- Both sheets now share a common top baseline. The original Character
--- artwork, not generic FrameGeneral metal, supplies the title rail.
 local FULL_LEFT_ART_X, FULL_LEFT_ART_Y = -13, 13
 local FULL_RIGHT_ART_X, FULL_RIGHT_ART_Y = 34, 13
 
--- The genuine Character Frame left sheet contains a continuously styled
--- header through source x=256. Repeat its last 64 columns at their native
--- scale between the fixed left and right sheets. A cropped subregion cannot
--- use ClassicAPI's SetHorizTile: that API repeats the ENTIRE source image,
--- including the portrait. The bounded segment pool below repeats only this
--- exact source region instead; no new or re-encoded texture asset is needed.
-local CHARACTER_TILE_X0, CHARACTER_TILE_WIDTH = 192, 64
-local CHARACTER_TILE_HEIGHT = FULL_LEFT_ART_HEIGHT
--- Keep the repeatable middle at its original x=242; only nudge the left fixed piece.
-local CHARACTER_CENTER_START = 242
-local CHARACTER_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
+-- A 1:1 source-pixel crop of the *wide* Quest Log right atlas. Its metal
+-- right border sits around source x=166; the extra 34 source pixels at its
+-- right reproduce the previous (+34) anchor/edge alignment.
+local QUESTLOG_RIGHT_CROP_X = 72
+
+-- The Quest Log left sheet spans 512 source pixels. Continue its original
+-- x=256..512 header across the first 256px of the resizable middle, so
+-- the default width preserves the original non-repeated texture for most
+-- of the gap. Beyond that, repeat 96px of plain header/stone (x=320..416).
+-- Never duplicate its inner-panel divider or parchment: those start lower
+-- in the source sheet, so the middle uses only the top 62 source rows.
+local QUESTLOG_LEFT_SOURCE_WIDTH = 512
+local QUESTLOG_SOURCE_HEIGHT = 512
+local QUESTLOG_ORIGINAL_MIDDLE_X = 256
+local QUESTLOG_ORIGINAL_MIDDLE_WIDTH = 256
+local QUESTLOG_REPEAT_X, QUESTLOG_REPEAT_WIDTH = 320, 96
+local QUESTLOG_MIDDLE_HEIGHT = 62
+-- Preserve the one-pixel left overlap used by the last working version.
+local QUESTLOG_CENTER_START = 242
+local QUESTLOG_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
 
 local function fixed(parent, layer, path, w, h, coords, p, x, y)
     local t = parent:CreateTexture(nil, layer)
@@ -69,9 +76,9 @@ local function circularIcon(parent, texturePath, x, y, size, radius)
         if half > 0 then
             local left = center - half
             local right = center + half
-            -- The full Character corner is OVERLAY. Draw the book icon
-            -- later on OVERLAY too, so opaque native corner art cannot
-            -- hide the icon beneath the metal portrait ring.
+            -- The wide Quest Log corner is OVERLAY. Draw the book icon
+            -- afterwards on OVERLAY too, so the opaque original ring cannot
+            -- cover the icon.
             local t = parent:CreateTexture(nil, "OVERLAY")
             t:SetTexture(texturePath)
             t:SetWidth(right - left)
@@ -84,10 +91,9 @@ local function circularIcon(parent, texturePath, x, y, size, radius)
     return slices
 end
 
--- ClassicAPI's SetHorizTile/SetVertTile repeat the full source along the
--- chosen axis while preserving the perpendicular UV crop. Use that for
--- the unchanged lower and side rails; the original Character Frame center
--- needs subregion cropping and therefore uses an explicit tile pool.
+-- ClassicAPI's SetHorizTile/SetVertTile repeat whole textures. Keep them for
+-- the unchanged lower and side rails; the Quest Log center needs cropped
+-- subregions and therefore retains a small explicit texture pool.
 -- Two opposite anchors resize the native rails without any Reflow.
 local function nativeTile(parent, layer, path, coords, horizontal,
     firstAnchor, firstX, firstY, lastAnchor, lastX, lastY, thickness)
@@ -103,7 +109,7 @@ end
 
 local function applyNativeFullFrameTiles(frame)
     -- Only the lower and side rails remain FrameGeneral. The top center
-    -- is composed from the original Character Frame sheet below.
+    -- is composed from the original wide Quest Log left sheet below.
     nativeTile(frame, "BORDER", HORIZ, {0,1,0.203125,0.2734375}, true,
         "BOTTOMLEFT",8,-5, "BOTTOMRIGHT",-11,-5, 9)
     -- Sides begin at the inset shoulder. Any overlap is deliberately
@@ -166,39 +172,57 @@ local function tiled(parent, layer, path, coords, horizontal, start, span, lengt
     end
 end
 
--- Reflow only the exposed center between the two fixed, opaque Character
--- Frame pieces. Tiles are 64 genuine source pixels wide, never stretched;
--- the final partial tile trims its UVs at exactly the right end cap.
-local function ReflowCharacterCenter(frame, width)
-    local length = width - CHARACTER_CENTER_START - CHARACTER_CENTER_END_MARGIN
-    if length <= 0 then return end
-    local pool = frame.sszCharacterHeaderTiles
+-- Preserve the Quest Log's native header across the first 256px of the
+-- exposed center. Repeating begins only after that original continuation,
+-- so the default-width Compendium resembles the unextended Quest Log.
+-- All source crops are 1:1 pixel-to-UI-unit; no stretch or custom assets.
+local function ReflowQuestLogCenter(frame, width)
+    local length = width - QUESTLOG_CENTER_START - QUESTLOG_CENTER_END_MARGIN
+    local pool = frame.sszQuestLogHeaderTiles
     if not pool then
         pool = {}
-        frame.sszCharacterHeaderTiles = pool
+        frame.sszQuestLogHeaderTiles = pool
     end
-    local count = math.ceil(length / CHARACTER_TILE_WIDTH)
-    for i=1,count do
-        local run = math.min(CHARACTER_TILE_WIDTH,
-            length - (i-1)*CHARACTER_TILE_WIDTH)
-        local t = pool[i]
+    if length <= 0 then
+        for i=1,table.getn(pool) do pool[i]:Hide() end
+        return
+    end
+
+    local remaining = length
+    local offset = 0
+    local used = 0
+    while remaining > 0 do
+        local sourceStart, sourceCapacity
+        if used == 0 then
+            sourceStart = QUESTLOG_ORIGINAL_MIDDLE_X
+            sourceCapacity = QUESTLOG_ORIGINAL_MIDDLE_WIDTH
+        else
+            sourceStart = QUESTLOG_REPEAT_X
+            sourceCapacity = QUESTLOG_REPEAT_WIDTH
+        end
+        local run = math.min(sourceCapacity, remaining)
+        used = used + 1
+        local t = pool[used]
         if not t then
             t = frame:CreateTexture(nil,"ARTWORK")
-            t:SetTexture(CHARACTER_LEFT)
-            pool[i]=t
+            t:SetTexture(QUESTLOG_LEFT)
+            pool[used] = t
         end
         t:ClearAllPoints()
         t:SetWidth(run)
-        t:SetHeight(CHARACTER_TILE_HEIGHT)
-        t:SetTexCoord(CHARACTER_TILE_X0/256,
-            (CHARACTER_TILE_X0+run)/256,
-            0, CHARACTER_TILE_HEIGHT/256)
+        t:SetHeight(QUESTLOG_MIDDLE_HEIGHT)
+        t:SetTexCoord(
+            sourceStart/QUESTLOG_LEFT_SOURCE_WIDTH,
+            (sourceStart+run)/QUESTLOG_LEFT_SOURCE_WIDTH,
+            0, QUESTLOG_MIDDLE_HEIGHT/QUESTLOG_SOURCE_HEIGHT
+        )
         t:SetPoint("TOPLEFT",frame,"TOPLEFT",
-            CHARACTER_CENTER_START+(i-1)*CHARACTER_TILE_WIDTH,
-            FULL_LEFT_ART_Y)
+            QUESTLOG_CENTER_START+offset,FULL_LEFT_ART_Y)
         t:Show()
+        offset = offset + run
+        remaining = remaining - run
     end
-    for i=count+1,table.getn(pool) do pool[i]:Hide() end
+    for i=used+1,table.getn(pool) do pool[i]:Hide() end
 end
 
 local function clearSegments(frame)
@@ -228,10 +252,10 @@ local function Reflow(frame)
     local w,h=FrameSize(frame)
     if not w or not h or w < 220 or h < 180 then return end
     if not frame.sszCompactFrame then
-        ReflowCharacterCenter(frame,w)
+        ReflowQuestLogCenter(frame,w)
     end
-    -- ClassicAPI anchors resize the side and lower borders automatically.
-    -- The cropped Character center above still needs a bounded reflow.
+    -- ClassicAPI anchors resize side/lower borders automatically.
+    -- The cropped Quest Log center above still needs a bounded reflow.
     if frame.sszNativeFrameTiles then return end
     clearSegments(frame)
 
@@ -245,8 +269,8 @@ local function Reflow(frame)
     -- right-corner width of x=32), ending at the right corner's x=w-33.
     if frame.sszCompactFrame then
         -- Preserve the map attachment's approved FrameGeneral title rail.
-        -- The full-size Compendium instead repeats Character Frame source
-        -- pixels through ReflowCharacterCenter above.
+        -- The full-size Compendium instead uses wide Quest Log source
+        -- pixels through ReflowQuestLogCenter above.
         local titleStart = 26
         local titleLength = w-59
         tiled(frame,"ARTWORK",HORIZ,{0,1,0.4375,0.65625},true,
@@ -331,12 +355,12 @@ function Skin.Apply(self, title, options)
     self.sszSegments = {}
     self.sszInitialized = true
     self.sszCompactFrame = compact
-    -- All full-size header pixels now come from the original Character Frame.
+    -- All full-size header pixels now come from the original wide Quest Log.
     -- The map attachment retains its approved independent title trim.
     self.sszShowStreaks = false
 
     -- Map attachment stays on its approved native FrameGeneral corners.
-    -- Full-size header uses the fixed Character Frame corner art instead.
+    -- Full-size header uses the fixed wide Quest Log corner art instead.
     if compact then
         fixed(self,"OVERLAY",FRAME,33,33,
             {0.6328125,0.890625,0.0078125,0.265625},"TOPRIGHT",0,1)
@@ -361,24 +385,25 @@ function Skin.Apply(self, title, options)
         fixed(trim,"OVERLAY",FRAME,11,11,
             {0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,0)
     else
-        -- Restore the broad original Character Frame top-left/right sheets
-        -- from ui/top-rock-shadow-pass, rather than the small cropped accents.
-        -- The 64px native-scale center above repeats THE SAME Character left
-        -- sheet (not the generic FrameGeneral title rail). The left and right
-        -- source origins share a baseline; opaque corners cover both joins.
-        -- Both fixed sheets retain native source dimensions.
-        self.sszCharacterHeaderLeft = fixed(self,"OVERLAY",CHARACTER_LEFT,
+        -- Preserve fixed dimensions and anchors from the last approved
+        -- Character Frame pass. Unlike the old 256px/128px atlas sheets,
+        -- wide dual-pane Quest Log art needs 512px/256px UV divisors.
+        -- Right crop keeps the native right metal corner at its prior x.
+        self.sszQuestLogHeaderLeft = fixed(self,"OVERLAY",QUESTLOG_LEFT,
             FULL_LEFT_ART_WIDTH,FULL_LEFT_ART_HEIGHT,
-            {0,1,0,FULL_LEFT_ART_HEIGHT/256},"TOPLEFT",
+            {0,FULL_LEFT_ART_WIDTH/QUESTLOG_LEFT_SOURCE_WIDTH,
+                0,FULL_LEFT_ART_HEIGHT/QUESTLOG_SOURCE_HEIGHT},"TOPLEFT",
             FULL_LEFT_ART_X,FULL_LEFT_ART_Y)
-        self.sszCharacterHeaderRight = fixed(self,"OVERLAY",CHARACTER_RIGHT,
+        self.sszQuestLogHeaderRight = fixed(self,"OVERLAY",QUESTLOG_RIGHT,
             FULL_RIGHT_ART_WIDTH,FULL_RIGHT_ART_HEIGHT,
-            {0,1,0,FULL_RIGHT_ART_HEIGHT/256},"TOPRIGHT",
+            {QUESTLOG_RIGHT_CROP_X/256,
+                (QUESTLOG_RIGHT_CROP_X+FULL_RIGHT_ART_WIDTH)/256,
+                0,FULL_RIGHT_ART_HEIGHT/QUESTLOG_SOURCE_HEIGHT},"TOPRIGHT",
             FULL_RIGHT_ART_X,FULL_RIGHT_ART_Y)
         fixed(self,"BORDER",FRAME,14,14,{0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,-5)
         fixed(self,"BORDER",FRAME,11,11,{0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,-5)
-        if self.sszCharacterHeaderLeft.SetHorizTile and
-            self.sszCharacterHeaderLeft.SetVertTile then
+        if self.sszQuestLogHeaderLeft.SetHorizTile and
+            self.sszQuestLogHeaderLeft.SetVertTile then
             applyNativeFullFrameTiles(self)
         end
     end
@@ -387,8 +412,8 @@ function Skin.Apply(self, title, options)
     self.sszPortraitSlices = circularIcon(
         self, "Interface\\Icons\\INV_Misc_Book_11", -6, 8, 61, 29
     )
-    -- The native Character top-left artwork already includes its portrait
-    -- ring; do not draw the old FrameGeneral metal ring a second time.
+    -- The native wide Quest Log left artwork already includes its portrait
+    -- ring; do not restore the old duplicate FrameGeneral metal ring.
     end
 
     self.sszTitle = self:CreateFontString(nil,"OVERLAY","GameFontNormal")
