@@ -1,100 +1,83 @@
-# ClassicAPI-native resizable Character Frame experiment
+# Wide Quest Log shell experiment
 
-**Branch:** `experiment/classicapi-native-frame-tiling` (created from `main`)
+**Branch:** `experiment/classicapi-native-frame-tiling` (based on `main`)
 **Implementation:** `SoftSpoken/Compendium/UI/PrototypeFrameSkin.lua`
-**Reference experiment:** `ui/top-rock-shadow-pass` and its `CHARACTER_HEADER_EXPERIMENT.md`
+**Status:** code-only experiment; requires in-client visual review.
 
-## Intent
+## Goal
 
-Use Blizzard's *actual* Character Frame left and right artwork as fixed-size
-corner pieces, while repeating Blizzard's native FrameGeneral border art across
-the variable center. No synthetic gradients, resized corner images, replacement
-textures, or screenshot crops.
+Use the real *wide / dual-pane Quest Log* upper-frame artwork for the
+full-size Compendium without stretching any image or changing any
+content-panel behavior. Preserve the successful offsets from the previous
+Character Frame experiment, its resizable shell, and the existing 1.12
+fallback renderer.
 
-The first commit tried the old experiment's *small documented crops*, but
-that suppressed much of the Character Frame's original appearance.
-The current implementation instead restores the **large actual source crops**
-from the old branch (the code, not its now-outdated markdown). The opaque
-Character Frame details are intentional and take priority over the more
-generic FrameGeneral strips beneath them.
+The client artwork used is:
 
-## Construction
+- `Interface\\QuestFrame\\UI-QuestLogDualPane-Left` (512x512 sheet)
+- `Interface\\QuestFrame\\UI-QuestLogDualPane-Right` (256x512 sheet)
 
-- **Fixed left piece:** stock
-  `Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft`,
-  source x=0..256/y=0..92 (256x92), at top-left (-14,+13).
-- **Fixed right piece:** stock
-  `Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight`,
-  source x=0..128/y=0..88 (128x88), at top-right (+34,+13).
-  Both fixed source crops share a top baseline. The right art now extends
-  to the inset's upper edge.
-- **Original-art precedence:** both are on the parent `OVERLAY` layer so
-  the Character Frame's native metal/rock overrides underlying repeat strips.
-  The icon is drawn later on `OVERLAY`, beneath the subsequently drawn
-  portrait ring, so the original opaque artwork does not bury the icon.
-  The separate FrameGeneral top-right corner is omitted **only** on the
-  full-size frame; the minimize-button bezel remains for now.
-- **Resizable center:** the genuine Character Frame **top-left sheet itself**
-  supplies the repeatable material. Sample the 64px-wide native source strip
-  x=192..256/y=0..92 without stretching or recoloring it, and tile it across
-  x=242..(width-94), between the fixed broad corners. Its pooled 64px
-  pieces are re-anchored only on resize; the final segment clips its UVs to
-  meet the right piece exactly. The generic FrameGeneral title rail,
-  underlay and streaks are no longer drawn on the full-size frame.
-  This is intentional: the Character Frame must prevail visually.
-  ClassicAPI's `SetHorizTile` cannot repeat a *cropped portion* of a
-  texture; it would duplicate the whole Character Frame sheet and portrait.
-  The center therefore uses a small reusable segment pool even when
-  ClassicAPI is installed.
-- **Other edges:** only the bottom rail and left/right vertical strips
-  remain sourced from FrameGeneral, with `SetHorizTile`/`SetVertTile`
-  and opposing edge anchors if ClassicAPI is available. The full-size vertical strips begin at
-  window-relative y=62 (the inset panel's top, `VISUAL_GEOMETRY.listTop`),
-  with native and manual fallback paths using identical geometry. The native
-  left corner covers an additional 18 units into the inset's frame area, which
-  is acceptable because the higher-level inset masks that area.
-- **Backdrop:** unchanged native 256px tiled rock.
-- **Portrait ring, book icon, buttons, search, insets and page layout:**
-  unchanged.
+These are different from the *narrow* `UI-QUESTLOG-TOPLEFT/TOPRIGHT`
+sheets. We reference the originals already installed in the WoW client;
+**no additional texture assets** are shipped.
 
-## Compatibility and scope
+## Full-size header geometry
 
-ClassicAPI's methods are **optional**. If `SetHorizTile` and
-`SetVertTile` are present on the texture object, the full-size frame
-builds three anchored native tiles (bottom/left/right); the original
-Character Frame center always uses its own small, pooled, cropped-source
-segments so it can retain exact source pixels. Without ClassicAPI, the
-existing pooled manual-segment fallback still draws the outer rails.
-Both paths use the same original Character source across the header.
+| Piece | Native source pixels | On-screen extent | Anchor |
+| --- | --- | --- | --- |
+| Fixed left | left x=0..256, y=0..92 | 256x92 | TOPLEFT (-13,+13) |
+| Fixed right | right x=72..200, y=0..88 | 128x88 | TOPRIGHT (+34,+13) |
+| Natural center continuation | left x=256..512, y=0..62 | up to 256px, 1:1 | x=242 onward |
+| Repeating center extension | left x=320..416, y=0..62 | 96px tiles, last one UV-clipped | after first 256px |
 
-The compact World Map attachment is **not changed**. Its frame corners,
-foreground trim, tiling code and `RefreshCompact` remain as on main.
-The interior inset borders also remain untouched.
+The right UV crop is offset within its 256px-wide sheet to include the
+original right metal cap; directly cropping x=0..128 would omit that cap.
+The initial 256px center continues the actual x=256..512 pixels of the
+left Quest Log sheet. Only the excess width repeats a comparatively plain
+section of the same header. This avoids repeating portrait, parchment,
+and inner-panel divider artwork through the middle.
 
-## In-game verification (NOT yet completed)
+At Compendium width **670** UI units, the exposed middle is 334 units
+(x=242 to x=576), corresponding to **256 natural + 78 extended** pixels.
+The pre-existing 1px left overlap is preserved intentionally.
 
-1. Open the full-size Compendium with ClassicAPI installed. Check that
-   the **broad original Character Frame rock/metal detail is actually visible**
-   on both ends (not just a cropped decorative accent), the close/minimize
-   buttons are unobstructed, and the middle rail has no visible break.
-2. Resize from the minimum through normal to maximum width, including
-   widths just below/above **64px** Character-center tile boundaries.
-   Check especially the left join at x=242, right join at x=width-94,
-   repeated source-strip seams, and any visible phase mismatch between
-   the two original Character source sheets.
-3. Resize vertically. Verify both side strips meet their bottom corners,
-   the lower rail stays aligned, and the right native art extends down
-   to the upper panel inset without showing a generic-metal interruption.
-4. Repeat at non-default UI scales.
-5. Test without ClassicAPI. Verify the fallback frame still appears and
-   remains resizable, and does not call missing texture methods.
-6. Collapse to and expand from the World Map attachment. Confirm its
-   compact frame remains identical to main and the full header returns.
-7. Compare to the old `ui/top-rock-shadow-pass` screenshots for the
-   art and junctions; adjust native source strip selection, tiling width
-   and corner alignment if the original artwork has a visible join.
+The fixed source corners are drawn on `OVERLAY` (above the center
+`ARTWORK` pieces). The separate old FrameGeneral portrait ring stays
+removed; the existing book icon renders inside the Quest Log's own ring.
 
-**Do not merge on a code-only pass.** The native tiling mechanism is
-grounded in ClassicAPI's implementation, but its appearance, source
-asset alignment and client behavior still require an actual WoW 1.12
-visual check.
+## What stays unchanged
+
+- Parent `SetBackdrop` with original rock tiling
+- ClassicAPI `SetHorizTile/SetVertTile` for the full-size bottom and sides
+- Pooled 1.12 manual-tiling fallback when ClassicAPI is not installed
+- The compact World Map attachment and its native frame/trim
+- List/search/page insets, parchment, buttons, tabs, content, audio
+
+## In-game checks before merging
+
+1. Compare the Compendium at 670 UI units alongside Turtle WoW's built-in
+   wide Quest Log. Inspect the left portrait-to-rail join, center
+   continuation at x=242, and right cap at x=width-94.
+2. Check that the Quest Log's top-right metal corner is actually visible.
+   The source's cap is inside x=72..200 of its sheet; adjust the crop
+   only if in-client evidence requires it.
+3. Check the natural-to-repeating transition (approximately x=498 at
+   default width) for a visible seam or repeated material pattern.
+4. Drag the window through minimum, default and maximum widths; test
+   non-default UI scale and a height resize.
+5. Repeat with ClassicAPI disabled to verify manual side/bottom tiling.
+6. Collapse and expand the Compendium from the World Map. The compact
+   frame should be identical to the branch's pre-Quest-Log behavior.
+
+**Do not merge without a client-side visual pass.** Asset availability
+and exact appearance in the Turtle 1.12 client are not confirmed by a
+GitHub diff. If the Quest Log's native join is off by a few pixels,
+modify only fixed crops/UVs or the repeat-source choice before altering
+the proven frame anchors.
+
+## Historical context
+
+Earlier commits in this branch used the Character Frame sources
+`UI-Character-General-TopLeft/TopRight` and a 64px repeating crop.
+Those experiments established the working fixed corner offsets
+(-13,+13) and (+34,+13), which this Quest Log pass preserves.
