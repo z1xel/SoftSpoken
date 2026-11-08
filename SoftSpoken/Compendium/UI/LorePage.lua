@@ -17,9 +17,12 @@ local ART = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\"
 local PAGE_NAME = "spellbook-Page-Right-C60"
 local BACKPLATE_NAME = "spellbook-list-backplate"
 local DIVIDER_NAME = "spellbook-divider"
--- Three-slice divider: preserve the decorative flourish and right-hand fade.
--- Only the plain middle of the original 657-unit strip changes width.
-local DIVIDER_LEFT, DIVIDER_RIGHT = 64, 64
+-- Keep the original divider artwork at its native scale. Its 657px line
+-- is cropped in the middle on narrow pages, while a quiet 32px section
+-- of that same line repeats to fill any space beyond the original width.
+-- The last 98px remain intact so the right-hand fade is always visible.
+local DIVIDER_LEFT, DIVIDER_RIGHT = 64, 98
+local DIVIDER_REPEAT_START, DIVIDER_REPEAT = 559, 32
 local COPY = {
     [PAGE_NAME] = {810,682,0.791016,0.666016},
     [BACKPLATE_NAME] = {316,106,0.617188,0.828125},
@@ -91,7 +94,7 @@ function Page:PlaceButtons()
     end
 end
 
--- Resize the ornamental art with fixed end caps and an expandable center.
+-- Crop the divider's middle or repeat a source strip; never scale its detail.
 -- Backplate artwork still uses the original crop-to-fit approach.
 function Page:FitDecorations()
     if not self.frame then return end
@@ -117,14 +120,55 @@ function Page:FitDecorations()
         self.divider:SetWidth(shown)
         local pieces=self.dividerParts
         if pieces then
+            local length=COPY[DIVIDER_NAME][1]
+            local u,v=COPY[DIVIDER_NAME][3],COPY[DIVIDER_NAME][4]
             local leftWidth=math.min(DIVIDER_LEFT,shown/2)
             local rightWidth=math.min(DIVIDER_RIGHT,shown-leftWidth)
+            local sourceMiddle=length-DIVIDER_LEFT-DIVIDER_RIGHT
+            local middleWidth=math.min(math.max(0,shown-leftWidth-rightWidth),sourceMiddle)
+
+            -- Set UVs to match the *visible* source pixels. Changing a
+            -- texture's width alone would stretch its original art.
             pieces.left:SetWidth(leftWidth)
+            pieces.left:SetTexCoord(0,u*leftWidth/length,0,v)
             pieces.right:SetWidth(rightWidth)
-            if shown>leftWidth+rightWidth then
+            pieces.right:SetTexCoord(u*(length-rightWidth)/length,u,0,v)
+            if middleWidth>0 then
+                pieces.middle:SetWidth(middleWidth)
+                pieces.middle:SetTexCoord(u*DIVIDER_LEFT/length,
+                    u*(DIVIDER_LEFT+middleWidth)/length,0,v)
                 pieces.middle:Show()
             else
                 pieces.middle:Hide()
+            end
+
+            -- At native width all 657 source pixels appear exactly once.
+            -- Wider pages repeat a subtle portion of the actual line
+            -- instead of stretching the original 529px middle.
+            local extra=shown-leftWidth-rightWidth-middleWidth
+            local offset=leftWidth+middleWidth
+            local index=1
+            while extra>0 do
+                local piece=pieces.tiles[index]
+                if not piece then
+                    piece=self.divider:CreateTexture(nil,"ARTWORK")
+                    piece:SetTexture(ART..DIVIDER_NAME)
+                    piece:SetHeight(COPY[DIVIDER_NAME][2])
+                    pieces.tiles[index]=piece
+                end
+                local tileWidth=math.min(DIVIDER_REPEAT,extra)
+                piece:ClearAllPoints()
+                piece:SetPoint("TOPLEFT",self.divider,"TOPLEFT",offset,0)
+                piece:SetWidth(tileWidth)
+                piece:SetTexCoord(u*DIVIDER_REPEAT_START/length,
+                    u*(DIVIDER_REPEAT_START+tileWidth)/length,0,v)
+                piece:Show()
+                offset=offset+tileWidth
+                extra=extra-tileWidth
+                index=index+1
+            end
+            for i=index,table.getn(pieces.tiles) do
+                pieces.tiles[i]:Hide()
             end
         end
     end
@@ -298,9 +342,9 @@ function P.CreateLorePage(parent,style,left,options)
         left:SetPoint("TOPLEFT",divider,"TOPLEFT",0,0)
         right:SetPoint("TOPRIGHT",divider,"TOPRIGHT",0,0)
         middle:SetPoint("TOPLEFT",left,"TOPRIGHT",0,0)
-        middle:SetPoint("BOTTOMRIGHT",right,"BOTTOMLEFT",0,0)
+        middle:SetWidth(length-DIVIDER_LEFT-DIVIDER_RIGHT)
         divider:SetHeight(COPY[DIVIDER_NAME][2])
-        page.dividerParts={left=left,middle=middle,right=right}
+        page.dividerParts={left=left,middle=middle,right=right,tiles={}}
     else
         local line=divider:CreateTexture(nil,"ARTWORK")
         line:SetAllPoints(divider)
