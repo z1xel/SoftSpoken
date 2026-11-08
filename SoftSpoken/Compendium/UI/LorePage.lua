@@ -342,7 +342,7 @@ function P.CreateLorePage(parent,style,left,options)
     local view=page.body
     view.scroll:ClearAllPoints()
     view.scroll:SetPoint("TOPLEFT",divider,"BOTTOMLEFT",6,-2)
-    view.scroll:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",-page.inset.right-15,PAD-6)
+    view.scroll:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",-page.inset.right,PAD-6)
     view.slider:ClearAllPoints()
     view.slider:SetPoint("TOPLEFT",view.scroll,"TOPRIGHT",5,0)
     view.slider:SetPoint("BOTTOMLEFT",view.scroll,"BOTTOMRIGHT",5,0)
