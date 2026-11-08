@@ -28,17 +28,17 @@ the native client files; **no additional texture assets** are shipped.
 
 | Piece | Native source pixels | On-screen extent | Anchor |
 | --- | --- | --- | --- |
-| Fixed left | left x=0..256, y=0..73 | 256x73 | TOPLEFT (-13,+13) |
-| Fixed right | right x=72..200, y=0..73 | 128x73 | TOPRIGHT (+34,+13) |
-| Natural center continuation | left x=256..512, y=0..73 | up to 256px, 1:1 | x=242 onward |
-| Repeating center extension | left x=320..416, y=0..73 | 96px tiles, last one UV-clipped | after first 256px |
+| Fixed left | left x=0..256, y=0..72 | 256x72 | TOPLEFT (-13,+13) |
+| Fixed right | right x=72..200, y=0..72 | 128x72 | TOPRIGHT (+34,+13) |
+| Natural center continuation | left x=256..512, y=0..72 | up to 256px, 1:1 | x=242 onward |
+| Repeating center extension | left x=320..416, y=0..72 | 96px tiles, last one UV-clipped | after first 256px |
 
 The previous vertical extents were 92 (left), 88 (right), and 62
 (center). In this pass, all three were first normalized to the left
-corner's original **92-unit height**, then trimmed **3 units**, followed by another **3-unit bottom crop** two **6-unit bottom crops**, and a final **1-unit crop**,
-yielding **73 units each**. The top baselines,
+corner's original **92-unit height**, then trimmed **3 units**, followed by another **3-unit bottom crop** two **6-unit bottom crops**, and two final **1-unit crops**,
+yielding **72 units each**. The top baselines,
 horizontal offsets, source X crops, tile widths and resize behavior
-are unchanged. The source Y crops now end at 73/512 without stretching.
+are unchanged. The source Y crops now end at 72/512 without stretching.
 
 The right UV crop is offset within its 256px-wide sheet to include the
 original right metal cap; directly cropping x=0..128 would omit that cap.
