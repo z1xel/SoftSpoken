@@ -29,7 +29,8 @@ the native client files; **no additional texture assets** are shipped.
 | Piece | Native source pixels | On-screen extent | Anchor |
 | --- | --- | --- | --- |
 | Fixed left | left x=0..256, y=0..71 | 256x71 | TOPLEFT (-13,+13) |
-| Fixed right | right x=0..256, y=0..71 | 256x71 | TOPRIGHT (+13,+13) |
+| Fixed right | right x=0..256, y=0..71 | 256x71 | TOPRIGHT (+90,+13), cap at frame edge |
+| Rightward-art left extension | right x=0..77, y=0..71 | 77x71 | TOPRIGHT (-166,+13), ends where original sheet starts |
 | Natural center continuation | left x=256..512, y=0..71 | up to 256px, 1:1 | x=242 onward |
 | Repeating center extension | left x=320..416, y=0..71 | 96px tiles, last one UV-clipped | after first 256px |
 
@@ -37,24 +38,29 @@ The three top pieces were normalized to the same height and then
 progressively cropped from below: 92 to 89, 86, 80, 74, 73, 72 and
 finally **71 units**. Their Y crop now ends at 71/512 without stretching.
 
-The fixed right piece was subsequently expanded horizontally from 128 to
-**256 units** (native source x=0..256), and its top-right anchor changed
-from (+34,+13) to **(+13,+13)**. It now reaches **243 units into the
-frame**, matching the left corner's 256 - 13 = 243-unit reach. Both
-sheets still display original pixels at 1:1 scale.
+The right sprite has a crucial quirk: its metal end cap sits near **source
+x=166**, not at the right edge of its 256px-wide image. Expanding the
+cropped sprite to 256px and anchoring it at (+13,+13) wrongly moved the
+metal end cap about **77 units to the left**. That mistake is corrected
+by anchoring the unscaled full sheet at **(+90,+13)**, which restores
+source x=166 to the window's right edge.
 
-The right sheet now uses its full source width (x=0..256), instead of
-the earlier narrower x=72..200 crop. This is a deliberately symmetric
-frame-geometry experiment; the actual right cap position needs in-game
-visual confirmation.
+The original sheet reaches **166 units** inward from the cap. To make the
+right corner reach the same **243 units** as the left without moving the
+ornament, a separate **77x71** crop from the right sheet's neutral x=0..77
+header is placed directly to the left (its right edge at x=width-166).
+Both textures retain their native 1:1 dimensions. The extra section
+is deliberately repeat-like art and its seam requires a screenshot check.
 The initial 256px center continues the actual x=256..512 pixels of the
 left Quest Log sheet. Only the excess width repeats a comparatively plain
 section of the same header. This avoids repeating portrait, parchment,
 and inner-panel divider artwork through the middle.
 
-At Compendium width **670** UI units, the exposed middle is **185 units**
-(x=242 to x=427), supplied entirely by the native left-sheet
-continuation. Repetition is used only when resizing beyond that span.
+At Compendium width **670** UI units, the exposed middle remains
+**185 units** (x=242 to x=427), supplied entirely by the native
+left-sheet continuation. The right extension fills x=427..504, and
+the native right sheet begins at x=504. Repetition is only required
+for the middle on widths greater than its natural continuation.
 The pre-existing 1px left overlap is preserved intentionally.
 
 The fixed source corners are drawn on `OVERLAY` (above the center
@@ -74,10 +80,9 @@ removed; the existing book icon renders inside the Quest Log's own ring.
 1. Compare the Compendium at 670 UI units alongside Turtle WoW's built-in
    wide Quest Log. Inspect the left portrait-to-rail join, center
    continuation at x=242, and right artwork start at x=width-243.
-2. Verify that the newly full-width right sheet is visibly aligned
-   correctly. Its ornamental cap is not necessarily on the source's far
-   right pixel, so verify its appearance rather than assuming that
-   symmetric anchors guarantee symmetric ornament position.
+2. Verify that the right metal end cap has returned beside the
+   close/minimize buttons. Inspect the join between the added 77px
+   extension and the original 256px right sheet at x=width-166.
 3. Check the natural-to-repeating transition (approximately x=498 at
    default width) for a visible seam or repeated material pattern.
 4. Drag the window through minimum, default and maximum widths; test
