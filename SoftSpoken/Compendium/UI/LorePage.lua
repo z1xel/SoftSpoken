@@ -32,7 +32,7 @@ local COPY = {
 local PAD = 24
 -- Match the right text inset to the 24-unit left parchment inset.
 -- The native scrollbar occupies a separate housing outside the page.
-local INSET = { book={top=30,right=PAD}, log={top=28,right=PAD} }
+local INSET = { book={top=28,right=PAD}, log={top=28,right=PAD} }
 local BOOK_TOP_BAND = .07
 local BACKPLATE_CUT = 40
 -- Blizzard's QuestFont uses solid black ink on parchment.
