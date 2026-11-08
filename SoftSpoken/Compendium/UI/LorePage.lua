@@ -17,11 +17,11 @@ local ART = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\"
 local PAGE_NAME = "spellbook-Page-Right-C60"
 local BACKPLATE_NAME = "spellbook-list-backplate"
 local DIVIDER_NAME = "spellbook-divider"
--- Keep the divider at its original scale: left flourish 62px, right fade
--- 68px (slightly under three quarters of its former 98px length). The final 21px of source art are transparent,
+-- Keep the divider at its original scale: left flourish 64px, right fade
+-- 66px (slightly under three quarters of its former 98px length). The final 21px of source art are transparent,
 -- so use the last visible part of the fade rather than an empty right cap.
 -- Crop the middle when narrow, repeat a quiet 32px strip when wider.
-local DIVIDER_LEFT, DIVIDER_RIGHT = 62, 68
+local DIVIDER_LEFT, DIVIDER_RIGHT = 64, 66
 local DIVIDER_SOURCE_END = 636
 local DIVIDER_REPEAT_START, DIVIDER_REPEAT = 559, 32
 local COPY = {
