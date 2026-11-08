@@ -427,7 +427,7 @@ local function ShowEntry()
         -- Static reference locations are supplementary, never recorded as
         -- places the character visited. Muted ink distinguishes this note.
         local other=OtherKnownLocations(id,place)
-        if other then table.insert(parts,"|cff84694a"..other.."|r") end
+        if other then table.insert(parts,"|cff402914"..other.."|r") end
         local first=FirstVoiced(id)
         page:Show({title=Title(id),subtitle=location,
             text=table.concat(parts,"\n\n"),audio=first and {id,first} or nil})
