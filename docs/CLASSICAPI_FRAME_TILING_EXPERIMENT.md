@@ -28,14 +28,14 @@ the native client files; **no additional texture assets** are shipped.
 
 | Piece | Native source pixels | On-screen extent | Anchor |
 | --- | --- | --- | --- |
-| Fixed left | left x=0..256, y=0..71 | 256x71 | TOPLEFT (-13,+13) |
-| Fixed right | right x=0..200, y=0..71 | 200x71 | TOPRIGHT (+34,+13), cap at frame edge |
-| Natural center continuation | left x=256..512, y=0..71 | up to 256px, 1:1 | x=242 onward |
-| Repeating center extension | left x=320..416, y=0..71 | 96px tiles, last one UV-clipped | after first 256px |
+| Fixed left | left x=0..256, y=0..75 | 256x75 | TOPLEFT (-13,+13) |
+| Fixed right | right x=0..200, y=0..75 | 200x75 | TOPRIGHT (+34,+13), cap at frame edge |
+| Natural center continuation | left x=256..512, y=0..75 | up to 256px, 1:1 | x=242 onward |
+| Repeating center extension | left x=320..416, y=0..75 | 96px tiles, last one UV-clipped | after first 256px |
 
 The three top pieces were normalized to the same height and then
 progressively cropped from below: 92 to 89, 86, 80, 74, 73, 72 and
-finally **71 units**. Their Y crop now ends at 71/512 without stretching.
+finally **71 units**, before uncropping 4 units to **75 units**. Their Y crop now ends at 75/512 without stretching.
 
 The original right sheet's metal end cap sits near source x=166,
 not at its rightmost edge. The right corner now uses **one continuous,
