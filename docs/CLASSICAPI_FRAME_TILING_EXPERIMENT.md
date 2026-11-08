@@ -14,12 +14,15 @@ fallback renderer.
 
 The client artwork used is:
 
-- `Interface\\QuestFrame\\UI-QuestLogDualPane-Left` (512x512 sheet)
-- `Interface\\QuestFrame\\UI-QuestLogDualPane-Right` (256x512 sheet)
+- `Interface\\QuestFrame\\UI-QuestLog-Left` (512x512 sheet)
+- `Interface\\QuestFrame\\UI-QuestLog-Right` (256x512 sheet)
 
-These are different from the *narrow* `UI-QUESTLOG-TOPLEFT/TOPRIGHT`
-sheets. We reference the originals already installed in the WoW client;
-**no additional texture assets** are shipped.
+These are the **original Vanilla 1.12 wide Quest Log files** (confirmed
+against extracted client textures), not the *later Classic Era*
+`UI-QuestLogDualPane-Left/Right` filenames. Using those later filenames
+made the frame invisible on the 1.12 client. They also differ from the
+narrow `UI-QuestLog-TopLeft/TopRight` sheets. The code references
+the native client files; **no additional texture assets** are shipped.
 
 ## Full-size header geometry
 
