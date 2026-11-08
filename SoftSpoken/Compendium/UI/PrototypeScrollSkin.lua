@@ -109,9 +109,79 @@ local function Attach(host,owner,apply,slotOffset)
         -- corner. Leave the arrow at its native level rather than covering it.
     end
     PressedArrow(up);PressedArrow(down)
-    -- Vanilla's ScrollFrame_OnScrollRangeChanged normally hides this knob at
-    -- range zero and manages arrow states. Our standalone slider must do so.
-    local thumb=getglobal(name.."ThumbTexture")
+    -- This native 1.12 Slider still provides its track, arrow buttons,
+    -- mouse/keyboard value changes and range semantics. Its built-in thumb
+    -- texture can leave the visible track when dynamically resized, however.
+    -- Keep that texture installed for the Slider engine, but don't display it.
+    -- Paint ONE knob at a position clamped to the actual track instead.
+    local engineThumb=(bar.GetThumbTexture and bar:GetThumbTexture()) or
+        getglobal(name.."ThumbTexture")
+    if engineThumb then engineThumb:SetAlpha(0) end
+    local thumb=CreateFrame("Button",nil,bar)
+    thumb:SetWidth(THUMB_SIZE);thumb:SetHeight(THUMB_SIZE)
+    thumb:SetFrameLevel(bar:GetFrameLevel()+1)
+    thumb:SetNormalTexture("Interface\\Buttons\\UI-ScrollBar-Knob")
+    local art=thumb:GetNormalTexture()
+    if art then art:SetTexCoord(.25,.75,.25,.75) end
+    thumb:EnableMouse(true)
+    thumb:Hide()
+
+    -- The old thin scrollbars explicitly clamped the knob to
+    -- [0, trackHeight - knobHeight]. Preserve that invariant on native art.
+    local lastTravel,lastFraction=nil,nil
+    local function PaintThumb(maximum,value,trackHeight)
+        if maximum<=0.5 or trackHeight<THUMB_SIZE+THUMB_EDGE_GAP*2 then
+            thumb:Hide()
+            lastTravel,lastFraction=nil,nil
+            return
+        end
+        local travel=math.max(0,trackHeight-THUMB_SIZE)
+        local fraction=math.max(0,math.min(1,value/maximum))
+        if lastTravel==nil or math.abs(travel-lastTravel)>0.25 or
+           lastFraction==nil or math.abs(fraction-lastFraction)>0.0001 then
+            lastTravel,lastFraction=travel,fraction
+            thumb:ClearAllPoints()
+            thumb:SetPoint("TOP",bar,"TOP",0,-travel*fraction)
+        end
+        thumb:Show()
+    end
+    local dragging,grab=false,0
+    local function CursorY()
+        if not GetCursorPosition then return nil end
+        local _,y=GetCursorPosition()
+        local scale=bar.GetEffectiveScale and bar:GetEffectiveScale() or 1
+        if not scale or scale==0 then scale=1 end
+        return (y or 0)/scale
+    end
+    local function Release()
+        dragging=false
+        bar:SetScript("OnUpdate",nil)
+    end
+    local function Follow()
+        if IsMouseButtonDown and not IsMouseButtonDown("LeftButton") then
+            Release()
+            return
+        end
+        local y,top=CursorY(),bar:GetTop()
+        if not y or not top then return end
+        local travel=math.max(0,(bar:GetHeight() or 0)-THUMB_SIZE)
+        if travel<=0 then return end
+        local position=math.max(0,math.min(travel,top-y-grab))
+        local _,maximum=bar:GetMinMaxValues()
+        bar:SetValue((maximum or 0)*position/travel)
+    end
+    thumb:SetScript("OnMouseDown",function(self,pressed)
+        pressed=pressed or arg1
+        if pressed and pressed~="LeftButton" then return end
+        local y,top=CursorY(),thumb:GetTop()
+        if not y or not top then return end
+        grab=math.max(0,math.min(THUMB_SIZE,top-y))
+        dragging=true
+        bar:SetScript("OnUpdate",Follow)
+    end)
+    thumb:SetScript("OnMouseUp",function() Release() end)
+    thumb:SetScript("OnHide",function() Release() end)
+
     bar:SetMinMaxValues(0,0)
     bar:SetValueStep(24)
     bar:SetValue(0)
@@ -129,7 +199,8 @@ local function Attach(host,owner,apply,slotOffset)
         if width<1 or height<1 or trackHeight<THUMB_SIZE+THUMB_EDGE_GAP*2 then
             -- A temporarily unresolved resize must never paint the knob
             -- outside the usable slider track.
-            if thumb then thumb:Hide() end
+            thumb:Hide()
+            lastTravel,lastFraction=nil,nil
             if up then up:Disable() end
             if down then down:Disable() end
             lastTrackHeight=nil
@@ -154,11 +225,9 @@ local function Attach(host,owner,apply,slotOffset)
             bar:SetValue(value)
             syncing=false
         end
-        -- Match the original 1.12 ScrollFrame_OnScrollRangeChanged behavior.
-        -- A range-zero thumb isn't scrollable and must not remain visible.
-        if thumb then
-            if maximum>0.5 then thumb:Show() else thumb:Hide() end
-        end
+        -- Don't trust the dynamically resized Slider to position its internal
+        -- knob: render the original Blizzard knob in the clamped travel range.
+        PaintThumb(maximum,value,trackHeight)
         if up then
             if value>0.5 then up:Enable() else up:Disable() end
         end
