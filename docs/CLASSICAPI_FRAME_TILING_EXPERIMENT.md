@@ -29,26 +29,32 @@ the native client files; **no additional texture assets** are shipped.
 | Piece | Native source pixels | On-screen extent | Anchor |
 | --- | --- | --- | --- |
 | Fixed left | left x=0..256, y=0..71 | 256x71 | TOPLEFT (-13,+13) |
-| Fixed right | right x=72..200, y=0..71 | 128x71 | TOPRIGHT (+34,+13) |
+| Fixed right | right x=0..256, y=0..71 | 256x71 | TOPRIGHT (+13,+13) |
 | Natural center continuation | left x=256..512, y=0..71 | up to 256px, 1:1 | x=242 onward |
 | Repeating center extension | left x=320..416, y=0..71 | 96px tiles, last one UV-clipped | after first 256px |
 
-The previous vertical extents were 92 (left), 88 (right), and 62
-(center). In this pass, all three were first normalized to the left
-corner's original **92-unit height**, then trimmed **3 units**, followed by another **3-unit bottom crop** two **6-unit bottom crops**, and three final **1-unit crops**,
-yielding **71 units each**. The top baselines,
-horizontal offsets, source X crops, tile widths and resize behavior
-are unchanged. The source Y crops now end at 71/512 without stretching.
+The three top pieces were normalized to the same height and then
+progressively cropped from below: 92 to 89, 86, 80, 74, 73, 72 and
+finally **71 units**. Their Y crop now ends at 71/512 without stretching.
 
-The right UV crop is offset within its 256px-wide sheet to include the
-original right metal cap; directly cropping x=0..128 would omit that cap.
+The fixed right piece was subsequently expanded horizontally from 128 to
+**256 units** (native source x=0..256), and its top-right anchor changed
+from (+34,+13) to **(+13,+13)**. It now reaches **243 units into the
+frame**, matching the left corner's 256 - 13 = 243-unit reach. Both
+sheets still display original pixels at 1:1 scale.
+
+The right sheet now uses its full source width (x=0..256), instead of
+the earlier narrower x=72..200 crop. This is a deliberately symmetric
+frame-geometry experiment; the actual right cap position needs in-game
+visual confirmation.
 The initial 256px center continues the actual x=256..512 pixels of the
 left Quest Log sheet. Only the excess width repeats a comparatively plain
 section of the same header. This avoids repeating portrait, parchment,
 and inner-panel divider artwork through the middle.
 
-At Compendium width **670** UI units, the exposed middle is 334 units
-(x=242 to x=576), corresponding to **256 natural + 78 extended** pixels.
+At Compendium width **670** UI units, the exposed middle is **185 units**
+(x=242 to x=427), supplied entirely by the native left-sheet
+continuation. Repetition is used only when resizing beyond that span.
 The pre-existing 1px left overlap is preserved intentionally.
 
 The fixed source corners are drawn on `OVERLAY` (above the center
@@ -67,10 +73,11 @@ removed; the existing book icon renders inside the Quest Log's own ring.
 
 1. Compare the Compendium at 670 UI units alongside Turtle WoW's built-in
    wide Quest Log. Inspect the left portrait-to-rail join, center
-   continuation at x=242, and right cap at x=width-94.
-2. Check that the Quest Log's top-right metal corner is actually visible.
-   The source's cap is inside x=72..200 of its sheet; adjust the crop
-   only if in-client evidence requires it.
+   continuation at x=242, and right artwork start at x=width-243.
+2. Verify that the newly full-width right sheet is visibly aligned
+   correctly. Its ornamental cap is not necessarily on the source's far
+   right pixel, so verify its appearance rather than assuming that
+   symmetric anchors guarantee symmetric ornament position.
 3. Check the natural-to-repeating transition (approximately x=498 at
    default width) for a visible seam or repeated material pattern.
 4. Drag the window through minimum, default and maximum widths; test
