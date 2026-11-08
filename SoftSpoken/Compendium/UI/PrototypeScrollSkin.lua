@@ -1,8 +1,8 @@
 -- Prototype scroll chrome pilot for the real Turtle WoW Compendium (1.12).
 -- Visual: copied from the approved SSZ_Portrait_Template_Test, including the
 -- exact native atlas UVs, fixed caps, marble recess, 16-unit button sizes,
--- three-unit thumb shift, pressed-arrow correction, and the two-unit-left
--- right-page offset. Behavior: the EXISTING Compendium scroll controllers own
+-- three-unit thumb shift, pressed-arrow correction, and the shared
+-- right-page housing offset. Behavior: the EXISTING Compendium scroll controllers own
 -- all offsets, content ranges, wheel events, virtual rows and text reflows.
 SSCPrototypeScrollSkin = SSCPrototypeScrollSkin or {}
 local Skin = SSCPrototypeScrollSkin
@@ -158,7 +158,10 @@ function Skin.AttachPage(pageInset,page)
     thin:SetAlpha(0)
     thin:EnableMouse(false)
     if view.thumb then view.thumb:EnableMouse(false) end
-    -- The approved page scrollbar was shifted two units left in its final pass.
-    -- Prototype: parchment x=334..641; native page slot x=635..666.
-    return Attach(pageInset,view,function(v) view:ScrollTo(v) end,nil,-4)
+    -- Shift only the shared housing 1 unit right: x=635..666 -> x=636..667
+    -- at the 670-unit width. Its slider, arrows, textures and mouse regions
+    -- all follow because they are anchored to the housing itself.
+    local geometry = SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
+    local rightOffset = geometry and geometry.pageSlotRightOffset or -3
+    return Attach(pageInset,view,function(v) view:ScrollTo(v) end,nil,rightOffset)
 end
