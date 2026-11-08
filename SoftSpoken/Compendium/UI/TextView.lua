@@ -51,7 +51,7 @@ function View:Reflow(resetScroll)
     local scroll,child,body=self.scroll,self.child,self.body
     if not (scroll and child and body) then return end
     local previous=resetScroll and 0 or U.ScrollOffset(scroll)
-    local width=(scroll:GetWidth() or 0)-6
+    local width=scroll:GetWidth() or 0
     if width<=100 then width=self.lastWidth or 450 end
     self.lastWidth=width
     child:SetWidth(width)
