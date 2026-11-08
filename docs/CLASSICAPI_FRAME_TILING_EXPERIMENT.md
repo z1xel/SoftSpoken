@@ -112,6 +112,43 @@ parchment holder, page viewport, frame size, and vertical geometry do not
 change. Both the shared Compendium page and standalone lore reader use
 the same page-scroll skin.
 
+## Three-piece upper-header panel fade mask
+
+`SoftSpoken/Compendium/Textures/Prototype/QuestLogHeaderPanelFade.tga`
+is a 512×32, 32-bit RGBA mask (white RGB, varying alpha) shared by the
+fixed left, every pooled natural/repeating middle tile, and the fixed
+right Quest Log texture via ClassicAPI's positioned `AddMaskTexture`.
+It changes the **header art only**, not the parchment, text, frame rails,
+scrollbars, or other foreground elements.
+
+- **Horizontal extent:** the combined visible content-panel span,
+  from the left list inset at x=4 to the right parchment visual edge at
+  x=windowWidth−29 (x=641 at the 670-unit width). The mask is anchored
+  to both edges and follows window-width changes without scaling the
+  original Quest Log artwork. Its leftmost/rightmost texel columns have
+  alpha 1 and use clamped sampling, preserving header decorations outside
+  this span.
+- **Vertical extent:** relative to the shared inset top, the mask covers
+  y=−8 through y=+10. At the present shell geometry the panel starts
+  60 units below the frame top, so the mask spans y=52..70.
+- **Opacity:** full alpha above y=55; a short, smooth transition over
+  y=55..59; **zero alpha from approximately y=59 through y=70**
+  (11 UI units). Coordinates translate with the shared inset's top if
+  the shell geometry changes again.
+- **Feature detection:** when ClassicAPI's `CreateMaskTexture` /
+  `AddMaskTexture` are unavailable, no mask is created and the
+  original textures draw unmodified. Compact map attachments retain
+  their existing independent skin.
+- **Pooled tiles:** attach the shared mask once when each center tile
+  is allocated, not on every resize/reflow. No asset UVs, dimensions,
+  anchors, or tile repetition positions change.
+
+In-game check: verify the transparent strip aligns to the inset top
+through minimum/default/max window widths, with no fading of the portrait
+or ornate header outside x=4..windowWidth−29. Test fallback without
+ClassicAPI or with an older ClassicAPI version; verify that its absence
+does not hide header art.
+
 ## What stays unchanged
 
 - Parent `SetBackdrop` with original rock tiling
