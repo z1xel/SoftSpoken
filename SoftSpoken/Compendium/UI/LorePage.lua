@@ -107,7 +107,9 @@ function Page:FitDecorations()
             u*(BACKPLATE_CUT+shown)/full,0,COPY[BACKPLATE_NAME][4])
     end
     if ORIGINAL_ART and self.divider then
-        local room=width-PAD+6-self.inset.right
+        -- Extend the far end 6 units past the text's right inset to match
+        -- the divider's existing 6-unit overhang on the left.
+        local room=width-PAD+12-self.inset.right
         if room<=0 then return end
         -- The whole rule expands to the right page margin; never crop off
         -- its original ending or stretch the ornamental left flourish.
@@ -304,7 +306,7 @@ function P.CreateLorePage(parent,style,left,options)
         line:SetAllPoints(divider)
         line:SetTexture(.48,.31,.12,.65)
         divider:SetHeight(2)
-        divider:SetPoint("RIGHT",frame,"RIGHT",-page.inset.right,0)
+        divider:SetPoint("RIGHT",frame,"RIGHT",6-page.inset.right,0)
     end
     page.divider=divider
 
