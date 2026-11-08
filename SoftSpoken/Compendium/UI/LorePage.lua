@@ -28,6 +28,8 @@ local BOOK_TOP_BAND = .07
 local BACKPLATE_CUT = 40
 -- Blizzard's QuestFont uses solid black ink on parchment.
 local INK = { 0,0,0 }
+-- Pre-fidelity reader's warm brown is retained for breadcrumbs/subtitles.
+local SUBTITLE_INK = { .25,.16,.08 }
 local LINK = { .5,.12,.04 }
 
 local function Ink(font,c)
@@ -56,7 +58,7 @@ local function SetHeadingFont(title)
 end
 
 function Page:PaintSubtitle()
-    if self.sub and self.sub.text then Ink(self.sub.text) end
+    if self.sub and self.sub.text then Ink(self.sub.text,SUBTITLE_INK) end
 end
 
 -- The current 1.12 playback bridge still owns the button's behavior.
