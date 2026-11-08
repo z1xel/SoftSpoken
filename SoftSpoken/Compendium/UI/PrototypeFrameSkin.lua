@@ -33,14 +33,14 @@ local FULL_INSET_START_Y = 62
 -- 1:1 original texture pixels. This affects only the full-size shell.
 local FULL_HEADER_HEIGHT = 92 - 21
 local FULL_LEFT_ART_WIDTH, FULL_LEFT_ART_HEIGHT = 256, FULL_HEADER_HEIGHT
-local FULL_RIGHT_ART_WIDTH, FULL_RIGHT_ART_HEIGHT = 128, FULL_HEADER_HEIGHT
+local FULL_RIGHT_ART_WIDTH, FULL_RIGHT_ART_HEIGHT = 256, FULL_HEADER_HEIGHT
 local FULL_LEFT_ART_X, FULL_LEFT_ART_Y = -13, 13
-local FULL_RIGHT_ART_X, FULL_RIGHT_ART_Y = 34, 13
+local FULL_RIGHT_ART_X, FULL_RIGHT_ART_Y = 13, 13
 
--- A 1:1 source-pixel crop of the *wide* Quest Log right atlas. Its metal
--- right border sits around source x=166; the extra 34 source pixels at its
--- right reproduce the previous (+34) anchor/edge alignment.
-local QUESTLOG_RIGHT_CROP_X = 72
+-- Keep the entire 256px-wide native right sheet at 1:1 scale.
+-- A +13 right anchor makes the right artwork reach 243 units into the
+-- Compendium, matching the left art (256px wide, anchored at -13).
+local QUESTLOG_RIGHT_CROP_X = 0
 
 -- The Quest Log left sheet spans 512 source pixels. Continue its original
 -- x=256..512 header across the first 256px of the resizable middle, so
@@ -393,7 +393,8 @@ function Skin.Apply(self, title, options)
         -- Preserve fixed dimensions and anchors from the last approved
         -- Character Frame pass. Unlike the old 256px/128px atlas sheets,
         -- wide dual-pane Quest Log art needs 512px/256px UV divisors.
-        -- Right crop keeps the native right metal corner at its prior x.
+        -- The right sheet is now fully exposed at its native width, matching
+        -- the 243-unit in-frame reach of the fixed left sheet.
         self.sszQuestLogHeaderLeft = fixed(self,"OVERLAY",QUESTLOG_LEFT,
             FULL_LEFT_ART_WIDTH,FULL_LEFT_ART_HEIGHT,
             {0,FULL_LEFT_ART_WIDTH/QUESTLOG_LEFT_SOURCE_WIDTH,
