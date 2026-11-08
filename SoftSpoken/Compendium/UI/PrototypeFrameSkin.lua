@@ -31,7 +31,7 @@ local FULL_LEFT_ART_WIDTH, FULL_LEFT_ART_HEIGHT = 256, 92
 local FULL_RIGHT_ART_WIDTH, FULL_RIGHT_ART_HEIGHT = 128, 88
 -- Both sheets now share a common top baseline. The original Character
 -- artwork, not generic FrameGeneral metal, supplies the title rail.
-local FULL_LEFT_ART_X, FULL_LEFT_ART_Y = -14, 13
+local FULL_LEFT_ART_X, FULL_LEFT_ART_Y = -13, 13
 local FULL_RIGHT_ART_X, FULL_RIGHT_ART_Y = 34, 13
 
 -- The genuine Character Frame left sheet contains a continuously styled
@@ -42,7 +42,8 @@ local FULL_RIGHT_ART_X, FULL_RIGHT_ART_Y = 34, 13
 -- exact source region instead; no new or re-encoded texture asset is needed.
 local CHARACTER_TILE_X0, CHARACTER_TILE_WIDTH = 192, 64
 local CHARACTER_TILE_HEIGHT = FULL_LEFT_ART_HEIGHT
-local CHARACTER_CENTER_START = FULL_LEFT_ART_X + FULL_LEFT_ART_WIDTH
+-- Keep the repeatable middle at its original x=242; only nudge the left fixed piece.
+local CHARACTER_CENTER_START = 242
 local CHARACTER_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
 
 local function fixed(parent, layer, path, w, h, coords, p, x, y)
