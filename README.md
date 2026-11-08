@@ -92,7 +92,7 @@ The OctoWoW launcher includes ClassicAPI under the **Mods** tab, but its bundled
 5. Enable the new DLL in the launcher, then start the game normally.
 
 <p align="center">
-  <img src="docs/images/image(20261108-055622).png" width="900" alt="Annotated OctoWoW launcher Mods tab showing how to disable the built-in ClassicAPI, add a replacement DLL, and enable it" />
+  <img src="docs/images/image(20261108-055622).png" width="600" alt="Annotated OctoWoW launcher Mods tab showing how to disable the built-in ClassicAPI, add a replacement DLL, and enable it" />
 </p>
 
 **Do not enable two versions of ClassicAPI at once.** Leave the built-in ClassicAPI unchecked while using your manually installed copy.
