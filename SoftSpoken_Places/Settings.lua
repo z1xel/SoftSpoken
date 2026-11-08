@@ -56,9 +56,8 @@ local function CharDB()
     if s.compendiumFoundOnly == nil then s.compendiumFoundOnly = true end
     -- s.captions is a legacy saved preference, imported once into SoftSpoken
     -- on PLAYER_LOGIN. Do not create new Zones-specific captions settings.
-    -- Base size 14 maps to roughly 10.5 points on parchment, preserving
-    -- the reader's original proportion to its now 18-point Morpheus title.
-    -- Existing font-size preferences and slider increments remain intact.
+    -- Use a 14-point body on parchment by default. Existing saved font-size
+    -- preferences and slider increments remain intact.
     -- Existing characters get the default without losing other preferences.
     local size = tonumber(s.loreFontSize)
     if not size or size < 10 or size > 24 then s.loreFontSize = 14 end
