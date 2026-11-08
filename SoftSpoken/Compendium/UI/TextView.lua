@@ -19,6 +19,14 @@ local function FontSize()
     return 14
 end
 
+-- Shared bounds check for font-size controls and scroll offsets.
+local function Clamp(n,low,high)
+    n=tonumber(n) or 0
+    if n<low then return low end
+    if n>high then return high end
+    return n
+end
+
 -- GetStringHeight was added in WoW 2.3, so native 1.12 FontStrings
 -- must use their auto-sized region height instead. The lore body has
 -- an explicit width, but deliberately has no fixed height.
@@ -67,7 +75,7 @@ function View:Reflow(resetScroll)
         TEXT_PAD_TOP+TEXT_PAD_BOTTOM
     child:SetHeight(math.max(height,scroll:GetHeight() or 1))
     -- On 1.12 the scroll rectangle is not refreshed automatically after a
-    -- child resize. Do this before restoring the offset or painting the bar.
+    -- child resize. Do this before restoring the clamped scroll offset.
     if scroll.UpdateScrollChildRect then scroll:UpdateScrollChildRect() end
     local maximum=U.ScrollMax(scroll,child)
     self.range=maximum
