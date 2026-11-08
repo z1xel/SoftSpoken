@@ -2,20 +2,21 @@
 -- Visual: copied from the approved SSZ_Portrait_Template_Test, including the
 -- exact native atlas UVs, fixed caps, marble recess, 16-unit button sizes,
 -- three-unit thumb shift, pressed-arrow correction, and the shared
--- right-page housing offset. Behavior: the EXISTING Compendium scroll controllers own
--- all offsets, content ranges, wheel events, virtual rows and text reflows.
+-- right-page housing offset. Native sliders connect directly to the list/reader
+-- offset controllers; no duplicate hidden scrollbar is constructed.
 SSCPrototypeScrollSkin = SSCPrototypeScrollSkin or {}
 local Skin = SSCPrototypeScrollSkin
 local U = SSCUI
 local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\UI-Background-Marble"
 local SCROLL_ART = "Interface\\PaperDollInfoFrame\\UI-Character-ScrollBar"
 local SLOT_WIDTH = 31
--- The approved prototype placed the slider's BOTTOM at +18, exactly level
--- with the down arrow's TOP (+18). On real, fully scrollable content this lets
--- the native thumb visually run into the arrow. Reserve a small independent
--- clearance at maximum scroll; leave the top travel stop and both buttons
--- where the prototype placed them.
-local THUMB_BOTTOM_CLEARANCE = 6
+-- The native 1.12 UIPanelScrollBarTemplate has a fixed 16x16 knob whose
+-- center travels to the Slider's endpoints. Leave half a knob plus 2 units
+-- at BOTH ends so it cannot overlap the fixed up/down arrows on resize.
+-- Keep the approved arrow and housing positions unchanged.
+local THUMB_SIZE, THUMB_EDGE_GAP = 16, 2
+local TRACK_TOP = 20 + THUMB_SIZE/2 + THUMB_EDGE_GAP
+local TRACK_BOTTOM = 18 + THUMB_SIZE/2 + THUMB_EDGE_GAP
 local instance = 0
 
 local function PressedArrow(button)
@@ -27,7 +28,7 @@ local function PressedArrow(button)
     t:SetPoint("BOTTOMRIGHT",button,"BOTTOMRIGHT",2,0)
 end
 
--- Style only: do not replace or reimplement the Compendium scroll model.
+-- Use the original 1.12 slider and housing, leaving content scrolling to its owner.
 local function Housing(host,location)
     local slot=CreateFrame("Frame",nil,host)
     slot:SetWidth(SLOT_WIDTH)
@@ -71,7 +72,7 @@ local function Housing(host,location)
     return slot,Reflow
 end
 
-local function Attach(host,owner,apply,offset,slotOffset)
+local function Attach(host,owner,apply,slotOffset)
     if not host or not owner or not owner.scroll or not owner.child then return end
     if owner.sszNativeScrollChrome then return owner.sszNativeScrollChrome end
     local slot,reflow=Housing(host,slotOffset)
@@ -89,12 +90,11 @@ local function Attach(host,owner,apply,offset,slotOffset)
             apply(value)
         end
     end)
-    -- Keep the approved upper stop and native button coordinates. Move only
-    -- the lower slider stop up, so the thumb does not crowd the down arrow.
-    -- Clear possible inherited anchors to make the two travel limits explicit.
+    -- The Slider positions its thumb at the track endpoints, not inset by
+    -- half the knob size. The track therefore needs its own safe travel stops.
     bar:ClearAllPoints()
-    bar:SetPoint("TOP",slot,"TOP",0,-23)
-    bar:SetPoint("BOTTOM",slot,"BOTTOM",0,18+THUMB_BOTTOM_CLEARANCE)
+    bar:SetPoint("TOP",slot,"TOP",0,-TRACK_TOP)
+    bar:SetPoint("BOTTOM",slot,"BOTTOM",0,TRACK_BOTTOM)
     bar:SetWidth(16)
     local up=getglobal(name.."ScrollUpButton")
     local down=getglobal(name.."ScrollDownButton")
@@ -109,29 +109,136 @@ local function Attach(host,owner,apply,offset,slotOffset)
         -- corner. Leave the arrow at its native level rather than covering it.
     end
     PressedArrow(up);PressedArrow(down)
+    -- This native 1.12 Slider still provides its track, arrow buttons,
+    -- mouse/keyboard value changes and range semantics. Its built-in thumb
+    -- texture can leave the visible track when dynamically resized, however.
+    -- Keep that texture installed for the Slider engine, but don't display it.
+    -- Paint ONE knob at a position clamped to the actual track instead.
+    local engineThumb=(bar.GetThumbTexture and bar:GetThumbTexture()) or
+        getglobal(name.."ThumbTexture")
+    if engineThumb then engineThumb:SetAlpha(0) end
+    local thumb=CreateFrame("Button",nil,bar)
+    thumb:SetWidth(THUMB_SIZE);thumb:SetHeight(THUMB_SIZE)
+    thumb:SetFrameLevel(bar:GetFrameLevel()+1)
+    thumb:SetNormalTexture("Interface\\Buttons\\UI-ScrollBar-Knob")
+    local art=thumb:GetNormalTexture()
+    if art then art:SetTexCoord(.25,.75,.25,.75) end
+    thumb:EnableMouse(true)
+    thumb:Hide()
+
+    -- The old thin scrollbars explicitly clamped the knob to
+    -- [0, trackHeight - knobHeight]. Preserve that invariant on native art.
+    local lastTravel,lastFraction=nil,nil
+    local function PaintThumb(maximum,value,trackHeight)
+        if maximum<=0.5 or trackHeight<THUMB_SIZE+THUMB_EDGE_GAP*2 then
+            thumb:Hide()
+            lastTravel,lastFraction=nil,nil
+            return
+        end
+        local travel=math.max(0,trackHeight-THUMB_SIZE)
+        local fraction=math.max(0,math.min(1,value/maximum))
+        if lastTravel==nil or math.abs(travel-lastTravel)>0.25 or
+           lastFraction==nil or math.abs(fraction-lastFraction)>0.0001 then
+            lastTravel,lastFraction=travel,fraction
+            thumb:ClearAllPoints()
+            thumb:SetPoint("TOP",bar,"TOP",0,-travel*fraction)
+        end
+        thumb:Show()
+    end
+    local dragging,grab=false,0
+    local function CursorY()
+        if not GetCursorPosition then return nil end
+        local _,y=GetCursorPosition()
+        local scale=bar.GetEffectiveScale and bar:GetEffectiveScale() or 1
+        if not scale or scale==0 then scale=1 end
+        return (y or 0)/scale
+    end
+    local function Release()
+        dragging=false
+        bar:SetScript("OnUpdate",nil)
+    end
+    local function Follow()
+        if IsMouseButtonDown and not IsMouseButtonDown("LeftButton") then
+            Release()
+            return
+        end
+        local y,top=CursorY(),bar:GetTop()
+        if not y or not top then return end
+        local travel=math.max(0,(bar:GetHeight() or 0)-THUMB_SIZE)
+        if travel<=0 then return end
+        local position=math.max(0,math.min(travel,top-y-grab))
+        local _,maximum=bar:GetMinMaxValues()
+        bar:SetValue((maximum or 0)*position/travel)
+    end
+    thumb:SetScript("OnMouseDown",function(self,pressed)
+        pressed=pressed or arg1
+        if pressed and pressed~="LeftButton" then return end
+        local y,top=CursorY(),thumb:GetTop()
+        if not y or not top then return end
+        grab=math.max(0,math.min(THUMB_SIZE,top-y))
+        dragging=true
+        bar:SetScript("OnUpdate",Follow)
+    end)
+    thumb:SetScript("OnMouseUp",function() Release() end)
+    thumb:SetScript("OnHide",function() Release() end)
+
     bar:SetMinMaxValues(0,0)
     bar:SetValueStep(24)
     bar:SetValue(0)
     syncing=false
-    local lastMax,lastOffset=nil,nil
+    local lastMax,lastOffset,lastTrackHeight=nil,nil,nil
+    local inSync=false
     local function Sync()
+        -- Resizing and clamping can trigger OnVerticalScroll synchronously.
+        if inSync then return end
+        inSync=true
         reflow()
         local width=owner.scroll:GetWidth() or 0
         local height=owner.scroll:GetHeight() or 0
-        if width<1 or height<1 then return end
+        local trackHeight=bar:GetHeight() or 0
+        if width<1 or height<1 or trackHeight<THUMB_SIZE+THUMB_EDGE_GAP*2 then
+            -- A temporarily unresolved resize must never paint the knob
+            -- outside the usable slider track.
+            thumb:Hide()
+            lastTravel,lastFraction=nil,nil
+            if up then up:Disable() end
+            if down then down:Disable() end
+            lastTrackHeight=nil
+            inSync=false
+            return
+        end
         local maximum=math.max(0,U.ScrollMax(owner.scroll,owner.child))
-        local value=math.max(0,math.min(maximum,U.ScrollOffset(owner.scroll)))
-        if lastMax and math.abs(maximum-lastMax)<0.25 and
-           lastOffset and math.abs(value-lastOffset)<0.25 then return end
-        lastMax,lastOffset=maximum,value
-        syncing=true
-        bar:SetMinMaxValues(0,maximum)
-        bar:SetValue(value)
-        syncing=false
+        local raw=U.ScrollOffset(owner.scroll)
+        local value=math.max(0,math.min(maximum,raw))
+        -- When a viewport grows, its old offset may exceed the NEW range.
+        -- Clamp the actual scroll model as well as the visual slider.
+        if math.abs(raw-value)>0.25 then apply(value) end
+        -- The old thin thumb recomputed its travel after every resize.
+        -- A native Slider also needs a refresh when its physical track changes,
+        -- even when the scroll range and selected value happen to stay equal.
+        if lastMax==nil or math.abs(maximum-lastMax)>=0.25 or
+           lastOffset==nil or math.abs(value-lastOffset)>=0.25 or
+           lastTrackHeight==nil or math.abs(trackHeight-lastTrackHeight)>=0.25 then
+            lastMax,lastOffset,lastTrackHeight=maximum,value,trackHeight
+            syncing=true
+            bar:SetMinMaxValues(0,maximum)
+            bar:SetValue(value)
+            syncing=false
+        end
+        -- Don't trust the dynamically resized Slider to position its internal
+        -- knob: render the original Blizzard knob in the clamped travel range.
+        PaintThumb(maximum,value,trackHeight)
+        if up then
+            if value>0.5 then up:Enable() else up:Disable() end
+        end
+        if down then
+            if maximum-value>0.5 then down:Enable() else down:Disable() end
+        end
+        inSync=false
     end
-    -- Synchronize following the real renderer's wheel scrolling, dynamic
-    -- content changes, native page actions and virtual-list row updates.
-    -- Poll only actual offset/range changes; do not allocate frames or textures.
+    -- A height-only change needs to revalidate the 16px knob travel; the
+    -- OnUpdate fallback also catches delayed Vanilla frame layout.
+    bar:SetScript("OnSizeChanged",function() Sync() end)
     slot:SetScript("OnUpdate",function() Sync() end)
     owner.sszNativeScrollChrome={slot=slot,slider=bar,sync=Sync}
     Sync()
@@ -139,29 +246,18 @@ local function Attach(host,owner,apply,offset,slotOffset)
 end
 
 function Skin.AttachList(list)
-    if not list or not list.bar or not list.inset then return end
-    -- Keep the full production scrolling contract (U.NewThinScrollBar).
-    -- Hide only the original thin *art and hitboxes*, not its model.
-    local thin=list.bar
-    thin:SetAlpha(0)
-    thin:EnableMouse(false)
-    if thin.thumb then thin.thumb:EnableMouse(false) end
+    if not list or not list.inset or not list.scroll or not list.child then return end
+    -- The native control now calls the list's scroll model directly.
     -- Prototype: list inset x=4..307, native slot x=303..334.
-    return Attach(list.inset,list,function(v) thin:SetValue(v) end,nil,27)
+    return Attach(list.inset,list,function(v) list:ScrollTo(v) end,27)
 end
 
 function Skin.AttachPage(pageInset,page)
     local view=page and page.body
-    if not view or not view.slider then return end
-    -- This is the right-side gutter reserved outside the parchment holder.
-    local thin=view.slider
-    thin:SetAlpha(0)
-    thin:EnableMouse(false)
-    if view.thumb then view.thumb:EnableMouse(false) end
-    -- Shift only the shared housing 1 unit right: x=635..666 -> x=636..667
-    -- at the 670-unit width. Its slider, arrows, textures and mouse regions
-    -- all follow because they are anchored to the housing itself.
-    local geometry = SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
-    local rightOffset = geometry and geometry.pageSlotRightOffset or -3
-    return Attach(pageInset,view,function(v) view:ScrollTo(v) end,nil,rightOffset)
+    if not view or not view.scroll or not view.child then return end
+    -- Keep the frame-tiling branch's 1-unit housing shift while using the
+    -- fidelity branch's single native scrolling controller.
+    local geometry=SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
+    local rightOffset=geometry and geometry.pageSlotRightOffset or -3
+    return Attach(pageInset,view,function(v) view:ScrollTo(v) end,rightOffset)
 end

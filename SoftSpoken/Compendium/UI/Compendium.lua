@@ -667,6 +667,15 @@ end
 local filterMenuSerial=0
 local List={}
 List.__index=List
+-- One scroll model for wheel input, native slider movement, search resets,
+-- and programmatic navigation. No duplicate hidden scrollbar is required.
+function List:ScrollTo(value)
+    if not self.scroll or not self.child then return end
+    U.SetScrollOffset(self.scroll,self.child,value)
+    self:DrawRows()
+    local native=self.sszNativeScrollChrome
+    if native then native.sync() end
+end
 function C.NewList(panel,opts)
     local list=setmetatable({panel=panel,opts=opts,rows={},items={},filter=""},List)
     local leftMargin,_,topMargin=C.Margins()
@@ -711,8 +720,7 @@ function C.NewList(panel,opts)
         PaintSearch()
         local text=search:GetText() or ""
         list.filter=string.lower(string.gsub(string.gsub(text,"^%s+",""),"%s+$",""))
-        U.SetScrollOffset(list.scroll,list.child,0)
-        if list.bar then list.bar:Sync() end
+        list:ScrollTo(0)
         if opts.onSearch then opts.onSearch(list.filter) end
     end)
     search:SetScript("OnEscapePressed",function() search:ClearFocus() end)
@@ -732,7 +740,7 @@ function C.NewList(panel,opts)
     filterButton:SetDisabledTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Disabled")
     list.filterButton=filterButton
     local function Changed()
-        U.SetScrollOffset(list.scroll,list.child,0)
+        list:ScrollTo(0)
         if panel.Refresh then panel:Refresh() end
     end
     local function ToggleOnly()
@@ -803,7 +811,7 @@ function C.NewList(panel,opts)
     left:SetWidth(C.LIST_WIDTH)
     list.inset=left
     local scroll=CreateFrame("ScrollFrame",nil,left)
-    -- Reserve a dedicated 16px gutter for the thin scroll thumb.
+    -- Keep the native frame's inset clear of the separate scrollbar housing.
     scroll:SetPoint("TOPLEFT",left,"TOPLEFT",7,-7)
     -- Reserve the 31-unit native scrollbar housing instead of the previous
     -- 16-unit thin bar: do not paint text under the new metal channel.
@@ -816,30 +824,24 @@ function C.NewList(panel,opts)
     list.child=child
     scroll:SetScript("OnVerticalScroll",function()
         if scroll.GetVerticalScroll then scroll.sz112ScrollOffset=scroll:GetVerticalScroll() or 0 end
-        if list.bar then list.bar:Sync() end
         list:DrawRows()
+        if list.sszNativeScrollChrome then list.sszNativeScrollChrome.sync() end
     end)
     scroll:SetScript("OnMouseWheel",function(first,second)
         local value=U.ScrollOffset(scroll)-U.MouseWheelDelta(first,second)*SCROLL_STEP
         value=math.max(0,math.min(value,U.ScrollMax(scroll,child)))
-        if list.bar then list.bar:SetValue(value)
-        else U.SetScrollOffset(scroll,child,value);list:DrawRows() end
+        list:ScrollTo(value)
     end)
-    -- Use the proven thin thumb/control design from TextView, not the old
-    -- UIPanelScrollBarTemplate's enormous arrows and track.
-    local slider=U.NewThinScrollBar(left,scroll,child,function() list:DrawRows() end)
-    list.bar=slider
     for i=1,VISIBLE_ROWS do list:AcquireRow(i) end
     local noMatch=left:CreateFontString(nil,"OVERLAY","GameFontDisableSmall")
     noMatch:SetPoint("CENTER",left,"CENTER",0,0)
     noMatch:SetText(opts.none or "No matching entries.")
     list.noMatch=noMatch
-    slider:SetMinMaxValues(0,0)
-    slider:SetValue(0)
-    -- Visual transplant only. The existing virtualized list and its scrollbar
-    -- controller remain authoritative for search, wheel and row offsets.
+    -- Native 1.12 scrollbar drives this list directly; preserve the public
+    -- list.bar reference for external tab integrations.
     if SSCPrototypeScrollSkin and SSCPrototypeScrollSkin.AttachList then
-        SSCPrototypeScrollSkin.AttachList(list)
+        local native=SSCPrototypeScrollSkin.AttachList(list)
+        list.bar=native and native.slider
     end
     panel.list=list
     return list
@@ -1084,14 +1086,9 @@ function List:Render()
         y=y+RowHeight(item)
     end
     self.child:SetHeight(math.max(1,y))
-    local max=U.ScrollMax(self.scroll,self.child)
-    self.bar:SetMinMaxValues(0,max)
-    if U.ScrollOffset(self.scroll)>max then
-        self.bar:SetValue(max)
-    else
-        self.bar:Sync()
-    end
-    self:DrawRows()
+    -- Clamps offsets after filtering or expanding the tree, and refreshes
+    -- native slider range/value without keeping a second control in sync.
+    self:ScrollTo(U.ScrollOffset(self.scroll))
     return self.items
 end
 function List:ScrollToSelection(items)
@@ -1103,7 +1100,7 @@ function List:ScrollToSelection(items)
             local viewHeight=self.scroll:GetHeight() or 0
             local range=math.max(0,(self.child:GetHeight() or 0)-viewHeight)
             local target=y-(viewHeight/2)+(height/2)
-            self.bar:SetValue(math.max(0,math.min(range,target)))
+            self:ScrollTo(math.max(0,math.min(range,target)))
             return
         end
         y=y+height
