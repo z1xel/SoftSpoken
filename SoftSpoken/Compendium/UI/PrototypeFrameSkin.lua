@@ -18,11 +18,12 @@ local VERT = DIR .. "!UI-Frame"
 local ROCK = DIR .. "UI-Background-Rock-Classic"
 
 -- Full-size frame experiment: native artwork from the *wide* dual-pane
--- Quest Log. These files are 512x512 (left) and 256x512 (right), unlike the
--- narrow 256x256/128x256 Character sheets they replace. Their header
+-- Quest Log. The original 1.12 client files are UI-QuestLog-Left and
+-- UI-QuestLog-Right (512x512 and 256x512), NOT the similarly styled
+-- UI-QuestLogDualPane-* sheets from later Classic clients. Their header
 -- regions are cropped at native pixel scale; only the exposed middle tiles.
-local QUESTLOG_LEFT = "Interface\\QuestFrame\\UI-QuestLogDualPane-Left"
-local QUESTLOG_RIGHT = "Interface\\QuestFrame\\UI-QuestLogDualPane-Right"
+local QUESTLOG_LEFT = "Interface\\QuestFrame\\UI-QuestLog-Left"
+local QUESTLOG_RIGHT = "Interface\\QuestFrame\\UI-QuestLog-Right"
 
 -- Preserve the proven Compendium frame geometry from the Character phase.
 -- Source UVs below account for the larger 512px-tall dual-pane sheets.
