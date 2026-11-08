@@ -387,10 +387,8 @@ function Skin.Apply(self, title, options)
     self.sszPortraitSlices = circularIcon(
         self, "Interface\\Icons\\INV_Misc_Book_11", -6, 8, 61, 29
     )
-    -- Recreate portrait ring above icon rather than relying on texture layering order.
-    -- The portrait ring is drawn after the icon so it stays in front.
-    self.sszPortraitRing = fixed(self,"OVERLAY",FRAME,78,78,
-        {0.0078125,0.6171875,0.0078125,0.6171875},"TOPLEFT",-14,11)
+    -- The native Character top-left artwork already includes its portrait
+    -- ring; do not draw the old FrameGeneral metal ring a second time.
     end
 
     self.sszTitle = self:CreateFontString(nil,"OVERLAY","GameFontNormal")
@@ -531,7 +529,6 @@ function Skin.Apply(self, title, options)
     -- Production Compendium integration aliases. These add no visual sprites.
     self.CloseButton = self.sszClose
     self.titleText = self.sszTitle
-    self.portrait = self.sszPortraitRing
     self.sszPrototypeSkin = true
     if title then self.sszTitle:SetText(title) end
     self:SetScript("OnSizeChanged",function() Reflow(this) end)
