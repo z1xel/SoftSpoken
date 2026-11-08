@@ -399,8 +399,10 @@ end
 function P:Layout(reset)
     if not self.active then return end
     local view=self.view
-    local width=(view.scroll:GetWidth() or 0)-9
-    if width<155 then width=view.lastWidth or 330 end
+    -- Parts begin 2 units inside the shared reader; reserve the same
+    -- 2-unit clearance at the right instead of the obsolete 9-unit shrink.
+    local width=(view.scroll:GetWidth() or 0)-2
+    if width<155 then width=(view.lastWidth or 330)-2 end
     local y=0
     for _,stage in ipairs(MOMENTS) do
         local part=self.parts[stage]
@@ -408,7 +410,7 @@ function P:Layout(reset)
             part:SetWidth(width)
             part:ClearAllPoints()
             part:SetPoint("TOPLEFT",view.child,"TOPLEFT",2,-y)
-            part.content:SetWidth(math.max(110,width-4))
+            part.content:SetWidth(math.max(110,width-2))
             part.title:SetWidth(math.max(110,width-34))
             local th=part.content:GetStringHeight() or 0
             if th<16 then th=22 end
