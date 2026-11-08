@@ -131,10 +131,17 @@ scrollbars, or other foreground elements.
 - **Vertical extent:** relative to the shared inset top, the mask covers
   y=−8 through y=+10. At the present shell geometry the panel starts
   60 units below the frame top, so the mask spans y=52..70.
-- **Opacity:** full alpha above y=55; a short, smooth transition over
-  y=55..59; **zero alpha from approximately y=59 through y=70**
-  (11 UI units). Coordinates translate with the shared inset's top if
-  the shell geometry changes again.
+- **Intended on-screen opacity:** full alpha above y=55; a short,
+  smooth transition over y=55..59; **zero alpha from approximately
+  y=59 through y=70** (11 UI units). Coordinates translate with the
+  shared inset's top if the shell geometry changes again.
+- **Stored alpha orientation:** the original TGA row ordering produced
+  an inverted-looking header in the user's client screenshot, hiding
+  the top/title trim instead of fading at the inset. The 512x32 asset
+  now stores its alpha rows in reverse order (raw first row alpha 0,
+  last row alpha 1), leaving the positioned mask's size, anchors, and
+  horizontal limits unchanged. This is based on observed client output,
+  not an assumed universal TGA texture orientation.
 - **Feature detection:** when ClassicAPI's `CreateMaskTexture` /
   `AddMaskTexture` are unavailable, no mask is created and the
   original textures draw unmodified. Compact map attachments retain
@@ -143,8 +150,9 @@ scrollbars, or other foreground elements.
   is allocated, not on every resize/reflow. No asset UVs, dimensions,
   anchors, or tile repetition positions change.
 
-In-game check: verify the transparent strip aligns to the inset top
-through minimum/default/max window widths, with no fading of the portrait
+In-game check: verify the header/title trim remains solid while the
+artwork fades to transparency at the upper inset border, across
+minimum/default/max window widths, with no fading of the portrait
 or ornate header outside x=4..windowWidth−29. Test fallback without
 ClassicAPI or with an older ClassicAPI version; verify that its absence
 does not hide header art.

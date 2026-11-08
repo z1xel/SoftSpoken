@@ -67,8 +67,11 @@ local QUESTLOG_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
 -- fixed left, pooled center continuation/repeats, and fixed right.
 -- The page's visible parchment extends to 29 UI units before the window
 -- right edge; clip the fade horizontally to x=listLeft..windowWidth-29.
--- Relative to the panel top: mask spans -8..+10, with the lower 11 units
--- fully clear and a 4-unit transition immediately above them.
+-- On-screen profile relative to the panel top: alpha 1 above -5,
+-- fades to 0 over -5..-1, stays at 0 through +10. The TGA's stored
+-- alpha rows are deliberately inverted: the original row ordering
+-- appeared upside down in the in-game test, erasing the title trim
+-- instead of softening the header at the inset shoulder.
 local QUESTLOG_PANEL_FADE_MASK =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderPanelFade"
 local HEADER_MASK_ABOVE_PANEL = 8
