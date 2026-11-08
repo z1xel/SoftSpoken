@@ -10,12 +10,13 @@ local U = SSCUI
 local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\UI-Background-Marble"
 local SCROLL_ART = "Interface\\PaperDollInfoFrame\\UI-Character-ScrollBar"
 local SLOT_WIDTH = 31
--- The approved prototype placed the slider's BOTTOM at +18, exactly level
--- with the down arrow's TOP (+18). On real, fully scrollable content this lets
--- the native thumb visually run into the arrow. Reserve a small independent
--- clearance at maximum scroll; leave the top travel stop and both buttons
--- where the prototype placed them.
-local THUMB_BOTTOM_CLEARANCE = 6
+-- The native 1.12 UIPanelScrollBarTemplate has a fixed 16x16 knob whose
+-- center travels to the Slider's endpoints. Leave half a knob plus 2 units
+-- at BOTH ends so it cannot overlap the fixed up/down arrows on resize.
+-- Keep the approved arrow and housing positions unchanged.
+local THUMB_SIZE, THUMB_EDGE_GAP = 16, 2
+local TRACK_TOP = 20 + THUMB_SIZE/2 + THUMB_EDGE_GAP
+local TRACK_BOTTOM = 18 + THUMB_SIZE/2 + THUMB_EDGE_GAP
 local instance = 0
 
 local function PressedArrow(button)
@@ -89,12 +90,11 @@ local function Attach(host,owner,apply,slotOffset)
             apply(value)
         end
     end)
-    -- Keep the approved upper stop and native button coordinates. Move only
-    -- the lower slider stop up, so the thumb does not crowd the down arrow.
-    -- Clear possible inherited anchors to make the two travel limits explicit.
+    -- The Slider positions its thumb at the track endpoints, not inset by
+    -- half the knob size. The track therefore needs its own safe travel stops.
     bar:ClearAllPoints()
-    bar:SetPoint("TOP",slot,"TOP",0,-23)
-    bar:SetPoint("BOTTOM",slot,"BOTTOM",0,18+THUMB_BOTTOM_CLEARANCE)
+    bar:SetPoint("TOP",slot,"TOP",0,-TRACK_TOP)
+    bar:SetPoint("BOTTOM",slot,"BOTTOM",0,TRACK_BOTTOM)
     bar:SetWidth(16)
     local up=getglobal(name.."ScrollUpButton")
     local down=getglobal(name.."ScrollDownButton")
@@ -109,29 +109,67 @@ local function Attach(host,owner,apply,slotOffset)
         -- corner. Leave the arrow at its native level rather than covering it.
     end
     PressedArrow(up);PressedArrow(down)
+    -- Vanilla's ScrollFrame_OnScrollRangeChanged normally hides this knob at
+    -- range zero and manages arrow states. Our standalone slider must do so.
+    local thumb=getglobal(name.."ThumbTexture")
     bar:SetMinMaxValues(0,0)
     bar:SetValueStep(24)
     bar:SetValue(0)
     syncing=false
-    local lastMax,lastOffset=nil,nil
+    local lastMax,lastOffset,lastTrackHeight=nil,nil,nil
+    local inSync=false
     local function Sync()
+        -- Resizing and clamping can trigger OnVerticalScroll synchronously.
+        if inSync then return end
+        inSync=true
         reflow()
         local width=owner.scroll:GetWidth() or 0
         local height=owner.scroll:GetHeight() or 0
-        if width<1 or height<1 then return end
+        local trackHeight=bar:GetHeight() or 0
+        if width<1 or height<1 or trackHeight<THUMB_SIZE+THUMB_EDGE_GAP*2 then
+            -- A temporarily unresolved resize must never paint the knob
+            -- outside the usable slider track.
+            if thumb then thumb:Hide() end
+            if up then up:Disable() end
+            if down then down:Disable() end
+            lastTrackHeight=nil
+            inSync=false
+            return
+        end
         local maximum=math.max(0,U.ScrollMax(owner.scroll,owner.child))
-        local value=math.max(0,math.min(maximum,U.ScrollOffset(owner.scroll)))
-        if lastMax and math.abs(maximum-lastMax)<0.25 and
-           lastOffset and math.abs(value-lastOffset)<0.25 then return end
-        lastMax,lastOffset=maximum,value
-        syncing=true
-        bar:SetMinMaxValues(0,maximum)
-        bar:SetValue(value)
-        syncing=false
+        local raw=U.ScrollOffset(owner.scroll)
+        local value=math.max(0,math.min(maximum,raw))
+        -- When a viewport grows, its old offset may exceed the NEW range.
+        -- Clamp the actual scroll model as well as the visual slider.
+        if math.abs(raw-value)>0.25 then apply(value) end
+        -- The old thin thumb recomputed its travel after every resize.
+        -- A native Slider also needs a refresh when its physical track changes,
+        -- even when the scroll range and selected value happen to stay equal.
+        if lastMax==nil or math.abs(maximum-lastMax)>=0.25 or
+           lastOffset==nil or math.abs(value-lastOffset)>=0.25 or
+           lastTrackHeight==nil or math.abs(trackHeight-lastTrackHeight)>=0.25 then
+            lastMax,lastOffset,lastTrackHeight=maximum,value,trackHeight
+            syncing=true
+            bar:SetMinMaxValues(0,maximum)
+            bar:SetValue(value)
+            syncing=false
+        end
+        -- Match the original 1.12 ScrollFrame_OnScrollRangeChanged behavior.
+        -- A range-zero thumb isn't scrollable and must not remain visible.
+        if thumb then
+            if maximum>0.5 then thumb:Show() else thumb:Hide() end
+        end
+        if up then
+            if value>0.5 then up:Enable() else up:Disable() end
+        end
+        if down then
+            if maximum-value>0.5 then down:Enable() else down:Disable() end
+        end
+        inSync=false
     end
-    -- Synchronize following the real renderer's wheel scrolling, dynamic
-    -- content changes, native page actions and virtual-list row updates.
-    -- Poll only actual offset/range changes; do not allocate frames or textures.
+    -- A height-only change needs to revalidate the 16px knob travel; the
+    -- OnUpdate fallback also catches delayed Vanilla frame layout.
+    bar:SetScript("OnSizeChanged",function() Sync() end)
     slot:SetScript("OnUpdate",function() Sync() end)
     owner.sszNativeScrollChrome={slot=slot,slider=bar,sync=Sync}
     Sync()
