@@ -37,10 +37,10 @@ local BRANCH_ROW, LEAF_ROW, DEPTH_STEP, SCROLL_STEP = 24, 20, 14, 60
 local function RowHeight(item)
     return item.leaf and LEAF_ROW or BRANCH_ROW
 end
--- Shift the entire lower shell toward the fixed Quest Log header by one
--- REAL UI unit. The window becomes one unit shorter at its bottom; both
--- top and bottom anchors of the lower panels move up together.
-local LOWER_SHELL_SHIFT = 1
+-- Move the lower shell upward by two REAL UI units in total, relative to
+-- the unchanged Quest Log header. Each vertical edge of the lower insets
+-- and the frame bottom shifts together, preserving the inset heights.
+local LOWER_SHELL_SHIFT = 2
 local MIN_HEIGHT, PAGE_MIN_WIDTH = 430 - LOWER_SHELL_SHIFT, 278
 -- Approved prototype geometry, expressed in window-relative UI units.
 -- Keep the header/search offsets unchanged; only the lower panel's
@@ -176,15 +176,20 @@ local function ExpandedWidth()
     return SavedSize("width",MinWidth(),ScreenMaxWidth(),WIDTH)
 end
 local function SavedHeight()
-    -- Convert existing saved heights just ONCE. Subsequent saves use the
-    -- physical frame height, so repeated /reload must not shrink it again.
+    -- Version the physical shell shift: an existing V1 character needs only
+    -- one MORE unit removed, while an unmigrated character needs both.
+    -- Persist the V2 marker even when no saved height exists, so /reload
+    -- never subtracts this adjustment again.
     local state = SavedCompendium()
-    if state and not state.lowerShellShiftV1 then
+    if state and not state.lowerShellShiftV2 then
+        local previousShift = state.lowerShellShiftV1 and 1 or 0
+        local remainingShift = LOWER_SHELL_SHIFT - previousShift
         local oldHeight = coreStore.get("height")
         if type(oldHeight)=="number" and oldHeight>0 then
-            state.height = math.max(MIN_HEIGHT,oldHeight-LOWER_SHELL_SHIFT)
+            state.height = math.max(MIN_HEIGHT,oldHeight-remainingShift)
         end
         state.lowerShellShiftV1 = true
+        state.lowerShellShiftV2 = true
     end
     return SavedSize("height",MIN_HEIGHT,ScreenMaxHeight(),MIN_HEIGHT)
 end
@@ -411,8 +416,8 @@ local function BuildWindow()
     window:SetWidth(ExpandedWidth());window:SetHeight(SavedHeight())
     -- The prototype kept the original 920-wide window's LEFT EDGE fixed
     -- while reducing it to 670, rather than re-centering symmetrically.
-    -- A +0.5 center adjustment compensates for shortening the window
-    -- by one unit, leaving the header at its previous on-screen Y.
+    -- Offset the center by half the TOTAL height reduction, leaving the
+    -- header at its original on-screen Y after both one-unit adjustments.
     -- Later bottom-right drags already use PinTopLeft() above.
     window:SetPoint("CENTER",UIParent,"CENTER",-125,LOWER_SHELL_SHIFT/2)
     window:SetFrameStrata("HIGH")
