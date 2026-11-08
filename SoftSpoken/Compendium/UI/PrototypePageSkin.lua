@@ -17,7 +17,7 @@ function Skin.Apply(inset,holder,page)
     -- The inset includes both the parchment and the separate 31-unit housing.
     -- This reproduces the prototype's page geometry: parchment runs to 29
     -- units before the inset's right edge, while the scrollbar housing is
-    -- anchored 2 units in from that edge and overlaps the parchment by 4.
+    -- anchored 3 units in from that edge and overlaps the parchment by 5.
     local visual=CreateFrame("Frame",nil,inset)
     visual:SetPoint("TOPLEFT",inset,"TOPLEFT",0,0)
     visual:SetPoint("BOTTOMRIGHT",inset,"BOTTOMRIGHT",-29,0)
