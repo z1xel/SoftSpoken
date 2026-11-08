@@ -33,24 +33,14 @@ local FULL_INSET_START_Y = 62
 -- 1:1 original texture pixels. This affects only the full-size shell.
 local FULL_HEADER_HEIGHT = 92 - 21
 local FULL_LEFT_ART_WIDTH, FULL_LEFT_ART_HEIGHT = 256, FULL_HEADER_HEIGHT
-local FULL_RIGHT_ART_WIDTH, FULL_RIGHT_ART_HEIGHT = 256, FULL_HEADER_HEIGHT
+local FULL_RIGHT_ART_WIDTH, FULL_RIGHT_ART_HEIGHT = 200, FULL_HEADER_HEIGHT
 local FULL_LEFT_ART_X, FULL_LEFT_ART_Y = -13, 13
--- The metal end cap is around source x=166, not at the right edge of
--- this 256px sheet. Keep that end cap at the frame's right edge by
--- positioning the whole sheet +90 units (256 - 166) off the frame.
-local QUESTLOG_RIGHT_CAP_SOURCE_X = 166
-local FULL_RIGHT_ART_X, FULL_RIGHT_ART_Y =
-    FULL_RIGHT_ART_WIDTH - QUESTLOG_RIGHT_CAP_SOURCE_X, 13
+-- Uncrop the original right sheet leftward, keeping its actual ornamental
+-- end cap (near source x=166) at the window's right edge. With the source
+-- crop ending at x=200, the original +34 right anchor preserves that
+-- alignment: 34 - (200 - 166) = 0. There is no separate extension.
+local FULL_RIGHT_ART_X, FULL_RIGHT_ART_Y = 34, 13
 local QUESTLOG_RIGHT_CROP_X = 0
-
--- Extend the *left end* of the right corner, without moving its cap.
--- The native right sheet has only 166 usable header columns before the
--- end cap; add the remaining 77 native-scale columns from a plain part
--- of that same texture. The extension and center meet at width-243.
-local QUESTLOG_RIGHT_TARGET_REACH = FULL_LEFT_ART_WIDTH + FULL_LEFT_ART_X
-local QUESTLOG_RIGHT_SOURCE_REACH = QUESTLOG_RIGHT_CAP_SOURCE_X
-local QUESTLOG_RIGHT_EXTENSION_WIDTH =
-    QUESTLOG_RIGHT_TARGET_REACH - QUESTLOG_RIGHT_SOURCE_REACH
 
 -- The Quest Log left sheet spans 512 source pixels. Continue its original
 -- x=256..512 header across the first 256px of the resizable middle, so
@@ -66,7 +56,7 @@ local QUESTLOG_REPEAT_X, QUESTLOG_REPEAT_WIDTH = 320, 96
 local QUESTLOG_MIDDLE_HEIGHT = FULL_HEADER_HEIGHT
 -- Preserve the one-pixel left overlap used by the last working version.
 local QUESTLOG_CENTER_START = 242
-local QUESTLOG_CENTER_END_MARGIN = QUESTLOG_RIGHT_TARGET_REACH
+local QUESTLOG_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
 
 local function fixed(parent, layer, path, w, h, coords, p, x, y)
     local t = parent:CreateTexture(nil, layer)
@@ -403,9 +393,8 @@ function Skin.Apply(self, title, options)
         -- Preserve fixed dimensions and anchors from the last approved
         -- Character Frame pass. Unlike the old 256px/128px atlas sheets,
         -- wide dual-pane Quest Log art needs 512px/256px UV divisors.
-        -- Preserve the right metal end cap's original position at x=width.
-        -- The original sprite extends only 166 units inward from that cap,
-        -- so an additional 77px source crop reaches left to width-243.
+        -- Uncrop the original right sheet leftward to x=0 while keeping its
+        -- decorative end cap at the frame edge; no second texture needed.
         self.sszQuestLogHeaderLeft = fixed(self,"OVERLAY",QUESTLOG_LEFT,
             FULL_LEFT_ART_WIDTH,FULL_LEFT_ART_HEIGHT,
             {0,FULL_LEFT_ART_WIDTH/QUESTLOG_LEFT_SOURCE_WIDTH,
@@ -417,13 +406,6 @@ function Skin.Apply(self, title, options)
                 (QUESTLOG_RIGHT_CROP_X+FULL_RIGHT_ART_WIDTH)/256,
                 0,FULL_RIGHT_ART_HEIGHT/QUESTLOG_SOURCE_HEIGHT},"TOPRIGHT",
             FULL_RIGHT_ART_X,FULL_RIGHT_ART_Y)
-        -- Fill toward the middle instead of sliding the original end cap.
-        -- This crops the source at 1:1 scale, without stretching it.
-        self.sszQuestLogHeaderRightExtension = fixed(self,"OVERLAY",QUESTLOG_RIGHT,
-            QUESTLOG_RIGHT_EXTENSION_WIDTH,FULL_RIGHT_ART_HEIGHT,
-            {0,QUESTLOG_RIGHT_EXTENSION_WIDTH/256,
-                0,FULL_RIGHT_ART_HEIGHT/QUESTLOG_SOURCE_HEIGHT},"TOPRIGHT",
-            -QUESTLOG_RIGHT_SOURCE_REACH,FULL_RIGHT_ART_Y)
         fixed(self,"BORDER",FRAME,14,14,{0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,-5)
         fixed(self,"BORDER",FRAME,11,11,{0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,-5)
         if self.sszQuestLogHeaderLeft.SetHorizTile and
