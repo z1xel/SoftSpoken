@@ -48,8 +48,8 @@ local QUESTLOG_RIGHT_CROP_X = 0
 -- The Quest Log left sheet spans 512 source pixels. Continue its original
 -- x=256..512 header across the first 256px of the resizable middle, so
 -- the default width preserves the original non-repeated texture for most
--- of the gap. Beyond that, repeat 96px of plain header/stone (x=330..426).
--- The repeat source crop is shifted 10 units RIGHT relative to x=320..416;
+-- of the gap. Beyond that, repeat 96px of plain header/stone (x=346..442).
+-- The repeat source crop is shifted 26 units RIGHT relative to x=320..416;
 -- its on-screen tile anchors, dimensions, and the first 256px stay unchanged.
 -- Repeat the same vertical source extent as both fixed corners; the list
 -- and page insets still overlay the lower part on their own frame levels.
@@ -57,7 +57,7 @@ local QUESTLOG_LEFT_SOURCE_WIDTH = 512
 local QUESTLOG_SOURCE_HEIGHT = 512
 local QUESTLOG_ORIGINAL_MIDDLE_X = 256
 local QUESTLOG_ORIGINAL_MIDDLE_WIDTH = 256
-local QUESTLOG_REPEAT_X, QUESTLOG_REPEAT_WIDTH = 330, 96
+local QUESTLOG_REPEAT_X, QUESTLOG_REPEAT_WIDTH = 346, 96
 local QUESTLOG_MIDDLE_HEIGHT = FULL_HEADER_HEIGHT
 -- Preserve the one-pixel left overlap used by the last working version.
 local QUESTLOG_CENTER_START = 242
