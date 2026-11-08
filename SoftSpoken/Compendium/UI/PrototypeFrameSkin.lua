@@ -29,9 +29,9 @@ local QUESTLOG_RIGHT = "Interface\\QuestFrame\\UI-QuestLog-Right"
 -- Source UVs below account for the larger 512px-tall dual-pane sheets.
 local FULL_INSET_START_Y = 62
 -- Match all three upper pieces to the original 92-unit left-corner depth,
--- then trim 6 units total from their lower edge, keeping their top baseline and
+-- then trim 12 units total from their lower edge, keeping their top baseline and
 -- 1:1 original texture pixels. This affects only the full-size shell.
-local FULL_HEADER_HEIGHT = 92 - 6
+local FULL_HEADER_HEIGHT = 92 - 12
 local FULL_LEFT_ART_WIDTH, FULL_LEFT_ART_HEIGHT = 256, FULL_HEADER_HEIGHT
 local FULL_RIGHT_ART_WIDTH, FULL_RIGHT_ART_HEIGHT = 128, FULL_HEADER_HEIGHT
 local FULL_LEFT_ART_X, FULL_LEFT_ART_Y = -13, 13
