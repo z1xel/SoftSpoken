@@ -101,6 +101,17 @@ plus full-size/compact transitions, min/max resize, all three page
 types and their scrollbars. No in-client geometry result is claimed
 from the code change alone.
 
+## Right-page scrollbar one-unit horizontal adjustment
+
+The shared page scrollbar's 31-unit **housing** moves 1 UI unit right,
+from right offset -4 to -3 relative to its page inset. At the default
+670-unit Compendium width, the slot now spans x=636..667 (previously
+x=635..666). Slider, thumb, arrow buttons, marble track, texture caps,
+and mouse targets follow the same housing automatically. The left scrollbar,
+parchment holder, page viewport, frame size, and vertical geometry do not
+change. Both the shared Compendium page and standalone lore reader use
+the same page-scroll skin.
+
 ## What stays unchanged
 
 - Parent `SetBackdrop` with original rock tiling
