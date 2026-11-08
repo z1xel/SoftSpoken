@@ -420,8 +420,6 @@ function P:Layout(reset)
     view.child:SetHeight(math.max(y+8,view.scroll:GetHeight() or 1))
     local maximum=SSCUI.ScrollMax(view.scroll,view.child)
     view.range=maximum
-    view.slider:SetMinMaxValues(0,maximum)
-    if maximum>0 then view.slider:Show() else view.slider:Hide() end
     view:ScrollTo(reset and 0 or SSCUI.ScrollOffset(view.scroll))
 end
 function P:Show(id,entry)

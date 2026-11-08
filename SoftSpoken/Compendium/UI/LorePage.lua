@@ -28,8 +28,6 @@ local BOOK_TOP_BAND = .07
 local BACKPLATE_CUT = 40
 -- Blizzard's QuestFont uses solid black ink on parchment.
 local INK = { 0,0,0 }
--- Keep the existing warmer scroll thumb, which isn't part of the font preset.
-local SCROLL_INK = { .25,.16,.08 }
 local LINK = { .5,.12,.04 }
 
 local function Ink(font,c)
@@ -343,11 +341,7 @@ function P.CreateLorePage(parent,style,left,options)
     view.scroll:ClearAllPoints()
     view.scroll:SetPoint("TOPLEFT",divider,"BOTTOMLEFT",6,-2)
     view.scroll:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",-page.inset.right,PAD-6)
-    view.slider:ClearAllPoints()
-    view.slider:SetPoint("TOPLEFT",view.scroll,"TOPRIGHT",5,0)
-    view.slider:SetPoint("BOTTOMLEFT",view.scroll,"BOTTOMRIGHT",5,0)
     view:SetInk(INK[1],INK[2],INK[3])
-    view:SetThumbColor(SCROLL_INK[1],SCROLL_INK[2],SCROLL_INK[3])
     local mark=frame:CreateTexture(nil,"BORDER")
     mark:SetWidth(96);mark:SetHeight(96)
     mark:SetPoint("CENTER",frame,"CENTER",0,40)

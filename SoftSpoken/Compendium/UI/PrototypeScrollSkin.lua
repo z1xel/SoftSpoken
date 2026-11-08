@@ -2,8 +2,8 @@
 -- Visual: copied from the approved SSZ_Portrait_Template_Test, including the
 -- exact native atlas UVs, fixed caps, marble recess, 16-unit button sizes,
 -- three-unit thumb shift, pressed-arrow correction, and the two-unit-left
--- right-page offset. Behavior: the EXISTING Compendium scroll controllers own
--- all offsets, content ranges, wheel events, virtual rows and text reflows.
+-- right-page offset. Native sliders connect directly to the list/reader
+-- offset controllers; no duplicate hidden scrollbar is constructed.
 SSCPrototypeScrollSkin = SSCPrototypeScrollSkin or {}
 local Skin = SSCPrototypeScrollSkin
 local U = SSCUI
@@ -27,7 +27,7 @@ local function PressedArrow(button)
     t:SetPoint("BOTTOMRIGHT",button,"BOTTOMRIGHT",2,0)
 end
 
--- Style only: do not replace or reimplement the Compendium scroll model.
+-- Use the original 1.12 slider and housing, leaving content scrolling to its owner.
 local function Housing(host,location)
     local slot=CreateFrame("Frame",nil,host)
     slot:SetWidth(SLOT_WIDTH)
@@ -71,7 +71,7 @@ local function Housing(host,location)
     return slot,Reflow
 end
 
-local function Attach(host,owner,apply,offset,slotOffset)
+local function Attach(host,owner,apply,slotOffset)
     if not host or not owner or not owner.scroll or not owner.child then return end
     if owner.sszNativeScrollChrome then return owner.sszNativeScrollChrome end
     local slot,reflow=Housing(host,slotOffset)
@@ -139,26 +139,16 @@ local function Attach(host,owner,apply,offset,slotOffset)
 end
 
 function Skin.AttachList(list)
-    if not list or not list.bar or not list.inset then return end
-    -- Keep the full production scrolling contract (U.NewThinScrollBar).
-    -- Hide only the original thin *art and hitboxes*, not its model.
-    local thin=list.bar
-    thin:SetAlpha(0)
-    thin:EnableMouse(false)
-    if thin.thumb then thin.thumb:EnableMouse(false) end
+    if not list or not list.inset or not list.scroll or not list.child then return end
+    -- The native control now calls the list's scroll model directly.
     -- Prototype: list inset x=4..307, native slot x=303..334.
-    return Attach(list.inset,list,function(v) thin:SetValue(v) end,nil,27)
+    return Attach(list.inset,list,function(v) list:ScrollTo(v) end,27)
 end
 
 function Skin.AttachPage(pageInset,page)
     local view=page and page.body
-    if not view or not view.slider then return end
-    -- This is the right-side gutter reserved outside the parchment holder.
-    local thin=view.slider
-    thin:SetAlpha(0)
-    thin:EnableMouse(false)
-    if view.thumb then view.thumb:EnableMouse(false) end
-    -- The approved page scrollbar was shifted two units left in its final pass.
+    if not view or not view.scroll or not view.child then return end
+    -- The right-side gutter belongs to the independent native housing.
     -- Prototype: parchment x=334..641; native page slot x=635..666.
-    return Attach(pageInset,view,function(v) view:ScrollTo(v) end,nil,-4)
+    return Attach(pageInset,view,function(v) view:ScrollTo(v) end,-4)
 end

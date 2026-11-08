@@ -19,13 +19,6 @@ local function FontSize()
     return 14
 end
 
-local function Clamp(n,low,high)
-    n=tonumber(n) or 0
-    if n<low then return low end
-    if n>high then return high end
-    return n
-end
-
 -- GetStringHeight was added in WoW 2.3, so native 1.12 FontStrings
 -- must use their auto-sized region height instead. The lore body has
 -- an explicit width, but deliberately has no fixed height.
@@ -39,17 +32,15 @@ end
 -- Keep the current scroll offset across geometry-only changes. A new story,
 -- unlike a resize, starts at the top.
 function View:ScrollTo(value)
-    local scroll,child,slider=self.scroll,self.child,self.slider
-    local offset=Clamp(value,0,U.ScrollMax(scroll,child))
-    if slider then slider:SetValue(offset) end
-    U.SetScrollOffset(scroll,child,offset)
-    if self.PaintScrollBar then self:PaintScrollBar() end
+    U.SetScrollOffset(self.scroll,self.child,value)
+    local native=self.sszNativeScrollChrome
+    if native then native.sync() end
 end
 
 -- Upstream-inspired wrapping: the child and the FontString BOTH need an
 -- explicit width. Reflow never fetches content from a global selection.
 function View:Reflow(resetScroll)
-    local scroll,child,body,slider=self.scroll,self.child,self.body,self.slider
+    local scroll,child,body=self.scroll,self.child,self.body
     if not (scroll and child and body) then return end
     local previous=resetScroll and 0 or U.ScrollOffset(scroll)
     local width=(scroll:GetWidth() or 0)-6
@@ -79,16 +70,12 @@ function View:Reflow(resetScroll)
     -- child resize. Do this before restoring the offset or painting the bar.
     if scroll.UpdateScrollChildRect then scroll:UpdateScrollChildRect() end
     local maximum=U.ScrollMax(scroll,child)
-    if slider then
-        slider:SetMinMaxValues(0,maximum)
-        if maximum>0 then slider:Show() else slider:Hide() end
-    end
     self.range=maximum
     self:ScrollTo(Clamp(previous,0,maximum))
 end
 
 -- Vanilla 1.12 QuestFont is Friz Quadrata at 13. The existing base size
--- default is 14, so use -1 for inked parchment while retaining the slider.
+-- default is 14, so use -1 for inked parchment while retaining the text-size setting.
 -- The font file comes from the client; no bundled font files are needed.
 function View:ApplyTypography()
     if not self.body then return end
@@ -145,18 +132,15 @@ function View:SetColor(r,g,b)
     self.body:SetTextColor(c[1],c[2],c[3],1)
 end
 
-function View:SetThumbColor(r,g,b)
-    self.thumbColor=r and {r,g,b} or nil
-    if self.PaintScrollBar then self:PaintScrollBar() end
-end
 
 function View:Show()
     self.scroll:Show()
+    if self.sszNativeScrollChrome then self.sszNativeScrollChrome.slot:Show() end
     self:Reflow(false)
 end
 function View:Hide()
     self.scroll:Hide()
-    self.slider:Hide()
+    if self.sszNativeScrollChrome then self.sszNativeScrollChrome.slot:Hide() end
 end
 
 function T.CreateTextView(parent,onResize)
@@ -187,112 +171,15 @@ function T.CreateTextView(parent,onResize)
     view.picture=picture
     view:ApplyTypography()
 
-    -- Upstream builds a thin track/drag thumb without the old up/down
-    -- arrows. Its atlas pieces aren't supported in vanilla, so draw the
-    -- plain (ink-colored) branch while retaining its interaction model.
-    local bar=CreateFrame("Frame",nil,parent)
-    bar:SetWidth(8)
-    bar:SetPoint("TOPRIGHT",parent,"TOPRIGHT",-5,-114)
-    bar:SetPoint("BOTTOMRIGHT",parent,"BOTTOMRIGHT",-5,34)
-    bar:EnableMouse(true)
-    local track=bar:CreateTexture(nil,"BACKGROUND")
-    track:SetAllPoints(bar)
-    track:SetTexture("Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Controls\\bar")
-    track:SetVertexColor(.22,.14,.07,.15)
-    local thumb=CreateFrame("Button",nil,bar)
-    thumb:SetWidth(6);thumb:SetHeight(24)
-    thumb:SetPoint("TOP",bar,"TOP",0,0)
-    thumb:EnableMouse(true)
-    local thumbArt=thumb:CreateTexture(nil,"ARTWORK")
-    thumbArt:SetAllPoints(thumb)
-    thumbArt:SetTexture("Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Controls\\bar")
-    view.slider=bar
-    view.bar=bar
-    view.thumb=thumb
-    view.thumbArt=thumbArt
-    bar.minValue=0; bar.maxValue=0; bar.value=0
-
-    function view:PaintScrollBar()
-        if not self.bar or not self.thumb then return end
-        local height=self.bar:GetHeight() or 0
-        if height<=0 then return end
-        local viewport=self.scroll:GetHeight() or 0
-        local total=self.child:GetHeight() or 0
-        local wanted=total>0 and height*viewport/total or height
-        local size=math.min(height, math.max(20,wanted))
-        self.thumb:SetHeight(size)
-        local maximum=self.range or 0
-        local value=U.ScrollOffset(self.scroll)
-        local offset=maximum>0 and (height-size)*value/maximum or 0
-        self.thumb:ClearAllPoints()
-        self.thumb:SetPoint("TOP",self.bar,"TOP",0,-offset)
-        local c=self.thumbColor or {.25,.16,.08}
-        self.thumbArt:SetVertexColor(c[1],c[2],c[3],self.dragging and .9 or .65)
-    end
-    function bar:SetMinMaxValues(low,high)
-        self.minValue=low or 0
-        self.maxValue=high or 0
-        view.range=self.maxValue
-        view:PaintScrollBar()
-    end
-    function bar:GetValue() return self.value or 0 end
-    function bar:SetValue(value)
-        value=Clamp(value,self.minValue or 0,self.maxValue or 0)
-        self.value=value
-        U.SetScrollOffset(view.scroll,view.child,value)
-        view:PaintScrollBar()
-    end
-    local function CursorY()
-        if not GetCursorPosition then return nil end
-        local _,y=GetCursorPosition()
-        local scale=(bar.GetEffectiveScale and bar:GetEffectiveScale()) or 1
-        if not scale or scale==0 then scale=1 end
-        return (y or 0)/scale
-    end
-    local function Follow()
-        if IsMouseButtonDown and not IsMouseButtonDown("LeftButton") then
-            view.dragging=false
-            bar:SetScript("OnUpdate",nil)
-            view:PaintScrollBar()
-            return
+    -- Keep the fallback scroll offset accurate when a client changes the
+    -- native ScrollFrame directly. The decorative native scrollbar is synced
+    -- by this event and by View:ScrollTo, not by a second hidden control.
+    pageScroll:SetScript("OnVerticalScroll",function()
+        if pageScroll.GetVerticalScroll then
+            pageScroll.sz112ScrollOffset=pageScroll:GetVerticalScroll() or 0
         end
-        local y=CursorY()
-        local top=bar:GetTop()
-        if not y or not top then return end
-        local travel=(bar:GetHeight() or 0)-(thumb:GetHeight() or 0)
-        if travel<=0 then return end
-        local position=Clamp(top-y-(view.grab or 0),0,travel)
-        view:ScrollTo(position/travel*(view.range or 0))
-    end
-    thumb:SetScript("OnMouseDown",function(self,mouseButton)
-        local pressed=mouseButton or arg1
-        if pressed and pressed~="LeftButton" then return end
-        local y=CursorY()
-        local top=thumb:GetTop()
-        if not y or not top then return end
-        view.grab=Clamp(top-y,0,thumb:GetHeight() or 0)
-        view.dragging=true
-        bar:SetScript("OnUpdate",Follow)
-        view:PaintScrollBar()
+        if view.sszNativeScrollChrome then view.sszNativeScrollChrome.sync() end
     end)
-    local function Release()
-        view.dragging=false
-        bar:SetScript("OnUpdate",nil)
-        view:PaintScrollBar()
-    end
-    thumb:SetScript("OnMouseUp",Release)
-    bar:SetScript("OnMouseUp",Release)
-    bar:SetScript("OnMouseDown",function()
-        local y=CursorY()
-        local top=thumb:GetTop()
-        if not y or not top then return end
-        local page=math.max(20,(pageScroll:GetHeight() or 0)-38)
-        view:ScrollTo(U.ScrollOffset(pageScroll)+(y>top and -page or page))
-    end)
-    -- Repainting tracks the scroll even if a separate interaction moves it.
-    pageScroll:SetScript("OnVerticalScroll",function() view:PaintScrollBar() end)
-    bar:Hide()
-
     pageScroll:SetScript("OnMouseWheel",function(first,second)
         local delta=U.MouseWheelDelta(first,second)
         view:ScrollTo(U.ScrollOffset(pageScroll)-delta*38)
