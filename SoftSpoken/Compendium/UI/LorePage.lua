@@ -17,11 +17,12 @@ local ART = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\"
 local PAGE_NAME = "spellbook-Page-Right-C60"
 local BACKPLATE_NAME = "spellbook-list-backplate"
 local DIVIDER_NAME = "spellbook-divider"
--- Keep the original divider artwork at its native scale. Its 657px line
--- is cropped in the middle on narrow pages, while a quiet 32px section
--- of that same line repeats to fill any space beyond the original width.
--- The last 98px remain intact so the right-hand fade is always visible.
-local DIVIDER_LEFT, DIVIDER_RIGHT = 64, 98
+-- Keep the divider at its original scale: left flourish 64px, right fade
+-- 16px (one quarter as wide). The final 21px of source art are transparent,
+-- so use the last visible part of the fade rather than an empty right cap.
+-- Crop the middle when narrow, repeat a quiet 32px strip when wider.
+local DIVIDER_LEFT, DIVIDER_RIGHT = 64, 16
+local DIVIDER_SOURCE_END = 636
 local DIVIDER_REPEAT_START, DIVIDER_REPEAT = 559, 32
 local COPY = {
     [PAGE_NAME] = {810,682,0.791016,0.666016},
@@ -124,7 +125,7 @@ function Page:FitDecorations()
             local u,v=COPY[DIVIDER_NAME][3],COPY[DIVIDER_NAME][4]
             local leftWidth=math.min(DIVIDER_LEFT,shown/2)
             local rightWidth=math.min(DIVIDER_RIGHT,shown-leftWidth)
-            local sourceMiddle=length-DIVIDER_LEFT-DIVIDER_RIGHT
+            local sourceMiddle=DIVIDER_SOURCE_END-DIVIDER_LEFT-DIVIDER_RIGHT
             local middleWidth=math.min(math.max(0,shown-leftWidth-rightWidth),sourceMiddle)
 
             -- Set UVs to match the *visible* source pixels. Changing a
@@ -132,7 +133,8 @@ function Page:FitDecorations()
             pieces.left:SetWidth(leftWidth)
             pieces.left:SetTexCoord(0,u*leftWidth/length,0,v)
             pieces.right:SetWidth(rightWidth)
-            pieces.right:SetTexCoord(u*(length-rightWidth)/length,u,0,v)
+            pieces.right:SetTexCoord(u*(DIVIDER_SOURCE_END-rightWidth)/length,
+                u*DIVIDER_SOURCE_END/length,0,v)
             if middleWidth>0 then
                 pieces.middle:SetWidth(middleWidth)
                 pieces.middle:SetTexCoord(u*DIVIDER_LEFT/length,
@@ -142,9 +144,8 @@ function Page:FitDecorations()
                 pieces.middle:Hide()
             end
 
-            -- At native width all 657 source pixels appear exactly once.
-            -- Wider pages repeat a subtle portion of the actual line
-            -- instead of stretching the original 529px middle.
+            -- At 636px all visible source artwork appears exactly once.
+            -- Wider pages repeat a subtle line strip at native scale.
             local extra=shown-leftWidth-rightWidth-middleWidth
             local offset=leftWidth+middleWidth
             local index=1
@@ -337,12 +338,12 @@ function P.CreateLorePage(parent,style,left,options)
             return artPiece
         end
         local left=Slice(0,DIVIDER_LEFT)
-        local middle=Slice(DIVIDER_LEFT,length-DIVIDER_RIGHT)
-        local right=Slice(length-DIVIDER_RIGHT,length)
+        local middle=Slice(DIVIDER_LEFT,DIVIDER_SOURCE_END-DIVIDER_RIGHT)
+        local right=Slice(DIVIDER_SOURCE_END-DIVIDER_RIGHT,DIVIDER_SOURCE_END)
         left:SetPoint("TOPLEFT",divider,"TOPLEFT",0,0)
         right:SetPoint("TOPRIGHT",divider,"TOPRIGHT",0,0)
         middle:SetPoint("TOPLEFT",left,"TOPRIGHT",0,0)
-        middle:SetWidth(length-DIVIDER_LEFT-DIVIDER_RIGHT)
+        middle:SetWidth(DIVIDER_SOURCE_END-DIVIDER_LEFT-DIVIDER_RIGHT)
         divider:SetHeight(COPY[DIVIDER_NAME][2])
         page.dividerParts={left=left,middle=middle,right=right,tiles={}}
     else
