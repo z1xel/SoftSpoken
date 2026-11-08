@@ -17,6 +17,9 @@ local ART = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\"
 local PAGE_NAME = "spellbook-Page-Right-C60"
 local BACKPLATE_NAME = "spellbook-list-backplate"
 local DIVIDER_NAME = "spellbook-divider"
+-- Three-slice divider: preserve the decorative flourish and right-hand fade.
+-- Only the plain middle of the original 657-unit strip changes width.
+local DIVIDER_LEFT, DIVIDER_RIGHT = 64, 64
 local COPY = {
     [PAGE_NAME] = {810,682,0.791016,0.666016},
     [BACKPLATE_NAME] = {316,106,0.617188,0.828125},
@@ -88,8 +91,8 @@ function Page:PlaceButtons()
     end
 end
 
--- Crop a fixed-size flourish rather than stretching and distorting it across
--- wide/narrow reader panels. Also updates when the window is resized.
+-- Resize the ornamental art with fixed end caps and an expandable center.
+-- Backplate artwork still uses the original crop-to-fit approach.
 function Page:FitDecorations()
     if not self.frame then return end
     local width=self.frame:GetWidth() or 0
@@ -104,13 +107,24 @@ function Page:FitDecorations()
             u*(BACKPLATE_CUT+shown)/full,0,COPY[BACKPLATE_NAME][4])
     end
     if ORIGINAL_ART and self.divider then
-        local maxWidth=COPY[DIVIDER_NAME][1]
         local room=width-PAD+6-self.inset.right
         if room<=0 then return end
-        local shown=math.min(room,maxWidth)
+        -- The whole rule expands to the right page margin; never crop off
+        -- its original ending or stretch the ornamental left flourish.
+        local shown=math.max(1,room)
         self.divider:SetWidth(shown)
-        self.divider:SetTexCoord(0,COPY[DIVIDER_NAME][3]*shown/maxWidth,
-            0,COPY[DIVIDER_NAME][4])
+        local pieces=self.dividerParts
+        if pieces then
+            local leftWidth=math.min(DIVIDER_LEFT,shown/2)
+            local rightWidth=math.min(DIVIDER_RIGHT,shown-leftWidth)
+            pieces.left:SetWidth(leftWidth)
+            pieces.right:SetWidth(rightWidth)
+            if shown>leftWidth+rightWidth then
+                pieces.middle:Show()
+            else
+                pieces.middle:Hide()
+            end
+        end
     end
 end
 
@@ -262,13 +276,33 @@ function P.CreateLorePage(parent,style,left,options)
     sub:SetScript("OnLeave",function() page:PaintSubtitle() end)
     page.sub=sub
 
-    local divider=frame:CreateTexture(nil,"ARTWORK")
+    -- The divider is a Frame, so hiding it also hides all three artwork
+    -- slices. It remains the same anchor used by the text ScrollFrame.
+    local divider=CreateFrame("Frame",nil,frame)
     divider:SetPoint("TOPLEFT",sub,"BOTTOMLEFT",-6,-10)
     if ORIGINAL_ART then
-        divider:SetTexture(ART..DIVIDER_NAME)
+        local length=COPY[DIVIDER_NAME][1]
+        local u,v=COPY[DIVIDER_NAME][3],COPY[DIVIDER_NAME][4]
+        local function Slice(x1,x2)
+            local artPiece=divider:CreateTexture(nil,"ARTWORK")
+            artPiece:SetTexture(ART..DIVIDER_NAME)
+            artPiece:SetTexCoord(u*x1/length,u*x2/length,0,v)
+            artPiece:SetHeight(COPY[DIVIDER_NAME][2])
+            return artPiece
+        end
+        local left=Slice(0,DIVIDER_LEFT)
+        local middle=Slice(DIVIDER_LEFT,length-DIVIDER_RIGHT)
+        local right=Slice(length-DIVIDER_RIGHT,length)
+        left:SetPoint("TOPLEFT",divider,"TOPLEFT",0,0)
+        right:SetPoint("TOPRIGHT",divider,"TOPRIGHT",0,0)
+        middle:SetPoint("TOPLEFT",left,"TOPRIGHT",0,0)
+        middle:SetPoint("BOTTOMRIGHT",right,"BOTTOMLEFT",0,0)
         divider:SetHeight(COPY[DIVIDER_NAME][2])
+        page.dividerParts={left=left,middle=middle,right=right}
     else
-        divider:SetTexture(.48,.31,.12,.65)
+        local line=divider:CreateTexture(nil,"ARTWORK")
+        line:SetAllPoints(divider)
+        line:SetTexture(.48,.31,.12,.65)
         divider:SetHeight(2)
         divider:SetPoint("RIGHT",frame,"RIGHT",-page.inset.right,0)
     end
