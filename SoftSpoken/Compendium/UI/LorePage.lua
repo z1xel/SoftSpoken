@@ -18,10 +18,10 @@ local PAGE_NAME = "spellbook-Page-Right-C60"
 local BACKPLATE_NAME = "spellbook-list-backplate"
 local DIVIDER_NAME = "spellbook-divider"
 -- Keep the divider at its original scale: left flourish 64px, right fade
--- 16px (one quarter as wide). The final 21px of source art are transparent,
+-- 74px (about three quarters of its former 98px length). The final 21px of source art are transparent,
 -- so use the last visible part of the fade rather than an empty right cap.
 -- Crop the middle when narrow, repeat a quiet 32px strip when wider.
-local DIVIDER_LEFT, DIVIDER_RIGHT = 64, 16
+local DIVIDER_LEFT, DIVIDER_RIGHT = 64, 74
 local DIVIDER_SOURCE_END = 636
 local DIVIDER_REPEAT_START, DIVIDER_REPEAT = 559, 32
 local COPY = {
