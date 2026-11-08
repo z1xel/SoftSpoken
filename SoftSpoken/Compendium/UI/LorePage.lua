@@ -23,7 +23,9 @@ local COPY = {
     [DIVIDER_NAME] = {657,11,0.641602,0.6875},
 }
 local PAD = 24
-local INSET = { book={top=36,right=36}, log={top=28,right=28} }
+-- Match the right text inset to the 24-unit left parchment inset.
+-- The native scrollbar occupies a separate housing outside the page.
+local INSET = { book={top=36,right=PAD}, log={top=28,right=PAD} }
 local BOOK_TOP_BAND = .07
 local BACKPLATE_CUT = 40
 -- Blizzard's QuestFont uses solid black ink on parchment.
