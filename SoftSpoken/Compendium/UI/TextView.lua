@@ -82,18 +82,15 @@ function View:Reflow(resetScroll)
     self:ScrollTo(Clamp(previous,0,maximum))
 end
 
--- Preserve the original reader/title size ratio after the Morpheus heading
--- changed from 26 to 18: the former 15-point body becomes ~10.4 points.
--- Use 10.5 as the baseline while keeping 1-point slider increments.
--- Font files still come directly from the 1.12 client.
-local BODY_INK_OFFSET = 10.5 - 14
+-- Use the saved/default body size directly for QuestFont on parchment.
+-- The default is 14; changing the text-size setting still adjusts it normally.
+-- Font files come directly from the 1.12 client.
 function View:ApplyTypography()
     if not self.body then return end
     local fontObject=(self.ink and QuestFont) or GameFontHighlight
     local file=fontObject and fontObject.GetFont and fontObject:GetFont()
     if file and self.body.SetFont then
-        self.body:SetFont(file,(self.fontSize or FontSize())+
-            (self.ink and BODY_INK_OFFSET or 0),"")
+        self.body:SetFont(file,self.fontSize or FontSize(),"")
     end
     if self.body.SetSpacing then self.body:SetSpacing(LINE_SPACING) end
 end
