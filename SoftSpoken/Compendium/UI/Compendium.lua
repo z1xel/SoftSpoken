@@ -37,15 +37,20 @@ local BRANCH_ROW, LEAF_ROW, DEPTH_STEP, SCROLL_STEP = 24, 20, 14, 60
 local function RowHeight(item)
     return item.leaf and LEAF_ROW or BRANCH_ROW
 end
-local MIN_HEIGHT, PAGE_MIN_WIDTH = 430, 278
+-- Shift the entire lower shell toward the fixed Quest Log header by one
+-- REAL UI unit. The window becomes one unit shorter at its bottom; both
+-- top and bottom anchors of the lower panels move up together.
+local LOWER_SHELL_SHIFT = 1
+local MIN_HEIGHT, PAGE_MIN_WIDTH = 430 - LOWER_SHELL_SHIFT, 278
 -- Approved prototype geometry, expressed in window-relative UI units.
--- Keep these shared anchors independent of label fonts and lore data.
+-- Keep the header/search offsets unchanged; only the lower panel's
+-- top edge is raised to follow the moved-up bottom without compression.
 C.VISUAL_GEOMETRY = {
-    listLeft=4, listWidth=303, listTop=62, bottom=6,
+    listLeft=4, listWidth=303, listTop=62 - LOWER_SHELL_SHIFT, bottom=6,
     listSlotRightOffset=27, pageRightInset=29, pageSlotRightOffset=-4,
     searchX=72, searchY=-35, searchWidth=223,
     tabLeft=8, tabTop=3, tabOverlap=16,
-    windowWidth=670, windowHeight=600,
+    windowWidth=670, windowHeight=600 - LOWER_SHELL_SHIFT,
 }
 local SMALLER_UP = "Interface\\Buttons\\UI-Panel-SmallerButton-Up"
 local SMALLER_DOWN = "Interface\\Buttons\\UI-Panel-SmallerButton-Down"
@@ -138,7 +143,8 @@ local function ScreenMaxWidth()
     return math.max(MinWidth(),math.floor((UIParent:GetWidth() or 1920)*0.95))
 end
 local function ScreenMaxHeight()
-    return math.max(MIN_HEIGHT,math.floor((UIParent:GetHeight() or 1080)*0.95))
+    return math.max(MIN_HEIGHT,
+        math.floor((UIParent:GetHeight() or 1080)*0.95) - LOWER_SHELL_SHIFT)
 end
 local function ApplyResizeBounds()
     if not window then return end
@@ -170,6 +176,16 @@ local function ExpandedWidth()
     return SavedSize("width",MinWidth(),ScreenMaxWidth(),WIDTH)
 end
 local function SavedHeight()
+    -- Convert existing saved heights just ONCE. Subsequent saves use the
+    -- physical frame height, so repeated /reload must not shrink it again.
+    local state = SavedCompendium()
+    if state and not state.lowerShellShiftV1 then
+        local oldHeight = coreStore.get("height")
+        if type(oldHeight)=="number" and oldHeight>0 then
+            state.height = math.max(MIN_HEIGHT,oldHeight-LOWER_SHELL_SHIFT)
+        end
+        state.lowerShellShiftV1 = true
+    end
     return SavedSize("height",MIN_HEIGHT,ScreenMaxHeight(),MIN_HEIGHT)
 end
 local function SaveWindowSize()
@@ -395,7 +411,10 @@ local function BuildWindow()
     window:SetWidth(ExpandedWidth());window:SetHeight(SavedHeight())
     -- The prototype kept the original 920-wide window's LEFT EDGE fixed
     -- while reducing it to 670, rather than re-centering symmetrically.
-    window:SetPoint("CENTER",UIParent,"CENTER",-125,0)
+    -- A +0.5 center adjustment compensates for shortening the window
+    -- by one unit, leaving the header at its previous on-screen Y.
+    -- Later bottom-right drags already use PinTopLeft() above.
+    window:SetPoint("CENTER",UIParent,"CENTER",-125,LOWER_SHELL_SHIFT/2)
     window:SetFrameStrata("HIGH")
     window:SetMovable(true);window:SetResizable(true);window:EnableMouse(true)
     ApplyResizeBounds()
