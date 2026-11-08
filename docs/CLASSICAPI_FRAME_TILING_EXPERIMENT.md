@@ -31,7 +31,7 @@ the native client files; **no additional texture assets** are shipped.
 | Fixed left | left x=0..256, y=0..75 | 256x75 | TOPLEFT (-13,+13) |
 | Fixed right | right x=0..200, y=0..75 | 200x75 | TOPRIGHT (+34,+13), cap at frame edge |
 | Natural center continuation | left x=256..512, y=0..75 | up to 256px, 1:1 | x=242 onward |
-| Repeating center extension | left x=320..416, y=0..75 | 96px tiles, last one UV-clipped | after first 256px |
+| Repeating center extension | left x=330..426, y=0..75 | 96px tiles, last one UV-clipped | after first 256px |
 
 The three top pieces were normalized to the same height and then
 progressively cropped from below: 92 to 89, 86, 80, 74, 73, 72 and
@@ -47,8 +47,10 @@ The previous 77-unit right-side extension has been removed.
 
 The initial 256px center continues the actual x=256..512 pixels of the
 left Quest Log sheet. Only the excess width repeats a comparatively plain
-section of the same header. This avoids repeating portrait, parchment,
-and inner-panel divider artwork through the middle.
+section of the same header. The repeat crop was shifted right by 10 source
+units (x=320..416 to x=330..426); its 96-unit width, tiling positions,
+and the 256-unit initial continuation stay unchanged. This avoids repeating
+portrait, parchment, and inner-panel divider artwork through the middle.
 
 At Compendium width **670** UI units, the exposed middle is
 **262 units** (x=242 to x=504): 256 original source pixels and
