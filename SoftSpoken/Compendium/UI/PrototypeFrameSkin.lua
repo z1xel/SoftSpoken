@@ -67,8 +67,9 @@ local QUESTLOG_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
 -- fixed left, pooled center continuation/repeats, and fixed right.
 -- The page's visible parchment extends to 29 UI units before the window
 -- right edge; clip the fade horizontally to x=listLeft..windowWidth-29.
--- Relative to the panel top: mask spans -8..+10, with the lower 11 units
--- fully clear and a 4-unit transition immediately above them.
+-- Relative to the panel top: mask spans -8..+10, with the UPPER 11 units
+-- fully clear and a 4-unit transition BELOW them, reaching full opacity
+-- before the panel's lower mask boundary.
 local QUESTLOG_PANEL_FADE_MASK =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderPanelFade"
 local HEADER_MASK_ABOVE_PANEL = 8

@@ -131,10 +131,12 @@ scrollbars, or other foreground elements.
 - **Vertical extent:** relative to the shared inset top, the mask covers
   y=−8 through y=+10. At the present shell geometry the panel starts
   60 units below the frame top, so the mask spans y=52..70.
-- **Opacity:** full alpha above y=55; a short, smooth transition over
-  y=55..59; **zero alpha from approximately y=59 through y=70**
-  (11 UI units). Coordinates translate with the shared inset's top if
-  the shell geometry changes again.
+- **Opacity (reversed vertically):** **zero alpha from approximately
+  y=52 through y=63** (the top 11 UI units), a short smooth transition
+  from alpha 0 to 1 over y=63..67, and full alpha below y=67 through
+  the mask's bottom at y=70. Relative to the inset top, these regions
+  are -8..+3 (clear), +3..+7 (fade in), and +7..+10 (opaque).
+  Coordinates translate with the inset top if the shell geometry changes.
 - **Feature detection:** when ClassicAPI's `CreateMaskTexture` /
   `AddMaskTexture` are unavailable, no mask is created and the
   original textures draw unmodified. Compact map attachments retain
@@ -143,7 +145,9 @@ scrollbars, or other foreground elements.
   is allocated, not on every resize/reflow. No asset UVs, dimensions,
   anchors, or tile repetition positions change.
 
-In-game check: verify the transparent strip aligns to the inset top
+In-game check: verify that the top of the strip is transparent and
+opacity increases downward toward the panel; confirm the strip aligns to
+the inset top
 through minimum/default/max window widths, with no fading of the portrait
 or ornate header outside x=4..windowWidth−29. Test fallback without
 ClassicAPI or with an older ClassicAPI version; verify that its absence
