@@ -27,7 +27,10 @@ local QUESTLOG_RIGHT = "Interface\\QuestFrame\\UI-QuestLog-Right"
 
 -- Preserve the proven Compendium frame geometry from the Character phase.
 -- Source UVs below account for the larger 512px-tall dual-pane sheets.
-local FULL_INSET_START_Y = 62
+-- Lower side rails translate with the inset panels and bottom frame.
+-- Their top anchor rises one unit; the resized window's bottom rises one
+-- unit too, so their visible length remains unchanged.
+local FULL_INSET_START_Y = 62 - 1
 -- Match all three upper pieces to the original 92-unit left-corner depth,
 -- then trim 17 units total from their lower edge, keeping their top baseline and
 -- 1:1 original texture pixels. This affects only the full-size shell.
