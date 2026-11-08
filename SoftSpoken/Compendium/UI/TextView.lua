@@ -82,16 +82,18 @@ function View:Reflow(resetScroll)
     self:ScrollTo(Clamp(previous,0,maximum))
 end
 
--- Vanilla 1.12 QuestFont is Friz Quadrata at 13. The existing base size
--- default is 14, so use -1 for inked parchment while retaining the text-size setting.
--- The font file comes from the client; no bundled font files are needed.
+-- Preserve the original reader/title size ratio after the Morpheus heading
+-- changed from 26 to 18: the former 15-point body becomes ~10.4 points.
+-- Use 10.5 as the baseline while keeping 1-point slider increments.
+-- Font files still come directly from the 1.12 client.
+local BODY_INK_OFFSET = 10.5 - 14
 function View:ApplyTypography()
     if not self.body then return end
     local fontObject=(self.ink and QuestFont) or GameFontHighlight
     local file=fontObject and fontObject.GetFont and fontObject:GetFont()
     if file and self.body.SetFont then
         self.body:SetFont(file,(self.fontSize or FontSize())+
-            (self.ink and -1 or 0),"")
+            (self.ink and BODY_INK_OFFSET or 0),"")
     end
     if self.body.SetSpacing then self.body:SetSpacing(LINE_SPACING) end
 end
