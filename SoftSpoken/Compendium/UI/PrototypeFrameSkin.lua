@@ -28,8 +28,12 @@ local QUESTLOG_RIGHT = "Interface\\QuestFrame\\UI-QuestLog-Right"
 -- Preserve the proven Compendium frame geometry from the Character phase.
 -- Source UVs below account for the larger 512px-tall dual-pane sheets.
 local FULL_INSET_START_Y = 62
-local FULL_LEFT_ART_WIDTH, FULL_LEFT_ART_HEIGHT = 256, 92
-local FULL_RIGHT_ART_WIDTH, FULL_RIGHT_ART_HEIGHT = 128, 88
+-- Match all three upper pieces to the original 92-unit left-corner depth,
+-- then trim 3 units from their lower edge, keeping their top baseline and
+-- 1:1 original texture pixels. This affects only the full-size shell.
+local FULL_HEADER_HEIGHT = 92 - 3
+local FULL_LEFT_ART_WIDTH, FULL_LEFT_ART_HEIGHT = 256, FULL_HEADER_HEIGHT
+local FULL_RIGHT_ART_WIDTH, FULL_RIGHT_ART_HEIGHT = 128, FULL_HEADER_HEIGHT
 local FULL_LEFT_ART_X, FULL_LEFT_ART_Y = -13, 13
 local FULL_RIGHT_ART_X, FULL_RIGHT_ART_Y = 34, 13
 
@@ -42,14 +46,14 @@ local QUESTLOG_RIGHT_CROP_X = 72
 -- x=256..512 header across the first 256px of the resizable middle, so
 -- the default width preserves the original non-repeated texture for most
 -- of the gap. Beyond that, repeat 96px of plain header/stone (x=320..416).
--- Never duplicate its inner-panel divider or parchment: those start lower
--- in the source sheet, so the middle uses only the top 62 source rows.
+-- Repeat the same vertical source extent as both fixed corners; the list
+-- and page insets still overlay the lower part on their own frame levels.
 local QUESTLOG_LEFT_SOURCE_WIDTH = 512
 local QUESTLOG_SOURCE_HEIGHT = 512
 local QUESTLOG_ORIGINAL_MIDDLE_X = 256
 local QUESTLOG_ORIGINAL_MIDDLE_WIDTH = 256
 local QUESTLOG_REPEAT_X, QUESTLOG_REPEAT_WIDTH = 320, 96
-local QUESTLOG_MIDDLE_HEIGHT = 62
+local QUESTLOG_MIDDLE_HEIGHT = FULL_HEADER_HEIGHT
 -- Preserve the one-pixel left overlap used by the last working version.
 local QUESTLOG_CENTER_START = 242
 local QUESTLOG_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
