@@ -60,6 +60,43 @@ The fixed source corners are drawn on `OVERLAY` (above the center
 `ARTWORK` pieces). The separate old FrameGeneral portrait ring stays
 removed; the existing book icon renders inside the Quest Log's own ring.
 
+## Lower shell one-unit geometry adjustment
+
+The Compendium's **bottom edge and entire lower structure move upward by
+one real UI unit** relative to the unchanged 75-unit Quest Log header.
+This is a physical height reduction, not simply moving artwork over
+an unchanged frame.
+
+- The actual window height, minimum height and maximum height each
+  decrease by 1. The default geometry metadata is now 599 (was 600).
+- The initial centered window is offset upward by half a UI unit, so
+  its **top screen position stays unchanged** after the height reduction.
+  During manual resizing, the existing `PinTopLeft()` path keeps that
+  same top anchored.
+- The shared list inset's top distance becomes 61 (was 62). Its bottom
+  distance stays 6. Both resolved vertical edges therefore move up
+  1 without changing the panel height.
+- The page inset is anchored to the list's top and the window's bottom,
+  so it translates by the same 1 unit. Its marble, border, page
+  viewport, and scrollbars follow their parent frames automatically.
+- The native/fallback outer vertical rails start 1 unit higher (61
+  instead of 62); their lower ends follow the shortened frame and
+  retain their original lengths.
+- Bottom corners, frame border, character-style bottom tabs, their
+  hit targets, and the resize grip already anchor to the window's
+  bottom, so they move up by 1 without separate offsets.
+- **Untouched:** all three Quest Log header textures and their 75-unit
+  crops, portrait icon, title, minimize/close controls, and search
+  field with its own controls.
+- Existing character-saved heights are migrated down by 1 exactly
+  once via `lowerShellShiftV1`; subsequent saves persist the actual
+  new height. Repeated `/reload` does not shorten it again.
+
+Verify the old and new screenshot framing at the same UI scale,
+plus full-size/compact transitions, min/max resize, all three page
+types and their scrollbars. No in-client geometry result is claimed
+from the code change alone.
+
 ## What stays unchanged
 
 - Parent `SetBackdrop` with original rock tiling
