@@ -114,15 +114,19 @@ the same page-scroll skin.
 
 ## Four-zone bottom fade for the three-piece Quest Log header
 
-The 75-unit mask footprint (y=-13..62) uses four adjacent spatial
-ClassicAPI mask regions. Its top position and height are fixed independently
-of the header artwork crop and render heights: extending one of the three
-header textures vertically must not move or stretch the masks.
-The left fixed header artwork now displays 256 of its native 512 vertical
+The 75-unit fade-mask footprint (y=-13..62) uses four adjacent spatial
+ClassicAPI mask regions, anchored independently of the artwork.
+The left fixed header artwork displays 256 of its native 512 vertical
 source pixels instead of 75 (an additional 181 UI units downward), at the
 same 1:1 pixel scale and unchanged top anchor. Center tiles and the right
-header remain 75 units tall. The fixed 75-unit masks do not follow the
-extended left artwork; their CLAMP edges continue to govern visibility.
+header remain 75 units tall. All four fade masks retain their 75-unit
+footprint; a new independent clear-extension mask, attached only to the
+fixed left corner artwork, spans the full 256-unit height over the first
+panel's existing horizontal mask range (x=4..305 at default width).
+Its alpha is 255 for the first 75 units and 0 for units 75..256 across
+the interior; its opaque edge columns allow neutral CLAMP sampling outside
+that range. Thus the original 68/7 fade is unchanged, and the extended
+181-unit region is explicitly masked off.
 
 Two TGA alpha profiles are reused: 68 fully
 opaque + 7 smooth fade, and 65 fully opaque + 7 faster fade + 3 fully transparent.
@@ -146,22 +150,26 @@ visual's right edge is 29 units left of the window's right edge by
 (`g.listSlotRightOffset` and `g.pageRightInset`) so the page region
 grows with window resizing and the 2-unit right inset remains constant.
 
-Two TGA assets are used:
-`QuestLogHeaderBoundedBottomFadeLeft.tga` for 68/7 (unchanged) and
-`QuestLogHeaderBoundedBottomFade.tga` for 65/7/3 (alpha profile updated).
+Three TGA assets are used:
+`QuestLogHeaderBoundedBottomFadeLeft.tga` for 68/7 (unchanged),
+`QuestLogHeaderBoundedBottomFade.tga` for 65/7/3 (unchanged by this step),
+and `QuestLogHeaderLeftClearExtension.tga` for left-only transparency
+from unit 75 to 256 (new).
 The second texture preserves the original opaque 65 units and its smooth
 fade shape, but compresses the fade into 7 units; the final 3 units have
-zero alpha. Both files retain fully opaque side-edge columns. Four positioned
-`CreateMaskTexture` regions are necessary because their alpha profiles
-must **replace**, not multiply, across the horizontal zones. Both TGAs
+zero alpha. Four positioned fade-mask regions are necessary because their
+alpha profiles must **replace**, not multiply, across the horizontal zones.
+The new fifth mask is multiplied only onto the extended fixed-left texture,
+preserving its original 68/7 fade without resampling. All three TGAs
 have fully opaque side-edge columns and CLAMP sampling. The fixed
-left header texture receives one mask, fixed right receives two, and
-each pooled center tile receives three once at allocation. Maximum
-per-texture mask count is three (below ClassicAPI's seven-mask limit).
+left header texture now receives two masks, fixed right receives two,
+and each pooled center tile receives three once at allocation. Maximum
+per-texture mask count remains three (below ClassicAPI's seven-mask limit).
 
-Apart from the left header's vertical crop and render height, no changes
-to title/portrait, other header crops, window geometry, scrollbars,
-background, or fallback behavior.
+This step adds only the new left-only clear-extension mask and its TGA
+asset. It does not change the artwork's 256-unit height, any existing
+fade-mask geometry or assets, title/portrait, other header crops, window
+geometry, scrollbars, background, or fallback behavior.
 
 ## What stays unchanged
 
