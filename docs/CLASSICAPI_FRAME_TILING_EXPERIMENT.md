@@ -112,50 +112,33 @@ parchment holder, page viewport, frame size, and vertical geometry do not
 change. Both the shared Compendium page and standalone lore reader use
 the same page-scroll skin.
 
-## Three-piece upper-header panel fade mask
+## Three-piece Quest Log header bottom fade
 
-`SoftSpoken/Compendium/Textures/Prototype/QuestLogHeaderPanelFade.tga`
-is a 512×32, 32-bit RGBA mask (white RGB, varying alpha) shared by the
-fixed left, every pooled natural/repeating middle tile, and the fixed
-right Quest Log texture via ClassicAPI's positioned `AddMaskTexture`.
-It changes the **header art only**, not the parchment, text, frame rails,
-scrollbars, or other foreground elements.
+`SoftSpoken/Compendium/Textures/Prototype/QuestLogHeaderBottomFade.tga`
+is a tiny 2×128 uncompressed 32-bit RGBA mask: white at full alpha
+through the first 64 of each header texture's 75 displayed units, then
+a smooth alpha fade to **0 at its bottom edge** (last 11 units).
 
-- **Horizontal extent:** the combined visible content-panel span,
-  from the left list inset at x=4 to the right parchment visual edge at
-  x=windowWidth−29 (x=641 at the 670-unit width). The mask is anchored
-  to both edges and follows window-width changes without scaling the
-  original Quest Log artwork. Its leftmost/rightmost texel columns have
-  alpha 1 and use clamped sampling, preserving header decorations outside
-  this span.
-- **Vertical extent:** relative to the shared inset top, the mask covers
-  y=−8 through y=+10. At the present shell geometry the panel starts
-  60 units below the frame top, so the mask spans y=52..70.
-- **Intended on-screen opacity:** full alpha above y=55; a short,
-  smooth transition over y=55..59; **zero alpha from approximately
-  y=59 through y=70** (11 UI units). Coordinates translate with the
-  shared inset's top if the shell geometry changes again.
-- **Stored alpha orientation:** the original TGA row ordering produced
-  an inverted-looking header in the user's client screenshot, hiding
-  the top/title trim instead of fading at the inset. The 512x32 asset
-  now stores its alpha rows in reverse order (raw first row alpha 0,
-  last row alpha 1), leaving the positioned mask's size, anchors, and
-  horizontal limits unchanged. This is based on observed client output,
-  not an assumed universal TGA texture orientation.
-- **Feature detection:** when ClassicAPI's `CreateMaskTexture` /
-  `AddMaskTexture` are unavailable, no mask is created and the
-  original textures draw unmodified. Compact map attachments retain
-  their existing independent skin.
-- **Pooled tiles:** attach the shared mask once when each center tile
-  is allocated, not on every resize/reflow. No asset UVs, dimensions,
-  anchors, or tile repetition positions change.
+- ClassicAPI's `Texture:SetMask(path)` maps the mask to **each texture's
+  own rectangle**, not to any shared frame or inset. This works on both
+  fixed corner textures and all pooled original/repeating center tiles,
+  regardless of the Quest Log atlas UV crop.
+- No inset-relative coordinates, `CreateMaskTexture`, positioned
+  `AddMaskTexture`, gradient frame, or resize reflow are required.
+- The mask is attached once to the fixed left/right textures and once
+  when each pooled center tile is first created. Original source UVs,
+  sizes, anchors, and tile positions are unchanged.
+- The portrait icon, title, buttons, frame rails, scrollbars, parchment,
+  and panel content remain untouched. The compact World Map attachment
+  keeps its existing artwork.
+- Without ClassicAPI's `SetMask` method, the header is displayed
+  normally without a fade.
 
-In-game check: verify the header/title trim remains solid while the
-artwork fades to transparency at the upper inset border, across
-minimum/default/max window widths, with no fading of the portrait
-or ornate header outside x=4..windowWidth−29. Test fallback without
-ClassicAPI or with an older ClassicAPI version; verify that its absence
-does not hide header art.
+In-game check: verify the **top remains fully opaque** on all three
+header pieces and the last ~11 units dissolve into transparency,
+including the center-repeat seam during width resizing. With no mask
+API, the original header must remain visible. The observed appearance
+on the 1.12 client is not yet verified.
 
 ## What stays unchanged
 
