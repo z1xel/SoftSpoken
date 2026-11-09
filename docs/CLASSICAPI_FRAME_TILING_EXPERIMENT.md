@@ -114,46 +114,34 @@ the same page-scroll skin.
 
 ## Horizontally bounded bottom fade for the three-piece Quest Log header
 
-The header uses a custom positioned ClassicAPI alpha mask:
+The header uses one custom, positioned ClassicAPI alpha mask:
 `SoftSpoken/Compendium/Textures/Prototype/QuestLogHeaderBoundedBottomFade.tga`
-(512x128, 32-bit BGRA TGA). The mask is shared by the fixed left/right
-header textures and each pooled center continuation/repeat tile.
+(512×128, top-origin, uncompressed 32-bit BGRA TGA).
+The fixed left/right textures and every pooled center tile share this mask.
 
-- **Horizontal bounds:** from the left list inset at x=4 to the **right
-  edge of the page scrollbar housing**, x=windowWidth+pageSlotRightOffset
-  (x=667 at the 670-unit window width, using the shared offset -3).
-  Previously the mask ended at the parchment visual edge, x=641; only
-  its right boundary has been extended by 26 units. Both endpoints
-  follow the Compendium frame while resizing. The alpha at the mask's
-  left and right texture edges is **always 1**, so clamped sampling
-  preserves every header pixel outside these limits.
-- **Vertical fade:** the original three header textures all end at
-  y=62 relative to the Compendium's top. Their last **11 UI units**,
-  y=51..62, fade smoothly from full alpha to transparent.
-- **Safe vertical bounds:** the mask frame spans y=40..76, substantially
-  beyond the actual fade. Its uppermost and lowermost alpha rows are
-  both fully opaque; the transparent part lies in the *interior* of
-  the mask. Alpha rises back to 1 below the header's bottom (after
-  y=68), which is invisible because the header art ends at y=62.
-  This prevents the old transparency at the *top* of the window
-  caused by a transparent clamped mask edge.
-- **Stored TGA orientation:** the mask's scanlines are ordered to match
-  the observed ClassicAPI/TGA orientation in the game; both vertical
-  boundaries remain opaque regardless. The actual in-client result
-  still needs a visual check.
-- **Implementation:** one `CreateMaskTexture` positioned to the
-  content-panel limits; all three existing textures use
-  `AddMaskTexture`. No atlas UV changes, repositioning, or
-  per-tile masks. Center tiles attach the shared mask only once on
-  allocation. With ClassicAPI masking unavailable, the header
-  remains fully visible without fading.
-- **Unchanged:** Compendium dimensions, title, portrait, buttons,
-  lower rails, scrollbars, text, parchment, and compact map skin.
+- **Horizontal bounds:** x=4 at the left list inset through the right edge
+  of the page scrollbar housing, x=windowWidth+pageSlotRightOffset
+  (x=667 at the default 670-unit width). Both anchors follow resizing.
+  The mask's leftmost and rightmost columns stay fully opaque so the
+  header outside these horizontal limits is unaffected by clamping.
+- **Exact vertical span:** the header textures start at y=-13 and end
+  at y=62 relative to the Compendium window. The mask is anchored to
+  those same endpoints: a 75 UI-unit span, not a larger arbitrary band.
+- **Simple alpha profile:** full opacity for the first 64 UI units,
+  followed by a smooth fade through the last 11 units to zero alpha at
+  the bottom. There is no transparent middle section and no return to
+  opacity below the fade.
+- **Implementation:** one `CreateMaskTexture`, with
+  `AddMaskTexture` on the two fixed pieces and on each pooled center
+  tile upon allocation. No atlas crop, scrollbar, window, inset or
+  title position changes. Without ClassicAPI mask methods, header
+  artwork remains fully visible.
+- **Temporary diagnostics removed:** neither the raw-TGA preview nor
+  the overlay comparison is part of the production UI.
 
-In-game checks: confirm the original top rail stays fully opaque;
-the lower edge of each Quest Log header piece fades within the
-panel's horizontal limits; the fade stays aligned after resizing
-and creates no seams at the three texture joins.
+In-game check: verify that the title rail remains fully opaque, the
+artwork fades only at its bottom edge within the horizontal bounds,
+and resizing doesn't create seams at the center tiles.
 
 ## What stays unchanged
 

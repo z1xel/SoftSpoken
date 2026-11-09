@@ -63,19 +63,14 @@ local QUESTLOG_MIDDLE_HEIGHT = FULL_HEADER_HEIGHT
 local QUESTLOG_CENTER_START = 242
 local QUESTLOG_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
 
--- One positioned alpha mask shared by all three parts of the full-size
--- header: left corner, original/repeated center, and right corner.
--- Unlike SetMask(path), this uses WINDOW coordinates so the fade is
--- strictly bounded horizontally by the two visible content insets.
--- The mask is opaque on EVERY outer edge (including top and bottom).
--- That matters: ClassicAPI clamps samples outside the mask rectangle,
--- so a transparent edge previously erased the upper title trim.
+-- One shared, positioned mask for the left, center and right Quest Log
+-- header textures. It matches their actual 75-unit vertical extent:
+-- top -13 through bottom +62, with only the final 11 units fading out.
+-- Horizontal bounds are the left inset and right scrollbar housing.
 local QUESTLOG_HEADER_BOUNDED_FADE =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBoundedBottomFade"
-local HEADER_BOTTOM_Y = FULL_HEADER_HEIGHT - FULL_LEFT_ART_Y -- 62 below frame top
-local HEADER_FADE_HEIGHT = 11
-local HEADER_MASK_TOP_Y = HEADER_BOTTOM_Y - 22
-local HEADER_MASK_BOTTOM_Y = HEADER_BOTTOM_Y + 14
+local HEADER_MASK_TOP_Y = -FULL_LEFT_ART_Y
+local HEADER_MASK_BOTTOM_Y = HEADER_MASK_TOP_Y + FULL_HEADER_HEIGHT
 
 local function AttachQuestLogHeaderMask(frame)
     local left, right = frame.sszQuestLogHeaderLeft, frame.sszQuestLogHeaderRight
@@ -643,94 +638,4 @@ function Skin.SetCollapsedState(frame, collapsed)
         end
     end
     target:SetAlpha(1)
-end
-
--- Temporary diagnostic: display the exact mask TGA as an ordinary Texture.
--- No SetMask/AddMaskTexture, so this isolates the client's TGA orientation.
--- Invoke with: /run SSCPrototypeFrameSkin.ToggleHeaderMaskPreview()
-function Skin.ToggleHeaderMaskPreview()
-    local probe = Skin.sszHeaderMaskPreview
-    if probe then
-        if probe:IsShown() then probe:Hide() else probe:Show() end
-        return
-    end
-
-    probe = CreateFrame("Frame",nil,UIParent)
-    Skin.sszHeaderMaskPreview = probe
-    probe:SetWidth(640)
-    probe:SetHeight(202)
-    probe:SetPoint("CENTER",UIParent,"CENTER",0,0)
-    probe:SetFrameStrata("TOOLTIP")
-    probe:SetFrameLevel(100)
-    probe:EnableMouse(true)
-    probe:SetScript("OnMouseDown",function() this:Hide() end)
-
-    local backing = probe:CreateTexture(nil,"BACKGROUND")
-    backing:SetTexture(.05,.05,.05,1)
-    backing:SetAllPoints(probe)
-    local label = probe:CreateFontString(nil,"OVERLAY","GameFontNormal")
-    label:SetPoint("TOP",probe,"TOP",0,-8)
-    label:SetText("Raw header mask TGA - no ClassicAPI masking")
-
-    local image = probe:CreateTexture(nil,"ARTWORK")
-    image:SetTexture(QUESTLOG_HEADER_BOUNDED_FADE)
-    image:SetWidth(512)
-    image:SetHeight(128)
-    image:SetTexCoord(0,1,0,1)
-    image:SetPoint("TOPLEFT",probe,"TOPLEFT",72,-32)
-
-    local top = probe:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
-    top:SetPoint("TOPLEFT",probe,"TOPLEFT",12,-34)
-    top:SetText("TOP")
-    local bottom = probe:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
-    bottom:SetPoint("BOTTOMLEFT",probe,"TOPLEFT",12,-160)
-    bottom:SetText("BOTTOM")
-    local hint = probe:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
-    hint:SetPoint("TOP",image,"BOTTOM",0,-8)
-    hint:SetText("White = opaque; dark = transparent. Click anywhere to close.")
-end
-
--- Temporary alignment test: render the mask TGA as an ordinary texture at
--- the EXACT same resolved rectangle as the hidden ClassicAPI mask region.
--- This is a visual overlay only. It never changes the actual header masks,
--- their anchors, the three texture crops, or the Compendium layout.
--- Toggle: /run SSCPrototypeFrameSkin.ToggleHeaderMaskOverlay()
-function Skin.ToggleHeaderMaskOverlay()
-    local frame = getglobal("SSCCompendiumWindow")
-    local mask = frame and frame.sszQuestLogHeaderMask
-    if not mask then
-        if DEFAULT_CHAT_FRAME then
-            DEFAULT_CHAT_FRAME:AddMessage("SoftSpoken: Open the full Compendium with ClassicAPI first.")
-        end
-        return
-    end
-
-    local display = frame.sszHeaderMaskDebugOverlay
-    if display then
-        if display:IsShown() then display:Hide() else display:Show() end
-        return
-    end
-
-    -- A separate, non-interactive top-level overlay ensures the raw TGA
-    -- stays visible over the original header and its foreground controls.
-    -- As a child of the window it also hides when the window closes.
-    display = CreateFrame("Frame",nil,frame)
-    frame.sszHeaderMaskDebugOverlay = display
-    display:SetAllPoints(frame)
-    display:SetFrameStrata("TOOLTIP")
-    display:SetFrameLevel(100)
-    display:EnableMouse(false)
-
-    -- The dark backing lets transparent pixels read as dark rather than
-    -- disappearing into the underlying Compendium artwork.
-    local backing = display:CreateTexture(nil,"ARTWORK")
-    backing:SetTexture(0,0,0,.7)
-    backing:SetAllPoints(mask)
-
-    -- Same file, same vertical and horizontal bounds, same wrap mode.
-    -- No AddMaskTexture or SetMask: this is an unmasked normal texture.
-    local raw = display:CreateTexture(nil,"OVERLAY")
-    raw:SetTexture(QUESTLOG_HEADER_BOUNDED_FADE,"CLAMP","CLAMP")
-    raw:SetTexCoord(0,1,0,1)
-    raw:SetAllPoints(mask)
 end
