@@ -11,6 +11,9 @@ local PICTURE_MOST, PICTURE_GAP = 400, 10
 -- With fading deliberately disabled, use small breathing room rather than
 -- upstream's 18/33px fade clearances. Use the original quest log's line spacing.
 local TEXT_PAD_TOP, TEXT_PAD_BOTTOM = 8, 12
+-- Expose reader padding so specialized content (such as quest sections)
+-- uses the same viewport margins as the normal lore FontString.
+T.PAD_TOP, T.PAD_BOTTOM = TEXT_PAD_TOP, TEXT_PAD_BOTTOM
 local LINE_SPACING = 0
 local function FontSize()
     if SSCCompendium and SSCCompendium.TextSize then

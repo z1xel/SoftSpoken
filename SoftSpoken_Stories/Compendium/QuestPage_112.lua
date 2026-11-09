@@ -309,7 +309,7 @@ local function NewPart(parent,stage)
     divider:SetTexture(.45,.28,.12,.24)
     divider:SetHeight(1)
     divider:SetPoint("BOTTOMLEFT",f,"BOTTOMLEFT",0,1)
-    divider:SetPoint("BOTTOMRIGHT",f,"BOTTOMRIGHT",-4,1)
+    divider:SetPoint("BOTTOMRIGHT",f,"BOTTOMRIGHT",0,1)
     return f
 end
 -- Match the native quest log: QuestFont body and QuestTitleFont section headings.
@@ -399,27 +399,30 @@ end
 function P:Layout(reset)
     if not self.active then return end
     local view=self.view
-    -- Keep the section's 2-unit left anchor, but let dialogue text
-    -- extend to the shared viewport's right edge without extra padding.
-    local width=(view.scroll:GetWidth() or 0)-2
-    if width<155 then width=(view.lastWidth or 330)-2 end
-    local y=0
+    -- Use the shared reader's text margins on every quest section.
+    -- Only internal portrait/speaker/play-button geometry is specialized.
+    local width=view.scroll:GetWidth() or 0
+    if width<155 then width=view.lastWidth or 330 end
+    local y=SSCTextView.PAD_TOP
+    local hasPrevious=false
     for _,stage in ipairs(MOMENTS) do
         local part=self.parts[stage]
         if part:IsShown() then
+            if hasPrevious then y=y+10 end -- spacing between quest stages only
             part:SetWidth(width)
             part:ClearAllPoints()
-            part:SetPoint("TOPLEFT",view.child,"TOPLEFT",2,-y)
+            part:SetPoint("TOPLEFT",view.child,"TOPLEFT",0,-y)
             part.content:SetWidth(math.max(110,width))
-            part.title:SetWidth(math.max(110,width-34))
+            part.title:SetWidth(math.max(110,width))
             local th=part.content:GetStringHeight() or 0
             if th<16 then th=22 end
             local h=math.max(129,106+th+17)
             part:SetHeight(h)
-            y=y+h+10
+            y=y+h
+            hasPrevious=true
         end
     end
-    view.child:SetHeight(math.max(y+8,view.scroll:GetHeight() or 1))
+    view.child:SetHeight(math.max(y+SSCTextView.PAD_BOTTOM,view.scroll:GetHeight() or 1))
     local maximum=SSCUI.ScrollMax(view.scroll,view.child)
     view.range=maximum
     view:ScrollTo(reset and 0 or SSCUI.ScrollOffset(view.scroll))
