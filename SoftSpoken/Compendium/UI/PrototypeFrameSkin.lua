@@ -65,13 +65,14 @@ local QUESTLOG_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
 
 -- Two spatially positioned header masks. Their common vertical span is
 -- the exact 75-unit header extent, from y=-13 through y=62.
--- Left of the first scrollbar (x=4..303): 68 opaque + 7 fade.
--- From the first scrollbar through the right scrollbar: 65 + 10.
+-- Left of the split (x=4..301): 68 opaque + 7 fade.
+-- From x=301 through the right scrollbar: 65 + 10.
 local QUESTLOG_HEADER_BOUNDED_FADE =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBoundedBottomFade"
 local QUESTLOG_HEADER_LEFT_FADE =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBoundedBottomFadeLeft"
 local QUESTLOG_SCROLLBAR_HOUSING_WIDTH = 31
+local QUESTLOG_HEADER_SPLIT_LEFT_OFFSET = 2
 local HEADER_MASK_TOP_Y = -FULL_LEFT_ART_Y
 local HEADER_MASK_BOTTOM_Y = HEADER_MASK_TOP_Y + FULL_HEADER_HEIGHT
 
@@ -82,11 +83,12 @@ local function AttachQuestLogHeaderMask(frame)
     local g = SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
     if not g then return end
 
-    -- Match PrototypeScrollSkin.Housing: its 31-unit slot is anchored to
-    -- the list inset's right edge with a +27 offset. The left edge is
-    -- x=303 at the approved dimensions; it does not shift on resize.
+    -- The first scrollbar begins at x=303 (31-unit housing, +27 from
+    -- the list inset's right edge). Split 2 units to its left, at x=301.
+    -- This remains fixed as the right pane resizes.
     local splitX = g.listLeft + g.listWidth +
-        g.listSlotRightOffset - QUESTLOG_SCROLLBAR_HOUSING_WIDTH
+        g.listSlotRightOffset - QUESTLOG_SCROLLBAR_HOUSING_WIDTH -
+        QUESTLOG_HEADER_SPLIT_LEFT_OFFSET
 
     local leftMask = frame:CreateMaskTexture()
     local rightMask = frame:CreateMaskTexture()
