@@ -31,11 +31,12 @@ local QUESTLOG_RIGHT = "Interface\\QuestFrame\\UI-QuestLog-Right"
 -- Their top anchor rises two units in total; the resized window's bottom
 -- rises two units too, so their visible length remains unchanged.
 local FULL_INSET_START_Y = 62 - 2
--- Match all three upper pieces to the original 92-unit left-corner depth,
--- then trim 17 units total from their lower edge, keeping their top baseline and
--- 1:1 original texture pixels. This affects only the full-size shell.
+-- Keep the center tiles and right header at their established 75-unit height.
+-- Uncrop only the left Quest Log sheet to half its native 512-unit height:
+-- reveal 181 more source pixels downward without stretching or moving the top.
+-- The 75-unit mask footprint below is independent of this artwork height.
 local FULL_HEADER_HEIGHT = 92 - 17
-local FULL_LEFT_ART_WIDTH, FULL_LEFT_ART_HEIGHT = 256, FULL_HEADER_HEIGHT
+local FULL_LEFT_ART_WIDTH, FULL_LEFT_ART_HEIGHT = 256, 256
 local FULL_RIGHT_ART_WIDTH, FULL_RIGHT_ART_HEIGHT = 200, FULL_HEADER_HEIGHT
 local FULL_LEFT_ART_X, FULL_LEFT_ART_Y = -13, 13
 -- Uncrop the original right sheet leftward, keeping its actual ornamental

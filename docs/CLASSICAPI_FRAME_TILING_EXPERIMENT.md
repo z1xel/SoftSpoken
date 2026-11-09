@@ -118,6 +118,12 @@ The 75-unit mask footprint (y=-13..62) uses four adjacent spatial
 ClassicAPI mask regions. Its top position and height are fixed independently
 of the header artwork crop and render heights: extending one of the three
 header textures vertically must not move or stretch the masks.
+The left fixed header artwork now displays 256 of its native 512 vertical
+source pixels instead of 75 (an additional 181 UI units downward), at the
+same 1:1 pixel scale and unchanged top anchor. Center tiles and the right
+header remain 75 units tall. The fixed 75-unit masks do not follow the
+extended left artwork; their CLAMP edges continue to govern visibility.
+
 Two TGA alpha profiles are reused: 68 fully
 opaque + 7 smooth fade, and 65 fully opaque + 7 faster fade + 3 fully transparent.
 
@@ -153,8 +159,9 @@ left header texture receives one mask, fixed right receives two, and
 each pooled center tile receives three once at allocation. Maximum
 per-texture mask count is three (below ClassicAPI's seven-mask limit).
 
-No changes to title/portrait, header crop coordinates, other window
-geometry, scrollbars, background, or fallback behavior.
+Apart from the left header's vertical crop and render height, no changes
+to title/portrait, other header crops, window geometry, scrollbars,
+background, or fallback behavior.
 
 ## What stays unchanged
 
