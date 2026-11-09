@@ -87,19 +87,9 @@ function QuestOverlayUI:ContributeButtonFor(questID, title)
     return button
 end
 
--- Quest helpers can prepend levels to the same title FontString that this
--- overlay edits. Leave their title text alone and use the row's left gutter
--- for Play/Contribute instead of inserting our usual 24px space prefix.
-local function HasQuestLogTitleAddon()
-    if type(IsAddOnLoaded) ~= "function" then return false end
-    return IsAddOnLoaded("pfQuest") or IsAddOnLoaded("!Questie") or
-        IsAddOnLoaded("Questie")
-end
-
 local prefix
 function QuestOverlayUI:UpdateQuestTitle(questLogTitleFrame, playButton, normalText, questCheck)
-    local enhancedLog = HasQuestLogTitleAddon()
-    if not enhancedLog and not prefix then
+    if not prefix then
         local text = normalText:GetText()
         for i = 1, 20 do
             normalText:SetText(string.rep(" ", i))
@@ -112,13 +102,12 @@ function QuestOverlayUI:UpdateQuestTitle(questLogTitleFrame, playButton, normalT
         normalText:SetText(text)
     end
 
-    playButton:ClearAllPoints()
-    playButton:SetPoint("LEFT", normalText, "LEFT", enhancedLog and -16 or 4, 0)
+    playButton:SetPoint("LEFT", normalText, "LEFT", 4, 0)
 
-    local formattedText = enhancedLog and (normalText:GetText() or "") or
-        prefix .. string.trim(normalText:GetText() or "")
-    normalText:SetText(formattedText)
-    QuestLogDummyText:SetText(formattedText)
+    local formatedText = prefix .. string.trim(normalText:GetText() or "")
+
+    normalText:SetText(formatedText)
+    QuestLogDummyText:SetText(formatedText)
 
     questCheck:SetPoint("LEFT", normalText, "LEFT", normalText:GetStringWidth(), 0)
 end

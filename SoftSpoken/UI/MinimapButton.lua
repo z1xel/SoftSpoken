@@ -300,41 +300,6 @@ function Minimap:HandleClick(button, mouseButton)
     end
 end
 
--- LibDBIcon moves its button by writing a minimap angle into its db table.
--- Retain an account-wide copy so a newly selected AceDB profile or another
--- LibDBIcon implementation cannot silently reset the player's chosen spot.
-local function ApplySavedPosition(db)
-    local global = Addon.db.global
-    local saved = global and tonumber(global.MinimapPosition)
-    if saved and saved >= 0 and saved < 360 then
-        db.minimapPos = saved
-    elseif type(db.minimapPos) ~= "number" then
-        db.minimapPos = 204
-    end
-end
-
-function Minimap:RememberPosition()
-    local button = minimapButton
-    local position = button and button.db and tonumber(button.db.minimapPos)
-    if not position or position < 0 or position >= 360 then return end
-    Addon.db.profile.Minimap.LibDBIcon.minimapPos = position
-    Addon.db.global.MinimapPosition = position
-end
-
--- The library owns dragging. Observe its completed drag rather than replacing
--- its movement script. Refresh() may reinstall the library's own handler.
-local function HookDragStop(button)
-    if not (button and button.GetScript and button.SetScript) then return end
-    local original = button:GetScript("OnDragStop")
-    if not original or original == button.softSpokenDragStopHook then return end
-    local function AfterDrag(...)
-        original(...)
-        Minimap:RememberPosition()
-    end
-    button.softSpokenDragStopHook = AfterDrag
-    button:SetScript("OnDragStop", AfterDrag)
-end
-
 function Minimap:Setup()
     if ldbObject then return end
     local LibDataBroker = LibStub("LibDataBroker-1.1", true)
@@ -342,7 +307,8 @@ function Minimap:Setup()
     if not LibDataBroker or not LibDBIcon then return end
 
     local db = Addon.db.profile.Minimap.LibDBIcon
-    ApplySavedPosition(db)
+    -- Seeded once, so the button does not start at angle 0 under other addons' buttons.
+    if db.minimapPos == nil then db.minimapPos = 204 end
 
     ldbObject = LibDataBroker:NewDataObject("Spoken", {
         type = "launcher",
@@ -397,17 +363,12 @@ function Minimap:Setup()
     -- The frame the lib built for this addon. The compartment hands the OnClick a
     -- different, short-lived frame (see OnClick), so the real button is kept here.
     minimapButton = LibDBIcon:GetMinimapButton("Spoken")
-    HookDragStop(minimapButton)
 end
 
 function Minimap:Refresh()
     local LibDBIcon = LibStub("LibDBIcon-1.0", true)
     if LibDBIcon and ldbObject then
-        local db = Addon.db.profile.Minimap.LibDBIcon
-        ApplySavedPosition(db)
-        LibDBIcon:Refresh("Spoken", db)
-        minimapButton = LibDBIcon:GetMinimapButton("Spoken") or minimapButton
-        HookDragStop(minimapButton)
+        LibDBIcon:Refresh("Spoken", Addon.db.profile.Minimap.LibDBIcon)
     end
 end
 
