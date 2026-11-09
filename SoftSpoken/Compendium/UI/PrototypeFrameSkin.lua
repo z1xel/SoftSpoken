@@ -180,32 +180,28 @@ local function fixed(parent, layer, path, w, h, coords, p, x, y)
     return t
 end
 
--- WoW 1.12 has no MaskTexture API. Sample the stock Blizzard icon as one-pixel
--- horizontal slices, clipped to a circle INSIDE the metal portrait ring. This
--- avoids exporting a replacement icon and removes the visible square corners.
--- The original icon, ring and their anchors are otherwise unchanged.
-local function circularIcon(parent, texturePath, x, y, size, radius)
-    local slices = {}
-    local center = size / 2
-    for row = 0, size - 1 do
-        local dy = (row + 0.5) - center
-        local half = math.sqrt(math.max(0, radius * radius - dy * dy))
-        if half > 0 then
-            local left = center - half
-            local right = center + half
-            -- The wide Quest Log corner is OVERLAY. Draw the book icon
-            -- afterwards on OVERLAY too, so the opaque original ring cannot
-            -- cover the icon.
-            local t = parent:CreateTexture(nil, "OVERLAY")
-            t:SetTexture(texturePath)
-            t:SetWidth(right - left)
-            t:SetHeight(1)
-            t:SetTexCoord(left / size, right / size, row / size, (row + 1) / size)
-            t:SetPoint("TOPLEFT", parent, "TOPLEFT", x + left, y - row)
-            table.insert(slices, t)
-        end
+-- Use one masked inventory icon instead of dozens of one-unit strips.
+-- The existing Quest Log corner provides the metal portrait ring; the circle
+-- stays within its center without drawing another ring over it.
+local BOOK_ICON = "Interface\\Icons\\INV_Misc_Book_11"
+local BOOK_MASK = DIR .. "BookPortraitCircleMask"
+local function maskedBookIcon(parent, x, y, size)
+    local book = parent:CreateTexture(nil, "OVERLAY")
+    book:SetTexture(BOOK_ICON)
+    book:SetWidth(size)
+    book:SetHeight(size)
+    book:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y)
+    if book.SetMask then
+        -- ClassicAPI applies the mask to the complete texture quad.
+        book:SetMask(BOOK_MASK)
+    elseif SetPortraitToTexture then
+        -- Older clients may supply native portrait cropping but no masks.
+        if not pcall(SetPortraitToTexture, book, BOOK_ICON) then book:Hide() end
+    else
+        -- Never leave a square icon covering the original portrait ring.
+        book:Hide()
     end
-    return slices
+    return book
 end
 
 -- ClassicAPI's SetHorizTile/SetVertTile repeat whole textures. Keep them for
@@ -540,9 +536,7 @@ function Skin.Apply(self, title, options)
     end
 
     if not compact then
-    self.sszPortraitSlices = circularIcon(
-        self, "Interface\\Icons\\INV_Misc_Book_11", -6, 8, 61, 29
-    )
+    self.sszBookIcon = maskedBookIcon(self, -6, 8, 61)
     -- The native wide Quest Log left artwork already includes its portrait
     -- ring; do not restore the old duplicate FrameGeneral metal ring.
     end
