@@ -278,7 +278,7 @@ end
 local function NewPart(parent,stage)
     local f=CreateFrame("Frame",nil,parent)
     f.stage=stage
-    f:SetHeight(100)
+    -- P:Layout supplies the actual size after the stage's dialogue is set.
     local title=Font(f,"QuestTitleFont")
     title:SetText(NAMES[stage]); title:SetTextColor(ALT[1],ALT[2],ALT[3],1)
     title:SetPoint("TOPLEFT",f,"TOPLEFT",0,-2)
@@ -332,21 +332,16 @@ function P.Create(page)
     setmetatable(self,{__index=P})
     for _,stage in ipairs(MOMENTS) do self.parts[stage]=NewPart(view.child,stage) end
 
-    local originalApplyTypography=view.ApplyTypography
-    function view:ApplyTypography()
-        originalApplyTypography(self)
-        if P.current and P.current.view==self then
-            P.current:ApplyTypography()
-        end
+    -- Register page-local extensions, without replacing shared TextView
+    -- methods or depending on a global 'current page' singleton.
+    view.onTypographyChanged=function()
+        self:ApplyTypography()
     end
-    local originalReflow=view.Reflow
-    function view:Reflow(reset)
-        originalReflow(self,reset)
-        if P.current and P.current.view==self and P.current.active then
-            P.current:Layout(reset)
-        end
+    view.onReflowContent=function(_,reset,previous,width)
+        if not self.active then return false end
+        self:Layout(reset,previous,width)
+        return true
     end
-    P.current=self
     self:ApplyTypography()
     self.portraitCallback=function(id,displayID,success)
         self:OnCreatureAppearance(id,displayID,success)
@@ -396,12 +391,12 @@ function P:RefreshButtons()
         end
     end
 end
-function P:Layout(reset)
+function P:Layout(reset,previous,width)
     if not self.active then return end
     local view=self.view
     -- Use the shared reader's text margins on every quest section.
     -- Only internal portrait/speaker/play-button geometry is specialized.
-    local width=view.scroll:GetWidth() or 0
+    width=width or view.scroll:GetWidth() or 0
     if width<155 then width=view.lastWidth or 330 end
     local y=SSCTextView.PAD_TOP
     local hasPrevious=false
@@ -414,7 +409,7 @@ function P:Layout(reset)
             part:SetPoint("TOPLEFT",view.child,"TOPLEFT",0,-y)
             part.content:SetWidth(math.max(110,width))
             part.title:SetWidth(math.max(110,width))
-            local th=part.content:GetStringHeight() or 0
+            local th=SSCTextView.MeasureTextHeight(part.content)
             if th<16 then th=22 end
             local h=math.max(129,106+th+17)
             part:SetHeight(h)
@@ -423,9 +418,10 @@ function P:Layout(reset)
         end
     end
     view.child:SetHeight(math.max(y+SSCTextView.PAD_BOTTOM,view.scroll:GetHeight() or 1))
+    if view.scroll.UpdateScrollChildRect then view.scroll:UpdateScrollChildRect() end
     local maximum=SSCUI.ScrollMax(view.scroll,view.child)
     view.range=maximum
-    view:ScrollTo(reset and 0 or SSCUI.ScrollOffset(view.scroll))
+    view:ScrollTo(reset and 0 or previous or SSCUI.ScrollOffset(view.scroll))
 end
 function P:Show(id,entry)
     self.generation=self.generation+1

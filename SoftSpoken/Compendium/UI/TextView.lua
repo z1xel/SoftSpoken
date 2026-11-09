@@ -33,11 +33,16 @@ end
 -- GetStringHeight was added in WoW 2.3, so native 1.12 FontStrings
 -- must use their auto-sized region height instead. The lore body has
 -- an explicit width, but deliberately has no fixed height.
-local function MeasuredTextHeight(fontString)
+function T.MeasureTextHeight(fontString)
+    if not fontString then return 0 end
+    local height
     if fontString.GetStringHeight then
-        return fontString:GetStringHeight() or 0
+        height=fontString:GetStringHeight()
     end
-    return fontString:GetHeight() or 0
+    if height==nil and fontString.GetHeight then
+        height=fontString:GetHeight()
+    end
+    return height or 0
 end
 
 -- Keep the current scroll offset across geometry-only changes. A new story,
@@ -59,6 +64,11 @@ function View:Reflow(resetScroll)
     self.lastWidth=width
     child:SetWidth(width)
     body:SetWidth(width)
+    -- A specialized page (Stories) can lay out multiple regions inside the
+    -- same scroll child instead of the normal single body FontString.
+    if self.onReflowContent and self:onReflowContent(resetScroll,previous,width) then
+        return
+    end
     local pictureRoom=0
     if self.pictureFile then
         local pictureWidth=math.min(width,PICTURE_MOST)
@@ -74,7 +84,7 @@ function View:Reflow(resetScroll)
     end
     body:ClearAllPoints()
     body:SetPoint("TOPLEFT",child,"TOPLEFT",0,-TEXT_PAD_TOP-pictureRoom)
-    local height=MeasuredTextHeight(body)+pictureRoom+
+    local height=T.MeasureTextHeight(body)+pictureRoom+
         TEXT_PAD_TOP+TEXT_PAD_BOTTOM
     child:SetHeight(math.max(height,scroll:GetHeight() or 1))
     -- On 1.12 the scroll rectangle is not refreshed automatically after a
@@ -96,6 +106,7 @@ function View:ApplyTypography()
         self.body:SetFont(file,self.fontSize or FontSize(),"")
     end
     if self.body.SetSpacing then self.body:SetSpacing(LINE_SPACING) end
+    if self.onTypographyChanged then self.onTypographyChanged(self) end
 end
 function View:SetFontSize(size)
     size=tonumber(size) or 14

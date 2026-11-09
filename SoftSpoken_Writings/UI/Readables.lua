@@ -4,9 +4,8 @@
 -- Written for WoW 1.12 / Lua 5.0; no C_Map, atlas, or modern frame methods.
 local B = SSB
 local C = SSCCompendium
-local U = SSCUI
 local P = SSCLorePage
-if not (B and C and C.Register and C.NewList and P and P.CreateLorePage and U) then
+if not (B and C and C.Register and C.NewList and C.CreatePagePane and P and P.CreateLorePage) then
     -- Books recognition and playback remain available with Zones disabled.
     return
 end
@@ -521,40 +520,11 @@ local function Build(panelFrame)
     panel.Refresh=function() B:RefreshReadables() end
     panel.inset,panel.filterButton,panel.filterMenu,panel.noMatch,panel.listBar=
         list.inset,list.filterButton,list.filterMenu,list.noMatch,list.bar
+    -- Every current SoftSpoken tab uses the same page constructor and skin.
     local inset
-    if C.CreatePagePane then
-        -- Current shared Compendium helper: preserve its artwork and geometry.
-        inset, page = C.CreatePagePane(panel, list, function(holder)
-            return P.CreateLorePage(holder,"book")
-        end)
-    else
-        -- Older SoftSpoken builds (including the Oct 18 prototype) have no
-        -- shared page-pane helper. Keep their precisely matched geometry.
-        local _,right=C.Margins()
-        local inset=CreateFrame("Frame",nil,panel)
-        -- Pilot 4: the shared prototype visual module paints this inset after
-        -- the real LorePage is constructed.  Keep the fallback for older builds.
-        if not (SSCPrototypePageSkin and SSCPrototypePageSkin.Apply) then
-        U.AddInsetBorder(inset)
-        end
-        if inset.SetBackdropColor then inset:SetBackdropColor(.08,.07,.06,1) end
-        -- Align the page's top with the list inset, exactly as the visual master.
-        inset:SetPoint("TOPLEFT",list.inset,"TOPRIGHT",27,0)
-        inset:SetPoint("BOTTOMRIGHT",panel,"BOTTOMRIGHT",0,6)
-        local holder=CreateFrame("Frame",nil,inset)
-        holder:SetPoint("TOPLEFT",inset,"TOPLEFT",5,-5)
-        -- Leave a 31-unit native-scroll recess to the right of the parchment.
-        holder:SetPoint("BOTTOMRIGHT",inset,"BOTTOMRIGHT",-36,5)
-        -- CreateLorePage, not Build: Build is intentionally a singleton used by
-        -- Places. Both tabs must own independent parchment and scroll state.
-        page=P.CreateLorePage(holder,"book")
-        if SSCPrototypePageSkin and SSCPrototypePageSkin.Apply then
-            SSCPrototypePageSkin.Apply(inset,holder,page)
-        end
-        if SSCPrototypeScrollSkin and SSCPrototypeScrollSkin.AttachPage then
-            SSCPrototypeScrollSkin.AttachPage(inset,page)
-        end
-    end
+    inset, page = C.CreatePagePane(panel, list, function(holder)
+        return P.CreateLorePage(holder,"book")
+    end)
     EquipPlay(page)
     panel.pageInset=inset
     panel.page=page.frame

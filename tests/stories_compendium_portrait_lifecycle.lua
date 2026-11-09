@@ -54,6 +54,32 @@ UnitSex=function() return 2 end
 QuestFont=Frame("FontString")
 QuestTitleFont=Frame("FontString")
 SSCUI={ScrollMax=function() return 0 end,ScrollOffset=function() return 0 end}
+-- Real TextView helpers and optional per-page callbacks are loaded below.
+dofile("SoftSpoken/Compendium/UI/TextView.lua")
+eq(SSCTextView.MeasureTextHeight({GetHeight=function() return 37 end}),37,
+    "1.12 FontString uses GetHeight fallback")
+eq(SSCTextView.MeasureTextHeight({GetStringHeight=function() return 21 end,
+    GetHeight=function() return 37 end}),21,"newer client height API")
+eq(SSCTextView.MeasureTextHeight(nil),0,"nil FontString")
+
+-- The shared text view uses page-specific hooks without replacing its methods.
+local sharedView=setmetatable({
+    scroll=Frame("ScrollFrame"),child=Frame("Frame"),body=Frame("FontString"),
+}, {__index=SSCTextView.View})
+local resized
+sharedView.onReflowContent=function(_,reset,previous,width)
+    resized={reset,previous,width}
+    return true
+end
+sharedView.scroll:SetWidth(310)
+sharedView:Reflow(false)
+eq(resized[1],false,"shared callback reset")
+eq(resized[2],0,"shared callback previous scroll")
+eq(resized[3],310,"shared callback width")
+local typographyCalls=0
+sharedView.onTypographyChanged=function() typographyCalls=typographyCalls+1 end
+sharedView:ApplyTypography()
+eq(typographyCalls,1,"shared typography callback")
 SSCPlayButton={Create=function(parent) return Frame("Button",parent) end}
 SSCQuestFactionCrest={Resolve=function() return "crest.tga","Faction crest" end}
 local seen={ [101]=true,[102]=true,[103]=true }
@@ -118,18 +144,26 @@ SetPortraitTextureFromCreatureDisplayID=function(texture,displayID)
     texture:SetTexture("portrait:"..displayID)
 end
 dofile("SoftSpoken_Stories/Compendium/QuestPage_112.lua")
+local baseTypography=function() end
+local baseReflow=function() end
 local view={
     scroll=Frame("Frame"), slider=Frame("Slider"),
     lastWidth=350,range=0,
-    ApplyTypography=function() end,
-    Reflow=function() end,
-    ScrollTo=function() end,
+    ApplyTypography=baseTypography,
+    Reflow=baseReflow,
+    ScrollTo=function(self,offset) self.lastScrollValue=offset end,
 }
 local page={frame=Frame("Frame"),title=Frame("FontString")}
 view.child=Frame("Frame",page.frame)
 view.body=Frame("Frame",page.frame)
 page.body=view
 local details=SSCQuestPage.Create(page)
+eq(view.ApplyTypography,baseTypography,"Stories preserves shared typography method")
+eq(view.Reflow,baseReflow,"Stories preserves shared reflow method")
+eq(type(view.onReflowContent),"function","page-local reflow callback")
+eq(type(view.onTypographyChanged),"function","page-local typography callback")
+eq(view.onReflowContent(view,false,19,310),false,
+    "landing page still uses normal reader layout")
 eq(ListenerCount(),0,"no subscription before selection")
 local function face(stage) return details.parts[stage].face end
 local function assertPortrait(stage,creatureID,displayID)
@@ -138,6 +172,17 @@ local function assertPortrait(stage,creatureID,displayID)
     eq(f.icon.texture,"portrait:"..displayID,stage.." texture")
 end
 details:Show(101)
+eq(view.onReflowContent(view,false,19,310),true,"active quest uses custom layout")
+eq(details.parts.accept:GetWidth(),310,"quest section uses callback width")
+eq(view.lastScrollValue,19,"quest reflow preserves scroll position")
+eq(view.onReflowContent(view,true,33,310),true,"reset reflow handled")
+eq(view.lastScrollValue,0,"new quest resets scroll")
+local acceptText=details.parts.accept.content
+acceptText.GetStringHeight=false -- WoW 1.12 intentionally lacks this method.
+acceptText.GetHeight=function() return 24 end
+details:Layout(false)
+eq(details.parts.accept:GetHeight(),147,"Vanilla fallback measures live dialogue height")
+acceptText.GetStringHeight=nil;acceptText.GetHeight=nil
 eq(ListenerCount(),1,"subscribes on active page")
 eq(face("accept").pendingCreatureID,1001,"accept pending")
 eq(face("progress").pendingCreatureID,1002,"progress pending")
