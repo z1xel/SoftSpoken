@@ -65,11 +65,11 @@ local QUESTLOG_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
 
 -- Four adjacent mask regions cover the header in this order:
 --   [left inset .. 2 before its right edge]     68 opaque /  7 fade
---   [first-pane split .. second-pane left edge] 65 opaque / 10 fade
+--   [first-pane split .. second-pane left edge] 65 opaque /  7 fade + 3 clear
 --   [second-pane left .. 2 before parchment end]68 opaque /  7 fade
---   [remaining right scrollbar housing]         65 opaque / 10 fade
+--   [remaining right scrollbar housing]         65 opaque /  7 fade + 3 clear
 -- All masks use the actual 75-unit header extent (y=-13..62) and the
--- same two TGA profiles. The shared anchors keep them aligned on resize.
+-- same two TGA profiles (68/7 and 65/7/3), anchored across resize.
 local QUESTLOG_HEADER_BOUNDED_FADE =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBoundedBottomFade"
 local QUESTLOG_HEADER_LEFT_FADE =

@@ -116,17 +116,17 @@ the same page-scroll skin.
 
 The existing 75-unit header (y=-13..62) uses four adjacent spatial
 ClassicAPI mask regions. Two TGA alpha profiles are reused: 68 fully
-opaque + 7 smooth fade, and 65 fully opaque + 10 smooth fade.
+opaque + 7 smooth fade, and 65 fully opaque + 7 faster fade + 3 fully transparent.
 
 - **First panel:** x=4 through x=305, two units inside the first
   panel's right edge x=307: **68/7** (unchanged).
 - **Gap:** x=305 through x=334, the second panel's left inset edge:
-  **65/10** (unchanged).
+  **65/7/3** (faster fade).
 - **Second panel:** x=334 through x=windowWidth−31 (x=639 at width 670):
   **68/7** (new). The second panel's parchment-visible right edge is
   x=windowWidth−29 (x=641), so the split is 2 units to its left.
 - **Right-hand strip:** x=windowWidth−31 through
-  x=windowWidth−3 (x=639..667 at width 670): **65/10** (unchanged).
+  x=windowWidth−3 (x=639..667 at width 670): **65/7/3** (faster fade).
   This preserves the existing overall mask limit at the right edge of
   the page scrollbar housing.
 
@@ -137,9 +137,12 @@ visual's right edge is 29 units left of the window's right edge by
 (`g.listSlotRightOffset` and `g.pageRightInset`) so the page region
 grows with window resizing and the 2-unit right inset remains constant.
 
-Two TGA assets are used without modification:
-`QuestLogHeaderBoundedBottomFadeLeft.tga` for 68/7 and
-`QuestLogHeaderBoundedBottomFade.tga` for 65/10. Four positioned
+Two TGA assets are used:
+`QuestLogHeaderBoundedBottomFadeLeft.tga` for 68/7 (unchanged) and
+`QuestLogHeaderBoundedBottomFade.tga` for 65/7/3 (alpha profile updated).
+The second texture preserves the original opaque 65 units and its smooth
+fade shape, but compresses the fade into 7 units; the final 3 units have
+zero alpha. Both files retain fully opaque side-edge columns. Four positioned
 `CreateMaskTexture` regions are necessary because their alpha profiles
 must **replace**, not multiply, across the horizontal zones. Both TGAs
 have fully opaque side-edge columns and CLAMP sampling. The fixed
