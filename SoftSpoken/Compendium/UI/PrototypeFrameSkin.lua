@@ -86,11 +86,13 @@ local function AttachQuestLogHeaderMask(frame)
     local mask = frame:CreateMaskTexture()
     if not mask then return end
     mask:SetTexture(QUESTLOG_HEADER_BOUNDED_FADE, "CLAMP", "CLAMP")
-    -- Track the left inset start and right inset *visual* end across
-    -- horizontal resizing, without changing any native header crops.
+    -- Track the left inset start and the RIGHT EDGE OF THE PAGE SCROLLBAR
+    -- housing. The housing is anchored to the page inset's right edge by
+    -- pageSlotRightOffset (-3); do not use pageRightInset (-29), which ends
+    -- at the parchment visual edge. Both limits follow window resizing.
     mask:SetPoint("TOPLEFT",frame,"TOPLEFT",g.listLeft,-HEADER_MASK_TOP_Y)
     mask:SetPoint("BOTTOMRIGHT",frame,"TOPRIGHT",
-        -g.pageRightInset,-HEADER_MASK_BOTTOM_Y)
+        g.pageSlotRightOffset,-HEADER_MASK_BOTTOM_Y)
     frame.sszQuestLogHeaderMask = mask
     left:AddMaskTexture(mask)
     right:AddMaskTexture(mask)
