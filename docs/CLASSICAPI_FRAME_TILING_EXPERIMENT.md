@@ -127,8 +127,8 @@ The fixed left/right textures and every pooled center tile share this mask.
 - **Exact vertical span:** the header textures start at y=-13 and end
   at y=62 relative to the Compendium window. The mask is anchored to
   those same endpoints: a 75 UI-unit span, not a larger arbitrary band.
-- **Simple alpha profile:** full opacity for the first 64 UI units,
-  followed by a smooth fade through the last 11 units to zero alpha at
+- **Simple alpha profile:** full opacity for the first 68 UI units,
+  followed by a smooth fade through the last 7 units to zero alpha at
   the bottom. There is no transparent middle section and no return to
   opacity below the fade.
 - **Implementation:** one `CreateMaskTexture`, with
