@@ -112,36 +112,37 @@ parchment holder, page viewport, frame size, and vertical geometry do not
 change. Both the shared Compendium page and standalone lore reader use
 the same page-scroll skin.
 
-## Horizontally bounded bottom fade for the three-piece Quest Log header
+## Two-zone bottom fade for the three-piece Quest Log header
 
-The header uses one custom, positioned ClassicAPI alpha mask:
-`SoftSpoken/Compendium/Textures/Prototype/QuestLogHeaderBoundedBottomFade.tga`
-(512×128, top-origin, uncompressed 32-bit BGRA TGA).
-The fixed left/right textures and every pooled center tile share this mask.
+The header uses two horizontally adjacent ClassicAPI positioned alpha
+masks over the unchanged y=-13..62 (75 UI-unit) header geometry:
 
-- **Horizontal bounds:** x=4 at the left list inset through the right edge
-  of the page scrollbar housing, x=windowWidth+pageSlotRightOffset
-  (x=667 at the default 670-unit width). Both anchors follow resizing.
-  The mask's leftmost and rightmost columns stay fully opaque so the
-  header outside these horizontal limits is unaffected by clamping.
-- **Exact vertical span:** the header textures start at y=-13 and end
-  at y=62 relative to the Compendium window. The mask is anchored to
-  those same endpoints: a 75 UI-unit span, not a larger arbitrary band.
-- **Simple alpha profile:** full opacity for the first 65 UI units,
-  followed by a smooth fade through the last 10 units to zero alpha at
-  the bottom. There is no transparent middle section and no return to
-  opacity below the fade.
-- **Implementation:** one `CreateMaskTexture`, with
-  `AddMaskTexture` on the two fixed pieces and on each pooled center
-  tile upon allocation. No atlas crop, scrollbar, window, inset or
-  title position changes. Without ClassicAPI mask methods, header
-  artwork remains fully visible.
-- **Temporary diagnostics removed:** neither the raw-TGA preview nor
-  the overlay comparison is part of the production UI.
+- **Left of the first scrollbar:** x=4 (list inset left) to x=303,
+  the left edge of the first/list scrollbar housing. The new
+  `QuestLogHeaderBoundedBottomFadeLeft.tga` stays fully opaque for
+  **68 UI units**, then fades to zero over the remaining **7**.
+- **From the first scrollbar to the right:** x=303 through the right
+  end of the page scrollbar housing, x=windowWidth+pageSlotRightOffset
+  (x=667 at default width 670). The existing
+  `QuestLogHeaderBoundedBottomFade.tga` retains **65 opaque +
+  10 fade**, unchanged.
+- **Scrollbar-anchored split:** the left scrollbar is 31 units wide
+  and anchored to the right of the fixed-width left inset with
+  `g.listSlotRightOffset`. Its left edge is
+  `g.listLeft + g.listWidth + g.listSlotRightOffset - 31`.
+  That split stays put as the right page region grows with resizing.
+- **Compositing:** the fixed left corner receives the left mask, the
+  fixed right corner the right mask, and every pooled center tile
+  receives both masks once at creation. Each mask asset has fully
+  opaque left/right columns, so CLAMP makes it neutral outside its
+  own zone. ClassicAPI modulates the two masks on center tiles.
+- **Unchanged:** header artwork and crops, title, scrollbar positions,
+  frame/window geometry, top/bottom anchors, lower rails, and the
+  unmasked fallback without ClassicAPI.
 
-In-game check: verify that the title rail remains fully opaque, the
-artwork fades only at its bottom edge within the horizontal bounds,
-and resizing doesn't create seams at the center tiles.
+In-game check: left of x=303 the fade begins 3 UI units later;
+from the first scrollbar onward the previous 65/10 fade remains.
+The split follows the scrollbar when the Compendium is resized.
 
 ## What stays unchanged
 

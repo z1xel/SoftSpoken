@@ -63,12 +63,15 @@ local QUESTLOG_MIDDLE_HEIGHT = FULL_HEADER_HEIGHT
 local QUESTLOG_CENTER_START = 242
 local QUESTLOG_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
 
--- One shared, positioned mask for the left, center and right Quest Log
--- header textures. It matches their actual 75-unit vertical extent:
--- top -13 through bottom +62, with the final 10 units fading out.
--- Horizontal bounds are the left inset and right scrollbar housing.
+-- Two spatially positioned header masks. Their common vertical span is
+-- the exact 75-unit header extent, from y=-13 through y=62.
+-- Left of the first scrollbar (x=4..303): 68 opaque + 7 fade.
+-- From the first scrollbar through the right scrollbar: 65 + 10.
 local QUESTLOG_HEADER_BOUNDED_FADE =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBoundedBottomFade"
+local QUESTLOG_HEADER_LEFT_FADE =
+    "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBoundedBottomFadeLeft"
+local QUESTLOG_SCROLLBAR_HOUSING_WIDTH = 31
 local HEADER_MASK_TOP_Y = -FULL_LEFT_ART_Y
 local HEADER_MASK_BOTTOM_Y = HEADER_MASK_TOP_Y + FULL_HEADER_HEIGHT
 
@@ -78,19 +81,33 @@ local function AttachQuestLogHeaderMask(frame)
             left.AddMaskTexture and right.AddMaskTexture) then return end
     local g = SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
     if not g then return end
-    local mask = frame:CreateMaskTexture()
-    if not mask then return end
-    mask:SetTexture(QUESTLOG_HEADER_BOUNDED_FADE, "CLAMP", "CLAMP")
-    -- Track the left inset start and the RIGHT EDGE OF THE PAGE SCROLLBAR
-    -- housing. The housing is anchored to the page inset's right edge by
-    -- pageSlotRightOffset (-3); do not use pageRightInset (-29), which ends
-    -- at the parchment visual edge. Both limits follow window resizing.
-    mask:SetPoint("TOPLEFT",frame,"TOPLEFT",g.listLeft,-HEADER_MASK_TOP_Y)
-    mask:SetPoint("BOTTOMRIGHT",frame,"TOPRIGHT",
+
+    -- Match PrototypeScrollSkin.Housing: its 31-unit slot is anchored to
+    -- the list inset's right edge with a +27 offset. The left edge is
+    -- x=303 at the approved dimensions; it does not shift on resize.
+    local splitX = g.listLeft + g.listWidth +
+        g.listSlotRightOffset - QUESTLOG_SCROLLBAR_HOUSING_WIDTH
+
+    local leftMask = frame:CreateMaskTexture()
+    local rightMask = frame:CreateMaskTexture()
+    if not (leftMask and rightMask) then return end
+
+    leftMask:SetTexture(QUESTLOG_HEADER_LEFT_FADE, "CLAMP", "CLAMP")
+    leftMask:SetPoint("TOPLEFT",frame,"TOPLEFT",g.listLeft,-HEADER_MASK_TOP_Y)
+    leftMask:SetPoint("BOTTOMRIGHT",frame,"TOPLEFT",splitX,-HEADER_MASK_BOTTOM_Y)
+
+    rightMask:SetTexture(QUESTLOG_HEADER_BOUNDED_FADE, "CLAMP", "CLAMP")
+    rightMask:SetPoint("TOPLEFT",frame,"TOPLEFT",splitX,-HEADER_MASK_TOP_Y)
+    rightMask:SetPoint("BOTTOMRIGHT",frame,"TOPRIGHT",
         g.pageSlotRightOffset,-HEADER_MASK_BOTTOM_Y)
-    frame.sszQuestLogHeaderMask = mask
-    left:AddMaskTexture(mask)
-    right:AddMaskTexture(mask)
+
+    -- Side columns in both TGAs are fully opaque. CLAMP therefore makes
+    -- each mask neutral outside its own horizontal range, while the
+    -- center header tiles may compose both masks across the boundary.
+    frame.sszQuestLogHeaderLeftMask = leftMask
+    frame.sszQuestLogHeaderMask = rightMask
+    left:AddMaskTexture(leftMask)
+    right:AddMaskTexture(rightMask)
 end
 
 local function fixed(parent, layer, path, w, h, coords, p, x, y)
@@ -246,9 +263,11 @@ local function ReflowQuestLogCenter(frame, width)
         if not t then
             t = frame:CreateTexture(nil,"ARTWORK")
             t:SetTexture(QUESTLOG_LEFT)
-            -- All pooled center tiles use the same positioned window mask.
-            -- Add once at allocation, never once per resize/reflow.
-            if frame.sszQuestLogHeaderMask and t.AddMaskTexture then
+            -- Center tiles may straddle the first scrollbar boundary.
+            -- Apply both bounded masks once at allocation, never on reflow.
+            if frame.sszQuestLogHeaderLeftMask and
+                    frame.sszQuestLogHeaderMask and t.AddMaskTexture then
+                t:AddMaskTexture(frame.sszQuestLogHeaderLeftMask)
                 t:AddMaskTexture(frame.sszQuestLogHeaderMask)
             end
             pool[used] = t
