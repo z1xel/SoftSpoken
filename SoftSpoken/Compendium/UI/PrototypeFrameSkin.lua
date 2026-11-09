@@ -644,3 +644,48 @@ function Skin.SetCollapsedState(frame, collapsed)
     end
     target:SetAlpha(1)
 end
+
+-- Temporary diagnostic: display the exact mask TGA as an ordinary Texture.
+-- No SetMask/AddMaskTexture, so this isolates the client's TGA orientation.
+-- Invoke with: /run SSCPrototypeFrameSkin.ToggleHeaderMaskPreview()
+function Skin.ToggleHeaderMaskPreview()
+    local probe = Skin.sszHeaderMaskPreview
+    if probe then
+        if probe:IsShown() then probe:Hide() else probe:Show() end
+        return
+    end
+
+    probe = CreateFrame("Frame",nil,UIParent)
+    Skin.sszHeaderMaskPreview = probe
+    probe:SetWidth(640)
+    probe:SetHeight(202)
+    probe:SetPoint("CENTER",UIParent,"CENTER",0,0)
+    probe:SetFrameStrata("TOOLTIP")
+    probe:SetFrameLevel(100)
+    probe:EnableMouse(true)
+    probe:SetScript("OnMouseDown",function() this:Hide() end)
+
+    local backing = probe:CreateTexture(nil,"BACKGROUND")
+    backing:SetTexture(.05,.05,.05,1)
+    backing:SetAllPoints(probe)
+    local label = probe:CreateFontString(nil,"OVERLAY","GameFontNormal")
+    label:SetPoint("TOP",probe,"TOP",0,-8)
+    label:SetText("Raw header mask TGA - no ClassicAPI masking")
+
+    local image = probe:CreateTexture(nil,"ARTWORK")
+    image:SetTexture(QUESTLOG_HEADER_BOUNDED_FADE)
+    image:SetWidth(512)
+    image:SetHeight(128)
+    image:SetTexCoord(0,1,0,1)
+    image:SetPoint("TOPLEFT",probe,"TOPLEFT",72,-32)
+
+    local top = probe:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
+    top:SetPoint("TOPLEFT",probe,"TOPLEFT",12,-34)
+    top:SetText("TOP")
+    local bottom = probe:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
+    bottom:SetPoint("BOTTOMLEFT",probe,"TOPLEFT",12,-160)
+    bottom:SetText("BOTTOM")
+    local hint = probe:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
+    hint:SetPoint("TOP",image,"BOTTOM",0,-8)
+    hint:SetText("White = opaque; dark = transparent. Click anywhere to close.")
+end
