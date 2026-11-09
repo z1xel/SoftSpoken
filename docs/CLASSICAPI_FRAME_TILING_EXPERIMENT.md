@@ -117,21 +117,19 @@ the same page-scroll skin.
 The header uses two horizontally adjacent ClassicAPI positioned alpha
 masks over the unchanged y=-13..62 (75 UI-unit) header geometry:
 
-- **Left region:** x=4 (list inset left) to x=301, two units before
-  the first/list scrollbar housing's left edge at x=303. The
+- **Left region:** x=4 (list inset left) to x=307, the right edge
+  of the first panel's list inset. The
   `QuestLogHeaderBoundedBottomFadeLeft.tga` stays fully opaque for
   **68 UI units**, then fades to zero over the remaining **7**.
-- **Right region:** x=301 through the right
+- **Right region:** x=307 through the right
   end of the page scrollbar housing, x=windowWidth+pageSlotRightOffset
   (x=667 at default width 670). The existing
   `QuestLogHeaderBoundedBottomFade.tga` retains **65 opaque +
   10 fade**, unchanged.
-- **Scrollbar-anchored split:** the left scrollbar is 31 units wide
-  and anchored to the right of the fixed-width left inset with
-  `g.listSlotRightOffset`. Its left edge is
-  `g.listLeft + g.listWidth + g.listSlotRightOffset - 31` (x=303).
-  The fade split is 2 units before that edge (x=301) and stays
-  fixed as the right page region grows with resizing.
+- **First-panel edge split:** the list inset begins at
+  `g.listLeft=4` and is `g.listWidth=303` units wide. The split is
+  `g.listLeft + g.listWidth` (x=307), precisely at its right edge.
+  It stays fixed as the right page region grows with resizing.
 - **Compositing:** the fixed left corner receives the left mask, the
   fixed right corner the right mask, and every pooled center tile
   receives both masks once at creation. Each mask asset has fully
@@ -141,9 +139,9 @@ masks over the unchanged y=-13..62 (75 UI-unit) header geometry:
   frame/window geometry, top/bottom anchors, lower rails, and the
   unmasked fallback without ClassicAPI.
 
-In-game check: left of x=301 the fade begins 3 UI units later;
-from x=301 onward the previous 65/10 fade remains.
-The split stays 2 units left of the scrollbar on resize.
+In-game check: left of x=307 the fade begins 3 UI units later;
+from x=307 onward the previous 65/10 fade remains.
+The split follows the first panel's right edge when resizing.
 
 ## What stays unchanged
 
