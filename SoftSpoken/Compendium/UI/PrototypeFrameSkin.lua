@@ -66,9 +66,9 @@ local QUESTLOG_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
 
 -- Four adjacent fade-mask regions cover the header in this order:
 --   [left inset .. 2 before its right edge]     68 opaque /  7 fade
---   [first-pane split .. second-pane left edge] 65 opaque /  7 fade + 3 clear
+--   [first-pane split .. second-pane left edge] 65 opaque /  8 fade + 2 clear
 --   [second-pane left .. 2 before parchment end]68 opaque /  7 fade
---   [remaining right scrollbar housing]         65 opaque /  7 fade + 3 clear
+--   [remaining right scrollbar housing]         65 opaque /  8 fade + 2 clear
 -- The four fade masks stay at the original 75-unit extent (y=-13..62).
 -- A separate left-only mask clears its newly uncropped artwork from
 -- unit 75 down through unit 256 without modifying the fade profiles.
