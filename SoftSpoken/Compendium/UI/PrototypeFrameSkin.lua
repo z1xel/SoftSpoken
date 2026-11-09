@@ -63,17 +63,37 @@ local QUESTLOG_MIDDLE_HEIGHT = FULL_HEADER_HEIGHT
 local QUESTLOG_CENTER_START = 242
 local QUESTLOG_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
 
--- Every full-size Quest Log header piece fades independently over its
--- own bottom 11 UI units. ClassicAPI maps SetMask across the texture's
--- complete rectangle regardless of the artwork's cropped atlas UVs.
--- No positioned mask frame or inset-relative geometry is necessary.
-local QUESTLOG_HEADER_BOTTOM_FADE =
-    "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBottomFade"
-local function FadeQuestLogHeader(texture)
-    -- Older clients without ClassicAPI simply render the unmasked header.
-    if texture and texture.SetMask then
-        texture:SetMask(QUESTLOG_HEADER_BOTTOM_FADE)
-    end
+-- One positioned alpha mask shared by all three parts of the full-size
+-- header: left corner, original/repeated center, and right corner.
+-- Unlike SetMask(path), this uses WINDOW coordinates so the fade is
+-- strictly bounded horizontally by the two visible content insets.
+-- The mask is opaque on EVERY outer edge (including top and bottom).
+-- That matters: ClassicAPI clamps samples outside the mask rectangle,
+-- so a transparent edge previously erased the upper title trim.
+local QUESTLOG_HEADER_BOUNDED_FADE =
+    "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBoundedBottomFade"
+local HEADER_BOTTOM_Y = FULL_HEADER_HEIGHT - FULL_LEFT_ART_Y -- 62 below frame top
+local HEADER_FADE_HEIGHT = 11
+local HEADER_MASK_TOP_Y = HEADER_BOTTOM_Y - 22
+local HEADER_MASK_BOTTOM_Y = HEADER_BOTTOM_Y + 14
+
+local function AttachQuestLogHeaderMask(frame)
+    local left, right = frame.sszQuestLogHeaderLeft, frame.sszQuestLogHeaderRight
+    if not (frame.CreateMaskTexture and left and right and
+            left.AddMaskTexture and right.AddMaskTexture) then return end
+    local g = SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
+    if not g then return end
+    local mask = frame:CreateMaskTexture()
+    if not mask then return end
+    mask:SetTexture(QUESTLOG_HEADER_BOUNDED_FADE, "CLAMP", "CLAMP")
+    -- Track the left inset start and right inset *visual* end across
+    -- horizontal resizing, without changing any native header crops.
+    mask:SetPoint("TOPLEFT",frame,"TOPLEFT",g.listLeft,-HEADER_MASK_TOP_Y)
+    mask:SetPoint("BOTTOMRIGHT",frame,"TOPRIGHT",
+        -g.pageRightInset,-HEADER_MASK_BOTTOM_Y)
+    frame.sszQuestLogHeaderMask = mask
+    left:AddMaskTexture(mask)
+    right:AddMaskTexture(mask)
 end
 
 local function fixed(parent, layer, path, w, h, coords, p, x, y)
@@ -229,9 +249,11 @@ local function ReflowQuestLogCenter(frame, width)
         if not t then
             t = frame:CreateTexture(nil,"ARTWORK")
             t:SetTexture(QUESTLOG_LEFT)
-            -- Apply the same bottom fade to every natural/repeating tile
-            -- once at creation; tile reflow changes only anchors and UVs.
-            FadeQuestLogHeader(t)
+            -- All pooled center tiles use the same positioned window mask.
+            -- Add once at allocation, never once per resize/reflow.
+            if frame.sszQuestLogHeaderMask and t.AddMaskTexture then
+                t:AddMaskTexture(frame.sszQuestLogHeaderMask)
+            end
             pool[used] = t
         end
         t:ClearAllPoints()
@@ -427,10 +449,10 @@ function Skin.Apply(self, title, options)
                 (QUESTLOG_RIGHT_CROP_X+FULL_RIGHT_ART_WIDTH)/256,
                 0,FULL_RIGHT_ART_HEIGHT/QUESTLOG_SOURCE_HEIGHT},"TOPRIGHT",
             FULL_RIGHT_ART_X,FULL_RIGHT_ART_Y)
-        -- Fade the fixed left/right artwork at their bottom edges too.
-        -- Frame rails, portrait, title, controls, and insets stay opaque.
-        FadeQuestLogHeader(self.sszQuestLogHeaderLeft)
-        FadeQuestLogHeader(self.sszQuestLogHeaderRight)
+        -- Bind the same horizontally bounded mask to both fixed corners
+        -- and to the middle tile pool (when the pool is allocated).
+        -- Portrait, title, buttons, panel borders and rails are untouched.
+        AttachQuestLogHeaderMask(self)
         fixed(self,"BORDER",FRAME,14,14,{0.0078125,0.1171875,0.6328125,0.7421875},"BOTTOMLEFT",-6,-5)
         fixed(self,"BORDER",FRAME,11,11,{0.1328125,0.21875,0.8984375,0.984375},"BOTTOMRIGHT",0,-5)
         if self.sszQuestLogHeaderLeft.SetHorizTile and

@@ -112,33 +112,45 @@ parchment holder, page viewport, frame size, and vertical geometry do not
 change. Both the shared Compendium page and standalone lore reader use
 the same page-scroll skin.
 
-## Three-piece Quest Log header bottom fade
+## Horizontally bounded bottom fade for the three-piece Quest Log header
 
-`SoftSpoken/Compendium/Textures/Prototype/QuestLogHeaderBottomFade.tga`
-is a tiny 2×128 uncompressed 32-bit RGBA mask: white at full alpha
-through the first 64 of each header texture's 75 displayed units, then
-a smooth alpha fade to **0 at its bottom edge** (last 11 units).
+The header uses a custom positioned ClassicAPI alpha mask:
+`SoftSpoken/Compendium/Textures/Prototype/QuestLogHeaderBoundedBottomFade.tga`
+(512x128, 32-bit BGRA TGA). The mask is shared by the fixed left/right
+header textures and each pooled center continuation/repeat tile.
 
-- ClassicAPI's `Texture:SetMask(path)` maps the mask to **each texture's
-  own rectangle**, not to any shared frame or inset. This works on both
-  fixed corner textures and all pooled original/repeating center tiles,
-  regardless of the Quest Log atlas UV crop.
-- No inset-relative coordinates, `CreateMaskTexture`, positioned
-  `AddMaskTexture`, gradient frame, or resize reflow are required.
-- The mask is attached once to the fixed left/right textures and once
-  when each pooled center tile is first created. Original source UVs,
-  sizes, anchors, and tile positions are unchanged.
-- The portrait icon, title, buttons, frame rails, scrollbars, parchment,
-  and panel content remain untouched. The compact World Map attachment
-  keeps its existing artwork.
-- Without ClassicAPI's `SetMask` method, the header is displayed
-  normally without a fade.
+- **Horizontal bounds:** from the left list inset at x=4 to the visible
+  right page edge at x=windowWidth-29 (x=641 when width=670). Both
+  endpoints follow the Compendium frame while resizing. The alpha at
+  the mask's left and right texture edges is **always 1**, so clamped
+  sampling preserves every header pixel outside these limits.
+- **Vertical fade:** the original three header textures all end at
+  y=62 relative to the Compendium's top. Their last **11 UI units**,
+  y=51..62, fade smoothly from full alpha to transparent.
+- **Safe vertical bounds:** the mask frame spans y=40..76, substantially
+  beyond the actual fade. Its uppermost and lowermost alpha rows are
+  both fully opaque; the transparent part lies in the *interior* of
+  the mask. Alpha rises back to 1 below the header's bottom (after
+  y=68), which is invisible because the header art ends at y=62.
+  This prevents the old transparency at the *top* of the window
+  caused by a transparent clamped mask edge.
+- **Stored TGA orientation:** the mask's scanlines are ordered to match
+  the observed ClassicAPI/TGA orientation in the game; both vertical
+  boundaries remain opaque regardless. The actual in-client result
+  still needs a visual check.
+- **Implementation:** one `CreateMaskTexture` positioned to the
+  content-panel limits; all three existing textures use
+  `AddMaskTexture`. No atlas UV changes, repositioning, or
+  per-tile masks. Center tiles attach the shared mask only once on
+  allocation. With ClassicAPI masking unavailable, the header
+  remains fully visible without fading.
+- **Unchanged:** Compendium dimensions, title, portrait, buttons,
+  lower rails, scrollbars, text, parchment, and compact map skin.
 
-In-game check: verify the **top remains fully opaque** on all three
-header pieces and the last ~11 units dissolve into transparency,
-including the center-repeat seam during width resizing. With no mask
-API, the original header must remain visible. The observed appearance
-on the 1.12 client is not yet verified.
+In-game checks: confirm the original top rail stays fully opaque;
+the lower edge of each Quest Log header piece fades within the
+panel's horizontal limits; the fade stays aligned after resizing
+and creates no seams at the three texture joins.
 
 ## What stays unchanged
 
