@@ -119,11 +119,14 @@ The header uses a custom positioned ClassicAPI alpha mask:
 (512x128, 32-bit BGRA TGA). The mask is shared by the fixed left/right
 header textures and each pooled center continuation/repeat tile.
 
-- **Horizontal bounds:** from the left list inset at x=4 to the visible
-  right page edge at x=windowWidth-29 (x=641 when width=670). Both
-  endpoints follow the Compendium frame while resizing. The alpha at
-  the mask's left and right texture edges is **always 1**, so clamped
-  sampling preserves every header pixel outside these limits.
+- **Horizontal bounds:** from the left list inset at x=4 to the **right
+  edge of the page scrollbar housing**, x=windowWidth+pageSlotRightOffset
+  (x=667 at the 670-unit window width, using the shared offset -3).
+  Previously the mask ended at the parchment visual edge, x=641; only
+  its right boundary has been extended by 26 units. Both endpoints
+  follow the Compendium frame while resizing. The alpha at the mask's
+  left and right texture edges is **always 1**, so clamped sampling
+  preserves every header pixel outside these limits.
 - **Vertical fade:** the original three header textures all end at
   y=62 relative to the Compendium's top. Their last **11 UI units**,
   y=51..62, fade smoothly from full alpha to transparent.
