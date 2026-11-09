@@ -39,11 +39,6 @@ function Skin.Apply(inset,holder,page)
         page.bg:SetVertexColor(1,1,1,1)
         page.bgFile=PARCHMENT
     end
-    -- The prototype has no spellbook top flourish or empty-page watermark.
-    -- Alpha zero survives a later Show(entry) which may call :Show() on these.
-    if page.backplate then page.backplate:SetAlpha(0) end
-    if page.mark then page.mark:SetAlpha(0) end
-
     -- The parchment is painted by page.frame, so the metal inset must be a
     -- separate foreground layer like the approved prototype's `rim` frame.
     local rim=CreateFrame("Frame",nil,visual)

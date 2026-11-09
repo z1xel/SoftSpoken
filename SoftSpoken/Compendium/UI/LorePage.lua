@@ -10,12 +10,10 @@ Page.__index = Page
 P.Page = Page
 
 -- These are the measurements and UV coordinates in upstream's LorePage.lua.
--- The .tga files are the original game's spellbook art, supplied by Spoken.
--- The asset installer only enables the flag after all six files download.
+-- Keep the original parchment and ornamental divider art used by the reader.
 local ORIGINAL_ART = SSCOriginalArt == true
 local ART = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\"
 local PAGE_NAME = "spellbook-Page-Right-C60"
-local BACKPLATE_NAME = "spellbook-list-backplate"
 local DIVIDER_NAME = "spellbook-divider"
 -- Keep the divider at its original scale: 64px left flourish, 66px right cap.
 -- The right cap always includes the original 657px endpoint: shortening
@@ -26,7 +24,6 @@ local DIVIDER_SOURCE_END = 657
 local DIVIDER_REPEAT_START, DIVIDER_REPEAT = 559, 32
 local COPY = {
     [PAGE_NAME] = {810,682,0.791016,0.666016},
-    [BACKPLATE_NAME] = {316,106,0.617188,0.828125},
     [DIVIDER_NAME] = {657,11,0.641602,0.6875},
 }
 local PAD = 24
@@ -34,7 +31,6 @@ local PAD = 24
 -- The native scrollbar occupies a separate housing outside the page.
 local INSET = { book={top=28,right=PAD}, log={top=28,right=PAD} }
 local BOOK_TOP_BAND = .07
-local BACKPLATE_CUT = 40
 -- Blizzard's QuestFont uses solid black ink on parchment.
 local INK = { 0,0,0 }
 -- Pre-fidelity reader's warm brown is retained for breadcrumbs/subtitles.
@@ -96,20 +92,9 @@ function Page:PlaceButtons()
 end
 
 -- Crop the divider's middle or repeat a source strip; never scale its detail.
--- Backplate artwork still uses the original crop-to-fit approach.
 function Page:FitDecorations()
     if not self.frame then return end
     local width=self.frame:GetWidth() or 0
-    if ORIGINAL_ART and self.backplate then
-        local shown=self.style=="log" and 260 or 420
-        if width>0 then shown=math.min(shown,width) end
-        shown=math.max(1,shown)
-        local u=COPY[BACKPLATE_NAME][3]
-        local full=self.style=="log" and 300 or 460
-        self.backplate:SetWidth(shown)
-        self.backplate:SetTexCoord(u*BACKPLATE_CUT/full,
-            u*(BACKPLATE_CUT+shown)/full,0,COPY[BACKPLATE_NAME][4])
-    end
     if ORIGINAL_ART and self.divider then
         -- Extend the far end 6 units past the text's right inset to match
         -- the divider's existing 6-unit overhang on the left.
@@ -234,12 +219,6 @@ function Page:Show(entry)
     if self.divider then
         if entry.empty then self.divider:Hide() else self.divider:Show() end
     end
-    if self.backplate then
-        if entry.empty then self.backplate:Hide() else self.backplate:Show() end
-    end
-    if self.mark then
-        if entry.empty then self.mark:Show() else self.mark:Hide() end
-    end
     self:Resize(false)
 end
 
@@ -279,15 +258,6 @@ function P.CreateLorePage(parent,style,left,options)
     end
     page.bg=parchment
     page.bgFile=ORIGINAL_ART and (ART..paperName) or "Interface\\QuestFrame\\QuestBG"
-
-    if ORIGINAL_ART then
-        local back=frame:CreateTexture(nil,"BORDER")
-        back:SetTexture(ART..BACKPLATE_NAME)
-        back:SetHeight(page.style=="log" and 80 or 110)
-        back:SetPoint("TOPLEFT",frame,"TOPLEFT",0,28-page.inset.top)
-        back:SetAlpha(.55)
-        page.backplate=back
-    end
 
     local title=frame:CreateFontString(nil,"ARTWORK","GameFontNormalLarge")
     title:SetJustifyH("LEFT")
@@ -427,14 +397,6 @@ function P.CreateLorePage(parent,style,left,options)
     view.scroll:SetPoint("TOPLEFT",divider,"BOTTOMLEFT",6,-2)
     view.scroll:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",-page.inset.right,PAD-6)
     view:SetInk(INK[1],INK[2],INK[3])
-    local mark=frame:CreateTexture(nil,"BORDER")
-    mark:SetWidth(96);mark:SetHeight(96)
-    mark:SetPoint("CENTER",frame,"CENTER",0,40)
-    mark:SetTexture("Interface\\Icons\\INV_Misc_Map02")
-    mark:SetTexCoord(.08,.92,.08,.92)
-    mark:SetAlpha(.18)
-    mark:Hide()
-    page.mark=mark
     page:FitDecorations()
     return page
 end

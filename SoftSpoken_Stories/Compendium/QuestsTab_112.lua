@@ -149,10 +149,8 @@ local function PageEntry()
     else
         place="Place unknown (Turtle/uncatalogued quest)"
     end
-    local chain=""
-    if entry and entry.prev then chain="\nPrevious quest ID: "..entry.prev end
     return {title=title,subtitle=place.."  ·  "..status,key="quest:"..selectedID,
-        text="",questStatus=status,questChain=chain}
+        text=""}
 end
 function Q:Refresh()
     if not list then return end
@@ -174,7 +172,7 @@ function Q:Refresh()
     if page then
         local entry=PageEntry()
         page:Show(entry)
-        if details then details:Show(selectedID, entry) end
+        if details then details:Show(selectedID) end
     end
 end
 function Q:Select(item)

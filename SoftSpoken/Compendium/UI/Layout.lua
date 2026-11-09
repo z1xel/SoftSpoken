@@ -44,44 +44,6 @@ U.SetScrollOffset = SetScrollOffset
 U.MouseWheelDelta = MouseWheelDelta
 U.AddBorder = AddBorder
 
--- Resizable ornamental rim from the existing 1.12-compatible quest-log art.
--- The texture is a square atlas: stretching it whole distorts the corners.
--- Keep corner dimensions fixed and stretch only the five inner pieces.
-function U.AddQuestFrameRim(frame)
-    local art = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\questlog-frame"
-    local m = 56/214
-    local uv = {0, .835938*m, .835938*(1-m), .835938}
-    local cornerSize = math.floor(107*m+.5)
-    local grid = {}
-    for row=1,3 do
-        grid[row]={}
-        for col=1,3 do
-            local piece=frame:CreateTexture(nil,"OVERLAY")
-            piece:SetTexture(art)
-            piece:SetTexCoord(uv[col],uv[col+1],uv[row],uv[row+1])
-            grid[row][col]=piece
-        end
-    end
-    local tl,tr,bl,br=grid[1][1],grid[1][3],grid[3][1],grid[3][3]
-    for _,corner in ipairs({tl,tr,bl,br}) do
-        corner:SetWidth(cornerSize);corner:SetHeight(cornerSize)
-    end
-    tl:SetPoint("TOPLEFT",frame,"TOPLEFT",0,0)
-    tr:SetPoint("TOPRIGHT",frame,"TOPRIGHT",0,0)
-    bl:SetPoint("BOTTOMLEFT",frame,"BOTTOMLEFT",0,0)
-    br:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",0,0)
-    local function Between(piece,first,firstPoint,second,secondPoint)
-        piece:SetPoint("TOPLEFT",first,firstPoint,0,0)
-        piece:SetPoint("BOTTOMRIGHT",second,secondPoint,0,0)
-    end
-    Between(grid[1][2],tl,"TOPRIGHT",tr,"BOTTOMLEFT")
-    Between(grid[3][2],bl,"TOPRIGHT",br,"BOTTOMLEFT")
-    Between(grid[2][1],tl,"BOTTOMLEFT",bl,"TOPRIGHT")
-    Between(grid[2][3],tr,"BOTTOMLEFT",br,"TOPRIGHT")
-    Between(grid[2][2],tl,"BOTTOMRIGHT",br,"TOPLEFT")
-    return grid
-end
-
 -- A subdued 1.12 inset: the original uses InsetFrameTemplate, absent in Vanilla.
 -- Use native 1.12 tooltip textures rather than a second ornate dialog border.
 function U.AddInsetBorder(frame)

@@ -328,7 +328,7 @@ function P:ApplyTypography()
 end
 function P.Create(page)
     local view=page.body
-    local self={page=page,view=view,parts={},id=nil,active=false,source="",generation=0,portraitSubscribed=false}
+    local self={page=page,view=view,parts={},id=nil,active=false,generation=0,portraitSubscribed=false}
     setmetatable(self,{__index=P})
     for _,stage in ipairs(MOMENTS) do self.parts[stage]=NewPart(view.child,stage) end
 
@@ -423,7 +423,7 @@ function P:Layout(reset,previous,width)
     view.range=maximum
     view:ScrollTo(reset and 0 or previous or SSCUI.ScrollOffset(view.scroll))
 end
-function P:Show(id,entry)
+function P:Show(id)
     self.generation=self.generation+1
     if not id or not SSCQuestState:IsSeen(id) and not SSCQuestState:Setting("unlock") then
         self.active=false;self.id=nil
