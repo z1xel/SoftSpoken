@@ -114,8 +114,11 @@ the same page-scroll skin.
 
 ## Four-zone bottom fade for the three-piece Quest Log header
 
-The existing 75-unit header (y=-13..62) uses four adjacent spatial
-ClassicAPI mask regions. Two TGA alpha profiles are reused: 68 fully
+The 75-unit mask footprint (y=-13..62) uses four adjacent spatial
+ClassicAPI mask regions. Its top position and height are fixed independently
+of the header artwork crop and render heights: extending one of the three
+header textures vertically must not move or stretch the masks.
+Two TGA alpha profiles are reused: 68 fully
 opaque + 7 smooth fade, and 65 fully opaque + 7 faster fade + 3 fully transparent.
 
 - **First panel:** x=4 through x=305, two units inside the first

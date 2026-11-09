@@ -74,8 +74,11 @@ local QUESTLOG_HEADER_BOUNDED_FADE =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBoundedBottomFade"
 local QUESTLOG_HEADER_LEFT_FADE =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBoundedBottomFadeLeft"
-local HEADER_MASK_TOP_Y = -FULL_LEFT_ART_Y
-local HEADER_MASK_BOTTOM_Y = HEADER_MASK_TOP_Y + FULL_HEADER_HEIGHT
+-- Keep the alpha masks fixed to the frame: uncropping or resizing any
+-- of the three header artwork textures must not stretch or reposition them.
+local HEADER_MASK_TOP_Y = -13
+local HEADER_MASK_HEIGHT = 75
+local HEADER_MASK_BOTTOM_Y = HEADER_MASK_TOP_Y + HEADER_MASK_HEIGHT
 
 local function AttachQuestLogHeaderMask(frame)
     local left, right = frame.sszQuestLogHeaderLeft, frame.sszQuestLogHeaderRight
