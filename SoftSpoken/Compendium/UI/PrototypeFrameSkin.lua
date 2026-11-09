@@ -78,6 +78,8 @@ local QUESTLOG_HEADER_LEFT_FADE =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBoundedBottomFadeLeft"
 local QUESTLOG_HEADER_LEFT_CLEAR_EXTENSION =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderLeftClearExtension"
+local QUESTLOG_HEADER_LEFT_EDGE_FADE =
+    "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderLeftEdgeVerticalFade"
 -- Keep all four fade masks fixed to the frame: none follow artwork heights.
 -- The additional left-only clear extension covers the artwork below the fade.
 local HEADER_MASK_TOP_Y = -13
@@ -101,10 +103,12 @@ local function AttachQuestLogHeaderMask(frame)
 
     local firstMask = frame:CreateMaskTexture()
     local firstClearExtension = frame:CreateMaskTexture()
+    local leftEdgeVerticalFade = frame:CreateMaskTexture()
     local gapMask = frame:CreateMaskTexture()
     local pageMask = frame:CreateMaskTexture()
     local endMask = frame:CreateMaskTexture()
-    if not (firstMask and firstClearExtension and gapMask and pageMask and endMask) then return end
+    if not (firstMask and firstClearExtension and leftEdgeVerticalFade and
+            gapMask and pageMask and endMask) then return end
 
     firstMask:SetTexture(QUESTLOG_HEADER_LEFT_FADE, "CLAMP", "CLAMP")
     firstMask:SetPoint("TOPLEFT",frame,"TOPLEFT",g.listLeft,-HEADER_MASK_TOP_Y)
@@ -118,6 +122,17 @@ local function AttachQuestLogHeaderMask(frame)
     firstClearExtension:SetPoint("TOPLEFT",frame,"TOPLEFT",g.listLeft,-HEADER_MASK_TOP_Y)
     firstClearExtension:SetPoint("BOTTOMRIGHT",frame,"TOPLEFT",
         firstSplit,-HEADER_LEFT_CLEAR_BOTTOM_Y)
+
+    -- The exposed decorative strip left of the list (x=-13..4) stays
+    -- completely opaque to 68 units, then fades slowly over the remaining
+    -- 188 units to complete transparency at the left texture's bottom.
+    -- Keep the gradient independent of all four bounded header fades.
+    -- Opaque side-edge columns neutralize this mask outside its x-range.
+    leftEdgeVerticalFade:SetTexture(QUESTLOG_HEADER_LEFT_EDGE_FADE, "CLAMP", "CLAMP")
+    leftEdgeVerticalFade:SetPoint("TOPLEFT",frame,"TOPLEFT",
+        FULL_LEFT_ART_X,-HEADER_MASK_TOP_Y)
+    leftEdgeVerticalFade:SetPoint("BOTTOMRIGHT",frame,"TOPLEFT",
+        g.listLeft,-HEADER_LEFT_CLEAR_BOTTOM_Y)
 
     gapMask:SetTexture(QUESTLOG_HEADER_BOUNDED_FADE, "CLAMP", "CLAMP")
     gapMask:SetPoint("TOPLEFT",frame,"TOPLEFT",firstSplit,-HEADER_MASK_TOP_Y)
@@ -134,20 +149,23 @@ local function AttachQuestLogHeaderMask(frame)
     endMask:SetPoint("BOTTOMRIGHT",frame,"TOPRIGHT",
         g.pageSlotRightOffset,-HEADER_MASK_BOTTOM_Y)
 
-    -- All three TGA assets have opaque horizontal edge columns.
-    -- CLAMP stays neutral outside each horizontally bounded region;
-    -- the extra left mask clears only the extended artwork below y=75.
+    -- All four TGA assets have opaque horizontal edge columns.
+    -- CLAMP stays neutral outside each horizontally bounded region.
+    -- The two left-only extensions affect the uncropped artwork, not
+    -- the middle tiles or right corner.
     frame.sszQuestLogHeaderLeftMask = firstMask
     frame.sszQuestLogHeaderLeftClearExtension = firstClearExtension
+    frame.sszQuestLogHeaderLeftEdgeFadeMask = leftEdgeVerticalFade
     frame.sszQuestLogHeaderMask = gapMask
     frame.sszQuestLogHeaderPageMask = pageMask
     frame.sszQuestLogHeaderEndMask = endMask
 
-    -- Only the uncropped fixed left corner receives the clear extension.
+    -- Only the uncropped fixed left corner receives the two extensions.
     -- All center tiles keep their original 75-unit fade masks.
     -- The fixed right corner intersects the page and final-strip regions.
     left:AddMaskTexture(firstMask)
     left:AddMaskTexture(firstClearExtension)
+    left:AddMaskTexture(leftEdgeVerticalFade)
     right:AddMaskTexture(pageMask)
     right:AddMaskTexture(endMask)
 end

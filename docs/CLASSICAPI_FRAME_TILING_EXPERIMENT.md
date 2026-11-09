@@ -150,26 +150,30 @@ visual's right edge is 29 units left of the window's right edge by
 (`g.listSlotRightOffset` and `g.pageRightInset`) so the page region
 grows with window resizing and the 2-unit right inset remains constant.
 
-Three TGA assets are used:
-`QuestLogHeaderBoundedBottomFadeLeft.tga` for 68/7 (unchanged),
-`QuestLogHeaderBoundedBottomFade.tga` for 65/7/3 (unchanged by this step),
-and `QuestLogHeaderLeftClearExtension.tga` for left-only transparency
-from unit 75 to 256 (new).
+Four TGA assets are used:
+`QuestLogHeaderBoundedBottomFadeLeft.tga` for 68/7,
+`QuestLogHeaderBoundedBottomFade.tga` for 65/7/3,
+`QuestLogHeaderLeftClearExtension.tga` for first-panel transparency
+from unit 75 to 256, and `QuestLogHeaderLeftEdgeVerticalFade.tga` for
+the decorative strip x=-13..4 (new): 100% opaque through unit 68,
+then a gradual, nearly linear fade to 0% opacity at unit 256.
 The second texture preserves the original opaque 65 units and its smooth
 fade shape, but compresses the fade into 7 units; the final 3 units have
 zero alpha. Four positioned fade-mask regions are necessary because their
 alpha profiles must **replace**, not multiply, across the horizontal zones.
-The new fifth mask is multiplied only onto the extended fixed-left texture,
-preserving its original 68/7 fade without resampling. All three TGAs
-have fully opaque side-edge columns and CLAMP sampling. The fixed
-left header texture now receives two masks, fixed right receives two,
-and each pooled center tile receives three once at allocation. Maximum
-per-texture mask count remains three (below ClassicAPI's seven-mask limit).
+The first extension mask clears the first-panel area below its 68/7 fade;
+the new sixth mask slowly fades only the previously unmasked left strip.
+Both are attached exclusively to the fixed left header texture, preserving
+the 68/7 region without resampling. All four TGAs have fully opaque side-edge
+columns and CLAMP sampling. The fixed left header texture now receives three
+masks, fixed right receives two, and each pooled center tile receives three
+once at allocation. Maximum per-texture mask count remains three (below
+ClassicAPI's seven-mask limit).
 
-This step adds only the new left-only clear-extension mask and its TGA
-asset. It does not change the artwork's 256-unit height, any existing
-fade-mask geometry or assets, title/portrait, other header crops, window
-geometry, scrollbars, background, or fallback behavior.
+This step adds only the gradual left-edge fade mask and its TGA asset.
+It does not change the artwork's 256-unit height, any existing fade
+profile, fade-mask geometry or assets, title/portrait, other header crops,
+window geometry, scrollbars, background, or fallback behavior.
 
 ## What stays unchanged
 
