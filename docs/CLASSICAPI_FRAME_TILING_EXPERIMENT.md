@@ -112,36 +112,43 @@ parchment holder, page viewport, frame size, and vertical geometry do not
 change. Both the shared Compendium page and standalone lore reader use
 the same page-scroll skin.
 
-## Two-zone bottom fade for the three-piece Quest Log header
+## Four-zone bottom fade for the three-piece Quest Log header
 
-The header uses two horizontally adjacent ClassicAPI positioned alpha
-masks over the unchanged y=-13..62 (75 UI-unit) header geometry:
+The existing 75-unit header (y=-13..62) uses four adjacent spatial
+ClassicAPI mask regions. Two TGA alpha profiles are reused: 68 fully
+opaque + 7 smooth fade, and 65 fully opaque + 10 smooth fade.
 
-- **Left region:** x=4 (list inset left) to x=305, 2 UI units left
-  of the first panel's right edge (x=307). The
-  `QuestLogHeaderBoundedBottomFadeLeft.tga` stays fully opaque for
-  **68 UI units**, then fades to zero over the remaining **7**.
-- **Right region:** x=305 through the right
-  end of the page scrollbar housing, x=windowWidth+pageSlotRightOffset
-  (x=667 at default width 670). The existing
-  `QuestLogHeaderBoundedBottomFade.tga` retains **65 opaque +
-  10 fade**, unchanged.
-- **First-panel edge split:** the list inset begins at
-  `g.listLeft=4` and is `g.listWidth=303` units wide. The split is
-  `g.listLeft + g.listWidth - 2` (x=305), two units before its
-  right edge. It stays fixed as the right page region grows with resizing.
-- **Compositing:** the fixed left corner receives the left mask, the
-  fixed right corner the right mask, and every pooled center tile
-  receives both masks once at creation. Each mask asset has fully
-  opaque left/right columns, so CLAMP makes it neutral outside its
-  own zone. ClassicAPI modulates the two masks on center tiles.
-- **Unchanged:** header artwork and crops, title, scrollbar positions,
-  frame/window geometry, top/bottom anchors, lower rails, and the
-  unmasked fallback without ClassicAPI.
+- **First panel:** x=4 through x=305, two units inside the first
+  panel's right edge x=307: **68/7** (unchanged).
+- **Gap:** x=305 through x=334, the second panel's left inset edge:
+  **65/10** (unchanged).
+- **Second panel:** x=334 through x=windowWidth−31 (x=639 at width 670):
+  **68/7** (new). The second panel's parchment-visible right edge is
+  x=windowWidth−29 (x=641), so the split is 2 units to its left.
+- **Right-hand strip:** x=windowWidth−31 through
+  x=windowWidth−3 (x=639..667 at width 670): **65/10** (unchanged).
+  This preserves the existing overall mask limit at the right edge of
+  the page scrollbar housing.
 
-In-game check: left of x=305 the fade begins 3 UI units later;
-from x=305 onward the previous 65/10 fade remains.
-The split stays 2 UI units inside the first panel's right edge when resizing.
+The second panel's left edge is anchored 27 units to the right of the
+list inset's right edge by `PagePane.CreatePagePane`. The parchment
+visual's right edge is 29 units left of the window's right edge by
+`PrototypePageSkin.Apply`. The masks reuse those geometry values
+(`g.listSlotRightOffset` and `g.pageRightInset`) so the page region
+grows with window resizing and the 2-unit right inset remains constant.
+
+Two TGA assets are used without modification:
+`QuestLogHeaderBoundedBottomFadeLeft.tga` for 68/7 and
+`QuestLogHeaderBoundedBottomFade.tga` for 65/10. Four positioned
+`CreateMaskTexture` regions are necessary because their alpha profiles
+must **replace**, not multiply, across the horizontal zones. Both TGAs
+have fully opaque side-edge columns and CLAMP sampling. The fixed
+left header texture receives one mask, fixed right receives two, and
+each pooled center tile receives three once at allocation. Maximum
+per-texture mask count is three (below ClassicAPI's seven-mask limit).
+
+No changes to title/portrait, header crop coordinates, other window
+geometry, scrollbars, background, or fallback behavior.
 
 ## What stays unchanged
 

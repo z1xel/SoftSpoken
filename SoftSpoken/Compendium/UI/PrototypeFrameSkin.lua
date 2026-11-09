@@ -63,10 +63,13 @@ local QUESTLOG_MIDDLE_HEIGHT = FULL_HEADER_HEIGHT
 local QUESTLOG_CENTER_START = 242
 local QUESTLOG_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
 
--- Two spatially positioned header masks. Their common vertical span is
--- the exact 75-unit header extent, from y=-13 through y=62.
--- Left of the split (x=4..305): 68 opaque + 7 fade.
--- From x=305 through the right scrollbar: 65 + 10.
+-- Four adjacent mask regions cover the header in this order:
+--   [left inset .. 2 before its right edge]     68 opaque /  7 fade
+--   [first-pane split .. second-pane left edge] 65 opaque / 10 fade
+--   [second-pane left .. 2 before parchment end]68 opaque /  7 fade
+--   [remaining right scrollbar housing]         65 opaque / 10 fade
+-- All masks use the actual 75-unit header extent (y=-13..62) and the
+-- same two TGA profiles. The shared anchors keep them aligned on resize.
 local QUESTLOG_HEADER_BOUNDED_FADE =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBoundedBottomFade"
 local QUESTLOG_HEADER_LEFT_FADE =
@@ -81,30 +84,51 @@ local function AttachQuestLogHeaderMask(frame)
     local g = SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
     if not g then return end
 
-    -- Split two units left of the first panel's right edge:
-    -- x=4+303-2=305. Fixed relative to the panel during resizing.
-    local splitX = g.listLeft + g.listWidth - 2
+    local firstPanelEnd = g.listLeft + g.listWidth
+    local firstSplit = firstPanelEnd - 2
+    -- PagePane.CreatePagePane anchors the second inset 27 units right
+    -- of the first inset; its parchment stops 29 units before frame right.
+    local secondPanelLeft = firstPanelEnd + g.listSlotRightOffset
+    local secondSplitRight = -(g.pageRightInset + 2)
 
-    local leftMask = frame:CreateMaskTexture()
-    local rightMask = frame:CreateMaskTexture()
-    if not (leftMask and rightMask) then return end
+    local firstMask = frame:CreateMaskTexture()
+    local gapMask = frame:CreateMaskTexture()
+    local pageMask = frame:CreateMaskTexture()
+    local endMask = frame:CreateMaskTexture()
+    if not (firstMask and gapMask and pageMask and endMask) then return end
 
-    leftMask:SetTexture(QUESTLOG_HEADER_LEFT_FADE, "CLAMP", "CLAMP")
-    leftMask:SetPoint("TOPLEFT",frame,"TOPLEFT",g.listLeft,-HEADER_MASK_TOP_Y)
-    leftMask:SetPoint("BOTTOMRIGHT",frame,"TOPLEFT",splitX,-HEADER_MASK_BOTTOM_Y)
+    firstMask:SetTexture(QUESTLOG_HEADER_LEFT_FADE, "CLAMP", "CLAMP")
+    firstMask:SetPoint("TOPLEFT",frame,"TOPLEFT",g.listLeft,-HEADER_MASK_TOP_Y)
+    firstMask:SetPoint("BOTTOMRIGHT",frame,"TOPLEFT",firstSplit,-HEADER_MASK_BOTTOM_Y)
 
-    rightMask:SetTexture(QUESTLOG_HEADER_BOUNDED_FADE, "CLAMP", "CLAMP")
-    rightMask:SetPoint("TOPLEFT",frame,"TOPLEFT",splitX,-HEADER_MASK_TOP_Y)
-    rightMask:SetPoint("BOTTOMRIGHT",frame,"TOPRIGHT",
+    gapMask:SetTexture(QUESTLOG_HEADER_BOUNDED_FADE, "CLAMP", "CLAMP")
+    gapMask:SetPoint("TOPLEFT",frame,"TOPLEFT",firstSplit,-HEADER_MASK_TOP_Y)
+    gapMask:SetPoint("BOTTOMRIGHT",frame,"TOPLEFT",secondPanelLeft,-HEADER_MASK_BOTTOM_Y)
+
+    pageMask:SetTexture(QUESTLOG_HEADER_LEFT_FADE, "CLAMP", "CLAMP")
+    pageMask:SetPoint("TOPLEFT",frame,"TOPLEFT",secondPanelLeft,-HEADER_MASK_TOP_Y)
+    pageMask:SetPoint("BOTTOMRIGHT",frame,"TOPRIGHT",
+        secondSplitRight,-HEADER_MASK_BOTTOM_Y)
+
+    endMask:SetTexture(QUESTLOG_HEADER_BOUNDED_FADE, "CLAMP", "CLAMP")
+    endMask:SetPoint("TOPLEFT",frame,"TOPRIGHT",
+        secondSplitRight,-HEADER_MASK_TOP_Y)
+    endMask:SetPoint("BOTTOMRIGHT",frame,"TOPRIGHT",
         g.pageSlotRightOffset,-HEADER_MASK_BOTTOM_Y)
 
-    -- Side columns in both TGAs are fully opaque. CLAMP therefore makes
-    -- each mask neutral outside its own horizontal range, while the
-    -- center header tiles may compose both masks across the boundary.
-    frame.sszQuestLogHeaderLeftMask = leftMask
-    frame.sszQuestLogHeaderMask = rightMask
-    left:AddMaskTexture(leftMask)
-    right:AddMaskTexture(rightMask)
+    -- The two mask files are opaque at their left/right texture edges.
+    -- CLAMP therefore neutralizes each outside its assigned range;
+    -- masks can safely compose on header textures crossing a boundary.
+    frame.sszQuestLogHeaderLeftMask = firstMask
+    frame.sszQuestLogHeaderMask = gapMask
+    frame.sszQuestLogHeaderPageMask = pageMask
+    frame.sszQuestLogHeaderEndMask = endMask
+
+    -- The fixed left corner only intersects the first region. The fixed
+    -- right corner intersects the parchment region and the final strip.
+    left:AddMaskTexture(firstMask)
+    right:AddMaskTexture(pageMask)
+    right:AddMaskTexture(endMask)
 end
 
 local function fixed(parent, layer, path, w, h, coords, p, x, y)
@@ -260,12 +284,14 @@ local function ReflowQuestLogCenter(frame, width)
         if not t then
             t = frame:CreateTexture(nil,"ARTWORK")
             t:SetTexture(QUESTLOG_LEFT)
-            -- Center tiles may straddle the first scrollbar boundary.
-            -- Apply both bounded masks once at allocation, never on reflow.
+            -- Center tiles can cross the first, gap and page regions.
+            -- Add these three masks once per tile, never on each reflow.
             if frame.sszQuestLogHeaderLeftMask and
-                    frame.sszQuestLogHeaderMask and t.AddMaskTexture then
+                    frame.sszQuestLogHeaderMask and
+                    frame.sszQuestLogHeaderPageMask and t.AddMaskTexture then
                 t:AddMaskTexture(frame.sszQuestLogHeaderLeftMask)
                 t:AddMaskTexture(frame.sszQuestLogHeaderMask)
+                t:AddMaskTexture(frame.sszQuestLogHeaderPageMask)
             end
             pool[used] = t
         end
