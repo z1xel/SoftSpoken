@@ -117,19 +117,19 @@ the same page-scroll skin.
 The header uses two horizontally adjacent ClassicAPI positioned alpha
 masks over the unchanged y=-13..62 (75 UI-unit) header geometry:
 
-- **Left region:** x=4 (list inset left) to x=307, the right edge
-  of the first panel's list inset. The
+- **Left region:** x=4 (list inset left) to x=305, 2 UI units left
+  of the first panel's right edge (x=307). The
   `QuestLogHeaderBoundedBottomFadeLeft.tga` stays fully opaque for
   **68 UI units**, then fades to zero over the remaining **7**.
-- **Right region:** x=307 through the right
+- **Right region:** x=305 through the right
   end of the page scrollbar housing, x=windowWidth+pageSlotRightOffset
   (x=667 at default width 670). The existing
   `QuestLogHeaderBoundedBottomFade.tga` retains **65 opaque +
   10 fade**, unchanged.
 - **First-panel edge split:** the list inset begins at
   `g.listLeft=4` and is `g.listWidth=303` units wide. The split is
-  `g.listLeft + g.listWidth` (x=307), precisely at its right edge.
-  It stays fixed as the right page region grows with resizing.
+  `g.listLeft + g.listWidth - 2` (x=305), two units before its
+  right edge. It stays fixed as the right page region grows with resizing.
 - **Compositing:** the fixed left corner receives the left mask, the
   fixed right corner the right mask, and every pooled center tile
   receives both masks once at creation. Each mask asset has fully
@@ -139,9 +139,9 @@ masks over the unchanged y=-13..62 (75 UI-unit) header geometry:
   frame/window geometry, top/bottom anchors, lower rails, and the
   unmasked fallback without ClassicAPI.
 
-In-game check: left of x=307 the fade begins 3 UI units later;
-from x=307 onward the previous 65/10 fade remains.
-The split follows the first panel's right edge when resizing.
+In-game check: left of x=305 the fade begins 3 UI units later;
+from x=305 onward the previous 65/10 fade remains.
+The split stays 2 UI units inside the first panel's right edge when resizing.
 
 ## What stays unchanged
 

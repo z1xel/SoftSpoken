@@ -65,8 +65,8 @@ local QUESTLOG_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
 
 -- Two spatially positioned header masks. Their common vertical span is
 -- the exact 75-unit header extent, from y=-13 through y=62.
--- Left of the first panel's right edge (x=4..307): 68 opaque + 7 fade.
--- From x=307 through the right scrollbar: 65 + 10.
+-- Left of the split (x=4..305): 68 opaque + 7 fade.
+-- From x=305 through the right scrollbar: 65 + 10.
 local QUESTLOG_HEADER_BOUNDED_FADE =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBoundedBottomFade"
 local QUESTLOG_HEADER_LEFT_FADE =
@@ -81,9 +81,9 @@ local function AttachQuestLogHeaderMask(frame)
     local g = SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
     if not g then return end
 
-    -- Divide exactly at the right edge of the first panel's inset:
-    -- x=4+303=307. Its width is fixed, so the split survives resizing.
-    local splitX = g.listLeft + g.listWidth
+    -- Split two units left of the first panel's right edge:
+    -- x=4+303-2=305. Fixed relative to the panel during resizing.
+    local splitX = g.listLeft + g.listWidth - 2
 
     local leftMask = frame:CreateMaskTexture()
     local rightMask = frame:CreateMaskTexture()
