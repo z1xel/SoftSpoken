@@ -65,7 +65,7 @@ local QUESTLOG_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
 
 -- One shared, positioned mask for the left, center and right Quest Log
 -- header textures. It matches their actual 75-unit vertical extent:
--- top -13 through bottom +62, with the final 7 units fading out.
+-- top -13 through bottom +62, with the final 10 units fading out.
 -- Horizontal bounds are the left inset and right scrollbar housing.
 local QUESTLOG_HEADER_BOUNDED_FADE =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBoundedBottomFade"
