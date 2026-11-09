@@ -689,3 +689,48 @@ function Skin.ToggleHeaderMaskPreview()
     hint:SetPoint("TOP",image,"BOTTOM",0,-8)
     hint:SetText("White = opaque; dark = transparent. Click anywhere to close.")
 end
+
+-- Temporary alignment test: render the mask TGA as an ordinary texture at
+-- the EXACT same resolved rectangle as the hidden ClassicAPI mask region.
+-- This is a visual overlay only. It never changes the actual header masks,
+-- their anchors, the three texture crops, or the Compendium layout.
+-- Toggle: /run SSCPrototypeFrameSkin.ToggleHeaderMaskOverlay()
+function Skin.ToggleHeaderMaskOverlay()
+    local frame = getglobal("SSCCompendiumWindow")
+    local mask = frame and frame.sszQuestLogHeaderMask
+    if not mask then
+        if DEFAULT_CHAT_FRAME then
+            DEFAULT_CHAT_FRAME:AddMessage("SoftSpoken: Open the full Compendium with ClassicAPI first.")
+        end
+        return
+    end
+
+    local display = frame.sszHeaderMaskDebugOverlay
+    if display then
+        if display:IsShown() then display:Hide() else display:Show() end
+        return
+    end
+
+    -- A separate, non-interactive top-level overlay ensures the raw TGA
+    -- stays visible over the original header and its foreground controls.
+    -- As a child of the window it also hides when the window closes.
+    display = CreateFrame("Frame",nil,frame)
+    frame.sszHeaderMaskDebugOverlay = display
+    display:SetAllPoints(frame)
+    display:SetFrameStrata("TOOLTIP")
+    display:SetFrameLevel(100)
+    display:EnableMouse(false)
+
+    -- The dark backing lets transparent pixels read as dark rather than
+    -- disappearing into the underlying Compendium artwork.
+    local backing = display:CreateTexture(nil,"ARTWORK")
+    backing:SetTexture(0,0,0,.7)
+    backing:SetAllPoints(mask)
+
+    -- Same file, same vertical and horizontal bounds, same wrap mode.
+    -- No AddMaskTexture or SetMask: this is an unmasked normal texture.
+    local raw = display:CreateTexture(nil,"OVERLAY")
+    raw:SetTexture(QUESTLOG_HEADER_BOUNDED_FADE,"CLAMP","CLAMP")
+    raw:SetTexCoord(0,1,0,1)
+    raw:SetAllPoints(mask)
+end
