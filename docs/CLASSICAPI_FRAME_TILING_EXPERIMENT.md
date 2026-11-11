@@ -129,17 +129,17 @@ that range. Thus the original 68/7 fade is unchanged, and the extended
 181-unit region is explicitly masked off.
 
 Two TGA alpha profiles are reused: 68 fully
-opaque + 7 smooth fade, and 65 fully opaque + 8 smooth fade + 2 fully transparent.
+opaque + 7 smooth fade, and 66 fully opaque + 9 smooth fade to full transparency.
 
 - **First panel:** x=4 through x=305, two units inside the first
   panel's right edge x=307: **68/7** (unchanged).
 - **Gap:** x=305 through x=334, the second panel's left inset edge:
-  **65/8/2** (slightly gentler fade).
+  **66/9**.
 - **Second panel:** x=334 through x=windowWidth−31 (x=639 at width 670):
   **68/7** (new). The second panel's parchment-visible right edge is
   x=windowWidth−29 (x=641), so the split is 2 units to its left.
 - **Right-hand strip:** x=windowWidth−31 through
-  x=windowWidth−3 (x=639..667 at width 670): **65/8/2** (slightly gentler fade).
+  x=windowWidth−3 (x=639..667 at width 670): **66/9**.
   This preserves the existing overall mask limit at the right edge of
   the page scrollbar housing.
 
@@ -152,14 +152,13 @@ grows with window resizing and the 2-unit right inset remains constant.
 
 Four TGA assets are used:
 `QuestLogHeaderBoundedBottomFadeLeft.tga` for 68/7,
-`QuestLogHeaderBoundedBottomFade.tga` for 65/8/2,
+`QuestLogHeaderBoundedBottomFade.tga` for 66/9,
 `QuestLogHeaderLeftClearExtension.tga` for first-panel transparency
 from unit 75 to 256, and `QuestLogHeaderLeftEdgeVerticalFade.tga` for
 the decorative strip x=-13..4 (new): 100% opaque through unit 68,
 then a gradual, nearly linear fade to 0% opacity at unit 256.
-The second texture preserves the original opaque 65 units and its smooth
-fade shape, but spans the fade over 8 units; the final 2 units have
-zero alpha. Four positioned fade-mask regions are necessary because their
+The second texture is fully opaque through 66 units, then follows a
+9-unit smooth fade to zero alpha at the bottom of its 75-unit extent. Four positioned fade-mask regions are necessary because their
 alpha profiles must **replace**, not multiply, across the horizontal zones.
 The first extension mask clears the first-panel area below its 68/7 fade;
 the new sixth mask slowly fades only the previously unmasked left strip.
@@ -170,8 +169,8 @@ masks, fixed right receives two, and each pooled center tile receives three
 once at allocation. Maximum per-texture mask count remains three (below
 ClassicAPI's seven-mask limit).
 
-This step adjusts only the shared gap/right-strip fade from 65/7/3 to
-65/8/2, without changing its 75-unit mask footprint or the horizontal
+This step adjusts only the shared gap/right-strip fade from 65/8/2 to
+66/9, without changing its 75-unit mask footprint or the horizontal
 region boundaries. The two 68/7 masks, left-only clear extension, slow
 left-edge fade, artwork, scrollbars, and window geometry are unchanged.
 
