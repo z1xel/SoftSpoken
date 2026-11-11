@@ -775,16 +775,16 @@ function C.NewList(panel,opts)
     list.searchBox=search
     list.searchHint=hint
     list.searchClear=clear
-    -- Keep Search at its original horizontal position even if Show changes
-    -- width. The fixed 94-unit offset is from Show's LEFT edge (formerly
-    -- 110-unit Show width minus the 16-unit compact overlap), not its RIGHT.
-    -- Anchoring LEFT-to-LEFT also preserves their shared vertical center.
+    -- Trim Show from the LEFT: move its start 3 units right and reduce
+    -- the middle texture by 3, keeping its right edge fixed. Search stays
+    -- anchored to the panel, independently of any Show size/position changes.
     filterMenuSerial=filterMenuSerial+1
     local menuName=NAME.."FilterMenu"..filterMenuSerial
     local menu=CreateFrame("Frame",menuName,panel,"UIDropDownMenuTemplate")
-    menu:SetPoint("LEFT",panel,"TOPLEFT",C.VISUAL_GEOMETRY.searchX,
+    menu:SetPoint("LEFT",panel,"TOPLEFT",C.VISUAL_GEOMETRY.searchX+3,
         C.VISUAL_GEOMETRY.searchY-search:GetHeight()/2)
-    search:SetPoint("LEFT",menu,"LEFT",94,0)
+    search:SetPoint("LEFT",panel,"TOPLEFT",C.VISUAL_GEOMETRY.searchX+94,
+        C.VISUAL_GEOMETRY.searchY-search:GetHeight()/2)
     list.filterMenu=menu
     -- Keep the public button handle used by existing tab integrations.
     local filterButton=getglobal(menuName.."Button")
@@ -818,7 +818,7 @@ function C.NewList(panel,opts)
                 UIDropDownMenu_AddButton(info)
             end
         end)
-        UIDropDownMenu_SetWidth(57,menu)
+        UIDropDownMenu_SetWidth(54,menu)
         UIDropDownMenu_SetButtonWidth(24,menu)
         UIDropDownMenu_JustifyText("LEFT",menu)
         UIDropDownMenu_SetText("Show:",menu)
