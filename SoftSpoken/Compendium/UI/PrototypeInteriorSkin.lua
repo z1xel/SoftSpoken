@@ -119,21 +119,23 @@ function Skin.ApplyList(frame)
 end
 
 function Skin.ApplySearch(search)
-    -- Genuine Vanilla StaticPopup wide edit-box trim, exactly as in prototype.
-    local chatInputArt="Interface\\ChatFrame\\UI-ChatInputBorder-"
-    local middle=search:CreateTexture(nil,"BACKGROUND")
-    middle:SetTexture(chatInputArt.."Left")
-    middle:SetTexCoord(0.29296875,1,0,1)
+    -- Match Vanilla 1.12's QuestLogQuestCount field instead of the ornate
+    -- StaticPopup chat input trim. Three slices from Common-Input-Border:
+    -- fixed 8x20 caps and a center that fills the search box's width.
+    local art="Interface\\Common\\Common-Input-Border"
     local left=search:CreateTexture(nil,"BACKGROUND")
-    left:SetTexture(chatInputArt.."Left")
-    left:SetWidth(75);left:SetHeight(32)
-    left:SetTexCoord(0,0.29296875,0,1)
-    left:SetPoint("LEFT",search,"LEFT",-10,0)
+    left:SetTexture(art)
+    left:SetWidth(8);left:SetHeight(20)
+    left:SetTexCoord(0,0.0625,0,0.625)
+    left:SetPoint("LEFT",search,"LEFT",0,0)
     local right=search:CreateTexture(nil,"BACKGROUND")
-    right:SetTexture(chatInputArt.."Right")
-    right:SetWidth(75);right:SetHeight(32)
-    right:SetTexCoord(0.70703125,1,0,1)
-    right:SetPoint("RIGHT",search,"RIGHT",10,0)
+    right:SetTexture(art)
+    right:SetWidth(8);right:SetHeight(20)
+    right:SetTexCoord(0.9375,1,0,0.625)
+    right:SetPoint("RIGHT",search,"RIGHT",0,0)
+    local middle=search:CreateTexture(nil,"BACKGROUND")
+    middle:SetTexture(art)
+    middle:SetTexCoord(0.0625,0.9375,0,0.625)
     middle:SetPoint("TOPLEFT",left,"TOPRIGHT",0,0)
     middle:SetPoint("BOTTOMRIGHT",right,"BOTTOMLEFT",0,0)
 end
