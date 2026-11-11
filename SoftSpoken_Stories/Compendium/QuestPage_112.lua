@@ -122,7 +122,7 @@ local function Font(parent,template)
     if fs.SetWordWrap then fs:SetWordWrap(true) end
     return fs
 end
-local function MatchFont(font,reference,sizeAdjust,fallback,asQuestTitle,fontFile)
+local function MatchFont(font,reference,sizeAdjust,fallback,asQuestTitle,fontFile,sizeScale)
     local path,size
     if reference and reference.GetFont then path,size=reference:GetFont() end
     if not path and fallback and fallback.GetFont then
@@ -130,7 +130,7 @@ local function MatchFont(font,reference,sizeAdjust,fallback,asQuestTitle,fontFil
     end
     if fontFile then path=fontFile end
     if path and font.SetFont then
-        font:SetFont(path,math.max(10,(tonumber(size) or 15)+(sizeAdjust or 0)),"")
+        font:SetFont(path,math.max(10,(tonumber(size) or 15)+(sizeAdjust or 0))*(sizeScale or 1),"")
     end
     if asQuestTitle then
         -- WoW 1.12 QuestTitleFont: black Morpheus with warm gold (1,-1) shadow.
@@ -384,9 +384,9 @@ function P:ApplyTypography()
         local part=self.parts[stage]
         MatchFont(part.content,reference,0,QuestFont)
         if part.content.SetSpacing then part.content:SetSpacing(0) end
-        -- Match the Description heading's size, but use pure-black Morpheus
-        -- without inheriting the QuestTitleFont shadow.
-        MatchFont(part.speaker,heading,0,QuestTitleFont,false,"Fonts\\MORPHEUS.TTF")
+        -- Speaker name is three-quarters of the Description heading size;
+        -- keep its black Morpheus face without the QuestTitleFont shadow.
+        MatchFont(part.speaker,heading,0,QuestTitleFont,false,"Fonts\\MORPHEUS.TTF",.75)
         part.speaker:SetTextColor(0,0,0,1)
         MatchFont(part.title,heading,0,QuestTitleFont,true)
     end
