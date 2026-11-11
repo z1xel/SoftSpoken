@@ -8,6 +8,8 @@ local View = {}
 View.__index = View
 T.View = View
 local PICTURE_MOST, PICTURE_GAP = 400, 10
+-- Experimental ClassicAPI fade length at the page reader viewport edges.
+local EDGE_FADE_LENGTH = 18
 -- With fading deliberately disabled, use small breathing room rather than
 -- upstream's 18/33px fade clearances. Use the original quest log's line spacing.
 local TEXT_PAD_TOP, TEXT_PAD_BOTTOM = 8, 12
@@ -45,10 +47,54 @@ function T.MeasureTextHeight(fontString)
     return height or 0
 end
 
+-- Fade the scroll contents against the viewport, not the parchment, title or
+-- native scrollbar. Use the current scroll distance so first/last lines
+-- remain readable at the beginning/end of the document.
+function View:RefreshEdgeFade()
+    if not self.edgeFadeEnabled then return end
+    local scroll,child=self.scroll,self.child
+    local maximum=U.ScrollMax(scroll,child)
+    local offset=Clamp(U.ScrollOffset(scroll),0,maximum)
+    local top=math.min(EDGE_FADE_LENGTH,offset)
+    local bottom=math.min(EDGE_FADE_LENGTH,math.max(0,maximum-offset))
+    if self.edgeFadeTop==top and self.edgeFadeBottom==bottom then return end
+    local ok=pcall(function()
+        if self.edgeFadeTop~=top then
+            scroll:SetAlphaGradient(0,{x=0,y=top})
+        end
+        if self.edgeFadeBottom~=bottom then
+            scroll:SetAlphaGradient(1,{x=0,y=bottom})
+        end
+    end)
+    if not ok then
+        -- If the optional API fails, restore the unmodified 1.12 reader.
+        self.edgeFadeEnabled=false
+        self.edgeFadeTop=nil
+        self.edgeFadeBottom=nil
+        if scroll.ClearAlphaGradient then pcall(scroll.ClearAlphaGradient,scroll) end
+        pcall(scroll.SetClipsChildren,scroll,false)
+        return
+    end
+    self.edgeFadeTop=top
+    self.edgeFadeBottom=bottom
+end
+
+function View:EnableEdgeFade()
+    local scroll=self.scroll
+    if self.edgeFadeEnabled or not (scroll and scroll.SetClipsChildren and
+            scroll.SetAlphaGradient) then return end
+    -- ClassicAPI gradients only apply when the owning frame clips children.
+    local ok=pcall(scroll.SetClipsChildren,scroll,true)
+    if not ok then return end
+    self.edgeFadeEnabled=true
+    self:RefreshEdgeFade()
+end
+
 -- Keep the current scroll offset across geometry-only changes. A new story,
 -- unlike a resize, starts at the top.
 function View:ScrollTo(value)
     U.SetScrollOffset(self.scroll,self.child,value)
+    self:RefreshEdgeFade()
     local native=self.sszNativeScrollChrome
     if native then native.sync() end
 end
@@ -200,6 +246,7 @@ function T.CreateTextView(parent,onResize)
             pageScroll.sz112ScrollOffset=pageScroll:GetVerticalScroll() or 0
         end
         if view.sszNativeScrollChrome then view.sszNativeScrollChrome.sync() end
+        view:RefreshEdgeFade()
     end)
     pageScroll:SetScript("OnMouseWheel",function(first,second)
         local delta=U.MouseWheelDelta(first,second)
