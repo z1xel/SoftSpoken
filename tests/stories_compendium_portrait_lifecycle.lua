@@ -5,6 +5,11 @@ local function eq(actual,expected,label)
     assert(actual==expected,(label or "value")..": expected "..tostring(expected)..
         ", got "..tostring(actual))
 end
+local function near(actual,expected,label)
+    assert(type(actual)=="number" and math.abs(actual-expected)<0.01,
+        (label or "value")..": expected approximately "..tostring(expected)..
+        ", got "..tostring(actual))
+end
 local function Frame(kind,parent)
     local f={kind=kind or "Frame",parent=parent,shown=true,scripts={},height=400,width=400}
     local methods={}
@@ -183,6 +188,18 @@ for _,stage in ipairs({"accept","progress","complete"}) do
     eq(f.ring.point[3],"CENTER",stage.." centered target anchor")
     eq(f.ring.point[4],0,stage.." ring x offset")
     eq(f.ring.point[5],0,stage.." ring y offset")
+    -- The source ring has a ~54px opening whose center is above the art center.
+    -- Render a 54x54 face inside the unchanged 62x62 layout holder, with
+    -- ~1.5 UI units extending under the rim after applying the circle mask.
+    eq(f.width,62,stage.." unchanged holder width")
+    eq(f.height,62,stage.." unchanged holder height")
+    eq(f.icon.width,54,stage.." face width matched to opening")
+    eq(f.icon.height,54,stage.." face height matched to opening")
+    eq(f.icon.point[1],"CENTER",stage.." face center anchor")
+    eq(f.icon.point[2],f,stage.." face centered on holder")
+    eq(f.icon.point[3],"CENTER",stage.." face target anchor")
+    near(f.icon.point[4],(38.25-38.5)*68/77,stage.." face aperture x offset")
+    near(f.icon.point[5],(38.5-36.5)*68/77,stage.." face aperture y offset")
     -- All three dialogue moments reuse their narration-player quest bullets.
     local expectedBadges = {
         accept = [[Interface\AddOns\SoftSpoken_Stories\Textures\SoundQueueBulletAccept]],
@@ -199,9 +216,9 @@ for _,stage in ipairs({"accept","progress","complete"}) do
     eq(f.badgeLayer.height,14,stage.." badge height")
     eq(f.badgeLayer.point[1],"CENTER",stage.." badge anchor")
     eq(f.badgeLayer.point[2],f.ring,stage.." badge is anchored to the ring")
-    eq(f.badgeLayer.point[3],"BOTTOMRIGHT",stage.." badge socket")
-    eq(f.badgeLayer.point[4],-14,stage.." badge x offset")
-    eq(f.badgeLayer.point[5],14,stage.." badge y offset")
+    eq(f.badgeLayer.point[3],"CENTER",stage.." badge socket source anchor")
+    near(f.badgeLayer.point[4],(60-38.5)*68/77,stage.." measured socket x")
+    near(f.badgeLayer.point[5],(38.5-58)*68/77,stage.." measured socket y")
 end
 local function assertPortrait(stage,creatureID,displayID)
     local f=face(stage)
