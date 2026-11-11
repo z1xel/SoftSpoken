@@ -217,7 +217,7 @@ for _,stage in ipairs({"accept","progress","complete"}) do
     eq(f.badgeLayer.point[1],"CENTER",stage.." badge anchor")
     eq(f.badgeLayer.point[2],f.ring,stage.." badge is anchored to the ring")
     eq(f.badgeLayer.point[3],"CENTER",stage.." badge socket source anchor")
-    eq(f.badgeLayer.point[4],18,stage.." exact badge x offset")
+    eq(f.badgeLayer.point[4],18.5,stage.." exact badge x offset")
     near(f.badgeLayer.point[5],(38.5-58)*68/77-1,stage.." measured socket y shifted down")
 end
 local function assertPortrait(stage,creatureID,displayID)
