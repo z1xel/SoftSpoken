@@ -206,7 +206,8 @@ end
 local BOOK_ICON = "Interface\\Icons\\INV_Misc_Book_11"
 local BOOK_MASK = DIR .. "BookPortraitCircleMask"
 local function maskedBookIcon(parent, x, y, size)
-    local book = parent:CreateTexture(nil, "OVERLAY")
+    -- Draw underneath the Quest Log header's OVERLAY portrait ring.
+    local book = parent:CreateTexture(nil, "ARTWORK")
     book:SetTexture(BOOK_ICON)
     book:SetWidth(size)
     book:SetHeight(size)
