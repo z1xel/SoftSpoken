@@ -153,6 +153,11 @@ local FactionCrest=SSCQuestFactionCrest
 -- Borrow upstream Spoken's layering: portrait underneath, ring above.
 local PORTRAIT_RING = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\PortraitRing"
 local PORTRAIT_MASK = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\BookPortraitCircleMask"
+-- Use the same 14-unit quest bullets as the narration player.
+local PORTRAIT_BADGES = {
+    accept = "Interface\\AddOns\\SoftSpoken_Stories\\Textures\\SoundQueueBulletAccept",
+    complete = "Interface\\AddOns\\SoftSpoken_Stories\\Textures\\SoundQueueBulletComplete",
+}
 -- Portraits are plain 2D Texture regions inside the scroll child: never
 -- create Model/PlayerModel frames here (they break 1.12 scroll clipping).
 local function Portrait(parent)
@@ -168,7 +173,7 @@ local function Portrait(parent)
     ring:SetTexture(PORTRAIT_RING)
     ring:SetWidth(68);ring:SetHeight(68)
     ring:SetTexCoord(0,77/128,0,77/128)
-    -- The minimap ring is symmetric; center it over the 62x62 portrait.
+    -- Keep the ring centered on the 62x62 portrait.
     ring:SetPoint("CENTER",holder,"CENTER",0,0)
     holder.ring=ring
     holder:EnableMouse(true)
@@ -300,6 +305,15 @@ local function NewPart(parent,stage)
     title:SetPoint("TOPLEFT",f,"TOPLEFT",0,-2)
     f.title=title
     local face=Portrait(f)
+    local badgeTexture=PORTRAIT_BADGES[stage]
+    if badgeTexture then
+        local badge=face:CreateTexture(nil,"OVERLAY")
+        badge:SetTexture(badgeTexture)
+        badge:SetWidth(14);badge:SetHeight(14)
+        -- The ring already has a circular socket at its lower right.
+        badge:SetPoint("CENTER",face.ring,"BOTTOMRIGHT",-14,14)
+        face.badge=badge
+    end
     -- Preserve the existing page clearance; the 68-unit ring centers on the face.
     face:SetPoint("TOPLEFT",f,"TOPLEFT",6,-30)
     f.face=face
