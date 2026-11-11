@@ -64,16 +64,24 @@ local QUESTLOG_MIDDLE_HEIGHT = FULL_HEADER_HEIGHT
 local QUESTLOG_CENTER_START = 242
 local QUESTLOG_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
 
--- One continuous 68-opaque/7-fade header mask, x=listLeft to the
--- right scrollbar housing edge. No gap / right-strip splits or seams.
--- Its 75-unit footprint is independent of the fixed left art's 256-unit
--- height. The two other masks apply only to the extended left artwork.
-local QUESTLOG_HEADER_FADE =
+-- Four adjacent fade-mask regions cover the header in this order:
+--   [left inset .. 2 before its right edge]     68 opaque /  7 fade
+--   [first-pane split .. second-pane left edge] 65 opaque /  8 fade + 2 clear
+--   [second-pane left .. 2 before parchment end]68 opaque /  7 fade
+--   [remaining right scrollbar housing]         65 opaque /  8 fade + 2 clear
+-- The four fade masks stay at the original 75-unit extent (y=-13..62).
+-- A separate left-only mask clears its newly uncropped artwork from
+-- unit 75 down through unit 256 without modifying the fade profiles.
+local QUESTLOG_HEADER_BOUNDED_FADE =
+    "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBoundedBottomFade"
+local QUESTLOG_HEADER_LEFT_FADE =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBoundedBottomFadeLeft"
 local QUESTLOG_HEADER_LEFT_CLEAR_EXTENSION =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderLeftClearExtension"
 local QUESTLOG_HEADER_LEFT_EDGE_FADE =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderLeftEdgeVerticalFade"
+-- Keep all four fade masks fixed to the frame: none follow artwork heights.
+-- The additional left-only clear extension covers the artwork below the fade.
 local HEADER_MASK_TOP_Y = -13
 local HEADER_MASK_HEIGHT = 75
 local HEADER_MASK_BOTTOM_Y = HEADER_MASK_TOP_Y + HEADER_MASK_HEIGHT
@@ -86,47 +94,80 @@ local function AttachQuestLogHeaderMask(frame)
     local g = SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
     if not g then return end
 
-    -- A single 68/7 fade spans all four former x regions, including the
-    -- gap between panels and the right scrollbar housing (x=4..667 at
-    -- the default 670-unit width). Its boundaries resize with the frame.
-    local headerMask = frame:CreateMaskTexture()
-    local firstClearExtension = frame:CreateMaskTexture()
-    local leftEdgeVerticalFade = frame:CreateMaskTexture()
-    if not (headerMask and firstClearExtension and leftEdgeVerticalFade) then return end
-
-    headerMask:SetTexture(QUESTLOG_HEADER_FADE, "CLAMP", "CLAMP")
-    headerMask:SetPoint("TOPLEFT",frame,"TOPLEFT",g.listLeft,-HEADER_MASK_TOP_Y)
-    headerMask:SetPoint("BOTTOMRIGHT",frame,"TOPRIGHT",
-        g.pageSlotRightOffset,-HEADER_MASK_BOTTOM_Y)
-
-    -- The left artwork extends below the 75-unit header. Keep that area
-    -- fully transparent under the first panel down to y=256.
-    -- The opaque source side columns keep CLAMP neutral elsewhere.
     local firstPanelEnd = g.listLeft + g.listWidth
     local firstSplit = firstPanelEnd - 2
+    -- PagePane.CreatePagePane anchors the second inset 27 units right
+    -- of the first inset; its parchment stops 29 units before frame right.
+    local secondPanelLeft = firstPanelEnd + g.listSlotRightOffset
+    local secondSplitRight = -(g.pageRightInset + 2)
+
+    local firstMask = frame:CreateMaskTexture()
+    local firstClearExtension = frame:CreateMaskTexture()
+    local leftEdgeVerticalFade = frame:CreateMaskTexture()
+    local gapMask = frame:CreateMaskTexture()
+    local pageMask = frame:CreateMaskTexture()
+    local endMask = frame:CreateMaskTexture()
+    if not (firstMask and firstClearExtension and leftEdgeVerticalFade and
+            gapMask and pageMask and endMask) then return end
+
+    firstMask:SetTexture(QUESTLOG_HEADER_LEFT_FADE, "CLAMP", "CLAMP")
+    firstMask:SetPoint("TOPLEFT",frame,"TOPLEFT",g.listLeft,-HEADER_MASK_TOP_Y)
+    firstMask:SetPoint("BOTTOMRIGHT",frame,"TOPLEFT",firstSplit,-HEADER_MASK_BOTTOM_Y)
+
+    -- Opaque through the 75-unit header, fully clear below it through
+    -- the left artwork's 256-unit bottom. Opaque side-edge columns
+    -- ensure CLAMP remains neutral outside x=g.listLeft..firstSplit.
+    -- This mask multiplies with the original, untouched 68/7 fade.
     firstClearExtension:SetTexture(QUESTLOG_HEADER_LEFT_CLEAR_EXTENSION, "CLAMP", "CLAMP")
     firstClearExtension:SetPoint("TOPLEFT",frame,"TOPLEFT",g.listLeft,-HEADER_MASK_TOP_Y)
     firstClearExtension:SetPoint("BOTTOMRIGHT",frame,"TOPLEFT",
         firstSplit,-HEADER_LEFT_CLEAR_BOTTOM_Y)
 
-    -- The decorative strip left of the panel (x=-13..4) stays opaque
-    -- through y=68 and fades slowly to transparent at y=256.
+    -- The exposed decorative strip left of the list (x=-13..4) stays
+    -- completely opaque to 68 units, then fades slowly over the remaining
+    -- 188 units to complete transparency at the left texture's bottom.
+    -- Keep the gradient independent of all four bounded header fades.
+    -- Opaque side-edge columns neutralize this mask outside its x-range.
     leftEdgeVerticalFade:SetTexture(QUESTLOG_HEADER_LEFT_EDGE_FADE, "CLAMP", "CLAMP")
     leftEdgeVerticalFade:SetPoint("TOPLEFT",frame,"TOPLEFT",
         FULL_LEFT_ART_X,-HEADER_MASK_TOP_Y)
     leftEdgeVerticalFade:SetPoint("BOTTOMRIGHT",frame,"TOPLEFT",
         g.listLeft,-HEADER_LEFT_CLEAR_BOTTOM_Y)
 
-    frame.sszQuestLogHeaderMask = headerMask
+    gapMask:SetTexture(QUESTLOG_HEADER_BOUNDED_FADE, "CLAMP", "CLAMP")
+    gapMask:SetPoint("TOPLEFT",frame,"TOPLEFT",firstSplit,-HEADER_MASK_TOP_Y)
+    gapMask:SetPoint("BOTTOMRIGHT",frame,"TOPLEFT",secondPanelLeft,-HEADER_MASK_BOTTOM_Y)
+
+    pageMask:SetTexture(QUESTLOG_HEADER_LEFT_FADE, "CLAMP", "CLAMP")
+    pageMask:SetPoint("TOPLEFT",frame,"TOPLEFT",secondPanelLeft,-HEADER_MASK_TOP_Y)
+    pageMask:SetPoint("BOTTOMRIGHT",frame,"TOPRIGHT",
+        secondSplitRight,-HEADER_MASK_BOTTOM_Y)
+
+    endMask:SetTexture(QUESTLOG_HEADER_BOUNDED_FADE, "CLAMP", "CLAMP")
+    endMask:SetPoint("TOPLEFT",frame,"TOPRIGHT",
+        secondSplitRight,-HEADER_MASK_TOP_Y)
+    endMask:SetPoint("BOTTOMRIGHT",frame,"TOPRIGHT",
+        g.pageSlotRightOffset,-HEADER_MASK_BOTTOM_Y)
+
+    -- All four TGA assets have opaque horizontal edge columns.
+    -- CLAMP stays neutral outside each horizontally bounded region.
+    -- The two left-only extensions affect the uncropped artwork, not
+    -- the middle tiles or right corner.
+    frame.sszQuestLogHeaderLeftMask = firstMask
     frame.sszQuestLogHeaderLeftClearExtension = firstClearExtension
     frame.sszQuestLogHeaderLeftEdgeFadeMask = leftEdgeVerticalFade
+    frame.sszQuestLogHeaderMask = gapMask
+    frame.sszQuestLogHeaderPageMask = pageMask
+    frame.sszQuestLogHeaderEndMask = endMask
 
-    -- One shared header mask for all three artwork pieces. The fixed
-    -- left texture also gets its two independent 256-unit-height masks.
-    left:AddMaskTexture(headerMask)
+    -- Only the uncropped fixed left corner receives the two extensions.
+    -- All center tiles keep their original 75-unit fade masks.
+    -- The fixed right corner intersects the page and final-strip regions.
+    left:AddMaskTexture(firstMask)
     left:AddMaskTexture(firstClearExtension)
     left:AddMaskTexture(leftEdgeVerticalFade)
-    right:AddMaskTexture(headerMask)
+    right:AddMaskTexture(pageMask)
+    right:AddMaskTexture(endMask)
 end
 
 local function fixed(parent, layer, path, w, h, coords, p, x, y)
@@ -278,10 +319,14 @@ local function ReflowQuestLogCenter(frame, width)
         if not t then
             t = frame:CreateTexture(nil,"ARTWORK")
             t:SetTexture(QUESTLOG_LEFT)
-            -- Each center tile shares the same full-width 68/7 mask.
-            -- Add it once at allocation, never again during reflow.
-            if frame.sszQuestLogHeaderMask and t.AddMaskTexture then
+            -- Center tiles can cross the first, gap and page regions.
+            -- Add these three masks once per tile, never on each reflow.
+            if frame.sszQuestLogHeaderLeftMask and
+                    frame.sszQuestLogHeaderMask and
+                    frame.sszQuestLogHeaderPageMask and t.AddMaskTexture then
+                t:AddMaskTexture(frame.sszQuestLogHeaderLeftMask)
                 t:AddMaskTexture(frame.sszQuestLogHeaderMask)
+                t:AddMaskTexture(frame.sszQuestLogHeaderPageMask)
             end
             pool[used] = t
         end

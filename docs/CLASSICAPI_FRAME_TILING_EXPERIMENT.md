@@ -112,40 +112,68 @@ parchment holder, page viewport, frame size, and vertical geometry do not
 change. Both the shared Compendium page and standalone lore reader use
 the same page-scroll skin.
 
-## Single continuous 68/7 bottom fade for the three-piece Quest Log header
+## Four-zone bottom fade for the three-piece Quest Log header
 
-**Experimental UI change (easily reverted):** Replace the four adjacent
-header fade masks with one shared, full-width **68 opaque / 7 fade** mask.
-It spans from the first panel's left inset (`x=4`) to the right scrollbar
-housing edge (`x=windowWidth−3`, or `667` at window width 670).
-At that width, the formerly special gap (`305–334`) and right strip
-(`639–667`) now follow **exactly the same 68/7 profile** as both panels.
-The internal mask boundaries at `305`, `334`, and `639` are eliminated.
+The 75-unit fade-mask footprint (y=-13..62) uses four adjacent spatial
+ClassicAPI mask regions, anchored independently of the artwork.
+The left fixed header artwork displays 256 of its native 512 vertical
+source pixels instead of 75 (an additional 181 UI units downward), at the
+same 1:1 pixel scale and unchanged top anchor. Center tiles and the right
+header remain 75 units tall. All four fade masks retain their 75-unit
+footprint; a new independent clear-extension mask, attached only to the
+fixed left corner artwork, spans the full 256-unit height over the first
+panel's existing horizontal mask range (x=4..305 at default width).
+Its alpha is 255 for the first 75 units and 0 for units 75..256 across
+the interior; its opaque edge columns allow neutral CLAMP sampling outside
+that range. Thus the original 68/7 fade is unchanged, and the extended
+181-unit region is explicitly masked off.
 
-The one 75-unit mask stays anchored at `y=-13..62`, independent of artwork
-height. It uses the unmodified
-`QuestLogHeaderBoundedBottomFadeLeft.tga`, with opaque CLAMP side edges
-so it does not affect artwork to the left of x=4 or beyond the scrollbar
-boundary. Its horizontal extent follows the window's resizing.
+Two TGA alpha profiles are reused: 68 fully
+opaque + 7 smooth fade, and 65 fully opaque + 8 smooth fade + 2 fully transparent.
 
-The fixed left header artwork remains 256 units tall and retains its two
-independent masks (neither stretched nor moved):
+- **First panel:** x=4 through x=305, two units inside the first
+  panel's right edge x=307: **68/7** (unchanged).
+- **Gap:** x=305 through x=334, the second panel's left inset edge:
+  **65/8/2** (slightly gentler fade).
+- **Second panel:** x=334 through x=windowWidth−31 (x=639 at width 670):
+  **68/7** (new). The second panel's parchment-visible right edge is
+  x=windowWidth−29 (x=641), so the split is 2 units to its left.
+- **Right-hand strip:** x=windowWidth−31 through
+  x=windowWidth−3 (x=639..667 at width 670): **65/8/2** (slightly gentler fade).
+  This preserves the existing overall mask limit at the right edge of
+  the page scrollbar housing.
 
-- `QuestLogHeaderLeftClearExtension.tga`: in the first-panel region, full
-  opacity through y=75 and complete transparency from y=75..256
-- `QuestLogHeaderLeftEdgeVerticalFade.tga`: in the left decorative strip,
-  x=-13..4, fully opaque through y=68, then fading gently to transparent
-  at y=256
+The second panel's left edge is anchored 27 units to the right of the
+list inset's right edge by `PagePane.CreatePagePane`. The parchment
+visual's right edge is 29 units left of the window's right edge by
+`PrototypePageSkin.Apply`. The masks reuse those geometry values
+(`g.listSlotRightOffset` and `g.pageRightInset`) so the page region
+grows with window resizing and the 2-unit right inset remains constant.
 
-The left header texture now has three mask attachments total (the unified
-header fade plus the two extensions). The center tiles and right header
-each have **one** attachment. Only these three TGA files are active;
-`QuestLogHeaderBoundedBottomFade.tga` (65/8/2) remains in the repository,
-unchanged, to facilitate a rollback.
+Four TGA assets are used:
+`QuestLogHeaderBoundedBottomFadeLeft.tga` for 68/7,
+`QuestLogHeaderBoundedBottomFade.tga` for 65/8/2,
+`QuestLogHeaderLeftClearExtension.tga` for first-panel transparency
+from unit 75 to 256, and `QuestLogHeaderLeftEdgeVerticalFade.tga` for
+the decorative strip x=-13..4 (new): 100% opaque through unit 68,
+then a gradual, nearly linear fade to 0% opacity at unit 256.
+The second texture preserves the original opaque 65 units and its smooth
+fade shape, but spans the fade over 8 units; the final 2 units have
+zero alpha. Four positioned fade-mask regions are necessary because their
+alpha profiles must **replace**, not multiply, across the horizontal zones.
+The first extension mask clears the first-panel area below its 68/7 fade;
+the new sixth mask slowly fades only the previously unmasked left strip.
+Both are attached exclusively to the fixed left header texture, preserving
+the 68/7 region without resampling. All four TGAs have fully opaque side-edge
+columns and CLAMP sampling. The fixed left header texture now receives three
+masks, fixed right receives two, and each pooled center tile receives three
+once at allocation. Maximum per-texture mask count remains three (below
+ClassicAPI's seven-mask limit).
 
-This is one isolated experiment commit, directly atop the preceding
-65/8/2 version. If the visual result is unsatisfactory, revert the commit
-to restore the former four-region mask arrangement and original profiles.
+This step adjusts only the shared gap/right-strip fade from 65/7/3 to
+65/8/2, without changing its 75-unit mask footprint or the horizontal
+region boundaries. The two 68/7 masks, left-only clear extension, slow
+left-edge fade, artwork, scrollbars, and window geometry are unchanged.
 
 ## What stays unchanged
 
