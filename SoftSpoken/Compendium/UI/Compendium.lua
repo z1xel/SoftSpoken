@@ -774,15 +774,16 @@ function C.NewList(panel,opts)
     list.searchBox=search
     list.searchHint=hint
     list.searchClear=clear
-    -- Exact native Vanilla dropdown arrow from the approved visual prototype.
-    -- No extra glyph/highlight: the Blizzard texture already draws the arrow.
-    -- Keep the production menu and filtering callbacks intact below.
+    -- Exact native Vanilla dropdown arrow and Who-tab hover highlight.
+    -- The Blizzard highlight appears only while hovered; clicking still
+    -- uses the same dropdown and filtering callbacks below.
     local filterButton=CreateFrame("Button",nil,panel)
     filterButton:SetWidth(24);filterButton:SetHeight(24)
     filterButton:SetPoint("LEFT",search,"RIGHT",8,0)
     filterButton:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up")
     filterButton:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
     filterButton:SetDisabledTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Disabled")
+    filterButton:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight","ADD")
     list.filterButton=filterButton
     local function Changed()
         list:ScrollTo(0)
