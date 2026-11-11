@@ -679,8 +679,8 @@ end
 function C.NewList(panel,opts)
     local list=setmetatable({panel=panel,opts=opts,rows={},items={},filter=""},List)
     local leftMargin,_,topMargin=C.Margins()
-    -- Keep all existing production search callbacks and filter state; only
-    -- swap the stock InputBox art for the approved prototype's Blizzard trim.
+    -- Keep the existing filter/search controller; use shared Vanilla artwork
+    -- and the Turtle-style search/clear controls.
     local ornate=SSCPrototypeInteriorSkin and SSCPrototypeInteriorSkin.ApplySearch
     local search
     if ornate then
@@ -693,27 +693,72 @@ function C.NewList(panel,opts)
     search:SetPoint("TOPLEFT",panel,"TOPLEFT",C.VISUAL_GEOMETRY.searchX,C.VISUAL_GEOMETRY.searchY)
     if ornate then
         search:SetFontObject(ChatFontNormal)
-        if search.SetTextInsets then search:SetTextInsets(10,10,0,0) end
         SSCPrototypeInteriorSkin.ApplySearch(search)
     end
+    if search.SetTextInsets then search:SetTextInsets(21,21,0,0) end
+    -- Use real Turtle search icons bundled with SoftSpoken so the controls
+    -- remain visible on stock 1.12 clients which lack Turtle's patch files.
+    local controlArt="Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Controls\\"
+    local glass=search:CreateTexture(nil,"ARTWORK")
+    glass:SetTexture(controlArt.."UI-SearchBox-Icon")
+    glass:SetWidth(14);glass:SetHeight(14)
+    glass:SetPoint("LEFT",search,"LEFT",3,-1)
     -- SearchBoxTemplate does not exist on all 1.12 clients. Mimic its
     -- contextual instructions with a FontString INSIDE the edit box.
     local hint=search:CreateFontString(nil,"OVERLAY","GameFontDisableSmall")
-    hint:SetPoint("LEFT",search,"LEFT",10,0)
+    hint:SetPoint("LEFT",search,"LEFT",21,0)
     hint:SetText(opts.search or "Search")
     local clear=CreateFrame("Button",nil,search)
-    clear:SetWidth(16);clear:SetHeight(16)
-    clear:SetPoint("RIGHT",search,"RIGHT",-2,0)
-    local clearLabel=clear:CreateFontString(nil,"OVERLAY","GameFontHighlightSmall")
-    clearLabel:SetPoint("CENTER",clear,"CENTER",0,0)
-    clearLabel:SetText("x")
-    local focused=false
+    clear:SetWidth(17);clear:SetHeight(17)
+    clear:SetPoint("RIGHT",search,"RIGHT",-3,0)
+    clear:SetNormalTexture(controlArt.."UI-SearchBox-Clear")
+    clear:SetPushedTexture(controlArt.."UI-SearchBox-Clear")
+    clear:SetHighlightTexture(controlArt.."UI-SearchBox-Clear","ADD")
+    -- Native pressed and hover textures use the original 14-unit icon size.
+    for _,getter in ipairs({"GetNormalTexture","GetPushedTexture","GetHighlightTexture"}) do
+        local texture=clear[getter](clear)
+        if texture then
+            texture:ClearAllPoints()
+            texture:SetWidth(14);texture:SetHeight(14)
+            if getter=="GetPushedTexture" then
+                texture:SetPoint("CENTER",clear,"CENTER",1,-1)
+            else
+                texture:SetPoint("CENTER",clear,"CENTER",0,0)
+            end
+        end
+    end
+    local highlight=clear:GetHighlightTexture()
+    if highlight then highlight:SetAlpha(.25) end
+    local focused,hovered,clearHovered=false,false,false
     local function PaintSearch()
         local nonempty=(search:GetText() or "")~=""
         if nonempty or focused then hint:Hide() else hint:Show() end
-        if nonempty then clear:Show() else clear:Hide() end
+        local active=focused or hovered or clearHovered
+        glass:SetAlpha(active and 1 or .6)
+        local clearAlpha=clearHovered and 1 or
+            (nonempty and .8 or (focused and .6 or .4))
+        local normal=clear:GetNormalTexture()
+        local pushed=clear:GetPushedTexture()
+        if normal then normal:SetAlpha(clearAlpha) end
+        if pushed then pushed:SetAlpha(clearAlpha) end
+        -- The X remains dimly visible even when empty, as in Turtle's
+        -- Options and Dungeon Finder search boxes.
+        local border=search.sszSearchBorder
+        if border then
+            local shade=active and 1 or .85
+            for _,piece in ipairs(border) do
+                piece:SetVertexColor(shade,shade,shade,1)
+            end
+        end
     end
-    clear:SetScript("OnClick",function() search:SetText("");search:SetFocus() end)
+    clear:SetScript("OnEnter",function() clearHovered=true;PaintSearch() end)
+    clear:SetScript("OnLeave",function() clearHovered=false;PaintSearch() end)
+    clear:SetScript("OnClick",function()
+        if (search:GetText() or "")~="" then search:SetText("") end
+        search:SetFocus()
+    end)
+    search:SetScript("OnEnter",function() hovered=true;PaintSearch() end)
+    search:SetScript("OnLeave",function() hovered=false;PaintSearch() end)
     search:SetScript("OnEditFocusGained",function() focused=true;PaintSearch() end)
     search:SetScript("OnEditFocusLost",function() focused=false;PaintSearch() end)
     search:SetScript("OnTextChanged",function()

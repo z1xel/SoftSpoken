@@ -138,4 +138,6 @@ function Skin.ApplySearch(search)
     middle:SetTexCoord(0.0625,0.9375,0,0.625)
     middle:SetPoint("TOPLEFT",left,"TOPRIGHT",0,0)
     middle:SetPoint("BOTTOMRIGHT",right,"BOTTOMLEFT",0,0)
+    -- The Compendium can tint the three native pieces together on hover/focus.
+    search.sszSearchBorder={left,middle,right}
 end
