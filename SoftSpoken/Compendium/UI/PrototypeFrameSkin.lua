@@ -51,7 +51,7 @@ local QUESTLOG_RIGHT_CROP_X = 0
 -- the default width preserves the original non-repeated texture for most
 -- of the gap. Beyond that, repeat 96px of plain header/stone (x=346..442).
 -- The repeat source crop is shifted 26 units RIGHT relative to x=320..416;
--- its on-screen tile anchors, dimensions, and the first 256px stay unchanged.
+-- its on-screen tile anchors and the first 256px stay unchanged.
 -- Repeat the same vertical source extent as both fixed corners; the list
 -- and page insets still overlay the lower part on their own frame levels.
 local QUESTLOG_LEFT_SOURCE_WIDTH = 512
@@ -62,7 +62,11 @@ local QUESTLOG_REPEAT_X, QUESTLOG_REPEAT_WIDTH = 346, 96
 local QUESTLOG_MIDDLE_HEIGHT = FULL_HEADER_HEIGHT
 -- Preserve the one-pixel left overlap used by the last working version.
 local QUESTLOG_CENTER_START = 242
-local QUESTLOG_CENTER_END_MARGIN = FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X
+-- Let the resizable center art extend beneath the sliding right corner,
+-- so its first 32 UI units can feather into the center rather than empty space.
+local QUESTLOG_RIGHT_FEATHER_OVERLAP = 32
+local QUESTLOG_CENTER_END_MARGIN =
+    FULL_RIGHT_ART_WIDTH - FULL_RIGHT_ART_X - QUESTLOG_RIGHT_FEATHER_OVERLAP
 
 -- Four adjacent fade-mask regions cover the header in this order:
 --   [left inset .. 2 before its right edge]     68 opaque /  7 fade
@@ -80,6 +84,8 @@ local QUESTLOG_HEADER_LEFT_CLEAR_EXTENSION =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderLeftClearExtension"
 local QUESTLOG_HEADER_LEFT_EDGE_FADE =
     "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderLeftEdgeVerticalFade"
+local QUESTLOG_HEADER_RIGHT_LEFT_FEATHER =
+    "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderRightLeftFeather"
 -- Keep all four fade masks fixed to the frame: none follow artwork heights.
 -- The additional left-only clear extension covers the artwork below the fade.
 local HEADER_MASK_TOP_Y = -13
@@ -107,8 +113,9 @@ local function AttachQuestLogHeaderMask(frame)
     local gapMask = frame:CreateMaskTexture()
     local pageMask = frame:CreateMaskTexture()
     local endMask = frame:CreateMaskTexture()
+    local rightFeatherMask = frame:CreateMaskTexture()
     if not (firstMask and firstClearExtension and leftEdgeVerticalFade and
-            gapMask and pageMask and endMask) then return end
+            gapMask and pageMask and endMask and rightFeatherMask) then return end
 
     firstMask:SetTexture(QUESTLOG_HEADER_LEFT_FADE, "CLAMP", "CLAMP")
     firstMask:SetPoint("TOPLEFT",frame,"TOPLEFT",g.listLeft,-HEADER_MASK_TOP_Y)
@@ -149,7 +156,18 @@ local function AttachQuestLogHeaderMask(frame)
     endMask:SetPoint("BOTTOMRIGHT",frame,"TOPRIGHT",
         g.pageSlotRightOffset,-HEADER_MASK_BOTTOM_Y)
 
-    -- All four TGA assets have opaque horizontal edge columns.
+    -- Soften the sliding left edge of the right artwork over the extra
+    -- 32 units of center art underneath it. The 2D feather is confined to
+    -- that edge and softens its top/bottom too; the ornament stays opaque.
+    -- Attach the mask only to the right fixed texture, not to center tiles.
+    rightFeatherMask:SetTexture(QUESTLOG_HEADER_RIGHT_LEFT_FEATHER, "CLAMP", "CLAMP")
+    rightFeatherMask:SetPoint("TOPLEFT",frame,"TOPRIGHT",
+        FULL_RIGHT_ART_X - FULL_RIGHT_ART_WIDTH,-HEADER_MASK_TOP_Y)
+    rightFeatherMask:SetPoint("BOTTOMRIGHT",frame,"TOPRIGHT",
+        FULL_RIGHT_ART_X,-HEADER_MASK_BOTTOM_Y)
+
+    -- The four existing vertical fade-mask assets retain their original
+    -- horizontal CLAMP behavior; the right feather has its own alpha edges.
     -- CLAMP stays neutral outside each horizontally bounded region.
     -- The two left-only extensions affect the uncropped artwork, not
     -- the middle tiles or right corner.
@@ -159,6 +177,7 @@ local function AttachQuestLogHeaderMask(frame)
     frame.sszQuestLogHeaderMask = gapMask
     frame.sszQuestLogHeaderPageMask = pageMask
     frame.sszQuestLogHeaderEndMask = endMask
+    frame.sszQuestLogHeaderRightFeatherMask = rightFeatherMask
 
     -- Only the uncropped fixed left corner receives the two extensions.
     -- All center tiles keep their original 75-unit fade masks.
@@ -168,6 +187,7 @@ local function AttachQuestLogHeaderMask(frame)
     left:AddMaskTexture(leftEdgeVerticalFade)
     right:AddMaskTexture(pageMask)
     right:AddMaskTexture(endMask)
+    right:AddMaskTexture(rightFeatherMask)
 end
 
 local function fixed(parent, layer, path, w, h, coords, p, x, y)
@@ -286,8 +306,9 @@ local function tiled(parent, layer, path, coords, horizontal, start, span, lengt
 end
 
 -- Preserve the Quest Log's native header across the first 256px of the
--- exposed center. Repeating begins only after that original continuation,
--- so the default-width Compendium resembles the unextended Quest Log.
+-- exposed center. Repeating begins only after that original continuation.
+-- The last 32 UI units extend beneath the right corner for its 2D feather,
+-- without moving the right corner or stretching source pixels.
 -- All source crops are 1:1 pixel-to-UI-unit; no stretch or custom assets.
 local function ReflowQuestLogCenter(frame, width)
     local length = width - QUESTLOG_CENTER_START - QUESTLOG_CENTER_END_MARGIN

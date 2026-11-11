@@ -174,6 +174,37 @@ This step adjusts only the shared gap/right-strip fade from 65/8/2 to
 region boundaries. The two 68/7 masks, left-only clear extension, slow
 left-edge fade, artwork, scrollbars, and window geometry are unchanged.
 
+## Sliding top-right corner: 32-unit 2D feather experiment
+
+The existing right header (`UI-QuestLog-Right`, source x=0..200) remains
+200 × 75 UI units, right-anchored with x=+34 and y=+13. At a default
+670-unit window width, its left edge is at x=504 and its right edge is at
+x=704, exactly as before. It still follows resizing from the right.
+
+The repeating center uses the same 1:1 source pixel mapping and artwork
+layers as before, but now extends an additional **32 units** underneath
+the fixed right header by reducing `QUESTLOG_CENTER_END_MARGIN` from
+166 to 134. At width 670, the center therefore covers x=242..536
+(previously x=242..504), with the new overlap at x=504..536.
+
+The new `QuestLogHeaderRightLeftFeather.tga` is a 256×128 uncompressed
+32-bit RGBA alpha mask spanning only the 200×75 fixed-right texture.
+Its leftmost **32 UI units** use a smoothly eased horizontal transparent-to-
+opaque blend, with additional 12-unit top and bottom easing localized to
+this 32-unit strip. The other 168 UI units remain fully opaque. This mask
+multiplies with the pre-existing **68/7** and **66/9** vertical masks on
+the right texture. The right texture is on OVERLAY, while the center
+tiles remain on ARTWORK beneath it.
+
+Only the right texture gains this extra mask, for three total; the four
+vertical mask regions, the left-edge slow fade, and left clear extension
+are unchanged. Center tile pooling, window resize behavior, and both
+native-tiling and manual fallback code paths remain intact.
+
+This change is isolated in a single commit above the previous branch
+head, so it can be reverted independently if in-game visuals reveal
+unexpected seams or a visibly repeated texture pattern.
+
 ## What stays unchanged
 
 - Parent `SetBackdrop` with original rock tiling
@@ -186,11 +217,13 @@ left-edge fade, artwork, scrollbars, and window geometry are unchanged.
 
 1. Compare the Compendium at 670 UI units alongside Turtle WoW's built-in
    wide Quest Log. Inspect the left portrait-to-rail join, center
-   continuation at x=242, and right artwork start at x=width-166.
+   continuation at x=242, and the 32-unit feather beneath the right
+   artwork (x=width-166..width-134).
 2. Confirm the right metal end cap remains beside the close/minimize
    buttons. There is no longer a second right-side texture or join.
 3. Check the natural-to-repeating transition (approximately x=498 at
-   default width) for a visible seam or repeated material pattern.
+   default width) and the feathered overlap (x=504..536 at width 670)
+   for a visible seam or repeated material pattern.
 4. Drag the window through minimum, default and maximum widths; test
    non-default UI scale and a height resize.
 5. Repeat with ClassicAPI disabled to verify manual side/bottom tiling.
