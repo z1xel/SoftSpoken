@@ -156,6 +156,7 @@ local PORTRAIT_MASK = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prot
 -- Use the same 14-unit quest bullets as the narration player.
 local PORTRAIT_BADGES = {
     accept = "Interface\\AddOns\\SoftSpoken_Stories\\Textures\\SoundQueueBulletAccept",
+    progress = "Interface\\AddOns\\SoftSpoken_Stories\\Textures\\SoundQueueBulletProgress",
     complete = "Interface\\AddOns\\SoftSpoken_Stories\\Textures\\SoundQueueBulletComplete",
 }
 -- Portraits are plain 2D Texture regions inside the scroll child: never

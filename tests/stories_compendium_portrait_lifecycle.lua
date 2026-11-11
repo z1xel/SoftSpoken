@@ -180,23 +180,20 @@ for _,stage in ipairs({"accept","progress","complete"}) do
     eq(f.ring.point[3],"CENTER",stage.." centered target anchor")
     eq(f.ring.point[4],0,stage.." ring x offset")
     eq(f.ring.point[5],0,stage.." ring y offset")
-    -- Quest moments share the narration player's exact accept/complete bullets.
-    local expectedBadge=stage=="accept" and
-        [[Interface\AddOns\SoftSpoken_Stories\Textures\SoundQueueBulletAccept]] or
-        stage=="complete" and
-        [[Interface\AddOns\SoftSpoken_Stories\Textures\SoundQueueBulletComplete]] or nil
-    if expectedBadge then
-        eq(f.badge.texture,expectedBadge,stage.." quest bullet")
-        eq(f.badge.width,14,stage.." badge width")
-        eq(f.badge.height,14,stage.." badge height")
-        eq(f.badge.point[1],"CENTER",stage.." badge anchor")
-        eq(f.badge.point[2],f.ring,stage.." badge is anchored to the ring")
-        eq(f.badge.point[3],"BOTTOMRIGHT",stage.." badge socket")
-        eq(f.badge.point[4],-14,stage.." badge x offset")
-        eq(f.badge.point[5],14,stage.." badge y offset")
-    else
-        eq(f.badge,nil,stage.." shows no badge")
-    end
+    -- All three dialogue moments reuse their narration-player quest bullets.
+    local expectedBadges = {
+        accept = [[Interface\AddOns\SoftSpoken_Stories\Textures\SoundQueueBulletAccept]],
+        progress = [[Interface\AddOns\SoftSpoken_Stories\Textures\SoundQueueBulletProgress]],
+        complete = [[Interface\AddOns\SoftSpoken_Stories\Textures\SoundQueueBulletComplete]],
+    }
+    eq(f.badge.texture,expectedBadges[stage],stage.." quest bullet")
+    eq(f.badge.width,14,stage.." badge width")
+    eq(f.badge.height,14,stage.." badge height")
+    eq(f.badge.point[1],"CENTER",stage.." badge anchor")
+    eq(f.badge.point[2],f.ring,stage.." badge is anchored to the ring")
+    eq(f.badge.point[3],"BOTTOMRIGHT",stage.." badge socket")
+    eq(f.badge.point[4],-14,stage.." badge x offset")
+    eq(f.badge.point[5],14,stage.." badge y offset")
 end
 local function assertPortrait(stage,creatureID,displayID)
     local f=face(stage)
