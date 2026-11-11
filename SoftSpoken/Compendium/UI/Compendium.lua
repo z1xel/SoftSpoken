@@ -817,7 +817,7 @@ function C.NewList(panel,opts)
                 UIDropDownMenu_AddButton(info)
             end
         end)
-        UIDropDownMenu_SetWidth(60,menu)
+        UIDropDownMenu_SetWidth(57,menu)
         UIDropDownMenu_SetButtonWidth(24,menu)
         UIDropDownMenu_JustifyText("LEFT",menu)
         UIDropDownMenu_SetText("Show:",menu)
