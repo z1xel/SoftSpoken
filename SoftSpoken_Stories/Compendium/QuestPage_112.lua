@@ -122,12 +122,13 @@ local function Font(parent,template)
     if fs.SetWordWrap then fs:SetWordWrap(true) end
     return fs
 end
-local function MatchFont(font,reference,sizeAdjust,fallback,asQuestTitle)
+local function MatchFont(font,reference,sizeAdjust,fallback,asQuestTitle,fontFile)
     local path,size
     if reference and reference.GetFont then path,size=reference:GetFont() end
     if not path and fallback and fallback.GetFont then
         path,size=fallback:GetFont()
     end
+    if fontFile then path=fontFile end
     if path and font.SetFont then
         font:SetFont(path,math.max(10,(tonumber(size) or 15)+(sizeAdjust or 0)),"")
     end
@@ -383,8 +384,10 @@ function P:ApplyTypography()
         local part=self.parts[stage]
         MatchFont(part.content,reference,0,QuestFont)
         if part.content.SetSpacing then part.content:SetSpacing(0) end
-        MatchFont(part.speaker,reference,-2,QuestFont)
-        part.speaker:SetTextColor(.38,.23,.12,1)
+        -- Pure-black Morpheus for the speaker: retain the adjustable body-size
+        -- offset, but do not inherit QuestTitleFont\'s warm-gold shadow.
+        MatchFont(part.speaker,reference,-2,QuestFont,false,"Fonts\\MORPHEUS.TTF")
+        part.speaker:SetTextColor(0,0,0,1)
         MatchFont(part.title,heading,0,QuestTitleFont,true)
     end
 end
