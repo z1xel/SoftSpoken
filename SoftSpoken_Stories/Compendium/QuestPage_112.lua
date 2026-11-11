@@ -337,7 +337,7 @@ local function NewPart(parent,stage)
         badgeLayer:SetWidth(14);badgeLayer:SetHeight(14)
         badgeLayer:SetPoint("CENTER",face.ring,"CENTER",
             SourceUnits(SOCKET_SOURCE_X-RING_SOURCE_CENTER) - 1,
-            SourceUnits(RING_SOURCE_CENTER-SOCKET_SOURCE_Y))
+            SourceUnits(RING_SOURCE_CENTER-SOCKET_SOURCE_Y) - 1)
         badgeLayer:SetFrameLevel(face:GetFrameLevel()+1)
         badgeLayer:EnableMouse(false)
         local badge=badgeLayer:CreateTexture(nil,"OVERLAY")
