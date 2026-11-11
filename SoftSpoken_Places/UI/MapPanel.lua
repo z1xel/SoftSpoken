@@ -47,12 +47,12 @@ local function BuildPanel()
     -- housing as the Compendium's Places page. Only placement is map-specific.
     -- Keep the map-only Open in Compendium button without maintaining a
     -- separate quest-log renderer or decorative nine-slice.
-    -- Mirror the Compendium list's 4-unit outer margin on the RIGHT.
-    -- Translate the entire page inset 4 units right (12/4 instead of 8/8)
-    -- so parchment and its native scrollbar move together without resizing.
+    -- Match the Compendium list's 4-unit outer margin on the RIGHT,
+    -- without moving the standalone pane's original left edge (8 units).
+    -- The parchment expands 4 units to the right; its scrollbar follows.
     pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
         return P.CreateLorePage(holder,"book",nil,{openInCompendium=true,expandSubtitle=true})
-    end,{left=12,right=4,top=38,bottom=8})
+    end,{left=8,right=4,top=38,bottom=8})
     -- Share the Compendium's ClassicAPI scroll-edge fade on the World Map
     -- lore reader. The TextView method handles missing ClassicAPI safely.
     if page and page.body and page.body.EnableEdgeFade then
