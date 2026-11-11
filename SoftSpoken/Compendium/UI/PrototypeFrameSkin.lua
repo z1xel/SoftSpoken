@@ -558,7 +558,7 @@ function Skin.Apply(self, title, options)
     end
 
     if not compact then
-    self.sszBookIcon = maskedBookIcon(self, -6, 10, 63)
+    self.sszBookIcon = maskedBookIcon(self, -6, 10, 62)
     -- The native wide Quest Log left artwork already includes its portrait
     -- ring; do not restore the old duplicate FrameGeneral metal ring.
     end
