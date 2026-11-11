@@ -14,6 +14,9 @@ local function Frame(kind,parent)
     function methods:CreateFontString() return Frame("FontString",self) end
     function methods:SetTexture(value) self.texture=value end
     function methods:SetPoint(...) self.point={...} end
+    function methods:SetAllPoints(target) self.allPoints=target end
+    function methods:GetFrameLevel() return self.frameLevel or 0 end
+    function methods:SetFrameLevel(level) self.frameLevel=level end
     function methods:SetTexCoord(...) self.texCoord={...} end
     function methods:SetText(text) self.text=text end
     function methods:SetWidth(v) self.width=v end
@@ -187,13 +190,18 @@ for _,stage in ipairs({"accept","progress","complete"}) do
         complete = [[Interface\AddOns\SoftSpoken_Stories\Textures\SoundQueueBulletComplete]],
     }
     eq(f.badge.texture,expectedBadges[stage],stage.." quest bullet")
-    eq(f.badge.width,14,stage.." badge width")
-    eq(f.badge.height,14,stage.." badge height")
-    eq(f.badge.point[1],"CENTER",stage.." badge anchor")
-    eq(f.badge.point[2],f.ring,stage.." badge is anchored to the ring")
-    eq(f.badge.point[3],"BOTTOMRIGHT",stage.." badge socket")
-    eq(f.badge.point[4],-14,stage.." badge x offset")
-    eq(f.badge.point[5],14,stage.." badge y offset")
+    eq(f.badge.parent,f.badgeLayer,stage.." bullet belongs to higher frame")
+    eq(f.badge.allPoints,f.badgeLayer,stage.." bullet fills overlay frame")
+    eq(f.badgeLayer.parent,f,stage.." badge layer belongs to portrait frame")
+    assert(f.badgeLayer:GetFrameLevel()>f:GetFrameLevel(),
+        stage.." badge draws above portrait and ring")
+    eq(f.badgeLayer.width,14,stage.." badge width")
+    eq(f.badgeLayer.height,14,stage.." badge height")
+    eq(f.badgeLayer.point[1],"CENTER",stage.." badge anchor")
+    eq(f.badgeLayer.point[2],f.ring,stage.." badge is anchored to the ring")
+    eq(f.badgeLayer.point[3],"BOTTOMRIGHT",stage.." badge socket")
+    eq(f.badgeLayer.point[4],-14,stage.." badge x offset")
+    eq(f.badgeLayer.point[5],14,stage.." badge y offset")
 end
 local function assertPortrait(stage,creatureID,displayID)
     local f=face(stage)
