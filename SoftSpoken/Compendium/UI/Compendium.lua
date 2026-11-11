@@ -48,7 +48,7 @@ local MIN_HEIGHT, PAGE_MIN_WIDTH = 430 - LOWER_SHELL_SHIFT, 278
 C.VISUAL_GEOMETRY = {
     listLeft=4, listWidth=303, listTop=62 - LOWER_SHELL_SHIFT, bottom=6,
     listSlotRightOffset=27, pageRightInset=29, pageSlotRightOffset=-3,
-    searchX=72, searchY=-35, searchWidth=223,
+    searchX=72, searchY=-35, searchWidth=130,
     tabLeft=8, tabTop=3, tabOverlap=16,
     windowWidth=670, windowHeight=600 - LOWER_SHELL_SHIFT,
 }
