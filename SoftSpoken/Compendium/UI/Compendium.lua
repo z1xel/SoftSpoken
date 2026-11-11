@@ -818,7 +818,7 @@ function C.NewList(panel,opts)
         UIDropDownMenu_SetWidth(60,menu)
         UIDropDownMenu_SetButtonWidth(24,menu)
         UIDropDownMenu_JustifyText("LEFT",menu)
-        UIDropDownMenu_SetText("Filters",menu)
+        UIDropDownMenu_SetText("Show:",menu)
         -- Leave the template's own arrow OnClick intact. It opens the
         -- same checkbox menu and supplies Vanilla's pushed/hover states.
     end
