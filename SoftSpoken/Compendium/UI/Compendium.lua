@@ -774,16 +774,17 @@ function C.NewList(panel,opts)
     list.searchBox=search
     list.searchHint=hint
     list.searchClear=clear
-    -- Exact native Vanilla dropdown arrow and Who-tab hover highlight.
-    -- The Blizzard highlight appears only while hovered; clicking still
-    -- uses the same dropdown and filtering callbacks below.
-    local filterButton=CreateFrame("Button",nil,panel)
-    filterButton:SetWidth(24);filterButton:SetHeight(24)
-    filterButton:SetPoint("LEFT",search,"RIGHT",8,0)
-    filterButton:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up")
-    filterButton:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
-    filterButton:SetDisabledTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Disabled")
-    filterButton:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight","ADD")
+    -- The filter uses the actual Vanilla Who-tab dropdown: three-piece
+    -- CharacterCreate-LabelFrame housing, caption, and native arrow/hover.
+    -- Its visible body sits just to the right of the existing search field.
+    -- The template adds 50 units of end caps to the requested middle width.
+    filterMenuSerial=filterMenuSerial+1
+    local menuName=NAME.."FilterMenu"..filterMenuSerial
+    local menu=CreateFrame("Frame",menuName,panel,"UIDropDownMenuTemplate")
+    menu:SetPoint("LEFT",search,"RIGHT",4,0)
+    list.filterMenu=menu
+    -- Keep the public button handle used by existing tab integrations.
+    local filterButton=getglobal(menuName.."Button")
     list.filterButton=filterButton
     local function Changed()
         list:ScrollTo(0)
@@ -797,10 +798,6 @@ function C.NewList(panel,opts)
     local function ToggleCheck(check)
         return function() check.set(not check.get());Changed() end
     end
-    filterMenuSerial=filterMenuSerial+1
-    local menuName=NAME.."FilterMenu"..filterMenuSerial
-    local menu=CreateFrame("Frame",menuName,UIParent,"UIDropDownMenuTemplate")
-    list.filterMenu=menu
     if UIDropDownMenu_Initialize then
         UIDropDownMenu_Initialize(menu,function()
             if opts.only then
@@ -817,17 +814,14 @@ function C.NewList(panel,opts)
                 info.func=ToggleCheck(check)
                 UIDropDownMenu_AddButton(info)
             end
-        end,"MENU")
-        -- MENU initialization hides the unused dropdown owner's chrome, but
-        -- its tooltip-style popup is not the framed list used by Vanilla's
-        -- Who dropdown. Keep the owner hidden and restore the native dialog
-        -- backdrop on DropDownList1 when ToggleDropDownMenu opens it.
-        menu.displayMode=nil
+        end)
+        UIDropDownMenu_SetWidth(60,menu)
+        UIDropDownMenu_SetButtonWidth(24,menu)
+        UIDropDownMenu_JustifyText("LEFT",menu)
+        UIDropDownMenu_SetText("Filters",menu)
+        -- Leave the template's own arrow OnClick intact. It opens the
+        -- same checkbox menu and supplies Vanilla's pushed/hover states.
     end
-    filterButton:SetScript("OnClick",function()
-        if ToggleDropDownMenu then ToggleDropDownMenu(1,nil,menu,filterButton,0,0)
-        else ToggleOnly() end
-    end)
 
     local left=CreateFrame("Frame",nil,panel)
     if SSCPrototypeInteriorSkin and SSCPrototypeInteriorSkin.ApplyList then
