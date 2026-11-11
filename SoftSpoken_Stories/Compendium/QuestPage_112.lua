@@ -308,11 +308,18 @@ local function NewPart(parent,stage)
     local face=Portrait(f)
     local badgeTexture=PORTRAIT_BADGES[stage]
     if badgeTexture then
-        local badge=face:CreateTexture(nil,"OVERLAY")
+        -- A separate, higher-level frame guarantees the quest-state icon
+        -- draws over both the ring and the portrait, even on Vanilla 1.12.
+        -- Keep the existing 14x14 size and ring-socket position unchanged.
+        local badgeLayer=CreateFrame("Frame",nil,face)
+        badgeLayer:SetWidth(14);badgeLayer:SetHeight(14)
+        badgeLayer:SetPoint("CENTER",face.ring,"BOTTOMRIGHT",-14,14)
+        badgeLayer:SetFrameLevel(face:GetFrameLevel()+1)
+        badgeLayer:EnableMouse(false)
+        local badge=badgeLayer:CreateTexture(nil,"OVERLAY")
+        badge:SetAllPoints(badgeLayer)
         badge:SetTexture(badgeTexture)
-        badge:SetWidth(14);badge:SetHeight(14)
-        -- The ring already has a circular socket at its lower right.
-        badge:SetPoint("CENTER",face.ring,"BOTTOMRIGHT",-14,14)
+        face.badgeLayer=badgeLayer
         face.badge=badge
     end
     -- Preserve the existing page clearance; the 68-unit ring centers on the face.
