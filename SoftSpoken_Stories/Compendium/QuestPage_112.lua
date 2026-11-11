@@ -147,7 +147,7 @@ end
 -- The same player-faction crest is also the Stories player portrait fallback.
 -- One resolver owns these textures and their Turtle 1.12 race fallback.
 local FactionCrest=SSCQuestFactionCrest
--- User-selected minimap ring: 77x77 image pixels stored in a 128x128
+-- User-selected CharacterTab ring: 77x77 image pixels stored in a 128x128
 -- power-of-two TGA for Vanilla 1.12. Its on-screen size is independent of
 -- the 77x77 stored image: a 68-unit ring closely frames the 62-unit portrait.
 -- Borrow upstream Spoken's layering: portrait underneath, ring above.
