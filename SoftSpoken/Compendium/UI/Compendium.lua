@@ -775,15 +775,15 @@ function C.NewList(panel,opts)
     list.searchBox=search
     list.searchHint=hint
     list.searchClear=clear
-    -- Reorder the two native controls without changing their combined width:
-    -- Show occupies the old search's left edge; search follows on the right.
-    -- Their LEFT/RIGHT center anchors keep them vertically aligned.
+    -- The native dropdown has transparent padding beyond its visible right
+    -- metal cap. Pull search into that unused space so the two controls read
+    -- as a compact pair; their LEFT/RIGHT anchors still center them vertically.
     filterMenuSerial=filterMenuSerial+1
     local menuName=NAME.."FilterMenu"..filterMenuSerial
     local menu=CreateFrame("Frame",menuName,panel,"UIDropDownMenuTemplate")
     menu:SetPoint("LEFT",panel,"TOPLEFT",C.VISUAL_GEOMETRY.searchX,
         C.VISUAL_GEOMETRY.searchY-search:GetHeight()/2)
-    search:SetPoint("LEFT",menu,"RIGHT",4,0)
+    search:SetPoint("LEFT",menu,"RIGHT",-16,0)
     list.filterMenu=menu
     -- Keep the public button handle used by existing tab integrations.
     local filterButton=getglobal(menuName.."Button")
