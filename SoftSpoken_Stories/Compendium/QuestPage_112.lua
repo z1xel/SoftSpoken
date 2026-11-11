@@ -385,7 +385,7 @@ function P:ApplyTypography()
         MatchFont(part.content,reference,0,QuestFont)
         if part.content.SetSpacing then part.content:SetSpacing(0) end
         -- Pure-black Morpheus for the speaker: retain the adjustable body-size
-        -- offset, but do not inherit QuestTitleFont\'s warm-gold shadow.
+        -- offset, but do not inherit QuestTitleFont's warm-gold shadow.
         MatchFont(part.speaker,reference,-2,QuestFont,false,"Fonts\\MORPHEUS.TTF")
         part.speaker:SetTextColor(0,0,0,1)
         MatchFont(part.title,heading,0,QuestTitleFont,true)
