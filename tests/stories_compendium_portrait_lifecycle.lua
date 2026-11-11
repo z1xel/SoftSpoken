@@ -13,6 +13,7 @@ local function Frame(kind,parent)
     function methods:CreateTexture() return Frame("Texture",self) end
     function methods:CreateFontString() return Frame("FontString",self) end
     function methods:SetTexture(value) self.texture=value end
+    function methods:SetPoint(...) self.point={...} end
     function methods:SetTexCoord(...) self.texCoord={...} end
     function methods:SetText(text) self.text=text end
     function methods:SetWidth(v) self.width=v end
@@ -171,9 +172,14 @@ local RING = [[Interface\AddOns\SoftSpoken\Compendium\Textures\Art\PortraitRing]
 for _,stage in ipairs({"accept","progress","complete"}) do
     local f=face(stage)
     eq(f.ring.texture,RING,stage.." gold portrait ring")
-    eq(f.ring.width,77,stage.." ring width")
-    eq(f.ring.height,77,stage.." ring height")
+    eq(f.ring.width,68,stage.." ring width")
+    eq(f.ring.height,68,stage.." ring height")
     eq(f.ring.texCoord[2],77/128,stage.." ring original-pixel UV")
+    eq(f.ring.point[1],"CENTER",stage.." centered ring anchor")
+    eq(f.ring.point[2],f,stage.." ring anchor target")
+    eq(f.ring.point[3],"CENTER",stage.." centered target anchor")
+    eq(f.ring.point[4],0,stage.." ring x offset")
+    eq(f.ring.point[5],0,stage.." ring y offset")
 end
 local function assertPortrait(stage,creatureID,displayID)
     local f=face(stage)

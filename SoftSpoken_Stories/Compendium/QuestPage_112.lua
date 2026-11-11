@@ -147,9 +147,10 @@ end
 -- The same player-faction crest is also the Stories player portrait fallback.
 -- One resolver owns these textures and their Turtle 1.12 race fallback.
 local FactionCrest=SSCQuestFactionCrest
--- Exact, user-edited 77x77 Vanilla target ring, copied without pixel changes
--- into the top-left of a power-of-two 128x128 RGBA TGA for the 1.12 client.
--- Borrow upstream Spoken's arrangement: portrait underneath, ring above.
+-- User-selected minimap ring: 77x77 image pixels stored in a 128x128
+-- power-of-two TGA for Vanilla 1.12. Its on-screen size is independent of
+-- the 77x77 stored image: a 68-unit ring closely frames the 62-unit portrait.
+-- Borrow upstream Spoken's layering: portrait underneath, ring above.
 local PORTRAIT_RING = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\PortraitRing"
 local PORTRAIT_MASK = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\BookPortraitCircleMask"
 -- Portraits are plain 2D Texture regions inside the scroll child: never
@@ -165,11 +166,10 @@ local function Portrait(parent)
     holder.icon=icon
     local ring=holder:CreateTexture(nil,"OVERLAY")
     ring:SetTexture(PORTRAIT_RING)
-    ring:SetWidth(77);ring:SetHeight(77)
+    ring:SetWidth(68);ring:SetHeight(68)
     ring:SetTexCoord(0,77/128,0,77/128)
-    -- The large circle in the original atlas is slightly off-center due
-    -- to its attached small level medallion.
-    ring:SetPoint("TOPLEFT",holder,"TOPLEFT",-4,3)
+    -- The minimap ring is symmetric; center it over the 62x62 portrait.
+    ring:SetPoint("CENTER",holder,"CENTER",0,0)
     holder.ring=ring
     holder:EnableMouse(true)
     holder:SetScript("OnEnter",function()
@@ -300,7 +300,7 @@ local function NewPart(parent,stage)
     title:SetPoint("TOPLEFT",f,"TOPLEFT",0,-2)
     f.title=title
     local face=Portrait(f)
-    -- Five units of left clearance for the standalone 77px ring.
+    -- Preserve the existing page clearance; the 68-unit ring centers on the face.
     face:SetPoint("TOPLEFT",f,"TOPLEFT",6,-30)
     f.face=face
     local speaker=Font(f,"GameFontNormal")
