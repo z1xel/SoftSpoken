@@ -817,6 +817,11 @@ function C.NewList(panel,opts)
                 UIDropDownMenu_AddButton(info)
             end
         end,"MENU")
+        -- MENU initialization hides the unused dropdown owner's chrome, but
+        -- its tooltip-style popup is not the framed list used by Vanilla's
+        -- Who dropdown. Keep the owner hidden and restore the native dialog
+        -- backdrop on DropDownList1 when ToggleDropDownMenu opens it.
+        menu.displayMode=nil
     end
     filterButton:SetScript("OnClick",function()
         if ToggleDropDownMenu then ToggleDropDownMenu(1,nil,menu,filterButton,0,0)
