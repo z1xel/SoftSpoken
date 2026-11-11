@@ -153,6 +153,20 @@ local FactionCrest=SSCQuestFactionCrest
 -- Borrow upstream Spoken's layering: portrait underneath, ring above.
 local PORTRAIT_RING = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\PortraitRing"
 local PORTRAIT_MASK = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\BookPortraitCircleMask"
+-- Measured from PortraitRing-source.png, which retains a 77x77 source area.
+-- Coordinates below are measured from the source's top-left PIXEL EDGE.
+-- The main transparent opening is about 54 source px (47.7 UI units).
+-- Its center is not exactly at the center of the full ring artwork.
+-- The original 64x64 portrait mask keeps ~60/64 of the face visible; a
+-- 54-unit image therefore puts ~50.6 units under the 47.7-unit opening,
+-- retaining ~1.5 units of safe overlap beneath the rim on each side.
+local RING_SOURCE_SIZE = 77
+local RING_UI_SIZE = 68
+local RING_SOURCE_CENTER = RING_SOURCE_SIZE / 2
+local APERTURE_SOURCE_X, APERTURE_SOURCE_Y = 38.25, 36.5
+local SOCKET_SOURCE_X, SOCKET_SOURCE_Y = 60, 58
+local PORTRAIT_IMAGE_SIZE = 54
+local function SourceUnits(v) return v * RING_UI_SIZE / RING_SOURCE_SIZE end
 -- Use the same 14-unit quest bullets as the narration player.
 local PORTRAIT_BADGES = {
     accept = "Interface\\AddOns\\SoftSpoken_Stories\\Textures\\SoundQueueBulletAccept",
@@ -165,15 +179,21 @@ local function Portrait(parent)
     local holder=CreateFrame("Frame",nil,parent)
     holder:SetWidth(62);holder:SetHeight(62)
     local icon=holder:CreateTexture(nil,"ARTWORK")
-    icon:SetAllPoints(holder)
+    -- Center the portrait on the artwork's actual opening, not the outer
+    -- 77x77 image bounds. Keep the 62x62 holder/layout unchanged.
+    icon:SetWidth(PORTRAIT_IMAGE_SIZE)
+    icon:SetHeight(PORTRAIT_IMAGE_SIZE)
+    icon:SetPoint("CENTER",holder,"CENTER",
+        SourceUnits(APERTURE_SOURCE_X-RING_SOURCE_CENTER),
+        SourceUnits(RING_SOURCE_CENTER-APERTURE_SOURCE_Y))
     -- ClassicAPI clips the 2D face/crest to a circle. The overlay is kept
     -- separate so ClassicAPI portrait repaints cannot replace the ring.
     if icon.SetMask then icon:SetMask(PORTRAIT_MASK) end
     holder.icon=icon
     local ring=holder:CreateTexture(nil,"OVERLAY")
     ring:SetTexture(PORTRAIT_RING)
-    ring:SetWidth(68);ring:SetHeight(68)
-    ring:SetTexCoord(0,77/128,0,77/128)
+    ring:SetWidth(RING_UI_SIZE);ring:SetHeight(RING_UI_SIZE)
+    ring:SetTexCoord(0,RING_SOURCE_SIZE/128,0,RING_SOURCE_SIZE/128)
     -- Keep the ring centered on the 62x62 portrait.
     ring:SetPoint("CENTER",holder,"CENTER",0,0)
     holder.ring=ring
@@ -310,10 +330,13 @@ local function NewPart(parent,stage)
     if badgeTexture then
         -- A separate, higher-level frame guarantees the quest-state icon
         -- draws over both the ring and the portrait, even on Vanilla 1.12.
-        -- Keep the existing 14x14 size and ring-socket position unchanged.
+        -- Place the badge at the center of the SMALL socket measured from
+        -- the source pixels, not an approximate offset from BOTTOMRIGHT.
         local badgeLayer=CreateFrame("Frame",nil,face)
         badgeLayer:SetWidth(14);badgeLayer:SetHeight(14)
-        badgeLayer:SetPoint("CENTER",face.ring,"BOTTOMRIGHT",-14,14)
+        badgeLayer:SetPoint("CENTER",face.ring,"CENTER",
+            SourceUnits(SOCKET_SOURCE_X-RING_SOURCE_CENTER),
+            SourceUnits(RING_SOURCE_CENTER-SOCKET_SOURCE_Y))
         badgeLayer:SetFrameLevel(face:GetFrameLevel()+1)
         badgeLayer:EnableMouse(false)
         local badge=badgeLayer:CreateTexture(nil,"OVERLAY")
