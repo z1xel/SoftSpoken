@@ -690,7 +690,8 @@ function C.NewList(panel,opts)
     end
     search:SetWidth(C.VISUAL_GEOMETRY.searchWidth);search:SetHeight(21)
     search:SetAutoFocus(false);search:SetMaxLetters(70)
-    search:SetPoint("TOPLEFT",panel,"TOPLEFT",C.VISUAL_GEOMETRY.searchX,C.VISUAL_GEOMETRY.searchY)
+    -- Place the search after the Show dropdown is created below, so both
+    -- controls share a center line and keep the same combined header width.
     if ornate then
         search:SetFontObject(ChatFontNormal)
         SSCPrototypeInteriorSkin.ApplySearch(search)
@@ -774,14 +775,15 @@ function C.NewList(panel,opts)
     list.searchBox=search
     list.searchHint=hint
     list.searchClear=clear
-    -- The filter uses the actual Vanilla Who-tab dropdown: three-piece
-    -- CharacterCreate-LabelFrame housing, caption, and native arrow/hover.
-    -- Its visible body sits just to the right of the existing search field.
-    -- The template adds 50 units of end caps to the requested middle width.
+    -- Reorder the two native controls without changing their combined width:
+    -- Show occupies the old search's left edge; search follows on the right.
+    -- Their LEFT/RIGHT center anchors keep them vertically aligned.
     filterMenuSerial=filterMenuSerial+1
     local menuName=NAME.."FilterMenu"..filterMenuSerial
     local menu=CreateFrame("Frame",menuName,panel,"UIDropDownMenuTemplate")
-    menu:SetPoint("LEFT",search,"RIGHT",4,0)
+    menu:SetPoint("LEFT",panel,"TOPLEFT",C.VISUAL_GEOMETRY.searchX,
+        C.VISUAL_GEOMETRY.searchY-search:GetHeight()/2)
+    search:SetPoint("LEFT",menu,"RIGHT",4,0)
     list.filterMenu=menu
     -- Keep the public button handle used by existing tab integrations.
     local filterButton=getglobal(menuName.."Button")
