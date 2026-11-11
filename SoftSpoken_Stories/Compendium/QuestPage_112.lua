@@ -147,6 +147,11 @@ end
 -- The same player-faction crest is also the Stories player portrait fallback.
 -- One resolver owns these textures and their Turtle 1.12 race fallback.
 local FactionCrest=SSCQuestFactionCrest
+-- Exact, user-edited 77x77 Vanilla target ring, copied without pixel changes
+-- into the top-left of a power-of-two 128x128 RGBA TGA for the 1.12 client.
+-- Borrow upstream Spoken's arrangement: portrait underneath, ring above.
+local PORTRAIT_RING = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\PortraitRing"
+local PORTRAIT_MASK = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\BookPortraitCircleMask"
 -- Portraits are plain 2D Texture regions inside the scroll child: never
 -- create Model/PlayerModel frames here (they break 1.12 scroll clipping).
 local function Portrait(parent)
@@ -154,7 +159,18 @@ local function Portrait(parent)
     holder:SetWidth(62);holder:SetHeight(62)
     local icon=holder:CreateTexture(nil,"ARTWORK")
     icon:SetAllPoints(holder)
+    -- ClassicAPI clips the 2D face/crest to a circle. The overlay is kept
+    -- separate so ClassicAPI portrait repaints cannot replace the ring.
+    if icon.SetMask then icon:SetMask(PORTRAIT_MASK) end
     holder.icon=icon
+    local ring=holder:CreateTexture(nil,"OVERLAY")
+    ring:SetTexture(PORTRAIT_RING)
+    ring:SetWidth(77);ring:SetHeight(77)
+    ring:SetTexCoord(0,77/128,0,77/128)
+    -- The large circle in the original atlas is slightly off-center due
+    -- to its attached small level medallion.
+    ring:SetPoint("TOPLEFT",holder,"TOPLEFT",-4,3)
+    holder.ring=ring
     holder:EnableMouse(true)
     holder:SetScript("OnEnter",function()
         local h=this or holder
@@ -284,7 +300,8 @@ local function NewPart(parent,stage)
     title:SetPoint("TOPLEFT",f,"TOPLEFT",0,-2)
     f.title=title
     local face=Portrait(f)
-    face:SetPoint("TOPLEFT",f,"TOPLEFT",1,-30)
+    -- Five units of left clearance for the standalone 77px ring.
+    face:SetPoint("TOPLEFT",f,"TOPLEFT",6,-30)
     f.face=face
     local speaker=Font(f,"GameFontNormal")
     speaker:SetPoint("TOPLEFT",face,"TOPRIGHT",10,-9)

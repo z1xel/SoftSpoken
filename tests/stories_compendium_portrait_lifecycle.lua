@@ -166,6 +166,15 @@ eq(view.onReflowContent(view,false,19,310),false,
     "landing page still uses normal reader layout")
 eq(ListenerCount(),0,"no subscription before selection")
 local function face(stage) return details.parts[stage].face end
+-- Every quest moment draws a single overlay, regardless of portrait updates.
+local RING = [[Interface\AddOns\SoftSpoken\Compendium\Textures\Art\PortraitRing]]
+for _,stage in ipairs({"accept","progress","complete"}) do
+    local f=face(stage)
+    eq(f.ring.texture,RING,stage.." gold portrait ring")
+    eq(f.ring.width,77,stage.." ring width")
+    eq(f.ring.height,77,stage.." ring height")
+    eq(f.ring.texCoord[2],77/128,stage.." ring original-pixel UV")
+end
 local function assertPortrait(stage,creatureID,displayID)
     local f=face(stage)
     eq(f.creatureID,creatureID,stage.." creature")
