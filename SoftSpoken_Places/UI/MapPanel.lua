@@ -50,6 +50,11 @@ local function BuildPanel()
     pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
         return P.CreateLorePage(holder,"book",nil,{openInCompendium=true,expandSubtitle=true})
     end,{left=8,right=8,top=38,bottom=8})
+    -- Share the Compendium's ClassicAPI scroll-edge fade on the World Map
+    -- lore reader. The TextView method handles missing ClassicAPI safely.
+    if page and page.body and page.body.EnableEdgeFade then
+        page.body:EnableEdgeFade()
+    end
     if SSZAudioButton and SSZAudioButton.Bind then SSZAudioButton.Bind(page.play) end
     panel.pageInset=pageInset
     panel.page=page
