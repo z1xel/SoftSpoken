@@ -212,7 +212,10 @@ local function maskedBookIcon(parent, x, y, size)
     book:SetHeight(size)
     book:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y)
     if book.SetMask then
-        -- ClassicAPI applies the mask to the complete texture quad.
+        -- Inventory icons contain a square border baked into their outer
+        -- pixels. Crop that border before applying the circular portrait
+        -- mask, so straight edges do not show inside the Quest Log ring.
+        book:SetTexCoord(0.07, 0.93, 0.07, 0.93)
         book:SetMask(BOOK_MASK)
     elseif SetPortraitToTexture then
         -- Older clients may supply native portrait cropping but no masks.
