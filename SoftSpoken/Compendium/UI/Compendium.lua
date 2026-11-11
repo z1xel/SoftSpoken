@@ -693,13 +693,13 @@ function C.NewList(panel,opts)
     search:SetPoint("TOPLEFT",panel,"TOPLEFT",C.VISUAL_GEOMETRY.searchX,C.VISUAL_GEOMETRY.searchY)
     if ornate then
         search:SetFontObject(ChatFontNormal)
-        if search.SetTextInsets then search:SetTextInsets(6,6,0,0) end
+        if search.SetTextInsets then search:SetTextInsets(10,10,0,0) end
         SSCPrototypeInteriorSkin.ApplySearch(search)
     end
     -- SearchBoxTemplate does not exist on all 1.12 clients. Mimic its
     -- contextual instructions with a FontString INSIDE the edit box.
     local hint=search:CreateFontString(nil,"OVERLAY","GameFontDisableSmall")
-    hint:SetPoint("LEFT",search,"LEFT",5,0)
+    hint:SetPoint("LEFT",search,"LEFT",10,0)
     hint:SetText(opts.search or "Search")
     local clear=CreateFrame("Button",nil,search)
     clear:SetWidth(16);clear:SetHeight(16)
