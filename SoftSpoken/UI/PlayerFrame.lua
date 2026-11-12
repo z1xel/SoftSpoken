@@ -195,7 +195,7 @@ function PlayerFrame:InitProgress()
     -- Anchor to the native moving fill so it follows timer-driven progress.
     local goldHighlight = bar:CreateTexture(nil, "OVERLAY")
     goldHighlight:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
-    goldHighlight:SetVertexColor(1.0, 0.72, 0.16, 0.90)
+    goldHighlight:SetVertexColor(1.0, 0.72, 0.16, 0.78)
     goldHighlight:SetBlendMode("ADD")
     goldHighlight:SetAllPoints(fill)
     bar:SetMinMaxValues(0, 1)
