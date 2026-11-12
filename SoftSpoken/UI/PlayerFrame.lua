@@ -32,7 +32,7 @@ local TEXTURES = [[Interface\AddOns\SoftSpoken\Textures\]]
 
 do
     local font = CreateFont("SpokenNameFont")
-    font:SetFont(GameFontNormal:GetFont(), 19, "")
+    font:SetFont("Fonts\\MORPHEUS.TTF", 19, "")
     font:SetShadowColor(0, 0, 0)
     font:SetShadowOffset(1, -1)
     font:SetJustifyH("LEFT")
