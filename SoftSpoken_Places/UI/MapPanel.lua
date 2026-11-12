@@ -130,12 +130,11 @@ local function BuildPanel()
     -- separate quest-log renderer or decorative nine-slice.
     -- Bring the parchment to the left edge and lift the shared parchment/
     -- scrollbar inset directly beneath the compact silver title bar.
-    -- Turtle's minimized map has a tall decorated footer. End the shared
-    -- parchment and scrollbar just above that art instead of hiding their
-    -- bottoms beneath the 64-unit bottom border texture.
+    -- Keep the parchment and scrollbar clear of the map's visible ornate
+    -- footer without leaving a broad empty strip above it.
     pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
         return P.CreateLorePage(holder,"book",nil,{openInCompendium=true,expandSubtitle=true})
-    end,{left=0,right=4,top=23,bottom=54})
+    end,{left=0,right=4,top=23,bottom=28})
     -- Share the Compendium's ClassicAPI scroll-edge fade on the World Map
     -- lore reader. The TextView method handles missing ClassicAPI safely.
     if page and page.body and page.body.EnableEdgeFade then
