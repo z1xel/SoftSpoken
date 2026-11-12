@@ -189,16 +189,16 @@ function PlayerFrame:InitProgress()
     local fill = bar:CreateTexture(nil, "ARTWORK")
     fill:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
     bar:SetStatusBarTexture(fill)
-    -- Dark amber-brass body, closer to the Talking Head frame's antique gold.
-    bar:SetStatusBarColor(0.78, 0.48, 0.12, 0.95)
+    -- Shift the brass body toward gold without losing its darker metallic shading.
+    bar:SetStatusBarColor(0.86, 0.62, 0.12, 0.95)
     -- A restrained champagne-gold reflection: transparent at the bottom,
     -- brighter along the top edge, preserving the darker brass below.
     -- Anchor to the moving fill so it follows native playback progress.
     local goldHighlight = bar:CreateTexture(nil, "OVERLAY")
     goldHighlight:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
     goldHighlight:SetGradientAlpha("VERTICAL",
-        0.95, 0.69, 0.36, 0,
-        0.95, 0.69, 0.36, 0.62)
+        0.98, 0.76, 0.29, 0,
+        0.98, 0.76, 0.29, 0.62)
     goldHighlight:SetBlendMode("ADD")
     goldHighlight:SetAllPoints(fill)
     bar:SetMinMaxValues(0, 1)
