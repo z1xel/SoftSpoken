@@ -43,12 +43,12 @@ end
 local LOWER_SHELL_SHIFT = 2
 local MIN_HEIGHT, PAGE_MIN_WIDTH = 430 - LOWER_SHELL_SHIFT, 278
 -- Approved prototype geometry, expressed in window-relative UI units.
--- Keep the header/search offsets unchanged; only the lower panel's
--- top edge is raised to follow the moved-up bottom without compression.
+-- Keep the header artwork unchanged; the lower panel's top edge
+-- remains raised to follow the moved-up bottom without compression.
 C.VISUAL_GEOMETRY = {
     listLeft=4, listWidth=303, listTop=62 - LOWER_SHELL_SHIFT, bottom=6,
     listSlotRightOffset=27, pageRightInset=29, pageSlotRightOffset=-3,
-    searchX=72, searchY=-35, searchWidth=130,
+    searchX=61, searchY=-35, searchWidth=130,
     tabLeft=8, tabTop=3, tabOverlap=16,
     windowWidth=670, windowHeight=600 - LOWER_SHELL_SHIFT,
 }
@@ -691,11 +691,10 @@ function C.NewList(panel,opts)
     end
     search:SetWidth(C.VISUAL_GEOMETRY.searchWidth);search:SetHeight(21)
     search:SetAutoFocus(false);search:SetMaxLetters(70)
-    -- Keep Search left of the filter arrow with their 2-unit gap.
-    -- Position the pair 35 units inside the compact right edge.
-    local headerControlsWidth=C.VISUAL_GEOMETRY.searchWidth+2+24
-    local headerControlsX=CollapsedWidth()-35-headerControlsWidth
-    search:SetPoint("TOPLEFT",panel,"TOPLEFT",headerControlsX,
+    -- Leave a roughly 3-unit clearance beyond the native portrait ring's
+    -- right edge (~58 units from the frame left in the compact layout).
+    -- The filter arrow remains anchored 2 units to the search box's right.
+    search:SetPoint("TOPLEFT",panel,"TOPLEFT",C.VISUAL_GEOMETRY.searchX,
         C.VISUAL_GEOMETRY.searchY)
     if ornate then
         search:SetFontObject(ChatFontNormal)
