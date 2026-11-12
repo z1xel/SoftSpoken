@@ -673,6 +673,7 @@ function List:ScrollTo(value)
     if not self.scroll or not self.child then return end
     U.SetScrollOffset(self.scroll,self.child,value)
     self:DrawRows()
+    U.RefreshScrollEdgeFade(self)
     local native=self.sszNativeScrollChrome
     if native then native.sync() end
 end
@@ -881,12 +882,18 @@ function C.NewList(panel,opts)
     scroll:SetScript("OnVerticalScroll",function()
         if scroll.GetVerticalScroll then scroll.sz112ScrollOffset=scroll:GetVerticalScroll() or 0 end
         list:DrawRows()
+        U.RefreshScrollEdgeFade(list)
         if list.sszNativeScrollChrome then list.sszNativeScrollChrome.sync() end
     end)
     scroll:SetScript("OnMouseWheel",function(first,second)
         local value=U.ScrollOffset(scroll)-U.MouseWheelDelta(first,second)*SCROLL_STEP
         value=math.max(0,math.min(value,U.ScrollMax(scroll,child)))
         list:ScrollTo(value)
+    end)
+    -- A resize changes the scroll range even if the offset stays unchanged.
+    -- Keep the edge fade anchored to the new viewport bounds.
+    scroll:SetScript("OnSizeChanged",function()
+        U.RefreshScrollEdgeFade(list)
     end)
     for i=1,VISIBLE_ROWS do list:AcquireRow(i) end
     local noMatch=left:CreateFontString(nil,"OVERLAY","GameFontDisableSmall")
@@ -899,6 +906,9 @@ function C.NewList(panel,opts)
         local native=SSCNativeScrollbar.AttachList(list)
         list.bar=native and native.slider
     end
+    -- Fade only the virtualized row content. Search/filter controls, the
+    -- inset artwork and native scrollbar are outside the scroll viewport.
+    U.EnableScrollEdgeFade(list)
     panel.list=list
     return list
 end
