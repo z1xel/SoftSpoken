@@ -134,7 +134,7 @@ local function BuildPanel()
     -- footer without leaving a broad empty strip above it.
     pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
         return P.CreateLorePage(holder,"book",nil,{openInCompendium=true,expandSubtitle=true})
-    end,{left=0,right=4,top=23,bottom=28})
+    end,{left=0,right=4,top=23,bottom=24})
     -- Share the Compendium's ClassicAPI scroll-edge fade on the World Map
     -- lore reader. The TextView method handles missing ClassicAPI safely.
     if page and page.body and page.body.EnableEdgeFade then
@@ -143,14 +143,28 @@ local function BuildPanel()
     if SSZAudioButton and SSZAudioButton.Bind then SSZAudioButton.Bind(page.play) end
     panel.pageInset=pageInset
     panel.page=page
-    -- Apply the final map frame level *after* constructing parchment and
-    -- scrollbar children. Their frame levels, and the decorative compact
-    -- trim (+10), must not sit above the native close button's hit target.
-    -- In particular, the visible X, its highlight and its OnClick handler
-    -- must all belong to the same highest button frame.
+    -- The minimized World Map's frame trim must cover the parchment, but
+    -- the standalone reader's scrollbar art must cover that trim. Relevel
+    -- only Zone Lore's scroll chrome; leave all shared Compendium bars alone.
+    -- Explicitly lift native slider children too, since inherited 1.12 frame
+    -- levels need not follow a later SetFrameLevel on their parent.
     if panel.sszMapBorder then
         panel.sszMapBorder:SetFrameLevel(panel:GetFrameLevel()+10)
+        local scrollChrome=page and page.body and page.body.sszNativeScrollChrome
+        local slot=scrollChrome and scrollChrome.slot
+        local slider=scrollChrome and scrollChrome.slider
+        if slot then slot:SetFrameLevel(panel:GetFrameLevel()+11) end
+        if slider then
+            slider:SetFrameLevel(panel:GetFrameLevel()+12)
+            if slider.GetChildren then
+                local children={slider:GetChildren()}
+                for i=1,table.getn(children) do
+                    children[i]:SetFrameLevel(panel:GetFrameLevel()+13)
+                end
+            end
+        end
     end
+    -- Keep the red X, its highlight, and its hit target above all of them.
     if panel.sszClose then
         panel.sszClose:SetFrameLevel(panel:GetFrameLevel()+15)
     end
