@@ -230,7 +230,7 @@ local function Build(panelFrame)
     -- chrome; Quests supplies only quest-specific content and actions.
     local pageInset
     pageInset, page = C.CreatePagePane(panelFrame, list, function(holder)
-        return SSCLorePage.CreateLorePage(holder,"book")
+        return SSCLorePage.CreateLorePage(holder)
     end)
     if SSCQuestPage and SSCQuestPage.Create then
         details=SSCQuestPage.Create(page)

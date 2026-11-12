@@ -523,7 +523,7 @@ local function Build(panelFrame)
     -- Every current SoftSpoken tab uses the same page constructor and skin.
     local inset
     inset, page = C.CreatePagePane(panel, list, function(holder)
-        return P.CreateLorePage(holder,"book")
+        return P.CreateLorePage(holder)
     end)
     EquipPlay(page)
     panel.pageInset=inset

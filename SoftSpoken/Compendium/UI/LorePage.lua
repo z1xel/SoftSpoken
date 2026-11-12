@@ -1,4 +1,4 @@
--- SoftSpoken Zones lore page: spellbook layout and original art UVs.
+-- Shared SoftSpoken lore page: parchment reader and original art UVs.
 -- Page rendering is independent of discovery and narration state.
 SSCLorePage = SSCLorePage or {}
 local P = SSCLorePage
@@ -9,12 +9,10 @@ local Page = {}
 Page.__index = Page
 P.Page = Page
 
--- These are the measurements and UV coordinates in upstream's LorePage.lua.
--- Keep the original parchment and ornamental divider art used by the reader.
+-- Keep the original ornamental divider art and its source UV coordinates.
 local ORIGINAL_ART = SSCOriginalArt == true
 local ART = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\"
 local PARCHMENT = ART.."QuestDetailsBackgrounds"
-local PAGE_NAME = "spellbook-Page-Right-C60"
 local DIVIDER_NAME = "spellbook-divider"
 -- Keep the divider at its original scale: 64px left flourish, 66px right cap.
 -- The right cap always includes the original 657px endpoint: shortening
@@ -24,14 +22,12 @@ local DIVIDER_LEFT, DIVIDER_RIGHT = 64, 66
 local DIVIDER_SOURCE_END = 657
 local DIVIDER_REPEAT_START, DIVIDER_REPEAT = 559, 32
 local COPY = {
-    [PAGE_NAME] = {810,682,0.791016,0.666016},
     [DIVIDER_NAME] = {657,11,0.641602,0.6875},
 }
 local PAD = 24
 -- Match the right text inset to the 24-unit left parchment inset.
 -- The native scrollbar occupies a separate housing outside the page.
-local INSET = { book={top=28,right=PAD}, log={top=28,right=PAD} }
-local BOOK_TOP_BAND = .07
+local INSET = {top=28,right=PAD}
 -- Blizzard's QuestFont uses solid black ink on parchment.
 local INK = { 0,0,0 }
 -- Pre-fidelity reader's warm brown is retained for breadcrumbs/subtitles.
@@ -73,7 +69,7 @@ function Page:PlaceButtons()
     -- Upstream: place only visible header controls, right to left. A hidden
     -- Play button must not leave an empty slot beside the Compendium book.
     local x = -self.inset.right
-    local y = -self.inset.top - (self.style=="log" and 10 or 1)
+    local y = -self.inset.top - 1
     local last
     for _, button in ipairs({self.play, self.open}) do
         if button and button:IsShown() then
@@ -223,9 +219,8 @@ function Page:Show(entry)
     self:Resize(false)
 end
 
-function P.CreateLorePage(parent,style,left,options)
-    local page=setmetatable({style=style or "book",
-        inset=INSET[style] or INSET.book,
+function P.CreateLorePage(parent,options)
+    local page=setmetatable({inset=INSET,
         expandSubtitle=options and options.expandSubtitle==true},Page)
     local frame=CreateFrame("Frame",nil,parent)
     -- The caller supplies a page holder inside the right-hand inset.
@@ -239,39 +234,20 @@ function P.CreateLorePage(parent,style,left,options)
     underlay:SetTexture(.79,.65,.45,1)
     page.underlay=underlay
 
-    -- Use actual upstream parchment on top whenever it is installed; if the
-    -- file is unavailable, the opaque underlay remains visible beneath it.
+    -- Every lore page uses the bundled quest-details parchment. The opaque
+    -- underlay remains available if that file cannot be drawn.
     if not ORIGINAL_ART then U.AddBorder(frame,"Interface\\QuestFrame\\QuestBG") end
     local parchment=frame:CreateTexture(nil,"BORDER")
     parchment:SetAllPoints(frame)
-    local paperName=page.style=="log" and "QuestDetailsBackgrounds" or PAGE_NAME
-    -- Shared Compendium/Zone Lore panes select their final parchment once.
-    -- Direct LorePage construction retains its original book/log artwork.
-    local paneParchment=parent and parent.sszUsePaneParchment==true
-    if paneParchment then
-        parchment:SetTexture(PARCHMENT)
-        parchment:SetTexCoord(0,.560547,0,.90625)
-        parchment:SetVertexColor(1,1,1,1)
-    elseif ORIGINAL_ART then
-        parchment:SetTexture(ART..paperName)
-        if page.style=="log" then
-            parchment:SetTexCoord(0,.560547,0,.90625)
-        else
-            local uv=COPY[PAGE_NAME]
-            parchment:SetTexCoord(0,uv[3],uv[4]*BOOK_TOP_BAND,uv[4])
-        end
-    else
-        parchment:SetTexture("Interface\\QuestFrame\\QuestBG")
-        parchment:SetVertexColor(.82,.75,.58)
-    end
+    parchment:SetTexture(PARCHMENT)
+    parchment:SetTexCoord(0,.560547,0,.90625)
+    parchment:SetVertexColor(1,1,1,1)
     page.bg=parchment
-    page.bgFile=paneParchment and PARCHMENT or
-        (ORIGINAL_ART and (ART..paperName) or "Interface\\QuestFrame\\QuestBG")
-    page.sszPaneParchmentInitialized=paneParchment
+    page.bgFile=PARCHMENT
 
     local title=frame:CreateFontString(nil,"ARTWORK","GameFontNormalLarge")
     title:SetJustifyH("LEFT")
-    if title.SetWordWrap then title:SetWordWrap(page.style=="book") end
+    if title.SetWordWrap then title:SetWordWrap(true) end
     SetHeadingFont(title)
     TitleInk(title)
     page.title=title
@@ -336,9 +312,8 @@ function P.CreateLorePage(parent,style,left,options)
     page.divider=divider
 
     page.play=A.Create(frame)
-    if page.style=="log" or (options and options.openInCompendium) then
-        -- Preserve the map reader's Open in Compendium action even while
-        -- showing the standard book-style parchment used by Places.
+    if options and options.openInCompendium then
+        -- The map reader offers a shortcut to the Places Compendium entry.
         local open=CreateFrame("Button",nil,frame)
         open:SetWidth(24); open:SetHeight(24)
         local art=open:CreateTexture(nil,"ARTWORK")
@@ -411,16 +386,16 @@ function P.CreateLorePage(parent,style,left,options)
     return page
 end
 
-function P.Build(window,left)
+function P.Build(window)
     if P.page then return P.page end
-    local page=P.CreateLorePage(window,"book",left)
+    local page=P.CreateLorePage(window)
     P.page=page
     return page
 end
 
--- Shared parchment backing, inset rim, and final artwork for Compendium readers.
--- Kept as a separate post-construction step to preserve holder anchors,
--- page frame levels, and the original 1.12 reflow order.
+-- Shared marble backing and inset rim for Compendium and Zone Lore readers.
+-- Applied after construction to preserve holder anchors, frame levels,
+-- and the original 1.12 reflow order.
 local INTERIOR = SSCPrototypeInteriorSkin
 local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\UI-Background-Marble"
 -- This file is already included with SoftSpoken and is byte-identical to the
@@ -447,14 +422,6 @@ function P.ApplyPaneSkin(inset,holder,page)
     holder:SetPoint("TOPLEFT",visual,"TOPLEFT",3,-3)
     holder:SetPoint("BOTTOMRIGHT",visual,"BOTTOMRIGHT",-3,3)
 
-    -- PagePane-created LorePages already selected their final parchment.
-    -- Preserve the original post-construction override for other page factories.
-    if page.bg and not page.sszPaneParchmentInitialized then
-        page.bg:SetTexture(PARCHMENT)
-        page.bg:SetTexCoord(0,0.560547,0,0.90625)
-        page.bg:SetVertexColor(1,1,1,1)
-        page.bgFile=PARCHMENT
-    end
     -- The parchment is painted by page.frame, so the metal inset must be a
     -- separate foreground layer like the approved prototype's `rim` frame.
     local rim=CreateFrame("Frame",nil,visual)

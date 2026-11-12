@@ -135,7 +135,7 @@ local function BuildPanel()
     -- Keep the parchment and scrollbar clear of the map's visible ornate
     -- footer without leaving a broad empty strip above it.
     pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
-        return P.CreateLorePage(holder,"book",nil,{openInCompendium=true,expandSubtitle=true})
+        return P.CreateLorePage(holder,{openInCompendium=true,expandSubtitle=true})
     end,{left=0,right=4,top=23,bottom=24})
     -- Zone Lore geometry: size the shared page visual, not its parchment
     -- holder. This keeps the silver inset (rim:SetAllPoints(pageVisual)) tied
