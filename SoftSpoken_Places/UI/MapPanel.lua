@@ -170,7 +170,7 @@ local function BuildPanel()
         if slot then
             slot:SetFrameLevel(panel:GetFrameLevel()+11)
             -- Zone Lore only: position the scrollbar 1 unit lower and keep
-            -- it 5 units shorter than the shared page inset. Leave the
+            -- it 6 units shorter than the shared page inset. Leave the
             -- parchment's height and shared Compendium unchanged.
             -- Keep the parchment's 2-unit right-edge adjustment, but shift
             -- only Zone Lore's scrollbar an additional unit to the right.
@@ -179,7 +179,7 @@ local function BuildPanel()
                 + READER_RIGHT_SHIFT + SCROLLBAR_EXTRA_RIGHT_SHIFT
             slot:ClearAllPoints()
             slot:SetPoint("TOPRIGHT",pageInset,"TOPRIGHT",rightOffset,-1)
-            slot:SetPoint("BOTTOMRIGHT",pageInset,"BOTTOMRIGHT",rightOffset,4)
+            slot:SetPoint("BOTTOMRIGHT",pageInset,"BOTTOMRIGHT",rightOffset,5)
         end
         if slider then
             slider:SetFrameLevel(panel:GetFrameLevel()+12)
