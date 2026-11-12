@@ -690,11 +690,11 @@ function C.NewList(panel,opts)
     end
     search:SetWidth(C.VISUAL_GEOMETRY.searchWidth);search:SetHeight(21)
     search:SetAutoFocus(false);search:SetMaxLetters(70)
-    -- With the filter arrow on the LEFT, keep the combined group pinned to
-    -- the compact Compendium's right edge: Search ends 5 UI units before it.
-    -- This anchor is stable in both compact and expanded layouts.
+    -- Keep Search left of the filter arrow with their 2-unit gap.
+    -- Position the pair 15 units inside the compact right edge, including
+    -- a 10-unit shift left from the previous 5-unit margin.
     local headerControlsWidth=C.VISUAL_GEOMETRY.searchWidth+2+24
-    local headerControlsX=CollapsedWidth()-5-headerControlsWidth
+    local headerControlsX=CollapsedWidth()-15-headerControlsWidth
     search:SetPoint("TOPLEFT",panel,"TOPLEFT",headerControlsX,
         C.VISUAL_GEOMETRY.searchY)
     if ornate then
