@@ -5,8 +5,9 @@ local M = SSZMapPanel
 local Compat = SSZMapCompat
 local L = SSZLoreWindow
 local P = SSZLorePage
-local WIDTH, GAP = 327, 2
+local WIDTH, GAP = 328, 2
 local READER_RIGHT_SHIFT = 2
+local SCROLLBAR_EXTRA_RIGHT_SHIFT = 1
 local panel, page, toggle, pageInset
 local lastMapID, lastContinent, lastZone
 local ready = false
@@ -169,11 +170,11 @@ local function BuildPanel()
             -- Zone Lore only: position the scrollbar 1 unit lower and keep
             -- it 5 units shorter than the shared page inset. Leave the
             -- parchment's height and shared Compendium unchanged.
-            -- Mirror the shared skin's right offset, adding the same 2-unit
-            -- right shift applied to the parchment's visual frame.
+            -- Keep the parchment's 2-unit right-edge adjustment, but shift
+            -- only Zone Lore's scrollbar an additional unit to the right.
             local geometry=SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
             local rightOffset=(geometry and geometry.pageSlotRightOffset or -3)
-                + READER_RIGHT_SHIFT
+                + READER_RIGHT_SHIFT + SCROLLBAR_EXTRA_RIGHT_SHIFT
             slot:ClearAllPoints()
             slot:SetPoint("TOPRIGHT",pageInset,"TOPRIGHT",rightOffset,-1)
             slot:SetPoint("BOTTOMRIGHT",pageInset,"BOTTOMRIGHT",rightOffset,4)
