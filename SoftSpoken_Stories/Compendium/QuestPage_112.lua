@@ -148,6 +148,11 @@ end
 -- The same player-faction crest is also the Stories player portrait fallback.
 -- One resolver owns these textures and their Turtle 1.12 race fallback.
 local FactionCrest=SSCQuestFactionCrest
+-- An item has no creature face. Use a native note icon until its item icon
+-- becomes available; never show the player's faction crest for an item.
+local ITEM_FALLBACK = "Interface\\Icons\\INV_Misc_Note_01"
+local ITEM_ICON_CROP = { .08, .92, .08, .92 }
+
 -- User-selected CharacterTab ring: 77x77 image pixels stored in a 128x128
 -- power-of-two TGA for Vanilla 1.12. Its on-screen size is independent of
 -- the 77x77 stored image: a 68-unit ring closely frames the 62-unit portrait.
@@ -223,7 +228,32 @@ local function PaintCrest(holder)
     holder.affiliationLabel=label
     holder.creatureID=nil
     holder.pendingCreatureID=nil
+    holder.pendingItemID=nil
     holder.binding=nil
+end
+
+local function ValidIcon(icon)
+    return (type(icon)=="string" and icon~="") or
+        (type(icon)=="number" and icon>0)
+end
+
+local function PaintItemIcon(holder,icon,speaker)
+    holder.icon:SetTexCoord(unpack(ITEM_ICON_CROP))
+    holder.icon:SetTexture(ValidIcon(icon) and icon or ITEM_FALLBACK)
+    holder.affiliationLabel=speaker and speaker~="" and speaker or "Quest item"
+end
+
+-- ClassicAPI resolves the icon by item ID, even if the item isn't in the
+-- player's bags. Its cache miss initiates a load; a bag icon is an optional
+-- fallback for clients without this API (and while the data is still loading).
+local function ResolveItemIcon(itemID,questID)
+    local info=rawget(_G,"C_Item")
+    local icon=info and API(info.GetItemIconByID,itemID)
+    if ValidIcon(icon) then return icon end
+    if Spoken and type(Spoken.QuestItemIcon)=="function" then
+        icon=API(Spoken.QuestItemIcon,Spoken,questID)
+        if ValidIcon(icon) then return icon end
+    end
 end
 
 local function CanDrawCreature(kind,npc)
@@ -252,9 +282,32 @@ local function ApplyPortrait(holder,displayID)
     end
 end
 
+-- Item portraits use the same masked 2D region, ring and quest-state badge
+-- as creature portraits. No model or new texture asset is necessary.
+function P:BindItemPortrait(part,questID,stage,itemID,speaker)
+    local holder=part.face
+    PaintItemIcon(holder,nil,speaker)
+    itemID=Number(itemID)
+    if not itemID then return end
+
+    holder.binding={questID=questID,stage=stage,itemID=itemID,
+        generation=self.generation,speaker=speaker}
+    holder.pendingItemID=itemID
+    local icon=ResolveItemIcon(itemID,questID)
+    if ValidIcon(icon) then
+        PaintItemIcon(holder,icon,speaker)
+        holder.pendingItemID=nil
+    end
+end
+
 function P:BindPortrait(part,questID,stage,kind,npc,speaker)
     local holder=part.face
     PaintCrest(holder)
+    local enums=VoiceOver and VoiceOver.Enums and VoiceOver.Enums.GUID
+    if enums and kind==enums.Item then
+        self:BindItemPortrait(part,questID,stage,npc,speaker)
+        return
+    end
     npc=CanDrawCreature(kind,npc)
     if not npc then return end
     -- A reused holder must never accept an old page/stage/creature result.
@@ -285,6 +338,30 @@ function P:OnCreatureAppearance(creatureID,displayID,success)
            bound.stage==stage and bound.generation==self.generation then
             holder.pendingCreatureID=nil
             if success and Number(displayID) then ApplyPortrait(holder,displayID) end
+        end
+    end
+end
+
+-- Refresh only the specific currently-visible item that finished loading.
+-- ClassicAPI reports implicit cache warms via GET_ITEM_INFO_RECEIVED and
+-- explicit requests made by other addons via ITEM_DATA_LOAD_RESULT.
+function P:OnItemInfoReceived(itemID,success)
+    if success==false or success==0 or not self.active or not self.id or
+       not self.page.frame:IsVisible() then return end
+    itemID=Number(itemID)
+    if not itemID then return end
+    for _,stage in ipairs(MOMENTS) do
+        local part=self.parts[stage]
+        local holder=part and part.face
+        local bound=holder and holder.binding
+        if part and part:IsShown() and bound and
+           holder.pendingItemID==itemID and bound.itemID==itemID and
+           bound.questID==self.id and bound.stage==stage and
+           bound.generation==self.generation then
+            -- One-shot refresh: a failed/missing icon keeps the fallback.
+            holder.pendingItemID=nil
+            local icon=ResolveItemIcon(itemID,bound.questID)
+            if ValidIcon(icon) then PaintItemIcon(holder,icon,bound.speaker) end
         end
     end
 end
@@ -433,6 +510,18 @@ function P.Create(page)
     -- The remaining 0.25s ticker updates playback buttons only. Creature
     -- portraits now respond to shared ClassicAPI completion notifications.
     self.events=CreateFrame("Frame",nil,page.frame)
+    self.events:SetScript("OnEvent",function(_,eventName,itemID,success)
+        -- Original WoW 1.12 supplies event/arg1/arg2 as globals.
+        eventName=type(eventName)=="string" and eventName or _G.event
+        if eventName~="GET_ITEM_INFO_RECEIVED" and
+           eventName~="ITEM_DATA_LOAD_RESULT" then return end
+        self:OnItemInfoReceived(Number(itemID) or Number(_G.arg1),
+            success~=nil and success or _G.arg2)
+    end)
+    for _,eventName in ipairs({"GET_ITEM_INFO_RECEIVED","ITEM_DATA_LOAD_RESULT"}) do
+        -- Old clients without ClassicAPI may reject these custom events.
+        pcall(self.events.RegisterEvent,self.events,eventName)
+    end
     self.elapsed=0
     self.events:SetScript("OnUpdate",function(_,elapsed)
         if not self.active or not self.page.frame:IsVisible() then return end
