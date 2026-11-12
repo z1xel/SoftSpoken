@@ -775,15 +775,17 @@ function C.NewList(panel,opts)
     list.searchBox=search
     list.searchHint=hint
     list.searchClear=clear
-    -- Trim Show from the LEFT: move its start 3 units right and reduce
-    -- the middle texture by 3, keeping its right edge fixed. Search stays
-    -- anchored to the panel, independently of any Show size/position changes.
+    -- Swap the controls back: Search on the left, Show on the right.
+    -- Preserve their compact 13-unit overlap and common vertical center.
+    -- Anchor both to the panel, so changing Show's width cannot move Search.
+    local searchLeft=C.VISUAL_GEOMETRY.searchX+3
+    local showLeft=searchLeft+C.VISUAL_GEOMETRY.searchWidth-13
     filterMenuSerial=filterMenuSerial+1
     local menuName=NAME.."FilterMenu"..filterMenuSerial
     local menu=CreateFrame("Frame",menuName,panel,"UIDropDownMenuTemplate")
-    menu:SetPoint("LEFT",panel,"TOPLEFT",C.VISUAL_GEOMETRY.searchX+3,
+    search:SetPoint("LEFT",panel,"TOPLEFT",searchLeft,
         C.VISUAL_GEOMETRY.searchY-search:GetHeight()/2)
-    search:SetPoint("LEFT",panel,"TOPLEFT",C.VISUAL_GEOMETRY.searchX+94,
+    menu:SetPoint("LEFT",panel,"TOPLEFT",showLeft,
         C.VISUAL_GEOMETRY.searchY-search:GetHeight()/2)
     list.filterMenu=menu
     -- Keep the public button handle used by existing tab integrations.
