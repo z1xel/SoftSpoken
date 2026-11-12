@@ -62,7 +62,11 @@ local function MinimizedMapBorder(frame)
     left:SetPoint("TOPLEFT",topLeft,"BOTTOMLEFT",0,0)
     left:SetPoint("BOTTOMLEFT",bottomLeft,"TOPLEFT",0,0)
 
-    local topRight=Piece("TopRight",64,32)
+    -- The original World Map has a minimize bezel to the left of Close.
+    -- Zone Lore needs only Close: retain the native right-hand 32px cap.
+    -- Anchoring the narrower cap to the right extends the top rail naturally.
+    local topRight=Piece("TopRight",32,32)
+    topRight:SetTexCoord(0.5,1,0,1)
     topRight:SetPoint("TOPRIGHT",chrome,"TOPRIGHT",0,0)
     local bottomRight=Piece("BottomRight",64,64)
     bottomRight:SetPoint("BOTTOMRIGHT",chrome,"BOTTOMRIGHT",0,0)
@@ -126,10 +130,12 @@ local function BuildPanel()
     -- separate quest-log renderer or decorative nine-slice.
     -- Bring the parchment to the left edge and lift the shared parchment/
     -- scrollbar inset directly beneath the compact silver title bar.
-    -- Keep the approved right and bottom clearances unchanged.
+    -- Turtle's minimized map has a tall decorated footer. End the shared
+    -- parchment and scrollbar just above that art instead of hiding their
+    -- bottoms beneath the 64-unit bottom border texture.
     pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
         return P.CreateLorePage(holder,"book",nil,{openInCompendium=true,expandSubtitle=true})
-    end,{left=0,right=4,top=23,bottom=8})
+    end,{left=0,right=4,top=23,bottom=54})
     -- Share the Compendium's ClassicAPI scroll-edge fade on the World Map
     -- lore reader. The TextView method handles missing ClassicAPI safely.
     if page and page.body and page.body.EnableEdgeFade then
