@@ -693,9 +693,9 @@ function C.NewList(panel,opts)
     -- With the filter arrow on the LEFT, keep the combined group pinned to
     -- the compact Compendium's right edge: Search ends 5 UI units before it.
     -- This anchor is stable in both compact and expanded layouts.
-    local headerControlsWidth=24+2+C.VISUAL_GEOMETRY.searchWidth
+    local headerControlsWidth=C.VISUAL_GEOMETRY.searchWidth+2+24
     local headerControlsX=CollapsedWidth()-5-headerControlsWidth
-    search:SetPoint("TOPLEFT",panel,"TOPLEFT",headerControlsX+24+2,
+    search:SetPoint("TOPLEFT",panel,"TOPLEFT",headerControlsX,
         C.VISUAL_GEOMETRY.searchY)
     if ornate then
         search:SetFontObject(ChatFontNormal)
@@ -785,7 +785,7 @@ function C.NewList(panel,opts)
     -- uses the same dropdown and filtering callbacks below.
     local filterButton=CreateFrame("Button",nil,panel)
     filterButton:SetWidth(24);filterButton:SetHeight(24)
-    filterButton:SetPoint("RIGHT",search,"LEFT",-2,0)
+    filterButton:SetPoint("LEFT",search,"RIGHT",2,0)
     filterButton:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up")
     filterButton:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
     filterButton:SetDisabledTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Disabled")
