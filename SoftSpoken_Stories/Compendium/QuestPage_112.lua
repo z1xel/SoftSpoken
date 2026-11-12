@@ -152,6 +152,8 @@ local FactionCrest=SSCQuestFactionCrest
 -- becomes available; never show the player's faction crest for an item.
 local ITEM_FALLBACK = "Interface\\Icons\\INV_Misc_Note_01"
 local ITEM_ICON_CROP = { 0, 1, 0, 1 }
+-- Generic GameObjects have no inventory icon; match upstream Spoken's notice.
+local GAMEOBJECT_FALLBACK = "Interface\\Icons\\INV_Misc_Note_01"
 
 -- User-selected CharacterTab ring: 77x77 image pixels stored in a 128x128
 -- power-of-two TGA for Vanilla 1.12. Its on-screen size is independent of
@@ -256,6 +258,14 @@ local function ResolveItemIcon(itemID,questID)
     end
 end
 
+-- GameObjects are world models, not creatures. Preserve the existing ring
+-- and badge while replacing the unrelated player faction crest.
+local function PaintGameObject(holder,speaker)
+    holder.icon:SetTexCoord(0,1,0,1)
+    holder.icon:SetTexture(GAMEOBJECT_FALLBACK)
+    holder.affiliationLabel=type(speaker)=="string" and speaker~="" and speaker or "Quest object"
+end
+
 local function CanDrawCreature(kind,npc)
     if rawget(_G,"SoftSpokenExperimentalStaticPortraits")==false or
        type(rawget(_G,"SetPortraitTextureFromCreatureDisplayID"))~="function" then
@@ -306,6 +316,10 @@ function P:BindPortrait(part,questID,stage,kind,npc,speaker)
     local enums=VoiceOver and VoiceOver.Enums and VoiceOver.Enums.GUID
     if enums and kind==enums.Item then
         self:BindItemPortrait(part,questID,stage,npc,speaker)
+        return
+    end
+    if enums and kind==enums.GameObject then
+        PaintGameObject(holder,speaker)
         return
     end
     npc=CanDrawCreature(kind,npc)
