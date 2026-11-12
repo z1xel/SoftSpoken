@@ -252,36 +252,41 @@ file:close()
 assert(not transcript:find("seconds > self.duration"))
 assert(transcript:find('Callbacks:Register%("CLIP_STOPPED"'))
 
--- Keep the baked Neutral Talking Heads textures loadable by the 1.12 client.
--- These are uncompressed 128x128, 32-bit, top-left-origin TGA files.
-local function CheckTalkingHeadArt(path, isBorder)
+-- Blizzard's Neutral frame atlas region is 143x143 (not 128x128).
+-- The exact region is placed at the top-left of a transparent 256x256 TGA.
+local function CheckTalkingHeadArt(path, width)
     local file = assert(io.open(path, "rb"), "Missing packaged texture: " .. path)
     local data = file:read("*a")
     file:close()
-    eq(#data, 18 + 128 * 128 * 4)
-    eq(data:byte(3), 2)       -- Uncompressed true-color TGA
-    eq(data:byte(13), 128)    -- Width (little-endian)
-    eq(data:byte(14), 0)
-    eq(data:byte(15), 128)    -- Height (little-endian)
-    eq(data:byte(16), 0)
-    eq(data:byte(17), 32)     -- BGRA
-    eq(data:byte(18), 40)     -- 8 alpha bits, top-left origin
-    local function AlphaAt(x, y)
-        return data:byte(22 + (y * 128 + x) * 4)
-    end
-    if isBorder then
-        eq(AlphaAt(64, 64), 0) -- Transparent aperture for the 3D model
-        assert(AlphaAt(1, 64) > 0)
-    else
-        assert(AlphaAt(64, 64) > 0)
+    eq(#data, 18 + width * width * 4)
+    eq(data:byte(3), 2)        -- Uncompressed true-color TGA
+    eq(data:byte(13), width % 256)
+    eq(data:byte(14), math.floor(width / 256))
+    eq(data:byte(15), width % 256)
+    eq(data:byte(16), math.floor(width / 256))
+    eq(data:byte(17), 32)      -- BGRA
+    eq(data:byte(18), 40)      -- 8 alpha bits, top-left origin
+    return function(x, y)
+        return data:byte(22 + (y * width + x) * 4)
     end
 end
-CheckTalkingHeadArt("SoftSpoken/Textures/TalkingHeads/PortraitNeutral.tga", true)
-CheckTalkingHeadArt("SoftSpoken/Textures/TalkingHeads/PortraitBg.tga", false)
+local frameAlpha = CheckTalkingHeadArt("SoftSpoken/Textures/TalkingHeads/PortraitNeutral.tga", 256)
+eq(frameAlpha(72, 72), 0)  -- 3D model aperture
+assert(frameAlpha(72, 2) > 0) -- Frame artwork within crop
+eq(frameAlpha(143, 72), 0) -- Transparent padding, not neighboring atlas art
+eq(frameAlpha(72, 143), 0)
+local backingAlpha = CheckTalkingHeadArt("SoftSpoken/Textures/TalkingHeads/PortraitBg.tga", 128)
+assert(backingAlpha(64, 64) > 0) -- Unused reference texture remains valid
 local playerFile = assert(io.open("SoftSpoken/UI/PlayerFrame.lua", "r"))
 local playerSource = playerFile:read("*a")
 playerFile:close()
 assert(playerSource:find([[TalkingHeads\\PortraitNeutral]], 1, true))
+assert(playerSource:find("local TALKING_HEAD_FRAME_SIZE = 143 * PORTRAIT_SIZE / 115", 1, true))
+assert(playerSource:find("local TALKING_HEAD_MODEL_INSET_X = 16 * PORTRAIT_SIZE / 115", 1, true))
+assert(playerSource:find("local TALKING_HEAD_MODEL_INSET_Y = 15 * PORTRAIT_SIZE / 115", 1, true))
+assert(playerSource:find("local TALKING_HEAD_TEX_COORD = 143 / 256", 1, true))
+assert(playerSource:find('self.frame.portrait.border.texture:SetPoint("TOPLEFT"', 1, true))
+assert(playerSource:find("SetTexCoord(0, TALKING_HEAD_TEX_COORD, 0, TALKING_HEAD_TEX_COORD)", 1, true))
 assert(playerSource:find('self.frame.portrait.background:SetTexture(TEXTURES .. "PortraitFrameBackground")', 1, true))
 assert(playerSource:find('self.frame.portrait.pause.background:SetTexture(TEXTURES .. "PortraitFrameBackground")', 1, true))
 assert(not playerSource:find('SetTexture(TEXTURES .. "TalkingHeads\\\\PortraitBg")', 1, true))

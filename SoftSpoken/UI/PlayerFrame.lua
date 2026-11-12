@@ -23,13 +23,16 @@ local PORTRAIT_ATLAS_SIZE = 512
 local PORTRAIT_ATLAS_BORDER_SIZE = 416
 local PORTRAIT_ATLAS_VIEWPORT_SIZE = 348
 local PORTRAIT_BORDER_SCALE = PORTRAIT_SIZE / PORTRAIT_ATLAS_VIEWPORT_SIZE
-local PORTRAIT_BORDER_SIZE = PORTRAIT_ATLAS_BORDER_SIZE * PORTRAIT_BORDER_SCALE
 local PORTRAIT_BORDER_OUTSET = 34 * PORTRAIT_BORDER_SCALE
--- The Neutral Talking Heads portrait has a 107x107 transparent aperture in
--- its 128x128 art. At our existing 143.45-unit border size, this matches the
--- 120-unit PlayerModel viewport. The opening is slightly off-center in art.
-local TALKING_HEAD_BORDER_X = 1.7
-local TALKING_HEAD_BORDER_Y = 0.6
+-- Blizzard's TalkingHeadUI.xml: the 115x115 model starts at (21, -21),
+-- while its 143x143 portrait frame starts at (5, -6). Preserve the resulting
+-- 16x15 inset, uniformly scaled to our existing 120x120 portrait viewport.
+local TALKING_HEAD_FRAME_SIZE = 143 * PORTRAIT_SIZE / 115
+local TALKING_HEAD_MODEL_INSET_X = 16 * PORTRAIT_SIZE / 115
+local TALKING_HEAD_MODEL_INSET_Y = 15 * PORTRAIT_SIZE / 115
+-- Native atlas coordinates: [863,1006) x [1,144) in the 1024px sheet.
+-- The exact 143x143 region is packaged in a transparent 256x256 Vanilla TGA.
+local TALKING_HEAD_TEX_COORD = 143 / 256
 local PORTRAIT_LINE_WIDTH = 56 * PORTRAIT_BORDER_SCALE
 local FRAME_WIDTH_WITHOUT_PORTRAIT = 300
 local MAX_ROWS = 4
@@ -374,11 +377,11 @@ function PlayerFrame:InitPortrait()
     self.frame.portrait.border:SetFrameLevel(self.frame.portrait.pause:GetFrameLevel() + 1)
     self.frame.portrait.border:SetAllPoints()
     self.frame.portrait.border.texture = self.frame.portrait.border:CreateTexture(nil, "BORDER")
-    self.frame.portrait.border.texture:SetSize(PORTRAIT_BORDER_SIZE, PORTRAIT_BORDER_SIZE)
-    -- Keep the original border size and center the Neutral aperture on the model.
-    self.frame.portrait.border.texture:SetPoint("CENTER", self.frame.portrait, "CENTER", TALKING_HEAD_BORDER_X, TALKING_HEAD_BORDER_Y)
+    self.frame.portrait.border.texture:SetSize(TALKING_HEAD_FRAME_SIZE, TALKING_HEAD_FRAME_SIZE)
+    self.frame.portrait.border.texture:SetPoint("TOPLEFT", self.frame.portrait, "TOPLEFT",
+        -TALKING_HEAD_MODEL_INSET_X, TALKING_HEAD_MODEL_INSET_Y)
     self.frame.portrait.border.texture:SetTexture(TEXTURES .. "TalkingHeads\\PortraitNeutral")
-    self.frame.portrait.border.texture:SetTexCoord(0, 1, 0, 1)
+    self.frame.portrait.border.texture:SetTexCoord(0, TALKING_HEAD_TEX_COORD, 0, TALKING_HEAD_TEX_COORD)
 end
 
 function PlayerFrame:InitMover()
