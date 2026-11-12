@@ -279,13 +279,13 @@ local function ApplyAnchors()
         -- Crucially, WorldMapFrame itself is NEVER touched.
         panel:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",GAP,0)
         panel:SetPoint("BOTTOMLEFT",WorldMapFrame,"BOTTOMRIGHT",GAP,0)
-        toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",-1,-75)
+        toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",0,-75)
     else
         -- Fullscreen 1.12 and windowed maps too near the screen edge:
         -- leave the Blizzard map geometry alone and display an inset overlay.
         panel:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-28,-62)
         panel:SetPoint("BOTTOMRIGHT",WorldMapFrame,"BOTTOMRIGHT",-28,54)
-        toggle:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-34,-75)
+        toggle:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-33,-75)
     end
     return true
 end
