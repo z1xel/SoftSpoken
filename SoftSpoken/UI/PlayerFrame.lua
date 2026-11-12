@@ -222,10 +222,26 @@ function PlayerFrame:InitProgress()
     borderFrame:SetAllPoints(container)
     borderFrame:SetFrameLevel(bar:GetFrameLevel() + 1)
     local border = borderFrame:CreateTexture(nil, "OVERLAY")
-    border:SetTexture([[Interface\Glues\LoadingBar\Loading-BarBorder]])
+    local borderTexture = [[Interface\Glues\LoadingBar\Loading-BarBorder]]
+    border:SetTexture(borderTexture)
     border:SetAllPoints(borderFrame)
+
+    -- The source border is too dark to brighten noticeably by stacking
+    -- copies of itself. Add one silver-colored pass, clipped to the original
+    -- border's alpha, so the empty center stays completely transparent.
+    local silverLight = borderFrame:CreateTexture(nil, "OVERLAY")
+    ProgressColor(silverLight, 0.78, 0.82, 0.88, 0.30)
+    silverLight:SetBlendMode("ADD")
+    silverLight:SetAllPoints(borderFrame)
+    if type(silverLight.SetMask) == "function" then
+        silverLight:SetMask(borderTexture)
+    else
+        silverLight:Hide() -- Never draw an unmasked rectangle on older clients.
+    end
+
     self.progress = { container = container, bar = bar, track = track,
-        fill = fill, goldHighlight = goldHighlight, spark = spark, border = border }
+        fill = fill, goldHighlight = goldHighlight, spark = spark, border = border,
+        silverLight = silverLight }
     self:LayoutProgress()
 end
 
