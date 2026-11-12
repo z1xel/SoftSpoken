@@ -189,16 +189,16 @@ function PlayerFrame:InitProgress()
     local fill = bar:CreateTexture(nil, "ARTWORK")
     fill:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
     bar:SetStatusBarTexture(fill)
-    -- Shift the brass body toward gold without losing its darker metallic shading.
-    bar:SetStatusBarColor(0.86, 0.62, 0.12, 0.95)
-    -- A restrained champagne-gold reflection: transparent at the bottom,
-    -- brighter along the top edge, preserving the darker brass below.
+    -- Slightly warm the sampled dark mustard-gold for the textured brass body.
+    bar:SetStatusBarColor(140 / 255, 108 / 255, 30 / 255, 0.95)
+    -- Bright icon-yellow reflection: transparent at the bottom,
+    -- strongest along the upper edge over the warmer brass body.
     -- Anchor to the moving fill so it follows native playback progress.
     local goldHighlight = bar:CreateTexture(nil, "OVERLAY")
     goldHighlight:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
     goldHighlight:SetGradientAlpha("VERTICAL",
-        0.98, 0.76, 0.29, 0,
-        0.98, 0.76, 0.29, 0.62)
+        247 / 255, 223 / 255, 57 / 255, 0,
+        247 / 255, 223 / 255, 57 / 255, 0.55)
     goldHighlight:SetBlendMode("ADD")
     goldHighlight:SetAllPoints(fill)
     bar:SetMinMaxValues(0, 1)
