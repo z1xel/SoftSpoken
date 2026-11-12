@@ -219,7 +219,10 @@ function PlayerFrame:InitProgress()
     -- Child frame-levels outrank the parent's texture draw layers. Put the
     -- decorative rim in its own higher frame so it always covers the fill.
     local borderFrame = CreateFrame("Frame", nil, container)
-    borderFrame:SetAllPoints(container)
+    -- Compress only the entire border artwork by 1 unit, equally from top
+    -- and bottom; the silver overlay follows this same resized frame.
+    borderFrame:SetPoint("TOPLEFT", container, "TOPLEFT", 0, -0.5)
+    borderFrame:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", 0, 0.5)
     borderFrame:SetFrameLevel(bar:GetFrameLevel() + 1)
     local border = borderFrame:CreateTexture(nil, "OVERLAY")
     local borderTexture = [[Interface\Glues\LoadingBar\Loading-BarBorder]]
