@@ -52,7 +52,7 @@ local function BuildPanel()
     -- Keep the approved right and bottom clearances unchanged.
     pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
         return P.CreateLorePage(holder,"book",nil,{openInCompendium=true,expandSubtitle=true})
-    end,{left=0,right=4,top=21,bottom=8})
+    end,{left=0,right=4,top=23,bottom=8})
     -- Share the Compendium's ClassicAPI scroll-edge fade on the World Map
     -- lore reader. The TextView method handles missing ClassicAPI safely.
     if page and page.body and page.body.EnableEdgeFade then
