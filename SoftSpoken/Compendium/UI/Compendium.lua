@@ -690,8 +690,7 @@ function C.NewList(panel,opts)
     end
     search:SetWidth(C.VISUAL_GEOMETRY.searchWidth);search:SetHeight(21)
     search:SetAutoFocus(false);search:SetMaxLetters(70)
-    -- Place the search after the Show dropdown is created below, so both
-    -- controls share a center line and keep the same combined header width.
+    search:SetPoint("TOPLEFT",panel,"TOPLEFT",C.VISUAL_GEOMETRY.searchX,C.VISUAL_GEOMETRY.searchY)
     if ornate then
         search:SetFontObject(ChatFontNormal)
         SSCPrototypeInteriorSkin.ApplySearch(search)
@@ -775,21 +774,16 @@ function C.NewList(panel,opts)
     list.searchBox=search
     list.searchHint=hint
     list.searchClear=clear
-    -- Swap the controls back: Search on the left, Show on the right.
-    -- Preserve their compact 13-unit overlap and common vertical center.
-    -- Anchor both to the panel, so changing Show's width cannot move Search.
-    local searchLeft=C.VISUAL_GEOMETRY.searchX+3
-    local showLeft=searchLeft+C.VISUAL_GEOMETRY.searchWidth-13
-    filterMenuSerial=filterMenuSerial+1
-    local menuName=NAME.."FilterMenu"..filterMenuSerial
-    local menu=CreateFrame("Frame",menuName,panel,"UIDropDownMenuTemplate")
-    search:SetPoint("LEFT",panel,"TOPLEFT",searchLeft,
-        C.VISUAL_GEOMETRY.searchY-search:GetHeight()/2)
-    menu:SetPoint("LEFT",panel,"TOPLEFT",showLeft,
-        C.VISUAL_GEOMETRY.searchY-search:GetHeight()/2)
-    list.filterMenu=menu
-    -- Keep the public button handle used by existing tab integrations.
-    local filterButton=getglobal(menuName.."Button")
+    -- Exact native Vanilla dropdown arrow and Who-tab hover highlight.
+    -- The Blizzard highlight appears only while hovered; clicking still
+    -- uses the same dropdown and filtering callbacks below.
+    local filterButton=CreateFrame("Button",nil,panel)
+    filterButton:SetWidth(24);filterButton:SetHeight(24)
+    filterButton:SetPoint("LEFT",search,"RIGHT",8,0)
+    filterButton:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up")
+    filterButton:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
+    filterButton:SetDisabledTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Disabled")
+    filterButton:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight","ADD")
     list.filterButton=filterButton
     local function Changed()
         list:ScrollTo(0)
@@ -803,6 +797,10 @@ function C.NewList(panel,opts)
     local function ToggleCheck(check)
         return function() check.set(not check.get());Changed() end
     end
+    filterMenuSerial=filterMenuSerial+1
+    local menuName=NAME.."FilterMenu"..filterMenuSerial
+    local menu=CreateFrame("Frame",menuName,UIParent,"UIDropDownMenuTemplate")
+    list.filterMenu=menu
     if UIDropDownMenu_Initialize then
         UIDropDownMenu_Initialize(menu,function()
             if opts.only then
@@ -819,57 +817,17 @@ function C.NewList(panel,opts)
                 info.func=ToggleCheck(check)
                 UIDropDownMenu_AddButton(info)
             end
-        end)
-        UIDropDownMenu_SetWidth(54,menu)
-        UIDropDownMenu_SetButtonWidth(24,menu)
-        UIDropDownMenu_SetText("",menu)
-        -- Keep the native arrow and its menu behavior, without a caption.
+        end,"MENU")
+        -- MENU initialization hides the unused dropdown owner's chrome, but
+        -- its tooltip-style popup is not the framed list used by Vanilla's
+        -- Who dropdown. Keep the owner hidden and restore the native dialog
+        -- backdrop on DropDownList1 when ToggleDropDownMenu opens it.
+        menu.displayMode=nil
     end
-
-    -- Experiment: extend the raised Show housing underneath Search, creating
-    -- one continuous native three-piece label frame across both controls.
-    -- Draw these slices on the parent panel (behind both interactive frames);
-    -- stretching the dropdown's own ARTWORK would obscure Search instead.
-    local housingArt="Interface\\Glues\\CharacterCreate\\CharacterCreate-LabelFrame"
-    local function HousingSlice(u0,u1)
-        local tex=panel:CreateTexture(nil,"ARTWORK")
-        tex:SetTexture(housingArt)
-        tex:SetTexCoord(u0,u1,0,1)
-        return tex
-    end
-    local housingLeft=HousingSlice(0,0.1953125)
-    housingLeft:SetWidth(25);housingLeft:SetHeight(64)
-    -- The 25-unit left slice must start one cap-width before the Search
-    -- control, otherwise the frame's visible left shoulder begins inside
-    -- Search while the new top edge extends above its old input border.
-    housingLeft:SetPoint("TOPLEFT",menu,"TOPLEFT",searchLeft-showLeft-25,17)
-
-    local housingRight=HousingSlice(0.8046875,1)
-    housingRight:SetWidth(25);housingRight:SetHeight(64)
-    housingRight:SetPoint("TOPRIGHT",menu,"TOPRIGHT",0,17)
-
-    local housingMiddle=HousingSlice(0.1953125,0.8046875)
-    housingMiddle:SetPoint("TOPLEFT",housingLeft,"TOPRIGHT",0,0)
-    housingMiddle:SetPoint("BOTTOMRIGHT",housingRight,"BOTTOMLEFT",0,0)
-
-    -- The standard Show pieces would create a second left edge in the middle
-    -- of the shared surface. Keep their anchors for native text/arrow layout,
-    -- but do not paint them over the continuous background.
-    for _,part in ipairs({"Left","Middle","Right"}) do
-        local tex=getglobal(menuName..part)
-        if tex then tex:Hide() end
-    end
-    list.filterHousing={housingLeft,housingMiddle,housingRight}
-
-    -- Search is now seated on the same raised surface as Show. Its old
-    -- Common-Input-Border outlines a smaller rectangle inside the new one,
-    -- leaving doubled, vertically mismatched top/bottom rails. Keep the
-    -- functional EditBox, icons and hover behavior; hide only its 3 slices.
-    if search.sszSearchBorder then
-        for _,piece in ipairs(search.sszSearchBorder) do
-            piece:Hide()
-        end
-    end
+    filterButton:SetScript("OnClick",function()
+        if ToggleDropDownMenu then ToggleDropDownMenu(1,nil,menu,filterButton,0,0)
+        else ToggleOnly() end
+    end)
 
     local left=CreateFrame("Frame",nil,panel)
     if SSCPrototypeInteriorSkin and SSCPrototypeInteriorSkin.ApplyList then
