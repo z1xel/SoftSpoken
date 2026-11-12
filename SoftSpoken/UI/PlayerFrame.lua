@@ -152,6 +152,15 @@ end
 local PROGRESS_CAP = 0.985
 local PROGRESS_GUARD_AT = 0.98
 
+-- The native 512x64 Loading-BarBorder is displayed at 16 units tall.
+-- Keep the end ornament at a fixed width and repeat a straight 32-pixel strip.
+local PROGRESS_BORDER_SOURCE_WIDTH = 512
+local PROGRESS_BORDER_CAP_WIDTH = 40
+local PROGRESS_BORDER_TILE_WIDTH = 32
+local PROGRESS_BORDER_TILE_SOURCE_X = 240
+local PROGRESS_BORDER_HEIGHT = 16
+local PROGRESS_BORDER_MIN_CENTER = 8
+
 local function ProgressColor(texture, r, g, b, a)
     if texture.SetColorTexture then
         texture:SetColorTexture(r, g, b, a)
@@ -176,8 +185,8 @@ local function StaticProgress(progress, fraction)
 end
 
 function PlayerFrame:InitProgress()
-    -- The loading-screen border keeps the original player's horizontal bounds.
-    -- The active bar gets a proportional inset from its ornamental endcaps.
+    -- Keep the loading-screen border within the player's horizontal bounds.
+    -- Endcaps and the active bar share fixed interior anchors on resize.
     local container = CreateFrame("Frame", nil, self.frame)
     container:SetHeight(27)
 
@@ -225,87 +234,130 @@ function PlayerFrame:InitProgress()
     borderFrame:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", 0, 5.5)
     borderFrame:SetFrameLevel(bar:GetFrameLevel() + 1)
     local borderTexture = [[Interface\Glues\LoadingBar\Loading-BarBorder]]
-    -- The 512-pixel source has ornate endcaps and a straight middle. Crop
-    -- the ends at native scale rather than stretching them when resized.
+
+    -- A solid silver pass must be clipped to the same native pixels as each
+    -- slice. SetMask(path) always fits the FULL image into the region, so it
+    -- cannot align with SetTexCoord crops. ClassicAPI's positioned mask texture
+    -- lets us sample the correct native subrect without packaging new artwork.
+    local function SilverForSlice(piece, alignRight, sourceOffset)
+        if type(borderFrame.CreateMaskTexture) ~= "function" then return nil end
+        local light = borderFrame:CreateTexture(nil, "OVERLAY")
+        if type(light.AddMaskTexture) ~= "function" then
+            light:Hide()
+            return nil
+        end
+        ProgressColor(light, 0.78, 0.82, 0.88, 0.30)
+        light:SetBlendMode("ADD")
+        light:SetAllPoints(piece)
+        local mask = borderFrame:CreateMaskTexture(nil, "ARTWORK")
+        mask:SetTexture(borderTexture)
+        mask:SetSize(PROGRESS_BORDER_SOURCE_WIDTH, PROGRESS_BORDER_HEIGHT)
+        if alignRight then
+            -- The visible right cap corresponds to source pixels 472..512.
+            mask:SetPoint("TOPRIGHT", piece, "TOPRIGHT", 0, 0)
+        else
+            -- For tiles this shifts source pixel 240 under the tile's left edge.
+            mask:SetPoint("TOPLEFT", piece, "TOPLEFT", -(sourceOffset or 0), 0)
+        end
+        light:AddMaskTexture(mask)
+        return light
+    end
+
     local borderLeft = borderFrame:CreateTexture(nil, "ARTWORK")
     borderLeft:SetTexture(borderTexture)
-    borderLeft:SetTexCoord(0, 40 / 512, 0, 1)
+    borderLeft:SetTexCoord(0, PROGRESS_BORDER_CAP_WIDTH / PROGRESS_BORDER_SOURCE_WIDTH, 0, 1)
     borderLeft:SetPoint("TOPLEFT", borderFrame, "TOPLEFT")
     borderLeft:SetPoint("BOTTOMLEFT", borderFrame, "BOTTOMLEFT")
-    borderLeft:SetWidth(40)
+    borderLeft:SetWidth(PROGRESS_BORDER_CAP_WIDTH)
 
     local borderRight = borderFrame:CreateTexture(nil, "ARTWORK")
     borderRight:SetTexture(borderTexture)
-    borderRight:SetTexCoord(472 / 512, 1, 0, 1)
+    borderRight:SetTexCoord(
+        (PROGRESS_BORDER_SOURCE_WIDTH - PROGRESS_BORDER_CAP_WIDTH) / PROGRESS_BORDER_SOURCE_WIDTH,
+        1, 0, 1)
     borderRight:SetPoint("TOPRIGHT", borderFrame, "TOPRIGHT")
     borderRight:SetPoint("BOTTOMRIGHT", borderFrame, "BOTTOMRIGHT")
-    borderRight:SetWidth(40)
+    borderRight:SetWidth(PROGRESS_BORDER_CAP_WIDTH)
 
-    -- Keep a pool of 32-unit pieces from the native straight middle.
-    -- LayoutProgress reuses them on resize; no texture is stretched across
-    -- the width and no work runs on each audio/progress update.
+    local silverLeft = SilverForSlice(borderLeft, false, 0)
+    local silverRight = SilverForSlice(borderRight, true)
+    -- Tiles and their matching silver masks are allocated once, then reused.
     local borderTiles = {}
-
-    -- Preserve the existing masked silver treatment for this initial test.
-    -- Its full-width source mask can still stretch at extreme widths; the
-    -- three-sliced artwork underneath no longer distorts its endcaps.
-    local silverLight = borderFrame:CreateTexture(nil, "OVERLAY")
-    ProgressColor(silverLight, 0.78, 0.82, 0.88, 0.30)
-    silverLight:SetBlendMode("ADD")
-    silverLight:SetAllPoints(borderFrame)
-    if type(silverLight.SetMask) == "function" then
-        silverLight:SetMask(borderTexture)
-    else
-        silverLight:Hide() -- Never draw an unmasked rectangle on older clients.
-    end
 
     self.progress = { container = container, bar = bar, track = track,
         fill = fill, goldHighlight = goldHighlight, spark = spark,
         borderFrame = borderFrame, borderTexture = borderTexture,
         borderLeft = borderLeft, borderRight = borderRight, borderTiles = borderTiles,
-        silverLight = silverLight }
+        silverLeft = silverLeft, silverRight = silverRight,
+        newSilverTile = SilverForSlice }
     self:LayoutProgress()
 end
 
 function PlayerFrame:LayoutProgress()
     if not self.progress then return end
-    local container = self.progress.container
+    local progress = self.progress
+    local container = progress.container
     local left = FrameConfig().HidePortrait and 20 or PORTRAIT_SIZE + 15
     local width = math.max(0, WidthOf(self.frame) - left - 18)
-    local inset = width * (36 / 512) -- measured clear opening of the 512px border
 
     container:ClearAllPoints()
     container:SetPoint("BOTTOMLEFT", self.frame, "BOTTOMLEFT", left, 1.5)
     container:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -18, 1.5)
 
-    local bar = self.progress.bar
-    bar:ClearAllPoints()
-    -- Fine-tune the fill opening independently of the ornate frame.
-    bar:SetPoint("LEFT", container, "LEFT", inset - 2, 0)
-    bar:SetPoint("RIGHT", container, "RIGHT", -inset + 3, 0)
+    -- Normally both 40-unit endcaps retain their native proportions. At
+    -- exceptionally narrow widths crop their inner sides (never stretch or
+    -- overlap the ornaments), leaving at least eight units for the center.
+    local capWidth = math.min(PROGRESS_BORDER_CAP_WIDTH,
+        math.max(0, (width - PROGRESS_BORDER_MIN_CENTER) / 2))
+    progress.borderLeft:SetWidth(capWidth)
+    progress.borderRight:SetWidth(capWidth)
+    progress.borderLeft:SetTexCoord(0,
+        capWidth / PROGRESS_BORDER_SOURCE_WIDTH, 0, 1)
+    progress.borderRight:SetTexCoord(
+        (PROGRESS_BORDER_SOURCE_WIDTH - capWidth) / PROGRESS_BORDER_SOURCE_WIDTH,
+        1, 0, 1)
 
-    -- Repeating 32-pixel crops preserves the straight metalwork at any width
-    -- without relying on wrapping or slicing APIs absent on older clients.
-    local progress = self.progress
-    local innerWidth = math.max(0, width - 80)
-    local count = math.ceil(innerWidth / 32)
+    local bar = progress.bar
+    bar:ClearAllPoints()
+    -- Original opening: 36/512 of the frame, fine-tuned -2/+3.
+    -- The endcaps now stay 40 units wide, so use the equivalent fixed
+    -- -6/+7 offsets relative to their inner edges, not a fraction of width.
+    bar:SetPoint("LEFT", progress.borderLeft, "RIGHT", -6, 0)
+    bar:SetPoint("RIGHT", progress.borderRight, "LEFT", 7, 0)
+
+    -- Tile between the endcaps. Each tile is anchored to the preceding piece
+    -- instead of the outer frame, and its positioned silver mask follows it.
+    local innerWidth = math.max(0, width - 2 * capWidth)
+    local count = math.ceil(innerWidth / PROGRESS_BORDER_TILE_WIDTH)
+    local previous = progress.borderLeft
     for i = 1, count do
         local tile = progress.borderTiles[i]
         if not tile then
-            tile = progress.borderFrame:CreateTexture(nil, "ARTWORK")
-            tile:SetTexture(progress.borderTexture)
+            local texture = progress.borderFrame:CreateTexture(nil, "ARTWORK")
+            texture:SetTexture(progress.borderTexture)
+            tile = { texture = texture,
+                silver = progress.newSilverTile(texture, false, PROGRESS_BORDER_TILE_SOURCE_X) }
             progress.borderTiles[i] = tile
         end
-        local tileWidth = math.min(32, innerWidth - (i - 1) * 32)
-        tile:ClearAllPoints()
-        tile:SetPoint("TOPLEFT", progress.borderFrame, "TOPLEFT", 40 + (i - 1) * 32, 0)
-        tile:SetPoint("BOTTOMLEFT", progress.borderFrame, "BOTTOMLEFT", 40 + (i - 1) * 32, 0)
-        tile:SetWidth(tileWidth)
-        tile:SetTexCoord(240 / 512, (240 + tileWidth) / 512, 0, 1)
-        tile:Show()
+        local texture = tile.texture
+        local tileWidth = math.min(PROGRESS_BORDER_TILE_WIDTH,
+            innerWidth - (i - 1) * PROGRESS_BORDER_TILE_WIDTH)
+        texture:ClearAllPoints()
+        texture:SetPoint("TOPLEFT", previous, "TOPRIGHT", 0, 0)
+        texture:SetPoint("BOTTOMLEFT", previous, "BOTTOMRIGHT", 0, 0)
+        texture:SetWidth(tileWidth)
+        texture:SetTexCoord(
+            PROGRESS_BORDER_TILE_SOURCE_X / PROGRESS_BORDER_SOURCE_WIDTH,
+            (PROGRESS_BORDER_TILE_SOURCE_X + tileWidth) / PROGRESS_BORDER_SOURCE_WIDTH,
+            0, 1)
+        texture:Show()
+        if tile.silver then tile.silver:Show() end
+        previous = texture
     end
     for i = count + 1, table.getn(progress.borderTiles) do
-        progress.borderTiles[i]:Hide()
+        local tile = progress.borderTiles[i]
+        tile.texture:Hide()
+        if tile.silver then tile.silver:Hide() end
     end
 end
 
