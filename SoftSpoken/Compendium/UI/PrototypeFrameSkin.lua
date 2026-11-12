@@ -607,6 +607,10 @@ function Skin.Apply(self, title, options)
     end
 
     if not compact then
+    -- Give the decorative bezel its own level between the Quest Log header
+    -- textures (window level) and the native header buttons. Keep the map's
+    -- compact close button hierarchy unchanged.
+    self.sszClose:SetFrameLevel(self:GetFrameLevel()+2)
     -- Borrow the *actual Turtle WoW* World Map minimizer's client artwork.
     -- This is a built-in Turtle WorldMapFrame control, NOT a Cartographer icon.
     -- Do not ship screenshot crops or guess at later-version BLP filenames.
@@ -630,7 +634,12 @@ function Skin.Apply(self, title, options)
     -- from the bezel's bottom (10 units total from the original 33x33 slice).
     -- Shift the minimize arrow and its trimmed surround 10 units to the right;
     -- leave the close button and all other components fixed.
-    fixed(self,"OVERLAY",FRAME,33,23,
+    local bezelFrame=CreateFrame("Frame",nil,self)
+    bezelFrame:SetAllPoints(self)
+    bezelFrame:SetFrameLevel(self:GetFrameLevel()+1)
+    bezelFrame:EnableMouse(false)
+    self.sszMinimizeBezelFrame=bezelFrame
+    fixed(bezelFrame,"OVERLAY",FRAME,33,23,
         {0.6328125,0.890625,0.0078125,0.1875},"TOPRIGHT",-22,1)
 
     local function CopyMapButtonState(source, getter, setter)
