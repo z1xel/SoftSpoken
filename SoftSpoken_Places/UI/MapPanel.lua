@@ -6,6 +6,7 @@ local Compat = SSZMapCompat
 local L = SSZLoreWindow
 local P = SSZLorePage
 local WIDTH, GAP = 327, 2
+local READER_RIGHT_SHIFT = 1
 local panel, page, toggle, pageInset
 local lastMapID, lastContinent, lastZone
 local ready = false
@@ -135,6 +136,16 @@ local function BuildPanel()
     pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
         return P.CreateLorePage(holder,"book",nil,{openInCompendium=true,expandSubtitle=true})
     end,{left=0,right=4,top=23,bottom=24})
+    -- Zone Lore only: widen the parchment by 1 unit on its right edge,
+    -- leaving its left edge fixed. Shift the scrollbar by the same amount
+    -- below so their existing overlap/spacing stays unchanged.
+    local pageVisual=pageInset and pageInset.sszPrototypePageVisual
+    if pageVisual then
+        pageVisual:ClearAllPoints()
+        pageVisual:SetPoint("TOPLEFT",pageInset,"TOPLEFT",0,0)
+        pageVisual:SetPoint("BOTTOMRIGHT",pageInset,"BOTTOMRIGHT",
+            -29+READER_RIGHT_SHIFT,0)
+    end
     -- Share the Compendium's ClassicAPI scroll-edge fade on the World Map
     -- lore reader. The TextView method handles missing ClassicAPI safely.
     if page and page.body and page.body.EnableEdgeFade then
@@ -157,10 +168,12 @@ local function BuildPanel()
             slot:SetFrameLevel(panel:GetFrameLevel()+11)
             -- Zone Lore only: position the scrollbar 1 unit lower and keep
             -- it 5 units shorter than the shared page inset. Leave the
-            -- parchment and shared Compendium unchanged.
-            -- Mirror the shared skin's right offset when resetting anchors.
+            -- parchment's height and shared Compendium unchanged.
+            -- Mirror the shared skin's right offset, adding the same 1-unit
+            -- right shift applied to the parchment's visual frame.
             local geometry=SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
-            local rightOffset=geometry and geometry.pageSlotRightOffset or -3
+            local rightOffset=(geometry and geometry.pageSlotRightOffset or -3)
+                + READER_RIGHT_SHIFT
             slot:ClearAllPoints()
             slot:SetPoint("TOPRIGHT",pageInset,"TOPRIGHT",rightOffset,-1)
             slot:SetPoint("BOTTOMRIGHT",pageInset,"BOTTOMRIGHT",rightOffset,4)
