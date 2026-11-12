@@ -235,11 +235,9 @@ function PlayerFrame:InitProgress()
     borderFrame:SetFrameLevel(bar:GetFrameLevel() + 1)
     local borderTexture = [[Interface\Glues\LoadingBar\Loading-BarBorder]]
 
-    -- A solid silver pass must be clipped to the same native pixels as each
-    -- slice. SetMask(path) always fits the FULL image into the region, so it
-    -- cannot align with SetTexCoord crops. ClassicAPI's positioned mask texture
-    -- lets us sample the correct native subrect without packaging new artwork.
-    local function SilverForSlice(piece, alignRight, sourceOffset)
+    -- Keep the positioned masks for the two ornate ends. The straight
+    -- middle gets ONE silver mask, independent of the number of border tiles.
+    local function SilverForEnd(piece, alignRight)
         if type(borderFrame.CreateMaskTexture) ~= "function" then return nil end
         local light = borderFrame:CreateTexture(nil, "OVERLAY")
         if type(light.AddMaskTexture) ~= "function" then
@@ -253,11 +251,9 @@ function PlayerFrame:InitProgress()
         mask:SetTexture(borderTexture)
         mask:SetSize(PROGRESS_BORDER_SOURCE_WIDTH, PROGRESS_BORDER_HEIGHT)
         if alignRight then
-            -- The visible right cap corresponds to source pixels 472..512.
-            mask:SetPoint("TOPRIGHT", piece, "TOPRIGHT", 0, 0)
+            mask:SetPoint("TOPRIGHT", piece, "TOPRIGHT")
         else
-            -- For tiles this shifts source pixel 240 under the tile's left edge.
-            mask:SetPoint("TOPLEFT", piece, "TOPLEFT", -(sourceOffset or 0), 0)
+            mask:SetPoint("TOPLEFT", piece, "TOPLEFT")
         end
         light:AddMaskTexture(mask)
         return light
@@ -279,17 +275,43 @@ function PlayerFrame:InitProgress()
     borderRight:SetPoint("BOTTOMRIGHT", borderFrame, "BOTTOMRIGHT")
     borderRight:SetWidth(PROGRESS_BORDER_CAP_WIDTH)
 
-    local silverLeft = SilverForSlice(borderLeft, false, 0)
-    local silverRight = SilverForSlice(borderRight, true)
-    -- Tiles and their matching silver masks are allocated once, then reused.
-    local borderTiles = {}
+    local silverLeft = SilverForEnd(borderLeft, false)
+    local silverRight = SilverForEnd(borderRight, true)
+
+    -- One overlay over the whole straight center. We stretch just the alpha
+    -- strip at source x=240..272 using a positioned full-texture mask region.
+    -- ClassicAPI masks use the mask's RECT, not SetTexCoord; positioning a
+    -- 512px mask at 16x center width maps only the 32px straight section.
+    local silverCenter, silverCenterMask
+    if type(borderFrame.CreateMaskTexture) == "function" then
+        local light = borderFrame:CreateTexture(nil, "OVERLAY")
+        if type(light.AddMaskTexture) == "function" then
+            ProgressColor(light, 0.78, 0.82, 0.88, 0.30)
+            light:SetBlendMode("ADD")
+            light:SetPoint("TOPLEFT", borderLeft, "TOPRIGHT")
+            light:SetPoint("BOTTOMRIGHT", borderRight, "BOTTOMLEFT")
+            local mask = borderFrame:CreateMaskTexture(nil, "ARTWORK")
+            mask:SetTexture(borderTexture)
+            mask:SetSize(PROGRESS_BORDER_SOURCE_WIDTH, PROGRESS_BORDER_HEIGHT)
+            mask:SetPoint("TOPLEFT", light, "TOPLEFT")
+            light:AddMaskTexture(mask)
+            silverCenter, silverCenterMask = light, mask
+        else
+            light:Hide()
+        end
+    end
+
+    -- Anchor the playback track once to the endcaps: these relationships
+    -- remain correct as the frame, center, or narrow-end crops resize.
+    bar:SetPoint("LEFT", borderLeft, "RIGHT", -6, 0)
+    bar:SetPoint("RIGHT", borderRight, "LEFT", 7, 0)
 
     self.progress = { container = container, bar = bar, track = track,
         fill = fill, goldHighlight = goldHighlight, spark = spark,
         borderFrame = borderFrame, borderTexture = borderTexture,
-        borderLeft = borderLeft, borderRight = borderRight, borderTiles = borderTiles,
+        borderLeft = borderLeft, borderRight = borderRight, borderTiles = {},
         silverLeft = silverLeft, silverRight = silverRight,
-        newSilverTile = SilverForSlice }
+        silverCenter = silverCenter, silverCenterMask = silverCenterMask }
     self:LayoutProgress()
 end
 
@@ -300,64 +322,94 @@ function PlayerFrame:LayoutProgress()
     local left = FrameConfig().HidePortrait and 20 or PORTRAIT_SIZE + 15
     local width = math.max(0, WidthOf(self.frame) - left - 18)
 
-    container:ClearAllPoints()
-    container:SetPoint("BOTTOMLEFT", self.frame, "BOTTOMLEFT", left, 1.5)
-    container:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -18, 1.5)
+    -- These anchors resize automatically with the player. Re-setting them
+    -- on EVERY OnSizeChanged caused unnecessary layout invalidation.
+    if progress.layoutLeft ~= left then
+        container:ClearAllPoints()
+        container:SetPoint("BOTTOMLEFT", self.frame, "BOTTOMLEFT", left, 1.5)
+        container:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -18, 1.5)
+        progress.layoutLeft = left
+    end
 
-    -- Normally both 40-unit endcaps retain their native proportions. At
-    -- exceptionally narrow widths crop their inner sides (never stretch or
-    -- overlap the ornaments), leaving at least eight units for the center.
+    -- Keep ornate caps fixed unless very narrow widths require cropping.
     local capWidth = math.min(PROGRESS_BORDER_CAP_WIDTH,
         math.max(0, (width - PROGRESS_BORDER_MIN_CENTER) / 2))
-    progress.borderLeft:SetWidth(capWidth)
-    progress.borderRight:SetWidth(capWidth)
-    progress.borderLeft:SetTexCoord(0,
-        capWidth / PROGRESS_BORDER_SOURCE_WIDTH, 0, 1)
-    progress.borderRight:SetTexCoord(
-        (PROGRESS_BORDER_SOURCE_WIDTH - capWidth) / PROGRESS_BORDER_SOURCE_WIDTH,
-        1, 0, 1)
+    if capWidth ~= progress.capWidth then
+        progress.borderLeft:SetWidth(capWidth)
+        progress.borderRight:SetWidth(capWidth)
+        progress.borderLeft:SetTexCoord(0,
+            capWidth / PROGRESS_BORDER_SOURCE_WIDTH, 0, 1)
+        progress.borderRight:SetTexCoord(
+            (PROGRESS_BORDER_SOURCE_WIDTH - capWidth) / PROGRESS_BORDER_SOURCE_WIDTH,
+            1, 0, 1)
+        progress.capWidth = capWidth
+    end
 
-    local bar = progress.bar
-    bar:ClearAllPoints()
-    -- Original opening: 36/512 of the frame, fine-tuned -2/+3.
-    -- The endcaps now stay 40 units wide, so use the equivalent fixed
-    -- -6/+7 offsets relative to their inner edges, not a fraction of width.
-    bar:SetPoint("LEFT", progress.borderLeft, "RIGHT", -6, 0)
-    bar:SetPoint("RIGHT", progress.borderRight, "LEFT", 7, 0)
-
-    -- Tile between the endcaps. Each tile is anchored to the preceding piece
-    -- instead of the outer frame, and its positioned silver mask follows it.
     local innerWidth = math.max(0, width - 2 * capWidth)
-    local count = math.ceil(innerWidth / PROGRESS_BORDER_TILE_WIDTH)
-    local previous = progress.borderLeft
-    for i = 1, count do
-        local tile = progress.borderTiles[i]
-        if not tile then
-            local texture = progress.borderFrame:CreateTexture(nil, "ARTWORK")
-            texture:SetTexture(progress.borderTexture)
-            tile = { texture = texture,
-                silver = progress.newSilverTile(texture, false, PROGRESS_BORDER_TILE_SOURCE_X) }
-            progress.borderTiles[i] = tile
+    -- One resizable middle mask. The mask's source x=240..272 maps across the
+    -- center: full mask width = centerWidth * (512 / 32), with its left shifted
+    -- by 240 / 32 of centerWidth. Only two mask-layout operations per drag.
+    if progress.silverCenterMask and innerWidth ~= progress.silverWidth then
+        progress.silverWidth = innerWidth
+        if innerWidth > 0 then
+            local mask = progress.silverCenterMask
+            mask:ClearAllPoints()
+            mask:SetPoint("TOPLEFT", progress.silverCenter, "TOPLEFT",
+                -innerWidth * PROGRESS_BORDER_TILE_SOURCE_X / PROGRESS_BORDER_TILE_WIDTH, 0)
+            mask:SetWidth(innerWidth *
+                PROGRESS_BORDER_SOURCE_WIDTH / PROGRESS_BORDER_TILE_WIDTH)
+            progress.silverCenter:Show()
+        else
+            progress.silverCenter:Hide()
         end
-        local texture = tile.texture
-        local tileWidth = math.min(PROGRESS_BORDER_TILE_WIDTH,
-            innerWidth - (i - 1) * PROGRESS_BORDER_TILE_WIDTH)
-        texture:ClearAllPoints()
-        texture:SetPoint("TOPLEFT", previous, "TOPRIGHT", 0, 0)
-        texture:SetPoint("BOTTOMLEFT", previous, "BOTTOMRIGHT", 0, 0)
-        texture:SetWidth(tileWidth)
-        texture:SetTexCoord(
+    end
+
+    -- Tiles are permanently anchored in a chain. During a drag, only the
+    -- final partial tile (and any newly crossed tile boundary) needs updating.
+    local count = math.ceil(innerWidth / PROGRESS_BORDER_TILE_WIDTH)
+    local previousCount = progress.visibleTileCount or 0
+    local tiles = progress.borderTiles
+
+    local function SetTileWidth(tile, tileWidth)
+        if tile.width == tileWidth then return end
+        tile.width = tileWidth
+        tile.texture:SetWidth(tileWidth)
+        tile.texture:SetTexCoord(
             PROGRESS_BORDER_TILE_SOURCE_X / PROGRESS_BORDER_SOURCE_WIDTH,
             (PROGRESS_BORDER_TILE_SOURCE_X + tileWidth) / PROGRESS_BORDER_SOURCE_WIDTH,
             0, 1)
-        texture:Show()
-        if tile.silver then tile.silver:Show() end
-        previous = texture
     end
-    for i = count + 1, table.getn(progress.borderTiles) do
-        local tile = progress.borderTiles[i]
-        tile.texture:Hide()
-        if tile.silver then tile.silver:Hide() end
+
+    if previousCount ~= count then
+        if count > previousCount then
+            -- The former last tile becomes full before its successor appears.
+            if previousCount > 0 then
+                SetTileWidth(tiles[previousCount], PROGRESS_BORDER_TILE_WIDTH)
+            end
+            for i = previousCount + 1, count do
+                local tile = tiles[i]
+                if not tile then
+                    local texture = progress.borderFrame:CreateTexture(nil, "ARTWORK")
+                    texture:SetTexture(progress.borderTexture)
+                    local previous = i == 1 and progress.borderLeft or tiles[i - 1].texture
+                    texture:SetPoint("TOPLEFT", previous, "TOPRIGHT")
+                    texture:SetPoint("BOTTOMLEFT", previous, "BOTTOMRIGHT")
+                    tile = { texture = texture }
+                    tiles[i] = tile
+                end
+                SetTileWidth(tile, PROGRESS_BORDER_TILE_WIDTH)
+                tile.texture:Show()
+            end
+        else
+            for i = count + 1, previousCount do
+                tiles[i].texture:Hide()
+            end
+        end
+        progress.visibleTileCount = count
+    end
+    if count > 0 then
+        SetTileWidth(tiles[count], innerWidth -
+            (count - 1) * PROGRESS_BORDER_TILE_WIDTH)
     end
 end
 
