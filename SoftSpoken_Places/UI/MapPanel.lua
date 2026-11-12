@@ -147,13 +147,13 @@ local function BuildPanel()
         pageVisual:SetPoint("BOTTOMRIGHT",pageInset,"BOTTOMRIGHT",
             -29+READER_RIGHT_SHIFT,0)
         -- Zone Lore alignment: pull only the parchment/page holder inward
-        -- 6 units from the left and 6 units from the bottom. The silver inset
+        -- 9 units from the left and 9 units from the bottom. The silver inset
         -- rim remains anchored to pageVisual, and the scrollbar is unchanged.
         local pageHolder=page and page.frame and page.frame:GetParent()
         if pageHolder then
             pageHolder:ClearAllPoints()
-            pageHolder:SetPoint("TOPLEFT",pageVisual,"TOPLEFT",9,-3)
-            pageHolder:SetPoint("BOTTOMRIGHT",pageVisual,"BOTTOMRIGHT",-3,9)
+            pageHolder:SetPoint("TOPLEFT",pageVisual,"TOPLEFT",12,-3)
+            pageHolder:SetPoint("BOTTOMRIGHT",pageVisual,"BOTTOMRIGHT",-3,12)
         end
     end
     -- Share the Compendium's ClassicAPI scroll-edge fade on the World Map
