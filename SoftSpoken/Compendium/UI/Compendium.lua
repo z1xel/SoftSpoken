@@ -690,13 +690,13 @@ function C.NewList(panel,opts)
     end
     search:SetWidth(C.VISUAL_GEOMETRY.searchWidth);search:SetHeight(21)
     search:SetAutoFocus(false);search:SetMaxLetters(70)
-    -- Keep Search + filter arrow together, with the arrow's right edge
-    -- 5 units inside the 340-unit compact Compendium right edge. Anchor
-    -- against compact width even while expanded so minimizing does not
-    -- move the controls or change their existing 8-unit separation.
-    local headerControlsWidth=C.VISUAL_GEOMETRY.searchWidth+8+24
+    -- With the filter arrow on the LEFT, keep the combined group pinned to
+    -- the compact Compendium's right edge: Search ends 5 UI units before it.
+    -- This anchor is stable in both compact and expanded layouts.
+    local headerControlsWidth=24+8+C.VISUAL_GEOMETRY.searchWidth
     local headerControlsX=CollapsedWidth()-5-headerControlsWidth
-    search:SetPoint("TOPLEFT",panel,"TOPLEFT",headerControlsX,C.VISUAL_GEOMETRY.searchY)
+    search:SetPoint("TOPLEFT",panel,"TOPLEFT",headerControlsX+24+8,
+        C.VISUAL_GEOMETRY.searchY)
     if ornate then
         search:SetFontObject(ChatFontNormal)
         SSCPrototypeInteriorSkin.ApplySearch(search)
@@ -785,7 +785,7 @@ function C.NewList(panel,opts)
     -- uses the same dropdown and filtering callbacks below.
     local filterButton=CreateFrame("Button",nil,panel)
     filterButton:SetWidth(24);filterButton:SetHeight(24)
-    filterButton:SetPoint("LEFT",search,"RIGHT",8,0)
+    filterButton:SetPoint("RIGHT",search,"LEFT",-8,0)
     filterButton:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up")
     filterButton:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
     filterButton:SetDisabledTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Disabled")
