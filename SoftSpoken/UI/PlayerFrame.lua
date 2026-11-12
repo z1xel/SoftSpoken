@@ -179,10 +179,10 @@ function PlayerFrame:InitProgress()
     -- The loading-screen border keeps the original player's horizontal bounds.
     -- The active bar gets a proportional inset from its ornamental endcaps.
     local container = CreateFrame("Frame", nil, self.frame)
-    container:SetHeight(30)
+    container:SetHeight(27)
 
     local bar = CreateFrame("StatusBar", nil, container)
-    local barHeight = 8
+    local barHeight = 5
     bar:SetHeight(barHeight)
     local track = bar:CreateTexture(nil, "BACKGROUND")
     ProgressColor(track, 0.03, 0.025, 0.015, 0.7)
@@ -209,7 +209,7 @@ function PlayerFrame:InitProgress()
     local spark = bar:CreateTexture(nil, "OVERLAY")
     spark:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
     spark:SetBlendMode("ADD")
-    spark:SetSize(14, 19)
+    spark:SetSize(14, 16)
     spark:SetAlpha(0.5)
     -- v1.19.1 moves the status-bar texture's actual rect with its fill,
     -- so the spark follows without a Lua frame-by-frame update.
@@ -219,8 +219,8 @@ function PlayerFrame:InitProgress()
     -- Child frame-levels outrank the parent's texture draw layers. Put the
     -- decorative rim in its own higher frame so it always covers the fill.
     local borderFrame = CreateFrame("Frame", nil, container)
-    -- Compress only the entire border artwork by 6 units, equally from top
-    -- and bottom; the silver overlay follows this same resized frame.
+    -- Keep the ornate border inset 3 units on either side of the compact
+    -- progress container; the silver overlay follows the same frame.
     borderFrame:SetPoint("TOPLEFT", container, "TOPLEFT", 0, -3)
     borderFrame:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", 0, 3)
     borderFrame:SetFrameLevel(bar:GetFrameLevel() + 1)
@@ -256,8 +256,8 @@ function PlayerFrame:LayoutProgress()
     local inset = width * (36 / 512) -- measured clear opening of the 512px border
 
     container:ClearAllPoints()
-    container:SetPoint("BOTTOMLEFT", self.frame, "BOTTOMLEFT", left, 0)
-    container:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -18, 0)
+    container:SetPoint("BOTTOMLEFT", self.frame, "BOTTOMLEFT", left, 1.5)
+    container:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -18, 1.5)
 
     local bar = self.progress.bar
     bar:ClearAllPoints()
