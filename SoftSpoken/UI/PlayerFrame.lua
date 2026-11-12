@@ -224,14 +224,31 @@ function PlayerFrame:InitProgress()
     borderFrame:SetPoint("TOPLEFT", container, "TOPLEFT", 0, -5.5)
     borderFrame:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", 0, 5.5)
     borderFrame:SetFrameLevel(bar:GetFrameLevel() + 1)
-    local border = borderFrame:CreateTexture(nil, "OVERLAY")
     local borderTexture = [[Interface\Glues\LoadingBar\Loading-BarBorder]]
-    border:SetTexture(borderTexture)
-    border:SetAllPoints(borderFrame)
+    -- The 512-pixel source has ornate endcaps and a straight middle. Crop
+    -- the ends at native scale rather than stretching them when resized.
+    local borderLeft = borderFrame:CreateTexture(nil, "ARTWORK")
+    borderLeft:SetTexture(borderTexture)
+    borderLeft:SetTexCoord(0, 40 / 512, 0, 1)
+    borderLeft:SetPoint("TOPLEFT", borderFrame, "TOPLEFT")
+    borderLeft:SetPoint("BOTTOMLEFT", borderFrame, "BOTTOMLEFT")
+    borderLeft:SetWidth(40)
 
-    -- The source border is too dark to brighten noticeably by stacking
-    -- copies of itself. Add one silver-colored pass, clipped to the original
-    -- border's alpha, so the empty center stays completely transparent.
+    local borderRight = borderFrame:CreateTexture(nil, "ARTWORK")
+    borderRight:SetTexture(borderTexture)
+    borderRight:SetTexCoord(472 / 512, 1, 0, 1)
+    borderRight:SetPoint("TOPRIGHT", borderFrame, "TOPRIGHT")
+    borderRight:SetPoint("BOTTOMRIGHT", borderFrame, "BOTTOMRIGHT")
+    borderRight:SetWidth(40)
+
+    -- Keep a pool of 32-unit pieces from the native straight middle.
+    -- LayoutProgress reuses them on resize; no texture is stretched across
+    -- the width and no work runs on each audio/progress update.
+    local borderTiles = {}
+
+    -- Preserve the existing masked silver treatment for this initial test.
+    -- Its full-width source mask can still stretch at extreme widths; the
+    -- three-sliced artwork underneath no longer distorts its endcaps.
     local silverLight = borderFrame:CreateTexture(nil, "OVERLAY")
     ProgressColor(silverLight, 0.78, 0.82, 0.88, 0.30)
     silverLight:SetBlendMode("ADD")
@@ -243,7 +260,9 @@ function PlayerFrame:InitProgress()
     end
 
     self.progress = { container = container, bar = bar, track = track,
-        fill = fill, goldHighlight = goldHighlight, spark = spark, border = border,
+        fill = fill, goldHighlight = goldHighlight, spark = spark,
+        borderFrame = borderFrame, borderTexture = borderTexture,
+        borderLeft = borderLeft, borderRight = borderRight, borderTiles = borderTiles,
         silverLight = silverLight }
     self:LayoutProgress()
 end
@@ -264,6 +283,30 @@ function PlayerFrame:LayoutProgress()
     -- Fine-tune the fill opening independently of the ornate frame.
     bar:SetPoint("LEFT", container, "LEFT", inset - 2, 0)
     bar:SetPoint("RIGHT", container, "RIGHT", -inset + 3, 0)
+
+    -- Repeating 32-pixel crops preserves the straight metalwork at any width
+    -- without relying on wrapping or slicing APIs absent on older clients.
+    local progress = self.progress
+    local innerWidth = math.max(0, width - 80)
+    local count = math.ceil(innerWidth / 32)
+    for i = 1, count do
+        local tile = progress.borderTiles[i]
+        if not tile then
+            tile = progress.borderFrame:CreateTexture(nil, "ARTWORK")
+            tile:SetTexture(progress.borderTexture)
+            progress.borderTiles[i] = tile
+        end
+        local tileWidth = math.min(32, innerWidth - (i - 1) * 32)
+        tile:ClearAllPoints()
+        tile:SetPoint("TOPLEFT", progress.borderFrame, "TOPLEFT", 40 + (i - 1) * 32, 0)
+        tile:SetPoint("BOTTOMLEFT", progress.borderFrame, "BOTTOMLEFT", 40 + (i - 1) * 32, 0)
+        tile:SetWidth(tileWidth)
+        tile:SetTexCoord(240 / 512, (240 + tileWidth) / 512, 0, 1)
+        tile:Show()
+    end
+    for i = count + 1, table.getn(progress.borderTiles) do
+        progress.borderTiles[i]:Hide()
+    end
 end
 
 function PlayerFrame:UpdateProgress()
