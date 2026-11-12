@@ -209,7 +209,7 @@ function PlayerFrame:InitProgress()
     local spark = bar:CreateTexture(nil, "OVERLAY")
     spark:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
     spark:SetBlendMode("ADD")
-    spark:SetSize(11, 15)
+    spark:SetSize(14, 19)
     spark:SetAlpha(0.5)
     -- v1.19.1 moves the status-bar texture's actual rect with its fill,
     -- so the spark follows without a Lua frame-by-frame update.
