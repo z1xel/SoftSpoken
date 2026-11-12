@@ -1,0 +1,67 @@
+name: Extract original QuestMapLogAtlas StoryHeader artwork
+
+on:
+  push:
+    branches:
+      - experiment/vanilla-ui-fidelity
+    paths:
+      - ".github/workflows/extract-questmap-story-header.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Extract exact upstream atlas region and package for 1.12
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pillow
+          curl --fail --location --silent --show-error --retry 3 \
+            'https://raw.githubusercontent.com/Gethe/wow-ui-textures/d23deaf8f44a7d280dc974a5c9d5321c013db59b/QUESTFRAME/QuestMapLogAtlas.PNG' \
+            --output "$RUNNER_TEMP/QuestMapLogAtlas.PNG"
+          python3 - <<'PY'
+          import hashlib
+          import io
+          import pathlib
+          from PIL import Image
+
+          source = pathlib.Path(__import__('os').environ['RUNNER_TEMP']) / 'QuestMapLogAtlas.PNG'
+          payload = source.read_bytes()
+          blob_sha = hashlib.sha1(b'blob ' + str(len(payload)).encode() + b'\\0' + payload).hexdigest()
+          assert blob_sha == 'b68f78d2599f386fd6d5055c7ec3aad57491b249', (
+              'Gethe source artwork changed: ' + blob_sha
+          )
+          atlas = Image.open(io.BytesIO(payload)).convert('RGBA')
+          assert atlas.size == (2048, 1024), atlas.size
+
+          # Source atlas metadata for StoryHeader-BG:
+          # x=(0.564941..0.861816)*2048, y=(0.274414..0.409180)*1024
+          x, y, width, height = 1157, 281, 608, 138
+          art = atlas.crop((x, y, x + width, y + height))
+          dest = pathlib.Path('SoftSpoken/Compendium/Textures/Prototype/Art')
+          dest.mkdir(parents=True, exist_ok=True)
+          # Native 1.12: power-of-two TGA with the exact source pixels,
+          # transparent outer padding, and no resampling.
+          padded = Image.new('RGBA', (1024, 256), (0, 0, 0, 0))
+          padded.paste(art, (0, 0))
+          padded.save(dest / 'StoryHeaderBG.tga')
+          art.save(dest / 'StoryHeaderBG_source.png')
+          print('Original PNG SHA1:', blob_sha)
+          print('Atlas:', atlas.size, 'crop:', art.size, 'padded TGA:', padded.size)
+          PY
+      - name: Commit original-source binary artwork to experiment
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add SoftSpoken/Compendium/Textures/Prototype/Art/StoryHeaderBG.tga
+          git add SoftSpoken/Compendium/Textures/Prototype/Art/StoryHeaderBG_source.png
+          git commit -m "assets(compendium): extract exact StoryHeader-BG from Gethe atlas"
+          git push origin HEAD:experiment/vanilla-ui-fidelity
