@@ -13,6 +13,7 @@ P.Page = Page
 -- Keep the original parchment and ornamental divider art used by the reader.
 local ORIGINAL_ART = SSCOriginalArt == true
 local ART = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\"
+local PARCHMENT = ART.."QuestDetailsBackgrounds"
 local PAGE_NAME = "spellbook-Page-Right-C60"
 local DIVIDER_NAME = "spellbook-divider"
 -- Keep the divider at its original scale: 64px left flourish, 66px right cap.
@@ -244,7 +245,14 @@ function P.CreateLorePage(parent,style,left,options)
     local parchment=frame:CreateTexture(nil,"BORDER")
     parchment:SetAllPoints(frame)
     local paperName=page.style=="log" and "QuestDetailsBackgrounds" or PAGE_NAME
-    if ORIGINAL_ART then
+    -- Shared Compendium/Zone Lore panes select their final parchment once.
+    -- Direct LorePage construction retains its original book/log artwork.
+    local paneParchment=parent and parent.sszUsePaneParchment==true
+    if paneParchment then
+        parchment:SetTexture(PARCHMENT)
+        parchment:SetTexCoord(0,.560547,0,.90625)
+        parchment:SetVertexColor(1,1,1,1)
+    elseif ORIGINAL_ART then
         parchment:SetTexture(ART..paperName)
         if page.style=="log" then
             parchment:SetTexCoord(0,.560547,0,.90625)
@@ -257,7 +265,9 @@ function P.CreateLorePage(parent,style,left,options)
         parchment:SetVertexColor(.82,.75,.58)
     end
     page.bg=parchment
-    page.bgFile=ORIGINAL_ART and (ART..paperName) or "Interface\\QuestFrame\\QuestBG"
+    page.bgFile=paneParchment and PARCHMENT or
+        (ORIGINAL_ART and (ART..paperName) or "Interface\\QuestFrame\\QuestBG")
+    page.sszPaneParchmentInitialized=paneParchment
 
     local title=frame:CreateFontString(nil,"ARTWORK","GameFontNormalLarge")
     title:SetJustifyH("LEFT")
@@ -415,7 +425,6 @@ local INTERIOR = SSCPrototypeInteriorSkin
 local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\UI-Background-Marble"
 -- This file is already included with SoftSpoken and is byte-identical to the
 -- texture imported by the prototype, so the integrated reader can be portable.
-local PARCHMENT = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\QuestDetailsBackgrounds"
 
 function P.ApplyPaneSkin(inset,holder,page)
     if not inset or not holder or not page or not page.frame then return end
@@ -438,9 +447,9 @@ function P.ApplyPaneSkin(inset,holder,page)
     holder:SetPoint("TOPLEFT",visual,"TOPLEFT",3,-3)
     holder:SetPoint("BOTTOMRIGHT",visual,"BOTTOMRIGHT",-3,3)
 
-    -- Both Places and Books intentionally use the SAME parchment the approved
-    -- visual test uses.  Do not modify the page's Show(), narration or reflow.
-    if page.bg then
+    -- PagePane-created LorePages already selected their final parchment.
+    -- Preserve the original post-construction override for other page factories.
+    if page.bg and not page.sszPaneParchmentInitialized then
         page.bg:SetTexture(PARCHMENT)
         page.bg:SetTexCoord(0,0.560547,0,0.90625)
         page.bg:SetVertexColor(1,1,1,1)

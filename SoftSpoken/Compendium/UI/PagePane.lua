@@ -16,6 +16,10 @@ local function BuildPage(inset, createPage)
     local holder = CreateFrame("Frame", nil, inset)
     holder:SetPoint("TOPLEFT", inset, "TOPLEFT", 5, -5)
     holder:SetPoint("BOTTOMRIGHT", inset, "BOTTOMRIGHT", -36, 5)
+    -- Let the shared LorePage factory select the final parchment immediately.
+    -- Direct page construction without this holder retains its original art.
+    holder.sszUsePaneParchment =
+        SSCLorePage and SSCLorePage.ApplyPaneSkin and true or false
     local page = createPage(holder)
     if SSCLorePage and SSCLorePage.ApplyPaneSkin then
         SSCLorePage.ApplyPaneSkin(inset, holder, page)
