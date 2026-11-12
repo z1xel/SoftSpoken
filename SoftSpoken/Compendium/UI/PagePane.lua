@@ -7,7 +7,7 @@ local C = SSCCompendium
 -- The caller controls only the inset's position; the page's artwork and
 -- narrow 31-unit scrollbar housing always come from the shared skins.
 local function BuildPage(inset, createPage)
-    if not (SSCPrototypePageSkin and SSCPrototypePageSkin.Apply) then
+    if not (SSCLorePage and SSCLorePage.ApplyPaneSkin) then
         SSCUI.AddInsetBorder(inset)
     end
     if inset.SetBackdropColor then
@@ -17,8 +17,8 @@ local function BuildPage(inset, createPage)
     holder:SetPoint("TOPLEFT", inset, "TOPLEFT", 5, -5)
     holder:SetPoint("BOTTOMRIGHT", inset, "BOTTOMRIGHT", -36, 5)
     local page = createPage(holder)
-    if SSCPrototypePageSkin and SSCPrototypePageSkin.Apply then
-        SSCPrototypePageSkin.Apply(inset, holder, page)
+    if SSCLorePage and SSCLorePage.ApplyPaneSkin then
+        SSCLorePage.ApplyPaneSkin(inset, holder, page)
     end
     if SSCNativeScrollbar and SSCNativeScrollbar.AttachPage then
         SSCNativeScrollbar.AttachPage(inset, page)
