@@ -6,7 +6,7 @@ local Compat = SSZMapCompat
 local L = SSZLoreWindow
 local P = SSZLorePage
 local WIDTH, GAP = 327, 2
-local READER_RIGHT_SHIFT = 1
+local READER_RIGHT_SHIFT = 2
 local panel, page, toggle, pageInset
 local lastMapID, lastContinent, lastZone
 local ready = false
@@ -136,7 +136,7 @@ local function BuildPanel()
     pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
         return P.CreateLorePage(holder,"book",nil,{openInCompendium=true,expandSubtitle=true})
     end,{left=0,right=4,top=23,bottom=24})
-    -- Zone Lore only: widen the parchment by 1 unit on its right edge,
+    -- Zone Lore only: widen the parchment by 2 units on its right edge,
     -- leaving its left edge fixed. Shift the scrollbar by the same amount
     -- below so their existing overlap/spacing stays unchanged.
     local pageVisual=pageInset and pageInset.sszPrototypePageVisual
@@ -169,7 +169,7 @@ local function BuildPanel()
             -- Zone Lore only: position the scrollbar 1 unit lower and keep
             -- it 5 units shorter than the shared page inset. Leave the
             -- parchment's height and shared Compendium unchanged.
-            -- Mirror the shared skin's right offset, adding the same 1-unit
+            -- Mirror the shared skin's right offset, adding the same 2-unit
             -- right shift applied to the parchment's visual frame.
             local geometry=SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
             local rightOffset=(geometry and geometry.pageSlotRightOffset or -3)
