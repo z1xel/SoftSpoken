@@ -151,7 +151,7 @@ local FactionCrest=SSCQuestFactionCrest
 -- An item has no creature face. Use a native note icon until its item icon
 -- becomes available; never show the player's faction crest for an item.
 local ITEM_FALLBACK = "Interface\\Icons\\INV_Misc_Note_01"
-local ITEM_ICON_CROP = { .08, .92, .08, .92 }
+local ITEM_ICON_CROP = { 0, 1, 0, 1 }
 
 -- User-selected CharacterTab ring: 77x77 image pixels stored in a 128x128
 -- power-of-two TGA for Vanilla 1.12. Its on-screen size is independent of
