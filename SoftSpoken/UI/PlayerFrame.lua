@@ -144,8 +144,8 @@ function PlayerFrame:InitDisplay()
     end)
 end
 
--- ClassicAPI v1.19+: a native duration-driven StatusBar, keeping the same
--- understated dark track / gold hairline / CastingBar spark as the 1.12 port.
+-- ClassicAPI v1.19+: a native duration-driven StatusBar with Blizzard's
+-- loading-screen frame, standard status-bar fill, and CastingBar spark.
 -- Metadata only estimates UI progress. The queue's native sound handle, not
 -- this duration object, decides whether a recording is finished.
 local PROGRESS_CAP = 0.985
@@ -175,14 +175,25 @@ local function StaticProgress(progress, fraction)
 end
 
 function PlayerFrame:InitProgress()
-    local bar = CreateFrame("StatusBar", nil, self.frame)
-    bar:SetHeight(2)
+    -- The loading-screen border keeps the original player's horizontal bounds.
+    -- Inset the active bar so the fill never runs into the ornate endcaps.
+    local container = CreateFrame("Frame", nil, self.frame)
+    container:SetHeight(30)
+    local border = container:CreateTexture(nil, "BORDER")
+    border:SetTexture([[Interface\Glues\LoadingBar\Loading-BarBorder]])
+    border:SetAllPoints(container)
+
+    local bar = CreateFrame("StatusBar", nil, container)
+    bar:SetHeight(8)
+    bar:SetPoint("LEFT", container, "LEFT", 14, 0)
+    bar:SetPoint("RIGHT", container, "RIGHT", -14, 0)
     local track = bar:CreateTexture(nil, "BACKGROUND")
     ProgressColor(track, 0.03, 0.025, 0.015, 0.7)
     track:SetAllPoints(bar)
     local fill = bar:CreateTexture(nil, "ARTWORK")
-    ProgressColor(fill, 1, 0.78, 0.24, 0.95)
+    fill:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
     bar:SetStatusBarTexture(fill)
+    bar:SetStatusBarColor(1, 0.78, 0.24, 0.95)
     bar:SetMinMaxValues(0, 1)
     bar:SetValue(0)
     local spark = bar:CreateTexture(nil, "OVERLAY")
@@ -194,17 +205,18 @@ function PlayerFrame:InitProgress()
     -- so the spark follows without a Lua frame-by-frame update.
     spark:SetPoint("CENTER", fill, "RIGHT")
     spark:Hide()
-    self.progress = { bar = bar, track = track, fill = fill, spark = spark }
+    self.progress = { container = container, bar = bar, track = track,
+        fill = fill, spark = spark, border = border }
     self:LayoutProgress()
 end
 
 function PlayerFrame:LayoutProgress()
     if not self.progress then return end
-    local bar = self.progress.bar
-    bar:ClearAllPoints()
-    bar:SetPoint("BOTTOMLEFT", self.frame, "BOTTOMLEFT",
-        FrameConfig().HidePortrait and 20 or PORTRAIT_SIZE + 15, 8)
-    bar:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -18, 8)
+    local container = self.progress.container
+    container:ClearAllPoints()
+    container:SetPoint("BOTTOMLEFT", self.frame, "BOTTOMLEFT",
+        FrameConfig().HidePortrait and 20 or PORTRAIT_SIZE + 15, 0)
+    container:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -18, 0)
 end
 
 function PlayerFrame:UpdateProgress()
@@ -213,7 +225,7 @@ function PlayerFrame:UpdateProgress()
     local shown = Addon:DisplayStyle() == "classic"
         and Addon:Profile("Transcript").SubtitleProgress ~= false
         and self.frame:IsShown()
-    progress.bar:SetShown(shown)
+    progress.container:SetShown(shown)
     if not shown then
         progress.spark:Hide()
         return
