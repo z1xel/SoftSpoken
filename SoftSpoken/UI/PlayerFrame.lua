@@ -243,8 +243,9 @@ function PlayerFrame:LayoutProgress()
 
     local bar = self.progress.bar
     bar:ClearAllPoints()
-    bar:SetPoint("LEFT", container, "LEFT", inset, 0)
-    bar:SetPoint("RIGHT", container, "RIGHT", -inset, 0)
+    -- Fine-tune the fill opening independently of the ornate frame.
+    bar:SetPoint("LEFT", container, "LEFT", inset - 2, 0)
+    bar:SetPoint("RIGHT", container, "RIGHT", -inset + 3, 0)
 end
 
 function PlayerFrame:UpdateProgress()
