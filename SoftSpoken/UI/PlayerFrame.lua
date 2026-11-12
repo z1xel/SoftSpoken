@@ -187,10 +187,17 @@ function PlayerFrame:InitProgress()
     ProgressColor(track, 0.03, 0.025, 0.015, 0.7)
     track:SetAllPoints(bar)
     local fill = bar:CreateTexture(nil, "ARTWORK")
-    -- Match the quest text's exact color; a tinted grayscale texture plus
-    -- additive highlight could not reproduce it consistently across the bar.
-    ProgressColor(fill, 245 / 255, 204 / 255, 24 / 255, 1)
+    fill:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
     bar:SetStatusBarTexture(fill)
+    bar:SetStatusBarColor(1.0, 0.82, 0.0, 0.95)
+    -- UI-StatusBar is a dark gray gradient, so tinting alone stays muted.
+    -- Overlay a strongly tinted additive copy to brighten it into gold.
+    -- Anchor to the native moving fill so it follows timer-driven progress.
+    local goldHighlight = bar:CreateTexture(nil, "OVERLAY")
+    goldHighlight:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
+    goldHighlight:SetVertexColor(1.0, 0.72, 0.16, 0.90)
+    goldHighlight:SetBlendMode("ADD")
+    goldHighlight:SetAllPoints(fill)
     bar:SetMinMaxValues(0, 1)
     bar:SetValue(0)
     local spark = bar:CreateTexture(nil, "OVERLAY")
@@ -213,7 +220,7 @@ function PlayerFrame:InitProgress()
     border:SetAllPoints(borderFrame)
 
     self.progress = { container = container, bar = bar, track = track,
-        fill = fill, spark = spark, border = border }
+        fill = fill, goldHighlight = goldHighlight, spark = spark, border = border }
     self:LayoutProgress()
 end
 
