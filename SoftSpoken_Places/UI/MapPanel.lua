@@ -22,15 +22,92 @@ local function Settings()
     return s
 end
 
+-- Turtle WoW's actual minimized World Map border, sourced directly from
+-- Interface/FrameXML/WorldMapFrame.xml. The original uses eight independent
+-- UI-WorldMapMinimized-* textures (not the older WorldMapSmall left/right
+-- sheets). Match its four fixed corners, stretched sides and cropped rails.
+-- This skin is ONLY for Zone Lore: the Compendium's frame stays untouched.
+local MAP_ART = "Interface\\WorldMap\\UI-WorldMapMinimized-"
+local MAP_ROCK = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\UI-Background-Rock-Classic"
+
+local function MinimizedMapBorder(frame)
+    -- Preserve the original stone underlay, but replace all portrait-frame
+    -- corner and rail art with Turtle's own minimized-map pieces.
+    frame:SetBackdrop({bgFile=MAP_ROCK,tile=true,tileSize=256,
+        insets={left=2,right=2,top=21,bottom=2}})
+
+    -- The parchment is in child frames. The outer border needs its own
+    -- higher-level, mouse-transparent frame or the page covers the rails.
+    local chrome=CreateFrame("Frame",nil,frame)
+    chrome:SetAllPoints(frame)
+    chrome:SetFrameLevel(frame:GetFrameLevel()+10)
+    chrome:EnableMouse(false)
+    frame.sszMapBorder=chrome
+
+    local function Piece(name,width,height)
+        local t=chrome:CreateTexture(nil,"ARTWORK")
+        t:SetTexture(MAP_ART..name)
+        if width then t:SetWidth(width) end
+        if height then t:SetHeight(height) end
+        return t
+    end
+
+    -- Exact source sizes and positioning from Turtle WorldMapFrame.xml.
+    local topLeft=Piece("TopLeft",32,32)
+    topLeft:SetPoint("TOPLEFT",chrome,"TOPLEFT",0,0)
+    local bottomLeft=Piece("BottomLeft",32,64)
+    bottomLeft:SetPoint("BOTTOMLEFT",chrome,"BOTTOMLEFT",0,0)
+    local left=Piece("Left",32)
+    left:SetTexCoord(0,1,0,0.6708)
+    left:SetPoint("TOPLEFT",topLeft,"BOTTOMLEFT",0,0)
+    left:SetPoint("BOTTOMLEFT",bottomLeft,"TOPLEFT",0,0)
+
+    local topRight=Piece("TopRight",64,32)
+    topRight:SetPoint("TOPRIGHT",chrome,"TOPRIGHT",0,0)
+    local bottomRight=Piece("BottomRight",64,64)
+    bottomRight:SetPoint("BOTTOMRIGHT",chrome,"BOTTOMRIGHT",0,0)
+    local right=Piece("Right",32)
+    right:SetTexCoord(0,1,0,0.6708)
+    right:SetPoint("TOPRIGHT",topRight,"BOTTOMRIGHT",0,0)
+    right:SetPoint("BOTTOMRIGHT",bottomRight,"TOPRIGHT",0,0)
+
+    local top=Piece("Top",nil,32)
+    top:SetTexCoord(0,0.9628,0,1)
+    top:SetPoint("TOPLEFT",topLeft,"TOPRIGHT",0,0)
+    top:SetPoint("TOPRIGHT",topRight,"TOPLEFT",0,0)
+    local bottom=Piece("Bottom",nil,64)
+    bottom:SetTexCoord(0,0.9628,0,1)
+    bottom:SetPoint("BOTTOMLEFT",bottomLeft,"BOTTOMRIGHT",0,0)
+    bottom:SetPoint("BOTTOMRIGHT",bottomRight,"BOTTOMLEFT",0,0)
+
+    -- Keep Zone Lore's text and native red X, above the map chrome.
+    local title=chrome:CreateFontString(nil,"OVERLAY","GameFontNormal")
+    title:SetHeight(20)
+    title:SetPoint("TOPLEFT",frame,"TOPLEFT",22,-3)
+    title:SetPoint("TOPRIGHT",frame,"TOPRIGHT",-40,-3)
+    title:SetJustifyH("CENTER")
+    title:SetText("Zone Lore")
+    frame.sszTitle=title
+
+    local close=CreateFrame("Button",nil,frame,"UIPanelCloseButton")
+    close:SetWidth(32);close:SetHeight(32)
+    close:SetPoint("TOPRIGHT",frame,"TOPRIGHT",4,5)
+    for _,getter in ipairs({"GetNormalTexture","GetPushedTexture","GetHighlightTexture"}) do
+        local texture=close[getter](close)
+        if texture then
+            texture:ClearAllPoints()
+            texture:SetAllPoints(close)
+        end
+    end
+    if close.SetHitRectInsets then close:SetHitRectInsets(4,4,4,4) end
+    close:EnableMouse(true)
+    close:SetScript("OnClick",function() M.SetMapPanelCollapsed(true) end)
+    frame.sszClose=close
+end
+
 local function NewPanel()
     local frame=CreateFrame("Frame","SSZMapLorePanel",WorldMapFrame)
-    -- Share the Compendium's actual outer PortraitFrame metal and tiled rock,
-    -- not just the parchment inside it. In compact mode it has no portrait
-    -- or minimize button, and its native Close collapses the map attachment.
-    SSCPrototypeFrameSkin.Apply(frame,"Zone Lore",{
-        compact=true,
-        onClose=function() M.SetMapPanelCollapsed(true) end,
-    })
+    MinimizedMapBorder(frame)
     frame.title=frame.sszTitle
     frame.close=frame.sszClose
     return frame
@@ -66,6 +143,9 @@ local function BuildPanel()
     -- trim (+10), must not sit above the native close button's hit target.
     -- In particular, the visible X, its highlight and its OnClick handler
     -- must all belong to the same highest button frame.
+    if panel.sszMapBorder then
+        panel.sszMapBorder:SetFrameLevel(panel:GetFrameLevel()+10)
+    end
     if panel.sszClose then
         panel.sszClose:SetFrameLevel(panel:GetFrameLevel()+15)
     end
@@ -380,12 +460,8 @@ watch:SetScript("OnUpdate",function(self,dt)
     end
     if not WorldMapFrame:IsShown() then return end
     ApplyAnchors()
-    -- World Map height can change through anchor geometry without firing the
-    -- panel's OnSizeChanged on some 1.12 clients. Only redraw the compact
-    -- border when its measured width/height actually changed.
-    if panel and SSCPrototypeFrameSkin and SSCPrototypeFrameSkin.RefreshCompact then
-        SSCPrototypeFrameSkin.RefreshCompact(panel)
-    end
+    -- The native World Map border uses opposing anchors for its edge
+    -- textures, so changes to map height require no separate border reflow.
     local mapID,_,continent,zone=Compat.GetDisplayedMapID()
     if mapID~=lastMapID or continent~=lastContinent or zone~=lastZone then
         if Compat.ClearOverlayCache then Compat.ClearOverlayCache() end
