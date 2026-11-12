@@ -44,6 +44,51 @@ U.SetScrollOffset = SetScrollOffset
 U.MouseWheelDelta = MouseWheelDelta
 U.AddBorder = AddBorder
 
+-- Shared ClassicAPI scroll-edge fade for both text readers and virtualized
+-- list viewports. The viewport owns the clipping; headers, backgrounds,
+-- borders and native scrollbar housings stay outside the gradient.
+local EDGE_FADE_LENGTH = 18
+function U.RefreshScrollEdgeFade(owner)
+    if not (owner and owner.edgeFadeEnabled) then return end
+    local scroll,child=owner.scroll,owner.child
+    local maximum=ScrollMax(scroll,child)
+    local offset=math.max(0,math.min(maximum,ScrollOffset(scroll)))
+    local top=math.min(EDGE_FADE_LENGTH,offset)
+    local bottom=math.min(EDGE_FADE_LENGTH,math.max(0,maximum-offset))
+    if owner.edgeFadeTop==top and owner.edgeFadeBottom==bottom then return end
+    local ok=pcall(function()
+        if owner.edgeFadeTop~=top then
+            scroll:SetAlphaGradient(0,{x=0,y=top})
+        end
+        if owner.edgeFadeBottom~=bottom then
+            scroll:SetAlphaGradient(1,{x=0,y=bottom})
+        end
+    end)
+    if not ok then
+        -- Keep the scrollable content usable when optional ClassicAPI fails.
+        owner.edgeFadeEnabled=false
+        owner.edgeFadeTop=nil
+        owner.edgeFadeBottom=nil
+        if scroll.ClearAlphaGradient then pcall(scroll.ClearAlphaGradient,scroll) end
+        pcall(scroll.SetClipsChildren,scroll,false)
+        return
+    end
+    owner.edgeFadeTop=top
+    owner.edgeFadeBottom=bottom
+end
+
+function U.EnableScrollEdgeFade(owner)
+    local scroll=owner and owner.scroll
+    if not scroll or owner.edgeFadeEnabled or not
+            (scroll.SetClipsChildren and scroll.SetAlphaGradient) then return end
+    -- The native ClassicAPI alpha gradient is effective only when the frame
+    -- clips its children; unsupported clients retain their original reader.
+    local ok=pcall(scroll.SetClipsChildren,scroll,true)
+    if not ok then return end
+    owner.edgeFadeEnabled=true
+    U.RefreshScrollEdgeFade(owner)
+end
+
 -- A subdued 1.12 inset: the original uses InsetFrameTemplate, absent in Vanilla.
 -- Use native 1.12 tooltip textures rather than a second ornate dialog border.
 function U.AddInsetBorder(frame)
