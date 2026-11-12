@@ -1,4 +1,4 @@
-name: Extract original QuestMapLogAtlas StoryHeader artwork
+name: Inspect original QuestMapLogAtlas regions
 
 on:
   push:
@@ -11,57 +11,58 @@ permissions:
   contents: write
 
 jobs:
-  extract:
+  inspect:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          persist-credentials: true
-      - name: Extract exact upstream atlas region and package for 1.12
+      - name: Fetch pinned Gethe image and export visual atlas references
         shell: bash
         run: |
           set -euo pipefail
           python3 -m pip install --quiet pillow
-          curl --fail --location --silent --show-error --retry 3 \
-            'https://raw.githubusercontent.com/Gethe/wow-ui-textures/d23deaf8f44a7d280dc974a5c9d5321c013db59b/QUESTFRAME/QuestMapLogAtlas.PNG' \
-            --output "$RUNNER_TEMP/QuestMapLogAtlas.PNG"
+          curl -fLsS --retry 3 'https://raw.githubusercontent.com/Gethe/wow-ui-textures/d23deaf8f44a7d280dc974a5c9d5321c013db59b/QUESTFRAME/QuestMapLogAtlas.PNG' -o "$RUNNER_TEMP/QuestMapLogAtlas.PNG"
           python3 - <<'PY'
-          import hashlib
-          import io
-          import pathlib
-          from PIL import Image
+          import pathlib, os, io, hashlib
+          from PIL import Image, ImageDraw, ImageFont
+          data = (pathlib.Path(os.environ['RUNNER_TEMP'])/'QuestMapLogAtlas.PNG').read_bytes()
+          sha = hashlib.sha1(b'blob '+str(len(data)).encode()+bytes([0])+data).hexdigest()
+          assert sha == 'b68f78d2599f386fd6d5055c7ec3aad57491b249',sha
+          atlas = Image.open(io.BytesIO(data)).convert('RGBA')
+          assert atlas.size == (1024,1024)
+          out = pathlib.Path('tests/.questmap_atlas_inspection')
+          out.mkdir(parents=True,exist_ok=True)
+          atlas.convert('RGB').quantize(colors=160).save(out/'atlas_overview.png',optimize=True)
 
-          source = pathlib.Path(__import__('os').environ['RUNNER_TEMP']) / 'QuestMapLogAtlas.PNG'
-          payload = source.read_bytes()
-          blob_sha = hashlib.sha1(b'blob ' + str(len(payload)).encode() + bytes([0]) + payload).hexdigest()
-          assert blob_sha == 'b68f78d2599f386fd6d5055c7ec3aad57491b249', (
-              'Gethe source artwork changed: ' + blob_sha
-          )
-          atlas = Image.open(io.BytesIO(payload)).convert('RGBA')
-          assert atlas.size == (1024, 1024), atlas.size
-
-          # Source atlas metadata for StoryHeader-BG:
-          # Exact native atlas metadata (Hoizame/WoW_ClassicUIResources, file 904010):
-          x, y, width, height = 1, 933, 262, 77
-          art = atlas.crop((x, y, x + width, y + height))
-          dest = pathlib.Path('SoftSpoken/Compendium/Textures/Prototype/Art')
-          dest.mkdir(parents=True, exist_ok=True)
-          # Native 1.12: power-of-two TGA with the exact source pixels,
-          # transparent outer padding, and no resampling.
-          padded = Image.new('RGBA', (512, 128), (0, 0, 0, 0))
-          padded.paste(art, (0, 0))
-          padded.save(dest / 'StoryHeaderBG.tga')
-          art.save(dest / 'StoryHeaderBG_source.png')
-          print('Original PNG SHA1:', blob_sha)
-          print('Atlas:', atlas.size, 'crop:', art.size, 'padded TGA:', padded.size)
+          candidates=[
+            ('QuestDetails-TopOverlay',(290,744,577,795)),
+            ('QuestDetails-RewardsBottomOverlay',(290,797,577,843)),
+            ('QuestDetails-RewardsOverlay',(290,467,577,742)),
+            ('StoryHeader-BG',(1,933,263,1010)),
+            ('QuestItemBorder',(474,845,576,875)),
+            ('QuestDetailsBackgrounds',(1,467,288,931)),
+          ]
+          width=900
+          def scaled(art):
+              return art.resize((art.width*2,art.height*2),Image.Resampling.NEAREST)
+          height=sum((box[3]-box[1])*2+46 for _,box in candidates)+30
+          overview=Image.new('RGB',(width,height),(50,50,50))
+          draw=ImageDraw.Draw(overview)
+          y=20
+          for name,box in candidates:
+              draw.text((10,y),f'{name} : {box}',fill=(255,255,255))
+              y+=22
+              art=scaled(atlas.crop(box))
+              overview.paste(art.convert('RGB'),(12,y))
+              y+=art.height+24
+          overview.quantize(colors=192).save(out/'candidate_regions.png',optimize=True)
+          print('verified original Git blob',sha)
           PY
-      - name: Commit original-source binary artwork to experiment
+      - name: Commit temporary source-image inspection previews
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add SoftSpoken/Compendium/Textures/Prototype/Art/StoryHeaderBG.tga
-          git add SoftSpoken/Compendium/Textures/Prototype/Art/StoryHeaderBG_source.png
-          git commit -m "assets(compendium): extract exact StoryHeader-BG from Gethe atlas"
+          git add tests/.questmap_atlas_inspection/
+          git commit -m "chore: inspect original QuestMapLogAtlas regions (temporary)"
           git push origin HEAD:experiment/vanilla-ui-fidelity
