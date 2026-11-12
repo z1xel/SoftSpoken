@@ -137,6 +137,12 @@ local function BuildPanel()
     pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
         return P.CreateLorePage(holder,"book",nil,{openInCompendium=true,expandSubtitle=true})
     end,{left=0,right=4,top=23,bottom=24})
+    -- TEMPORARY VISUAL TEST: disable Zone Lore's inner silver inset border.
+    -- The shared rim (and all its textures) remains intact for the Compendium.
+    -- Remove/comment out this Hide() to restore the original border.
+    if pageInset.sszPrototypePageRim then
+        pageInset.sszPrototypePageRim:Hide()
+    end
     -- Zone Lore only: widen the parchment by 2 units on its right edge,
     -- leaving its left edge fixed. Shift the scrollbar by the same amount
     -- below so their existing overlap/spacing stays unchanged.
