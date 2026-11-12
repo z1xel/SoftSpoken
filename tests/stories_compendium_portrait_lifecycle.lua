@@ -188,7 +188,7 @@ for _,stage in ipairs({"accept","progress","complete"}) do
     local speaker=details.parts[stage].speaker
     eq(speaker.fontPath,[[Fonts\MORPHEUS.TTF]],stage.." speaker uses Morpheus")
     eq(speaker.fontFlags,"",stage.." speaker has no outline")
-    near(speaker.fontSize,12,stage.." speaker is 80 percent of heading size")
+    near(speaker.fontSize,12.75,stage.." speaker is 85 percent of heading size")
     eq(speaker.textColor[1],0,stage.." speaker is black (red)")
     eq(speaker.textColor[2],0,stage.." speaker is black (green)")
     eq(speaker.textColor[3],0,stage.." speaker is black (blue)")
