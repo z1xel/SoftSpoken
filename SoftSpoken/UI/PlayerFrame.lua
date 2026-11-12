@@ -190,12 +190,14 @@ function PlayerFrame:InitProgress()
     fill:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
     bar:SetStatusBarTexture(fill)
     bar:SetStatusBarColor(1.0, 0.82, 0.0, 0.95)
-    -- UI-StatusBar is a dark gray gradient, so tinting alone stays muted.
-    -- Overlay a strongly tinted additive copy to brighten it into gold.
-    -- Anchor to the native moving fill so it follows timer-driven progress.
+    -- Overlay an additive gold highlight with a native vertical alpha
+    -- gradient: transparent at the bottom, strongest at the top.
+    -- Anchor to the moving fill so it follows native playback progress.
     local goldHighlight = bar:CreateTexture(nil, "OVERLAY")
     goldHighlight:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
-    goldHighlight:SetVertexColor(1.0, 0.72, 0.16, 0.78)
+    goldHighlight:SetGradientAlpha("VERTICAL",
+        1.0, 0.72, 0.16, 0,
+        1.0, 0.72, 0.16, 0.78)
     goldHighlight:SetBlendMode("ADD")
     goldHighlight:SetAllPoints(fill)
     bar:SetMinMaxValues(0, 1)
