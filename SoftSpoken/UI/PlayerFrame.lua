@@ -190,7 +190,7 @@ function PlayerFrame:InitProgress()
     fill:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
     bar:SetStatusBarTexture(fill)
     -- Slightly warm the sampled dark mustard-gold for the textured brass body.
-    bar:SetStatusBarColor(152 / 255, 112 / 255, 43 / 255, 0.95)
+    bar:SetStatusBarColor(166 / 255, 104 / 255, 39 / 255, 0.95)
     -- Bright icon-yellow reflection: transparent at the bottom,
     -- strongest along the upper edge over the warmer brass body.
     -- Anchor to the moving fill so it follows native playback progress.
