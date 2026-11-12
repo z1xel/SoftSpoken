@@ -38,17 +38,17 @@ jobs:
               'Gethe source artwork changed: ' + blob_sha
           )
           atlas = Image.open(io.BytesIO(payload)).convert('RGBA')
-          assert atlas.size == (2048, 1024), atlas.size
+          assert atlas.size == (1024, 1024), atlas.size
 
           # Source atlas metadata for StoryHeader-BG:
-          # x=(0.564941..0.861816)*2048, y=(0.274414..0.409180)*1024
-          x, y, width, height = 1157, 281, 608, 138
+          # Exact native atlas metadata (Hoizame/WoW_ClassicUIResources, file 904010):
+          x, y, width, height = 1, 933, 262, 77
           art = atlas.crop((x, y, x + width, y + height))
           dest = pathlib.Path('SoftSpoken/Compendium/Textures/Prototype/Art')
           dest.mkdir(parents=True, exist_ok=True)
           # Native 1.12: power-of-two TGA with the exact source pixels,
           # transparent outer padding, and no resampling.
-          padded = Image.new('RGBA', (1024, 256), (0, 0, 0, 0))
+          padded = Image.new('RGBA', (512, 128), (0, 0, 0, 0))
           padded.paste(art, (0, 0))
           padded.save(dest / 'StoryHeaderBG.tga')
           art.save(dest / 'StoryHeaderBG_source.png')
