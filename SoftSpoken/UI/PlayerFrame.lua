@@ -198,7 +198,7 @@ function PlayerFrame:InitProgress()
     goldHighlight:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
     goldHighlight:SetGradientAlpha("VERTICAL",
         247 / 255, 223 / 255, 57 / 255, 0,
-        247 / 255, 223 / 255, 57 / 255, 0.55)
+        247 / 255, 223 / 255, 57 / 255, 0.85)
     goldHighlight:SetBlendMode("ADD")
     goldHighlight:SetAllPoints(fill)
     bar:SetMinMaxValues(0, 1)
