@@ -224,9 +224,17 @@ function PlayerFrame:InitProgress()
     local border = borderFrame:CreateTexture(nil, "OVERLAY")
     border:SetTexture([[Interface\Glues\LoadingBar\Loading-BarBorder]])
     border:SetAllPoints(borderFrame)
+    -- Lift the existing metal engravings toward cool silver while preserving
+    -- the border texture's black recesses and native detail.
+    local silverHighlight = borderFrame:CreateTexture(nil, "OVERLAY")
+    silverHighlight:SetTexture([[Interface\Glues\LoadingBar\Loading-BarBorder]])
+    silverHighlight:SetVertexColor(0.82, 0.88, 1.0, 0.80)
+    silverHighlight:SetBlendMode("ADD")
+    silverHighlight:SetAllPoints(borderFrame)
 
     self.progress = { container = container, bar = bar, track = track,
-        fill = fill, goldHighlight = goldHighlight, spark = spark, border = border }
+        fill = fill, goldHighlight = goldHighlight, spark = spark, border = border,
+        silverHighlight = silverHighlight }
     self:LayoutProgress()
 end
 
