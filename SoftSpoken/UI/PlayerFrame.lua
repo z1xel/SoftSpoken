@@ -33,6 +33,9 @@ local TALKING_HEAD_MODEL_INSET_Y = 15 * PORTRAIT_SIZE / 115
 -- Native atlas coordinates: [863,1006) x [1,144) in the 1024px sheet.
 -- The exact 143x143 region is packaged in a transparent 256x256 Vanilla TGA.
 local TALKING_HEAD_TEX_COORD = 143 / 256
+-- Dark (non-faction) TalkingHeads-TextBackground: 570x155 from the atlas.
+local TALKING_HEAD_BACKGROUND_U = 570 / 1024
+local TALKING_HEAD_BACKGROUND_V = 155 / 256
 local PORTRAIT_LINE_WIDTH = 56 * PORTRAIT_BORDER_SCALE
 local FRAME_WIDTH_WITHOUT_PORTRAIT = 300
 local MAX_ROWS = 4
@@ -97,9 +100,12 @@ function PlayerFrame:InitDisplay()
     self.frame:SetFrameStrata(FrameConfig().FrameStrata)
     self.frame:Hide()
 
+    -- The original Talking Head's dark, translucent window background spans
+    -- the entire narrator, including the space behind the portrait.
     self.frame.background = self.frame:CreateTexture(nil, "BACKGROUND")
-    self.frame.background:SetPoint("RIGHT")
-    self.frame.background:SetTexture(TEXTURES .. "BackgroundGradient")
+    self.frame.background:SetAllPoints(self.frame)
+    self.frame.background:SetTexture(TEXTURES .. "TalkingHeads\\TextBackground")
+    self.frame.background:SetTexCoord(0, TALKING_HEAD_BACKGROUND_U, 0, TALKING_HEAD_BACKGROUND_V)
 
     self.frame.resizer = CreateFrame("Button", nil, self.frame)
     self.frame.resizer:SetPoint("BOTTOMRIGHT")
@@ -436,8 +442,6 @@ function PlayerFrame:RefreshConfig()
         self.frame.portrait:Hide()
         self.frame.miniPause:Show()
         self.frame.container:SetPoint("LEFT", 20, 0)
-        self.frame.background:SetPoint("TOPLEFT")
-        self.frame.background:SetPoint("BOTTOMLEFT")
         self.frame.mover:SetParent(self.frame)
         self.frame.mover:SetPoint("CENTER", self.frame, "BOTTOMLEFT", 2, 6)
     else
@@ -449,8 +453,6 @@ function PlayerFrame:RefreshConfig()
         self.frame.portrait:Show()
         self.frame.miniPause:Hide()
         self.frame.container:SetPoint("LEFT", self.frame.portrait, "RIGHT", 15, 0)
-        self.frame.background:SetPoint("TOPLEFT", self.frame.portrait, "TOPRIGHT")
-        self.frame.background:SetPoint("BOTTOMLEFT", self.frame.portrait, "BOTTOMRIGHT")
         self.frame.mover:SetParent(self.frame.portrait.border)
         self.frame.mover:SetPoint("CENTER", self.frame.portrait.border, "BOTTOMLEFT", 5, 6)
     end
@@ -476,9 +478,6 @@ function PlayerFrame:LayoutCaptions()
     local height = Transcript:HeightForClip(SoundQueue:GetCurrentSound())
     Transcript:Dock(self.frame, self.frame, "TOPLEFT", left, -PORTRAIT_SIZE - 4,
         math.max(1, WidthOf(self.frame) - left - 10), height)
-    self.frame.background:ClearAllPoints()
-    self.frame.background:SetPoint("TOPLEFT", hidePortrait and 0 or PORTRAIT_SIZE, 0)
-    self.frame.background:SetPoint("BOTTOMRIGHT")
 end
 
 local function BulletFor(clip, hovered)

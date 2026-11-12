@@ -277,10 +277,42 @@ eq(frameAlpha(143, 72), 0) -- Transparent padding, not neighboring atlas art
 eq(frameAlpha(72, 143), 0)
 local backingAlpha = CheckTalkingHeadArt("SoftSpoken/Textures/TalkingHeads/PortraitBg.tga", 128)
 assert(backingAlpha(64, 64) > 0) -- Unused reference texture remains valid
+
+-- The non-faction TalkingHeads-TextBackground is a dark translucent 570x155
+-- region on a 1024x256 TGA; never use the parchment texture-kit variants.
+local backdropPath = "SoftSpoken/Textures/TalkingHeads/TextBackground.tga"
+local backdropFile = assert(io.open(backdropPath, "rb"))
+local backdropBytes = backdropFile:read("*a")
+backdropFile:close()
+eq(#backdropBytes, 18 + 1024 * 256 * 4)
+eq(backdropBytes:byte(3), 2)
+eq(backdropBytes:byte(13) + 256 * backdropBytes:byte(14), 1024)
+eq(backdropBytes:byte(15) + 256 * backdropBytes:byte(16), 256)
+eq(backdropBytes:byte(17), 32)
+eq(backdropBytes:byte(18), 40)
+local function BackdropRGBA(x, y)
+    local n = 19 + (y * 1024 + x) * 4
+    return backdropBytes:byte(n + 2), backdropBytes:byte(n + 1),
+        backdropBytes:byte(n), backdropBytes:byte(n + 3)
+end
+local r, g, b, alpha = BackdropRGBA(285, 77)
+eq(r, 0); eq(g, 0); eq(b, 0)
+assert(alpha > 0 and alpha < 255)
+local _, _, _, padding = BackdropRGBA(570, 77)
+eq(padding, 0)
+local _, _, _, bottomPadding = BackdropRGBA(285, 155)
+eq(bottomPadding, 0)
+
 local playerFile = assert(io.open("SoftSpoken/UI/PlayerFrame.lua", "r"))
 local playerSource = playerFile:read("*a")
 playerFile:close()
 assert(playerSource:find([[TalkingHeads\\PortraitNeutral]], 1, true))
+assert(playerSource:find([[TalkingHeads\\TextBackground]], 1, true))
+assert(playerSource:find("local TALKING_HEAD_BACKGROUND_U = 570 / 1024", 1, true))
+assert(playerSource:find("local TALKING_HEAD_BACKGROUND_V = 155 / 256", 1, true))
+assert(playerSource:find("self.frame.background:SetAllPoints(self.frame)", 1, true))
+assert(not playerSource:find('self.frame.background:SetTexture(TEXTURES .. "BackgroundGradient")', 1, true))
+assert(not playerSource:find("TalkingHeads-Neutral-TextBackground", 1, true))
 assert(playerSource:find("local TALKING_HEAD_FRAME_SIZE = 143 * PORTRAIT_SIZE / 115", 1, true))
 assert(playerSource:find("local TALKING_HEAD_MODEL_INSET_X = 16 * PORTRAIT_SIZE / 115", 1, true))
 assert(playerSource:find("local TALKING_HEAD_MODEL_INSET_Y = 15 * PORTRAIT_SIZE / 115", 1, true))
