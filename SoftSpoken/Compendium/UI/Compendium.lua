@@ -895,8 +895,8 @@ function C.NewList(panel,opts)
     list.noMatch=noMatch
     -- Native 1.12 scrollbar drives this list directly; preserve the public
     -- list.bar reference for external tab integrations.
-    if SSCPrototypeScrollSkin and SSCPrototypeScrollSkin.AttachList then
-        local native=SSCPrototypeScrollSkin.AttachList(list)
+    if SSCNativeScrollbar and SSCNativeScrollbar.AttachList then
+        local native=SSCNativeScrollbar.AttachList(list)
         list.bar=native and native.slider
     end
     panel.list=list

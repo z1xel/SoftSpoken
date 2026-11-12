@@ -20,8 +20,8 @@ local function BuildPage(inset, createPage)
     if SSCPrototypePageSkin and SSCPrototypePageSkin.Apply then
         SSCPrototypePageSkin.Apply(inset, holder, page)
     end
-    if SSCPrototypeScrollSkin and SSCPrototypeScrollSkin.AttachPage then
-        SSCPrototypeScrollSkin.AttachPage(inset, page)
+    if SSCNativeScrollbar and SSCNativeScrollbar.AttachPage then
+        SSCNativeScrollbar.AttachPage(inset, page)
     end
     return page
 end

@@ -4,8 +4,8 @@
 -- three-unit thumb shift, pressed-arrow correction, and the shared
 -- right-page housing offset. Native sliders connect directly to the list/reader
 -- offset controllers; no duplicate hidden scrollbar is constructed.
-SSCPrototypeScrollSkin = SSCPrototypeScrollSkin or {}
-local Skin = SSCPrototypeScrollSkin
+SSCNativeScrollbar = SSCNativeScrollbar or {}
+local Skin = SSCNativeScrollbar
 local U = SSCUI
 local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\UI-Background-Marble"
 local SCROLL_ART = "Interface\\PaperDollInfoFrame\\UI-Character-ScrollBar"

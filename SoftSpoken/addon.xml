@@ -33,7 +33,7 @@
     <Include file="Compendium\UI\ClassicFrameSkin.lua"/>
     <Include file="Compendium\UI\PrototypeFrameSkin.lua"/>
     <Include file="Compendium\UI\PrototypeInteriorSkin.lua"/>
-    <Include file="Compendium\UI\PrototypeScrollSkin.lua"/>
+    <Include file="Compendium\UI\NativeScrollbar.lua"/>
     <Include file="Compendium\UI\PrototypePageSkin.lua"/>
     <Include file="Compendium\UI\ArtReady.lua"/>
     <Include file="Compendium\UI\TextView.lua"/>
