@@ -190,6 +190,13 @@ function PlayerFrame:InitProgress()
     fill:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
     bar:SetStatusBarTexture(fill)
     bar:SetStatusBarColor(1.0, 0.82, 0.0, 0.95)
+    -- UI-StatusBar is gray and darkens the gold tint. Add a faint copy of
+    -- its gradient above the moving fill to bring back the richer quest gold.
+    local goldHighlight = bar:CreateTexture(nil, "ARTWORK")
+    goldHighlight:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
+    goldHighlight:SetVertexColor(0.40, 0.40, 0.16, 0.45)
+    goldHighlight:SetBlendMode("ADD")
+    goldHighlight:SetAllPoints(fill)
     bar:SetMinMaxValues(0, 1)
     bar:SetValue(0)
     local spark = bar:CreateTexture(nil, "OVERLAY")
@@ -212,7 +219,7 @@ function PlayerFrame:InitProgress()
     border:SetAllPoints(borderFrame)
 
     self.progress = { container = container, bar = bar, track = track,
-        fill = fill, spark = spark, border = border }
+        fill = fill, goldHighlight = goldHighlight, spark = spark, border = border }
     self:LayoutProgress()
 end
 
