@@ -690,7 +690,13 @@ function C.NewList(panel,opts)
     end
     search:SetWidth(C.VISUAL_GEOMETRY.searchWidth);search:SetHeight(21)
     search:SetAutoFocus(false);search:SetMaxLetters(70)
-    search:SetPoint("TOPLEFT",panel,"TOPLEFT",C.VISUAL_GEOMETRY.searchX,C.VISUAL_GEOMETRY.searchY)
+    -- Keep Search + filter arrow together, with the arrow's right edge
+    -- 5 units inside the 340-unit compact Compendium right edge. Anchor
+    -- against compact width even while expanded so minimizing does not
+    -- move the controls or change their existing 8-unit separation.
+    local headerControlsWidth=C.VISUAL_GEOMETRY.searchWidth+8+24
+    local headerControlsX=CollapsedWidth()-5-headerControlsWidth
+    search:SetPoint("TOPLEFT",panel,"TOPLEFT",headerControlsX,C.VISUAL_GEOMETRY.searchY)
     if ornate then
         search:SetFontObject(ChatFontNormal)
         SSCPrototypeInteriorSkin.ApplySearch(search)
