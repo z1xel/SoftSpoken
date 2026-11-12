@@ -190,11 +190,12 @@ function PlayerFrame:InitProgress()
     fill:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
     bar:SetStatusBarTexture(fill)
     bar:SetStatusBarColor(1.0, 0.82, 0.0, 0.95)
-    -- UI-StatusBar is gray and darkens the gold tint. Add a faint copy of
-    -- its gradient above the moving fill to bring back the richer quest gold.
-    local goldHighlight = bar:CreateTexture(nil, "ARTWORK")
+    -- UI-StatusBar is a dark gray gradient, so tinting alone stays muted.
+    -- Overlay a strongly tinted additive copy to brighten it into gold.
+    -- Anchor to the native moving fill so it follows timer-driven progress.
+    local goldHighlight = bar:CreateTexture(nil, "OVERLAY")
     goldHighlight:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
-    goldHighlight:SetVertexColor(0.40, 0.40, 0.16, 0.45)
+    goldHighlight:SetVertexColor(1.0, 0.72, 0.16, 0.90)
     goldHighlight:SetBlendMode("ADD")
     goldHighlight:SetAllPoints(fill)
     bar:SetMinMaxValues(0, 1)
