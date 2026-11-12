@@ -140,14 +140,14 @@ local function BuildPanel()
     -- Zone Lore geometry: size the shared page visual, not its parchment
     -- holder. This keeps the silver inset (rim:SetAllPoints(pageVisual)) tied
     -- to the parchment with its original 3-unit margin on every side.
-    -- Keep 11 units of left inset and 9 units of bottom inset (extended
-    -- 1 unit left and 3 units down). Scrollbar anchors stay independent.
+    -- Keep 10 units of left inset and 8 units of bottom inset.
+    -- Scrollbar anchors stay independent.
     local pageVisual=pageInset and pageInset.sszPrototypePageVisual
     if pageVisual then
         pageVisual:ClearAllPoints()
-        pageVisual:SetPoint("TOPLEFT",pageInset,"TOPLEFT",11,0)
+        pageVisual:SetPoint("TOPLEFT",pageInset,"TOPLEFT",10,0)
         pageVisual:SetPoint("BOTTOMRIGHT",pageInset,"BOTTOMRIGHT",
-            -29+READER_RIGHT_SHIFT,9)
+            -29+READER_RIGHT_SHIFT,8)
     end
     -- Share the Compendium's ClassicAPI scroll-edge fade on the World Map
     -- lore reader. The TextView method handles missing ClassicAPI safely.
