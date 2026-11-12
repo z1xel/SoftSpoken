@@ -140,12 +140,12 @@ local function BuildPanel()
     -- Zone Lore geometry: size the shared page visual, not its parchment
     -- holder. This keeps the silver inset (rim:SetAllPoints(pageVisual)) tied
     -- to the parchment with its original 3-unit margin on every side.
-    -- Keep 10 units of left inset and 8 units of bottom inset.
+    -- Keep 9 units of left inset and 8 units of bottom inset.
     -- Scrollbar anchors stay independent.
     local pageVisual=pageInset and pageInset.sszPrototypePageVisual
     if pageVisual then
         pageVisual:ClearAllPoints()
-        pageVisual:SetPoint("TOPLEFT",pageInset,"TOPLEFT",10,0)
+        pageVisual:SetPoint("TOPLEFT",pageInset,"TOPLEFT",9,0)
         pageVisual:SetPoint("BOTTOMRIGHT",pageInset,"BOTTOMRIGHT",
             -29+READER_RIGHT_SHIFT,8)
     end
