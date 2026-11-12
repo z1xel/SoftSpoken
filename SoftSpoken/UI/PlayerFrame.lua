@@ -224,25 +224,8 @@ function PlayerFrame:InitProgress()
     local border = borderFrame:CreateTexture(nil, "OVERLAY")
     border:SetTexture([[Interface\Glues\LoadingBar\Loading-BarBorder]])
     border:SetAllPoints(borderFrame)
-    -- Lift the existing metal engravings toward cool silver while preserving
-    -- the border texture's black recesses and native detail.
-    local silverHighlight = borderFrame:CreateTexture(nil, "OVERLAY")
-    silverHighlight:SetTexture([[Interface\Glues\LoadingBar\Loading-BarBorder]])
-    silverHighlight:SetVertexColor(1.0, 1.0, 1.0, 1.0)
-    silverHighlight:SetBlendMode("ADD")
-    silverHighlight:SetAllPoints(borderFrame)
-    -- The native loading-bar metal is much darker than the Talking Head rim.
-    -- A restrained third copy raises its existing ridges into silver-gray
-    -- without a flat color wash over its black grooves or transparent center.
-    local silverDetail = borderFrame:CreateTexture(nil, "OVERLAY")
-    silverDetail:SetTexture([[Interface\Glues\LoadingBar\Loading-BarBorder]])
-    silverDetail:SetVertexColor(0.90, 0.94, 1.0, 0.85)
-    silverDetail:SetBlendMode("ADD")
-    silverDetail:SetAllPoints(borderFrame)
-
     self.progress = { container = container, bar = bar, track = track,
-        fill = fill, goldHighlight = goldHighlight, spark = spark, border = border,
-        silverHighlight = silverHighlight, silverDetail = silverDetail }
+        fill = fill, goldHighlight = goldHighlight, spark = spark, border = border }
     self:LayoutProgress()
 end
 
