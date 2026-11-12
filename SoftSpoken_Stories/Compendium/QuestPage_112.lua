@@ -515,8 +515,10 @@ function P.Create(page)
         eventName=type(eventName)=="string" and eventName or _G.event
         if eventName~="GET_ITEM_INFO_RECEIVED" and
            eventName~="ITEM_DATA_LOAD_RESULT" then return end
-        self:OnItemInfoReceived(Number(itemID) or Number(_G.arg1),
-            success~=nil and success or _G.arg2)
+        -- Keep an explicit false result; Lua's "and/or" idiom loses it.
+        local result=success
+        if result==nil then result=_G.arg2 end
+        self:OnItemInfoReceived(Number(itemID) or Number(_G.arg1),result)
     end)
     for _,eventName in ipairs({"GET_ITEM_INFO_RECEIVED","ITEM_DATA_LOAD_RESULT"}) do
         -- Old clients without ClassicAPI may reject these custom events.
