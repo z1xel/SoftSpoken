@@ -57,8 +57,13 @@ local function CreateFrame(kind)
     return bar
 end
 
+local fonts = {}
 local function Font()
-    return setmetatable({}, {__index = function() return function() end end})
+    local f = {}
+    function f:SetFont(path, size, flags)
+        self.path, self.size, self.flags = path, size, flags
+    end
+    return setmetatable(f, {__index = function() return function() end end})
 end
 
 SpokenEnv = setmetatable({
@@ -94,11 +99,19 @@ SpokenEnv = setmetatable({
     },
     GetTime = function() return now end,
     CreateFrame = CreateFrame,
-    CreateFont = function() return Font() end,
+    CreateFont = function(name)
+        local font = Font()
+        fonts[name] = font
+        return font
+    end,
     GameFontNormal = { GetFont = function() return "Fonts\\FRIZQT__.TTF" end }
 }, {__index = _G})
 
 dofile("SoftSpoken/UI/PlayerFrame.lua")
+eq(fonts.SpokenNameFont.path, "Fonts\\MORPHEUS.TTF")
+eq(fonts.SpokenNameFont.size, 19)
+eq(fonts.SpokenNameFont.flags, "")
+eq(fonts.SpokenRowFont.path, "Fonts\\FRIZQT__.TTF")
 local p = SpokenEnv.PlayerFrame
 p.frame = frame
 p.Current = function() return current end
