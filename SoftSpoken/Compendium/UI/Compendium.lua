@@ -833,6 +833,38 @@ function C.NewList(panel,opts)
         -- same checkbox menu and supplies Vanilla's pushed/hover states.
     end
 
+    -- Experiment: extend the raised Show housing underneath Search, creating
+    -- one continuous native three-piece label frame across both controls.
+    -- Draw these slices on the parent panel (behind both interactive frames);
+    -- stretching the dropdown's own ARTWORK would obscure Search instead.
+    local housingArt="Interface\\Glues\\CharacterCreate\\CharacterCreate-LabelFrame"
+    local function HousingSlice(u0,u1)
+        local tex=panel:CreateTexture(nil,"ARTWORK")
+        tex:SetTexture(housingArt)
+        tex:SetTexCoord(u0,u1,0,1)
+        return tex
+    end
+    local housingLeft=HousingSlice(0,0.1953125)
+    housingLeft:SetWidth(25);housingLeft:SetHeight(64)
+    housingLeft:SetPoint("TOPLEFT",menu,"TOPLEFT",searchLeft-showLeft,17)
+
+    local housingRight=HousingSlice(0.8046875,1)
+    housingRight:SetWidth(25);housingRight:SetHeight(64)
+    housingRight:SetPoint("TOPRIGHT",menu,"TOPRIGHT",0,17)
+
+    local housingMiddle=HousingSlice(0.1953125,0.8046875)
+    housingMiddle:SetPoint("TOPLEFT",housingLeft,"TOPRIGHT",0,0)
+    housingMiddle:SetPoint("BOTTOMRIGHT",housingRight,"BOTTOMLEFT",0,0)
+
+    -- The standard Show pieces would create a second left edge in the middle
+    -- of the shared surface. Keep their anchors for native text/arrow layout,
+    -- but do not paint them over the continuous background.
+    for _,part in ipairs({"Left","Middle","Right"}) do
+        local tex=getglobal(menuName..part)
+        if tex then tex:Hide() end
+    end
+    list.filterHousing={housingLeft,housingMiddle,housingRight}
+
     local left=CreateFrame("Frame",nil,panel)
     if SSCPrototypeInteriorSkin and SSCPrototypeInteriorSkin.ApplyList then
         SSCPrototypeInteriorSkin.ApplyList(left)
