@@ -334,7 +334,8 @@ function PlayerFrame:LayoutProgress()
     -- Keep ornate caps fixed unless very narrow widths require cropping.
     local capWidth = math.min(PROGRESS_BORDER_CAP_WIDTH,
         math.max(0, (width - PROGRESS_BORDER_MIN_CENTER) / 2))
-    if capWidth ~= progress.capWidth then
+    local capChanged = capWidth ~= progress.capWidth
+    if capChanged then
         progress.borderLeft:SetWidth(capWidth)
         progress.borderRight:SetWidth(capWidth)
         progress.borderLeft:SetTexCoord(0,
@@ -364,11 +365,22 @@ function PlayerFrame:LayoutProgress()
         end
     end
 
-    -- Tiles are permanently anchored in a chain. During a drag, only the
-    -- final partial tile (and any newly crossed tile boundary) needs updating.
+    -- Anchor each tile directly to the stable border frame, not its neighbor.
+    -- Only adjust their offsets when the ornate endcaps actually change size
+    -- (exceptionally narrow widths); normal dragging changes the final tile.
     local count = math.ceil(innerWidth / PROGRESS_BORDER_TILE_WIDTH)
     local previousCount = progress.visibleTileCount or 0
     local tiles = progress.borderTiles
+
+    if capChanged then
+        for i = 1, table.getn(tiles) do
+            local texture = tiles[i].texture
+            local x = capWidth + (i - 1) * PROGRESS_BORDER_TILE_WIDTH
+            texture:ClearAllPoints()
+            texture:SetPoint("TOPLEFT", progress.borderFrame, "TOPLEFT", x, 0)
+            texture:SetPoint("BOTTOMLEFT", progress.borderFrame, "BOTTOMLEFT", x, 0)
+        end
+    end
 
     local function SetTileWidth(tile, tileWidth)
         if tile.width == tileWidth then return end
@@ -391,9 +403,9 @@ function PlayerFrame:LayoutProgress()
                 if not tile then
                     local texture = progress.borderFrame:CreateTexture(nil, "ARTWORK")
                     texture:SetTexture(progress.borderTexture)
-                    local previous = i == 1 and progress.borderLeft or tiles[i - 1].texture
-                    texture:SetPoint("TOPLEFT", previous, "TOPRIGHT")
-                    texture:SetPoint("BOTTOMLEFT", previous, "BOTTOMRIGHT")
+                    local x = capWidth + (i - 1) * PROGRESS_BORDER_TILE_WIDTH
+                    texture:SetPoint("TOPLEFT", progress.borderFrame, "TOPLEFT", x, 0)
+                    texture:SetPoint("BOTTOMLEFT", progress.borderFrame, "BOTTOMLEFT", x, 0)
                     tile = { texture = texture }
                     tiles[i] = tile
                 end
