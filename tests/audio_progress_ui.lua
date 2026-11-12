@@ -109,7 +109,7 @@ SpokenEnv = setmetatable({
 
 dofile("SoftSpoken/UI/PlayerFrame.lua")
 eq(fonts.SpokenNameFont.path, "Fonts\\MORPHEUS.TTF")
-eq(fonts.SpokenNameFont.size, 19)
+eq(fonts.SpokenNameFont.size, 22)
 eq(fonts.SpokenNameFont.flags, "")
 eq(fonts.SpokenRowFont.path, "Fonts\\FRIZQT__.TTF")
 local p = SpokenEnv.PlayerFrame
