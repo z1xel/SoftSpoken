@@ -243,7 +243,7 @@ function P.CreateLorePage(parent,options)
     parchment:SetTexture(PARCHMENT)
     -- QuestBG is a 512x512 atlas; use its painted upper-left rectangle
     -- instead of scaling the large transparent right/bottom padding.
-    parchment:SetTexCoord(0,300/512,0,400/512)
+    parchment:SetTexCoord(0,300/512,0,300/512)
     parchment:SetVertexColor(1,1,1,1)
     page.bg=parchment
     page.bgFile=PARCHMENT
