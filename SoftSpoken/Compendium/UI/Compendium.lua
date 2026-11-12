@@ -822,15 +822,8 @@ function C.NewList(panel,opts)
         end)
         UIDropDownMenu_SetWidth(54,menu)
         UIDropDownMenu_SetButtonWidth(24,menu)
-        UIDropDownMenu_JustifyText("LEFT",menu)
-        UIDropDownMenu_SetText("Show:",menu)
-        -- Blizzard's SetWidth(54) also constrains the label to 29 units,
-        -- which ellipsizes "Show:" even though the housing has room.
-        -- Widen only the FontString; leave the frame, arrow and Search fixed.
-        local label=getglobal(menuName.."Text")
-        if label then label:SetWidth(42) end
-        -- Leave the template's own arrow OnClick intact. It opens the
-        -- same checkbox menu and supplies Vanilla's pushed/hover states.
+        UIDropDownMenu_SetText("",menu)
+        -- Keep the native arrow and its menu behavior, without a caption.
     end
 
     -- Experiment: extend the raised Show housing underneath Search, creating
