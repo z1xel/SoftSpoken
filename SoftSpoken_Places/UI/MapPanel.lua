@@ -5,7 +5,7 @@ local M = SSZMapPanel
 local Compat = SSZMapCompat
 local L = SSZLoreWindow
 local P = SSZLorePage
-local WIDTH, GAP = 338, 2
+local WIDTH, GAP = 330, 2
 local panel, page, toggle, pageInset
 local lastMapID, lastContinent, lastZone
 local ready = false
