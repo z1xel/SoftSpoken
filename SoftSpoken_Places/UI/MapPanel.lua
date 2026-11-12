@@ -5,7 +5,7 @@ local M = SSZMapPanel
 local Compat = SSZMapCompat
 local L = SSZLoreWindow
 local P = SSZLorePage
-local WIDTH, GAP = 328, 2
+local WIDTH, GAP = 327, 2
 local panel, page, toggle, pageInset
 local lastMapID, lastContinent, lastZone
 local ready = false
@@ -156,14 +156,14 @@ local function BuildPanel()
         if slot then
             slot:SetFrameLevel(panel:GetFrameLevel()+11)
             -- Zone Lore only: position the scrollbar 1 unit lower and keep
-            -- it 4 units shorter than the shared page inset (2 more than
-            -- before). Leave the parchment and shared Compendium unchanged.
+            -- it 5 units shorter than the shared page inset. Leave the
+            -- parchment and shared Compendium unchanged.
             -- Mirror the shared skin's right offset when resetting anchors.
             local geometry=SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
             local rightOffset=geometry and geometry.pageSlotRightOffset or -3
             slot:ClearAllPoints()
             slot:SetPoint("TOPRIGHT",pageInset,"TOPRIGHT",rightOffset,-1)
-            slot:SetPoint("BOTTOMRIGHT",pageInset,"BOTTOMRIGHT",rightOffset,3)
+            slot:SetPoint("BOTTOMRIGHT",pageInset,"BOTTOMRIGHT",rightOffset,4)
         end
         if slider then
             slider:SetFrameLevel(panel:GetFrameLevel()+12)
