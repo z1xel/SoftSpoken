@@ -384,9 +384,9 @@ function P:ApplyTypography()
         local part=self.parts[stage]
         MatchFont(part.content,reference,0,QuestFont)
         if part.content.SetSpacing then part.content:SetSpacing(0) end
-        -- Speaker name is 80% of the Description heading size;
+        -- Speaker name is 85% of the Description heading size;
         -- keep its black Morpheus face without the QuestTitleFont shadow.
-        MatchFont(part.speaker,heading,0,QuestTitleFont,false,"Fonts\\MORPHEUS.TTF",.80)
+        MatchFont(part.speaker,heading,0,QuestTitleFont,false,"Fonts\\MORPHEUS.TTF",.85)
         part.speaker:SetTextColor(0,0,0,1)
         MatchFont(part.title,heading,0,QuestTitleFont,true)
     end
