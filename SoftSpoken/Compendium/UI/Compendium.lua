@@ -846,7 +846,10 @@ function C.NewList(panel,opts)
     end
     local housingLeft=HousingSlice(0,0.1953125)
     housingLeft:SetWidth(25);housingLeft:SetHeight(64)
-    housingLeft:SetPoint("TOPLEFT",menu,"TOPLEFT",searchLeft-showLeft,17)
+    -- The 25-unit left slice must start one cap-width before the Search
+    -- control, otherwise the frame's visible left shoulder begins inside
+    -- Search while the new top edge extends above its old input border.
+    housingLeft:SetPoint("TOPLEFT",menu,"TOPLEFT",searchLeft-showLeft-25,17)
 
     local housingRight=HousingSlice(0.8046875,1)
     housingRight:SetWidth(25);housingRight:SetHeight(64)
@@ -864,6 +867,16 @@ function C.NewList(panel,opts)
         if tex then tex:Hide() end
     end
     list.filterHousing={housingLeft,housingMiddle,housingRight}
+
+    -- Search is now seated on the same raised surface as Show. Its old
+    -- Common-Input-Border outlines a smaller rectangle inside the new one,
+    -- leaving doubled, vertically mismatched top/bottom rails. Keep the
+    -- functional EditBox, icons and hover behavior; hide only its 3 slices.
+    if search.sszSearchBorder then
+        for _,piece in ipairs(search.sszSearchBorder) do
+            piece:Hide()
+        end
+    end
 
     local left=CreateFrame("Frame",nil,panel)
     if SSCPrototypeInteriorSkin and SSCPrototypeInteriorSkin.ApplyList then
