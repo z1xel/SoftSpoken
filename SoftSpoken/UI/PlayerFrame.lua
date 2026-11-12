@@ -182,7 +182,8 @@ function PlayerFrame:InitProgress()
     container:SetHeight(30)
 
     local bar = CreateFrame("StatusBar", nil, container)
-    bar:SetHeight(8)
+    local barHeight = 8
+    bar:SetHeight(barHeight)
     local track = bar:CreateTexture(nil, "BACKGROUND")
     ProgressColor(track, 0.03, 0.025, 0.015, 0.7)
     track:SetAllPoints(bar)
@@ -191,8 +192,8 @@ function PlayerFrame:InitProgress()
     bar:SetStatusBarTexture(fill)
     -- Slightly warm the sampled dark mustard-gold for the textured brass body.
     bar:SetStatusBarColor(166 / 255, 104 / 255, 39 / 255, 0.95)
-    -- Bright icon-yellow reflection: transparent at the bottom,
-    -- strongest along the upper edge over the warmer brass body.
+    -- Bright icon-yellow reflection: 85% at the top, fading to zero
+    -- 70% down the fill. Keep the lower 30% as unhighlighted brass.
     -- Anchor to the moving fill so it follows native playback progress.
     local goldHighlight = bar:CreateTexture(nil, "OVERLAY")
     goldHighlight:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
@@ -200,7 +201,9 @@ function PlayerFrame:InitProgress()
         247 / 255, 223 / 255, 57 / 255, 0,
         247 / 255, 223 / 255, 57 / 255, 0.85)
     goldHighlight:SetBlendMode("ADD")
-    goldHighlight:SetAllPoints(fill)
+    goldHighlight:SetPoint("TOPLEFT", fill, "TOPLEFT", 0, 0)
+    goldHighlight:SetPoint("TOPRIGHT", fill, "TOPRIGHT", 0, 0)
+    goldHighlight:SetHeight(barHeight * 0.70)
     bar:SetMinMaxValues(0, 1)
     bar:SetValue(0)
     local spark = bar:CreateTexture(nil, "OVERLAY")
