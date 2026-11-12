@@ -228,7 +228,7 @@ function PlayerFrame:InitProgress()
     -- the border texture's black recesses and native detail.
     local silverHighlight = borderFrame:CreateTexture(nil, "OVERLAY")
     silverHighlight:SetTexture([[Interface\Glues\LoadingBar\Loading-BarBorder]])
-    silverHighlight:SetVertexColor(0.82, 0.88, 1.0, 0.80)
+    silverHighlight:SetVertexColor(1.0, 1.0, 1.0, 1.0)
     silverHighlight:SetBlendMode("ADD")
     silverHighlight:SetAllPoints(borderFrame)
 
