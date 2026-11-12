@@ -1,4 +1,4 @@
-name: Inspect original QuestMapLogAtlas regions
+name: Extract original brown header band from QuestMapLogAtlas
 
 on:
   push:
@@ -11,62 +11,48 @@ permissions:
   contents: write
 
 jobs:
-  inspect:
+  extract:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch pinned Gethe image and export visual atlas references
+      - name: Cut exact source pixels and produce 1.12 texture
         shell: bash
         run: |
           set -euo pipefail
           python3 -m pip install --quiet pillow
-          curl -fLsS --retry 3 'https://raw.githubusercontent.com/Gethe/wow-ui-textures/d23deaf8f44a7d280dc974a5c9d5321c013db59b/QUESTFRAME/QuestMapLogAtlas.PNG' -o "$RUNNER_TEMP/QuestMapLogAtlas.PNG"
+          curl -fLsS --retry 3 \
+            'https://raw.githubusercontent.com/Gethe/wow-ui-textures/d23deaf8f44a7d280dc974a5c9d5321c013db59b/QUESTFRAME/QuestMapLogAtlas.PNG' \
+            -o "$RUNNER_TEMP/QuestMapLogAtlas.PNG"
           python3 - <<'PY'
-          import pathlib, os, io, hashlib
-          from PIL import Image, ImageDraw, ImageFont
-          data = (pathlib.Path(os.environ['RUNNER_TEMP'])/'QuestMapLogAtlas.PNG').read_bytes()
-          sha = hashlib.sha1(b'blob '+str(len(data)).encode()+bytes([0])+data).hexdigest()
-          assert sha == 'b68f78d2599f386fd6d5055c7ec3aad57491b249',sha
-          atlas = Image.open(io.BytesIO(data)).convert('RGBA')
-          assert atlas.size == (1024,1024)
-          out = pathlib.Path('tests/.questmap_atlas_inspection')
-          out.mkdir(parents=True,exist_ok=True)
-          atlas.convert('RGB').quantize(colors=160).save(out/'atlas_overview.png',optimize=True)
-
-          candidates=[
-            ('Top right 0-138',(578,0,868,138)),
-            ('Top right 138-278',(578,138,868,278)),
-            ('Red band 278-337',(578,278,868,337)),
-            ('Gold band 338-397',(578,338,868,397)),
-            ('Brown band 397-456',(578,397,868,456)),
-            ('Brown band 456-512',(578,456,868,512)),
-            ('Brown band 512-578',(578,512,868,578)),
-            ('Black band 578-620',(578,578,868,620)),
-            ('Black band 620-665',(578,620,868,665)),
-            ('Black band 665-710',(578,665,868,710)),
-          ]
-          width=900
-          def scaled(art):
-              return art.resize((art.width*2,art.height*2),Image.Resampling.NEAREST)
-          height=sum((box[3]-box[1])*2+46 for _,box in candidates)+30
-          overview=Image.new('RGB',(width,height),(50,50,50))
-          draw=ImageDraw.Draw(overview)
-          y=20
-          for name,box in candidates:
-              draw.text((10,y),f'{name} : {box}',fill=(255,255,255))
-              y+=22
-              art=scaled(atlas.crop(box))
-              overview.paste(art.convert('RGB'),(12,y))
-              y+=art.height+24
-          overview.quantize(colors=192).save(out/'band_regions.png',optimize=True)
-          print('verified original Git blob',sha)
+          import hashlib,io,os,pathlib
+          from PIL import Image
+          payload=(pathlib.Path(os.environ['RUNNER_TEMP'])/'QuestMapLogAtlas.PNG').read_bytes()
+          sha=hashlib.sha1(b'blob '+str(len(payload)).encode()+bytes([0])+payload).hexdigest()
+          assert sha=='b68f78d2599f386fd6d5055c7ec3aad57491b249',sha
+          atlas=Image.open(io.BytesIO(payload)).convert('RGBA')
+          assert atlas.size == (1024,1024),atlas.size
+          # This is the black-framed, brown inset strip from the source atlas,
+          # NOT StoryHeader-BG (which is the dark stone header at y933).
+          x0,y0,x1,y1=578,397,838,456
+          crop=atlas.crop((x0,y0,x1,y1))
+          output=pathlib.Path('SoftSpoken/Compendium/Textures/Prototype/Art')
+          output.mkdir(parents=True,exist_ok=True)
+          crop.save(output/'QuestMapLogBrownBand_source.png')
+          # WoW 1.12 accepts TGA; pad to power-of-two canvas without resampling.
+          canvas=Image.new('RGBA',(512,64),(0,0,0,0))
+          canvas.paste(crop,(0,0))
+          canvas.save(output/'QuestMapLogBrownBand.tga')
+          print('Verified source blob:',sha)
+          print('Native crop:',crop.size,'source:',(x0,y0,x1,y1),'canvas:',canvas.size)
           PY
-      - name: Commit temporary source-image inspection previews
+      - name: Commit original-source artwork and remove inspection files
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tests/.questmap_atlas_inspection/
-          git commit -m "chore: inspect original QuestMapLogAtlas regions (temporary)"
+          git rm -r --ignore-unmatch tests/.questmap_atlas_inspection/
+          git add SoftSpoken/Compendium/Textures/Prototype/Art/QuestMapLogBrownBand.tga
+          git add SoftSpoken/Compendium/Textures/Prototype/Art/QuestMapLogBrownBand_source.png
+          git commit -m "assets(compendium): package source-pixel QuestMapLog brown band"
           git push origin HEAD:experiment/vanilla-ui-fidelity
