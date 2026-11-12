@@ -141,6 +141,7 @@ function PlayerFrame:InitDisplay()
         self.frame.container.name:Update()
         self.frame.container.buttons:Update()
         self:LayoutCaptions()
+        self:LayoutProgress()
     end)
 end
 
@@ -176,17 +177,12 @@ end
 
 function PlayerFrame:InitProgress()
     -- The loading-screen border keeps the original player's horizontal bounds.
-    -- Inset the active bar so the fill never runs into the ornate endcaps.
+    -- The active bar gets a proportional inset from its ornamental endcaps.
     local container = CreateFrame("Frame", nil, self.frame)
     container:SetHeight(30)
-    local border = container:CreateTexture(nil, "BORDER")
-    border:SetTexture([[Interface\Glues\LoadingBar\Loading-BarBorder]])
-    border:SetAllPoints(container)
 
     local bar = CreateFrame("StatusBar", nil, container)
     bar:SetHeight(8)
-    bar:SetPoint("LEFT", container, "LEFT", 14, 0)
-    bar:SetPoint("RIGHT", container, "RIGHT", -14, 0)
     local track = bar:CreateTexture(nil, "BACKGROUND")
     ProgressColor(track, 0.03, 0.025, 0.015, 0.7)
     track:SetAllPoints(bar)
@@ -205,6 +201,16 @@ function PlayerFrame:InitProgress()
     -- so the spark follows without a Lua frame-by-frame update.
     spark:SetPoint("CENTER", fill, "RIGHT")
     spark:Hide()
+
+    -- Child frame-levels outrank the parent's texture draw layers. Put the
+    -- decorative rim in its own higher frame so it always covers the fill.
+    local borderFrame = CreateFrame("Frame", nil, container)
+    borderFrame:SetAllPoints(container)
+    borderFrame:SetFrameLevel(bar:GetFrameLevel() + 1)
+    local border = borderFrame:CreateTexture(nil, "OVERLAY")
+    border:SetTexture([[Interface\Glues\LoadingBar\Loading-BarBorder]])
+    border:SetAllPoints(borderFrame)
+
     self.progress = { container = container, bar = bar, track = track,
         fill = fill, spark = spark, border = border }
     self:LayoutProgress()
@@ -213,10 +219,18 @@ end
 function PlayerFrame:LayoutProgress()
     if not self.progress then return end
     local container = self.progress.container
+    local left = FrameConfig().HidePortrait and 20 or PORTRAIT_SIZE + 15
+    local width = math.max(0, WidthOf(self.frame) - left - 18)
+    local inset = width * (36 / 512) -- measured clear opening of the 512px border
+
     container:ClearAllPoints()
-    container:SetPoint("BOTTOMLEFT", self.frame, "BOTTOMLEFT",
-        FrameConfig().HidePortrait and 20 or PORTRAIT_SIZE + 15, 0)
+    container:SetPoint("BOTTOMLEFT", self.frame, "BOTTOMLEFT", left, 0)
     container:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -18, 0)
+
+    local bar = self.progress.bar
+    bar:ClearAllPoints()
+    bar:SetPoint("LEFT", container, "LEFT", inset, 0)
+    bar:SetPoint("RIGHT", container, "RIGHT", -inset, 0)
 end
 
 function PlayerFrame:UpdateProgress()
