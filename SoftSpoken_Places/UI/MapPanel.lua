@@ -5,7 +5,7 @@ local M = SSZMapPanel
 local Compat = SSZMapCompat
 local L = SSZLoreWindow
 local P = SSZLorePage
-local WIDTH, GAP = 330, 2
+local WIDTH, GAP = 329, 2
 local panel, page, toggle, pageInset
 local lastMapID, lastContinent, lastZone
 local ready = false
@@ -153,7 +153,17 @@ local function BuildPanel()
         local scrollChrome=page and page.body and page.body.sszNativeScrollChrome
         local slot=scrollChrome and scrollChrome.slot
         local slider=scrollChrome and scrollChrome.slider
-        if slot then slot:SetFrameLevel(panel:GetFrameLevel()+11) end
+        if slot then
+            slot:SetFrameLevel(panel:GetFrameLevel()+11)
+            -- Zone Lore only: shorten the complete scroll housing by 2 units
+            -- from the bottom, leaving its top and the parchment unchanged.
+            -- Mirror the shared skin's right offset when resetting anchors.
+            local geometry=SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
+            local rightOffset=geometry and geometry.pageSlotRightOffset or -3
+            slot:ClearAllPoints()
+            slot:SetPoint("TOPRIGHT",pageInset,"TOPRIGHT",rightOffset,0)
+            slot:SetPoint("BOTTOMRIGHT",pageInset,"BOTTOMRIGHT",rightOffset,2)
+        end
         if slider then
             slider:SetFrameLevel(panel:GetFrameLevel()+12)
             if slider.GetChildren then
