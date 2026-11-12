@@ -691,9 +691,9 @@ function C.NewList(panel,opts)
     search:SetWidth(C.VISUAL_GEOMETRY.searchWidth);search:SetHeight(21)
     search:SetAutoFocus(false);search:SetMaxLetters(70)
     -- Keep Search left of the filter arrow with their 2-unit gap.
-    -- Position the pair 30 units inside the compact right edge.
+    -- Position the pair 35 units inside the compact right edge.
     local headerControlsWidth=C.VISUAL_GEOMETRY.searchWidth+2+24
-    local headerControlsX=CollapsedWidth()-30-headerControlsWidth
+    local headerControlsX=CollapsedWidth()-35-headerControlsWidth
     search:SetPoint("TOPLEFT",panel,"TOPLEFT",headerControlsX,
         C.VISUAL_GEOMETRY.searchY)
     if ornate then
