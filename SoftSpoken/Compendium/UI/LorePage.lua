@@ -12,7 +12,8 @@ P.Page = Page
 -- Keep the original ornamental divider art and its source UV coordinates.
 local ORIGINAL_ART = SSCOriginalArt == true
 local ART = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\"
-local PARCHMENT = ART.."QuestDetailsBackgrounds"
+-- Bundle QuestBG; Vanilla 1.12 clients do not necessarily ship this retail art.
+local PARCHMENT = ART.."QuestBG"
 local DIVIDER_NAME = "spellbook-divider"
 -- Keep the divider at its original scale: 64px left flourish, 66px right cap.
 -- The right cap always includes the original 657px endpoint: shortening
@@ -234,13 +235,15 @@ function P.CreateLorePage(parent,options)
     underlay:SetTexture(.79,.65,.45,1)
     page.underlay=underlay
 
-    -- Every lore page uses the bundled quest-details parchment. The opaque
+    -- Every lore page uses the bundled QuestBG parchment. The opaque
     -- underlay remains available if that file cannot be drawn.
-    if not ORIGINAL_ART then U.AddBorder(frame,"Interface\\QuestFrame\\QuestBG") end
+    if not ORIGINAL_ART then U.AddBorder(frame,PARCHMENT) end
     local parchment=frame:CreateTexture(nil,"BORDER")
     parchment:SetAllPoints(frame)
     parchment:SetTexture(PARCHMENT)
-    parchment:SetTexCoord(0,.560547,0,.90625)
+    -- QuestBG is a 512x512 atlas; use its painted upper-left rectangle
+    -- instead of scaling the large transparent right/bottom padding.
+    parchment:SetTexCoord(0,300/512,0,400/512)
     parchment:SetVertexColor(1,1,1,1)
     page.bg=parchment
     page.bgFile=PARCHMENT
