@@ -25,6 +25,11 @@ local PORTRAIT_ATLAS_VIEWPORT_SIZE = 348
 local PORTRAIT_BORDER_SCALE = PORTRAIT_SIZE / PORTRAIT_ATLAS_VIEWPORT_SIZE
 local PORTRAIT_BORDER_SIZE = PORTRAIT_ATLAS_BORDER_SIZE * PORTRAIT_BORDER_SCALE
 local PORTRAIT_BORDER_OUTSET = 34 * PORTRAIT_BORDER_SCALE
+-- The Neutral Talking Heads portrait has a 107x107 transparent aperture in
+-- its 128x128 art. At our existing 143.45-unit border size, this matches the
+-- 120-unit PlayerModel viewport. The opening is slightly off-center in art.
+local TALKING_HEAD_BORDER_X = 1.7
+local TALKING_HEAD_BORDER_Y = 0.6
 local PORTRAIT_LINE_WIDTH = 56 * PORTRAIT_BORDER_SCALE
 local FRAME_WIDTH_WITHOUT_PORTRAIT = 300
 local MAX_ROWS = 4
@@ -321,14 +326,14 @@ function PlayerFrame:InitPortrait()
 
     self.frame.portrait.background = self.frame.portrait:CreateTexture(nil, "BACKGROUND")
     self.frame.portrait.background:SetAllPoints()
-    self.frame.portrait.background:SetTexture(TEXTURES .. "PortraitFrameBackground")
+    self.frame.portrait.background:SetTexture(TEXTURES .. "TalkingHeads\\PortraitBg")
 
     self.frame.portrait.pause = CreateFrame("Button", nil, self.frame.portrait)
     self.frame.portrait.pause:SetFrameLevel(self.frame.portrait:GetFrameLevel() + 2)
     self.frame.portrait.pause:SetAllPoints()
     self.frame.portrait.pause.background = self.frame.portrait.pause:CreateTexture(nil, "BACKGROUND")
     self.frame.portrait.pause.background:SetAllPoints()
-    self.frame.portrait.pause.background:SetTexture(TEXTURES .. "PortraitFrameBackground")
+    self.frame.portrait.pause.background:SetTexture(TEXTURES .. "TalkingHeads\\PortraitBg")
     self.frame.portrait.pause.background:SetAlpha(0.75)
     self.frame.portrait.pause:SetNormalTexture(TEXTURES .. "PortraitFrameAtlas")
     self.frame.portrait.pause:GetNormalTexture():ClearAllPoints()
@@ -370,10 +375,10 @@ function PlayerFrame:InitPortrait()
     self.frame.portrait.border:SetAllPoints()
     self.frame.portrait.border.texture = self.frame.portrait.border:CreateTexture(nil, "BORDER")
     self.frame.portrait.border.texture:SetSize(PORTRAIT_BORDER_SIZE, PORTRAIT_BORDER_SIZE)
-    self.frame.portrait.border.texture:SetPoint("TOPLEFT", -PORTRAIT_BORDER_OUTSET, PORTRAIT_BORDER_OUTSET)
-    self.frame.portrait.border.texture:SetPoint("BOTTOMRIGHT", PORTRAIT_BORDER_OUTSET, -PORTRAIT_BORDER_OUTSET)
-    self.frame.portrait.border.texture:SetTexture(TEXTURES .. "PortraitFrameAtlas")
-    self.frame.portrait.border.texture:SetTexCoord(0, PORTRAIT_ATLAS_BORDER_SIZE / PORTRAIT_ATLAS_SIZE, 0, PORTRAIT_ATLAS_BORDER_SIZE / PORTRAIT_ATLAS_SIZE)
+    -- Keep the original border size and center the Neutral aperture on the model.
+    self.frame.portrait.border.texture:SetPoint("CENTER", self.frame.portrait, "CENTER", TALKING_HEAD_BORDER_X, TALKING_HEAD_BORDER_Y)
+    self.frame.portrait.border.texture:SetTexture(TEXTURES .. "TalkingHeads\\PortraitNeutral")
+    self.frame.portrait.border.texture:SetTexCoord(0, 1, 0, 1)
 end
 
 function PlayerFrame:InitMover()

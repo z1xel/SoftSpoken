@@ -252,4 +252,38 @@ file:close()
 assert(not transcript:find("seconds > self.duration"))
 assert(transcript:find('Callbacks:Register%("CLIP_STOPPED"'))
 
+-- Keep the baked Neutral Talking Heads textures loadable by the 1.12 client.
+-- These are uncompressed 128x128, 32-bit, top-left-origin TGA files.
+local function CheckTalkingHeadArt(path, isBorder)
+    local file = assert(io.open(path, "rb"), "Missing packaged texture: " .. path)
+    local data = file:read("*a")
+    file:close()
+    eq(#data, 18 + 128 * 128 * 4)
+    eq(data:byte(3), 2)       -- Uncompressed true-color TGA
+    eq(data:byte(13), 128)    -- Width (little-endian)
+    eq(data:byte(14), 0)
+    eq(data:byte(15), 128)    -- Height (little-endian)
+    eq(data:byte(16), 0)
+    eq(data:byte(17), 32)     -- BGRA
+    eq(data:byte(18), 40)     -- 8 alpha bits, top-left origin
+    local function AlphaAt(x, y)
+        return data:byte(22 + (y * 128 + x) * 4)
+    end
+    if isBorder then
+        eq(AlphaAt(64, 64), 0) -- Transparent aperture for the 3D model
+        assert(AlphaAt(1, 64) > 0)
+    else
+        assert(AlphaAt(64, 64) > 0)
+    end
+end
+CheckTalkingHeadArt("SoftSpoken/Textures/TalkingHeads/PortraitNeutral.tga", true)
+CheckTalkingHeadArt("SoftSpoken/Textures/TalkingHeads/PortraitBg.tga", false)
+local playerFile = assert(io.open("SoftSpoken/UI/PlayerFrame.lua", "r"))
+local playerSource = playerFile:read("*a")
+playerFile:close()
+assert(playerSource:find([[TalkingHeads\\PortraitNeutral]], 1, true))
+assert(playerSource:find([[TalkingHeads\\PortraitBg]], 1, true))
+assert(playerSource:find('self.frame.portraitLine:SetTexture(TEXTURES .. "PortraitFrameAtlas")', 1, true))
+assert(playerSource:find('self.frame.mover:SetNormalTexture(TEXTURES .. "PortraitFrameAtlas")', 1, true))
+
 print("audio_progress_ui.lua: native duration StatusBar, lifecycle and UI assertions passed")
