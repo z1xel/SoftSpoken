@@ -34,12 +34,16 @@ jobs:
           atlas.convert('RGB').quantize(colors=160).save(out/'atlas_overview.png',optimize=True)
 
           candidates=[
-            ('QuestDetails-TopOverlay',(290,744,577,795)),
-            ('QuestDetails-RewardsBottomOverlay',(290,797,577,843)),
-            ('QuestDetails-RewardsOverlay',(290,467,577,742)),
-            ('StoryHeader-BG',(1,933,263,1010)),
-            ('QuestItemBorder',(474,845,576,875)),
-            ('QuestDetailsBackgrounds',(1,467,288,931)),
+            ('Top right 0-138',(578,0,868,138)),
+            ('Top right 138-278',(578,138,868,278)),
+            ('Red band 278-337',(578,278,868,337)),
+            ('Gold band 338-397',(578,338,868,397)),
+            ('Brown band 397-456',(578,397,868,456)),
+            ('Brown band 456-512',(578,456,868,512)),
+            ('Brown band 512-578',(578,512,868,578)),
+            ('Black band 578-620',(578,578,868,620)),
+            ('Black band 620-665',(578,620,868,665)),
+            ('Black band 665-710',(578,665,868,710)),
           ]
           width=900
           def scaled(art):
@@ -54,7 +58,7 @@ jobs:
               art=scaled(atlas.crop(box))
               overview.paste(art.convert('RGB'),(12,y))
               y+=art.height+24
-          overview.quantize(colors=192).save(out/'candidate_regions.png',optimize=True)
+          overview.quantize(colors=192).save(out/'band_regions.png',optimize=True)
           print('verified original Git blob',sha)
           PY
       - name: Commit temporary source-image inspection previews
