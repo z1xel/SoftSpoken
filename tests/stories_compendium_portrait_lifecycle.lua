@@ -24,6 +24,12 @@ local function Frame(kind,parent)
     function methods:SetFrameLevel(level) self.frameLevel=level end
     function methods:SetTexCoord(...) self.texCoord={...} end
     function methods:SetText(text) self.text=text end
+    function methods:SetTextColor(...) self.textColor={...} end
+    function methods:SetFont(path,size,flags)
+        self.fontPath=path;self.fontSize=size;self.fontFlags=flags
+    end
+    function methods:SetShadowColor(...) self.shadowColor={...} end
+    function methods:SetShadowOffset(...) self.shadowOffset={...} end
     function methods:SetWidth(v) self.width=v end
     function methods:SetHeight(v) self.height=v end
     function methods:GetWidth() return self.width end
@@ -179,6 +185,16 @@ local function face(stage) return details.parts[stage].face end
 local RING = [[Interface\AddOns\SoftSpoken\Compendium\Textures\Art\PortraitRing]]
 for _,stage in ipairs({"accept","progress","complete"}) do
     local f=face(stage)
+    local speaker=details.parts[stage].speaker
+    eq(speaker.fontPath,[[Fonts\MORPHEUS.TTF]],stage.." speaker uses Morpheus")
+    eq(speaker.fontFlags,"OUTLINE",stage.." speaker uses native outline")
+    near(speaker.fontSize,11.25,stage.." speaker retains three-quarter size")
+    eq(speaker.textColor[1],0,stage.." speaker is black (red)")
+    eq(speaker.textColor[2],0,stage.." speaker is black (green)")
+    eq(speaker.textColor[3],0,stage.." speaker is black (blue)")
+    eq(speaker.shadowColor[4],0,stage.." speaker has no shadow opacity")
+    eq(speaker.shadowOffset[1],0,stage.." speaker has no x shadow")
+    eq(speaker.shadowOffset[2],0,stage.." speaker has no y shadow")
     eq(f.ring.texture,RING,stage.." gold portrait ring")
     eq(f.ring.width,68,stage.." ring width")
     eq(f.ring.height,68,stage.." ring height")
