@@ -137,24 +137,17 @@ local function BuildPanel()
     pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
         return P.CreateLorePage(holder,"book",nil,{openInCompendium=true,expandSubtitle=true})
     end,{left=0,right=4,top=23,bottom=24})
-    -- Zone Lore only: widen the parchment by 2 units on its right edge,
-    -- leaving its left edge fixed. Shift the scrollbar by the same amount
-    -- below so their existing overlap/spacing stays unchanged.
+    -- Zone Lore geometry: size the shared page visual, not its parchment
+    -- holder. This keeps the silver inset (rim:SetAllPoints(pageVisual)) tied
+    -- to the parchment with its original 3-unit margin on every side.
+    -- Preserve the accumulated 12-unit left/bottom inward adjustment and
+    -- the earlier 2-unit right extension; scrollbar anchors stay independent.
     local pageVisual=pageInset and pageInset.sszPrototypePageVisual
     if pageVisual then
         pageVisual:ClearAllPoints()
-        pageVisual:SetPoint("TOPLEFT",pageInset,"TOPLEFT",0,0)
+        pageVisual:SetPoint("TOPLEFT",pageInset,"TOPLEFT",12,0)
         pageVisual:SetPoint("BOTTOMRIGHT",pageInset,"BOTTOMRIGHT",
-            -29+READER_RIGHT_SHIFT,0)
-        -- Zone Lore alignment: pull only the parchment/page holder inward
-        -- 12 units from the left and 12 units from the bottom. The silver inset
-        -- rim remains anchored to pageVisual, and the scrollbar is unchanged.
-        local pageHolder=page and page.frame and page.frame:GetParent()
-        if pageHolder then
-            pageHolder:ClearAllPoints()
-            pageHolder:SetPoint("TOPLEFT",pageVisual,"TOPLEFT",15,-3)
-            pageHolder:SetPoint("BOTTOMRIGHT",pageVisual,"BOTTOMRIGHT",-3,15)
-        end
+            -29+READER_RIGHT_SHIFT,12)
     end
     -- Share the Compendium's ClassicAPI scroll-edge fade on the World Map
     -- lore reader. The TextView method handles missing ClassicAPI safely.
