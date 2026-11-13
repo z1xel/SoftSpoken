@@ -32,8 +32,8 @@ function C.CreatePagePane(panel, list, createPage)
     inset:SetPoint("TOPLEFT", list.inset, "TOPRIGHT", 27, 0)
     inset:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", 0, 6)
     local page = BuildPage(inset, createPage)
-    -- Experimental: fade only full Compendium reader content. The World Map
-    -- standalone reader below keeps its existing unmodified viewport.
+    -- Fade only full Compendium reader content. The World Map reader uses
+    -- its own viewport without the Compendium-specific edge fade.
     local view = page and page.body
     if view and view.EnableEdgeFade then view:EnableEdgeFade() end
     return inset, page

@@ -1,12 +1,10 @@
--- Production interior skin pilot. This is verbatim visual construction from
--- the approved SSZ_Portrait_Template_Test, isolated from Compendium behavior.
--- Deliberately test left navigation/search before transplanting the page.
--- Like the already verified production shell, this pilot uses the installed
--- prototype art paths until a complete independent asset bundle is available.
-SSCPrototypeInteriorSkin = SSCPrototypeInteriorSkin or {}
-local Skin = SSCPrototypeInteriorSkin
-local INSET = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\InsetClassic\\"
-local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\UI-Background-Marble"
+-- Shared Compendium interior skin for WoW 1.12.
+-- Draws native-style inset rails, marble backing, and search trim.
+-- Geometry follows parent anchors; no separate test addon is required.
+SSCCompendiumInteriorSkin = SSCCompendiumInteriorSkin or {}
+local Skin = SSCCompendiumInteriorSkin
+local INSET = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\InsetClassic\\"
+local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\UI-Background-Marble"
 local INSET_POLL_INTERVAL = 0.12
 
 local function BlizzardInsetBorder(parent)

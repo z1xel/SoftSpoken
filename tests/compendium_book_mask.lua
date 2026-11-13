@@ -1,6 +1,6 @@
 -- Run from the repository root: lua5.1 tests/compendium_book_mask.lua
 -- Ensure the Compendium book uses one masked texture and a circular alpha asset.
-local path = "SoftSpoken/Compendium/UI/PrototypeFrameSkin.lua"
+local path = "SoftSpoken/Compendium/UI/FrameSkin.lua"
 local file = assert(io.open(path, "r"))
 local skin = file:read("*a")
 file:close()
@@ -16,7 +16,7 @@ assert(string.find(skin, "book:SetMask(BOOK_MASK)", 1, true),
 assert(string.find(skin, "self.sszBookIcon = maskedBookIcon(self, -6, 8, 61)", 1, true),
     "preserve the original book placement")
 
-local maskPath = "SoftSpoken/Compendium/Textures/Prototype/BookPortraitCircleMask.tga"
+local maskPath = "SoftSpoken/Compendium/Textures/Skin/BookPortraitCircleMask.tga"
 local mask = assert(io.open(maskPath, "rb"))
 local image = mask:read("*a")
 mask:close()

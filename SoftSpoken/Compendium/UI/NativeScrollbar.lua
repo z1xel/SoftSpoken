@@ -1,9 +1,6 @@
--- Prototype scroll chrome pilot for the real Turtle WoW Compendium (1.12).
--- Visual: copied from the approved SSZ_Portrait_Template_Test, including the
--- exact native atlas UVs, fixed caps, marble recess, 16-unit button sizes,
--- three-unit thumb shift, pressed-arrow correction, and the shared
--- right-page housing offset. Native sliders connect directly to the list/reader
--- offset controllers; no duplicate hidden scrollbar is constructed.
+-- Shared native scrollbar housing/controller for the 1.12 Compendium.
+-- Original atlas UVs, fixed caps, marble recess and 16-unit thumb geometry.
+-- Sliders drive the list/reader offset directly; no duplicate scroll model.
 SSCNativeScrollbar = SSCNativeScrollbar or {}
 local Skin = SSCNativeScrollbar
 local U = SSCUI
@@ -80,7 +77,7 @@ local function Attach(host,owner,apply,slotOffset)
     if owner.sszNativeScrollChrome then return owner.sszNativeScrollChrome end
     local slot,reflow=Housing(host,slotOffset)
     instance=instance+1
-    local name="SSCPrototypeScrollBar"..instance
+    local name="SSCCompendiumScrollBar"..instance
     local bar=CreateFrame("Slider",name,slot,"UIPanelScrollBarTemplate")
     -- The Blizzard 1.12 template inherits an OnValueChanged script that calls
     -- parent:SetVerticalScroll(). Our parent is a decorative housing Frame,
@@ -265,8 +262,7 @@ end
 function Skin.AttachPage(pageInset,page)
     local view=page and page.body
     if not view or not view.scroll or not view.child then return end
-    -- Keep the frame-tiling branch's 1-unit housing shift while using the
-    -- fidelity branch's single native scrolling controller.
+    -- Shared page housing offset; list and page use one native controller.
     local geometry=SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
     local rightOffset=geometry and geometry.pageSlotRightOffset or -3
     return Attach(pageInset,view,function(v) view:ScrollTo(v) end,rightOffset)

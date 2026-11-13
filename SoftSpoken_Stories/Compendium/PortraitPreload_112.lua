@@ -39,8 +39,7 @@ local function Enabled()
     -- This is Compendium *portrait* preloading, not a generic creature-data
     -- scanner. Do not query unseen creatures if native static portraits cannot
     -- be displayed, even when the creature-cache API is installed.
-    return rawget(_G,"SoftSpokenExperimentalStaticPortraits") ~= false and
-        rawget(_G,"SoftSpokenClassicPortraits") ~= false and
+    return rawget(_G,"SoftSpokenClassicPortraits") ~= false and
         type(rawget(_G,"SetPortraitTextureFromCreatureDisplayID")) == "function" and
         C_CreatureInfo and type(C_CreatureInfo.GetCreatureInfoByID) == "function" and
         type(C_CreatureInfo.RequestLoadCreatureByID) == "function" and

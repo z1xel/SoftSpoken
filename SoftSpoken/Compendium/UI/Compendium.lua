@@ -6,8 +6,8 @@ local C = SSCCompendium
 local U = SSCUI
 C.VERSION = 1
 C.tabs = C.tabs or {}
--- Exact APPROVED SSZ_Portrait_Template_Test list INSET width, not its older
--- 345-unit navigation footprint. At window width 670 the prototype's list
+-- Exact APPROVED native Vanilla skin list INSET width, not its older
+-- 345-unit navigation footprint. At window width 670 the Compendium list
 -- spans x=4..307; the housing overlaps 4 units at x=303..334.
 C.LIST_WIDTH = 303
 C.ICON = "Interface\\Icons\\INV_Misc_Book_11"
@@ -42,7 +42,7 @@ end
 -- and the frame bottom shifts together, preserving the inset heights.
 local LOWER_SHELL_SHIFT = 2
 local MIN_HEIGHT, PAGE_MIN_WIDTH = 430 - LOWER_SHELL_SHIFT, 278
--- Approved prototype geometry, expressed in window-relative UI units.
+-- Compendium geometry, expressed in window-relative UI units.
 -- Keep the header artwork unchanged; the lower panel's top edge
 -- remains raised to follow the moved-up bottom without compression.
 C.VISUAL_GEOMETRY = {
@@ -205,9 +205,9 @@ local function SaveWindowSize()
 end
 local function SetCollapseArrow()
     if not minimizeButton then return end
-    if window and window.sszPrototypeSkin then
-        if SSCPrototypeFrameSkin and SSCPrototypeFrameSkin.SetCollapsedState then
-            SSCPrototypeFrameSkin.SetCollapsedState(window,minimized)
+    if window and window.sszNativeSkin then
+        if SSCCompendiumFrameSkin and SSCCompendiumFrameSkin.SetCollapsedState then
+            SSCCompendiumFrameSkin.SetCollapsedState(window,minimized)
         end
         return
     end
@@ -315,7 +315,7 @@ local function LayOutTabs()
         button:SetText(def.label or def.key)
         if button.template=="CharacterFrameTabButtonTemplate" and PanelTemplates_TabResize then
             pcall(PanelTemplates_TabResize,0,button)
-            -- Mirror the approved prototype's resized native highlight width.
+            -- Mirror the production frame skin's resized native highlight width.
             local highlight=getglobal(button:GetName().."HighlightTexture")
             if highlight then highlight:SetWidth(button:GetWidth()) end
         end
@@ -347,7 +347,7 @@ local function LayOutTabs()
 end
 local function PaintTabs()
     if not tabButtons then return end
-    -- Match the approved prototype's PanelTemplates_SetTab path. This is
+    -- Match the production frame skin's PanelTemplates_SetTab path. This is
     -- guarded so nonstandard clients can still use the existing fallback.
     local selectedIndex=nil
     local allNative=true
@@ -400,10 +400,10 @@ local function NewWindow(title,icon)
     local frame=CreateFrame("Frame",NAME,UIParent)
     -- Reuse the approved portrait-frame chrome, while
     -- retaining all real Compendium providers, list/page controllers and audio.
-    if SSCPrototypeFrameSkin and SSCPrototypeFrameSkin.Apply then
-        SSCPrototypeFrameSkin.Apply(frame,title)
+    if SSCCompendiumFrameSkin and SSCCompendiumFrameSkin.Apply then
+        SSCCompendiumFrameSkin.Apply(frame,title)
     else
-        -- Fail safely if the optional pilot module was not loaded.
+        -- Fail safely if the frame-skin module was not loaded.
         SSCClassicFrameSkin.Apply(frame,title)
     end
     return frame
@@ -414,7 +414,7 @@ local function BuildWindow()
     local first=Ordered()[1]
     window=NewWindow((first and first.title) or "Azeroth's Compendium",C.ICON)
     window:SetWidth(ExpandedWidth());window:SetHeight(SavedHeight())
-    -- The prototype kept the original 920-wide window's LEFT EDGE fixed
+    -- The frame skin keeps the original 920-wide window's LEFT EDGE fixed
     -- while reducing it to 670, rather than re-centering symmetrically.
     -- Offset the center by half the TOTAL height reduction, leaving the
     -- header at its original on-screen Y after both one-unit adjustments.
@@ -428,8 +428,8 @@ local function BuildWindow()
     window:SetScript("OnDragStart",function() window:StartMoving() end)
     window:SetScript("OnDragStop",function() window:StopMovingOrSizing() end)
     local close=window.CloseButton
-    if close and not window.sszPrototypeSkin then
-        -- Legacy production skin only. The approved prototype already anchors
+    if close and not window.sszNativeSkin then
+        -- Legacy production skin only. The production frame skin already anchors
         -- its close button exactly at TOPRIGHT +4,+5; never shift it.
         close:ClearAllPoints()
         close:SetPoint("TOPRIGHT",window,"TOPRIGHT",1,30)
@@ -437,7 +437,7 @@ local function BuildWindow()
     -- The upstream uses the native maximize/minimize template when present,
     -- falling back to these original-game textures.  The plain button is
     -- deliberately used on 1.12 where the newer template does not exist.
-    if window.sszPrototypeSkin then
+    if window.sszNativeSkin then
         -- Reuse the exact native Turtle map minimizer and its 23-high bezel.
         minimizeButton=window.sszMinimize
         minimizeGlyph=nil
@@ -522,7 +522,7 @@ local function Panel(key)
     if not tab then return nil end
     if not tab.panel then
         local panel=CreateFrame("Frame",nil,window)
-        -- EXACT prototype hierarchy: its `inside` panel is window + 3.
+        -- Native Compendium hierarchy: its `inside` panel is window + 3.
         -- Production formerly left this at the implicit child level (+1),
         -- changing how the lower inset border occludes the native tab tops.
         -- Keep Places, Books and Quests controllers inside their own panels;
@@ -686,7 +686,7 @@ function C.NewList(panel,opts)
     local leftMargin,_,topMargin=C.Margins()
     -- Keep the existing filter/search controller; use shared Vanilla artwork
     -- and the Turtle-style search/clear controls.
-    local ornate=SSCPrototypeInteriorSkin and SSCPrototypeInteriorSkin.ApplySearch
+    local ornate=SSCCompendiumInteriorSkin and SSCCompendiumInteriorSkin.ApplySearch
     local search
     if ornate then
         search=CreateFrame("EditBox",nil,panel)
@@ -702,7 +702,7 @@ function C.NewList(panel,opts)
         C.VISUAL_GEOMETRY.searchY)
     if ornate then
         search:SetFontObject(ChatFontNormal)
-        SSCPrototypeInteriorSkin.ApplySearch(search)
+        SSCCompendiumInteriorSkin.ApplySearch(search)
     end
     if search.SetTextInsets then search:SetTextInsets(21,21,0,0) end
     -- Use real Turtle search icons bundled with SoftSpoken so the controls
@@ -839,8 +839,8 @@ function C.NewList(panel,opts)
     end)
 
     local left=CreateFrame("Frame",nil,panel)
-    if SSCPrototypeInteriorSkin and SSCPrototypeInteriorSkin.ApplyList then
-        SSCPrototypeInteriorSkin.ApplyList(left)
+    if SSCCompendiumInteriorSkin and SSCCompendiumInteriorSkin.ApplyList then
+        SSCCompendiumInteriorSkin.ApplyList(left)
     else
         U.AddInsetBorder(left)
     end
@@ -860,8 +860,8 @@ function C.NewList(panel,opts)
     listGrain:SetPoint("TOPLEFT",left,"TOPLEFT",4,-4)
     listGrain:SetPoint("BOTTOMRIGHT",left,"BOTTOMRIGHT",-4,4)
     list.grain=listGrain
-    if SSCPrototypeInteriorSkin and SSCPrototypeInteriorSkin.ApplyList then
-        -- Production's old gray stone layer would hide the prototype marble.
+    if SSCCompendiumInteriorSkin and SSCCompendiumInteriorSkin.ApplyList then
+        -- Production's old gray stone layer would hide the native marble.
         listBackground:Hide()
         listGrain:Hide()
     end

@@ -160,8 +160,8 @@ local GAMEOBJECT_FALLBACK = "Interface\\Icons\\INV_Misc_Note_01"
 -- the 77x77 stored image: a 68-unit ring closely frames the 62-unit portrait.
 -- Borrow upstream Spoken's layering: portrait underneath, ring above.
 local PORTRAIT_RING = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\PortraitRing"
-local PORTRAIT_MASK = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\BookPortraitCircleMask"
--- Measured from PortraitRing-source.png, which retains a 77x77 source area.
+local PORTRAIT_MASK = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\BookPortraitCircleMask"
+-- Source: docs/artwork/compendium/PortraitRing-source.png (77x77 visible pixels).
 -- Coordinates below are measured from the source's top-left PIXEL EDGE.
 -- The main transparent opening is about 54 source px (47.7 UI units).
 -- Its center is not exactly at the center of the full ring artwork.
@@ -267,8 +267,7 @@ local function PaintGameObject(holder,speaker)
 end
 
 local function CanDrawCreature(kind,npc)
-    if rawget(_G,"SoftSpokenExperimentalStaticPortraits")==false or
-       type(rawget(_G,"SetPortraitTextureFromCreatureDisplayID"))~="function" then
+    if type(rawget(_G,"SetPortraitTextureFromCreatureDisplayID"))~="function" then
         return nil
     end
     local e=VoiceOver and VoiceOver.Enums and VoiceOver.Enums.GUID

@@ -1,23 +1,22 @@
 -- SoftSpoken's shared Compendium portrait-frame skin for WoW 1.12.
--- Adapted from the approved SSZ portrait-frame prototype.
--- All artwork ships with SoftSpoken under Compendium/Textures/Prototype;
--- no separate prototype addon is required.
+-- Native Blizzard-inspired frame art is packaged with the addon under
+-- Compendium/Textures/Skin; no extra UI addon is required.
 -- This file owns the visual shell; the shared Compendium controller owns behavior.
-SSCPrototypeFrameSkin = SSCPrototypeFrameSkin or {}
-local Skin=SSCPrototypeFrameSkin
+SSCCompendiumFrameSkin = SSCCompendiumFrameSkin or {}
+local Skin=SSCCompendiumFrameSkin
 
 -- Standalone 1.12 port of the older Blizzard PortraitFrameTemplate visual geometry.
 -- Reference: SharedUIPanelTemplates.xml (older version, PortraitFrameTemplateNoCloseButton).
 -- No modern mixins, NineSlice APIs, masks or texture-sublevels.
 -- ClassicAPI native tiling is optional; the 1.12 segment renderer remains the fallback.
 
-local DIR = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\"
+local DIR = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\"
 local FRAME = DIR .. "UI-Frame"
 local HORIZ = DIR .. "_UI-Frame"
 local VERT = DIR .. "!UI-Frame"
 local ROCK = DIR .. "UI-Background-Rock-Classic"
 
--- Full-size frame experiment: native artwork from the *wide* dual-pane
+-- Full-size frame implementation: native artwork from the *wide* dual-pane
 -- Quest Log. The original 1.12 client files are UI-QuestLog-Left and
 -- UI-QuestLog-Right (512x512 and 256x512), NOT the similarly styled
 -- UI-QuestLogDualPane-* sheets from later Classic clients. Their header
@@ -77,15 +76,15 @@ local QUESTLOG_CENTER_END_MARGIN =
 -- A separate left-only mask clears its newly uncropped artwork from
 -- unit 75 down through unit 256 without modifying the fade profiles.
 local QUESTLOG_HEADER_BOUNDED_FADE =
-    "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBoundedBottomFade"
+    "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\QuestLogHeaderBoundedBottomFade"
 local QUESTLOG_HEADER_LEFT_FADE =
-    "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderBoundedBottomFadeLeft"
+    "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\QuestLogHeaderBoundedBottomFadeLeft"
 local QUESTLOG_HEADER_LEFT_CLEAR_EXTENSION =
-    "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderLeftClearExtension"
+    "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\QuestLogHeaderLeftClearExtension"
 local QUESTLOG_HEADER_LEFT_EDGE_FADE =
-    "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderLeftEdgeVerticalFade"
+    "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\QuestLogHeaderLeftEdgeVerticalFade"
 local QUESTLOG_HEADER_RIGHT_LEFT_FEATHER =
-    "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\QuestLogHeaderRightLeftFeather"
+    "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\QuestLogHeaderRightLeftFeather"
 -- Keep all four fade masks fixed to the frame: none follow artwork heights.
 -- The additional left-only clear extension covers the artwork below the fade.
 local HEADER_MASK_TOP_Y = -13
@@ -710,7 +709,7 @@ function Skin.Apply(self, title, options)
     -- Production Compendium integration aliases. These add no visual sprites.
     self.CloseButton = self.sszClose
     self.titleText = self.sszTitle
-    self.sszPrototypeSkin = true
+    self.sszNativeSkin = true
     if title then self.sszTitle:SetText(title) end
     self:SetScript("OnSizeChanged",function() Reflow(this) end)
     Reflow(self)

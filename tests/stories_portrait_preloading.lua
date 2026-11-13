@@ -134,9 +134,6 @@ P:Stop()
 SoftSpokenClassicPortraits=false
 eq(P:Start(),false,"disabled narrator preloading")
 SoftSpokenClassicPortraits=nil
-SoftSpokenExperimentalStaticPortraits=false
-eq(P:Start(),false,"disabled static Compendium portraits")
-SoftSpokenExperimentalStaticPortraits=nil
 SetPortraitTextureFromCreatureDisplayID=nil
 eq(P:Start(),false,"missing native static portrait renderer")
 SetPortraitTextureFromCreatureDisplayID=function() end

@@ -331,11 +331,6 @@ eq(details.generation>generation,true,"page selection invalidates older generati
 Load(3001,5301,true)
 eq(face("accept").creatureID,1001,"stale third quest ignored")
 local beforeRequests=requests[1001]
-SoftSpokenExperimentalStaticPortraits=false
-details:Show(101)
-eq(face("accept").icon.texture,"crest.tga","disabled native renderer fallback")
-eq(requests[1001],beforeRequests,"disabled portraits do not request")
-SoftSpokenExperimentalStaticPortraits=nil
 SetPortraitTextureFromCreatureDisplayID=nil
 details:Show(101)
 eq(face("accept").icon.texture,"crest.tga","missing native renderer fallback")

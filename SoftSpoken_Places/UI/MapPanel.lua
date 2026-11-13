@@ -28,9 +28,9 @@ end
 -- Interface/FrameXML/WorldMapFrame.xml. The original uses eight independent
 -- UI-WorldMapMinimized-* textures (not the older WorldMapSmall left/right
 -- sheets). Match its four fixed corners, stretched sides and cropped rails.
--- This skin is ONLY for Zone Lore: the Compendium's frame stays untouched.
+-- This skin is ONLY for Lore of the Land: the Compendium's frame stays untouched.
 local MAP_ART = "Interface\\WorldMap\\UI-WorldMapMinimized-"
-local MAP_ROCK = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\UI-Background-Rock-Classic"
+local MAP_ROCK = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\UI-Background-Rock-Classic"
 
 local function MinimizedMapBorder(frame)
     -- Preserve the original stone underlay, but replace all portrait-frame
@@ -65,7 +65,7 @@ local function MinimizedMapBorder(frame)
     left:SetPoint("BOTTOMLEFT",bottomLeft,"TOPLEFT",0,0)
 
     -- The original World Map has a minimize bezel to the left of Close.
-    -- Zone Lore needs only Close: retain the native right-hand 32px cap.
+    -- Lore of the Land needs only Close: retain the native right-hand 32px cap.
     -- Anchoring the narrower cap to the right extends the top rail naturally.
     local topRight=Piece("TopRight",32,32)
     topRight:SetTexCoord(0.5,1,0,1)
@@ -91,7 +91,7 @@ local function MinimizedMapBorder(frame)
     bottom:SetPoint("BOTTOMLEFT",bottomLeft,"BOTTOMRIGHT",0,0)
     bottom:SetPoint("BOTTOMRIGHT",bottomRight,"BOTTOMLEFT",0,0)
 
-    -- Keep Zone Lore's text and native red X, above the map chrome.
+    -- Keep Lore of the Land's text and native red X, above the map chrome.
     local title=chrome:CreateFontString(nil,"OVERLAY","GameFontNormal")
     title:SetHeight(20)
     title:SetPoint("TOPLEFT",frame,"TOPLEFT",22,-3)
@@ -142,12 +142,12 @@ local function BuildPanel()
     pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
         return P.CreateLorePage(holder,{openInCompendium=true,expandSubtitle=true})
     end,{left=0,right=4,top=23,bottom=24})
-    -- Zone Lore geometry: size the shared page visual, not its parchment
+    -- Lore of the Land geometry: size the shared page visual, not its parchment
     -- holder. This keeps the silver inset (rim:SetAllPoints(pageVisual)) tied
     -- to the parchment with its original 3-unit margin on every side.
     -- Keep 9 units of left inset and 8 units of bottom inset.
     -- Scrollbar anchors stay independent.
-    local pageVisual=pageInset and pageInset.sszPrototypePageVisual
+    local pageVisual=pageInset and pageInset.sszPageVisual
     if pageVisual then
         pageVisual:ClearAllPoints()
         pageVisual:SetPoint("TOPLEFT",pageInset,"TOPLEFT",9,0)
@@ -164,7 +164,7 @@ local function BuildPanel()
     panel.page=page
     -- The minimized World Map's frame trim must cover the parchment, but
     -- the standalone reader's scrollbar art must cover that trim. Relevel
-    -- only Zone Lore's scroll chrome; leave all shared Compendium bars alone.
+    -- only Lore of the Land's scroll chrome; leave all shared Compendium bars alone.
     -- Explicitly lift native slider children too, since inherited 1.12 frame
     -- levels need not follow a later SetFrameLevel on their parent.
     if panel.sszMapBorder then
@@ -174,11 +174,11 @@ local function BuildPanel()
         local slider=scrollChrome and scrollChrome.slider
         if slot then
             slot:SetFrameLevel(panel:GetFrameLevel()+11)
-            -- Zone Lore only: position the scrollbar 1 unit lower and keep
+            -- Lore of the Land only: position the scrollbar 1 unit lower and keep
             -- it 6 units shorter than the shared page inset. Leave the
             -- parchment's height and shared Compendium unchanged.
             -- Keep the parchment's 2-unit right-edge adjustment, but shift
-            -- only Zone Lore's scrollbar an additional unit to the right.
+            -- only Lore of the Land's scrollbar an additional unit to the right.
             local geometry=SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
             local rightOffset=(geometry and geometry.pageSlotRightOffset or -3)
                 + READER_RIGHT_SHIFT + SCROLLBAR_EXTRA_RIGHT_SHIFT
@@ -200,10 +200,10 @@ local function BuildPanel()
     if panel.sszClose then
         panel.sszClose:SetFrameLevel(panel:GetFrameLevel()+15)
     end
-    -- Visual test: place Zone Lore's silver inner inset border above ALL
+    -- Layering: place Lore of the Land's silver inner inset border above ALL
     -- structural artwork (including the close button) to rule out occlusion.
     -- The rim is mouse-transparent, so it cannot intercept clicks.
-    local pageRim=pageInset and pageInset.sszPrototypePageRim
+    local pageRim=pageInset and pageInset.sszPageRim
     if pageRim then
         pageRim:SetFrameLevel(panel:GetFrameLevel()+20)
         pageRim:Show()

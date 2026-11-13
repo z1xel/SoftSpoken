@@ -396,20 +396,20 @@ function P.Build(window)
     return page
 end
 
--- Shared marble backing and inset rim for Compendium and Zone Lore readers.
+-- Shared marble backing and inset rim for Compendium and Lore of the Land readers.
 -- Applied after construction to preserve holder anchors, frame levels,
 -- and the original 1.12 reflow order.
-local INTERIOR = SSCPrototypeInteriorSkin
-local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\UI-Background-Marble"
+local INTERIOR = SSCCompendiumInteriorSkin
+local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\UI-Background-Marble"
 -- This file is already included with SoftSpoken and is byte-identical to the
--- texture imported by the prototype, so the integrated reader can be portable.
+-- texture used by the shared native skin, so the integrated reader can be portable.
 
 function P.ApplyPaneSkin(inset,holder,page)
     if not inset or not holder or not page or not page.frame then return end
-    if inset.sszPrototypePageVisual then return inset.sszPrototypePageVisual end
+    if inset.sszPageVisual then return inset.sszPageVisual end
 
     -- The inset includes both the parchment and the separate 31-unit housing.
-    -- This reproduces the prototype's page geometry: parchment runs to 29
+    -- This reproduces the Compendium page geometry: parchment runs to 29
     -- units before the inset's right edge, while the scrollbar housing is
     -- anchored 3 units in from that edge and overlaps the parchment by 5.
     local visual=CreateFrame("Frame",nil,inset)
@@ -417,7 +417,7 @@ function P.ApplyPaneSkin(inset,holder,page)
     visual:SetPoint("BOTTOMRIGHT",inset,"BOTTOMRIGHT",-29,0)
     visual:SetBackdrop({bgFile=MARBLE,tile=true,tileSize=256,
         insets={left=1,right=1,top=1,bottom=1}})
-    inset.sszPrototypePageVisual=visual
+    inset.sszPageVisual=visual
 
     -- Reuse the actual existing production page object and its scroll state.
     -- Only its holder is relocated; no new LorePage or TextView is constructed.
@@ -426,7 +426,7 @@ function P.ApplyPaneSkin(inset,holder,page)
     holder:SetPoint("BOTTOMRIGHT",visual,"BOTTOMRIGHT",-3,3)
 
     -- The parchment is painted by page.frame, so the metal inset must be a
-    -- separate foreground layer like the approved prototype's `rim` frame.
+    -- separate foreground layer like the native skin's `rim` frame.
     local rim=CreateFrame("Frame",nil,visual)
     rim:SetAllPoints(visual)
     rim:SetFrameLevel(page.frame:GetFrameLevel()+3)
@@ -434,7 +434,7 @@ function P.ApplyPaneSkin(inset,holder,page)
     if INTERIOR and INTERIOR.DrawInsetBorder then
         INTERIOR.DrawInsetBorder(rim)
     end
-    inset.sszPrototypePageRim=rim
+    inset.sszPageRim=rim
 
     if page.Resize then page:Resize(false) end
     return visual

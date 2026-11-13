@@ -31,8 +31,8 @@
     <!-- Shared Compendium: available to Zones, Books, and future modules. -->
     <Include file="Compendium\UI\Layout.lua"/>
     <Include file="Compendium\UI\ClassicFrameSkin.lua"/>
-    <Include file="Compendium\UI\PrototypeFrameSkin.lua"/>
-    <Include file="Compendium\UI\PrototypeInteriorSkin.lua"/>
+    <Include file="Compendium\UI\FrameSkin.lua"/>
+    <Include file="Compendium\UI\InteriorSkin.lua"/>
     <Include file="Compendium\UI\NativeScrollbar.lua"/>
     <Include file="Compendium\UI\ArtReady.lua"/>
     <Include file="Compendium\UI\TextView.lua"/>
