@@ -17,6 +17,9 @@ local function Texture()
     function t:SetSize(w, h) self.width, self.height = w, h end
     function t:SetAlpha(n) self.alpha = n end
     function t:SetBlendMode(v) self.blend = v end
+    function t:SetGradientAlpha(...) self.gradient = {...} end
+    function t:SetTexCoord(...) self.texCoord = {...} end
+    function t:AddMaskTexture(mask) self.mask = mask end
     function t:SetPoint(...) table.insert(self.anchors, {...}) end
     function t:ClearAllPoints() self.anchors = {} end
     function t:SetShown(v) self.shown = v end
@@ -28,16 +31,23 @@ end
 local frame = { scripts = {} }
 function frame:SetScript(name, fn) self.scripts[name] = fn end
 function frame:IsShown() return visible end
+function frame:GetRight() return 420 end
+function frame:GetLeft() return 0 end
 local created = {}
 local function CreateFrame(kind)
-    eq(kind, "StatusBar")
-    local bar = { textures = {}, anchors = {}, shown = true, timerCount = 0 }
+    assert(kind == "StatusBar" or kind == "Frame", "Unexpected frame kind: "..tostring(kind))
+    local bar = { kind = kind, textures = {}, anchors = {}, shown = true, timerCount = 0 }
     function bar:CreateTexture()
         local t = Texture()
         table.insert(self.textures, t)
         return t
     end
     function bar:SetHeight(n) self.height = n end
+    function bar:SetWidth(n) self.width = n end
+    function bar:GetFrameLevel() return self.level or 0 end
+    function bar:SetFrameLevel(n) self.level = n end
+    function bar:CreateMaskTexture() return Texture() end
+    function bar:SetStatusBarColor(...) self.statusBarColor = {...} end
     function bar:SetPoint(...) table.insert(self.anchors, {...}) end
     function bar:ClearAllPoints() self.anchors = {} end
     function bar:SetStatusBarTexture(t) self.statusBarTexture = t end
@@ -53,6 +63,8 @@ local function CreateFrame(kind)
         self.timerCount = self.timerCount + 1
     end
     function bar:SetShown(value) self.shown = value end
+    function bar:Show() self.shown = true end
+    function bar:Hide() self.shown = false end
     table.insert(created, bar)
     return bar
 end
@@ -118,13 +130,24 @@ p.Current = function() return current end
 p:InitProgress()
 local progress = p.progress
 local bar = progress.bar
-eq(#created, 1)
-eq(#bar.textures, 3)
-eq(bar.height, 2)
-eq(bar.anchors[1][4], 135)
+eq(#created, 3) -- container, native StatusBar, raised border
+eq(#bar.textures, 4) -- track, fill, reflection, spark
+eq(progress.container.height, 27)
+eq(bar.height, 5)
+eq(progress.container.anchors[1][4], 135)
+eq(bar.anchors[1][4], -6) -- fixed inset relative to left ornamental endcap
 eq(bar.statusBarTexture, progress.fill)
 eq(progress.track.allPoints, bar)
-eq(progress.fill.texture[1], 1)
+eq(progress.fill.texture[1], [[Interface\TargetingFrame\UI-StatusBar]])
+eq(progress.borderFrame.level, 1)
+assert(#progress.borderTiles > 0, "resizing border must tile its center")
+for _,tile in ipairs(progress.borderTiles) do
+    eq(tile.texture.anchors[1][2], progress.borderFrame)
+    eq(tile.texture.anchors[2][2], progress.borderFrame)
+end
+eq(progress.silverLeft.mask ~= nil, true)
+eq(progress.silverCenter.mask ~= nil, true)
+eq(progress.silverRight.mask ~= nil, true)
 eq(progress.spark.texture[1], [[Interface\CastingBar\UI-CastingBar-Spark]])
 eq(frame.scripts.OnUpdate, nil) -- native duration, not a Lua per-frame driver
 
@@ -229,11 +252,12 @@ visible = false
 p:UpdateProgress()
 eq(bar.shown, false)
 
--- Original portrait/no-portrait geometry is unchanged.
+-- The container follows portrait mode; the gold fill remains cap-relative.
 visible = true
 config.Frame.HidePortrait = true
 p:LayoutProgress()
-eq(bar.anchors[1][4], 20)
+eq(progress.container.anchors[1][4], 20)
+eq(bar.anchors[1][4], -6)
 p:UpdateProgress()
 eq(bar.shown, true)
 
