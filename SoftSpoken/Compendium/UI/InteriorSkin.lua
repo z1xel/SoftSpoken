@@ -99,7 +99,10 @@ local function BlizzardInsetBorder(parent)
     parent:SetScript("OnUpdate",function(_,elapsed)
         pollElapsed=pollElapsed+(tonumber(elapsed) or tonumber(_G.arg1) or 0)
         if pollElapsed < INSET_POLL_INTERVAL then return end
-        pollElapsed=0
+        -- Preserve fractional elapsed time without catching up in bursts
+        -- after a long hidden frame or client pause.
+        pollElapsed=pollElapsed-INSET_POLL_INTERVAL
+        if pollElapsed > INSET_POLL_INTERVAL then pollElapsed=0 end
         local w,h=Bounds()
         if w and h and (not lastWidth or math.abs(w-lastWidth)>0.25 or math.abs(h-lastHeight)>0.25) then
             Reflow()

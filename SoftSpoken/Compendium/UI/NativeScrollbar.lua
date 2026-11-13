@@ -244,7 +244,10 @@ local function Attach(host,owner,apply,slotOffset)
         fallbackElapsed=fallbackElapsed+
             (tonumber(elapsed) or tonumber(_G.arg1) or 0)
         if fallbackElapsed < SCROLL_FALLBACK_INTERVAL then return end
-        fallbackElapsed=0
+        -- Keep fractional frame time so the 10 Hz budget is stable even
+        -- when frame durations do not divide the interval exactly.
+        fallbackElapsed=fallbackElapsed-SCROLL_FALLBACK_INTERVAL
+        if fallbackElapsed > SCROLL_FALLBACK_INTERVAL then fallbackElapsed=0 end
         Sync()
     end)
     owner.sszNativeScrollChrome={slot=slot,slider=bar,sync=Sync}
