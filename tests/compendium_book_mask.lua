@@ -13,7 +13,7 @@ assert(string.find(skin, 'local BOOK_ICON = "Interface\\\\Icons\\\\INV_Misc_Book
     "use the original inventory book icon")
 assert(string.find(skin, "book:SetMask(BOOK_MASK)", 1, true),
     "use ClassicAPI to mask the single book texture")
-assert(string.find(skin, "self.sszBookIcon = maskedBookIcon(self, -6, 8, 61)", 1, true),
+assert(string.find(skin, "self.sszBookIcon = maskedBookIcon(self, -6, 10, 62)", 1, true),
     "preserve the original book placement")
 
 local maskPath = "SoftSpoken/Compendium/Textures/Skin/BookPortraitCircleMask.tga"

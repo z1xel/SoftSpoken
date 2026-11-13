@@ -15,6 +15,7 @@ on:
       - "SoftSpoken/Compendium/UI/**"
       - "SoftSpoken/Compendium/Textures/Skin/**"
       - "tests/compendium_book_mask.lua"
+      - "tests/compendium_scroll_efficiency.lua"
       - "tests/audio_progress_ui.lua"
       - "SoftSpoken/Strings.lua"
       - "SoftSpoken_Stories/Compendium/QuestsTab_112.lua"
@@ -56,6 +57,7 @@ on:
       - "SoftSpoken/Compendium/UI/**"
       - "SoftSpoken/Compendium/Textures/Skin/**"
       - "tests/compendium_book_mask.lua"
+      - "tests/compendium_scroll_efficiency.lua"
       - "tests/audio_progress_ui.lua"
       - "SoftSpoken/Strings.lua"
       - "SoftSpoken_Stories/Compendium/QuestsTab_112.lua"
@@ -111,6 +113,8 @@ jobs:
           luac5.1 -p Data_Packs/SSS_VOFallback/Module.lua
       - name: Check Compendium book mask and runtime skin assets
         run: lua5.1 tests/compendium_book_mask.lua
+      - name: Check bounded Vanilla UI fallback polling
+        run: lua5.1 tests/compendium_scroll_efficiency.lua
       - name: Check native player duration and UI progress
         run: lua5.1 tests/audio_progress_ui.lua
       - name: Check Writings discovery locations in narrator headings
