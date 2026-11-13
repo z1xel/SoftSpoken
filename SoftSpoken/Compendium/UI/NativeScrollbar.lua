@@ -4,7 +4,7 @@
 SSCNativeScrollbar = SSCNativeScrollbar or {}
 local Skin = SSCNativeScrollbar
 local U = SSCUI
-local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\UI-Background-Marble"
+local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\UI-Background-Marble"
 local SCROLL_ART = "Interface\\PaperDollInfoFrame\\UI-Character-ScrollBar"
 local SLOT_WIDTH = 31
 -- The native 1.12 UIPanelScrollBarTemplate has a fixed 16x16 knob whose
@@ -258,7 +258,7 @@ end
 function Skin.AttachList(list)
     if not list or not list.inset or not list.scroll or not list.child then return end
     -- The native control now calls the list's scroll model directly.
-    -- Prototype: list inset x=4..307, native slot x=303..334.
+    -- List inset x=4..307; native scrollbar slot x=303..334.
     return Attach(list.inset,list,function(v) list:ScrollTo(v) end,27)
 end
 

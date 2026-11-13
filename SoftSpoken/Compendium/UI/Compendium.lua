@@ -302,10 +302,8 @@ local function LayOutTabs()
         local button=tabButtons[i] or NewTab(i,def.label or def.key)
         tabButtons[i]=button
         button.key=def.key
-        -- PILOT 8: paint the native tab face ON TOP of the bottom metal rim.
-        -- Pilot 7 placed tabs at window + 1, below the active content panel
-        -- (window + 3) and the list inset (panel + 1 or higher). The inset's
-        -- bottom BORDER therefore painted over the top edge of the tab.
+        -- Keep native tab faces above the bottom metal rim and active
+        -- content/list inset; otherwise the inset's BORDER clips their tops.
         -- Give the tab a higher frame level than the interior's chrome.
         -- Do not change any tab positions, size, template, or selection APIs.
         button:SetFrameLevel(window:GetFrameLevel()+12)

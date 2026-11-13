@@ -16,6 +16,7 @@ on:
       - "SoftSpoken/Compendium/Textures/Skin/**"
       - "tests/compendium_book_mask.lua"
       - "tests/compendium_scroll_efficiency.lua"
+      - "tests/test_ui_packaging.py"
       - "tests/audio_progress_ui.lua"
       - "SoftSpoken/Strings.lua"
       - "SoftSpoken_Stories/Compendium/QuestsTab_112.lua"
@@ -58,6 +59,7 @@ on:
       - "SoftSpoken/Compendium/Textures/Skin/**"
       - "tests/compendium_book_mask.lua"
       - "tests/compendium_scroll_efficiency.lua"
+      - "tests/test_ui_packaging.py"
       - "tests/audio_progress_ui.lua"
       - "SoftSpoken/Strings.lua"
       - "SoftSpoken_Stories/Compendium/QuestsTab_112.lua"
@@ -115,6 +117,8 @@ jobs:
         run: lua5.1 tests/compendium_book_mask.lua
       - name: Check bounded Vanilla UI fallback polling
         run: lua5.1 tests/compendium_scroll_efficiency.lua
+      - name: Check installable UI assets, manifests and legacy identifiers
+        run: python3 tests/test_ui_packaging.py
       - name: Check native player duration and UI progress
         run: lua5.1 tests/audio_progress_ui.lua
       - name: Check Writings discovery locations in narrator headings
