@@ -87,10 +87,23 @@ function QuestOverlayUI:ContributeButtonFor(questID, title)
     return button
 end
 
+-- The vanilla log and SoftSpoken only prepend whitespace. A non-space prefix (or
+-- a substituted title) belongs to another UI modifier; never rewrite it.
+local function HasExternalTitleText(displayed, questTitle)
+    if type(displayed) ~= "string" or type(questTitle) ~= "string" or questTitle == "" then
+        return true
+    end
+    local at = string.find(displayed, questTitle, 1, true)
+    if not at then return true end
+    return string.find(string.sub(displayed, 1, at - 1), "%S") ~= nil
+end
+
 local prefix
-function QuestOverlayUI:UpdateQuestTitle(questLogTitleFrame, playButton, normalText, questCheck)
-    if not prefix then
-        local text = normalText:GetText()
+function QuestOverlayUI:UpdateQuestTitle(questLogTitleFrame, playButton, normalText, questCheck, questTitle)
+    local displayed = normalText:GetText() or ""
+    local external = HasExternalTitleText(displayed, questTitle)
+
+    if not external and not prefix then
         for i = 1, 20 do
             normalText:SetText(string.rep(" ", i))
             if normalText:GetStringWidth() >= 24 then
@@ -99,17 +112,66 @@ function QuestOverlayUI:UpdateQuestTitle(questLogTitleFrame, playButton, normalT
             end
         end
         prefix = prefix or "  "
-        normalText:SetText(text)
+        normalText:SetText(displayed)
     end
 
-    playButton:SetPoint("LEFT", normalText, "LEFT", 4, 0)
+    playButton:ClearAllPoints()
+    playButton:SetPoint("LEFT", normalText, "LEFT", external and -16 or 4, 0)
 
-    local formatedText = prefix .. string.trim(normalText:GetText() or "")
-
-    normalText:SetText(formatedText)
-    QuestLogDummyText:SetText(formatedText)
+    if not external then
+        -- Idempotent: our old spaces never accumulate on subsequent redraws.
+        local formatted = prefix .. string.trim(displayed)
+        if displayed ~= formatted then
+            normalText:SetText(formatted)
+        end
+        QuestLogDummyText:SetText(formatted)
+    end
 
     questCheck:SetPoint("LEFT", normalText, "LEFT", normalText:GetStringWidth(), 0)
+end
+
+-- A one-frame follow-up is deliberately layout-only. Questie-Octo can rewrite
+-- titles on its own scheduler after QuestLog_Update; repeating Update() here
+-- would also rebuild audio bindings and overwrite its title again.
+function QuestOverlayUI:RecheckVisibleRowLayouts()
+    if not (QuestLogFrame and QuestLogFrame:IsShown() and Addon:IsPartOn()) then return end
+    local numEntries = GetNumQuestLogEntries()
+    for i = 1, QUESTS_DISPLAYED do
+        local questIndex = i + Utils:GetQuestLogScrollOffset()
+        if questIndex > numEntries then break end
+        local title, _, _, isHeader, _, _, _, questID = GetQuestLogTitle(questIndex)
+        if not isHeader then
+            local play = self.questPlayButtons[questID]
+            local contribute = self.questContributeButtons[questID]
+            local button = contribute and contribute:IsShown() and contribute or play
+            if button and button:IsShown() then
+                local row = Utils:GetQuestLogTitleFrame(i)
+                if row then
+                    -- Disabled Play buttons are parented differently from
+                    -- audio-backed ones, but still mark this same quest row.
+                    self:UpdateQuestTitle(row, button,
+                        Utils:GetQuestLogTitleNormalText(i), Utils:GetQuestLogTitleCheck(i), title)
+                end
+            end
+        end
+    end
+end
+
+local layoutRecheckPending
+function QuestOverlayUI:ScheduleLayoutRecheck()
+    if layoutRecheckPending then return end
+    -- ClassicAPI supplies RunNextFrame; other clients keep the immediate hook
+    -- unchanged if neither supported one-shot scheduler is available.
+    local schedule = RunNextFrame
+    if type(schedule) ~= "function" and C_Timer and type(C_Timer.After) == "function" then
+        schedule = function(callback) C_Timer.After(0, callback) end
+    end
+    if type(schedule) ~= "function" then return end
+    layoutRecheckPending = true
+    schedule(function()
+        layoutRecheckPending = nil
+        QuestOverlayUI:RecheckVisibleRowLayouts()
+    end)
 end
 
 --- Play or stop, read off the button's own sound data rather than the quest log's table:
@@ -292,7 +354,7 @@ function QuestOverlayUI:UpdatePlayButton(soundTitle, questID, questLogTitleFrame
     playButton:SetParent(questLogTitleFrame:GetParent())
     playButton:SetFrameLevel(questLogTitleFrame:GetFrameLevel() + 2)
 
-    QuestOverlayUI:UpdateQuestTitle(questLogTitleFrame, playButton, normalText, questCheck)
+    QuestOverlayUI:UpdateQuestTitle(questLogTitleFrame, playButton, normalText, questCheck, soundTitle)
     self:BindPlayButton(playButton, questID, soundTitle)
 end
 
@@ -356,7 +418,7 @@ function QuestOverlayUI:Update()
                 else
                     playButton:Disable()
                 end
-                self:UpdateQuestTitle(questLogTitleFrame, shown, normalText, questCheck)
+                self:UpdateQuestTitle(questLogTitleFrame, shown, normalText, questCheck, title)
             end
 
             shown:Show()
