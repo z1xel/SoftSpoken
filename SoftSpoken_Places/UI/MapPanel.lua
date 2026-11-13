@@ -97,7 +97,7 @@ local function MinimizedMapBorder(frame)
     title:SetPoint("TOPLEFT",frame,"TOPLEFT",22,-3)
     title:SetPoint("TOPRIGHT",frame,"TOPRIGHT",-40,-3)
     title:SetJustifyH("CENTER")
-    title:SetText("Zone Lore")
+    title:SetText("Lore of the Land")
     frame.sszTitle=title
 
     local close=CreateFrame("Button",nil,frame,"UIPanelCloseButton")
@@ -237,7 +237,7 @@ local function BuildToggle()
     toggle:SetScript("OnEnter",function(self)
         if GameTooltip then
             GameTooltip:SetOwner(self,"ANCHOR_RIGHT")
-            GameTooltip:SetText("Show Zone Lore")
+            GameTooltip:SetText("Show Lore of the Land")
             GameTooltip:Show()
         end
     end)
