@@ -671,7 +671,11 @@ List.__index=List
 -- and programmatic navigation. No duplicate hidden scrollbar is required.
 function List:ScrollTo(value)
     if not self.scroll or not self.child then return end
+    -- SetVerticalScroll can synchronously invoke OnVerticalScroll.
+    -- The programmatic scroll path owns the one row repaint/sync here.
+    self.applyingScrollOffset=true
     U.SetScrollOffset(self.scroll,self.child,value)
+    self.applyingScrollOffset=false
     self:DrawRows()
     U.RefreshScrollEdgeFade(self)
     local native=self.sszNativeScrollChrome
@@ -880,6 +884,9 @@ function C.NewList(panel,opts)
     list.child=child
     scroll:SetScript("OnVerticalScroll",function()
         if scroll.GetVerticalScroll then scroll.sz112ScrollOffset=scroll:GetVerticalScroll() or 0 end
+        -- Avoid drawing twice when List:ScrollTo initiated this event.
+        -- Genuine scroll events still repaint and sync normally.
+        if list.applyingScrollOffset then return end
         list:DrawRows()
         U.RefreshScrollEdgeFade(list)
         if list.sszNativeScrollChrome then list.sszNativeScrollChrome.sync() end

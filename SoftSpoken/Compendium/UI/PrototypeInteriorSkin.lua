@@ -7,6 +7,7 @@ SSCPrototypeInteriorSkin = SSCPrototypeInteriorSkin or {}
 local Skin = SSCPrototypeInteriorSkin
 local INSET = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\InsetClassic\\"
 local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\UI-Background-Marble"
+local INSET_POLL_INTERVAL = 0.12
 
 local function BlizzardInsetBorder(parent)
     local cornerAtlas = INSET .. "UI-Frame"
@@ -96,7 +97,11 @@ local function BlizzardInsetBorder(parent)
     -- An anchor change from the outer window does not always fire OnSizeChanged
     -- for a two-point-anchored child in the old client. Check dimensions only;
     -- texture creation/repositioning happens exclusively when the size changes.
-    parent:SetScript("OnUpdate",function()
+    local pollElapsed=0
+    parent:SetScript("OnUpdate",function(_,elapsed)
+        pollElapsed=pollElapsed+(tonumber(elapsed) or tonumber(_G.arg1) or 0)
+        if pollElapsed < INSET_POLL_INTERVAL then return end
+        pollElapsed=0
         local w,h=Bounds()
         if w and h and (not lastWidth or math.abs(w-lastWidth)>0.25 or math.abs(h-lastHeight)>0.25) then
             Reflow()

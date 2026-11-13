@@ -17,6 +17,9 @@ local SLOT_WIDTH = 31
 local THUMB_SIZE, THUMB_EDGE_GAP = 16, 2
 local TRACK_TOP = 20 + THUMB_SIZE/2 + THUMB_EDGE_GAP
 local TRACK_BOTTOM = 18 + THUMB_SIZE/2 + THUMB_EDGE_GAP
+-- Native 1.12 may resolve child anchors after OnSizeChanged. Keep one
+-- bounded fallback poll, not a full scrollbar synchronization every frame.
+local SCROLL_FALLBACK_INTERVAL = 0.10
 local instance = 0
 
 local function PressedArrow(button)
@@ -236,10 +239,17 @@ local function Attach(host,owner,apply,slotOffset)
         end
         inSync=false
     end
-    -- A height-only change needs to revalidate the 16px knob travel; the
-    -- OnUpdate fallback also catches delayed Vanilla frame layout.
+    -- Height and value changes are handled immediately by native events.
+    -- The compatibility poll only catches delayed 1.12 anchor resolution.
     bar:SetScript("OnSizeChanged",function() Sync() end)
-    slot:SetScript("OnUpdate",function() Sync() end)
+    local fallbackElapsed=0
+    slot:SetScript("OnUpdate",function(_,elapsed)
+        fallbackElapsed=fallbackElapsed+
+            (tonumber(elapsed) or tonumber(_G.arg1) or 0)
+        if fallbackElapsed < SCROLL_FALLBACK_INTERVAL then return end
+        fallbackElapsed=0
+        Sync()
+    end)
     owner.sszNativeScrollChrome={slot=slot,slider=bar,sync=Sync}
     Sync()
     return owner.sszNativeScrollChrome
