@@ -152,7 +152,7 @@ eq(progress.spark.texture[1], [[Interface\CastingBar\UI-CastingBar-Spark]])
 eq(frame.scripts.OnUpdate, nil) -- native duration, not a Lua per-frame driver
 
 p:UpdateProgress()
-eq(bar.shown, true)
+eq(progress.container.shown, true)
 eq(bar.timerCount, 1)
 eq(bar.timer.start, 0)
 eq(bar.timer.total, 10)
@@ -242,15 +242,15 @@ current.length = 8
 current.estimate = 0.4
 config.Transcript.SubtitleProgress = false
 p:UpdateProgress()
-eq(bar.shown, false)
+eq(progress.container.shown, false)
 config.Transcript.SubtitleProgress = true
 style = "none"
 p:UpdateProgress()
-eq(bar.shown, false)
+eq(progress.container.shown, false)
 style = "classic"
 visible = false
 p:UpdateProgress()
-eq(bar.shown, false)
+eq(progress.container.shown, false)
 
 -- The container follows portrait mode; the gold fill remains cap-relative.
 visible = true
@@ -259,7 +259,7 @@ p:LayoutProgress()
 eq(progress.container.anchors[1][4], 20)
 eq(bar.anchors[1][4], -6)
 p:UpdateProgress()
-eq(bar.shown, true)
+eq(progress.container.shown, true)
 
 -- Before 1.19, the audio backend can still play; this optional meter
 -- uses a static estimate rather than attempting nonexistent timer APIs.
