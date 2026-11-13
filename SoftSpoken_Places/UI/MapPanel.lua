@@ -81,11 +81,11 @@ local function MinimizedMapBorder(frame)
     top:SetTexCoord(0,0.9628,0,1)
     -- The cropped close-button cap starts midway through the native 64px
     -- artwork, where its left edge is not designed as a rail junction.
-    -- Extend the top rail 6 units beneath that cap to hide the exposed seam;
+    -- Extend the top rail 3 units beneath that cap to hide the exposed seam;
     -- put the rail on BORDER so the cap's ARTWORK remains in front.
     top:SetDrawLayer("BORDER")
     top:SetPoint("TOPLEFT",topLeft,"TOPRIGHT",0,0)
-    top:SetPoint("TOPRIGHT",topRight,"TOPLEFT",6,0)
+    top:SetPoint("TOPRIGHT",topRight,"TOPLEFT",3,0)
     local bottom=Piece("Bottom",nil,64)
     bottom:SetTexCoord(0,0.9628,0,1)
     bottom:SetPoint("BOTTOMLEFT",bottomLeft,"BOTTOMRIGHT",0,0)
