@@ -48,6 +48,7 @@ C_CreatureInfo = {
     end,
 }
 SpokenQuestsCompendium = {
+    npcNames = { [60516] = "Marrek Stromnur", [2020] = "Stale corpus label" },
     quests = {
         [101] = { ender = 2020 },
         [102] = { enderObject = 3030 },
@@ -60,6 +61,14 @@ SpokenQuestsCompendium = {
         [109] = { starterObject = 9090, enderObject = 9091 }, -- object stages
         [111] = { starter = -4 }, -- invalid starter retains pack fallback
         [814] = { starter = 3191 }, -- restored Vanilla quest absent from pack giver index
+        [236] = { starter = 888, ender = 2142 },
+        [810] = { starter = 3189 },
+        [811] = { starter = 3189 },
+        [3111] = { starter = 658, ender = 60516 },
+        [3581] = { starter = 3387, ender = 8664 },
+        [6131] = { starter = 11554 },
+        [8290] = { starter = 14733 },
+        [8295] = { starter = 14781 },
         [60030] = { starterAlliance = 51292, starterHorde = 51293 },
         [60031] = { starterAlliance = 51292, starterHorde = 51293 },
         [60032] = { starterAlliance = 51292, starterHorde = 51293 },
@@ -115,6 +124,21 @@ quest(814, "accept", 8, 3191)
 quest(814, "progress", 8, 3191)
 quest(814, "complete", 8, 3191)
 equal(R:Name(8, 3191, "Work for Food"), "Cook Torka", "restored quest speaker name")
+for questID, pair in pairs({
+    [236] = {888,2142}, [810] = {3189,3189}, [811] = {3189,3189},
+    [3111] = {658,60516}, [3581] = {3387,8664}, [6131] = {11554,11554},
+    [8290] = {14733,14733}, [8295] = {14781,14781},
+}) do
+    quest(questID, "accept", 8, pair[1])
+    quest(questID, "progress", 8, pair[2])
+    quest(questID, "complete", 8, pair[2])
+end
+equal(R:Name(8, 60516, "Glyphic Rune"), "Marrek Stromnur",
+    "corpus fallback for NPC absent from packs")
+equal(R:Name(8, 2020, "Quest"), "Quest ender",
+    "existing pack-provided NPC label overrides corpus fallback")
+equal(R:Name(8, 999999, "Quest"), "Quest",
+    "unresolved NPC still uses caller fallback")
 -- Both factions use the same quest IDs but different starter/ender NPCs.
 for _, id in ipairs({ 60030, 60031, 60032, 60033, 60034, 60035, 60036 }) do
     playerFaction = "Alliance"
@@ -149,6 +173,10 @@ equal(R:StageForEvent(5), nil, "gossip has no quest stage")
 sound({event=3,questID=101}, 8, 2020, "manual completion")
 sound({event=1,questID=105}, 8, 5050, "corpus NPC starter")
 sound({event=3,questID=105}, 8, 5050, "same-starter hand-in")
+sound({event=1,questID=3111}, 8, 658, "Turtle mage accept speaker")
+sound({event=3,questID=3111}, 8, 60516, "Turtle mage hand-in speaker")
+sound({event=3,questID=236,portraitGUID="creature:2142"}, 8, 2142,
+    "real dialogue GUID overrides indexed quest speaker")
 sound({event=1,questID=106,unitIsObjectOrItem=true}, 11, 6060, "corpus object starter")
 sound({event=1,questID=107,unitIsObjectOrItem=true}, 3, 7070, "corpus item starter")
 sound({event=1,questID=105,unitGUID="creature:5055"}, 8, 5055,
@@ -191,6 +219,22 @@ for _, id in ipairs({ 60030, 60031, 60032, 60033, 60034, 60035, 60036 }) do
     assert(string.find(entry, "starterHorde = 51293", 1, true),
         "Horde starter missing from static Compendium: " .. id)
 end
+local restoredEntries = {
+    [236] = '[236] = { "Watcher Callahan", zones = { 1431 }, starter = 888, ender = 2142, races = 4294967373 },',
+    [810] = '[810] = { "Study to Survive", zones = { 1411 }, starter = 3189, races = 8589934770 },',
+    [811] = '[811] = { "Unity is Strength", zones = { 1411 }, prev = 810, starter = 3189, races = 8589934770 },',
+    [3111] = '[3111] = { "Glyphic Rune", sort = 161, prev = 179, starter = 658, ender = 60516, races = 4, classes = 128 },',
+    [3581] = '[3581] = { "Plainsrunning", zones = { 1456 }, prev = 3580, starter = 3387, ender = 8664, races = 32 },',
+    [6131] = '[6131] = { "Timbermaw Ally", zones = { 1448 }, starter = 11554 },',
+    [8290] = '[8290] = { "Vanquish the Invaders!", zones = { 1460 }, starter = 14733, races = 4294967373 },',
+    [8295] = '[8295] = { "Quell the Silverwing Usurpers", zones = { 1460 }, starter = 14781, races = 8589934770 },',
+}
+for id, expected in pairs(restoredEntries) do
+    assert(string.find(compendium, expected, 1, true),
+        "restored Turtle quest missing or has wrong metadata: " .. id)
+end
+assert(string.find(compendium, '[60516] = "Marrek Stromnur"', 1, true),
+    "corpus NPC name for Marrek Stromnur must be preserved")
 local page = assert(io.open("SoftSpoken_Stories/Compendium/QuestPage_112.lua", "r")):read("*a")
 assert(string.find(page, "resolver:ForQuest(id,stage)", 1, true),
     "Compendium and narrator must use shared stage resolver")

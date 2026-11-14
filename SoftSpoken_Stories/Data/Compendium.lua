@@ -30,11 +30,20 @@
 -- starterAlliance / starterHorde are creature IDs selected by player's faction;
 -- if there is no explicit ender, the chosen faction NPC is the hand-in as well.
 -- When absent, legacy quest-giver resolution continues through the registered audio packs.
+-- Source review of eight restored shared-ID quests:
+-- docs/turtle_modified_shared_quest_resolutions.csv.
+-- The records for 236/6131 lack typed speaker IDs in Turtle; external
+-- historical quest databases corroborate the curated mappings.
 --
 -- A global rather than a private namespace: a data file cannot reach into the addon's environment.
 
 SpokenQuestsCompendium = {
 	version = 1,
+
+	-- NPC-name fallback only where installed voice packs lack speaker metadata.
+	npcNames = {
+		[60516] = "Marrek Stromnur",
+	},
 
 	quests = {
 		[2] = { "Sharptalon's Claw", zones = { 1440 }, prev = 6383, ender = 12696, races = 8589934770 },
@@ -262,6 +271,7 @@ SpokenQuestsCompendium = {
 		[233] = { "Coldridge Valley Mail Delivery", zones = { 1426 }, ender = 714, races = 4294967373 },
 		[234] = { "Coldridge Valley Mail Delivery", zones = { 1426 }, prev = 233, ender = 786, races = 4294967373 },
 		[235] = { "The Ashenvale Hunt", zones = { 1454 }, ender = 12696, races = 8589934770 },
+		[236] = { "Watcher Callahan", zones = { 1431 }, starter = 888, ender = 2142, races = 4294967373 },
 		[237] = { "In Defense of the King's Lands", zones = { 1432 }, prev = 224, races = 4294967373 },
 		[238] = { "Errand for Apothecary Zinge", zones = { 1458 }, prev = 232, ender = 5204, races = 8589934770 },
 		[239] = { "Westbrook Garrison Needs Help!", zones = { 1429 }, prev = 76, ender = 963, races = 4294967373 },
@@ -805,6 +815,8 @@ SpokenQuestsCompendium = {
 		[806] = { "Dark Storms", zones = { 1411 }, prev = 823, races = 8589934770 },
 		[808] = { "Minshina's Skull", zones = { 1411 }, races = 8589934770 },
 		[809] = { "Ak'Zeloth", zones = { 1411 }, prev = 829, ender = 3521, races = 8589934770 },
+		[810] = { "Study to Survive", zones = { 1411 }, starter = 3189, races = 8589934770 },
+		[811] = { "Unity is Strength", zones = { 1411 }, prev = 810, starter = 3189, races = 8589934770 },
 		[812] = { "Need for a Cure", zones = { 1411 }, races = 8589934770 },
 		[813] = { "Finding the Antidote", zones = { 1411 }, races = 8589934770 },
 		[814] = { "Work for Food", zones = { 1411 }, starter = 3191, races = 8589934770 },
@@ -1849,6 +1861,7 @@ SpokenQuestsCompendium = {
 		[3108] = { "Etched Rune", sort = 261, prev = 179, ender = 895, races = 4, classes = 4 },
 		[3109] = { "Encrypted Rune", sort = 162, prev = 179, ender = 916, races = 4, classes = 8 },
 		[3110] = { "Hallowed Rune", sort = 262, prev = 179, ender = 837, races = 4, classes = 16 },
+		[3111] = { "Glyphic Rune", sort = 161, prev = 179, starter = 658, ender = 60516, races = 4, classes = 128 },
 		[3112] = { "Simple Memorandum", sort = 81, prev = 179, ender = 912, races = 64, classes = 1 },
 		[3113] = { "Encrypted Memorandum", sort = 162, prev = 179, ender = 916, races = 64, classes = 8 },
 		[3114] = { "Glyphic Memorandum", sort = 161, prev = 179, ender = 944, races = 64, classes = 128 },
@@ -1965,6 +1978,7 @@ SpokenQuestsCompendium = {
 		[3578] = { "Swift as a Swifthoof", starter = 3685, ender = 11748 },
 		[3579] = { "Have Hoof Will Travel", starter = 11748 },
 		[3580] = { "Plains To Run, Sky To See", starter = 11748, ender = 3387 },
+		[3581] = { "Plainsrunning", zones = { 1456 }, prev = 3580, starter = 3387, ender = 8664, races = 32 },
 		[3601] = { "Kim'jael Indeed!", zones = { 1447 } },
 		[3602] = { "Azsharite", zones = { 1447 }, prev = 3511 },
 		[3621] = { "The Formation of Felbane", zones = { 1447 }, prev = 3602, ender = 7802 },
@@ -2731,6 +2745,7 @@ SpokenQuestsCompendium = {
 		[6128] = { "Gathering the Cure", sort = 263, prev = 6127, races = 32, classes = 1024 },
 		[6129] = { "Curing the Sick", sort = 263, prev = 6128, ender = 11802, races = 32, classes = 1024 },
 		[6130] = { "Power over Poison", sort = 263, prev = 6129, ender = 3033, races = 32, classes = 1024 },
+		[6131] = { "Timbermaw Ally", zones = { 1448 }, starter = 11554 },
 		[6132] = { "Get Me Out of Here!", zones = { 1443 }, ender = 6019 },
 		[6133] = { "The Ranger Lord's Behest", zones = { 1423 }, races = 8589934770 },
 		[6134] = { "Ghost-o-plasm Round Up", zones = { 1443 } },
@@ -3423,10 +3438,12 @@ SpokenQuestsCompendium = {
 		[8287] = { "A Terrible Purpose", zones = { 1451 }, prev = 8279, ender = 15181 },
 		[8288] = { "Only One May Rise", zones = { 1427 }, dungeon = 469, prev = 8286 },
 		[8289] = { "Talismans of Merit", starter = 14733, races = 4294967373 },
+		[8290] = { "Vanquish the Invaders!", zones = { 1460 }, starter = 14733, races = 4294967373 },
 		[8291] = { "Vanquish the Invaders!", zones = { 1460 }, races = 4294967373 },
 		[8292] = { "Talismans of Merit", zones = { 1460 }, prev = 7788, ender = 14733, races = 4294967373 },
 		[8293] = { "Mark of Honor", zones = { 1460 }, prev = 7789, ender = 14781, races = 8589934770 },
 		[8294] = { "Quell the Silverwing Usurpers", zones = { 1460 }, races = 8589934770 },
+		[8295] = { "Quell the Silverwing Usurpers", zones = { 1460 }, starter = 14781, races = 8589934770 },
 		[8296] = { "Mark of Honor", starter = 14733, races = 4294967373 },
 		[8297] = { "Arathi Basin Resources!", zones = { 1461 }, races = 4294967373 },
 		[8298] = { "More Resource Crates", zones = { 1461 }, prev = 8080, races = 4294967373 },

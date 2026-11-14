@@ -1,0 +1,9 @@
+quest_id,title,starter_npc,ender_npc,evidence,source_url
+236,Watcher Callahan,888,2142,Historical Alpha 0.5.3 explicitly maps Watcher Dodds to Watcher Callahan; Turtle has matching objective but no typed speakers,https://db.thealphaproject.eu/?action=show_quest&id=236
+810,Study to Survive,3189,3189,Historical alpha and OctoWow text support Kor'ghan; Turtle overlay lacks typed speakers,https://octowow.st/db/?quest=810
+811,Unity is Strength,3189,3189,Historical alpha and OctoWow text support Kor'ghan; Turtle overlay lacks typed speakers,https://octowow.st/db/?quest=811
+3111,Glyphic Rune,658,60516,Direct typed relationship in Turtle pfQuest; RavenCraft also confirms the pair,https://database.ravencraft.io/quest/3111
+3581,Plainsrunning,3387,8664,Direct typed relationship in Turtle pfQuest and OctoWow,https://octowow.st/db/?quest=3581
+6131,Timbermaw Ally,11554,11554,ClassicDB directly confirms Grazle as start and end; Turtle overlay has matching dialogue without typed speakers,https://classicdb.ch/?quest=6131
+8290,Vanquish the Invaders!,14733,14733,Direct typed Turtle pfQuest and OctoWow starter/ender,https://octowow.st/db/?quest=8290
+8295,Quell the Silverwing Usurpers,14781,14781,Direct typed Turtle pfQuest and OctoWow starter/ender,https://octowow.st/db/?quest=8295

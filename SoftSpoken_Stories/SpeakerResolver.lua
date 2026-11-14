@@ -94,6 +94,16 @@ function R:Name(kind, id, fallback)
     local data = DataModules
     local name = kind and id and data and SafeCall(data.GetObjectName, data, kind, id)
     if type(name) == "string" and name ~= "" then return name end
+    -- The corpus may carry a name for an NPC absent from older voice packs.
+    -- Pack-provided names always take precedence.
+    local types = Enums and Enums.GUID
+    if kind and id and types and type(types.IsCreature) == "function"
+        and types:IsCreature(kind) then
+        local corpus = rawget(_G, "SpokenQuestsCompendium")
+        local fallbackNames = corpus and corpus.npcNames
+        local mapped = fallbackNames and fallbackNames[id]
+        if type(mapped) == "string" and mapped ~= "" then return mapped end
+    end
     return fallback
 end
 
