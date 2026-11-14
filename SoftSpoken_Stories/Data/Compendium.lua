@@ -19,6 +19,9 @@
 -- Where Forever's quests are filed, who may take them and which follows which come partly from
 -- data from Efficient Games (https://efficient.games), licensed under CC BY 4.0.
 --
+-- Optional starter = creature ID, starterObject = game object ID, starterItem = item ID.
+-- When absent, legacy quest-giver resolution continues through the registered audio packs.
+--
 -- A global rather than a private namespace: a data file cannot reach into the addon's environment.
 
 SpokenQuestsCompendium = {

@@ -19,6 +19,7 @@ VoiceOver = setmetatable({
         GetQuestLogQuestGiverTypeAndID = function(self, id)
             if id == 101 or id == 102 or id == 103 then return 8, 1010 end
             if id == 106 then return 3, 600 end
+            if id == 111 then return 8, 1110 end
         end,
         GetObjectName = function(self, kind, id)
             if id == 1010 then return "Quest giver" end
@@ -46,6 +47,12 @@ SpokenQuestsCompendium = {
         [102] = { enderObject = 3030 },
         [103] = {}, -- missing ender means same speaker as giver
         [104] = { ender = 4040 }, -- not in any voice pack
+        [105] = { starter = 5050 }, -- standalone starter, also used for hand-in
+        [106] = { starterObject = 6060 }, -- corpus starter overrides pack item
+        [107] = { starterItem = 7070 }, -- item starter without pack metadata
+        [108] = { starter = 8080, ender = 8081 }, -- separate NPC ender
+        [109] = { starterObject = 9090, enderObject = 9091 }, -- object stages
+        [111] = { starter = -4 }, -- invalid starter retains pack fallback
     }
 }
 
@@ -73,12 +80,33 @@ quest(104, "complete", 8, 4040)
 quest(999, "complete", nil, nil)
 quest(101, "unknown", nil, nil)
 quest(-1, "accept", nil, nil)
+-- Additive corpus starter metadata does not require a refreshed audio pack.
+quest(105, "accept", 8, 5050)
+quest(105, "progress", 8, 5050)
+quest(105, "complete", 8, 5050)
+quest(106, "accept", 11, 6060)
+quest(106, "complete", 11, 6060)
+quest(107, "accept", 3, 7070)
+quest(107, "complete", 3, 7070)
+quest(108, "accept", 8, 8080)
+quest(108, "progress", 8, 8081)
+quest(108, "complete", 8, 8081)
+quest(109, "accept", 11, 9090)
+quest(109, "complete", 11, 9091)
+quest(111, "accept", 8, 1110)
+quest(111, "complete", 8, 1110)
 equal(R:Name(8, 2020, "Fallback"), "Quest ender", "known speaker label")
 equal(R:Name(8, 4040, "Fallback"), "Fallback", "unknown speaker label")
 equal(R:StageForEvent(3), "complete", "event to stage")
 equal(R:StageForEvent(5), nil, "gossip has no quest stage")
 
 sound({event=3,questID=101}, 8, 2020, "manual completion")
+sound({event=1,questID=105}, 8, 5050, "corpus NPC starter")
+sound({event=3,questID=105}, 8, 5050, "same-starter hand-in")
+sound({event=1,questID=106,unitIsObjectOrItem=true}, 11, 6060, "corpus object starter")
+sound({event=1,questID=107,unitIsObjectOrItem=true}, 3, 7070, "corpus item starter")
+sound({event=1,questID=105,unitGUID="creature:5055"}, 8, 5055,
+    "live GUID overrides static starter")
 sound({event=2,questID=102,unitIsObjectOrItem=true},11,3030,"object completion")
 sound({event=3,questID=101,unitGUID="creature:888"},8,888,"real GUID overrides corpus")
 sound({event=1,questID=101,unitGUID="creature:1010"},8,1010,"synthetic giver identity")

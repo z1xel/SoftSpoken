@@ -49,15 +49,26 @@ function R:ForQuest(questID, stage)
 
     local corpus = rawget(_G, "SpokenQuestsCompendium")
     local quest = corpus and corpus.quests and corpus.quests[id]
-    if stage ~= "accept" and quest then
-        local ender = PositiveID(quest.ender)
-        if ender then return Enums.GUID.Creature, ender end
-        local object = PositiveID(quest.enderObject)
+    if quest then
+        if stage ~= "accept" then
+            local ender = PositiveID(quest.ender)
+            if ender then return Enums.GUID.Creature, ender end
+            local object = PositiveID(quest.enderObject)
+            if object then return Enums.GUID.GameObject, object end
+        end
+
+        -- Explicit corpus starters override pack metadata. When there is no
+        -- ender, the same starter also serves progress/completion as before.
+        local starter = PositiveID(quest.starter)
+        if starter then return Enums.GUID.Creature, starter end
+        local object = PositiveID(quest.starterObject)
         if object then return Enums.GUID.GameObject, object end
+        local item = PositiveID(quest.starterItem)
+        if item then return Enums.GUID.Item, item end
     end
 
-    -- Missing ender metadata means the ender is the giver in this corpus.
-    -- Pack lookups cover quest givers absent from the Compendium dataset.
+    -- Legacy quests with no corpus starter still use the pack's giver lookup.
+    -- The same pack fallback remains in place for absent ender metadata.
     local data = DataModules
     -- Do not use "data and SafeCall(...)": Lua truncates the second return.
     local kind, speaker
