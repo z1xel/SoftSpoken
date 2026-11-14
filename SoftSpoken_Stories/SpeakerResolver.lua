@@ -59,6 +59,19 @@ function R:ForQuest(questID, stage)
 
         -- Explicit corpus starters override pack metadata. When there is no
         -- ender, the same starter also serves progress/completion as before.
+        -- Some quests use different NPCs for Alliance and Horde, including
+        -- hand-in when no explicit ender is recorded. Never guess a side.
+        if quest.starterAlliance or quest.starterHorde then
+            local faction = SafeCall(UnitFactionGroup, "player")
+            local factionStarter
+            if faction == "Alliance" then
+                factionStarter = PositiveID(quest.starterAlliance)
+            elseif faction == "Horde" then
+                factionStarter = PositiveID(quest.starterHorde)
+            end
+            if factionStarter then return Enums.GUID.Creature, factionStarter end
+        end
+
         local starter = PositiveID(quest.starter)
         if starter then return Enums.GUID.Creature, starter end
         local object = PositiveID(quest.starterObject)

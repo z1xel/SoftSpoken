@@ -20,9 +20,12 @@
 -- data from Efficient Games (https://efficient.games), licensed under CC BY 4.0.
 --
 -- Turtle-only starters curated from the supplied pfQuest-turtle and VoiceOver audit:
--- 127 non-retired quests with a single known starter (multi-starters withheld).
+-- 127 non-retired quests with a single known starter, plus seven faction-paired
+-- fashion quests (60030-60036) with verified Alliance/Horde starter-enders.
 -- Preserve this overlay if the upstream-generated Compendium is regenerated.
 -- Optional starter = creature ID, starterObject = game object ID, starterItem = item ID.
+-- starterAlliance / starterHorde are creature IDs selected by player's faction;
+-- if there is no explicit ender, the chosen faction NPC is the hand-in as well.
 -- When absent, legacy quest-giver resolution continues through the registered audio packs.
 --
 -- A global rather than a private namespace: a data file cannot reach into the addon's environment.
@@ -4374,6 +4377,13 @@ SpokenQuestsCompendium = {
 		[55100] = { "Join The League!", starter = 3182, ender = 1076 },
 		[55101] = { "Help The League?", starter = 1076, ender = 52069 },
 		[55300] = { "Imperial Plate Gauntlets", starter = 14567 },
+		[60030] = { "Fashion Demands Sacrifices", starterAlliance = 51292, starterHorde = 51293 },
+		[60031] = { "Fashion Demands Sacrifices", starterAlliance = 51292, starterHorde = 51293 },
+		[60032] = { "Fashion Demands Sacrifices", starterAlliance = 51292, starterHorde = 51293 },
+		[60033] = { "Fashion Demands Sacrifices", starterAlliance = 51292, starterHorde = 51293 },
+		[60034] = { "Fashion Demands Sacrifices", starterAlliance = 51292, starterHorde = 51293 },
+		[60035] = { "Fashion Demands Sacrifices", starterAlliance = 51292, starterHorde = 51293 },
+		[60036] = { "Make the Right Choice", starterAlliance = 51292, starterHorde = 51293 },
 		[65601] = { "Love Hurts", sort = 61, ender = 3363, classes = 256 },
 		[65602] = { "What Is Love?", sort = 61, classes = 256 },
 		[65603] = { "The Binding", sort = 61, prev = 65602, classes = 256 },

@@ -6,6 +6,10 @@ local function equal(actual, expected, label)
 end
 
 local currentName, currentGUID
+local playerFaction = "Alliance"
+UnitFactionGroup = function(unit)
+    if unit == "player" then return playerFaction end
+end
 UnitName = function(unit) if unit == "npc" then return currentName end end
 UnitGUID = function(unit) if unit == "npc" then return currentGUID end end
 
@@ -20,6 +24,7 @@ VoiceOver = setmetatable({
             if id == 101 or id == 102 or id == 103 then return 8, 1010 end
             if id == 106 then return 3, 600 end
             if id == 111 then return 8, 1110 end
+            if id == 60030 then return 8, 9999 end -- legacy fallback when faction is unknown
         end,
         GetObjectName = function(self, kind, id)
             if id == 1010 then return "Quest giver" end
@@ -53,6 +58,15 @@ SpokenQuestsCompendium = {
         [108] = { starter = 8080, ender = 8081 }, -- separate NPC ender
         [109] = { starterObject = 9090, enderObject = 9091 }, -- object stages
         [111] = { starter = -4 }, -- invalid starter retains pack fallback
+        [60030] = { starterAlliance = 51292, starterHorde = 51293 },
+        [60031] = { starterAlliance = 51292, starterHorde = 51293 },
+        [60032] = { starterAlliance = 51292, starterHorde = 51293 },
+        [60033] = { starterAlliance = 51292, starterHorde = 51293 },
+        [60034] = { starterAlliance = 51292, starterHorde = 51293 },
+        [60035] = { starterAlliance = 51292, starterHorde = 51293 },
+        [60036] = { starterAlliance = 51292, starterHorde = 51293 },
+        [112] = { starter = 1120, starterAlliance = 51292, starterHorde = 51293,
+                  ender = 1121 }, -- explicit ender always wins
     }
 }
 
@@ -95,6 +109,32 @@ quest(109, "accept", 11, 9090)
 quest(109, "complete", 11, 9091)
 quest(111, "accept", 8, 1110)
 quest(111, "complete", 8, 1110)
+-- Both factions use the same quest IDs but different starter/ender NPCs.
+for _, id in ipairs({ 60030, 60031, 60032, 60033, 60034, 60035, 60036 }) do
+    playerFaction = "Alliance"
+    quest(id, "accept", 8, 51292)
+    quest(id, "progress", 8, 51292)
+    quest(id, "complete", 8, 51292)
+    playerFaction = "Horde"
+    quest(id, "accept", 8, 51293)
+    quest(id, "progress", 8, 51293)
+    quest(id, "complete", 8, 51293)
+end
+playerFaction = "Alliance"
+quest(112, "accept", 8, 51292)
+quest(112, "complete", 8, 1121)
+playerFaction = "Horde"
+quest(112, "accept", 8, 51293)
+quest(112, "complete", 8, 1121)
+playerFaction = nil
+quest(60030, "accept", 8, 9999)
+quest(60030, "complete", 8, 9999)
+quest(60031, "accept", nil, nil)
+playerFaction = "Neutral"
+quest(60030, "accept", 8, 9999)
+playerFaction = "Alliance"
+quest(112, "complete", 8, 1121)
+quest(105, "complete", 8, 5050) -- ordinary starter still works
 equal(R:Name(8, 2020, "Fallback"), "Quest ender", "known speaker label")
 equal(R:Name(8, 4040, "Fallback"), "Fallback", "unknown speaker label")
 equal(R:StageForEvent(3), "complete", "event to stage")
@@ -107,6 +147,13 @@ sound({event=1,questID=106,unitIsObjectOrItem=true}, 11, 6060, "corpus object st
 sound({event=1,questID=107,unitIsObjectOrItem=true}, 3, 7070, "corpus item starter")
 sound({event=1,questID=105,unitGUID="creature:5055"}, 8, 5055,
     "live GUID overrides static starter")
+playerFaction = "Horde"
+sound({event=1,questID=60030}, 8, 51293, "Horde fashion starter")
+sound({event=3,questID=60036}, 8, 51293, "Horde fashion hand-in")
+sound({event=3,questID=60036,portraitGUID="creature:9998"}, 8, 9998,
+    "live portrait speaker outranks faction metadata")
+playerFaction = "Alliance"
+sound({event=1,questID=60030}, 8, 51292, "Alliance fashion starter")
 sound({event=2,questID=102,unitIsObjectOrItem=true},11,3030,"object completion")
 sound({event=3,questID=101,unitGUID="creature:888"},8,888,"real GUID overrides corpus")
 sound({event=1,questID=101,unitGUID="creature:1010"},8,1010,"synthetic giver identity")
@@ -126,6 +173,15 @@ sound({event=5,name="Someone else"},nil,nil,"no name-only target guessing")
 currentName, currentGUID = nil, nil
 sound({event=5,name="Live NPC"},nil,nil,"missing npc")
 
+local compendium = assert(io.open("SoftSpoken_Stories/Data/Compendium.lua", "r")):read("*a")
+for _, id in ipairs({ 60030, 60031, 60032, 60033, 60034, 60035, 60036 }) do
+    local entry = string.match(compendium, "%[" .. tostring(id) .. "%] = { ([^}]+) }")
+    assert(entry, "faction quest missing from the static Compendium: " .. id)
+    assert(string.find(entry, "starterAlliance = 51292", 1, true),
+        "Alliance starter missing from static Compendium: " .. id)
+    assert(string.find(entry, "starterHorde = 51293", 1, true),
+        "Horde starter missing from static Compendium: " .. id)
+end
 local page = assert(io.open("SoftSpoken_Stories/Compendium/QuestPage_112.lua", "r")):read("*a")
 assert(string.find(page, "resolver:ForQuest(id,stage)", 1, true),
     "Compendium and narrator must use shared stage resolver")
