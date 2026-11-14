@@ -1,4 +1,4 @@
--- SoftSpoken Zones lore page: spellbook layout and original art UVs.
+-- Shared SoftSpoken lore page: parchment reader and original art UVs.
 -- Page rendering is independent of discovery and narration state.
 SSCLorePage = SSCLorePage or {}
 local P = SSCLorePage
@@ -9,24 +9,30 @@ local Page = {}
 Page.__index = Page
 P.Page = Page
 
--- These are the measurements and UV coordinates in upstream's LorePage.lua.
--- The .tga files are the original game's spellbook art, supplied by Spoken.
--- The asset installer only enables the flag after all six files download.
+-- Keep the original ornamental divider art and its source UV coordinates.
 local ORIGINAL_ART = SSCOriginalArt == true
 local ART = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\"
-local PAGE_NAME = "spellbook-Page-Right-C60"
-local BACKPLATE_NAME = "spellbook-list-backplate"
+-- Bundle QuestBG; Vanilla 1.12 clients do not necessarily ship this retail art.
+local PARCHMENT = ART.."QuestBG"
 local DIVIDER_NAME = "spellbook-divider"
+-- Keep the divider at its original scale: 64px left flourish, 66px right cap.
+-- The right cap always includes the original 657px endpoint: shortening
+-- it removes pixels from its left edge, never its decorative right tip.
+-- Crop the middle when narrow, repeat a quiet 32px strip when wider.
+local DIVIDER_LEFT, DIVIDER_RIGHT = 64, 66
+local DIVIDER_SOURCE_END = 657
+local DIVIDER_REPEAT_START, DIVIDER_REPEAT = 559, 32
 local COPY = {
-    [PAGE_NAME] = {810,682,0.791016,0.666016},
-    [BACKPLATE_NAME] = {316,106,0.617188,0.828125},
     [DIVIDER_NAME] = {657,11,0.641602,0.6875},
 }
 local PAD = 24
-local INSET = { book={top=36,right=36}, log={top=28,right=28} }
-local BOOK_TOP_BAND = .07
-local BACKPLATE_CUT = 40
-local INK = { .25,.16,.08 }
+-- Match the right text inset to the 24-unit left parchment inset.
+-- The native scrollbar occupies a separate housing outside the page.
+local INSET = {top=28,right=PAD}
+-- Blizzard's QuestFont uses solid black ink on parchment.
+local INK = { 0,0,0 }
+-- Pre-fidelity reader's warm brown is retained for breadcrumbs/subtitles.
+local SUBTITLE_INK = { .25,.16,.08 }
 local LINK = { .5,.12,.04 }
 
 local function Ink(font,c)
@@ -36,19 +42,26 @@ local function Ink(font,c)
     if font.SetShadowColor then font:SetShadowColor(0,0,0,0) end
 end
 
--- Preserve upstream's parchment-title typography when its font is available;
--- vanilla GameFontNormalLarge is a safe fallback.
+-- Match the original WoW 1.12 quest log: QuestTitleFont is Morpheus at 18.
+-- The built-in font's muted gold shadow is restored by TitleInk below.
+local function TitleInk(font)
+    if not font then return end
+    font:SetTextColor(0,0,0,1)
+    if font.SetShadowColor then font:SetShadowColor(.49,.35,.05,1) end
+    if font.SetShadowOffset then font:SetShadowOffset(1,-1) end
+end
+
 local function SetHeadingFont(title)
     local font
     if QuestTitleFont and QuestTitleFont.GetFont then font=QuestTitleFont:GetFont() end
     if not font and GameFontNormalLarge and GameFontNormalLarge.GetFont then
         font=GameFontNormalLarge:GetFont()
     end
-    if font and title.SetFont then title:SetFont(font,26,"") end
+    if font and title.SetFont then title:SetFont(font,18,"") end
 end
 
 function Page:PaintSubtitle()
-    if self.sub and self.sub.text then Ink(self.sub.text) end
+    if self.sub and self.sub.text then Ink(self.sub.text,SUBTITLE_INK) end
 end
 
 -- The current 1.12 playback bridge still owns the button's behavior.
@@ -57,7 +70,7 @@ function Page:PlaceButtons()
     -- Upstream: place only visible header controls, right to left. A hidden
     -- Play button must not leave an empty slot beside the Compendium book.
     local x = -self.inset.right
-    local y = -self.inset.top - (self.style=="log" and 10 or 1)
+    local y = -self.inset.top - 1
     local last
     for _, button in ipairs({self.play, self.open}) do
         if button and button:IsShown() then
@@ -76,29 +89,72 @@ function Page:PlaceButtons()
     end
 end
 
--- Crop a fixed-size flourish rather than stretching and distorting it across
--- wide/narrow reader panels. Also updates when the window is resized.
+-- Crop the divider's middle or repeat a source strip; never scale its detail.
 function Page:FitDecorations()
     if not self.frame then return end
     local width=self.frame:GetWidth() or 0
-    if ORIGINAL_ART and self.backplate then
-        local shown=self.style=="log" and 260 or 420
-        if width>0 then shown=math.min(shown,width) end
-        shown=math.max(1,shown)
-        local u=COPY[BACKPLATE_NAME][3]
-        local full=self.style=="log" and 300 or 460
-        self.backplate:SetWidth(shown)
-        self.backplate:SetTexCoord(u*BACKPLATE_CUT/full,
-            u*(BACKPLATE_CUT+shown)/full,0,COPY[BACKPLATE_NAME][4])
-    end
     if ORIGINAL_ART and self.divider then
-        local maxWidth=COPY[DIVIDER_NAME][1]
-        local room=width-PAD+6-self.inset.right
+        -- Extend the far end 6 units past the text's right inset to match
+        -- the divider's existing 6-unit overhang on the left.
+        local room=width-PAD+12-self.inset.right
         if room<=0 then return end
-        local shown=math.min(room,maxWidth)
+        -- The whole rule expands to the right page margin; never crop off
+        -- its original ending or stretch the ornamental left flourish.
+        local shown=math.max(1,room)
         self.divider:SetWidth(shown)
-        self.divider:SetTexCoord(0,COPY[DIVIDER_NAME][3]*shown/maxWidth,
-            0,COPY[DIVIDER_NAME][4])
+        local pieces=self.dividerParts
+        if pieces then
+            local length=COPY[DIVIDER_NAME][1]
+            local u,v=COPY[DIVIDER_NAME][3],COPY[DIVIDER_NAME][4]
+            local leftWidth=math.min(DIVIDER_LEFT,shown/2)
+            local rightWidth=math.min(DIVIDER_RIGHT,shown-leftWidth)
+            local sourceMiddle=DIVIDER_SOURCE_END-DIVIDER_LEFT-DIVIDER_RIGHT
+            local middleWidth=math.min(math.max(0,shown-leftWidth-rightWidth),sourceMiddle)
+
+            -- Set UVs to match the *visible* source pixels. Changing a
+            -- texture's width alone would stretch its original art.
+            pieces.left:SetWidth(leftWidth)
+            pieces.left:SetTexCoord(0,u*leftWidth/length,0,v)
+            pieces.right:SetWidth(rightWidth)
+            pieces.right:SetTexCoord(u*(DIVIDER_SOURCE_END-rightWidth)/length,
+                u*DIVIDER_SOURCE_END/length,0,v)
+            if middleWidth>0 then
+                pieces.middle:SetWidth(middleWidth)
+                pieces.middle:SetTexCoord(u*DIVIDER_LEFT/length,
+                    u*(DIVIDER_LEFT+middleWidth)/length,0,v)
+                pieces.middle:Show()
+            else
+                pieces.middle:Hide()
+            end
+
+            -- At 657px all source artwork appears exactly once.
+            -- Wider pages repeat a subtle line strip at native scale.
+            local extra=shown-leftWidth-rightWidth-middleWidth
+            local offset=leftWidth+middleWidth
+            local index=1
+            while extra>0 do
+                local piece=pieces.tiles[index]
+                if not piece then
+                    piece=self.divider:CreateTexture(nil,"ARTWORK")
+                    piece:SetTexture(ART..DIVIDER_NAME)
+                    piece:SetHeight(COPY[DIVIDER_NAME][2])
+                    pieces.tiles[index]=piece
+                end
+                local tileWidth=math.min(DIVIDER_REPEAT,extra)
+                piece:ClearAllPoints()
+                piece:SetPoint("TOPLEFT",self.divider,"TOPLEFT",offset,0)
+                piece:SetWidth(tileWidth)
+                piece:SetTexCoord(u*DIVIDER_REPEAT_START/length,
+                    u*(DIVIDER_REPEAT_START+tileWidth)/length,0,v)
+                piece:Show()
+                offset=offset+tileWidth
+                extra=extra-tileWidth
+                index=index+1
+            end
+            for i=index,table.getn(pieces.tiles) do
+                pieces.tiles[i]:Hide()
+            end
+        end
     end
 end
 
@@ -161,18 +217,11 @@ function Page:Show(entry)
     if self.divider then
         if entry.empty then self.divider:Hide() else self.divider:Show() end
     end
-    if self.backplate then
-        if entry.empty then self.backplate:Hide() else self.backplate:Show() end
-    end
-    if self.mark then
-        if entry.empty then self.mark:Show() else self.mark:Hide() end
-    end
     self:Resize(false)
 end
 
-function P.CreateLorePage(parent,style,left,options)
-    local page=setmetatable({style=style or "book",
-        inset=INSET[style] or INSET.book,
+function P.CreateLorePage(parent,options)
+    local page=setmetatable({inset=INSET,
         expandSubtitle=options and options.expandSubtitle==true},Page)
     local frame=CreateFrame("Frame",nil,parent)
     -- The caller supplies a page holder inside the right-hand inset.
@@ -186,45 +235,24 @@ function P.CreateLorePage(parent,style,left,options)
     underlay:SetTexture(.79,.65,.45,1)
     page.underlay=underlay
 
-    -- Use actual upstream parchment on top whenever it is installed; if the
-    -- file is unavailable, the opaque underlay remains visible beneath it.
-    if not ORIGINAL_ART then U.AddBorder(frame,"Interface\\QuestFrame\\QuestBG") end
+    -- Every lore page uses the bundled QuestBG parchment. The opaque
+    -- underlay remains available if that file cannot be drawn.
+    if not ORIGINAL_ART then U.AddBorder(frame,PARCHMENT) end
     local parchment=frame:CreateTexture(nil,"BORDER")
     parchment:SetAllPoints(frame)
-    local paperName=page.style=="log" and "QuestDetailsBackgrounds" or PAGE_NAME
-    if ORIGINAL_ART then
-        parchment:SetTexture(ART..paperName)
-        if page.style=="log" then
-            parchment:SetTexCoord(0,.560547,0,.90625)
-        else
-            local uv=COPY[PAGE_NAME]
-            parchment:SetTexCoord(0,uv[3],uv[4]*BOOK_TOP_BAND,uv[4])
-        end
-    else
-        parchment:SetTexture("Interface\\QuestFrame\\QuestBG")
-        parchment:SetVertexColor(.82,.75,.58)
-    end
+    parchment:SetTexture(PARCHMENT)
+    -- QuestBG is a 512x512 atlas with artwork at x=0..299, y=0..335.
+    -- Crop its transparent padding while preserving the bottom border.
+    parchment:SetTexCoord(0,300/512,0,336/512)
+    parchment:SetVertexColor(1,1,1,1)
     page.bg=parchment
-    page.bgFile=ORIGINAL_ART and (ART..paperName) or "Interface\\QuestFrame\\QuestBG"
-
-    if ORIGINAL_ART then
-        local back=frame:CreateTexture(nil,"BORDER")
-        back:SetTexture(ART..BACKPLATE_NAME)
-        back:SetHeight(page.style=="log" and 80 or 110)
-        back:SetPoint("TOPLEFT",frame,"TOPLEFT",0,28-page.inset.top)
-        back:SetAlpha(.55)
-        page.backplate=back
-    end
+    page.bgFile=PARCHMENT
 
     local title=frame:CreateFontString(nil,"ARTWORK","GameFontNormalLarge")
     title:SetJustifyH("LEFT")
-    if title.SetWordWrap then title:SetWordWrap(page.style=="book") end
+    if title.SetWordWrap then title:SetWordWrap(true) end
     SetHeadingFont(title)
-    if page.style=="log" and title.GetFont and title.SetFont then
-        local face=title:GetFont()
-        if face then title:SetFont(face,20,"") end
-    end
-    Ink(title)
+    TitleInk(title)
     page.title=title
 
     local sub=CreateFrame("Button",nil,frame)
@@ -254,22 +282,41 @@ function P.CreateLorePage(parent,style,left,options)
     sub:SetScript("OnLeave",function() page:PaintSubtitle() end)
     page.sub=sub
 
-    local divider=frame:CreateTexture(nil,"ARTWORK")
+    -- The divider is a Frame, so hiding it also hides all three artwork
+    -- slices. It remains the same anchor used by the text ScrollFrame.
+    local divider=CreateFrame("Frame",nil,frame)
     divider:SetPoint("TOPLEFT",sub,"BOTTOMLEFT",-6,-10)
     if ORIGINAL_ART then
-        divider:SetTexture(ART..DIVIDER_NAME)
+        local length=COPY[DIVIDER_NAME][1]
+        local u,v=COPY[DIVIDER_NAME][3],COPY[DIVIDER_NAME][4]
+        local function Slice(x1,x2)
+            local artPiece=divider:CreateTexture(nil,"ARTWORK")
+            artPiece:SetTexture(ART..DIVIDER_NAME)
+            artPiece:SetTexCoord(u*x1/length,u*x2/length,0,v)
+            artPiece:SetHeight(COPY[DIVIDER_NAME][2])
+            return artPiece
+        end
+        local left=Slice(0,DIVIDER_LEFT)
+        local middle=Slice(DIVIDER_LEFT,DIVIDER_SOURCE_END-DIVIDER_RIGHT)
+        local right=Slice(DIVIDER_SOURCE_END-DIVIDER_RIGHT,DIVIDER_SOURCE_END)
+        left:SetPoint("TOPLEFT",divider,"TOPLEFT",0,0)
+        right:SetPoint("TOPRIGHT",divider,"TOPRIGHT",0,0)
+        middle:SetPoint("TOPLEFT",left,"TOPRIGHT",0,0)
+        middle:SetWidth(DIVIDER_SOURCE_END-DIVIDER_LEFT-DIVIDER_RIGHT)
         divider:SetHeight(COPY[DIVIDER_NAME][2])
+        page.dividerParts={left=left,middle=middle,right=right,tiles={}}
     else
-        divider:SetTexture(.48,.31,.12,.65)
+        local line=divider:CreateTexture(nil,"ARTWORK")
+        line:SetAllPoints(divider)
+        line:SetTexture(.48,.31,.12,.65)
         divider:SetHeight(2)
-        divider:SetPoint("RIGHT",frame,"RIGHT",-page.inset.right,0)
+        divider:SetPoint("RIGHT",frame,"RIGHT",6-page.inset.right,0)
     end
     page.divider=divider
 
     page.play=A.Create(frame)
-    if page.style=="log" or (options and options.openInCompendium) then
-        -- Preserve the map reader's Open in Compendium action even while
-        -- showing the standard book-style parchment used by Places.
+    if options and options.openInCompendium then
+        -- The map reader offers a shortcut to the Places Compendium entry.
         local open=CreateFrame("Button",nil,frame)
         open:SetWidth(24); open:SetHeight(24)
         local art=open:CreateTexture(nil,"ARTWORK")
@@ -336,27 +383,59 @@ function P.CreateLorePage(parent,style,left,options)
     local view=page.body
     view.scroll:ClearAllPoints()
     view.scroll:SetPoint("TOPLEFT",divider,"BOTTOMLEFT",6,-2)
-    view.scroll:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",-page.inset.right-15,PAD-6)
-    view.slider:ClearAllPoints()
-    view.slider:SetPoint("TOPLEFT",view.scroll,"TOPRIGHT",5,0)
-    view.slider:SetPoint("BOTTOMLEFT",view.scroll,"BOTTOMRIGHT",5,0)
+    view.scroll:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",-page.inset.right,PAD-6)
     view:SetInk(INK[1],INK[2],INK[3])
-    view:SetThumbColor(INK[1],INK[2],INK[3])
-    local mark=frame:CreateTexture(nil,"BORDER")
-    mark:SetWidth(96);mark:SetHeight(96)
-    mark:SetPoint("CENTER",frame,"CENTER",0,40)
-    mark:SetTexture("Interface\\Icons\\INV_Misc_Map02")
-    mark:SetTexCoord(.08,.92,.08,.92)
-    mark:SetAlpha(.18)
-    mark:Hide()
-    page.mark=mark
     page:FitDecorations()
     return page
 end
 
-function P.Build(window,left)
+function P.Build(window)
     if P.page then return P.page end
-    local page=P.CreateLorePage(window,"book",left)
+    local page=P.CreateLorePage(window)
     P.page=page
     return page
+end
+
+-- Shared marble backing and inset rim for Compendium and Lore of the Land readers.
+-- Applied after construction to preserve holder anchors, frame levels,
+-- and the original 1.12 reflow order.
+local INTERIOR = SSCCompendiumInteriorSkin
+local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\UI-Background-Marble"
+-- This file is already included with SoftSpoken and is byte-identical to the
+-- texture used by the shared native skin, so the integrated reader can be portable.
+
+function P.ApplyPaneSkin(inset,holder,page)
+    if not inset or not holder or not page or not page.frame then return end
+    if inset.sszPageVisual then return inset.sszPageVisual end
+
+    -- The inset includes both the parchment and the separate 31-unit housing.
+    -- This reproduces the Compendium page geometry: parchment runs to 29
+    -- units before the inset's right edge, while the scrollbar housing is
+    -- anchored 3 units in from that edge and overlaps the parchment by 5.
+    local visual=CreateFrame("Frame",nil,inset)
+    visual:SetPoint("TOPLEFT",inset,"TOPLEFT",0,0)
+    visual:SetPoint("BOTTOMRIGHT",inset,"BOTTOMRIGHT",-29,0)
+    visual:SetBackdrop({bgFile=MARBLE,tile=true,tileSize=256,
+        insets={left=1,right=1,top=1,bottom=1}})
+    inset.sszPageVisual=visual
+
+    -- Reuse the actual existing production page object and its scroll state.
+    -- Only its holder is relocated; no new LorePage or TextView is constructed.
+    holder:ClearAllPoints()
+    holder:SetPoint("TOPLEFT",visual,"TOPLEFT",3,-3)
+    holder:SetPoint("BOTTOMRIGHT",visual,"BOTTOMRIGHT",-3,3)
+
+    -- The parchment is painted by page.frame, so the metal inset must be a
+    -- separate foreground layer like the native skin's `rim` frame.
+    local rim=CreateFrame("Frame",nil,visual)
+    rim:SetAllPoints(visual)
+    rim:SetFrameLevel(page.frame:GetFrameLevel()+3)
+    rim:EnableMouse(false)
+    if INTERIOR and INTERIOR.DrawInsetBorder then
+        INTERIOR.DrawInsetBorder(rim)
+    end
+    inset.sszPageRim=rim
+
+    if page.Resize then page:Resize(false) end
+    return visual
 end

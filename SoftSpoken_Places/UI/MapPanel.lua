@@ -5,7 +5,9 @@ local M = SSZMapPanel
 local Compat = SSZMapCompat
 local L = SSZLoreWindow
 local P = SSZLorePage
-local WIDTH, GAP = 338, 2
+local WIDTH, GAP = 328, 2
+local READER_RIGHT_SHIFT = 2
+local SCROLLBAR_EXTRA_RIGHT_SHIFT = 1
 local panel, page, toggle, pageInset
 local lastMapID, lastContinent, lastZone
 local ready = false
@@ -22,15 +24,101 @@ local function Settings()
     return s
 end
 
+-- Turtle WoW's actual minimized World Map border, sourced directly from
+-- Interface/FrameXML/WorldMapFrame.xml. The original uses eight independent
+-- UI-WorldMapMinimized-* textures (not the older WorldMapSmall left/right
+-- sheets). Match its four fixed corners, stretched sides and cropped rails.
+-- This skin is ONLY for Lore of the Land: the Compendium's frame stays untouched.
+local MAP_ART = "Interface\\WorldMap\\UI-WorldMapMinimized-"
+local MAP_ROCK = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\UI-Background-Rock-Classic"
+
+local function MinimizedMapBorder(frame)
+    -- Preserve the original stone underlay, but replace all portrait-frame
+    -- corner and rail art with Turtle's own minimized-map pieces.
+    frame:SetBackdrop({bgFile=MAP_ROCK,tile=true,tileSize=256,
+        insets={left=2,right=2,top=21,bottom=2}})
+
+    -- The parchment is in child frames. The outer border needs its own
+    -- higher-level, mouse-transparent frame or the page covers the rails.
+    local chrome=CreateFrame("Frame",nil,frame)
+    chrome:SetAllPoints(frame)
+    chrome:SetFrameLevel(frame:GetFrameLevel()+10)
+    chrome:EnableMouse(false)
+    frame.sszMapBorder=chrome
+
+    local function Piece(name,width,height)
+        local t=chrome:CreateTexture(nil,"ARTWORK")
+        t:SetTexture(MAP_ART..name)
+        if width then t:SetWidth(width) end
+        if height then t:SetHeight(height) end
+        return t
+    end
+
+    -- Exact source sizes and positioning from Turtle WorldMapFrame.xml.
+    local topLeft=Piece("TopLeft",32,32)
+    topLeft:SetPoint("TOPLEFT",chrome,"TOPLEFT",0,0)
+    local bottomLeft=Piece("BottomLeft",32,64)
+    bottomLeft:SetPoint("BOTTOMLEFT",chrome,"BOTTOMLEFT",0,0)
+    local left=Piece("Left",32)
+    left:SetTexCoord(0,1,0,0.6708)
+    left:SetPoint("TOPLEFT",topLeft,"BOTTOMLEFT",0,0)
+    left:SetPoint("BOTTOMLEFT",bottomLeft,"TOPLEFT",0,0)
+
+    -- The original World Map has a minimize bezel to the left of Close.
+    -- Lore of the Land needs only Close: retain the native right-hand 32px cap.
+    -- Anchoring the narrower cap to the right extends the top rail naturally.
+    local topRight=Piece("TopRight",32,32)
+    topRight:SetTexCoord(0.5,1,0,1)
+    topRight:SetPoint("TOPRIGHT",chrome,"TOPRIGHT",0,0)
+    local bottomRight=Piece("BottomRight",64,64)
+    bottomRight:SetPoint("BOTTOMRIGHT",chrome,"BOTTOMRIGHT",0,0)
+    local right=Piece("Right",32)
+    right:SetTexCoord(0,1,0,0.6708)
+    right:SetPoint("TOPRIGHT",topRight,"BOTTOMRIGHT",0,0)
+    right:SetPoint("BOTTOMRIGHT",bottomRight,"TOPRIGHT",0,0)
+
+    local top=Piece("Top",nil,32)
+    top:SetTexCoord(0,0.9628,0,1)
+    -- The cropped close-button cap starts midway through the native 64px
+    -- artwork, where its left edge is not designed as a rail junction.
+    -- Extend the top rail 6 units beneath that cap to hide the exposed seam;
+    -- put the rail on BORDER so the cap's ARTWORK remains in front.
+    top:SetDrawLayer("BORDER")
+    top:SetPoint("TOPLEFT",topLeft,"TOPRIGHT",0,0)
+    top:SetPoint("TOPRIGHT",topRight,"TOPLEFT",6,0)
+    local bottom=Piece("Bottom",nil,64)
+    bottom:SetTexCoord(0,0.9628,0,1)
+    bottom:SetPoint("BOTTOMLEFT",bottomLeft,"BOTTOMRIGHT",0,0)
+    bottom:SetPoint("BOTTOMRIGHT",bottomRight,"BOTTOMLEFT",0,0)
+
+    -- Keep Lore of the Land's text and native red X, above the map chrome.
+    local title=chrome:CreateFontString(nil,"OVERLAY","GameFontNormal")
+    title:SetHeight(20)
+    title:SetPoint("TOPLEFT",frame,"TOPLEFT",22,-3)
+    title:SetPoint("TOPRIGHT",frame,"TOPRIGHT",-40,-3)
+    title:SetJustifyH("CENTER")
+    title:SetText("Lore of the Land")
+    frame.sszTitle=title
+
+    local close=CreateFrame("Button",nil,frame,"UIPanelCloseButton")
+    close:SetWidth(32);close:SetHeight(32)
+    close:SetPoint("TOPRIGHT",frame,"TOPRIGHT",4,5)
+    for _,getter in ipairs({"GetNormalTexture","GetPushedTexture","GetHighlightTexture"}) do
+        local texture=close[getter](close)
+        if texture then
+            texture:ClearAllPoints()
+            texture:SetAllPoints(close)
+        end
+    end
+    if close.SetHitRectInsets then close:SetHitRectInsets(4,4,4,4) end
+    close:EnableMouse(true)
+    close:SetScript("OnClick",function() M.SetMapPanelCollapsed(true) end)
+    frame.sszClose=close
+end
+
 local function NewPanel()
     local frame=CreateFrame("Frame","SSZMapLorePanel",WorldMapFrame)
-    -- Share the Compendium's actual outer PortraitFrame metal and tiled rock,
-    -- not just the parchment inside it. In compact mode it has no portrait
-    -- or minimize button, and its native Close collapses the map attachment.
-    SSCPrototypeFrameSkin.Apply(frame,"Zone Lore",{
-        compact=true,
-        onClose=function() M.SetMapPanelCollapsed(true) end,
-    })
+    MinimizedMapBorder(frame)
     frame.title=frame.sszTitle
     frame.close=frame.sszClose
     return frame
@@ -47,19 +135,78 @@ local function BuildPanel()
     -- housing as the Compendium's Places page. Only placement is map-specific.
     -- Keep the map-only Open in Compendium button without maintaining a
     -- separate quest-log renderer or decorative nine-slice.
+    -- Bring the parchment to the left edge and lift the shared parchment/
+    -- scrollbar inset directly beneath the compact silver title bar.
+    -- Keep the parchment and scrollbar clear of the map's visible ornate
+    -- footer without leaving a broad empty strip above it.
     pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
-        return P.CreateLorePage(holder,"book",nil,{openInCompendium=true,expandSubtitle=true})
-    end,{left=8,right=8,top=38,bottom=8})
+        return P.CreateLorePage(holder,{openInCompendium=true,expandSubtitle=true})
+    end,{left=0,right=4,top=23,bottom=24})
+    -- Lore of the Land geometry: size the shared page visual, not its parchment
+    -- holder. This keeps the silver inset (rim:SetAllPoints(pageVisual)) tied
+    -- to the parchment with its original 3-unit margin on every side.
+    -- Keep 9 units of left inset and 8 units of bottom inset.
+    -- Scrollbar anchors stay independent.
+    local pageVisual=pageInset and pageInset.sszPageVisual
+    if pageVisual then
+        pageVisual:ClearAllPoints()
+        pageVisual:SetPoint("TOPLEFT",pageInset,"TOPLEFT",9,0)
+        pageVisual:SetPoint("BOTTOMRIGHT",pageInset,"BOTTOMRIGHT",
+            -29+READER_RIGHT_SHIFT,8)
+    end
+    -- Share the Compendium's ClassicAPI scroll-edge fade on the World Map
+    -- lore reader. The TextView method handles missing ClassicAPI safely.
+    if page and page.body and page.body.EnableEdgeFade then
+        page.body:EnableEdgeFade()
+    end
     if SSZAudioButton and SSZAudioButton.Bind then SSZAudioButton.Bind(page.play) end
     panel.pageInset=pageInset
     panel.page=page
-    -- Apply the final map frame level *after* constructing parchment and
-    -- scrollbar children. Their frame levels, and the decorative compact
-    -- trim (+10), must not sit above the native close button's hit target.
-    -- In particular, the visible X, its highlight and its OnClick handler
-    -- must all belong to the same highest button frame.
+    -- The minimized World Map's frame trim must cover the parchment, but
+    -- the standalone reader's scrollbar art must cover that trim. Relevel
+    -- only Lore of the Land's scroll chrome; leave all shared Compendium bars alone.
+    -- Explicitly lift native slider children too, since inherited 1.12 frame
+    -- levels need not follow a later SetFrameLevel on their parent.
+    if panel.sszMapBorder then
+        panel.sszMapBorder:SetFrameLevel(panel:GetFrameLevel()+10)
+        local scrollChrome=page and page.body and page.body.sszNativeScrollChrome
+        local slot=scrollChrome and scrollChrome.slot
+        local slider=scrollChrome and scrollChrome.slider
+        if slot then
+            slot:SetFrameLevel(panel:GetFrameLevel()+11)
+            -- Lore of the Land only: position the scrollbar 1 unit lower and keep
+            -- it 6 units shorter than the shared page inset. Leave the
+            -- parchment's height and shared Compendium unchanged.
+            -- Keep the parchment's 2-unit right-edge adjustment, but shift
+            -- only Lore of the Land's scrollbar an additional unit to the right.
+            local geometry=SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
+            local rightOffset=(geometry and geometry.pageSlotRightOffset or -3)
+                + READER_RIGHT_SHIFT + SCROLLBAR_EXTRA_RIGHT_SHIFT
+            slot:ClearAllPoints()
+            slot:SetPoint("TOPRIGHT",pageInset,"TOPRIGHT",rightOffset,-1)
+            slot:SetPoint("BOTTOMRIGHT",pageInset,"BOTTOMRIGHT",rightOffset,5)
+        end
+        if slider then
+            slider:SetFrameLevel(panel:GetFrameLevel()+12)
+            if slider.GetChildren then
+                local children={slider:GetChildren()}
+                for i=1,table.getn(children) do
+                    children[i]:SetFrameLevel(panel:GetFrameLevel()+13)
+                end
+            end
+        end
+    end
+    -- Keep the red X above the outer frame and scrollbar controls.
     if panel.sszClose then
         panel.sszClose:SetFrameLevel(panel:GetFrameLevel()+15)
+    end
+    -- Layering: place Lore of the Land's silver inner inset border above ALL
+    -- structural artwork (including the close button) to rule out occlusion.
+    -- The rim is mouse-transparent, so it cannot intercept clicks.
+    local pageRim=pageInset and pageInset.sszPageRim
+    if pageRim then
+        pageRim:SetFrameLevel(panel:GetFrameLevel()+20)
+        pageRim:Show()
     end
     panel:Hide()
 end
@@ -90,7 +237,7 @@ local function BuildToggle()
     toggle:SetScript("OnEnter",function(self)
         if GameTooltip then
             GameTooltip:SetOwner(self,"ANCHOR_RIGHT")
-            GameTooltip:SetText("Show Zone Lore")
+            GameTooltip:SetText("Show Lore of the Land")
             GameTooltip:Show()
         end
     end)
@@ -132,13 +279,13 @@ local function ApplyAnchors()
         -- Crucially, WorldMapFrame itself is NEVER touched.
         panel:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",GAP,0)
         panel:SetPoint("BOTTOMLEFT",WorldMapFrame,"BOTTOMRIGHT",GAP,0)
-        toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",-2,-75)
+        toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",0,-75)
     else
         -- Fullscreen 1.12 and windowed maps too near the screen edge:
         -- leave the Blizzard map geometry alone and display an inset overlay.
         panel:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-28,-62)
         panel:SetPoint("BOTTOMRIGHT",WorldMapFrame,"BOTTOMRIGHT",-28,54)
-        toggle:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-35,-75)
+        toggle:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-33,-75)
     end
     return true
 end
@@ -372,12 +519,8 @@ watch:SetScript("OnUpdate",function(self,dt)
     end
     if not WorldMapFrame:IsShown() then return end
     ApplyAnchors()
-    -- World Map height can change through anchor geometry without firing the
-    -- panel's OnSizeChanged on some 1.12 clients. Only redraw the compact
-    -- border when its measured width/height actually changed.
-    if panel and SSCPrototypeFrameSkin and SSCPrototypeFrameSkin.RefreshCompact then
-        SSCPrototypeFrameSkin.RefreshCompact(panel)
-    end
+    -- The native World Map border uses opposing anchors for its edge
+    -- textures, so changes to map height require no separate border reflow.
     local mapID,_,continent,zone=Compat.GetDisplayedMapID()
     if mapID~=lastMapID or continent~=lastContinent or zone~=lastZone then
         if Compat.ClearOverlayCache then Compat.ClearOverlayCache() end

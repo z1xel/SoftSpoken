@@ -986,6 +986,8 @@ function Addon:OnInitialize()
     if QuestLog_Update then
         hooksecurefunc("QuestLog_Update", function()
             QuestOverlayUI:Update()
+            -- One coalesced next-frame layout check for late quest-log title rewrites.
+            QuestOverlayUI:ScheduleLayoutRecheck()
         end)
     end
 

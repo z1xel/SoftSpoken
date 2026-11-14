@@ -9,7 +9,7 @@ local EVENTS={accept=1,progress=2,complete=3}
 local MOMENTS={"accept","progress","complete"}
 local NAMES={accept="Description",progress="Progress",complete="Completion"}
 -- Use the same parchment ink as the shared Places reader.
-local COLOR={.25,.16,.08}
+local COLOR={0,0,0}
 local ALT={.53,.24,.10}
 local function Number(id)
     id=tonumber(id)
@@ -122,17 +122,25 @@ local function Font(parent,template)
     if fs.SetWordWrap then fs:SetWordWrap(true) end
     return fs
 end
-local function MatchFont(font,reference,sizeAdjust,fallback)
+local function MatchFont(font,reference,sizeAdjust,fallback,asQuestTitle,fontFile,sizeScale)
     local path,size
     if reference and reference.GetFont then path,size=reference:GetFont() end
     if not path and fallback and fallback.GetFont then
         path,size=fallback:GetFont()
     end
+    if fontFile then path=fontFile end
     if path and font.SetFont then
-        font:SetFont(path,math.max(10,(tonumber(size) or 15)+(sizeAdjust or 0)),"")
+        font:SetFont(path,math.max(10,(tonumber(size) or 15)+(sizeAdjust or 0))*(sizeScale or 1),"")
     end
-    if font.SetShadowColor then font:SetShadowColor(0,0,0,0) end
-    if font.SetShadowOffset then font:SetShadowOffset(0,0) end
+    if asQuestTitle then
+        -- WoW 1.12 QuestTitleFont: black Morpheus with warm gold (1,-1) shadow.
+        font:SetTextColor(0,0,0,1)
+        if font.SetShadowColor then font:SetShadowColor(.49,.35,.05,1) end
+        if font.SetShadowOffset then font:SetShadowOffset(1,-1) end
+    else
+        if font.SetShadowColor then font:SetShadowColor(0,0,0,0) end
+        if font.SetShadowOffset then font:SetShadowOffset(0,0) end
+    end
 end
 -- Use normal 2D artwork inside the quest scroll child. Native models are
 -- intentionally not created by this page: they were rendered outside their
@@ -140,14 +148,63 @@ end
 -- The same player-faction crest is also the Stories player portrait fallback.
 -- One resolver owns these textures and their Turtle 1.12 race fallback.
 local FactionCrest=SSCQuestFactionCrest
+-- An item has no creature face. Use a native note icon until its item icon
+-- becomes available; never show the player's faction crest for an item.
+local ITEM_FALLBACK = "Interface\\Icons\\INV_Misc_Note_01"
+local ITEM_ICON_CROP = { 0, 1, 0, 1 }
+-- Generic GameObjects have no inventory icon; match upstream Spoken's notice.
+local GAMEOBJECT_FALLBACK = "Interface\\Icons\\INV_Misc_Note_01"
+
+-- User-selected CharacterTab ring: 77x77 image pixels stored in a 128x128
+-- power-of-two TGA for Vanilla 1.12. Its on-screen size is independent of
+-- the 77x77 stored image: a 68-unit ring closely frames the 62-unit portrait.
+-- Borrow upstream Spoken's layering: portrait underneath, ring above.
+local PORTRAIT_RING = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Art\\PortraitRing"
+local PORTRAIT_MASK = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\BookPortraitCircleMask"
+-- Source: docs/artwork/compendium/PortraitRing-source.png (77x77 visible pixels).
+-- Coordinates below are measured from the source's top-left PIXEL EDGE.
+-- The main transparent opening is about 54 source px (47.7 UI units).
+-- Its center is not exactly at the center of the full ring artwork.
+-- The original 64x64 portrait mask keeps ~60/64 of the face visible; a
+-- 54-unit image therefore puts ~50.6 units under the 47.7-unit opening,
+-- retaining ~1.5 units of safe overlap beneath the rim on each side.
+local RING_SOURCE_SIZE = 77
+local RING_UI_SIZE = 68
+local RING_SOURCE_CENTER = RING_SOURCE_SIZE / 2
+local APERTURE_SOURCE_X, APERTURE_SOURCE_Y = 38.25, 36.5
+local SOCKET_SOURCE_X, SOCKET_SOURCE_Y = 60, 58
+local PORTRAIT_IMAGE_SIZE = 54
+local function SourceUnits(v) return v * RING_UI_SIZE / RING_SOURCE_SIZE end
+-- Use the same 14-unit quest bullets as the narration player.
+local PORTRAIT_BADGES = {
+    accept = "Interface\\AddOns\\SoftSpoken_Stories\\Textures\\SoundQueueBulletAccept",
+    progress = "Interface\\AddOns\\SoftSpoken_Stories\\Textures\\SoundQueueBulletProgress",
+    complete = "Interface\\AddOns\\SoftSpoken_Stories\\Textures\\SoundQueueBulletComplete",
+}
 -- Portraits are plain 2D Texture regions inside the scroll child: never
 -- create Model/PlayerModel frames here (they break 1.12 scroll clipping).
 local function Portrait(parent)
     local holder=CreateFrame("Frame",nil,parent)
     holder:SetWidth(62);holder:SetHeight(62)
     local icon=holder:CreateTexture(nil,"ARTWORK")
-    icon:SetAllPoints(holder)
+    -- Center the portrait on the artwork's actual opening, not the outer
+    -- 77x77 image bounds. Keep the 62x62 holder/layout unchanged.
+    icon:SetWidth(PORTRAIT_IMAGE_SIZE)
+    icon:SetHeight(PORTRAIT_IMAGE_SIZE)
+    icon:SetPoint("CENTER",holder,"CENTER",
+        SourceUnits(APERTURE_SOURCE_X-RING_SOURCE_CENTER),
+        SourceUnits(RING_SOURCE_CENTER-APERTURE_SOURCE_Y))
+    -- ClassicAPI clips the 2D face/crest to a circle. The overlay is kept
+    -- separate so ClassicAPI portrait repaints cannot replace the ring.
+    if icon.SetMask then icon:SetMask(PORTRAIT_MASK) end
     holder.icon=icon
+    local ring=holder:CreateTexture(nil,"OVERLAY")
+    ring:SetTexture(PORTRAIT_RING)
+    ring:SetWidth(RING_UI_SIZE);ring:SetHeight(RING_UI_SIZE)
+    ring:SetTexCoord(0,RING_SOURCE_SIZE/128,0,RING_SOURCE_SIZE/128)
+    -- Keep the ring centered on the 62x62 portrait.
+    ring:SetPoint("CENTER",holder,"CENTER",0,0)
+    holder.ring=ring
     holder:EnableMouse(true)
     holder:SetScript("OnEnter",function()
         local h=this or holder
@@ -173,12 +230,44 @@ local function PaintCrest(holder)
     holder.affiliationLabel=label
     holder.creatureID=nil
     holder.pendingCreatureID=nil
+    holder.pendingItemID=nil
     holder.binding=nil
 end
 
+local function ValidIcon(icon)
+    return (type(icon)=="string" and icon~="") or
+        (type(icon)=="number" and icon>0)
+end
+
+local function PaintItemIcon(holder,icon,speaker)
+    holder.icon:SetTexCoord(unpack(ITEM_ICON_CROP))
+    holder.icon:SetTexture(ValidIcon(icon) and icon or ITEM_FALLBACK)
+    holder.affiliationLabel=speaker and speaker~="" and speaker or "Quest item"
+end
+
+-- ClassicAPI resolves the icon by item ID, even if the item isn't in the
+-- player's bags. Its cache miss initiates a load; a bag icon is an optional
+-- fallback for clients without this API (and while the data is still loading).
+local function ResolveItemIcon(itemID,questID)
+    local info=rawget(_G,"C_Item")
+    local icon=info and API(info.GetItemIconByID,itemID)
+    if ValidIcon(icon) then return icon end
+    if Spoken and type(Spoken.QuestItemIcon)=="function" then
+        icon=API(Spoken.QuestItemIcon,Spoken,questID)
+        if ValidIcon(icon) then return icon end
+    end
+end
+
+-- GameObjects are world models, not creatures. Preserve the existing ring
+-- and badge while replacing the unrelated player faction crest.
+local function PaintGameObject(holder,speaker)
+    holder.icon:SetTexCoord(0,1,0,1)
+    holder.icon:SetTexture(GAMEOBJECT_FALLBACK)
+    holder.affiliationLabel=type(speaker)=="string" and speaker~="" and speaker or "Quest object"
+end
+
 local function CanDrawCreature(kind,npc)
-    if rawget(_G,"SoftSpokenExperimentalStaticPortraits")==false or
-       type(rawget(_G,"SetPortraitTextureFromCreatureDisplayID"))~="function" then
+    if type(rawget(_G,"SetPortraitTextureFromCreatureDisplayID"))~="function" then
         return nil
     end
     local e=VoiceOver and VoiceOver.Enums and VoiceOver.Enums.GUID
@@ -202,9 +291,36 @@ local function ApplyPortrait(holder,displayID)
     end
 end
 
+-- Item portraits use the same masked 2D region, ring and quest-state badge
+-- as creature portraits. No model or new texture asset is necessary.
+function P:BindItemPortrait(part,questID,stage,itemID,speaker)
+    local holder=part.face
+    PaintItemIcon(holder,nil,speaker)
+    itemID=Number(itemID)
+    if not itemID then return end
+
+    holder.binding={questID=questID,stage=stage,itemID=itemID,
+        generation=self.generation,speaker=speaker}
+    holder.pendingItemID=itemID
+    local icon=ResolveItemIcon(itemID,questID)
+    if ValidIcon(icon) then
+        PaintItemIcon(holder,icon,speaker)
+        holder.pendingItemID=nil
+    end
+end
+
 function P:BindPortrait(part,questID,stage,kind,npc,speaker)
     local holder=part.face
     PaintCrest(holder)
+    local enums=VoiceOver and VoiceOver.Enums and VoiceOver.Enums.GUID
+    if enums and kind==enums.Item then
+        self:BindItemPortrait(part,questID,stage,npc,speaker)
+        return
+    end
+    if enums and kind==enums.GameObject then
+        PaintGameObject(holder,speaker)
+        return
+    end
     npc=CanDrawCreature(kind,npc)
     if not npc then return end
     -- A reused holder must never accept an old page/stage/creature result.
@@ -235,6 +351,30 @@ function P:OnCreatureAppearance(creatureID,displayID,success)
            bound.stage==stage and bound.generation==self.generation then
             holder.pendingCreatureID=nil
             if success and Number(displayID) then ApplyPortrait(holder,displayID) end
+        end
+    end
+end
+
+-- Refresh only the specific currently-visible item that finished loading.
+-- ClassicAPI reports implicit cache warms via GET_ITEM_INFO_RECEIVED and
+-- explicit requests made by other addons via ITEM_DATA_LOAD_RESULT.
+function P:OnItemInfoReceived(itemID,success)
+    if success==false or success==0 or not self.active or not self.id or
+       not self.page.frame:IsVisible() then return end
+    itemID=Number(itemID)
+    if not itemID then return end
+    for _,stage in ipairs(MOMENTS) do
+        local part=self.parts[stage]
+        local holder=part and part.face
+        local bound=holder and holder.binding
+        if part and part:IsShown() and bound and
+           holder.pendingItemID==itemID and bound.itemID==itemID and
+           bound.questID==self.id and bound.stage==stage and
+           bound.generation==self.generation then
+            -- One-shot refresh: a failed/missing icon keeps the fallback.
+            holder.pendingItemID=nil
+            local icon=ResolveItemIcon(itemID,bound.questID)
+            if ValidIcon(icon) then PaintItemIcon(holder,icon,bound.speaker) end
         end
     end
 end
@@ -271,13 +411,33 @@ end
 local function NewPart(parent,stage)
     local f=CreateFrame("Frame",nil,parent)
     f.stage=stage
-    f:SetHeight(100)
-    local title=Font(f,"GameFontNormalLarge")
+    -- P:Layout supplies the actual size after the stage's dialogue is set.
+    local title=Font(f,"QuestTitleFont")
     title:SetText(NAMES[stage]); title:SetTextColor(ALT[1],ALT[2],ALT[3],1)
     title:SetPoint("TOPLEFT",f,"TOPLEFT",0,-2)
     f.title=title
     local face=Portrait(f)
-    face:SetPoint("TOPLEFT",f,"TOPLEFT",1,-30)
+    local badgeTexture=PORTRAIT_BADGES[stage]
+    if badgeTexture then
+        -- A separate, higher-level frame guarantees the quest-state icon
+        -- draws over both the ring and the portrait, even on Vanilla 1.12.
+        -- Place the badge at the center of the SMALL socket measured from
+        -- the source pixels, not an approximate offset from BOTTOMRIGHT.
+        local badgeLayer=CreateFrame("Frame",nil,face)
+        badgeLayer:SetWidth(14);badgeLayer:SetHeight(14)
+        badgeLayer:SetPoint("CENTER",face.ring,"CENTER",
+            18.5,
+            SourceUnits(RING_SOURCE_CENTER-SOCKET_SOURCE_Y) - 1)
+        badgeLayer:SetFrameLevel(face:GetFrameLevel()+1)
+        badgeLayer:EnableMouse(false)
+        local badge=badgeLayer:CreateTexture(nil,"OVERLAY")
+        badge:SetAllPoints(badgeLayer)
+        badge:SetTexture(badgeTexture)
+        face.badgeLayer=badgeLayer
+        face.badge=badge
+    end
+    -- Preserve the existing page clearance; the 68-unit ring centers on the face.
+    face:SetPoint("TOPLEFT",f,"TOPLEFT",6,-30)
     f.face=face
     local speaker=Font(f,"GameFontNormal")
     speaker:SetPoint("TOPLEFT",face,"TOPRIGHT",10,-9)
@@ -295,53 +455,48 @@ local function NewPart(parent,stage)
     end)
     f.button=btn
     local content=Font(f,"GameFontHighlight")
-    if content.SetSpacing then content:SetSpacing(2) end
+    if content.SetSpacing then content:SetSpacing(0) end
     content:SetPoint("TOPLEFT",f,"TOPLEFT",0,-106)
     f.content=content
     local divider=f:CreateTexture(nil,"ARTWORK")
     divider:SetTexture(.45,.28,.12,.24)
     divider:SetHeight(1)
     divider:SetPoint("BOTTOMLEFT",f,"BOTTOMLEFT",0,1)
-    divider:SetPoint("BOTTOMRIGHT",f,"BOTTOMRIGHT",-4,1)
+    divider:SetPoint("BOTTOMRIGHT",f,"BOTTOMRIGHT",0,1)
     return f
 end
--- The same client-side QuestFont and dynamic font size that the Places and
--- Books reader uses.  Don't replace those values with independently tuned
--- sizes (doing so makes Quest paragraphs look larger/heavier).
+-- Match the native quest log: QuestFont body and QuestTitleFont section headings.
+-- Reuse the shared reader's adjustable font size, so all three tabs still scale together.
 function P:ApplyTypography()
     local reference=self.view and self.view.body
     local heading=self.page and self.page.title
     for _,stage in ipairs(MOMENTS) do
         local part=self.parts[stage]
         MatchFont(part.content,reference,0,QuestFont)
-        if part.content.SetSpacing then part.content:SetSpacing(2) end
-        MatchFont(part.speaker,reference,-2,QuestFont)
-        part.speaker:SetTextColor(.38,.23,.12,1)
-        MatchFont(part.title,heading,-9,QuestTitleFont)
-        part.title:SetTextColor(ALT[1],ALT[2],ALT[3],1)
+        if part.content.SetSpacing then part.content:SetSpacing(0) end
+        -- Speaker name is 85% of the Description heading size;
+        -- keep its black Morpheus face without the QuestTitleFont shadow.
+        MatchFont(part.speaker,heading,0,QuestTitleFont,false,"Fonts\\MORPHEUS.TTF",.85)
+        part.speaker:SetTextColor(0,0,0,1)
+        MatchFont(part.title,heading,0,QuestTitleFont,true)
     end
 end
 function P.Create(page)
     local view=page.body
-    local self={page=page,view=view,parts={},id=nil,active=false,source="",generation=0,portraitSubscribed=false}
+    local self={page=page,view=view,parts={},id=nil,active=false,generation=0,portraitSubscribed=false}
     setmetatable(self,{__index=P})
     for _,stage in ipairs(MOMENTS) do self.parts[stage]=NewPart(view.child,stage) end
 
-    local originalApplyTypography=view.ApplyTypography
-    function view:ApplyTypography()
-        originalApplyTypography(self)
-        if P.current and P.current.view==self then
-            P.current:ApplyTypography()
-        end
+    -- Register page-local extensions, without replacing shared TextView
+    -- methods or depending on a global 'current page' singleton.
+    view.onTypographyChanged=function()
+        self:ApplyTypography()
     end
-    local originalReflow=view.Reflow
-    function view:Reflow(reset)
-        originalReflow(self,reset)
-        if P.current and P.current.view==self and P.current.active then
-            P.current:Layout(reset)
-        end
+    view.onReflowContent=function(_,reset,previous,width)
+        if not self.active then return false end
+        self:Layout(reset,previous,width)
+        return true
     end
-    P.current=self
     self:ApplyTypography()
     self.portraitCallback=function(id,displayID,success)
         self:OnCreatureAppearance(id,displayID,success)
@@ -368,6 +523,20 @@ function P.Create(page)
     -- The remaining 0.25s ticker updates playback buttons only. Creature
     -- portraits now respond to shared ClassicAPI completion notifications.
     self.events=CreateFrame("Frame",nil,page.frame)
+    self.events:SetScript("OnEvent",function(_,eventName,itemID,success)
+        -- Original WoW 1.12 supplies event/arg1/arg2 as globals.
+        eventName=type(eventName)=="string" and eventName or _G.event
+        if eventName~="GET_ITEM_INFO_RECEIVED" and
+           eventName~="ITEM_DATA_LOAD_RESULT" then return end
+        -- Keep an explicit false result; Lua's "and/or" idiom loses it.
+        local result=success
+        if result==nil then result=_G.arg2 end
+        self:OnItemInfoReceived(Number(itemID) or Number(_G.arg1),result)
+    end)
+    for _,eventName in ipairs({"GET_ITEM_INFO_RECEIVED","ITEM_DATA_LOAD_RESULT"}) do
+        -- Old clients without ClassicAPI may reject these custom events.
+        pcall(self.events.RegisterEvent,self.events,eventName)
+    end
     self.elapsed=0
     self.events:SetScript("OnUpdate",function(_,elapsed)
         if not self.active or not self.page.frame:IsVisible() then return end
@@ -391,35 +560,39 @@ function P:RefreshButtons()
         end
     end
 end
-function P:Layout(reset)
+function P:Layout(reset,previous,width)
     if not self.active then return end
     local view=self.view
-    local width=(view.scroll:GetWidth() or 0)-9
+    -- Use the shared reader's text margins on every quest section.
+    -- Only internal portrait/speaker/play-button geometry is specialized.
+    width=width or view.scroll:GetWidth() or 0
     if width<155 then width=view.lastWidth or 330 end
-    local y=0
+    local y=SSCTextView.PAD_TOP
+    local hasPrevious=false
     for _,stage in ipairs(MOMENTS) do
         local part=self.parts[stage]
         if part:IsShown() then
+            if hasPrevious then y=y+10 end -- spacing between quest stages only
             part:SetWidth(width)
             part:ClearAllPoints()
-            part:SetPoint("TOPLEFT",view.child,"TOPLEFT",2,-y)
-            part.content:SetWidth(math.max(110,width-4))
-            part.title:SetWidth(math.max(110,width-34))
-            local th=part.content:GetStringHeight() or 0
+            part:SetPoint("TOPLEFT",view.child,"TOPLEFT",0,-y)
+            part.content:SetWidth(math.max(110,width))
+            part.title:SetWidth(math.max(110,width))
+            local th=SSCTextView.MeasureTextHeight(part.content)
             if th<16 then th=22 end
             local h=math.max(129,106+th+17)
             part:SetHeight(h)
-            y=y+h+10
+            y=y+h
+            hasPrevious=true
         end
     end
-    view.child:SetHeight(math.max(y+8,view.scroll:GetHeight() or 1))
+    view.child:SetHeight(math.max(y+SSCTextView.PAD_BOTTOM,view.scroll:GetHeight() or 1))
+    if view.scroll.UpdateScrollChildRect then view.scroll:UpdateScrollChildRect() end
     local maximum=SSCUI.ScrollMax(view.scroll,view.child)
     view.range=maximum
-    view.slider:SetMinMaxValues(0,maximum)
-    if maximum>0 then view.slider:Show() else view.slider:Hide() end
-    view:ScrollTo(reset and 0 or SSCUI.ScrollOffset(view.scroll))
+    view:ScrollTo(reset and 0 or previous or SSCUI.ScrollOffset(view.scroll))
 end
-function P:Show(id,entry)
+function P:Show(id)
     self.generation=self.generation+1
     if not id or not SSCQuestState:IsSeen(id) and not SSCQuestState:Setting("unlock") then
         self.active=false;self.id=nil

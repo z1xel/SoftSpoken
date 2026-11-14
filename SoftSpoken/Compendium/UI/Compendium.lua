@@ -6,8 +6,8 @@ local C = SSCCompendium
 local U = SSCUI
 C.VERSION = 1
 C.tabs = C.tabs or {}
--- Exact APPROVED SSZ_Portrait_Template_Test list INSET width, not its older
--- 345-unit navigation footprint. At window width 670 the prototype's list
+-- Exact APPROVED native Vanilla skin list INSET width, not its older
+-- 345-unit navigation footprint. At window width 670 the Compendium list
 -- spans x=4..307; the housing overlaps 4 units at x=303..334.
 C.LIST_WIDTH = 303
 C.ICON = "Interface\\Icons\\INV_Misc_Book_11"
@@ -37,15 +37,20 @@ local BRANCH_ROW, LEAF_ROW, DEPTH_STEP, SCROLL_STEP = 24, 20, 14, 60
 local function RowHeight(item)
     return item.leaf and LEAF_ROW or BRANCH_ROW
 end
-local MIN_HEIGHT, PAGE_MIN_WIDTH = 430, 278
--- Approved prototype geometry, expressed in window-relative UI units.
--- Keep these shared anchors independent of label fonts and lore data.
+-- Move the lower shell upward by two REAL UI units in total, relative to
+-- the unchanged Quest Log header. Each vertical edge of the lower insets
+-- and the frame bottom shifts together, preserving the inset heights.
+local LOWER_SHELL_SHIFT = 2
+local MIN_HEIGHT, PAGE_MIN_WIDTH = 430 - LOWER_SHELL_SHIFT, 278
+-- Compendium geometry, expressed in window-relative UI units.
+-- Keep the header artwork unchanged; the lower panel's top edge
+-- remains raised to follow the moved-up bottom without compression.
 C.VISUAL_GEOMETRY = {
-    listLeft=4, listWidth=303, listTop=62, bottom=6,
-    listSlotRightOffset=27, pageRightInset=29, pageSlotRightOffset=-4,
-    searchX=72, searchY=-35, searchWidth=223,
+    listLeft=4, listWidth=303, listTop=62 - LOWER_SHELL_SHIFT, bottom=6,
+    listSlotRightOffset=27, pageRightInset=29, pageSlotRightOffset=-3,
+    searchX=61, searchY=-35, searchWidth=130,
     tabLeft=8, tabTop=3, tabOverlap=16,
-    windowWidth=670, windowHeight=600,
+    windowWidth=670, windowHeight=600 - LOWER_SHELL_SHIFT,
 }
 local SMALLER_UP = "Interface\\Buttons\\UI-Panel-SmallerButton-Up"
 local SMALLER_DOWN = "Interface\\Buttons\\UI-Panel-SmallerButton-Down"
@@ -138,7 +143,8 @@ local function ScreenMaxWidth()
     return math.max(MinWidth(),math.floor((UIParent:GetWidth() or 1920)*0.95))
 end
 local function ScreenMaxHeight()
-    return math.max(MIN_HEIGHT,math.floor((UIParent:GetHeight() or 1080)*0.95))
+    return math.max(MIN_HEIGHT,
+        math.floor((UIParent:GetHeight() or 1080)*0.95) - LOWER_SHELL_SHIFT)
 end
 local function ApplyResizeBounds()
     if not window then return end
@@ -170,6 +176,21 @@ local function ExpandedWidth()
     return SavedSize("width",MinWidth(),ScreenMaxWidth(),WIDTH)
 end
 local function SavedHeight()
+    -- Version the physical shell shift: an existing V1 character needs only
+    -- one MORE unit removed, while an unmigrated character needs both.
+    -- Persist the V2 marker even when no saved height exists, so /reload
+    -- never subtracts this adjustment again.
+    local state = SavedCompendium()
+    if state and not state.lowerShellShiftV2 then
+        local previousShift = state.lowerShellShiftV1 and 1 or 0
+        local remainingShift = LOWER_SHELL_SHIFT - previousShift
+        local oldHeight = coreStore.get("height")
+        if type(oldHeight)=="number" and oldHeight>0 then
+            state.height = math.max(MIN_HEIGHT,oldHeight-remainingShift)
+        end
+        state.lowerShellShiftV1 = true
+        state.lowerShellShiftV2 = true
+    end
     return SavedSize("height",MIN_HEIGHT,ScreenMaxHeight(),MIN_HEIGHT)
 end
 local function SaveWindowSize()
@@ -184,9 +205,9 @@ local function SaveWindowSize()
 end
 local function SetCollapseArrow()
     if not minimizeButton then return end
-    if window and window.sszPrototypeSkin then
-        if SSCPrototypeFrameSkin and SSCPrototypeFrameSkin.SetCollapsedState then
-            SSCPrototypeFrameSkin.SetCollapsedState(window,minimized)
+    if window and window.sszNativeSkin then
+        if SSCCompendiumFrameSkin and SSCCompendiumFrameSkin.SetCollapsedState then
+            SSCCompendiumFrameSkin.SetCollapsedState(window,minimized)
         end
         return
     end
@@ -281,10 +302,8 @@ local function LayOutTabs()
         local button=tabButtons[i] or NewTab(i,def.label or def.key)
         tabButtons[i]=button
         button.key=def.key
-        -- PILOT 8: paint the native tab face ON TOP of the bottom metal rim.
-        -- Pilot 7 placed tabs at window + 1, below the active content panel
-        -- (window + 3) and the list inset (panel + 1 or higher). The inset's
-        -- bottom BORDER therefore painted over the top edge of the tab.
+        -- Keep native tab faces above the bottom metal rim and active
+        -- content/list inset; otherwise the inset's BORDER clips their tops.
         -- Give the tab a higher frame level than the interior's chrome.
         -- Do not change any tab positions, size, template, or selection APIs.
         button:SetFrameLevel(window:GetFrameLevel()+12)
@@ -294,7 +313,7 @@ local function LayOutTabs()
         button:SetText(def.label or def.key)
         if button.template=="CharacterFrameTabButtonTemplate" and PanelTemplates_TabResize then
             pcall(PanelTemplates_TabResize,0,button)
-            -- Mirror the approved prototype's resized native highlight width.
+            -- Mirror the production frame skin's resized native highlight width.
             local highlight=getglobal(button:GetName().."HighlightTexture")
             if highlight then highlight:SetWidth(button:GetWidth()) end
         end
@@ -326,7 +345,7 @@ local function LayOutTabs()
 end
 local function PaintTabs()
     if not tabButtons then return end
-    -- Match the approved prototype's PanelTemplates_SetTab path. This is
+    -- Match the production frame skin's PanelTemplates_SetTab path. This is
     -- guarded so nonstandard clients can still use the existing fallback.
     local selectedIndex=nil
     local allNative=true
@@ -379,10 +398,10 @@ local function NewWindow(title,icon)
     local frame=CreateFrame("Frame",NAME,UIParent)
     -- Reuse the approved portrait-frame chrome, while
     -- retaining all real Compendium providers, list/page controllers and audio.
-    if SSCPrototypeFrameSkin and SSCPrototypeFrameSkin.Apply then
-        SSCPrototypeFrameSkin.Apply(frame,title)
+    if SSCCompendiumFrameSkin and SSCCompendiumFrameSkin.Apply then
+        SSCCompendiumFrameSkin.Apply(frame,title)
     else
-        -- Fail safely if the optional pilot module was not loaded.
+        -- Fail safely if the frame-skin module was not loaded.
         SSCClassicFrameSkin.Apply(frame,title)
     end
     return frame
@@ -393,9 +412,12 @@ local function BuildWindow()
     local first=Ordered()[1]
     window=NewWindow((first and first.title) or "Azeroth's Compendium",C.ICON)
     window:SetWidth(ExpandedWidth());window:SetHeight(SavedHeight())
-    -- The prototype kept the original 920-wide window's LEFT EDGE fixed
+    -- The frame skin keeps the original 920-wide window's LEFT EDGE fixed
     -- while reducing it to 670, rather than re-centering symmetrically.
-    window:SetPoint("CENTER",UIParent,"CENTER",-125,0)
+    -- Offset the center by half the TOTAL height reduction, leaving the
+    -- header at its original on-screen Y after both one-unit adjustments.
+    -- Later bottom-right drags already use PinTopLeft() above.
+    window:SetPoint("CENTER",UIParent,"CENTER",-125,LOWER_SHELL_SHIFT/2)
     window:SetFrameStrata("HIGH")
     window:SetMovable(true);window:SetResizable(true);window:EnableMouse(true)
     ApplyResizeBounds()
@@ -404,8 +426,8 @@ local function BuildWindow()
     window:SetScript("OnDragStart",function() window:StartMoving() end)
     window:SetScript("OnDragStop",function() window:StopMovingOrSizing() end)
     local close=window.CloseButton
-    if close and not window.sszPrototypeSkin then
-        -- Legacy production skin only. The approved prototype already anchors
+    if close and not window.sszNativeSkin then
+        -- Legacy production skin only. The production frame skin already anchors
         -- its close button exactly at TOPRIGHT +4,+5; never shift it.
         close:ClearAllPoints()
         close:SetPoint("TOPRIGHT",window,"TOPRIGHT",1,30)
@@ -413,7 +435,7 @@ local function BuildWindow()
     -- The upstream uses the native maximize/minimize template when present,
     -- falling back to these original-game textures.  The plain button is
     -- deliberately used on 1.12 where the newer template does not exist.
-    if window.sszPrototypeSkin then
+    if window.sszNativeSkin then
         -- Reuse the exact native Turtle map minimizer and its 23-high bezel.
         minimizeButton=window.sszMinimize
         minimizeGlyph=nil
@@ -498,7 +520,7 @@ local function Panel(key)
     if not tab then return nil end
     if not tab.panel then
         local panel=CreateFrame("Frame",nil,window)
-        -- EXACT prototype hierarchy: its `inside` panel is window + 3.
+        -- Native Compendium hierarchy: its `inside` panel is window + 3.
         -- Production formerly left this at the implicit child level (+1),
         -- changing how the lower inset border occludes the native tab tops.
         -- Keep Places, Books and Quests controllers inside their own panels;
@@ -643,12 +665,26 @@ end
 local filterMenuSerial=0
 local List={}
 List.__index=List
+-- One scroll model for wheel input, native slider movement, search resets,
+-- and programmatic navigation. No duplicate hidden scrollbar is required.
+function List:ScrollTo(value)
+    if not self.scroll or not self.child then return end
+    -- SetVerticalScroll can synchronously invoke OnVerticalScroll.
+    -- The programmatic scroll path owns the one row repaint/sync here.
+    self.applyingScrollOffset=true
+    U.SetScrollOffset(self.scroll,self.child,value)
+    self.applyingScrollOffset=false
+    self:DrawRows()
+    U.RefreshScrollEdgeFade(self)
+    local native=self.sszNativeScrollChrome
+    if native then native.sync() end
+end
 function C.NewList(panel,opts)
     local list=setmetatable({panel=panel,opts=opts,rows={},items={},filter=""},List)
     local leftMargin,_,topMargin=C.Margins()
-    -- Keep all existing production search callbacks and filter state; only
-    -- swap the stock InputBox art for the approved prototype's Blizzard trim.
-    local ornate=SSCPrototypeInteriorSkin and SSCPrototypeInteriorSkin.ApplySearch
+    -- Keep the existing filter/search controller; use shared Vanilla artwork
+    -- and the Turtle-style search/clear controls.
+    local ornate=SSCCompendiumInteriorSkin and SSCCompendiumInteriorSkin.ApplySearch
     local search
     if ornate then
         search=CreateFrame("EditBox",nil,panel)
@@ -657,38 +693,86 @@ function C.NewList(panel,opts)
     end
     search:SetWidth(C.VISUAL_GEOMETRY.searchWidth);search:SetHeight(21)
     search:SetAutoFocus(false);search:SetMaxLetters(70)
-    search:SetPoint("TOPLEFT",panel,"TOPLEFT",C.VISUAL_GEOMETRY.searchX,C.VISUAL_GEOMETRY.searchY)
+    -- Leave a roughly 3-unit clearance beyond the native portrait ring's
+    -- right edge (~58 units from the frame left in the compact layout).
+    -- The filter arrow remains anchored 2 units to the search box's right.
+    search:SetPoint("TOPLEFT",panel,"TOPLEFT",C.VISUAL_GEOMETRY.searchX,
+        C.VISUAL_GEOMETRY.searchY)
     if ornate then
         search:SetFontObject(ChatFontNormal)
-        if search.SetTextInsets then search:SetTextInsets(6,6,0,0) end
-        SSCPrototypeInteriorSkin.ApplySearch(search)
+        SSCCompendiumInteriorSkin.ApplySearch(search)
     end
+    if search.SetTextInsets then search:SetTextInsets(21,21,0,0) end
+    -- Use real Turtle search icons bundled with SoftSpoken so the controls
+    -- remain visible on stock 1.12 clients which lack Turtle's patch files.
+    local controlArt="Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Controls\\"
+    local glass=search:CreateTexture(nil,"ARTWORK")
+    glass:SetTexture(controlArt.."UI-SearchBox-Icon")
+    glass:SetWidth(14);glass:SetHeight(14)
+    glass:SetPoint("LEFT",search,"LEFT",3,-1)
     -- SearchBoxTemplate does not exist on all 1.12 clients. Mimic its
     -- contextual instructions with a FontString INSIDE the edit box.
     local hint=search:CreateFontString(nil,"OVERLAY","GameFontDisableSmall")
-    hint:SetPoint("LEFT",search,"LEFT",5,0)
+    hint:SetPoint("LEFT",search,"LEFT",21,0)
     hint:SetText(opts.search or "Search")
     local clear=CreateFrame("Button",nil,search)
-    clear:SetWidth(16);clear:SetHeight(16)
-    clear:SetPoint("RIGHT",search,"RIGHT",-2,0)
-    local clearLabel=clear:CreateFontString(nil,"OVERLAY","GameFontHighlightSmall")
-    clearLabel:SetPoint("CENTER",clear,"CENTER",0,0)
-    clearLabel:SetText("x")
-    local focused=false
+    clear:SetWidth(17);clear:SetHeight(17)
+    clear:SetPoint("RIGHT",search,"RIGHT",-3,0)
+    clear:SetNormalTexture(controlArt.."UI-SearchBox-Clear")
+    clear:SetPushedTexture(controlArt.."UI-SearchBox-Clear")
+    clear:SetHighlightTexture(controlArt.."UI-SearchBox-Clear","ADD")
+    -- Native pressed and hover textures use the original 14-unit icon size.
+    for _,getter in ipairs({"GetNormalTexture","GetPushedTexture","GetHighlightTexture"}) do
+        local texture=clear[getter](clear)
+        if texture then
+            texture:ClearAllPoints()
+            texture:SetWidth(14);texture:SetHeight(14)
+            if getter=="GetPushedTexture" then
+                texture:SetPoint("CENTER",clear,"CENTER",1,-1)
+            else
+                texture:SetPoint("CENTER",clear,"CENTER",0,0)
+            end
+        end
+    end
+    local highlight=clear:GetHighlightTexture()
+    if highlight then highlight:SetAlpha(.25) end
+    local focused,hovered,clearHovered=false,false,false
     local function PaintSearch()
         local nonempty=(search:GetText() or "")~=""
         if nonempty or focused then hint:Hide() else hint:Show() end
-        if nonempty then clear:Show() else clear:Hide() end
+        local active=focused or hovered or clearHovered
+        glass:SetAlpha(active and 1 or .6)
+        local clearAlpha=clearHovered and 1 or
+            (nonempty and .8 or (focused and .6 or .4))
+        local normal=clear:GetNormalTexture()
+        local pushed=clear:GetPushedTexture()
+        if normal then normal:SetAlpha(clearAlpha) end
+        if pushed then pushed:SetAlpha(clearAlpha) end
+        -- The X remains dimly visible even when empty, as in Turtle's
+        -- Options and Dungeon Finder search boxes.
+        local border=search.sszSearchBorder
+        if border then
+            local shade=active and 1 or .85
+            for _,piece in ipairs(border) do
+                piece:SetVertexColor(shade,shade,shade,1)
+            end
+        end
     end
-    clear:SetScript("OnClick",function() search:SetText("");search:SetFocus() end)
+    clear:SetScript("OnEnter",function() clearHovered=true;PaintSearch() end)
+    clear:SetScript("OnLeave",function() clearHovered=false;PaintSearch() end)
+    clear:SetScript("OnClick",function()
+        if (search:GetText() or "")~="" then search:SetText("") end
+        search:SetFocus()
+    end)
+    search:SetScript("OnEnter",function() hovered=true;PaintSearch() end)
+    search:SetScript("OnLeave",function() hovered=false;PaintSearch() end)
     search:SetScript("OnEditFocusGained",function() focused=true;PaintSearch() end)
     search:SetScript("OnEditFocusLost",function() focused=false;PaintSearch() end)
     search:SetScript("OnTextChanged",function()
         PaintSearch()
         local text=search:GetText() or ""
         list.filter=string.lower(string.gsub(string.gsub(text,"^%s+",""),"%s+$",""))
-        U.SetScrollOffset(list.scroll,list.child,0)
-        if list.bar then list.bar:Sync() end
+        list:ScrollTo(0)
         if opts.onSearch then opts.onSearch(list.filter) end
     end)
     search:SetScript("OnEscapePressed",function() search:ClearFocus() end)
@@ -697,18 +781,19 @@ function C.NewList(panel,opts)
     list.searchBox=search
     list.searchHint=hint
     list.searchClear=clear
-    -- Exact native Vanilla dropdown arrow from the approved visual prototype.
-    -- No extra glyph/highlight: the Blizzard texture already draws the arrow.
-    -- Keep the production menu and filtering callbacks intact below.
+    -- Exact native Vanilla dropdown arrow and Who-tab hover highlight.
+    -- The Blizzard highlight appears only while hovered; clicking still
+    -- uses the same dropdown and filtering callbacks below.
     local filterButton=CreateFrame("Button",nil,panel)
     filterButton:SetWidth(24);filterButton:SetHeight(24)
-    filterButton:SetPoint("LEFT",search,"RIGHT",8,0)
+    filterButton:SetPoint("LEFT",search,"RIGHT",2,0)
     filterButton:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up")
     filterButton:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
     filterButton:SetDisabledTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Disabled")
+    filterButton:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight","ADD")
     list.filterButton=filterButton
     local function Changed()
-        U.SetScrollOffset(list.scroll,list.child,0)
+        list:ScrollTo(0)
         if panel.Refresh then panel:Refresh() end
     end
     local function ToggleOnly()
@@ -740,6 +825,11 @@ function C.NewList(panel,opts)
                 UIDropDownMenu_AddButton(info)
             end
         end,"MENU")
+        -- MENU initialization hides the unused dropdown owner's chrome, but
+        -- its tooltip-style popup is not the framed list used by Vanilla's
+        -- Who dropdown. Keep the owner hidden and restore the native dialog
+        -- backdrop on DropDownList1 when ToggleDropDownMenu opens it.
+        menu.displayMode=nil
     end
     filterButton:SetScript("OnClick",function()
         if ToggleDropDownMenu then ToggleDropDownMenu(1,nil,menu,filterButton,0,0)
@@ -747,8 +837,8 @@ function C.NewList(panel,opts)
     end)
 
     local left=CreateFrame("Frame",nil,panel)
-    if SSCPrototypeInteriorSkin and SSCPrototypeInteriorSkin.ApplyList then
-        SSCPrototypeInteriorSkin.ApplyList(left)
+    if SSCCompendiumInteriorSkin and SSCCompendiumInteriorSkin.ApplyList then
+        SSCCompendiumInteriorSkin.ApplyList(left)
     else
         U.AddInsetBorder(left)
     end
@@ -768,8 +858,8 @@ function C.NewList(panel,opts)
     listGrain:SetPoint("TOPLEFT",left,"TOPLEFT",4,-4)
     listGrain:SetPoint("BOTTOMRIGHT",left,"BOTTOMRIGHT",-4,4)
     list.grain=listGrain
-    if SSCPrototypeInteriorSkin and SSCPrototypeInteriorSkin.ApplyList then
-        -- Production's old gray stone layer would hide the prototype marble.
+    if SSCCompendiumInteriorSkin and SSCCompendiumInteriorSkin.ApplyList then
+        -- Production's old gray stone layer would hide the native marble.
         listBackground:Hide()
         listGrain:Hide()
     end
@@ -779,7 +869,7 @@ function C.NewList(panel,opts)
     left:SetWidth(C.LIST_WIDTH)
     list.inset=left
     local scroll=CreateFrame("ScrollFrame",nil,left)
-    -- Reserve a dedicated 16px gutter for the thin scroll thumb.
+    -- Keep the native frame's inset clear of the separate scrollbar housing.
     scroll:SetPoint("TOPLEFT",left,"TOPLEFT",7,-7)
     -- Reserve the 31-unit native scrollbar housing instead of the previous
     -- 16-unit thin bar: do not paint text under the new metal channel.
@@ -792,31 +882,37 @@ function C.NewList(panel,opts)
     list.child=child
     scroll:SetScript("OnVerticalScroll",function()
         if scroll.GetVerticalScroll then scroll.sz112ScrollOffset=scroll:GetVerticalScroll() or 0 end
-        if list.bar then list.bar:Sync() end
+        -- Avoid drawing twice when List:ScrollTo initiated this event.
+        -- Genuine scroll events still repaint and sync normally.
+        if list.applyingScrollOffset then return end
         list:DrawRows()
+        U.RefreshScrollEdgeFade(list)
+        if list.sszNativeScrollChrome then list.sszNativeScrollChrome.sync() end
     end)
     scroll:SetScript("OnMouseWheel",function(first,second)
         local value=U.ScrollOffset(scroll)-U.MouseWheelDelta(first,second)*SCROLL_STEP
         value=math.max(0,math.min(value,U.ScrollMax(scroll,child)))
-        if list.bar then list.bar:SetValue(value)
-        else U.SetScrollOffset(scroll,child,value);list:DrawRows() end
+        list:ScrollTo(value)
     end)
-    -- Use the proven thin thumb/control design from TextView, not the old
-    -- UIPanelScrollBarTemplate's enormous arrows and track.
-    local slider=U.NewThinScrollBar(left,scroll,child,function() list:DrawRows() end)
-    list.bar=slider
+    -- A resize changes the scroll range even if the offset stays unchanged.
+    -- Keep the edge fade anchored to the new viewport bounds.
+    scroll:SetScript("OnSizeChanged",function()
+        U.RefreshScrollEdgeFade(list)
+    end)
     for i=1,VISIBLE_ROWS do list:AcquireRow(i) end
     local noMatch=left:CreateFontString(nil,"OVERLAY","GameFontDisableSmall")
     noMatch:SetPoint("CENTER",left,"CENTER",0,0)
     noMatch:SetText(opts.none or "No matching entries.")
     list.noMatch=noMatch
-    slider:SetMinMaxValues(0,0)
-    slider:SetValue(0)
-    -- Visual transplant only. The existing virtualized list and its scrollbar
-    -- controller remain authoritative for search, wheel and row offsets.
-    if SSCPrototypeScrollSkin and SSCPrototypeScrollSkin.AttachList then
-        SSCPrototypeScrollSkin.AttachList(list)
+    -- Native 1.12 scrollbar drives this list directly; preserve the public
+    -- list.bar reference for external tab integrations.
+    if SSCNativeScrollbar and SSCNativeScrollbar.AttachList then
+        local native=SSCNativeScrollbar.AttachList(list)
+        list.bar=native and native.slider
     end
+    -- Fade only the virtualized row content. Search/filter controls, the
+    -- inset artwork and native scrollbar are outside the scroll viewport.
+    U.EnableScrollEdgeFade(list)
     panel.list=list
     return list
 end
@@ -1060,14 +1156,9 @@ function List:Render()
         y=y+RowHeight(item)
     end
     self.child:SetHeight(math.max(1,y))
-    local max=U.ScrollMax(self.scroll,self.child)
-    self.bar:SetMinMaxValues(0,max)
-    if U.ScrollOffset(self.scroll)>max then
-        self.bar:SetValue(max)
-    else
-        self.bar:Sync()
-    end
-    self:DrawRows()
+    -- Clamps offsets after filtering or expanding the tree, and refreshes
+    -- native slider range/value without keeping a second control in sync.
+    self:ScrollTo(U.ScrollOffset(self.scroll))
     return self.items
 end
 function List:ScrollToSelection(items)
@@ -1079,7 +1170,7 @@ function List:ScrollToSelection(items)
             local viewHeight=self.scroll:GetHeight() or 0
             local range=math.max(0,(self.child:GetHeight() or 0)-viewHeight)
             local target=y-(viewHeight/2)+(height/2)
-            self.bar:SetValue(math.max(0,math.min(range,target)))
+            self:ScrollTo(math.max(0,math.min(range,target)))
             return
         end
         y=y+height

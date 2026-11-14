@@ -1,12 +1,11 @@
--- Production interior skin pilot. This is verbatim visual construction from
--- the approved SSZ_Portrait_Template_Test, isolated from Compendium behavior.
--- Deliberately test left navigation/search before transplanting the page.
--- Like the already verified production shell, this pilot uses the installed
--- prototype art paths until a complete independent asset bundle is available.
-SSCPrototypeInteriorSkin = SSCPrototypeInteriorSkin or {}
-local Skin = SSCPrototypeInteriorSkin
-local INSET = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\InsetClassic\\"
-local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Prototype\\UI-Background-Marble"
+-- Shared Compendium interior skin for WoW 1.12.
+-- Draws native-style inset rails, marble backing, and search trim.
+-- Geometry follows parent anchors; no separate test addon is required.
+SSCCompendiumInteriorSkin = SSCCompendiumInteriorSkin or {}
+local Skin = SSCCompendiumInteriorSkin
+local INSET = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\InsetClassic\\"
+local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\UI-Background-Marble"
+local INSET_POLL_INTERVAL = 0.12
 
 local function BlizzardInsetBorder(parent)
     local cornerAtlas = INSET .. "UI-Frame"
@@ -96,7 +95,14 @@ local function BlizzardInsetBorder(parent)
     -- An anchor change from the outer window does not always fire OnSizeChanged
     -- for a two-point-anchored child in the old client. Check dimensions only;
     -- texture creation/repositioning happens exclusively when the size changes.
-    parent:SetScript("OnUpdate",function()
+    local pollElapsed=0
+    parent:SetScript("OnUpdate",function(_,elapsed)
+        pollElapsed=pollElapsed+(tonumber(elapsed) or tonumber(_G.arg1) or 0)
+        if pollElapsed < INSET_POLL_INTERVAL then return end
+        -- Preserve fractional elapsed time without catching up in bursts
+        -- after a long hidden frame or client pause.
+        pollElapsed=pollElapsed-INSET_POLL_INTERVAL
+        if pollElapsed > INSET_POLL_INTERVAL then pollElapsed=0 end
         local w,h=Bounds()
         if w and h and (not lastWidth or math.abs(w-lastWidth)>0.25 or math.abs(h-lastHeight)>0.25) then
             Reflow()
@@ -119,21 +125,25 @@ function Skin.ApplyList(frame)
 end
 
 function Skin.ApplySearch(search)
-    -- Genuine Vanilla StaticPopup wide edit-box trim, exactly as in prototype.
-    local chatInputArt="Interface\\ChatFrame\\UI-ChatInputBorder-"
-    local middle=search:CreateTexture(nil,"BACKGROUND")
-    middle:SetTexture(chatInputArt.."Left")
-    middle:SetTexCoord(0.29296875,1,0,1)
+    -- Match Vanilla 1.12's QuestLogQuestCount field instead of the ornate
+    -- StaticPopup chat input trim. Three slices from Common-Input-Border:
+    -- fixed 8x20 caps and a center that fills the search box's width.
+    local art="Interface\\Common\\Common-Input-Border"
     local left=search:CreateTexture(nil,"BACKGROUND")
-    left:SetTexture(chatInputArt.."Left")
-    left:SetWidth(75);left:SetHeight(32)
-    left:SetTexCoord(0,0.29296875,0,1)
-    left:SetPoint("LEFT",search,"LEFT",-10,0)
+    left:SetTexture(art)
+    left:SetWidth(8);left:SetHeight(20)
+    left:SetTexCoord(0,0.0625,0,0.625)
+    left:SetPoint("LEFT",search,"LEFT",0,0)
     local right=search:CreateTexture(nil,"BACKGROUND")
-    right:SetTexture(chatInputArt.."Right")
-    right:SetWidth(75);right:SetHeight(32)
-    right:SetTexCoord(0.70703125,1,0,1)
-    right:SetPoint("RIGHT",search,"RIGHT",10,0)
+    right:SetTexture(art)
+    right:SetWidth(8);right:SetHeight(20)
+    right:SetTexCoord(0.9375,1,0,0.625)
+    right:SetPoint("RIGHT",search,"RIGHT",0,0)
+    local middle=search:CreateTexture(nil,"BACKGROUND")
+    middle:SetTexture(art)
+    middle:SetTexCoord(0.0625,0.9375,0,0.625)
     middle:SetPoint("TOPLEFT",left,"TOPRIGHT",0,0)
     middle:SetPoint("BOTTOMRIGHT",right,"BOTTOMLEFT",0,0)
+    -- The Compendium can tint the three native pieces together on hover/focus.
+    search.sszSearchBorder={left,middle,right}
 end

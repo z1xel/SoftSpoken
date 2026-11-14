@@ -17,6 +17,9 @@ local function Texture()
     function t:SetSize(w, h) self.width, self.height = w, h end
     function t:SetAlpha(n) self.alpha = n end
     function t:SetBlendMode(v) self.blend = v end
+    function t:SetGradientAlpha(...) self.gradient = {...} end
+    function t:SetTexCoord(...) self.texCoord = {...} end
+    function t:AddMaskTexture(mask) self.mask = mask end
     function t:SetPoint(...) table.insert(self.anchors, {...}) end
     function t:ClearAllPoints() self.anchors = {} end
     function t:SetShown(v) self.shown = v end
@@ -28,16 +31,23 @@ end
 local frame = { scripts = {} }
 function frame:SetScript(name, fn) self.scripts[name] = fn end
 function frame:IsShown() return visible end
+function frame:GetRight() return 420 end
+function frame:GetLeft() return 0 end
 local created = {}
 local function CreateFrame(kind)
-    eq(kind, "StatusBar")
-    local bar = { textures = {}, anchors = {}, shown = true, timerCount = 0 }
+    assert(kind == "StatusBar" or kind == "Frame", "Unexpected frame kind: "..tostring(kind))
+    local bar = { kind = kind, textures = {}, anchors = {}, shown = true, timerCount = 0 }
     function bar:CreateTexture()
         local t = Texture()
         table.insert(self.textures, t)
         return t
     end
     function bar:SetHeight(n) self.height = n end
+    function bar:SetWidth(n) self.width = n end
+    function bar:GetFrameLevel() return self.level or 0 end
+    function bar:SetFrameLevel(n) self.level = n end
+    function bar:CreateMaskTexture() return Texture() end
+    function bar:SetStatusBarColor(...) self.statusBarColor = {...} end
     function bar:SetPoint(...) table.insert(self.anchors, {...}) end
     function bar:ClearAllPoints() self.anchors = {} end
     function bar:SetStatusBarTexture(t) self.statusBarTexture = t end
@@ -53,12 +63,19 @@ local function CreateFrame(kind)
         self.timerCount = self.timerCount + 1
     end
     function bar:SetShown(value) self.shown = value end
+    function bar:Show() self.shown = true end
+    function bar:Hide() self.shown = false end
     table.insert(created, bar)
     return bar
 end
 
+local fonts = {}
 local function Font()
-    return setmetatable({}, {__index = function() return function() end end})
+    local f = {}
+    function f:SetFont(path, size, flags)
+        self.path, self.size, self.flags = path, size, flags
+    end
+    return setmetatable(f, {__index = function() return function() end end})
 end
 
 SpokenEnv = setmetatable({
@@ -94,29 +111,48 @@ SpokenEnv = setmetatable({
     },
     GetTime = function() return now end,
     CreateFrame = CreateFrame,
-    CreateFont = function() return Font() end,
+    CreateFont = function(name)
+        local font = Font()
+        fonts[name] = font
+        return font
+    end,
     GameFontNormal = { GetFont = function() return "Fonts\\FRIZQT__.TTF" end }
 }, {__index = _G})
 
 dofile("SoftSpoken/UI/PlayerFrame.lua")
+eq(fonts.SpokenNameFont.path, "Fonts\\MORPHEUS.TTF")
+eq(fonts.SpokenNameFont.size, 22)
+eq(fonts.SpokenNameFont.flags, "")
+eq(fonts.SpokenRowFont.path, "Fonts\\FRIZQT__.TTF")
 local p = SpokenEnv.PlayerFrame
 p.frame = frame
 p.Current = function() return current end
 p:InitProgress()
 local progress = p.progress
 local bar = progress.bar
-eq(#created, 1)
-eq(#bar.textures, 3)
-eq(bar.height, 2)
-eq(bar.anchors[1][4], 135)
+eq(#created, 3) -- container, native StatusBar, raised border
+eq(#bar.textures, 4) -- track, fill, reflection, spark
+eq(progress.container.height, 27)
+eq(bar.height, 5)
+eq(progress.container.anchors[1][4], 135)
+eq(bar.anchors[1][4], -6) -- fixed inset relative to left ornamental endcap
 eq(bar.statusBarTexture, progress.fill)
 eq(progress.track.allPoints, bar)
-eq(progress.fill.texture[1], 1)
+eq(progress.fill.texture[1], [[Interface\TargetingFrame\UI-StatusBar]])
+eq(progress.borderFrame.level, 1)
+assert(#progress.borderTiles > 0, "resizing border must tile its center")
+for _,tile in ipairs(progress.borderTiles) do
+    eq(tile.texture.anchors[1][2], progress.borderFrame)
+    eq(tile.texture.anchors[2][2], progress.borderFrame)
+end
+eq(progress.silverLeft.mask ~= nil, true)
+eq(progress.silverCenter.mask ~= nil, true)
+eq(progress.silverRight.mask ~= nil, true)
 eq(progress.spark.texture[1], [[Interface\CastingBar\UI-CastingBar-Spark]])
 eq(frame.scripts.OnUpdate, nil) -- native duration, not a Lua per-frame driver
 
 p:UpdateProgress()
-eq(bar.shown, true)
+eq(progress.container.shown, true)
 eq(bar.timerCount, 1)
 eq(bar.timer.start, 0)
 eq(bar.timer.total, 10)
@@ -206,23 +242,24 @@ current.length = 8
 current.estimate = 0.4
 config.Transcript.SubtitleProgress = false
 p:UpdateProgress()
-eq(bar.shown, false)
+eq(progress.container.shown, false)
 config.Transcript.SubtitleProgress = true
 style = "none"
 p:UpdateProgress()
-eq(bar.shown, false)
+eq(progress.container.shown, false)
 style = "classic"
 visible = false
 p:UpdateProgress()
-eq(bar.shown, false)
+eq(progress.container.shown, false)
 
--- Original portrait/no-portrait geometry is unchanged.
+-- The container follows portrait mode; the gold fill remains cap-relative.
 visible = true
 config.Frame.HidePortrait = true
 p:LayoutProgress()
-eq(bar.anchors[1][4], 20)
+eq(progress.container.anchors[1][4], 20)
+eq(bar.anchors[1][4], -6)
 p:UpdateProgress()
-eq(bar.shown, true)
+eq(progress.container.shown, true)
 
 -- Before 1.19, the audio backend can still play; this optional meter
 -- uses a static estimate rather than attempting nonexistent timer APIs.
@@ -238,5 +275,44 @@ local transcript = file:read("*a")
 file:close()
 assert(not transcript:find("seconds > self.duration"))
 assert(transcript:find('Callbacks:Register%("CLIP_STOPPED"'))
+
+-- Blizzard's Neutral frame atlas region is 143x143 (not 128x128).
+-- The exact region is placed at the top-left of a transparent 256x256 TGA.
+local function CheckTalkingHeadArt(path, width)
+    local file = assert(io.open(path, "rb"), "Missing packaged texture: " .. path)
+    local data = file:read("*a")
+    file:close()
+    eq(#data, 18 + width * width * 4)
+    eq(data:byte(3), 2)        -- Uncompressed true-color TGA
+    eq(data:byte(13), width % 256)
+    eq(data:byte(14), math.floor(width / 256))
+    eq(data:byte(15), width % 256)
+    eq(data:byte(16), math.floor(width / 256))
+    eq(data:byte(17), 32)      -- BGRA
+    eq(data:byte(18), 40)      -- 8 alpha bits, top-left origin
+    return function(x, y)
+        return data:byte(22 + (y * width + x) * 4)
+    end
+end
+local frameAlpha = CheckTalkingHeadArt("SoftSpoken/Textures/TalkingHeads/PortraitNeutral.tga", 256)
+eq(frameAlpha(72, 72), 0)  -- 3D model aperture
+assert(frameAlpha(72, 2) > 0) -- Frame artwork within crop
+eq(frameAlpha(143, 72), 0) -- Transparent padding, not neighboring atlas art
+eq(frameAlpha(72, 143), 0)
+local playerFile = assert(io.open("SoftSpoken/UI/PlayerFrame.lua", "r"))
+local playerSource = playerFile:read("*a")
+playerFile:close()
+assert(playerSource:find([[TalkingHeads\\PortraitNeutral]], 1, true))
+assert(playerSource:find("local TALKING_HEAD_FRAME_SIZE = 143 * PORTRAIT_SIZE / 115", 1, true))
+assert(playerSource:find("local TALKING_HEAD_MODEL_INSET_X = 16 * PORTRAIT_SIZE / 115", 1, true))
+assert(playerSource:find("local TALKING_HEAD_MODEL_INSET_Y = 15 * PORTRAIT_SIZE / 115", 1, true))
+assert(playerSource:find("local TALKING_HEAD_TEX_COORD = 143 / 256", 1, true))
+assert(playerSource:find('self.frame.portrait.border.texture:SetPoint("TOPLEFT"', 1, true))
+assert(playerSource:find("SetTexCoord(0, TALKING_HEAD_TEX_COORD, 0, TALKING_HEAD_TEX_COORD)", 1, true))
+assert(playerSource:find('self.frame.portrait.background:SetTexture(TEXTURES .. "PortraitFrameBackground")', 1, true))
+assert(playerSource:find('self.frame.portrait.pause.background:SetTexture(TEXTURES .. "PortraitFrameBackground")', 1, true))
+assert(not playerSource:find('SetTexture(TEXTURES .. "TalkingHeads\\\\PortraitBg")', 1, true))
+assert(playerSource:find('self.frame.portraitLine:SetTexture(TEXTURES .. "PortraitFrameAtlas")', 1, true))
+assert(playerSource:find('self.frame.mover:SetNormalTexture(TEXTURES .. "PortraitFrameAtlas")', 1, true))
 
 print("audio_progress_ui.lua: native duration StatusBar, lifecycle and UI assertions passed")
