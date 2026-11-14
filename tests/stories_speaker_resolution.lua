@@ -30,6 +30,7 @@ VoiceOver = setmetatable({
             if id == 1010 then return "Quest giver" end
             if id == 2020 then return "Quest ender" end
             if id == 3030 then return "Quest object" end
+            if id == 3191 then return "Cook Torka" end
         end,
     },
     Utils = {
@@ -58,6 +59,7 @@ SpokenQuestsCompendium = {
         [108] = { starter = 8080, ender = 8081 }, -- separate NPC ender
         [109] = { starterObject = 9090, enderObject = 9091 }, -- object stages
         [111] = { starter = -4 }, -- invalid starter retains pack fallback
+        [814] = { starter = 3191 }, -- restored Vanilla quest absent from pack giver index
         [60030] = { starterAlliance = 51292, starterHorde = 51293 },
         [60031] = { starterAlliance = 51292, starterHorde = 51293 },
         [60032] = { starterAlliance = 51292, starterHorde = 51293 },
@@ -109,6 +111,10 @@ quest(109, "accept", 11, 9090)
 quest(109, "complete", 11, 9091)
 quest(111, "accept", 8, 1110)
 quest(111, "complete", 8, 1110)
+quest(814, "accept", 8, 3191)
+quest(814, "progress", 8, 3191)
+quest(814, "complete", 8, 3191)
+equal(R:Name(8, 3191, "Work for Food"), "Cook Torka", "restored quest speaker name")
 -- Both factions use the same quest IDs but different starter/ender NPCs.
 for _, id in ipairs({ 60030, 60031, 60032, 60033, 60034, 60035, 60036 }) do
     playerFaction = "Alliance"
@@ -174,6 +180,9 @@ currentName, currentGUID = nil, nil
 sound({event=5,name="Live NPC"},nil,nil,"missing npc")
 
 local compendium = assert(io.open("SoftSpoken_Stories/Data/Compendium.lua", "r")):read("*a")
+assert(string.find(compendium,
+    '[814] = { "Work for Food", zones = { 1411 }, starter = 3191, races = 8589934770 },',
+    1, true), "restored quest 814 must be indexed under Durotar with Cook Torka")
 for _, id in ipairs({ 60030, 60031, 60032, 60033, 60034, 60035, 60036 }) do
     local entry = string.match(compendium, "%[" .. tostring(id) .. "%] = { ([^}]+) }")
     assert(entry, "faction quest missing from the static Compendium: " .. id)

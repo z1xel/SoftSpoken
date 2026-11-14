@@ -799,6 +799,7 @@ SpokenQuestsCompendium = {
 		[809] = { "Ak'Zeloth", zones = { 1411 }, prev = 829, ender = 3521, races = 8589934770 },
 		[812] = { "Need for a Cure", zones = { 1411 }, races = 8589934770 },
 		[813] = { "Finding the Antidote", zones = { 1411 }, races = 8589934770 },
+		[814] = { "Work for Food", zones = { 1411 }, starter = 3191, races = 8589934770 },
 		[815] = { "Break a Few Eggs", zones = { 1411 }, races = 8589934770 },
 		[816] = { "Lost But Not Forgotten", zones = { 1411 }, races = 8589934770 },
 		[817] = { "Practical Prey", zones = { 1411 }, races = 8589934770 },
