@@ -1,0 +1,6 @@
+quest_id,title,previous_ender_npc,turtle_starter_and_ender_npc,player_faction,turtle_race_mask,evidence
+5125,Aurius' Reckoning,10917,10931,,,Turtle pfQuest quest 5125: NPC 10931 is both the quest starter and ender; scripted Aurius instance
+5402,Minion's Scourgestones,10840,10839,Horde,434,Turtle pfQuest quest 5402: NPC 10839 (Garush) starts and ends
+5403,Invader's Scourgestones,10840,10839,Horde,434,Turtle pfQuest quest 5403: NPC 10839 (Garush) starts and ends
+5407,Invader's Scourgestones,10839,10840,Alliance,589,Turtle pfQuest quest 5407: NPC 10840 (Pureheart) starts and ends
+5408,Minion's Scourgestones,10839,10840,Alliance,589,Turtle pfQuest quest 5408: NPC 10840 (Pureheart) starts and ends

@@ -69,6 +69,11 @@ SpokenQuestsCompendium = {
         [6131] = { starter = 11554 },
         [8290] = { starter = 14733 },
         [8295] = { starter = 14781 },
+        [5125] = { starter = 10931, ender = 10931 },
+        [5402] = { starter = 10839, ender = 10839 },
+        [5403] = { starter = 10839, ender = 10839 },
+        [5407] = { starter = 10840, ender = 10840 },
+        [5408] = { starter = 10840, ender = 10840 },
         [60030] = { starterAlliance = 51292, starterHorde = 51293 },
         [60031] = { starterAlliance = 51292, starterHorde = 51293 },
         [60032] = { starterAlliance = 51292, starterHorde = 51293 },
@@ -120,6 +125,16 @@ quest(109, "accept", 11, 9090)
 quest(109, "complete", 11, 9091)
 quest(111, "accept", 8, 1110)
 quest(111, "complete", 8, 1110)
+-- Turtle's active Scourgestones variants differ from Vanilla by quest ID.
+-- Corpused speaker IDs must work without requiring a data-pack update.
+for questID, speakerID in pairs({
+    [5125] = 10931, [5402] = 10839, [5403] = 10839,
+    [5407] = 10840, [5408] = 10840,
+}) do
+    quest(questID, "accept", 8, speakerID)
+    quest(questID, "progress", 8, speakerID)
+    quest(questID, "complete", 8, speakerID)
+end
 quest(814, "accept", 8, 3191)
 quest(814, "progress", 8, 3191)
 quest(814, "complete", 8, 3191)
@@ -218,6 +233,19 @@ for _, id in ipairs({ 60030, 60031, 60032, 60033, 60034, 60035, 60036 }) do
         "Alliance starter missing from static Compendium: " .. id)
     assert(string.find(entry, "starterHorde = 51293", 1, true),
         "Horde starter missing from static Compendium: " .. id)
+end
+-- Verify that the live Compendium, not only the synthetic fixtures,
+-- contains Turtle's corrected starters, enders and faction restrictions.
+local turtleScourgestoneEntries = {
+    [5125] = '[5125] = { "Aurius\' Reckoning", zones = { 1423 }, dungeon = 329, starter = 10931, ender = 10931 },',
+    [5402] = '[5402] = { "Minion\'s Scourgestones", zones = { 1422 }, starter = 10839, ender = 10839, races = 8589934770 },',
+    [5403] = '[5403] = { "Invader\'s Scourgestones", zones = { 1422 }, starter = 10839, ender = 10839, races = 8589934770 },',
+    [5407] = '[5407] = { "Invader\'s Scourgestones", zones = { 1422 }, starter = 10840, ender = 10840, races = 4294967373 },',
+    [5408] = '[5408] = { "Minion\'s Scourgestones", zones = { 1422 }, starter = 10840, ender = 10840, races = 4294967373 },',
+}
+for questID, expected in pairs(turtleScourgestoneEntries) do
+    assert(string.find(compendium, expected, 1, true),
+        "Turtle speaker or faction metadata mismatch for quest " .. questID)
 end
 local restoredEntries = {
     [236] = '[236] = { "Watcher Callahan", zones = { 1431 }, starter = 888, ender = 2142, races = 4294967373 },',
