@@ -126,10 +126,12 @@ def main():
     ap.add_argument("--emit-text", type=Path,
                     help="Explicit, local-only text export path; never run during public CI")
     ap.add_argument("--acknowledge-rights", action="store_true",
-                    help="Confirm right to use/export source dialogue; required with --emit-text")
+                    help="Confirm permission for distributing exported source text")
+    ap.add_argument("--local-only", action="store_true",
+                    help="Export a private local companion addon, not a publishable corpus")
     args = ap.parse_args()
-    if args.emit_text and not args.acknowledge_rights:
-        ap.error("--emit-text requires --acknowledge-rights (the source license alone is insufficient)")
+    if args.emit_text and not (args.local_only or args.acknowledge_rights):
+        ap.error("--emit-text requires --local-only or --acknowledge-rights")
     targets = parse_targets(args.manifest)
     source = load_rows(args.db, sorted(targets))
     counts, accepted, report, held = Counter(), {}, [], []
