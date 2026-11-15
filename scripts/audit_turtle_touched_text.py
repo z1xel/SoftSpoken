@@ -176,7 +176,13 @@ def main():
             "pfquest_turtle_quest_override" if pfquest_override else "",
             "world_sql_migration:"+",".join(sorted(changed_fields)) if migrated else ""
         ]))
-        strong_provenance=bool(pfquest_override or migrated or curated)
+        # pfQuest-turtle contains thousands of metadata adjustments. Its
+        # structural differences are corroborating context, NOT evidence that
+        # a particular line of quest dialogue was rewritten by Turtle.
+        # Restrict actionable TEXT review to actual Turtle SQL text migrations,
+        # explicitly curated shared-ID cases, or absent-Vanilla quests whose
+        # starters are demonstrably spawned on Turtle.
+        strong_provenance=bool(migrated or curated or (not baseline_present and proven_world))
         direct_text_provenance=bool(migrated)
         provenance_class=("turtle_sql_migration" if direct_text_provenance
                           else "pfquest_explicit_override" if pfquest_override
@@ -319,7 +325,7 @@ def main():
         "static_lua_inspected":bool(args.lua_stages),
         "caveats":["Live per-character SSCQuestJournal dialogue is not included in a static file audit.",
                    "cMaNGOS and Turtle are two evolving community database restorations; a text diff alone does not establish authorship or server availability.",
-                   "Only explicit pfQuest Turtle overrides, verified Turtle SQL quest migrations or precurated Turtle relationships qualify a shared-ID review target.",
+                   "Only migration-backed quest edits, precurated Turtle cases or absence from Vanilla with a spawned Turtle starter qualify an actionable shared-ID review target; pfQuest metadata differences alone are insufficient.",
                    "An intentionally blank progress or acceptance stage is not a missing transcript.",
                    "No changed quest body, no new quest ID and no original Spoken text is written by this audit."]
     }
