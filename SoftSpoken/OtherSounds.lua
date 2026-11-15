@@ -217,6 +217,13 @@ function OtherSounds:Sync()
         -- Also when the volumes are on their way back up: a line that starts then turns
         -- them down again from wherever the fade had reached.
         if not self.lowered or self.restoring or voice ~= self.voice then self:Lower(voice) end
+    elseif self.lowered and head and head.playState == "held" then
+        -- A source gate yielded the audio to the game (for example, while
+        -- waiting for an NPC's native greeting). Don't leave SoundVolume
+        -- ducked by the last clip for the normal 1.2s inter-line settle.
+        -- This restores only on a genuinely silent/held queue, never while
+        -- a SoftSpoken recording is speaking.
+        self:Restore(true)
     elseif self.lowered and not self.restoring and not self.settleTimer then
         -- Switched off mid-line: back at once, rather than after the line that is ending.
         if not cfg.Enabled then self:Restore(); return end
