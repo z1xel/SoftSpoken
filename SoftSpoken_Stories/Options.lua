@@ -259,6 +259,10 @@ end
 function Options:DiagnosticsLines()
     local lines = {}
     local function Add(line) table.insert(lines, tostring(line)) end
+    local function AudioCVar(name)
+        local ok, value = pcall(GetCVar, name)
+        return ok and value ~= nil and tostring(value) ~= "" and tostring(value) or "unavailable"
+    end
             Add(format("|cFF00CCFFSoftSpoken Stories %s|r - client %s, interface %d",
                 AddonVersion, Version.Client or "unknown", Version.Interface or 0))
             Add("AddOn API: " .. (C_AddOns and "C_AddOns compatibility layer" or "legacy globals"))
@@ -269,10 +273,9 @@ function Options:DiagnosticsLines()
                 Spoken and Spoken.ADDON_VERSION or "missing"))
             Add("NPC greetings: " ..
                 (Enums.GossipFrequency:GetName(Addon.db.profile.Audio.GossipFrequency) or "unknown"))
-            Add(format("Sound CVars: all=%s, master=%s, SFX=%s/%s, dialog=%s/%s",
-                tostring(GetCVar("Sound_EnableAllSound")), tostring(GetCVar("Sound_MasterVolume")),
-                tostring(GetCVar("Sound_EnableSFX")), tostring(GetCVar("Sound_SFXVolume")),
-                tostring(GetCVar("Sound_EnableDialog")), tostring(GetCVar("Sound_DialogVolume"))))
+            Add(format("Vanilla sound CVars: master=%s, effects=%s/%s, music=%s, ambience=%s",
+                AudioCVar("MasterVolume"), AudioCVar("MasterSoundEffects"),
+                AudioCVar("SoundVolume"), AudioCVar("MusicVolume"), AudioCVar("AmbienceVolume")))
 
             local presentCount, registeredCount = 0, 0
             for _, module in DataModules:GetPresentModules() do
