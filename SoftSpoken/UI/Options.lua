@@ -1249,8 +1249,6 @@ function Options:Setup()
         heading:SetJustifyH("CENTER")
         heading:SetPoint("TOP", titlePlate, "TOP", 0, -13)
         heading:SetText(HOME_TITLE)
-        -- Silver frame replaces the old gold divider under the tabs.
-        DrawOrnateHeaderBand(panel)
         panel:RegisterForDrag("LeftButton")
         panel:SetScript("OnDragStart", function() panel:StartMoving() end)
         panel:SetScript("OnDragStop", function() panel:StopMovingOrSizing() end)
