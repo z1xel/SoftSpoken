@@ -31,7 +31,14 @@ function GreetingFirst:IsOn()
 end
 
 function GreetingFirst:IsWaiting()
-    return self:IsOn() and GetTime() < holdUntil
+    if not self:IsOn() then return false end
+    -- Keep a short unresolved classification gate active until the resolution
+    -- timer runs, even if the initial 0.2s wake happens on the same frame.
+    -- Bound it as a failsafe if an optional timer unexpectedly fails.
+    if pending and GetTime() < pending.startedAt + CLASSIFY_TIMEOUT + 0.20 then
+        return true
+    end
+    return GetTime() < holdUntil
 end
 
 local function Retry()
