@@ -125,11 +125,18 @@ def main():
     ap.add_argument("--source-ref", default="unspecified")
     ap.add_argument("--emit-text", type=Path,
                     help="Explicit, local-only text export path; never run during public CI")
+    ap.add_argument("--into-addon", action="store_true",
+                    help="Write directly into SoftSpoken_Stories/Data/TurtleQuestText.lua (local working tree)")
     ap.add_argument("--acknowledge-rights", action="store_true",
                     help="Confirm permission for distributing exported source text")
     ap.add_argument("--local-only", action="store_true",
                     help="Export a private local companion addon, not a publishable corpus")
     args = ap.parse_args()
+    if args.into_addon:
+        if args.emit_text:
+            ap.error("--into-addon and --emit-text are mutually exclusive")
+        args.emit_text = Path(__file__).resolve().parents[1] / "SoftSpoken_Stories" / "Data" / "TurtleQuestText.lua"
+        args.local_only = True
     if args.emit_text and not (args.local_only or args.acknowledge_rights):
         ap.error("--emit-text requires --local-only or --acknowledge-rights")
     targets = parse_targets(args.manifest)
