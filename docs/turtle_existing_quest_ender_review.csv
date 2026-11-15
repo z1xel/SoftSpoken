@@ -1,0 +1,9 @@
+quest_id,title,vanilla_enders,turtle_enders,disposition,notes
+171,A Warden of the Alliance,"NPC 2142;14450","NPC 14450",unchanged,Current Compendium already correct
+172,Children's Week,"NPC 271;14444","NPC 14444",unchanged,Current Compendium already correct
+2954,The Stone Watcher,"Object 142343","Object 142343;NPC 7918",multiple,Added Stone Watcher NPC while retaining Uldum Pedestal as possible ender
+3525,Extinguishing the Idol,"Object 152097;NPC 8516","NPC 8516",multiple,OctoWow explicitly corroborates both Belnistrasz and the Brazier
+5057,Past Endeavors,"NPC 3441;10303","NPC 10303",unchanged,Existing voice pack resolves Storm Shadowhoof 10303
+5524,Chromatic Mantle of the Dawn,"NPC 10856","NPC 10856;10857",multiple,Two Argent quartermasters listed in both pfQuest Turtle and OctoWow
+9339,A Thief's Reward (Alliance),"NPC 16817","NPC 16817;16818",multiple,Both festival NPCs according to pfQuest Turtle and OctoWow; race mask retained
+9365,A Thief's Reward (Horde),"NPC 16818","NPC 16817;16818",multiple,Both festival NPCs according to pfQuest Turtle; race mask retained

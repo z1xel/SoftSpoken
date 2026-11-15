@@ -54,7 +54,22 @@ function R:MultipleSpeakers(questID, stage)
     if stage == "accept" then
         speakers = quest.starters
     else
-        speakers = quest.enders
+        if type(quest.enderObjects) == "table" then
+            -- Retain both NPC and world-object completion candidates.
+            -- Numeric IDs remain NPCs; objects carry their GUID kind.
+            speakers = {}
+            for _, npc in ipairs(quest.enders or {}) do
+                if PositiveID(npc) then table.insert(speakers, npc) end
+            end
+            for _, object in ipairs(quest.enderObjects) do
+                local id = PositiveID(object)
+                if id then
+                    table.insert(speakers, { kind = Enums.GUID.GameObject, id = id })
+                end
+            end
+        else
+            speakers = quest.enders
+        end
         if not speakers and not quest.ender and not quest.enderObject then
             speakers = quest.starters
         end

@@ -248,10 +248,16 @@ local function PaintMultiple(holder,candidates)
     holder.icon:SetTexCoord(0,1,0,1)
     holder.icon:SetTexture(MULTIPLE_SPEAKERS_ICON)
     local resolver=VoiceOver and VoiceOver.SpeakerResolver
-    local creature=VoiceOver and VoiceOver.Enums and VoiceOver.Enums.GUID.Creature
+    local types=VoiceOver and VoiceOver.Enums and VoiceOver.Enums.GUID
+    local creature=types and types.Creature
     local names={MULTIPLE_LABEL}
-    for _,id in ipairs(candidates) do
-        local name=resolver and resolver:Name(creature,id,"NPC "..tostring(id))
+    for _,candidate in ipairs(candidates) do
+        local id,kind=candidate,creature
+        if type(candidate)=="table" then
+            id,kind=candidate.id,candidate.kind
+        end
+        local fallback=(types and kind==types.GameObject and "Object " or "NPC ")..tostring(id)
+        local name=resolver and resolver:Name(kind,id,fallback) or fallback
         table.insert(names,name.." ("..tostring(id)..")")
     end
     holder.affiliationLabel=table.concat(names,"\n")

@@ -30,7 +30,8 @@
 -- starterAlliance / starterHorde are creature IDs selected by player's faction;
 -- if there is no explicit ender, the chosen faction NPC is the hand-in as well.
 -- Optional starters = { creature IDs... } / enders = { creature IDs... }
--- preserve all known speakers when a stage has several valid NPCs.
+-- enderObjects = { game object IDs... } records alternative physical hand-ins.
+-- Preserve all known speakers when a stage has multiple NPCs or objects.
 -- The Compendium then displays an ambiguous speaker instead of inventing one;
 -- live narration still uses the NPC who actually opened the dialogue.
 -- When absent, legacy quest-giver resolution continues through the registered audio packs.
@@ -1790,7 +1791,7 @@ SpokenQuestsCompendium = {
 		[2951] = { "The Sparklematic 5200!", zones = { 1426 }, dungeon = 90 },
 		[2952] = { "The Sparklematic 5200!", zones = { 1426 }, dungeon = 90, prev = 2951, enderObject = 142487 },
 		[2953] = { "More Sparklematic Action", zones = { 1426 }, dungeon = 90, prev = 2952, enderObject = 142487 },
-		[2954] = { "The Stone Watcher", zones = { 1446 }, prev = 2946, enderObject = 142343 },
+		[2954] = { "The Stone Watcher", zones = { 1446 }, prev = 2946, starter = 7918, enders = { 7918 }, enderObjects = { 142343 } },
 		[2962] = { "The Only Cure is More Green Glow", zones = { 1426 }, dungeon = 90, prev = 2926, races = 4294967373 },
 		[2963] = { "Portents of Uldum", zones = { 1455 }, prev = 2439, ender = 2916, races = 4294967373 },
 		[2964] = { "A Future Task", zones = { 1455 }, prev = 2977, ender = 5387, races = 4294967373 },
@@ -1963,7 +1964,7 @@ SpokenQuestsCompendium = {
 		[3522] = { "Iverron's Antidote", zones = { 1438 }, prev = 3521, ender = 8584, races = 4294967373 },
 		[3523] = { "Scourge of the Downs", zones = { 1413 }, dungeon = 129 },
 		[3524] = { "Washed Ashore", zones = { 1439 }, races = 4294967373 },
-		[3525] = { "Extinguishing the Idol", zones = { 1413 }, dungeon = 129, prev = 3523 },
+		[3525] = { "Extinguishing the Idol", zones = { 1413 }, dungeon = 129, prev = 3523, starter = 8516, enders = { 8516 }, enderObjects = { 152097 } },
 		[3526] = { "Goblin Engineering", sort = 201, ender = 8126, races = 8589934770 },
 		[3527] = { "The Prophecy of Mosh'aru", zones = { 1446 }, dungeon = 209, prev = 3520 },
 		[3528] = { "The God Hakkar", zones = { 1435 }, dungeon = 109, prev = 4787 },
@@ -2557,7 +2558,7 @@ SpokenQuestsCompendium = {
 		[5519] = { "The Gordok Ogre Suit", zones = { 1444 }, dungeon = 429, prev = 5518, ender = 14338 },
 		[5521] = { "Chromatic Mantle of the Dawn", zones = { 1422 } },
 		[5522] = { "Leonid Barthalomew", zones = { 1428 }, prev = 4735, ender = 11036 },
-		[5524] = { "Chromatic Mantle of the Dawn", zones = { 1422 } },
+		[5524] = { "Chromatic Mantle of the Dawn", zones = { 1422 }, starters = { 10856, 10857 }, enders = { 10856, 10857 } },
 		[5525] = { "Free Knot!", zones = { 1444 }, dungeon = 429, ender = 14338 },
 		[5526] = { "Shards of the Felvine", zones = { 1450 }, prev = 5527 },
 		[5527] = { "A Reliquary of Purity", zones = { 1450 } },
@@ -4302,12 +4303,12 @@ SpokenQuestsCompendium = {
 		[9336] = { "Major Healing Potion", sort = "argentdawn", prev = 9153, ender = 16787, races = 8589934770 },
 		[9337] = { "Major Mana Potion", sort = "argentdawn", prev = 9153, ender = 16786, races = 4294967373 },
 		[9338] = { "Allegiance to Cenarion Circle", zones = { 1451 }, ender = 15540 },
-		[9339] = { "A Thief's Reward", sort = 369, prev = 9324, ender = 16817, races = 4294967373 },
+		[9339] = { "A Thief's Reward", sort = 369, prev = 9324, starters = { 16817, 16818 }, enders = { 16817, 16818 }, races = 4294967373 },
 		[9341] = { "Tabard of the Argent Dawn", sort = 368, prev = 9153, ender = 16786, races = 4294967373 },
 		[9343] = { "Tabard of the Argent Dawn", sort = 368, prev = 9153, ender = 16787, races = 8589934770 },
 		[9362] = { "Warlord Krellian", sort = 161, classes = 128 },
 		[9364] = { "Fragmented Magic", sort = 161, prev = 9362, classes = 128 },
-		[9365] = { "A Thief's Reward", sort = 369, prev = 9330, ender = 16818, races = 8589934770 },
+		[9365] = { "A Thief's Reward", sort = 369, prev = 9330, starters = { 16817, 16818 }, enders = { 16817, 16818 }, races = 8589934770 },
 		[9367] = { "The Festival of Fire", sort = 369, races = 4294967373 },
 		[9368] = { "The Festival of Fire", sort = 369, races = 8589934770 },
 		[9386] = { "A Light in Dark Places", sort = 369, prev = 9319 },
