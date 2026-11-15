@@ -122,6 +122,8 @@ def merge_local_overlay(original, generated, selected_ids):
         # Replace only the previously generated block, leaving everything else intact.
         start = base.index(BEGIN)
         stop = base.index(END, start) + len(END)
+        if base[stop:stop + 1] == "\n":
+            stop += 1
         if start > stop:
             raise ValueError("Malformed batch markers")
         base = base[:start] + base[stop:]
