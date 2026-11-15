@@ -11699,3 +11699,25 @@ SSCTurtleQuestText[1140820] = {
     progress = "Waste no time. We must strike at once!",
     complete = "You have proven yourself a worthy warrior, $N. Well done.",
 }
+-- BEGIN Turtle-touched first batch (generated; local only)
+-- Values matched the read-only pinned source audit hashes.
+-- Does not rewrite SpokenQuestsText or other Turtle quest IDs.
+SSCTurtleQuestText[820] = SSCTurtleQuestText[820] or {}
+SSCTurtleQuestText[820].accept = "Truly a spirit of strength resides in your body, willing to help an old man brew his potions.$B$BThe generosity found in our new home and the strength of relying on our allies is what sets us apart from others, $c.$B$BI need one more thing to begin brewing a batch of my potion, eight shimmerweed.$B$BYou can find the herbs northwest of Razor Hill in Thunder Ridge, and be careful, $N."
+SSCTurtleQuestText[820].progress = "Have you retrieved the herbs?"
+SSCTurtleQuestText[820].complete = "You've done me a great kindness this day, $N. With my vision restored, I will be able to help out more around the village. More than strength, you've a spirit of honor."
+SSCTurtleQuestText[3111] = SSCTurtleQuestText[3111] or {}
+SSCTurtleQuestText[3111].accept = "While you were helping me out, this glyph was given to me to pass on to you. Take some time to read it when you have a chance. I'm thinkin' it came from the mage trainer Marrek. Take a gander at it and go find him inside Anvilmar when you've a chance."
+SSCTurtleQuestText[3578] = SSCTurtleQuestText[3578] or {}
+SSCTurtleQuestText[3578].accept = "Ah, I've been expecting my Rah'pawene, Samantha Swifthoof and she's yet to come! I'm confused...$B$BCan you help me and find her? Last time we spoke she was so much excited to see the new places and travel at her leisure from a port to some distant forests and northern regions of the Eastern Kingdoms, alas, the only port I know nearby is the Ratchet.$B$BI'm most certain Samantha braved to the ferry and swam to the Booty Bay.$B$BWhere could she travel to from there I do not know. Perhaps you could find her for me? Just to be sure she's fine..."
+SSCTurtleQuestText[3578].progress = "There's so many places I'd love to see! Can you help?"
+SSCTurtleQuestText[3578].complete = "Oh, traveller? Forgive me, but I'm so exhausted with my journey I can barely move my hoof...$B$BBut there's so many places I'd love to see! Can you help?"
+SSCTurtleQuestText[3579] = SSCTurtleQuestText[3579] or {}
+SSCTurtleQuestText[3579].accept = "Yes, I've travelled this far on my own hooves and yes I'm very tired, alas, my wanderlust is too strong to be ignored, I just can not stop and be idle even for a minute knowing that so many roads are to be discovered and forests traversed and plains to be run over... oh, the world is so vast, I could travel all my life!$B$BHowever, as you can see, I'm falling down from all the hoofwork I've endured to the moment.$B$BOh, if only I could have our famous Compressing Bandage to aid my muscles to feel well again!"
+SSCTurtleQuestText[3579].progress = "Ah, so nice of you!$B$BI'm glad you are so eager to help me, thank you!"
+SSCTurtleQuestText[3579].complete = "Ah, I've been expecting you! Were you able to get those herbs and cloth for me? Thank you!$B$BWith these I'll be able to make this Compressing Bandage and I will surely be able to travel even further!"
+SSCTurtleQuestText[3580] = SSCTurtleQuestText[3580] or {}
+SSCTurtleQuestText[3580].accept = "I feel so much better now! So invigorated and excited! Oh, this is wonderful!$B$BThank you, $N, thank you so much.$B$BBesides the strength of the will and very durable hooves you will need a Blessing of the Wind to help you run as fast as all of us Swifthoof do! I know just a tauren who can guide you on this.$B$BHis name is Jorn Skyseer. Last time I spoke to him was at the Camp Taurajo in Southern Barrens. Ahh, the Golden Road, so luring..."
+SSCTurtleQuestText[3580].progress = "Go swiftly, young one! Saern will help you only with the Blessing holding on you! Run!"
+SSCTurtleQuestText[3580].complete = "Ah, the Winds led you to me I see. I've been expecting you.$B$BSamantha Swifthoof sent you, of course. Girl did very well to travel further than Mulgore and Barrens. I'm only glad she found help even at the continent so far from here in your actions, honorable deed should always be rewarded.$B$BThere's an expert on Plainsrunning skill resides at the Hunter's Rise in Thunder Bluff you should see, her name is Saern Priderunner.$B$BShe can teach you on how you should handle your body for Plainsrunning only when you have your spirit high with the Blessing of the Wind.$B$BReach her while the Blessing is still supporting your spirit and body!$B$BThe Blessing of the Wind be bestowed upon you! Al'akir, hear my plea and grant this tauren swiftness of your gales and strength of your storms!"
+-- END Turtle-touched first batch
