@@ -131,10 +131,10 @@ def main():
         raise ValueError("Not all manifest records accounted for")
     if args.check:
         if result != original or added:
-            raise SystemExit(str(added) + " approved classifications still missing")
+            raise SystemExit(str(added) + " classifications missing or spacing not normalized")
         print("PASS: " + str(preserved) + " Turtle classifications present")
     else:
-        if added:
+        if result != original:
             args.catalog.write_text(result, encoding="utf-8")
         print("Applied " + str(added) + " classifications, preserved " +
               str(preserved) + ", total " + str(len(rows)))
