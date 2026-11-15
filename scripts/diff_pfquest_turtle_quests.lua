@@ -1,11 +1,25 @@
 -- Read-only: compare actual Vanilla pfQuest quest metadata with Turtle's
 -- replacement table. A Turtle table entry is NOT a modification if identical.
 -- Usage: lua5.1 scripts/diff_pfquest_turtle_quests.lua <vanilla.lua> <turtle.lua> <out.csv>
-local vanilla,turtle,outfile=assert(arg[1]),assert(arg[2]),assert(arg[3])
+local vanilla,turtle,outfile,vanillalist=assert(arg[1]),assert(arg[2]),assert(arg[3]),assert(arg[4])
 pfDB={quests={}}
 dofile(vanilla)
 assert(type(pfDB.quests.data)=="table","Vanilla pfQuest quest data not loaded")
 local base=pfDB.quests.data
+local vout=assert(io.open(vanillalist,"w"))
+vout:write("quest_id,vanilla_pfquest_present\\n")
+local classicIds={}
+for id,entry in pairs(base) do
+    if type(id)=="number" and id>0 and type(entry)=="table" then
+        classicIds[#classicIds+1]=id
+    end
+end
+table.sort(classicIds)
+for _,id in ipairs(classicIds) do
+    vout:write(id,",1\\n")
+end
+vout:close()
+print("Vanilla pfQuest structured quest IDs:",#classicIds)
 dofile(turtle)
 local other=pfDB.quests["data-turtle"]
 assert(type(other)=="table","Turtle pfQuest quest table not loaded")
