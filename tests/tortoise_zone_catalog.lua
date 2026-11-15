@@ -34,11 +34,11 @@ local function find(n,key)
     end
 end
 local native = assert(find(root,"zone:1411"),"Durotar group missing")
-assert(native.name=="Durotar")
+assert(native.label=="Durotar")
 assert(native.mapID==1411)
 assert(find(native,"q:820"),"Quest 820 not located under Durotar")
 local turtle = assert(find(root,"turtle-area:5179"),"Turtle region group missing")
-assert(turtle.name=="Gilneas")
+assert(turtle.label=="Gilneas")
 assert(turtle.mapID==nil,"Never forge retail uiMapIDs for Turtle areas")
 assert(turtle.areaID==5179)
 assert(find(turtle,"q:51790"),"Custom quest missing from virtual region")
