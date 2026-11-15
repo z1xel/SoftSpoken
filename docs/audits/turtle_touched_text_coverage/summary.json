@@ -27,7 +27,7 @@
     "stage_spoken_outdated_for_turtle": 309,
     "stage_turtle_stage_missing": 290
   },
-  "directly_supported_text_gaps": 512,
+  "directly_supported_text_gaps": 509,
   "uncorroborated_cross_database_variants": 977,
   "pfquest_quest_override_ids": 5246,
   "vanilla_pfquest_quest_ids": 4433,
@@ -46,6 +46,7 @@
     "Live per-character SSCQuestJournal dialogue is not included in a static file audit.",
     "cMaNGOS and Turtle are two evolving community database restorations; a text diff alone does not establish authorship or server availability.",
     "Only migration-backed quest edits, precurated Turtle cases or absence from Vanilla with a spawned Turtle starter qualify an actionable shared-ID review target; pfQuest metadata differences alone are insufficient.",
+    "A quest absent from cMaNGOS but present in Vanilla pfQuest must have stage-specific Turtle SQL migration evidence; don't automatically import every stage.",
     "An intentionally blank progress or acceptance stage is not a missing transcript.",
     "A quest absent from cMaNGOS but present in Vanilla pfQuest may simply be a baseline omission; hold unless a Turtle SQL migration or independent live evidence supports it.",
     "No changed quest body, no new quest ID and no original Spoken text is written by this audit."
