@@ -1291,12 +1291,12 @@ function Options:Setup()
         end
         local close = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
         close:SetPoint("TOPRIGHT", -5, -5)
-        -- The close-button housing is 24x24 pixels in our bundled
-        -- 128x128 UI-Frame atlas. Keep it at its natural size instead of
-        -- stretching it to 32x32, which made the corner excessively bulky.
-        local closeHousing = close:CreateTexture(nil, "BACKGROUND")
+        -- Use the original 24x24 atlas housing, mirrored on both axes.
+        -- Parent it to the window at BACKGROUND level so its silver border
+        -- can draw over the housing while the native close button stays on top.
+        local closeHousing = panel:CreateTexture(nil, "BACKGROUND")
         closeHousing:SetTexture([[Interface\AddOns\SoftSpoken\Compendium\Textures\Skin\UI-Frame]])
-        closeHousing:SetTexCoord(90/128, 114/128, 2/128, 26/128)
+        closeHousing:SetTexCoord(114/128, 90/128, 26/128, 2/128)
         closeHousing:SetWidth(24)
         closeHousing:SetHeight(24)
         closeHousing:SetPoint("CENTER", close, "CENTER", 0, 0)
