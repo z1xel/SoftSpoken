@@ -447,8 +447,7 @@ function Addon:OnInitialize()
     }
 
     Player:Setup()
-    -- Optional NPC greeting setup must not prevent voice-pack discovery if a
-    -- client lacks the sound APIs or CVars it expects.
+    -- Optional NPC greeting setup must never prevent voice-pack discovery.
     local greetingReady, greetingError = pcall(GreetingFirst.Setup, GreetingFirst)
     if not greetingReady then
         Debug:Record("greeting-first-error", tostring(greetingError))
@@ -1287,7 +1286,7 @@ function Addon:MuteGreetingAhead(event)
     if quest and self.db.profile.Audio.ReadAfterClose then
         return
     end
-    -- Game Greeting First: nothing is cut, and the line waits for the greeting instead.
+    -- Game Greeting First: leave the native greeting alone and wait briefly before narration.
     if GreetingFirst:IsOn() then
         GreetingFirst:Open()
         return
