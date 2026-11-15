@@ -1,0 +1,885 @@
+kind,id,name
+U,9660,Agnar Beasttamer
+U,19000,Qiuyue
+U,29479,Elder Moonhoof
+U,39998,Winterax Cook
+U,39999,Winterax Elder
+U,50002,Professor Malkovich
+U,50004,Professor Papucho
+U,50012,Ol' Biggins
+U,50070,Rufus Hardwick
+U,50521,Jizzle Grikbot
+U,50522,Gregor Fizzwuzz
+U,50530,Fara Boltbreaker
+U,50608,Lulu
+U,50645,Holly Tallhair
+U,50647,Bomarn Fireaxe
+U,50649,Gremm Tuskteeth
+U,50652,Carus Silversnow
+U,50653,Quark
+U,50654,Mr. Mistletoe
+U,50660,Lantaria Woodshadow
+U,50662,Tinsel Lost-Gloves
+U,50677,Mavel Brightwood
+U,50760,Tansy Sparkpen
+U,51254,Grizzlore
+U,51266,Reas
+U,51302,Teresa Palin
+U,51530,Mortimer Stansfield
+U,51532,Kern Mosshoof
+U,51536,Mal'adaris
+U,51538,Charlie Riley
+U,51566,Drakin Swiftaxe
+U,51607,Morgan the Storm
+U,52006,Robb Dursley
+U,52015,Samuel Vickers
+U,52017,Bert Mano
+U,52021,Poppy Zabini
+U,52024,Lord Commander Ryke
+U,52030,Jaime Sparrow
+U,52039,Marge Blackwood
+U,52045,Rose Dolohov
+U,52066,Barthos Thundercrank
+U,52068,Barltok Kettleburn
+U,52080,Rann Blackbeard
+U,52095,Captain Snowbeard
+U,52102,Orion Coalborn
+U,52118,Innkeeper Heidi
+U,60300,Shagu
+U,60400,Vess
+U,60403,Grungi
+U,60408,Logrash
+U,60410,Re'than
+U,60443,Kex Blowmaster
+U,60446,Insom'ni
+U,60448,Dirty Jacob
+U,60449,Sark Blacktooth
+U,60451,Jessie Sugar-Tongue
+U,60452,First Mate McCoy
+U,60453,Garfield Sparkblast
+U,60455,Fazzle 'The Slick'
+U,60456,Belgrush Daggerfist
+U,60459,Vil'do One-Tusk
+U,60460,'Ale Saint' Grida
+U,60465,Malos Lunarspear
+U,60471,Faldan Moonshatter
+U,60472,Hadanos Greenblade
+U,60473,Adaena Oakleaf
+U,60474,Sentinel Danala
+U,60476,Embergut
+U,60479,'Wincing' Willy
+U,60480,Falgig Wazzlewrench
+U,60481,Raga Darkeye
+U,60482,Tesala Whitefeather
+U,60483,Morpheus Ribcage
+U,60484,Liott Maneskin
+U,60485,Noel Bearfinger
+U,60488,Diane Willowfield
+U,60496,Garfield Sparkblast
+U,60500,Shizwackle Tangrig
+U,60502,'Slip'
+U,60503,Lorthiras
+U,60504,Yig Oilfuse
+U,60507,Conservationist Yalus
+U,60512,Keeper Laena
+U,60540,Aputuq
+U,60541,Tonlok
+U,60542,Panukuki
+U,60606,Magus Ariden Dusktower
+U,60607,Kor'gan
+U,60611,Inunquaq
+U,60622,Tyvadrius
+U,60629,Tholdan Mountainheart
+U,60631,N'ribbi
+U,60643,Fazgel Mechaflame
+U,60644,Arcanist Sovatir
+U,60657,Krilana
+U,60710,Niremius Darkwind
+U,60727,Colonel Breen
+U,60728,Old Bryan
+U,60729,Captain Wallace Cross
+U,60730,Captain Harker
+U,60731,Magus Halister
+U,60732,Sergeant Terresa
+U,60733,Dockmaster Lorman
+U,60749,Champion Taza'go
+U,60750,Ekka
+U,60751,Hingozu
+U,60752,Seer Maz'ek
+U,60759,Sorlugg
+U,60760,Bagaroh
+U,60761,Jaiymu
+U,60762,Blacksmith Torren
+U,60763,Darkseer Geshtol
+U,60765,Raider Fargosh
+U,60769,Molk
+U,60770,Karfang
+U,60772,Councilor Vargek
+U,60773,Soresh
+U,60774,Taskmaster Ok'gog
+U,60775,Mistress Katalla
+U,60779,'Chaser'
+U,60780,Annabelle Livingstone
+U,60781,Oswald Livingstone
+U,60782,Brian Livingstone
+U,60786,Tarral Holk
+U,60788,Sergeant Karster
+U,60791,Adjutant Scheer
+U,60792,Sergeant Burnside
+U,60793,Commander Baelos
+U,60794,Engineer Wigglestip
+U,60795,Harguf
+U,60816,Kolgo Highmane
+U,60818,Trainer Tokala
+U,60822,Brave Proudspear
+U,60823,Elder Pyrestrider
+U,60827,Troll Hunter Penthar
+U,60832,Morgrim Firepike
+U,60833,Orvak Sternrock
+U,60834,Radgan Deepblaze
+U,60846,Lashog
+U,60850,Kas'tal
+U,60855,Foreman Tanoth
+U,60856,Hansu Go'sha
+U,60858,Maltimor Gartside
+U,60862,Private Holson
+U,60863,Ancestor of Wisdom
+U,60869,Senator Granitebelt
+U,60870,Varlag Duskbeard
+U,60872,Masey Wirefuse
+U,60874,Lady Meldralis Windsong
+U,60875,Technician Nel'doriel
+U,60877,Ansela Dawnshield
+U,60879,Larry Ryder
+U,60899,Hydromancer Shaleborn
+U,60900,Deckmaster Darkhollow
+U,60901,Lieutenant Alverold
+U,60902,Sir Danuvis
+U,60916,Forgotten Keeper
+U,60917,Marauder King Corthan
+U,60923,Surveyor Bronzehorn
+U,60925,Lord Nazgrim Redbrand
+U,60929,Petty Officer Milldough
+U,60931,Sailor Borus
+U,60933,Sailor Valia
+U,60934,Vice Admiral Renhoff
+U,60945,Asza
+U,60946,Murloc Tadpole
+U,60955,Gelwig Darkbrow
+U,60957,Baggle Hackrust
+U,60958,Ginlo Taxxo
+U,60960,Technician Steelbolt
+U,60961,Head Technician Klazfit
+U,60962,Fusemaster Blammo
+U,60964,Artemus Halloway
+U,60967,Gig Xevno
+U,60970,Security Officer Mort Tozzlefume
+U,60972,Bogpaw Truthsay
+U,60973,Dagdag Mossbelt
+U,60977,Melyndella
+U,60993,Grumnir Battlebeard
+U,60994,Mountaineer Truthforge
+U,60996,Prospector Flinthammer
+U,60997,Lead Explorer Whitepeak
+U,60998,Maloran Oakbranch
+U,60999,Spigol Kneebolt
+U,61000,Engineer Tansi Sparkfuse
+U,61001,Farmer Segwar Ironback
+U,61006,Harlek Vaultshield
+U,61010,Torwyn Redbrand
+U,61019,Private Glenndel
+U,61024,Senior Foreman Nazz Firecracker
+U,61026,Warbringer Dar'nakk
+U,61040,Jochi
+U,61041,Warcaller Dekshar
+U,61044,Yesu'gei
+U,61045,Warleader Temukar
+U,61051,Senator Ryedol
+U,61052,Mally O'Flor
+U,61053,Chen Stormstout
+U,61054,Stormwind Commoner
+U,61055,Orgrimmar Commoner
+U,61056,Kagoro
+U,61057,Gizzin Wildbucket
+U,61060,Frenz Lodefire
+U,61063,Silmaron
+U,61064,Archmage Talyvanah
+U,61065,Magus Palon
+U,61100,Tazzo Gearfire
+U,61101,Bixxle Screwfuse
+U,61102,Baron Telraz
+U,61105,Zalwiz Hardlug
+U,61106,Razin Brasslight
+U,61108,Wazlon Headiron
+U,61111,Pumpworker Zalwan
+U,61112,Chef Danonzo Laxjolt
+U,61113,Sneel Fizzwack
+U,61116,Leezza Fraxtoggle
+U,61117,Archaeologist Trixia Goldspark
+U,61121,Chieftain Icepaw
+U,61122,Seer Coldsnout
+U,61126,Ebu
+U,61136,Coldhowl
+U,61137,Dolvan Bracewind
+U,61138,Jamey
+U,61143,Commander Starwind
+U,61145,Delos Talonheart
+U,61146,Kerrulg
+U,61147,Brolthan Ironglade
+U,61149,Taloras Gladewind
+U,61151,Calaran Windseeker
+U,61152,Saloran Nightwell
+U,61156,Vana Gracefall
+U,61158,Linthea
+U,61161,Zoki
+U,61166,Torgen Blackscar
+U,61167,Apothecary Clarkson
+U,61189,Mulin Snowbeard
+U,61255,Lord Ebonlocke
+U,61257,Baron Caliban Silverlaine
+U,61258,Elaroth Ranworth
+U,61259,Lord Darius Ravenwood
+U,61260,Moranna Rosenberg
+U,61265,Sergeant Arbington
+U,61270,Magistrate Carson
+U,61271,Magus Orelius
+U,61275,Dockwatcher Vorren
+U,61277,Todd Bolder
+U,61278,Narwick Everton
+U,61281,Dark Bishop Mordren
+U,61282,Deathstalker Alynna
+U,61283,Deathstalker Vernon
+U,61284,Dominic Larson
+U,61285,Harlan Ballow
+U,61286,Orvan Darkeye
+U,61287,Harrison Blackheart
+U,61290,Joshua Ebonmere
+U,61292,Alleana Moonfeather
+U,61320,Duke Rothlen
+U,61322,Councilman Kyleson
+U,61323,Countess Tillia Earlwake
+U,61326,Ralathius
+U,61328,The Cook
+U,61374,Dark Ranger Anya
+U,61375,Blackthorn
+U,61376,Livia Strongarm
+U,61377,Luke Agamand
+U,61381,Frell Rosewick
+U,61383,Maxwell Givings
+U,61384,Donald Rosewick
+U,61385,Darrow Shademore
+U,61386,Father Oblen
+U,61387,Brother Elias
+U,61416,Kurnen Oathbrace
+U,61429,Technician Stormlight
+U,61430,Technician Voltgear
+U,61433,Chemist Glowsight
+U,61435,Teezle Dualflash
+U,61436,Master Chemist Volterwhite
+U,61437,Master Technician Wirespanner
+U,61438,Cassie Copperlight
+U,61441,Weezan Littlegear
+U,61446,Tenner Pipegadge
+U,61447,Mother Tanya
+U,61448,Tess Greymane
+U,61449,Mustang
+U,61452,Lurn Five-Pelts
+U,61454,Levandra
+U,61457,Liam Greymane
+U,61458,Liam Greymane
+U,61459,Bearbane
+U,61460,Ethan Ravencroft
+U,61485,Evandil Nightwind
+U,61486,Clemence the Counter
+U,61491,Tanthos Everbreeze
+U,61492,Jancel Stardust
+U,61493,Vannamyr Featherwind
+U,61494,Enthos
+U,61496,Everwyl Moonseeker
+U,61506,Elder Barkmaw
+U,61507,Nargg
+U,61509,Speaker Frulgg
+U,61512,Arch Druid Dreamwind
+U,61513,Aliattan Anderson
+U,61519,Vaenar Hollowstar
+U,61521,Danthar Oakmantle
+U,61528,Glanthas the Ancient
+U,61531,Slumbnaz
+U,61534,Councilor Ravencrest
+U,61535,Camp Leader Gethenor
+U,61536,Camp Chef Velden
+U,61539,Clerk Ebonmere
+U,61540,Corporal Ranworth
+U,61557,Corporal Danmere
+U,61559,Angered Phantom
+U,61560,Endaras Fadewood
+U,61561,Buthok Cloudhorn
+U,61562,Farana Leafblade
+U,61568,Hanvar the Righteous
+U,61570,Parnabus
+U,61571,Doorman Montigue
+U,61576,Canos Clearwood
+U,61577,Annesastrasza
+U,61578,Shadowhunter Trak'nal
+U,61579,Melanastrasza
+U,61580,Faelindella
+U,61581,Kiri Starstalker
+U,61583,Commander Anashya Starfall
+U,61584,Larodar Wildwhisper
+U,61585,Sentinel Glensha
+U,61586,Cenerron
+U,61587,Bethelon Wildwhisper
+U,61588,Velos Sharpstrike
+U,61591,Sentinel Briariel
+U,61592,Yohan Wildwalker
+U,61593,Marlonias Shademoon
+U,61595,Spirit of Loresh
+U,61607,Elvanor Heartsong
+U,61610,Hierophant Nerseus
+U,61612,Postworker Katya Hastings
+U,61614,Lord Ivar Pyrewood
+U,61616,Bradley Steel
+U,61625,Daisy Windhelm
+U,61627,Old Jonah
+U,61629,Marven
+U,61634,Zin'jashi
+U,61638,Grenthor
+U,61641,Zappo Zapblast
+U,61725,Foreman Pipelatch
+U,61728,Shazzlan
+U,61729,Taxxlo Rustgate
+U,61730,Supplymaster Maxlo
+U,61733,Supervisor Ozzick
+U,61737,Overseer Kizzcrack
+U,61741,Balnack Copperlight
+U,61744,Pumpworker Fizzlo
+U,61746,Pumpmaster Galvax
+U,61747,Bruiser Yevo
+U,61748,Gazzik
+U,61749,Fanzo Edgeline
+U,61752,Bruiser Rakklan
+U,61754,Dazlon Brassdigger
+U,61755,Ranala Greedvolt
+U,61756,Brok Thunderforge
+U,61757,Sindri Thunderforge
+U,61758,Frig Thunderforge
+U,61760,Technician Reyvo
+U,61761,Mining Foreman Bizzlo
+U,61762,Schera Framesnap
+U,61796,Ordenal Owlmane
+U,61797,Warden Sira Moonwarden
+U,61798,Viz'neya Firefly
+U,61799,Lor'themar Theron
+U,61800,Grand Magister Rommath
+U,61801,Halduron Brightwing
+U,61803,Astalor Sunsworn
+U,61806,Liadrin
+U,61807,Aerthand Skyshield
+U,61809,Avenant
+U,61811,Calhir Dawnchaser
+U,61815,Fainriel Silverharp
+U,61816,Taliren Lightborn
+U,61818,Kaelin Bladesong
+U,61821,Maelor Steelguard
+U,61823,Melanthe Shadesong
+U,61824,Nirenia Swiftsun
+U,61827,Saelyn Seastrider
+U,61829,Phylas Hawkwing
+U,61831,Tiriel Brightwater
+U,61832,Vanudal Goldweaver
+U,61840,Shandlar Thethis
+U,61841,Leshandra Fintri
+U,61845,Rine
+U,61849,Commander Braedin
+U,61850,Ranathir
+U,61851,Commander Anarileth
+U,61852,Ka'zmir Somberwind
+U,61861,Galmo Tazzwrench
+U,61878,Solenia Solarcrest
+U,61879,Relaina Whiteshore
+U,61881,Dalicia Sweetsilver
+U,61886,Miriam Lenheim
+U,61887,Dalanas Swiftfeather
+U,61888,Marrondra
+U,61894,Sinodas Azuresky
+U,61896,Alix Gres
+U,61902,Coco Gucci
+U,61903,Vera Lauren
+U,61904,Ralph Jacobs
+U,61912,Mayva Togview
+U,61913,Fanzy Sparkspring
+U,61924,Gulmire Fartower
+U,61927,Tacknazz Copperfire
+U,61930,Motsog Kegsipper
+U,61977,Traxis
+U,61987,Akh Z'ador
+U,61990,Big Whiskers
+U,61991,Archibald Earlwake
+U,61992,Harold Coldsworth
+U,61996,Anelace the Clairvoyant
+U,62007,Al'Dorel
+U,62031,Mathias Brightheart
+U,62032,Sakgoth Ironjaw
+U,62034,Nora Steamsight
+U,62105,Malorne
+U,62107,Kazud Fireforged
+U,62108,Geldra Bronzewhiskers
+U,62109,Melus Ironeye
+U,62144,Griselda Tilley
+U,62155,Mayor Birkton
+U,62156,Henry
+U,62158,Jarold Thorpe
+U,62162,Duke Sherwood
+U,62163,Lady Mildenhall
+U,62165,Lord Amberwood
+U,62183,Horsekeeper Geringt
+U,62186,Mitchell Huckabee
+U,62197,Farseer Greka
+U,62199,Durmir Rugford
+U,62201,Thaldon Thunderbrew
+U,62202,Hal'togg Hornfang
+U,62205,Brewfest Reveler
+U,62208,Brewfest Reveler Brendo
+U,62209,Pietro Paraveno
+U,62273,Triston Lancaster
+U,62274,Dul Wolfsnarl
+U,62275,Guard Gaspar
+U,62276,Guard Mike
+U,62278,Leon Cassidy
+U,62279,Ingvild Ellerian
+U,62280,Groundskeeper Clive
+U,62290,Enchantress Magilou
+U,62292,Old Hamilton
+U,62293,Mirabelle Hamilton
+U,62295,Trevor Melain
+U,62296,Sister Argent
+U,62297,Brother Graham
+U,62299,The Witch of Northwind
+U,62307,Barbara Lee
+U,62308,Inquisitor Abbadon
+U,62309,Old Man Crawford
+U,62310,Jeremiah Crawford
+U,62386,Mountaineer Steelwind
+U,62388,Mountaineer Lightboots
+U,62390,Sorgan Trustgrip
+U,62391,Historian Sternhand
+U,62395,Magistrate Hurdam Toughhand
+U,62397,Marshal Rorin Palepike
+U,62399,Harfig Ironbrow
+U,62400,Crier Sternhand
+U,62405,Groldan Blackforge
+U,62406,Argaz Marblemight
+U,62411,Foreman Kegg Boulderboots
+U,62412,Garlin Redbrand
+U,62414,Prospector Dustshoulder
+U,62416,Tarwegg Dustbrow
+U,62417,Farleg Slatebeard
+U,62419,Grukson Slatebeard
+U,62421,Sarthyss Scaleheart
+U,62422,Dorthas Read
+U,62425,Grunt Morkan
+U,62426,Gar'gekk
+U,62429,Bargolnak
+U,62431,Harlekk
+U,62432,Far Seer Mothang
+U,62433,Commander Aggnash
+U,62434,Advisor Ranagg
+U,62442,Yor'thegg the Wise
+U,62455,Verona Gillian
+U,62456,Kinrial
+U,62457,Nippsy Spickerspan
+U,62458,Noppsy Spickerspan
+U,62459,Rufus Hammerstrike
+U,62462,Elindra Swiftluck
+U,62467,Lord Olivert Grahan
+U,62468,Mechanic Kixqal
+U,62470,Olmir Halfhorn
+U,62471,Methendra Owltalon
+U,62473,Boris Farwind
+U,62477,Commander Leder
+U,62484,Colonel Driscol
+U,62488,Operative Baltimore Hawthorne
+U,62489,Judith Flenning
+U,62493,Injured Northwind Quacker
+U,62511,Hufan Earthbow
+U,62512,Lissandra Skysoar
+U,62519,Penny Plainsteel
+U,62520,Rikki Fizmask
+U,62521,Yunie Quicktrigger
+U,62554,Wiggles
+U,62556,Agent Deryl
+U,62561,Dying Woman
+U,62568,Torlag
+U,62570,Seer Sarno
+U,62582,Ralwen Ivon
+U,62586,O'jin
+U,62587,Mok'gun Frostfingers
+U,62588,Uda'pe Sungrass
+U,62589,Gre'shka Wolfbite
+U,62590,Kilrogg Deadeye
+U,62623,Kwabit
+U,62627,Chief Engineer Kalke
+U,62629,Grathnol
+U,62630,Nathok
+U,62631,Kathor the Brave
+U,62634,Antonas Riftgaze
+U,62636,Grimbite
+U,62637,Nydiszanz
+U,62638,Okul
+U,62681,Boss Slickwick
+U,62682,Assistant Steamflare
+U,62683,Blaxbi
+U,62684,Shady Individual
+U,62698,Fisherman Nudrew
+U,62700,Jama'nali
+U,62708,Nizzle
+U,62710,Drak'thul
+U,62718,Drethanis Mournshade
+U,62719,Markus Farwind
+U,62720,Ronald Gillian
+U,62726,Zalsu the Wanderer
+U,62727,Aelennia Starbloom
+U,62730,Arthur Vandris
+U,62734,Ranger Faellina Swiftstride
+U,62740,Narkogg the Dark
+U,62741,Rethevus
+U,62752,Mountaineer Barleycrest
+U,62755,Selja
+U,62795,Raghol
+U,62797,Grakk Windtamer
+U,62803,Ohona Riverbend
+U,62804,Spirit Guide Tohnizte
+U,62834,Malgan Windhorn
+U,62836,Sagh
+U,62839,Brolan Windhorn
+U,62842,Nuhlgahn Windhorn
+U,62851,Heghala
+U,62899,Olgra
+U,62900,Arch Druid Renethra Moonwater
+U,62901,Sentinel Commander Silverstreak
+U,62902,Zarazar Sagewind
+U,62904,Irea Dawncaller
+U,62906,Elendon Truebough
+U,62907,Talanis Amberscribe
+U,62913,Grovetender Sellais
+U,62914,Sister Mirallun
+U,62917,Keeper Bandalar
+U,62920,Riftmaster Ral'pekta
+U,62972,Dhela
+U,62973,Fisher Rainstrider
+U,62976,Mhulf Nighthorn
+U,62977,Moonhoof the Younger
+U,62978,Shanni Silkhoof
+U,62980,Uz'tuk
+U,62983,Thobias Shallowgrave
+U,62984,Yagoh Riverhorn
+U,63019,Shovu
+U,63047,Chief Defender Hamaam
+U,63054,Duln Ashtotem
+U,63056,Ulf Stonetotem
+U,63059,Luhal Tannedhorn
+U,63078,Kralt the Forgotten
+U,63083,Elder Starstrider
+U,63086,Erna
+U,63087,Torgan the Wise
+U,63094,Bulrok Cloudhoof
+U,63095,Gordnak
+U,63096,Nuhlok Starstrider
+U,63098,Artahla Starstrider
+U,63099,Pargan Starstrider
+U,63102,Fangorn
+U,63106,Makya Hillmoon
+U,63118,Brave Wildheart
+U,63119,Andanil Sunsworn
+U,63121,Tesania Shadewind
+U,63122,Rhys Dawnbreeze
+U,63127,Arcanist Cerulon
+U,63160,Sentinel Velaya
+U,63163,Groundstender Rainhorn
+U,63168,Mountaineer Granitebeard
+U,63182,Archaeologist Evenpike
+U,63183,Keeper N'las
+U,63188,Argur Rustbrand
+U,63189,Supply Officer Mortimus
+U,63190,Ranix Crackbolt
+U,63196,Thorinn Darkgrovel
+U,63198,Gor'dush Jawtaker
+U,63201,Ireth Moondancer
+U,63203,Fanwyn Wildbrand
+U,63204,Ingwelda Wildbrand
+U,63205,Rubertus Wildbrand
+U,63206,Suda Steelweaver
+U,63207,Fahesa Steelweaver
+U,63208,Esoch Steelweaver
+U,63209,Brother Raymond
+U,63210,Hefhani
+U,65004,Kheyna Spinpistol
+U,65005,Chromie
+U,65019,Chromie
+U,66000,Junior Foreman Silverhand
+U,66001,Denalah Silverpoint
+U,66002,Kherra
+U,66004,Ancient Wolf Spirit
+U,66005,Margok Hatewind
+U,70020,Taupo Foreststrider
+U,70022,Norvok Hawkspear
+U,70023,Commander Grushak
+U,70027,Farseer Grimeye
+U,73101,The Artificer
+U,73102,Thegren
+U,80100,Nert Blastentom
+U,80101,Sprat Nozzleton
+U,80104,Grizzie the Enforcer
+U,80105,Mayten Boomrifle
+U,80106,Leyti Quicktongue
+U,80107,Amri Demondeal
+U,80108,Wizette Icewhistle
+U,80121,Nert Blastentom
+U,80129,Imp
+U,80131,Kazznik
+U,80178,Grand Taskmaster Nert Blastentom
+U,80202,Kathy Wake
+U,80217,Valanos Dawnfire
+U,80218,Magister Ala'shor Sunblood
+U,80219,Ranger Rubinah Sunsworn
+U,80220,Lor'thas the Holy
+U,80221,Priestess Maelah Sunsworn
+U,80223,Leela the Shadow
+U,80231,Arcanist Anu'delen
+U,80244,Andalideth Suncaller
+U,80245,Damilara Sunsorrow
+U,80246,Grand Magistrix Merisa Dawnbreaker
+U,80247,Larane Dawnbringer
+U,80248,Loriel
+U,80405,Illyanah Dawnstar
+U,80450,Pepin Ainsworth
+U,80451,Koli Steamheart
+U,80458,Ranger Canarah Kim'Alah
+U,80460,Applebough
+U,80601,Quark
+U,80605,Odo
+U,80799,Volz'draza
+U,80800,Revantusk Watcher
+U,80801,Mystic Guya'jin
+U,80802,Warleader Zol'majin
+U,80831,Chok'Garok
+U,80855,Clover Spinpistol
+U,80857,Ureda
+U,80877,Vereesa Windrunner
+U,80932,Drazzit Dripvalve
+U,80933,Gizzix Grimegurgle
+U,80960,Bourok
+U,80990,Risa Sandrocket
+U,80991,Lizzi Saltcrabs
+U,80997,Toci Flipper
+U,81041,Kheyna Spinpistol
+U,81042,Loania
+U,81043,Lieren
+U,81044,Voldana
+U,81046,Inunquaq
+U,81050,Dark Ranger Lanissa
+U,81060,Prospector Brotalus
+U,81061,Noli
+U,81250,Moxie Steelgrille
+U,81258,Vixie Dampknob
+U,81259,Qik Peddlechin
+U,90987,Wally Burnside
+U,91200,Wrix Ozzlenut
+U,91203,Rugnar
+U,91208,Oilworker Razlik
+U,91214,Technician Spuzzle
+U,91232,Krez the Wise
+U,91234,Technician Grimzlow
+U,91237,Tradesman Laz
+U,91243,Gowlfang
+U,91249,Hizzle
+U,91254,Gazztoggle Krewpipe
+U,91255,Frix Tallycog
+U,91259,Pazzle Brightwrench
+U,91260,Shak 'The Hack'
+U,91272,Miner Axel
+U,91274,Big Fraggle
+U,91280,Brizclang Spuckettool
+U,91282,Shalgrig Pipeshack
+U,91285,Grol the Exile
+U,91287,Daela Evermoon
+U,91288,Ardaen Evermoon
+U,91289,Lord Rog
+U,91290,Shadow Hunter Yin'do
+U,91292,Tarlo Farcrack
+U,91299,Little Grizlik
+U,91350,Magus Bromley
+U,91400,Raz'Dag
+U,91401,Daffar
+U,91402,Jinz'ah
+U,91411,Speaker Ganz'ih
+U,91412,Gortog
+U,91415,Titiki
+U,91710,Old Farwell
+U,91711,Duchess Grelda
+U,91712,Duke Nargelas
+U,91713,Apothecary Volgrin
+U,91722,Keeper Iselus
+U,91726,Father Brightcopf
+U,91727,Butcher Reeves
+U,91728,Marlow Neggle
+U,91729,Harry Upperson
+U,91730,Deathguard Markus
+U,91749,Bounty Hunter Knox
+U,91752,Deathguard Mike
+U,91753,Vathras Millson
+U,91767,Senator Broadbelt
+U,91768,Gigno Flaxwhisker
+U,91769,Lorie Gearwatch
+U,91770,Fendo Wobblefizz
+U,91776,Tide Mistress Rashal
+U,91777,Myrmidon Sasz
+U,91779,Hashaz
+U,91781,Sanv K'la
+U,91782,Akh Z'ador
+U,91796,Har Na'lan
+U,91806,Scryer Lordal Thas'alah
+U,91867,Primalist Jongi
+U,91869,Primalist Palaz
+U,91870,Primalist Yango
+U,91871,Head-Primalist Manaz'ago
+U,91872,'Slim'
+U,91883,Arnold Boran
+U,91890,Eliza Caldwell
+U,91891,Tarsokk
+U,91952,Devon Harkwave
+U,91953,Father Benofar
+U,91974,Captain Silas
+U,91976,Barkeep Clemens
+U,92000,Hydromancer Vanessa
+U,92001,Hydromancer Flakereef
+U,92002,Colonel Hardinus
+U,92003,Deckmaster Breachcrest
+U,92005,Sergeant Blackwell
+U,92010,Sailor Larson
+U,92012,Watch Sergeant Arthur
+U,92017,Watch Paladin Janathos
+U,92018,Sir Areyntall
+U,92019,Janet Hollowworth
+U,92022,'Sly' Duncan
+U,92023,Quartermaster Davin
+U,92024,Dag'grak Bloodfist
+U,92145,Smallgill
+U,92168,Achaikos
+U,92171,Eudokia
+U,92174,Tarokar
+U,92176,Blatarg
+U,92180,Lord Cruk'Zogg
+U,92182,Explorer Fangosh
+U,92184,Haz'gorg the Great Seer
+U,92186,Seer Borgorr
+U,92187,Flaz Fusemix
+U,92188,Yeggle Powderscrew
+U,92190,Jubo
+U,92191,Blazno Blastpipe
+U,92196,Katokar Bladewind
+U,92197,Yharg'osh
+U,92199,Talom Stridecloud
+U,92202,Nulda
+U,92219,Genzil Spannerlight
+U,92223,Kalanar Brightshine
+U,92938,Magus Valgon
+U,161210,Blademaster Axun
+U,161211,Lady Katrin
+O,1000171,Incompleted Interrogation Report
+O,1000172,Prison Guards's Coffee Mug
+O,1000173,Iron Maiden
+O,1000500,Pile of Glinting Muck
+O,1000504,WANTED!
+O,1000505,WANTED!
+O,2010810,Mysterious Trunk
+O,2010829,Waterlogged Trunk
+O,2010830,Half Buried Barrel
+O,2010870,Arcanist Sovatir's Torn Notes
+O,2010871,Lyvdia Dawnbird
+O,2010873,Arcanist Sovatir's Torn Notes
+O,2010877,The Dark-Rune Anvil
+O,2010884,Guide to a Sailor's Stomach
+O,2010920,Turmoiled Grave
+O,2010923,A Turmoiled Grave
+O,2010924,A Curious Leaf
+O,2010927,Abandoned Footlocker
+O,2010972,Tel Co. Bounty Board
+O,2020028,Mysterious Mailbox
+O,2020062,Aerie Peak Gravestone
+O,2020098,Khadgar's Journal
+O,2020107,Tattered Journal
+O,2020108,Overgrown Mound
+O,2020110,Glimmering Shard
+O,2020111,Recipes of Kezan
+O,2020112,of Ancients and Treants
+O,2020167,Hidden Locker
+O,2020168,Shatterblade Bounty Board
+O,2020177,Muddy Journal
+O,2020183,Unsent Letter
+O,2020198,Redbrand Tablet
+O,2020240,Rusty Locket
+O,2020241,Withered Cross
+O,2020252,Ancient Wildhammer Tome
+I,41122,Feltouched Letter
+I,41398,Expensive Gold Ring
+I,41403,Enchanted Amethyst
+I,41711,Letter from Korlag Doomsong
+I,41799,Damaged Relic Mechanism
+I,41802,Damaged Relic Mechanism
+I,41895,Shard of the Demon Soul
+I,41938,Etched Toy Sword
+I,41939,Broken Bloodstone Pendant
+I,41954,Groldan's Stash
+I,41974,Brangar's Journal
+I,41981,Letter from Korlag Doomsong
+I,42166,Lord Blackwald II’s Riding Whistle
+I,42167,Crypt Lord’s Beckoning
+I,42169,Bursting Mana Shard
+I,42177,Pendant of Dreams
+I,42178,Rite of Resurrection
+I,42180,Twisting Rift Crystal
+I,42206,Windtorn Crest Stone
+I,42222,Crate with Red Crystals
+I,42295,Mass of Writhing Tentacles
+I,42306,Corrupted Hide of Ursol
+I,42307,Runed Elementium Key
+I,42385,Half-Burnt Scroll
+I,51326,Scribbled Cooking Notes
+I,51855,Dirty Old Ring
+I,53000,Sealed Letter
+I,55579,Heart of Mephistroth
+I,56099,Advanced Jewelcrafting XI: Hard as Diamonds
+I,56108,Advanced Gemology II
+I,56109,Advanced Gemology I
+I,56110,Advanced Goldsmithing I
+I,56111,Advanced Goldsmithing II
+I,59990,Shabby Letter
+I,60149,Mysterious Cow Scroll
+I,60520,Razormane Orders
+I,60521,Warlord Kolkanis' Head
+I,60767,Letter from Maltimor
+I,60894,Dusty Coin
+I,60895,Razor-Sharp Knife
+I,60989,A Strange Parchment
+I,61153,Foul Effigy
+I,61184,The Scythe of Elune
+I,61215,Head of Solnius
+I,61444,Smoldering Dream Essence
+I,61457,A Mysterious Missive
+I,61652,Claw of Erennius
+I,61764,A Page from Marlonias' Notes
+I,70227,Mastery of Axes
+I,70228,Mastery of Swords
+I,70229,Mastery of Hammers
+I,70230,Mastery of Fist Weapons
+I,70231,Mastery of Polearms
+I,70232,Mastery of Staves
+I,70233,Mastery of Thrown
+I,70234,Mastery of Bows
+I,70235,Mastery of Crossbows
+I,70236,Mastery of Daggers
+I,70238,Mastery of Guns
+I,80114,Oil-scorched Note
+I,81275,Intact Pounder Mainframe
+I,91793,Mysterious Red Envelope
