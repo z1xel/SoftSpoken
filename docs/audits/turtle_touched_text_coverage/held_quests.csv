@@ -1,0 +1,18 @@
+quest_id,catalog_title,turtle_title,vanilla_title,turtle_method,category,source_status,baseline_status,title_different,objective_different,changed_stages,stage_differences,world_evidence,curated_status,turtle_starter_spawns,source_title_agrees_catalog,eligibility_reason,vanilla_quest_present,source_zone,baseline_zone
+236,Watcher Callahan,Watcher Callahan,,1,legacy_id_absent_from_vanilla,present,absent,0,0,,0,,modified_manifest,,1,method_disabled_or_unverified,0,10,
+636,Legends of the Earth,Legends of the Earth <NYI>,Legends of the Earth,2,other_quest_text_difference_candidate,retired,present,1,0,,0,template_only,imported,0,0,source_retired_or_placeholder,1,45,45
+814,Work for Food,Work for Food,,2,legacy_id_absent_from_vanilla,present,absent,0,0,,0,,,,1,legacy_id_requires_world_evidence,0,14,
+934,Crown of the Earth,Crown of the Earth,Crown of the Earth,1,dialogue_difference_candidate,present,present,0,0,accept,1,,,,1,method_disabled_or_unverified,1,141,141
+1288,Vimes's Report,Vimes's Report,,1,legacy_id_absent_from_vanilla,present,absent,0,0,,0,,,,1,method_disabled_or_unverified,0,15,
+3381,A Meeting with the Master,A Meeting with the Master,,1,legacy_id_absent_from_vanilla,present,absent,0,0,,0,,,,1,method_disabled_or_unverified,0,16,
+3482,The Pocked Black Box,<NYI> <TXT> The Pocked Black Box,,2,legacy_id_absent_from_vanilla,retired,absent,0,0,,0,item_starter,imported,0,0,source_retired_or_placeholder,0,0,
+5640,Desperate Prayer,Desperate Prayer,,2,legacy_id_absent_from_vanilla,present,absent,0,0,,0,,,,1,legacy_id_requires_world_evidence,0,-262,
+5678,Arcane Feedback,Arcane Feedback,,2,legacy_id_absent_from_vanilla,present,absent,0,0,,0,,,,1,legacy_id_requires_world_evidence,0,-262,
+7668,The Darkreaver Menace,The Darkreaver Menace,,1,legacy_id_absent_from_vanilla,present,absent,0,0,,0,,,,1,method_disabled_or_unverified,0,-82,
+7886,Talismans of Merit,Talismans of Merit,Talismans of Merit,1,dialogue_difference_candidate,present,present,0,0,accept,1,,,,1,method_disabled_or_unverified,1,3277,3277
+7921,Talismans of Merit,Talismans of Merit,Talismans of Merit,1,dialogue_difference_candidate,present,present,0,0,accept,1,,,,1,method_disabled_or_unverified,1,3277,3277
+7922,Mark of Honor,Mark of Honor,Mark of Honor,1,dialogue_difference_candidate,present,present,0,0,accept,1,,,,1,method_disabled_or_unverified,1,3277,3277
+8266,Ribbons of Sacrifice,Ribbons of Sacrifice,Ribbons of Sacrifice,1,dialogue_difference_candidate,present,present,0,1,accept,1,,,,1,method_disabled_or_unverified,1,3277,3277
+8268,Ribbons of Sacrifice,Ribbons of Sacrifice,Ribbons of Sacrifice,1,dialogue_difference_candidate,present,present,0,1,accept,1,,,,1,method_disabled_or_unverified,1,3277,3277
+8289,Talismans of Merit,Talismans of Merit,Talismans of Merit,1,curated_relation_change_only,present,present,0,0,,0,npc_with_spawn,imported,1,1,method_disabled_or_unverified,1,3277,3277
+8296,Mark of Honor,Mark of Honor,Mark of Honor,1,curated_relation_change_only,present,present,0,0,,0,npc_with_spawn,imported,1,1,method_disabled_or_unverified,1,3277,3277
