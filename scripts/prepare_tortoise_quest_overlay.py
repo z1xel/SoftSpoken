@@ -77,29 +77,45 @@ def load_rows(database, ids):
         con.close()
 
 
+def lua_quoted(value):
+    """Lua 5.1-safe string literal: keep UTF-8 and WoW $tokens verbatim."""
+    escaped = []
+    for char in value:
+        n = ord(char)
+        if char == "\\": escaped.append("\\\\")
+        elif char == '"': escaped.append('\\"')
+        elif char == "\n": escaped.append("\\n")
+        elif char == "\r": escaped.append("\\r")
+        elif char == "\t": escaped.append("\\t")
+        elif n < 32 or n == 127: escaped.append("\\%03d" % n)
+        else: escaped.append(char)
+    return '"' + "".join(escaped) + '"'
+
+
 def make_overlay(accepted, destination):
-    # Ensure all emitted strings are valid Lua 5.1 double-quoted literals.
+    """Write an additive Lua table for local installation, never the Vanilla corpus."""
     lines = [
         "-- Generated Turtle-only quest dialogue. DO NOT edit by hand.",
-        "-- Local export only; verify source content rights before redistribution.",
+        "-- Local import; confirm redistribution rights before publishing.",
+        "-- Source: pinned Tortoise-WoW SQLite; differences can be checked in-game later.",
         "SSCTurtleQuestText = SSCTurtleQuestText or {}",
     ]
+    stage_totals = Counter()
+    written = 0
     for quest_id, src in sorted(accepted.items()):
         texts = [(stage, src[field]) for stage, field in STAGES.items()
                  if isinstance(src[field], str) and src[field].strip()]
         if not texts:
             continue
+        written += 1
         lines.append("SSCTurtleQuestText[%d] = {" % quest_id)
         for stage, value in texts:
-            # ensure_ascii=False keeps UTF-8 without JSON's \uXXXX (not Lua 5.1).
-            quoted = json.dumps(value, ensure_ascii=False)
-            if "\\u" in quoted or "\\/" in quoted:
-                raise ValueError(f"Non-Lua escape in quest {quest_id} {stage}")
-            lines.append("    %s = %s," % (stage, quoted))
+            stage_totals[stage] += 1
+            lines.append("    %s = %s," % (stage, lua_quoted(value)))
         lines.append("}")
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text("\n".join(lines) + "\n", encoding="utf-8")
-
+    return {"quest_rows_written": written, "stages_written": dict(sorted(stage_totals.items()))}
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
@@ -154,7 +170,11 @@ def main():
         json.dump(summary, fh, indent=2, ensure_ascii=False)
         fh.write("\n")
     if args.emit_text:
-        make_overlay(accepted, args.emit_text)
+        generation = make_overlay(accepted, args.emit_text)
+        summary["generated"] = generation
+        with (args.out / "summary.json").open("w", encoding="utf-8") as fh:
+            json.dump(summary, fh, indent=2, ensure_ascii=False)
+            fh.write("\n")
     print(json.dumps(summary, indent=2, ensure_ascii=False))
 
 
