@@ -4,11 +4,11 @@ setfenv(1, VoiceOver)
 -- there is no independent NPC-dialogue mixer or reliable native completion event.
 -- ClassicAPI provides recent sound FILE paths and start times, but not the native
 -- sound handles associated with those paths. For known Vanilla NPC greetings we
--- therefore use the measured recording length; otherwise we wait 2.5 seconds.
+-- therefore use the measured recording length; otherwise we wait 2.0 seconds.
 -- This estimates the end of a greeting; it does not detect playback completion.
 GreetingFirst = {}
 
-local FALLBACK = 2.5
+local FALLBACK = 2.0
 local END_PADDING = 0.12
 -- A greeting may begin just before its dialog event or shortly afterward.
 local EARLY_START, LATE_START = 0.45, 0.30
@@ -66,7 +66,11 @@ end
 -- The client's path has a Sound\ prefix and may use any case/separator.
 -- The lookup includes only files verified in the original 1.12.1 archive.
 local function NormalizePath(path)
-    return string.lower(string.gsub(string.gsub(path, "\\", "/"), "^sound/", ""))
+    -- ClassicAPI reports paths in the game's casing (usually "Sound\\").
+    -- Lowercase FIRST; stripping before lowercasing fails on that prefix
+    -- and causes every real Vanilla path to miss the duration table.
+    local normalized = string.lower(string.gsub(path, "\\", "/"))
+    return string.gsub(normalized, "^sound/", "")
 end
 
 -- This is a timing estimate using a file's start and recorded duration.
