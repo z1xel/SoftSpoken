@@ -227,5 +227,10 @@ jobs:
           git add docs/audits/turtle_touched_text_coverage/
           if ! git diff --cached --quiet; then
             git commit -m 'Audit Turtle-touched shared-ID quest dialogue coverage without altering Spoken'
+            # A GitHub-connected editor may have advanced this audit branch
+            # while the lengthy source audit ran. Rebase ONLY our generated
+            # text-free report commit before pushing; never force-push.
+            git fetch origin audit/turtle-touched-text-coverage
+            git rebase origin/audit/turtle-touched-text-coverage
             git push origin HEAD:audit/turtle-touched-text-coverage
           fi
