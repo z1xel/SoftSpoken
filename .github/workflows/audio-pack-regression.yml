@@ -27,6 +27,11 @@ on:
       - "SoftSpoken_Stories/VoiceOver.lua"
       - "SoftSpoken_Stories/FactionCrest.lua"
       - "SoftSpoken_Stories/SpeakerResolver.lua"
+      - "SoftSpoken_Stories/Data/Compendium.lua"
+      - "docs/turtle_exclusive_import.csv"
+      - "docs/turtle_exclusive_speaker_names.csv"
+      - "scripts/reapply_turtle_quest_catalog.py"
+      - "tests/test_turtle_exclusive_catalog_import.py"
       - "SoftSpoken_Stories/addon.xml"
       - "SoftSpoken_Places/**"
       - "SoftSpoken_Writings/**"
@@ -71,6 +76,11 @@ on:
       - "SoftSpoken_Stories/VoiceOver.lua"
       - "SoftSpoken_Stories/FactionCrest.lua"
       - "SoftSpoken_Stories/SpeakerResolver.lua"
+      - "SoftSpoken_Stories/Data/Compendium.lua"
+      - "docs/turtle_exclusive_import.csv"
+      - "docs/turtle_exclusive_speaker_names.csv"
+      - "scripts/reapply_turtle_quest_catalog.py"
+      - "tests/test_turtle_exclusive_catalog_import.py"
       - "SoftSpoken_Stories/addon.xml"
       - "SoftSpoken_Places/**"
       - "SoftSpoken_Writings/**"
@@ -115,6 +125,7 @@ jobs:
           luac5.1 -p SoftSpoken_Places/UI/Options.lua SoftSpoken_Writings/UI/Options.lua
           luac5.1 -p SoftSpoken_Stories/Compendium/QuestsTab_112.lua SoftSpoken_Stories/Compendium/PortraitPreload_112.lua SoftSpoken_Stories/DataModules.lua SoftSpoken_Stories/VoiceOver.lua SoftSpoken_Stories/QuestOverlayUI.lua
           luac5.1 -p Data_Packs/SSS_VOFallback/Module.lua
+          luac5.1 -p SoftSpoken_Stories/Data/Compendium.lua
       - name: Check Compendium book mask and runtime skin assets
         run: lua5.1 tests/compendium_book_mask.lua
       - name: Check bounded Vanilla UI fallback polling
@@ -131,6 +142,8 @@ jobs:
         run: lua5.1 tests/stories_faction_crest.lua
       - name: Check Stories shared speaker resolution
         run: lua5.1 tests/stories_speaker_resolution.lua
+      - name: Check Turtle exclusive quest catalog and overlay regeneration
+        run: python3 tests/test_turtle_exclusive_catalog_import.py
       - name: Check Compendium portrait lifecycle
         run: lua5.1 tests/stories_compendium_portrait_lifecycle.lua
       - name: Check bounded Stories portrait preloading
