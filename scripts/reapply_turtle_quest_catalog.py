@@ -11,6 +11,8 @@ or server-specific record that has already been curated.
 import argparse
 import csv
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -110,6 +112,17 @@ def main():
         print("Restored %d Turtle quests and %d entity names" % (n_quests, n_names))
     else:
         print("Turtle quest overlay already present")
+    # The separate, reviewed SQL classification manifest is regenerated from
+    # the frozen audit. Apply it AFTER adding missing curated quest IDs so a
+    # future upstream Compendium regeneration cannot silently lose zones.
+    zone_manifest = ROOT / "docs/tortoise_zone_overlay.csv"
+    if zone_manifest.exists():
+        subprocess.run([
+            sys.executable,
+            str(ROOT / "scripts/reapply_tortoise_zone_overlay.py"),
+            "--check" if args.check else "--apply",
+            "--catalog", str(args.catalog)
+        ], check=True)
 
 
 if __name__ == "__main__":
