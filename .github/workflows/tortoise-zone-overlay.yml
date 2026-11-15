@@ -5,6 +5,10 @@ on:
     paths:
       - scripts/build_tortoise_zone_overlay.py
       - scripts/reapply_tortoise_zone_overlay.py
+      - SoftSpoken_Stories/Compendium/QuestCatalog_112.lua
+      - SoftSpoken_Stories/addon.xml
+      - tests/tortoise_zone_catalog.lua
+      - tests/test_turtle_exclusive_catalog_import.py
       - .github/workflows/tortoise-zone-overlay.yml
       - docs/audits/tortoise_unclassified_integrity/all_unclassified.csv
   workflow_dispatch:
@@ -39,17 +43,30 @@ jobs:
           python3 scripts/build_tortoise_zone_overlay.py --db .audit-zone-source/data/tortoise.sqlite
           cat docs/audits/tortoise_zone_overlay/summary.json
 
+      - name: Apply the approved manifest to existing Compendium quests only
+        run: |
+          python3 scripts/reapply_tortoise_zone_overlay.py --apply
+          python3 scripts/reapply_tortoise_zone_overlay.py --check
+          python3 scripts/reapply_turtle_quest_catalog.py --check
+          git diff --check
+
       - name: Validate Lua metadata
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y lua5.1
           luac5.1 -p SoftSpoken_Stories/Data/TurtleAreaMeta.lua
+          luac5.1 -p SoftSpoken_Stories/Data/Compendium.lua
+          luac5.1 -p SoftSpoken_Stories/Compendium/QuestCatalog_112.lua
+          lua5.1 tests/tortoise_zone_catalog.lua
+          python3 tests/test_turtle_exclusive_catalog_import.py
+          python3 tests/test_turtle_shared_id_coverage.py
+          python3 tests/test_ui_packaging.py
 
       - name: Commit classification proposal and audit
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add docs/tortoise_zone_overlay.csv docs/audits/tortoise_zone_overlay/ SoftSpoken_Stories/Data/TurtleAreaMeta.lua
+          git add docs/tortoise_zone_overlay.csv docs/audits/tortoise_zone_overlay/ SoftSpoken_Stories/Data/TurtleAreaMeta.lua SoftSpoken_Stories/Data/Compendium.lua
           if ! git diff --cached --quiet; then
             git commit -m 'Build conservative native and Turtle-area classification overlay'
             git push origin HEAD:audit/tortoise-unclassified-integrity
