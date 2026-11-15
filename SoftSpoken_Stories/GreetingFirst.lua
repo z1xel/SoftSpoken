@@ -64,7 +64,7 @@ local function RecentGreetingEnd(openedAt)
     if not ok or type(recent) ~= "table" then
         return nil
     end
-    local newest, candidateEnd
+    local newest, candidateEnd, candidateFile
     local latestAllowed = math.min(GetTime() + 0.05, openedAt + LATE_START)
     for _, entry in ipairs(recent) do
         if type(entry) == "table" and not entry.muted and type(entry.file) == "string"
@@ -76,19 +76,21 @@ local function RecentGreetingEnd(openedAt)
                     and (not newest or playedAt > newest) then
                     newest = playedAt
                     candidateEnd = playedAt + duration / 1000 + END_PADDING
+                    candidateFile = entry.file
                 end
             end
         end
     end
-    return candidateEnd
+    return candidateEnd, candidateFile
 end
 
 local function Probe(openedAt, token, previousHoldUntil, attempt)
     if token ~= generation then return end
-    local endAt = RecentGreetingEnd(openedAt)
+    local endAt, file = RecentGreetingEnd(openedAt)
     if endAt then
         -- Preserve a previous NPC's outstanding wait when rapidly changing targets.
         holdUntil = math.max(previousHoldUntil, endAt)
+        GreetingFirst.lastTiming = { method = "recording length", seconds = math.max(0, holdUntil - openedAt), file = file }
         ScheduleWake()
         return
     end
@@ -109,6 +111,7 @@ function GreetingFirst:Open()
 
     local now, previousHoldUntil = GetTime(), holdUntil
     holdUntil = math.max(previousHoldUntil, now + FALLBACK)
+    self.lastTiming = { method = "fixed fallback", seconds = math.max(0, holdUntil - now) }
     generation = generation + 1
     ScheduleWake()
     if CanObserve() then
@@ -133,6 +136,13 @@ function GreetingFirst:Closed()
         end
         visit = nil
     end, 0.1)
+end
+
+function GreetingFirst:DescribeTiming()
+    local timing = self.lastTiming
+    if not timing then return "no NPC interaction yet" end
+    return string.format("%s, %.2fs%s", timing.method, timing.seconds,
+        timing.file and (", file " .. timing.file) or "")
 end
 
 function GreetingFirst:Setup()
