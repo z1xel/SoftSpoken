@@ -64,6 +64,32 @@ def get_all(db,table,wanted):
 def get_turtle(db):
     return get_all(db,"quests",["entry","title","details","requesttext","offertext",
                                "objectives","zone","hidden"])
+def world_starters(db, ids):
+    """Starter/spawn evidence for ALL existing Compendium IDs, not only unclassified."""
+    npcs=collections.defaultdict(set)
+    objects=collections.defaultdict(set)
+    items=collections.defaultdict(set)
+    for table, out in (("creature_quest_start",npcs),("gameobject_quest_start",objects)):
+        for qid,actor in db.execute("SELECT quest,id FROM "+table):
+            if qid in ids:
+                out[int(qid)].add(int(actor))
+    for item,quest in db.execute("SELECT entry,start_quest FROM items WHERE start_quest>0"):
+        if quest in ids:items[int(quest)].add(int(item))
+    active_npc={int(r[0]) for r in db.execute("SELECT DISTINCT id FROM spawns")}
+    active_obj={int(r[0]) for r in db.execute("SELECT DISTINCT id FROM spawn_points WHERE kind='o'")}
+    result={}
+    for id in ids:
+        npc=len(npcs[id] & active_npc)
+        obj=len(objects[id] & active_obj)
+        if npc: evidence="npc_with_spawn"
+        elif obj: evidence="object_with_spawn"
+        elif items[id]: evidence="item_starter_unverified"
+        elif npcs[id] or objects[id]: evidence="unspawned_starter_relation"
+        else: evidence="no_known_starter_relation"
+        result[id]=(evidence, bool(npc or obj),npc,obj)
+    return result
+
+
 def get_vanilla(db):
     return get_all(db,"quest_template",["entry","title","details",
                                         "requestitemstext","offerrewardtext",
@@ -114,6 +140,7 @@ def main():
         raise ValueError("Cannot audit Turtle-touched text without source-specific change provenance")
     with sqlite3.connect("file:"+str(args.turtle.resolve())+"?mode=ro",uri=True) as c:
         tw=get_turtle(c)
+        world=world_starters(c,set(titles))
     with sqlite3.connect("file:"+str(args.vanilla.resolve())+"?mode=ro",uri=True) as c:
         vanilla=get_vanilla(c)
     static=get_static(args.lua_stages)
@@ -139,7 +166,7 @@ def main():
         known=shared.get(id,{}).get("classification","")
         explicit_removed=known in {"removed_by_turtle","excluded_internal"}
         audit=local_audit.get(id,{})
-        proven_world=audit.get("review_category")=="world_linked_candidate"
+        evidence,proven_world,spawned_npc,spawned_obj=world.get(id,("",False,0,0))
         curated=(known=="imported" or id in known_modified or proven_world)
         pfquest_override=(id in pfquest)
         migrated=migration.get(id)
@@ -186,8 +213,8 @@ def main():
             reason="source_retired_or_placeholder"
         elif titlekey(src["title"]) != titlekey(title):
             reason="source_catalog_title_disagreement"
-        elif not base and not (curated or migrated):
-            reason="legacy_id_requires_world_evidence"
+        elif not base and not proven_world:
+            reason="legacy_id_missing_spawned_starter"
         else:
             reason=""
         row={
@@ -199,9 +226,9 @@ def main():
             "title_different":int(title_diff),"objective_different":int(obj_diff),
             "changed_stages":";".join(changed),
             "stage_differences":len(changed),
-            "world_evidence":audit.get("sql_evidence",""),
+            "world_evidence":evidence,
             "curated_status":known if known else "modified_manifest" if id in known_modified else "",
-            "turtle_starter_spawns":audit.get("spawned_npc_starters",""),
+            "turtle_starter_spawns":spawned_npc+spawned_obj,
             "source_title_agrees_catalog":int(titlekey(src["title"])==titlekey(title)),
             "eligibility_reason":reason or "review_candidate",
             "vanilla_quest_present":int(baseline_present),"source_zone":src["zone"],
