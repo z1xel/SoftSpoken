@@ -34,69 +34,57 @@ local Layout = SpokenLayout
 -- Product name stays consistent across locales, unlike descriptive settings text.
 local HOME_TITLE = "SoftSpoken"
 
--- A narrow, native silver search surround spanning the entire legacy window.
--- The main-branch tab trim used 16px-high chat-input slices and painted a
--- dark band below the search. Here only the top/bottom metal edges are used;
--- the interior remains completely transparent.
-local function DrawOrnateSearchBand(window)
-    local leftArt = [[Interface\ChatFrame\UI-ChatInputBorder-Left]]
-    local rightArt = [[Interface\ChatFrame\UI-ChatInputBorder-Right]]
-    local inset, topY, bottomY = 2, -64, -110
-    local capWidth, capHeight = 20, 8
+-- The framed header around the legacy navigation tabs uses the same
+-- three-piece Blizzard chat-input border as the Compendium search field:
+-- a full-size ornamental cap at either end and a narrow straight middle.
+-- Draw directly on the panel's BORDER layer, behind its title and real buttons;
+-- a child Frame here would sit above them and risk blocking the tabs.
+local function DrawOrnateHeaderBand(window)
+    -- Open-top U-shaped silver trim beneath the navigation tabs.
+    -- Keep only the bottom corners/rail and the two vertical sides;
+    -- the title and existing window chrome supply the upper decoration.
+    local art = [[Interface\ChatFrame\UI-ChatInputBorder-]]
+    local leftX, rightX = 2, -2
+    local topY, bottomY = -17, -111
+    local cornerW, cornerH = 28, 16
 
-    local function Cap(art, u1, u2, v1, v2, right, y)
-        local t = window:CreateTexture(nil, "BORDER")
-        t:SetTexture(art)
-        t:SetTexCoord(u1, u2, v1, v2)
-        t:SetWidth(capWidth)
-        t:SetHeight(capHeight)
-        if right then
-            t:SetPoint("TOPRIGHT", window, "TOPRIGHT", -inset, y)
-        else
-            t:SetPoint("TOPLEFT", window, "TOPLEFT", inset, y)
-        end
-        return t
+    local function Part(file, layer, u1, u2, v1, v2, width, height, anchor, relative, x, y)
+        local tex = window:CreateTexture(nil, layer)
+        tex:SetTexture(art .. file)
+        tex:SetTexCoord(u1, u2, v1, v2)
+        tex:SetWidth(width)
+        tex:SetHeight(height)
+        tex:SetPoint(anchor, window, relative, x, y)
+        return tex
     end
 
-    -- Use tiny native end caps, not the dark central fill of the input art.
-    local tl = Cap(leftArt, 0, 20/256, 0, 8/32, false, topY)
-    local tr = Cap(rightArt, 236/256, 1, 0, 8/32, true, topY)
-    local bl = Cap(leftArt, 0, 20/256, 24/32, 1, false, bottomY)
-    local br = Cap(rightArt, 236/256, 1, 24/32, 1, true, bottomY)
+    -- Bottom ornamentation only. No top corners or horizontal top rail.
+    local bl = Part("Left", "BORDER", 0, 28/256, 0.5, 1,
+        cornerW, cornerH, "BOTTOMLEFT", "TOPLEFT", leftX, bottomY)
+    local br = Part("Right", "ARTWORK", 228/256, 1, 0.5, 1,
+        cornerW, cornerH, "BOTTOMRIGHT", "TOPRIGHT", rightX, bottomY)
 
-    local function Horizontal(v1, v2, left, right, atBottom)
-        local t = window:CreateTexture(nil, "BORDER")
-        t:SetTexture(leftArt)
-        t:SetTexCoord(75/256, 1, v1, v2)
-        t:SetHeight(3)
-        if atBottom then
-            t:SetPoint("BOTTOMLEFT", left, "BOTTOMRIGHT", 0, 0)
-            t:SetPoint("BOTTOMRIGHT", right, "BOTTOMLEFT", 0, 0)
-        else
-            t:SetPoint("TOPLEFT", left, "TOPRIGHT", 0, 0)
-            t:SetPoint("TOPRIGHT", right, "TOPLEFT", 0, 0)
-        end
-    end
-    Horizontal(0, 3/32, tl, tr, false)
-    Horizontal(29/32, 1, bl, br, true)
+    local bottom = window:CreateTexture(nil, "BORDER")
+    bottom:SetTexture(art .. "Left")
+    bottom:SetTexCoord(75/256, 1, 0.5, 1)
+    bottom:SetHeight(cornerH)
+    bottom:SetPoint("BOTTOMLEFT", bl, "BOTTOMRIGHT", 0, 0)
+    bottom:SetPoint("BOTTOMRIGHT", br, "BOTTOMLEFT", 0, 0)
 
-    -- The end strokes connect the corner caps without covering the dark
-    -- background. No backdrop, overlay fill, or tall texture strip is created.
-    local function Vertical(art, u1, u2, top, bottom, right)
-        local t = window:CreateTexture(nil, "BORDER")
-        t:SetTexture(art)
-        t:SetTexCoord(u1, u2, 8/32, 24/32)
-        t:SetWidth(3)
-        if right then
-            t:SetPoint("TOPRIGHT", top, "BOTTOMRIGHT", -5, 0)
-            t:SetPoint("BOTTOMRIGHT", bottom, "TOPRIGHT", -5, 0)
-        else
-            t:SetPoint("TOPLEFT", top, "BOTTOMLEFT", 5, 0)
-            t:SetPoint("BOTTOMLEFT", bottom, "TOPLEFT", 5, 0)
-        end
+    -- Vertical sides still join the lower corners, as before.
+    local function Vertical(file, u1, u2, right)
+        local tex = window:CreateTexture(nil, right and "ARTWORK" or "BORDER")
+        tex:SetTexture(art .. file)
+        tex:SetTexCoord(u1, u2, 12/32, 20/32)
+        tex:SetWidth(4)
+        local edge = right and "TOPRIGHT" or "TOPLEFT"
+        local x = right and (rightX - 8) or (leftX + 8)
+        tex:SetPoint(edge, window, edge, x, topY - cornerH)
+        tex:SetPoint(right and "BOTTOMRIGHT" or "BOTTOMLEFT",
+            window, edge, x, bottomY + cornerH)
     end
-    Vertical(leftArt, 8/256, 11/256, tl, bl, false)
-    Vertical(rightArt, 245/256, 248/256, tr, br, true)
+    Vertical("Left", 8/256, 12/256, false)
+    Vertical("Right", 244/256, 248/256, true)
 end
 
 -- The ways of showing a line, by the name Addon:PlayerStyle gives each.
@@ -1264,7 +1252,8 @@ function Options:Setup()
         panel:SetScript("OnDragStart", function() panel:StartMoving() end)
         panel:SetScript("OnDragStop", function() panel:StopMovingOrSizing() end)
         FitWindow()
-        DrawOrnateSearchBand(panel)
+        -- Silver frame replaces the old gold divider under the tabs.
+        DrawOrnateHeaderBand(panel)
         if Search and Search.BuildLegacy then Search:BuildLegacy(panel) end
         panel:Hide()
         self:RefreshNavigation()
