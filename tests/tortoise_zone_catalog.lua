@@ -21,6 +21,7 @@ SpokenQuestsCompendium = {
         [820] = {"What Do You Rely On?", zones={1411}, starter=3304},
         [51790] = {"Example Turtle", turtleArea=5179},
         [71000] = {"Test holiday", sort=284},
+        [71001] = {"Jeweler study", sort=371},
         [4321] = {"Unknown sample"}
     },
     sorts = {}
@@ -45,6 +46,9 @@ assert(find(turtle,"q:51790"),"Custom quest missing from virtual region")
 local eastern=assert(find(root,"continent:1415"))
 assert(find(eastern,"turtle-area:5179"),"Gilneas should be under Eastern Kingdoms")
 assert(find(root,"q:71000"),"sort quest disappeared")
+assert(SSCQuestCatalog:SortName(371)=="Jewelcrafting")
+assert(find(find(root,"section:professions"),"sort:371"),"Jewelcrafting category not in professions")
+assert(find(root,"q:71001"),"Jewelcrafting quest disappeared")
 local unknown=assert(find(root,"unknown"))
 assert(find(unknown,"q:4321"),"unclassified records must be retained")
 assert(not find(unknown,"q:820"),"Durotar classified quest still unclassified")
