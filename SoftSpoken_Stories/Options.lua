@@ -273,6 +273,9 @@ function Options:DiagnosticsLines()
                 Spoken and Spoken.ADDON_VERSION or "missing"))
             Add("NPC greetings: " ..
                 (Enums.GossipFrequency:GetName(Addon.db.profile.Audio.GossipFrequency) or "unknown"))
+            if GreetingFirst and GreetingFirst.DescribeTiming then
+                Add("NPC greeting timing: " .. GreetingFirst:DescribeTiming())
+            end
             Add(format("Vanilla sound CVars: master=%s, effects=%s/%s, music=%s, ambience=%s",
                 AudioCVar("MasterVolume"), AudioCVar("MasterSoundEffects"),
                 AudioCVar("SoundVolume"), AudioCVar("MusicVolume"), AudioCVar("AmbienceVolume")))
