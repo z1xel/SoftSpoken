@@ -94,6 +94,35 @@ class OverlayPreparationTest(unittest.TestCase):
         self.assertNotIn("SSCTurtleQuestText[10004]", content)
         self.assertNotIn("SSCTurtleQuestText[10005]", content)
         self.assertTrue(content.endswith("\n"))
+        report = json.loads((self.work / "report" / "summary.json").read_text())
+        self.assertEqual(report["generated"]["quest_rows_written"], 2)
+        self.assertEqual(report["generated"]["stages_written"], {
+            "accept": 2, "complete": 2, "progress": 1,
+        })
+
+    def test_lua51_escaping_of_control_characters(self):
+        con = sqlite3.connect(self.db)
+        try:
+            con.execute("UPDATE quests SET details = ? WHERE entry = 10001",
+                        ('Quotation " and slash \\ plus newline\nnext, tab\t and NUL\x00 $N',))
+            con.commit()
+        finally:
+            con.close()
+        path = self.work / "TurtleQuestText.lua"
+        result = self.invoke("--emit-text", str(path), "--acknowledge-rights")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        value = path.read_text(encoding="utf-8")
+        self.assertIn(r'\\"', value)
+        self.assertIn(r'\\\\', value)
+        self.assertIn(r'\\n', value)
+        self.assertIn(r'\\t', value)
+        self.assertIn(r'\\000', value)
+        self.assertIn("$N", value)
+        import shutil
+        if shutil.which("luac5.1"):
+            check = subprocess.run(["luac5.1", "-p", str(path)], capture_output=True, text=True)
+            self.assertEqual(check.returncode, 0, check.stderr)
+
 
 
 if __name__ == "__main__":
