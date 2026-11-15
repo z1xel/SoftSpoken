@@ -25,7 +25,7 @@ import audit_turtle_touched_text as audit
 from prepare_tortoise_quest_overlay import lua_quoted
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_MANIFEST = ROOT / "docs/audits/turtle_touched_text_coverage/directly_supported_text_gaps.csv"
+DEFAULT_MANIFEST = ROOT / "docs/audits/turtle_touched_text_coverage/first_batch_verified_stages.csv"
 DEFAULT_DESTINATION = ROOT / "SoftSpoken_Stories/Data/TurtleQuestText.lua"
 STAGE_COLUMNS = {"accept": "details", "progress": "requesttext", "complete": "offertext"}
 FIRST_BATCH = {
