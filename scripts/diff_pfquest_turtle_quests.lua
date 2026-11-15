@@ -7,7 +7,7 @@ dofile(vanilla)
 assert(type(pfDB.quests.data)=="table","Vanilla pfQuest quest data not loaded")
 local base=pfDB.quests.data
 local vout=assert(io.open(vanillalist,"w"))
-vout:write("quest_id,vanilla_pfquest_present\\n")
+vout:write("quest_id,vanilla_pfquest_present\n")
 local classicIds={}
 for id,entry in pairs(base) do
     if type(id)=="number" and id>0 and type(entry)=="table" then
@@ -16,7 +16,7 @@ for id,entry in pairs(base) do
 end
 table.sort(classicIds)
 for _,id in ipairs(classicIds) do
-    vout:write(id,",1\\n")
+    vout:write(id,",1\n")
 end
 vout:close()
 print("Vanilla pfQuest structured quest IDs:",#classicIds)
