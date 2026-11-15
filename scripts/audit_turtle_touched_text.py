@@ -25,7 +25,7 @@ COLUMNS=("quest_id catalog_title turtle_title vanilla_title turtle_method "
 STAGE_COLUMNS=("quest_id catalog_title category stage source_present baseline_present "
                "source_diff_baseline source_chars source_sha256 spoken_present "
                "spoken_matches_turtle turtle_overlay_present turtle_overlay_matches_turtle "
-               "coverage resolution source_migration_modified_stage turtle_evidence provenance_class").split()
+               "coverage resolution source_migration_modified_stage turtle_evidence provenance_class vanilla_pfquest_present").split()
 PHRASES=("deprecated","cancelled","canceled","disabled","dummy","<nyi>","<test>","<unused>")
 def norm(v):
     v=unicodedata.normalize("NFKC",(v or "")).replace("\u2019","'").replace("\u2018","'").replace("\u201c",'"').replace("\u201d",'"')
@@ -106,6 +106,19 @@ def get_static(p):
             raw=bytes.fromhex(encoded).decode("utf-8")
             out[(int(qid),kind)][stage]=raw
     return out
+def eligible_direct_turtle_stage(row):
+    """A cMaNGOS omission is not Turtle evidence when Vanilla pfQuest has the ID.
+
+    For IDs found in either Vanilla baseline, require an actual Turtle SQL
+    migration affecting THIS dialogue stage. Only absent-from-both quests
+    with verified starter evidence can use the legacy restoration path;
+    the quest-level filter has already checked their spawn and Method.
+    """
+    if int(row["source_migration_modified_stage"]):
+        return True
+    return (row["category"] == "legacy_id_absent_from_vanilla"
+            and not int(row["vanilla_pfquest_present"]))
+
 def csv_out(path,columns,rows):
     path.parent.mkdir(parents=True,exist_ok=True)
     with path.open("w",encoding="utf-8",newline="") as f:
@@ -306,7 +319,8 @@ def main():
                     ({"accept":"Details","progress":"RequestItemsText",
                       "complete":"OfferRewardText"}[stage] in changed_fields)))),
                 "turtle_evidence":provenance,
-                "provenance_class":provenance_class}
+                "provenance_class":provenance_class,
+                "vanilla_pfquest_present":int(id in vanilla_pfquest)}
             stages.append(sr);count["stage_"+coverage]+=1
     out=args.out;out.mkdir(parents=True,exist_ok=True)
     csv_out(out/"candidate_quests.csv",COLUMNS,listed)
@@ -317,8 +331,7 @@ def main():
     missing=[r for r in stages if r["coverage"] in {
         "spoken_outdated_for_turtle","turtle_stage_missing","turtle_override_conflict"}]
     csv_out(out/"turtle_specific_text_gaps.csv",STAGE_COLUMNS,missing)
-    directly_supported=[r for r in missing if r["category"]=="legacy_id_absent_from_vanilla"
-                        or r["source_migration_modified_stage"]==1]
+    directly_supported=[r for r in missing if eligible_direct_turtle_stage(r)]
     csv_out(out/"directly_supported_text_gaps.csv",STAGE_COLUMNS,directly_supported)
     summary={
         "scope":"Existing Compendium quests only, excluding the separate Turtle-exclusive import; no Vanilla text overwritten.",
@@ -339,6 +352,7 @@ def main():
         "caveats":["Live per-character SSCQuestJournal dialogue is not included in a static file audit.",
                    "cMaNGOS and Turtle are two evolving community database restorations; a text diff alone does not establish authorship or server availability.",
                    "Only migration-backed quest edits, precurated Turtle cases or absence from Vanilla with a spawned Turtle starter qualify an actionable shared-ID review target; pfQuest metadata differences alone are insufficient.",
+                   "A quest absent from cMaNGOS but present in Vanilla pfQuest must have stage-specific Turtle SQL migration evidence; don't automatically import every stage.",
                    "An intentionally blank progress or acceptance stage is not a missing transcript.",
                    "A quest absent from cMaNGOS but present in Vanilla pfQuest may simply be a baseline omission; hold unless a Turtle SQL migration or independent live evidence supports it.",
                    "No changed quest body, no new quest ID and no original Spoken text is written by this audit."]
