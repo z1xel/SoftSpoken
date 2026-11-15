@@ -49,16 +49,16 @@ text. These are **review candidates**, not automatically authorized edits.
 | Shared-ID quests selected for **review**, not automatic replacement | **711** |
 | Source dialogue stages compared for that group | 2,133 |
 | Possible incomplete/outdated stages under the *broader* review | 599 |
-| **Directly supported missing/outdated stage candidates** | **512** |
+| **Directly supported missing/outdated stage candidates** | **509** |
 | Distinct quest IDs among those 512 stages | **452** |
 | Uncorroborated cMaNGOS-versus-Tortoise variations excluded | 977 |
 
-Of the **512 directly supported stage candidates**, **290** currently have
-Spoken text differing from Tortoise and **222** have no static text.
-Stage breakdown: **17 acceptance**, **209 progress**, **286 completion**.
+Of the **509 directly supported stage candidates**, **289** currently have
+Spoken text differing from Tortoise and **220** have no static text.
+Stage breakdown: **16 acceptance**, **208 progress**, **285 completion**.
 These are still candidates, not a license to overwrite original Spoken.
 
-The other **87** of the broader 599 possible gaps lack the same direct
+The other **90** of the broader 599 possible gaps lack the same direct
 stage-specific text-migration or independently supported restoration evidence;
 they remain in the broader review report, not the priority gap list.
 
@@ -71,7 +71,9 @@ they remain in the broader review report, not the priority gap list.
   matching non-disabled Turtle templates with world-spawned starters; all
   three static dialogue stages are missing.
 - **3111**, *Glyphic Rune* — known-curated Turtle relationship and a migration
-  modifying its acceptance text; all three static stages currently missing.
+  modifying its acceptance text. All three static stages are missing, but **only
+  acceptance** is directly supported for Turtle-specific import because the
+  quest also exists in Vanilla pfQuest.
 - **7478**, **7479**, **7480**, **7487** — absent from the cMaNGOS SQLite
   snapshot but **present** in Vanilla pfQuest, so **held** rather than
   misclassified as new/restored Turtle quests.
@@ -88,7 +90,7 @@ No third-party quest dialogue bodies are committed by this audit.
 
 - `docs/audits/turtle_touched_text_coverage/summary.json` — consolidated counts.
 - `review_scoped_quests.csv` — 711 candidate quests for manual review.
-- `directly_supported_text_gaps.csv` — **priority 512 stage candidates**.
+- `directly_supported_text_gaps.csv` — **priority 509 stage candidates**.
 - `turtle_specific_text_gaps.csv` — broader 599 possible gaps.
 - `held_quests.csv` — 49 disabled/conflicted/unverified quests.
 - `uncorroborated_cross_database_variants.csv` — 977 rejected
@@ -106,3 +108,58 @@ No third-party quest dialogue bodies are committed by this audit.
 - Some quests legitimately lack acceptance or progress dialogue.
 - Any eventual import should write **only verified quest/stage overrides** to
   `SSCTurtleQuestText`, leaving `SpokenQuestsText` intact.
+
+
+## First source-verified local import batch (November 15, 2026)
+
+The first batch deliberately selects **13 stages across five restored-quest IDs**:
+
+| Quest ID | Eligible dialogue |
+| --- | --- |
+| 820 | acceptance, progress, completion |
+| 3111 | acceptance only |
+| 3578 | acceptance, progress, completion |
+| 3579 | acceptance, progress, completion |
+| 3580 | acceptance, progress, completion |
+
+A cMaNGOS omission no longer qualifies a quest for a full three-stage import
+when it **also appears in Vanilla pfQuest**. For such IDs, only stages named
+by the pinned Turtle SQL text migrations are actionable. This removes
+two unevidenced stages for 3111 and an unevidenced acceptance stage for 5640
+from the previous 512-candidate priority report. Both retain their
+separately supported stages.
+
+The stage importer, `scripts/import_turtle_touched_text.py`, verifies the
+source title, normalized SHA-256 content hash, and raw source character count
+for each targeted stage against the supplied pinned Tortoise SQLite. It
+rejects pre-existing per-quest Turtle text assignments, incomplete manifests,
+or any stage whose provenance no longer qualifies. Tests verify collisions,
+hash failures, scope and idempotency. The audit CI independently checked all
+13 hashes without copying quest dialogue into a commit or CI artifact.
+
+The existing one-command local importer now composes **the 2,369 eligible
+Turtle-exclusive text rows plus the 13 first-batch dialogue stages** into the
+same `SoftSpoken_Stories/Data/TurtleQuestText.lua` file:
+
+```sh
+node scripts/import_tortoise_quest_dialogue.mjs
+```
+
+For standalone validation with a locally held pinned SQLite:
+
+```sh
+python3 scripts/import_turtle_touched_text.py --db /path/to/tortoise.sqlite
+```
+
+To add just the first batch to an existing local Turtle text table:
+
+```sh
+python3 scripts/import_turtle_touched_text.py --db /path/to/tortoise.sqlite --write --local-only
+```
+
+**No generated third-party dialogue is committed to the public audit branch.**
+Only text-free evidence, scripts and tests are committed. The Tortoise
+snapshot is a community reconstruction rather than an authenticated live
+Turtle server export; hash verification establishes agreement with that pinned
+source, **not live-server authorship or redistribution rights**. Review actual
+live dialogue and permissions separately before publishing an imported corpus.
