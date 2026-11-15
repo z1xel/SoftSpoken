@@ -1,0 +1,23 @@
+{
+  "source_ref": "Xian55/tortoise-db-viewer cdn@567ce23c73087e9b67fd2d4732c171d751e54bba; version=80f9b3153120",
+  "total_targets": 2377,
+  "eligible": 2369,
+  "held": [
+    40128,
+    40129,
+    40132,
+    41098,
+    41100,
+    41103,
+    41105,
+    41797
+  ],
+  "reason_counts": {
+    "eligible_exact_title": 2346,
+    "eligible_typography_only": 23,
+    "hold_retired_source": 7,
+    "hold_title_conflict": 1
+  },
+  "text_exported": false,
+  "notice": "Source and version match is not proven by title alone. Full dialogue reuse rights not verified."
+}
