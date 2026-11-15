@@ -63,14 +63,9 @@ function SettingsPanel:Build()
         return Spoken:IsPartOn("quests") and Addon:IsAutoplayOn()
     end, "Enable Stories and automatic narration to use this.")
     local gameFirst = layout:Checkbox(L.OPT_PANEL_GAME_GREETING_FIRST or "Game Greeting First",
-        "Allow the game's own NPC greeting before reading the line.",
+        L.OPT_PANEL_GAME_GREETING_FIRST_TIP,
         function() return Audio().GreetingFirst end,
-        function(on)
-            Audio().GreetingFirst = on
-            if on and GreetingFirst and GreetingFirst.SetDialogApart then
-                GreetingFirst:SetDialogApart()
-            end
-        end)
+        function(on) Audio().GreetingFirst = on end)
     layout:Requires(gameFirst, function()
         return (Spoken:IsPartOn("quests") or Spoken:IsPartOn("gossip"))
             and Addon:IsAutoplayOn()
