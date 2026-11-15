@@ -167,7 +167,7 @@ function Search:Build(parent)
 
     local hint = box:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     hint:SetPoint("LEFT", box, "LEFT", 21, 0)
-    hint:SetText(L.SEARCH_HINT or "Search settings")
+    hint:SetText("Search settings")
 
     local clear = CreateFrame("Button", nil, box)
     clear:SetWidth(17)

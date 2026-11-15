@@ -64,8 +64,14 @@ local function DrawOrnateHeaderBand(window)
     local br = Part("Right", "ARTWORK", 228/256, 1, 0.5, 1,
         cornerW, cornerH, "BOTTOMRIGHT", "TOPRIGHT", rightX, bottomY)
 
+    -- The chat-input art has a dark interior above its silver lower edge.
+    -- Normal alpha blending paints that interior as an unwanted dark strip.
+    -- Additive blending retains the trim without darkening the window behind it.
+    bl:SetBlendMode("ADD")
+    br:SetBlendMode("ADD")
     local bottom = window:CreateTexture(nil, "BORDER")
     bottom:SetTexture(art .. "Left")
+    bottom:SetBlendMode("ADD")
     bottom:SetTexCoord(75/256, 1, 0.5, 1)
     bottom:SetHeight(cornerH)
     bottom:SetPoint("BOTTOMLEFT", bl, "BOTTOMRIGHT", 0, 0)
