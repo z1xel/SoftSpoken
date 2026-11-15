@@ -107,7 +107,10 @@ function GreetingFirst:Open()
     local npc = Utils:GetNPCGUID() or Utils:GetNPCName()
     if visit and visit == npc then return end
     visit = npc
-    if Utils:IsNPCObjectOrItem() or Spoken:IsPlaying() then return end
+    -- An earlier SoftSpoken clip may still be playing when another NPC is
+    -- opened. The next clip still needs a gate; don't skip it merely because
+    -- the queue is currently active.
+    if Utils:IsNPCObjectOrItem() then return end
 
     local now, previousHoldUntil = GetTime(), holdUntil
     holdUntil = math.max(previousHoldUntil, now + FALLBACK)
@@ -139,6 +142,7 @@ function GreetingFirst:Closed()
 end
 
 function GreetingFirst:DescribeTiming()
+    if not self:IsOn() then return "disabled (enable NPC Voice Before Reading)" end
     local timing = self.lastTiming
     if not timing then return "no NPC interaction yet" end
     return string.format("%s, %.2fs%s", timing.method, timing.seconds,
