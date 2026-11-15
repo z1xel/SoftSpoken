@@ -137,9 +137,18 @@ or any stage whose provenance no longer qualifies. Tests verify collisions,
 hash failures, scope and idempotency. The audit CI independently checked all
 13 hashes without copying quest dialogue into a commit or CI artifact.
 
-The existing one-command local importer now composes **the 2,369 eligible
-Turtle-exclusive text rows plus the 13 first-batch dialogue stages** into the
-same `SoftSpoken_Stories/Data/TurtleQuestText.lua` file:
+For a **populated** Turtle text table, the safest one-command local operation
+is to append only the audited stage batch. It preserves every existing line
+outside the generated first-batch region:
+
+```sh
+node scripts/import_tortoise_quest_dialogue.mjs --touched-only
+```
+
+The default importer still supports rebuilding **2,369 eligible
+Turtle-exclusive quest rows plus 13 first-batch stages** into the same
+`SoftSpoken_Stories/Data/TurtleQuestText.lua` file when a full pinned-source
+regeneration is intentionally desired:
 
 ```sh
 node scripts/import_tortoise_quest_dialogue.mjs
