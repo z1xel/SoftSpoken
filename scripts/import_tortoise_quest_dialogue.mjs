@@ -94,14 +94,30 @@ async function main() {
         if (summary.total_targets !== 2377 || summary.eligible !== 2369 ||
             summary.generated?.quest_rows_written !== 2369 || summary.held.length !== 8)
             throw new Error("Unexpected coverage; refusing to overwrite addon Lua file");
+        // Compose the strictly audited old/shared-ID batch into the SAME
+        // staged Lua table. The Python importer verifies all 13 stage hashes
+        // against this pinned SQLite, and refuses overlapping existing IDs.
+        runPython([
+            join(ROOT, "scripts", "import_turtle_touched_text.py"),
+            "--db", db,
+            "--manifest", join(ROOT, "docs", "audits", "turtle_touched_text_coverage",
+                               "directly_supported_text_gaps.csv"),
+            "--destination", staged,
+            "--write", "--local-only"
+        ]);
         const lua = readFileSync(staged, "utf8");
         if (!lua.includes("SSCTurtleQuestText[40001]"))
             throw new Error("Staged Lua is missing a known imported quest");
+        if (!lua.includes("SSCTurtleQuestText[820].accept =") ||
+            !lua.includes("SSCTurtleQuestText[3111].accept =") ||
+            !lua.includes("SSCTurtleQuestText[3580].complete ="))
+            throw new Error("Staged Lua is missing the verified restored quest batch");
         // The target is overwritten only after a complete, checked export.
         renameSync(staged, OUTPUT);
         console.log("\nImported " + summary.generated.quest_rows_written + " quests directly into:");
         console.log(OUTPUT);
-        console.log("Dialogue stages: " + JSON.stringify(summary.generated.stages_written));
+        console.log("Exclusive quest dialogue stages: " + JSON.stringify(summary.generated.stages_written));
+        console.log("Additional restored shared-ID dialogue: 5 quests / 13 verified stages.");
         console.log("Held for later source verification: " + summary.held.join(", "));
         console.log("No companion addon was created. Preserve this local file when updating the repo.");
     } finally {
