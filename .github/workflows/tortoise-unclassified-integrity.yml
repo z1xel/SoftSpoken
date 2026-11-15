@@ -8,7 +8,6 @@ on:
       - scripts/audit_tortoise_unclassified.py
       - scripts/extract_tortoise_methods.mjs
       - .github/workflows/tortoise-unclassified-integrity.yml
-      - SoftSpoken_Stories/Data/Compendium.lua
       - docs/turtle_shared_id_coverage.csv
   workflow_dispatch:
 
