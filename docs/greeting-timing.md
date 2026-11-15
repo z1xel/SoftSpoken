@@ -34,12 +34,15 @@ With **NPC Voice Before Reading** enabled:
    bypasses it.
 2. When type is unresolved, gate narration for up to **0.20 seconds** and
    recheck every **0.05 seconds**. If still unresolved, release narration
-   WITHOUT the 2.5-second fallback. Do not cache a fake NPC visit.
+   WITHOUT the 2.0-second fallback. Do not cache a fake NPC visit.
 3. For confirmed NPCs, inspect ClassicAPI's recent sound-file paths and
    timestamps and find a known Vanilla greeting in the offline duration map.
 4. On a match, estimate the end from start time, file duration and
    0.12-second padding. This is NOT a live playback-completion signal.
-5. If a confirmed NPC has no sound-file match, wait **2.5 seconds** instead.
+   Lowercase the file path before removing its "sound/" prefix; otherwise
+   ClassicAPI "Sound\\..." paths miss the length lookup.
+5. If a confirmed NPC has no sound-file match, wait **2.0 seconds** instead.
+   This shorter compromise covers ~78.3% of the 598 unique file durations.
 6. Preserve the gossip-to-quest same-visit guard; do not manipulate volume,
    probe arbitrary sound handles, or interrupt voice-pack discovery.
 
@@ -71,7 +74,7 @@ Unweighted per-file duration distribution:
 - median: 1.34 seconds
 - 90th percentile: 2.54 seconds
 - 95th percentile: 3.04 seconds
-- 2.5-second fallback covers 89.5% of these durations
+- 2.0-second fallback covers 78.3% of these durations
 
 A stricter sample requiring "greet" in BOTH the sound kit name and file
 path produces 558 kit/take observations (some files can recur across kits).
@@ -91,7 +94,7 @@ python scripts/generate_vanilla_greeting_lengths.py PATH_TO_SOUND_MAP_JSON PATH_
 - Test a **confirmed NPC** with no known greeting or missing history API:
   fallback should be 2.5 seconds without Lua errors.
 - Test an object quest and an absent NPC token: neither should incur the
-  2.5-second fallback. A fully unknown interaction may wait up to 0.2 seconds.
+  2.0-second fallback. A fully unknown interaction may wait up to 0.2 seconds.
 - Test an NPC token resolving within 0.2 seconds of event: full greeting
   estimate should begin from the original event timestamp.
 - Test the setting OFF: never gate playback.
@@ -107,3 +110,17 @@ The adaptive timing is experimental until verified in-game.
 Regression harness (run from repository root with Lua 5.1+):
 
     lua tests/greetingfirst_classification.lua
+
+## Native NPC greeting volume
+
+Original Vanilla NPC greetings play as sound effects, controlled by the
+SoundVolume CVar. They do not have a separate Dialog slider. Core SoftSpoken
+narration normally uses the ClassicAPI Master channel.
+
+SoftSpoken's OtherSounds mixer lowers SoundVolume (and optionally music and
+ambience) only when narration actually starts. There is no volume change
+when beginning the greeting gate. Its regular 1.2s settling period could,
+however, leave SoundVolume lowered from a previous recording as a new native
+greeting begins. When the narrator queue becomes held, OtherSounds now
+restores any remaining attenuation immediately. If another recording is
+actually speaking, its attenuation is deliberately left alone.
