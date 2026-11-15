@@ -91,7 +91,7 @@ async function main() {
                 join(ROOT, "scripts", "import_turtle_touched_text.py"),
                 "--db", db,
                 "--manifest", join(ROOT, "docs", "audits", "turtle_touched_text_coverage",
-                                   "directly_supported_text_gaps.csv"),
+                                   "first_batch_verified_stages.csv"),
                 "--destination", OUTPUT,
                 "--write", "--local-only"
             ]);
@@ -120,7 +120,7 @@ async function main() {
             join(ROOT, "scripts", "import_turtle_touched_text.py"),
             "--db", db,
             "--manifest", join(ROOT, "docs", "audits", "turtle_touched_text_coverage",
-                               "directly_supported_text_gaps.csv"),
+                               "first_batch_verified_stages.csv"),
             "--destination", staged,
             "--write", "--local-only"
         ]);
