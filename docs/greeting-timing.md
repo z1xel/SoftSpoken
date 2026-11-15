@@ -23,18 +23,32 @@ https://github.com/brues-code/ClassicAPI/blob/v1.18.14/src/sound/Play.cpp
 A future native completion API would need to associate the sound file path
 with the handle returned by the native sound opener and safely track its end.
 
-## Current method
+## Current method and interaction classification
 
-1. Hold the quest and gossip narration sources on the first NPC window
-   of a visit, while preserving the existing gossip-to-quest visit guard.
-2. Read recent ClassicAPI sound paths immediately and briefly recheck twice
-   if an eligible greeting has not appeared.
-3. Match against the precomputed Vanilla 1.12 NPCSounds greeting-slot paths.
-4. When matched, estimate the end from the recorded file start time,
-   duration, and 0.12-second padding. This is NOT true live completion.
-5. If the API or a match is absent, fall back to 2.5 seconds.
-6. Never manipulate sound CVars, scan speculative handles, or let this
-   optional feature interrupt voice-pack discovery.
+An absent Vanilla `npc` unit token is ambiguous, not proof of an object.
+
+With **NPC Voice Before Reading** enabled:
+
+1. Positive NPC evidence (an existing NPC token/name or a creature GUID)
+   starts the full greeting wait. An explicit game-object or player GUID
+   bypasses it.
+2. When type is unresolved, gate narration for up to **0.20 seconds** and
+   recheck every **0.05 seconds**. If still unresolved, release narration
+   WITHOUT the 2.5-second fallback. Do not cache a fake NPC visit.
+3. For confirmed NPCs, inspect ClassicAPI's recent sound-file paths and
+   timestamps and find a known Vanilla greeting in the offline duration map.
+4. On a match, estimate the end from start time, file duration and
+   0.12-second padding. This is NOT a live playback-completion signal.
+5. If a confirmed NPC has no sound-file match, wait **2.5 seconds** instead.
+6. Preserve the gossip-to-quest same-visit guard; do not manipulate volume,
+   probe arbitrary sound handles, or interrupt voice-pack discovery.
+
+A separately bounded classification gate prevents a timer ordering race from
+releasing narration just as the last NPC check runs. A confirmed NPC may
+initially have no name or GUID; it is not cached under a fake identity.
+
+With the setting OFF (default), audio overlap is intentional and narration
+must not be held.
 
 ## Measurements and provenance
 
@@ -74,8 +88,13 @@ python scripts/generate_vanilla_greeting_lengths.py PATH_TO_SOUND_MAP_JSON PATH_
 - With the feature enabled, interact with several ordinary human and orc
   NPCs; the estimated wait should release sooner on short recorded greetings.
 - Test longer named-NPC greetings (Thrall, Cairne) for overlap.
-- Test an NPC with no known greeting, a missing API, and muted audio:
+- Test a **confirmed NPC** with no known greeting or missing history API:
   fallback should be 2.5 seconds without Lua errors.
+- Test an object quest and an absent NPC token: neither should incur the
+  2.5-second fallback. A fully unknown interaction may wait up to 0.2 seconds.
+- Test an NPC token resolving within 0.2 seconds of event: full greeting
+  estimate should begin from the original event timestamp.
+- Test the setting OFF: never gate playback.
 - Test a gossip-to-quest transition and rapid changes between NPCs;
   no duplicate delays, early reading, or indefinitely held clips.
 - Confirm installed voice packs register after reload, and no obsolete
@@ -84,3 +103,7 @@ python scripts/generate_vanilla_greeting_lengths.py PATH_TO_SOUND_MAP_JSON PATH_
   establish that the adaptive path matches actual Vanilla playback.
 
 The adaptive timing is experimental until verified in-game.
+
+Regression harness (run from repository root with Lua 5.1+):
+
+    lua tests/greetingfirst_classification.lua
