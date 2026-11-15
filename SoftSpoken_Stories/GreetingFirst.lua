@@ -244,17 +244,26 @@ function GreetingFirst:Open()
     if visit or anonymousVisit or pending then return end
 
     local startedAt = GetTime()
-    pending = { startedAt = startedAt, previousHoldUntil = holdUntil }
+    local state = { startedAt = startedAt, previousHoldUntil = holdUntil }
+    pending = state
     holdUntil = math.max(holdUntil, startedAt + CLASSIFY_TIMEOUT)
     self.lastTiming = { method = "checking NPC identity", seconds = CLASSIFY_TIMEOUT }
     ScheduleWake()
-    Addon:ScheduleTimer(function() CheckPending(pending) end, CLASSIFY_INTERVAL)
+    Addon:ScheduleTimer(function() CheckPending(state) end, CLASSIFY_INTERVAL)
 end
 
 --- A window closed. A gossip-to-quest transition does not constitute a new visit.
 function GreetingFirst:Closed()
     if not self:IsOn() then
         visit = nil
+        anonymousVisit = false
+        unresolvedSkipped = false
+        if pending then
+            local state = pending
+            pending = nil
+            holdUntil = state.previousHoldUntil
+            ScheduleWake()
+        end
         return
     end
     local before = opened
