@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/turtle-touched-text-audit.yml
       - scripts/audit_turtle_touched_text.py
+      - docs/audits/turtle_touched_text_coverage/first_batch_verified_stages.csv
       - scripts/import_turtle_touched_text.py
       - scripts/import_tortoise_quest_dialogue.mjs
       - scripts/prepare_tortoise_quest_overlay.py
@@ -187,11 +188,11 @@ jobs:
           p="docs/audits/turtle_touched_text_coverage/"
           with open(p+"directly_supported_text_gaps.csv",newline="",encoding="utf-8") as f:
               rows=list(csv.DictReader(f))
-          assert len(rows)==509, f"Expected exactly 509 supported stage candidates, saw {len(rows)}"
+          assert len(rows) in (509,496), f"Expected 509 before import or 496 after import, saw {len(rows)}"
           assert all(r["source_migration_modified_stage"]=="1" or (
               r["category"]=="legacy_id_absent_from_vanilla" and
               r["vanilla_pfquest_present"]=="0") for r in rows)
-          print("Strict stage-scoped audit: 509 candidates; first batch: 13 verified stage hashes")
+          print(f"Strict stage-scoped audit: {len(rows)} remaining candidates; first batch: 13 pinned stage hashes")
           PY
           git diff --exit-code -- SoftSpoken_Stories/Data/QuestText.lua \
             SoftSpoken_Stories/Data/TurtleQuestText.lua
@@ -280,16 +281,24 @@ jobs:
           path: docs/audits/turtle_touched_text_coverage/
           retention-days: 30
 
-      - name: Commit only text-free coverage reports to isolated branch
+      - name: Commit verified Turtle dialogue into existing table
         run: |
+          # Both pinned sources and first-batch SHA hashes were validated above.
+          # Unlike previous dry-run workflow, actually add the 13 stages to
+          # the tracked Lua file, preserving the existing Turtle quest text.
+          node scripts/import_tortoise_quest_dialogue.mjs \
+            --touched-only --source-sqlite .audit-viewer-data/data/tortoise.sqlite
+          luac5.1 -p SoftSpoken_Stories/Data/TurtleQuestText.lua
+          git diff --exit-code -- SoftSpoken_Stories/Data/QuestText.lua \
+            SoftSpoken_Stories/Data/Compendium.lua
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add docs/audits/turtle_touched_text_coverage/
+          git add docs/audits/turtle_touched_text_coverage/ \
+            SoftSpoken_Stories/Data/TurtleQuestText.lua
           if ! git diff --cached --quiet; then
-            git commit -m 'Audit Turtle-touched shared-ID quest dialogue coverage without altering Spoken'
-            # A GitHub-connected editor may have advanced this audit branch
-            # while the lengthy source audit ran. Rebase ONLY our generated
-            # text-free report commit before pushing; never force-push.
+            git commit -m 'Import 13 verified restored-quest dialogue stages into TurtleQuestText.lua'
+            # Rebase the validated import if the branch advanced during CI.
+            # No force-push and no original Spoken text changes.
             git fetch origin audit/turtle-touched-text-coverage
             git rebase origin/audit/turtle-touched-text-coverage
             git push origin HEAD:audit/turtle-touched-text-coverage
