@@ -9,6 +9,7 @@ on:
       - scripts/extract_tortoise_methods.mjs
       - scripts/diff_pfquest_turtle_quests.lua
       - tests/test_turtle_touched_text_audit.py
+      - docs/turtle_verified_live_shared_ids.csv
   workflow_dispatch:
 concurrency:
   group: turtle-touched-quest-text-audit
@@ -132,7 +133,8 @@ jobs:
           lua5.1 scripts/diff_pfquest_turtle_quests.lua \
             .audit-pfquest-vanilla/db/quests.lua \
             .audit-pfquest/db/quests-turtle.lua \
-            .audit-pfquest-overrides.csv
+            .audit-pfquest-overrides.csv \
+            .audit-pfquest-vanilla-ids.csv
           python3 - <<'PY'
           import csv
           migration=list(csv.DictReader(open(".audit-migration-text-changes.csv")))
@@ -145,6 +147,7 @@ jobs:
             --turtle .audit-viewer-data/data/tortoise.sqlite \
             --vanilla "$(cat .audit-vanilla-path)" \
             --methods .audit-methods.csv \
+            --vanilla-pfquest-ids .audit-pfquest-vanilla-ids.csv \
             --pfquest-overrides .audit-pfquest-overrides.csv \
             --turtle-migrations .audit-migration-text-changes.csv
           python3 - <<'PY'
@@ -162,10 +165,11 @@ jobs:
             --turtle .audit-viewer-data/data/tortoise.sqlite \
             --vanilla "$(cat .audit-vanilla-path)" \
             --methods .audit-methods.csv \
+            --vanilla-pfquest-ids .audit-pfquest-vanilla-ids.csv \
             --pfquest-overrides .audit-pfquest-overrides.csv \
             --turtle-migrations .audit-migration-text-changes.csv \
             --lua-stages .audit-static-text-hex.tsv
-          rm -f .audit-static-text-hex.tsv .audit-scoped-quest-ids .audit-methods.csv .audit-migration-text-changes.csv .audit-pfquest-overrides.csv
+          rm -f .audit-static-text-hex.tsv .audit-scoped-quest-ids .audit-methods.csv .audit-migration-text-changes.csv .audit-pfquest-overrides.csv .audit-pfquest-vanilla-ids.csv
           cat docs/audits/turtle_touched_text_coverage/summary.json
 
       - name: Verify no static text, catalog, or Vanilla source was changed
