@@ -128,7 +128,7 @@ jobs:
           python3 scripts/audit_turtle_touched_text.py \
             --turtle .audit-viewer-data/data/tortoise.sqlite \
             --vanilla "$(cat .audit-vanilla-path)" \
-            --methods .audit-methods.csv
+            --methods .audit-methods.csv \
             --pfquest-overrides .audit-pfquest-overrides.csv \
             --turtle-migrations .audit-migration-text-changes.csv
           python3 - <<'PY'
@@ -146,7 +146,7 @@ jobs:
           python3 scripts/audit_turtle_touched_text.py \
             --turtle .audit-viewer-data/data/tortoise.sqlite \
             --vanilla "$(cat .audit-vanilla-path)" \
-            --methods .audit-methods.csv
+            --methods .audit-methods.csv \
             --pfquest-overrides .audit-pfquest-overrides.csv \
             --turtle-migrations .audit-migration-text-changes.csv \
             --lua-stages .audit-static-text-hex.tsv
