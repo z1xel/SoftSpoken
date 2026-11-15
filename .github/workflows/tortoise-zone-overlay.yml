@@ -1,0 +1,56 @@
+name: Build verified Turtle zone classification overlay
+on:
+  push:
+    branches: [audit/tortoise-unclassified-integrity]
+    paths:
+      - scripts/build_tortoise_zone_overlay.py
+      - scripts/reapply_tortoise_zone_overlay.py
+      - .github/workflows/tortoise-zone-overlay.yml
+      - docs/audits/tortoise_unclassified_integrity/all_unclassified.csv
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  classification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout audit branch
+        uses: actions/checkout@v4
+
+      - name: Get pinned Tortoise SQLite
+        uses: actions/checkout@v4
+        with:
+          repository: Xian55/tortoise-db-viewer
+          ref: 567ce23c73087e9b67fd2d4732c171d751e54bba
+          path: .audit-zone-source
+          sparse-checkout: |
+            data/tortoise.sqlite.br
+            data/version.json
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Decompress and verify SQLite
+        run: |
+          node -e 'const fs=require("fs"),z=require("zlib"),c=require("crypto");const p=".audit-zone-source/data/tortoise.sqlite.br";const b=fs.readFileSync(p);const sha=c.createHash("sha1").update(Buffer.from("blob "+b.length+"\0")).update(b).digest("hex");if(sha!=="7b126fce5260502fa40f9f6b67190f920e60a0f6")throw Error("Pinned source mismatch: "+sha);fs.writeFileSync(".audit-zone-source/data/tortoise.sqlite",z.brotliDecompressSync(b))'
+
+      - name: Generate reviewable classification manifest and Turtle area names
+        run: |
+          python3 scripts/build_tortoise_zone_overlay.py --db .audit-zone-source/data/tortoise.sqlite
+          cat docs/audits/tortoise_zone_overlay/summary.json
+
+      - name: Validate Lua metadata
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y lua5.1
+          luac5.1 -p SoftSpoken_Stories/Data/TurtleAreaMeta.lua
+
+      - name: Commit classification proposal and audit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/tortoise_zone_overlay.csv docs/audits/tortoise_zone_overlay/ SoftSpoken_Stories/Data/TurtleAreaMeta.lua
+          if ! git diff --cached --quiet; then
+            git commit -m 'Build conservative native and Turtle-area classification overlay'
+            git push origin HEAD:audit/tortoise-unclassified-integrity
+          fi
