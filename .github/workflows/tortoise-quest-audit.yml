@@ -12,6 +12,7 @@ on:
       - SoftSpoken_Stories/addon.xml
       - tests/stories_compendium_portrait_lifecycle.lua
       - tests/test_prepare_tortoise_overlay.py
+      - scripts/import_tortoise_quest_dialogue.mjs
       - .github/workflows/tortoise-quest-audit.yml
       - docs/turtle_exclusive_import.csv
   workflow_dispatch:
@@ -77,6 +78,14 @@ jobs:
           lua5.1 tests/stories_compendium_portrait_lifecycle.lua
           lua5.1 tests/stories_speaker_resolution.lua
           python3 tests/test_ui_packaging.py
+
+      - name: Verify full dialogue import directly into existing Stories Lua
+        run: |
+          node --check scripts/import_tortoise_quest_dialogue.mjs
+          node scripts/import_tortoise_quest_dialogue.mjs --source-sqlite .audit-source/data/tortoise.sqlite
+          luac5.1 -p SoftSpoken_Stories/Data/TurtleQuestText.lua
+          python3 -c 'from pathlib import Path; p=Path("SoftSpoken_Stories/Data/TurtleQuestText.lua"); s=p.read_text(); assert s.count("SSCTurtleQuestText[")==2369, "Wrong imported quest count"; print("PASS: generated 2369 quest records directly in the existing Lua file")'
+          git status --short SoftSpoken_Stories/Data/TurtleQuestText.lua
 
       - name: Upload read-only reports
         uses: actions/upload-artifact@v4
