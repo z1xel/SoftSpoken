@@ -65,7 +65,7 @@ With Node.js 18+ and Python 3 installed, from the SoftSpoken repository root:
 node scripts/import_tortoise_quest_dialogue.mjs
 ```
 
-The command retrieves the pinned Tortoise SQLite snapshot, verifies its Git blob checksum, extracts all title-compatible quests, and writes **directly** to `SoftSpoken_Stories/Data/TurtleQuestText.lua`. The original `SpokenQuestsText` dataset is untouched; the eight held quest IDs are excluded. No extra addon folder or copy step is required. All three stages are populated when their source fields are nonempty.
+The command retrieves the pinned Tortoise SQLite snapshot, verifies its Git blob checksum, and writes **directly** to `SoftSpoken_Stories/Data/TurtleQuestText.lua`. It first builds the 2,369 source/title-compatible high-ID quest rows and then composes the 13 strictly evidenced stages of restored quests 820, 3111, 3578, 3579, and 3580 into that same staged file. The original `SpokenQuestsText` dataset is untouched; the eight held exclusive quest IDs remain excluded. No extra addon folder or copy step is required. Blank source stages are never manufactured, and stage 3111 is restricted to acceptance.
 
 To use an already downloaded SQLite file without network access:
 
