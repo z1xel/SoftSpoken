@@ -13,7 +13,7 @@ local END_PADDING = 0.12
 -- A greeting may begin just before its dialog event or shortly afterward.
 local EARLY_START, LATE_START = 0.45, 0.30
 local PROBE_GAPS = { 0.10, 0.16 }
--- Let the Vanilla "npc" unit token settle without imposing a 2.5s wait on objects.
+-- Let the Vanilla "npc" unit token settle without imposing a full 2s wait on objects.
 local CLASSIFY_TIMEOUT, CLASSIFY_INTERVAL = 0.20, 0.05
 local WINDOWS = { "GossipFrame", "QuestFrame", "DUIQuestFrame", "ImmersionFrame" }
 
@@ -125,14 +125,16 @@ local function GUIDIs(guid, method)
         or type(C_PlayerInfo) ~= "table"
         or type(C_PlayerInfo[method]) ~= "function" then return false end
     local ok, result = pcall(C_PlayerInfo[method], guid)
-    return ok and result == true
+    return ok and (result == true or result == 1)
 end
 
 local function IdentifyInteraction()
     local exists
     if type(UnitExists) == "function" then
         local ok, result = pcall(UnitExists, "npc")
-        if ok then exists = result == true end
+        -- Original 1.12 returns 1/nil, while newer implementations may
+        -- expose real Lua booleans. Comparing only against true drops 1.
+        if ok then exists = (result == true or result == 1) end
     end
 
     local name
@@ -153,7 +155,7 @@ local function IdentifyInteraction()
     end
     if exists and type(UnitIsPlayer) == "function" then
         local ok, player = pcall(UnitIsPlayer, "npc")
-        if ok and player == true then return "non-npc" end
+        if ok and (player == true or player == 1) then return "non-npc" end
     end
     if exists or name or GUIDIs(guid, "GUIDIsCreature") then
         return "npc", name, guid
