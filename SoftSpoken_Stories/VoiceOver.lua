@@ -1286,7 +1286,7 @@ function Addon:MuteGreetingAhead(event)
     if quest and self.db.profile.Audio.ReadAfterClose then
         return
     end
-    -- Game Greeting First: leave the native greeting alone and wait briefly before narration.
+    -- Game Greeting First: leave the native greeting alone and estimate when it ends.
     if GreetingFirst:IsOn() then
         GreetingFirst:Open()
         return
