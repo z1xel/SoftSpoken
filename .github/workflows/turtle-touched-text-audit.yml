@@ -10,6 +10,9 @@ on:
       - scripts/diff_pfquest_turtle_quests.lua
       - tests/test_turtle_touched_text_audit.py
   workflow_dispatch:
+concurrency:
+  group: turtle-touched-quest-text-audit
+  cancel-in-progress: true
 permissions:
   contents: write
 jobs:
