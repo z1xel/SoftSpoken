@@ -70,10 +70,10 @@ class TurtleExclusiveCatalogTest(unittest.TestCase):
                         kind, value = overlay["classification"], int(overlay["value"])
                         field = ("zones = {" + str(value) + "}" if kind == "zones"
                                  else kind + " = " + str(value))
-                        suffix = ", " + field + "}"
+                        suffix = ", " + field + " }"
                         self.assertTrue(actual.endswith(suffix),
                                         "Quest overlay not at end of quest row")
-                        actual = actual[:-len(suffix)] + "}"
+                        actual = actual[:-len(suffix)] + " }"
                     self.assertEqual(actual + ",",
                                      row["compendium_row"].split(" = ", 1)[1])
                 elif row["status"] == "excluded_nonplayable":
