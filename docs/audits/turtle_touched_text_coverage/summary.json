@@ -25,9 +25,10 @@
     "stage_source_has_text_no_static_stage": 321,
     "stage_spoken_matches_turtle": 685,
     "stage_spoken_outdated_for_turtle": 309,
-    "stage_turtle_stage_missing": 290
+    "stage_turtle_override_exact": 220,
+    "stage_turtle_stage_missing": 70
   },
-  "directly_supported_text_gaps": 509,
+  "directly_supported_text_gaps": 289,
   "uncorroborated_cross_database_variants": 977,
   "pfquest_quest_override_ids": 5246,
   "vanilla_pfquest_quest_ids": 4433,
@@ -40,7 +41,7 @@
   "held_candidates": 49,
   "total_scoped_candidates": 760,
   "reviewed_stages": 2133,
-  "text_gaps": 599,
+  "text_gaps": 379,
   "static_lua_inspected": true,
   "caveats": [
     "Live per-character SSCQuestJournal dialogue is not included in a static file audit.",
