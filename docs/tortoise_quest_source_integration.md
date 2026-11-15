@@ -38,7 +38,7 @@ Decision reports: `docs/audits/tortoise_quest_overlay/summary.json` and `decisio
 ## Existing text/overlay contract
 
 - `SoftSpoken_Stories/Data/QuestText.lua` is currently empty. The original `SpokenQuestsText` may be supplied externally at runtime; its complete corpus is not included here. The current audit therefore cannot establish **verbatim** agreement between both dialogue corpora.
-- `SoftSpoken_Stories/Data/TurtleQuestText.lua` contains an intentionally empty `SSCTurtleQuestText` table. It is loaded by `addon.xml` before the quest page.
+- `SoftSpoken_Stories/Data/TurtleQuestText.lua` is the **single** import destination and is loaded directly by `addon.xml` before the quest page. No companion addon exists. The tracked source is initially an empty table; the importer populates it in-place in the local working tree.
 - `SSCQuestPage:Text(id, stage)` selects each stage independently in this order: (1) per-character live capture, (2) Turtle overlay, (3) existing Spoken text. Missing/whitespace-only Turtle stages do not hide the fallback.
 - Text is not copied to, nor does this branch modify, the authoritative Vanilla `SpokenQuestsText` table.
 
@@ -56,6 +56,30 @@ python3 scripts/prepare_tortoise_quest_overlay.py --db /path/to/tortoise.sqlite
 After separately establishing use/redistribution rights, an operator can explicitly generate a **local-only** candidate overlay using `--emit-text /path/to/TurtleQuestText.lua --acknowledge-rights`. This flag acknowledges responsibility; **it is not a license**. Neither the workflow nor the normal audit emits quest prose.
 
 The source code's AGPL-3.0 licensing and the viewer's attribution notices do not by themselves demonstrate that third-party or Blizzard quest prose is licensed for republishing in a public SoftSpoken addon. Do not commit a bulk dialogue overlay before clarifying permissions.
+
+## Import directly into the existing Lua file
+
+With Node.js 18+ and Python 3 installed, from the SoftSpoken repository root:
+
+```sh
+node scripts/import_tortoise_quest_dialogue.mjs
+```
+
+The command retrieves the pinned Tortoise SQLite snapshot, verifies its Git blob checksum, extracts all title-compatible quests, and writes **directly** to `SoftSpoken_Stories/Data/TurtleQuestText.lua`. The original `SpokenQuestsText` dataset is untouched; the eight held quest IDs are excluded. No extra addon folder or copy step is required. All three stages are populated when their source fields are nonempty.
+
+To use an already downloaded SQLite file without network access:
+
+```sh
+node scripts/import_tortoise_quest_dialogue.mjs --source-sqlite /path/to/tortoise.sqlite
+```
+
+Alternatively, with a local database:
+
+```sh
+python3 scripts/prepare_tortoise_quest_overlay.py --db /path/to/tortoise.sqlite --into-addon
+```
+
+The audit workflow actually generates the complete Lua file in its temporary checkout and runs `luac5.1 -p` on it. This confirms the importer and Lua 5.1 syntax work with the pinned source. Its generated quest dialogue is not automatically committed or redistributed. If you run the command locally, review any intended redistribution of the resulting text before committing the generated Lua file.
 
 ## Pending before production import
 
