@@ -1300,17 +1300,6 @@ function Options:Setup()
         closeHousing:SetWidth(24)
         closeHousing:SetHeight(24)
         closeHousing:SetPoint("CENTER", close, "CENTER", 0, 0)
-        -- Scale the button art with the smaller housing, but retain the
-        -- native 32x32 clickable frame for easy mouse targeting.
-        for _, getter in ipairs({"GetNormalTexture", "GetPushedTexture", "GetHighlightTexture"}) do
-            local texture = close[getter](close)
-            if texture then
-                texture:ClearAllPoints()
-                texture:SetWidth(22)
-                texture:SetHeight(22)
-                texture:SetPoint("CENTER", close, "CENTER", 0, 0)
-            end
-        end
         close:SetScript("OnClick", function() panel:Hide() end)
     end
 end
