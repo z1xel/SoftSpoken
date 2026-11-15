@@ -201,8 +201,20 @@ jobs:
         run: |
           set -euo pipefail
           trap 'git restore -- SoftSpoken_Stories/Data/TurtleQuestText.lua' EXIT
+          # Append-only mode must preserve the ORIGINAL tracked 2.17 MB corpus
+          # byte-for-byte, before adding the first audited stage batch.
           node scripts/import_tortoise_quest_dialogue.mjs \
-            --source-sqlite .audit-viewer-data/data/tortoise.sqlite
+            --touched-only --source-sqlite .audit-viewer-data/data/tortoise.sqlite
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
+          path="SoftSpoken_Stories/Data/TurtleQuestText.lua"
+          old=subprocess.check_output(["git","show","HEAD:"+path])
+          new=Path(path).read_bytes()
+          assert new.startswith(old), "Existing Turtle corpus was modified"
+          assert new.count(b"-- BEGIN Turtle-touched first batch")==1
+          print("Append-only mode preserved the original Turtle dialogue bytes")
+          PY
           luac5.1 -p SoftSpoken_Stories/Data/TurtleQuestText.lua
           lua5.1 - <<'LUA'
           dofile("SoftSpoken_Stories/Data/TurtleQuestText.lua")
@@ -222,6 +234,22 @@ jobs:
                      SSCTurtleQuestText[id].complete)
           end
           print("Combined local Lua import validated: 2369 exclusive quests + 13 first-batch stages")
+          LUA
+          git restore -- SoftSpoken_Stories/Data/TurtleQuestText.lua
+          # Full pinned regeneration is also still supported and produces
+          # exactly the same high-ID and targeted low-ID quest set.
+          node scripts/import_tortoise_quest_dialogue.mjs \
+            --source-sqlite .audit-viewer-data/data/tortoise.sqlite
+          luac5.1 -p SoftSpoken_Stories/Data/TurtleQuestText.lua
+          lua5.1 - <<'LUA'
+          dofile("SoftSpoken_Stories/Data/TurtleQuestText.lua")
+          local high, low = 0, 0
+          for id in pairs(SSCTurtleQuestText) do
+              if id >= 20000 then high = high + 1
+              else low = low + 1 end
+          end
+          assert(high == 2369 and low == 5)
+          print("Full pinned regeneration: 2369 exclusive quests plus five restored quests")
           LUA
           git restore -- SoftSpoken_Stories/Data/TurtleQuestText.lua
           git diff --exit-code -- SoftSpoken_Stories/Data/TurtleQuestText.lua \
