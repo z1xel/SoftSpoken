@@ -21,7 +21,7 @@ COLUMNS=("quest_id catalog_title turtle_title vanilla_title turtle_method "
          "category source_status baseline_status title_different objective_different "
          "changed_stages stage_differences world_evidence curated_status "
          "turtle_starter_spawns source_title_agrees_catalog eligibility_reason "
-         "vanilla_quest_present source_zone baseline_zone turtle_evidence provenance_class").split()
+         "vanilla_quest_present source_zone baseline_zone turtle_evidence provenance_class vanilla_pfquest_present").split()
 STAGE_COLUMNS=("quest_id catalog_title category stage source_present baseline_present "
                "source_diff_baseline source_chars source_sha256 spoken_present "
                "spoken_matches_turtle turtle_overlay_present turtle_overlay_matches_turtle "
@@ -117,6 +117,10 @@ def main():
     ap.add_argument("--vanilla",required=True,type=Path)
     ap.add_argument("--methods",type=Path,required=True)
     ap.add_argument("--lua-stages",type=Path,help="Ephemeral dump of *existing* Lua corpus stages; never commit this")
+    ap.add_argument("--vanilla-pfquest-ids",required=True,type=Path,
+                    help="Independent Vanilla pfQuest quest presence; guards Classic DB omissions")
+    ap.add_argument("--live-evidence",type=Path,
+                    default=ROOT/"docs/turtle_verified_live_shared_ids.csv")
     ap.add_argument("--pfquest-overrides",required=True,type=Path,
                     help="Pinned pfQuest-turtle explicit quest override IDs")
     ap.add_argument("--turtle-migrations",required=True,type=Path,
@@ -135,6 +139,9 @@ def main():
     local_audit={int(r["quest_id"]):r for r in records(args.shared_audit)}
     methods={int(r["entry"]):r for r in records(args.methods)}
     pfquest={int(r["quest_id"]) for r in records(args.pfquest_overrides)}
+    vanilla_pfquest={int(r["quest_id"]) for r in records(args.vanilla_pfquest_ids)}
+    live_confirmed={int(r["quest_id"]) for r in records(args.live_evidence)}
+    if not vanilla_pfquest:raise ValueError("Independent Vanilla pfQuest list missing")
     migration={int(r["entry"]):r for r in records(args.turtle_migrations)}
     if not pfquest or not migration:
         raise ValueError("Cannot audit Turtle-touched text without source-specific change provenance")
@@ -173,6 +180,7 @@ def main():
         changed_fields=set((migrated or {}).get("modified_text_fields","").split(";"))-{""}
         provenance = ";".join(filter(None,[
             "known_curated_turtle" if curated else "",
+            "independent_in_game_observation" if id in live_confirmed else "",
             "pfquest_turtle_quest_override" if pfquest_override else "",
             "world_sql_migration:"+",".join(sorted(changed_fields)) if migrated else ""
         ]))
@@ -221,6 +229,8 @@ def main():
             reason="source_catalog_title_disagreement"
         elif not base and not proven_world:
             reason="legacy_id_missing_spawned_starter"
+        elif not base and id in vanilla_pfquest and not migrated and id not in live_confirmed:
+            reason="absent_cmangos_but_present_vanilla_pfquest"
         else:
             reason=""
         row={
@@ -241,6 +251,7 @@ def main():
             "baseline_zone":base["zoneorsort"] if base else "",
             "turtle_evidence":provenance,
             "provenance_class":provenance_class,
+            "vanilla_pfquest_present":int(id in vanilla_pfquest),
         }
         if unverified:
             uncorroborated.append(row)
@@ -317,6 +328,8 @@ def main():
         "directly_supported_text_gaps":len(directly_supported),
         "uncorroborated_cross_database_variants":len(uncorroborated),
         "pfquest_quest_override_ids":len(pfquest),
+        "vanilla_pfquest_quest_ids":len(vanilla_pfquest),
+        "independently_observed_live_ids":len(live_confirmed),
         "turtle_sql_migration_text_changed_ids":len(migration),
         "catalog_quests":len(titles),"vanilla_quest_rows":len(vanilla),
         "tortoise_quest_rows":len(tw),"review_candidates":len(chosen),
@@ -327,6 +340,7 @@ def main():
                    "cMaNGOS and Turtle are two evolving community database restorations; a text diff alone does not establish authorship or server availability.",
                    "Only migration-backed quest edits, precurated Turtle cases or absence from Vanilla with a spawned Turtle starter qualify an actionable shared-ID review target; pfQuest metadata differences alone are insufficient.",
                    "An intentionally blank progress or acceptance stage is not a missing transcript.",
+                   "A quest absent from cMaNGOS but present in Vanilla pfQuest may simply be a baseline omission; hold unless a Turtle SQL migration or independent live evidence supports it.",
                    "No changed quest body, no new quest ID and no original Spoken text is written by this audit."]
     }
     (out/"summary.json").write_text(json.dumps(summary,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
