@@ -19,7 +19,7 @@ local function equal(a,b,depth)
     for k,_ in pairs(b) do if a[k]==nil then return false end end
     return true
 end
-local ids={},counts={same=0,changed=0,added=0,removed=0}
+local ids,counts={},{same=0,changed=0,added=0,removed=0}
 for id,entry in pairs(other) do
     if type(id)=="number" and id>0 then
         if entry=="_" then
