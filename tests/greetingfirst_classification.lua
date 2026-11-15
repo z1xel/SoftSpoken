@@ -93,6 +93,28 @@ advance(1.51)
 check("duplicate event must not extend wait", not greeting:IsWaiting())
 
 greeting = reset()
+state.exists, state.name = true, "Thrall"
+env.VanillaGreetingLengths = {
+    ["creature/thrall/thrallgreeting02.wav"] = 4015,
+}
+env.C_Sound = {
+    GetRecentSoundFiles = function()
+        return {
+            -- Native ClassicAPI returns the original "Sound\" prefix/casing.
+            { file = "Sound\\Creature\\Thrall\\ThrallGreeting02.wav",
+              time = 100010, muted = false },
+        }
+    end,
+}
+greeting:Open()
+check("mixed-case ClassicAPI paths must match Vanilla lookup",
+    greeting:DescribeTiming():find("recording length", 1, true) ~= nil)
+advance(2.15)
+check("adaptive wait can exceed shorter fallback", greeting:IsWaiting())
+advance(2.05)
+check("adaptive wait ends at recorded file length", not greeting:IsWaiting())
+
+greeting = reset()
 state.guid, state.object = "object:1", true
 greeting:Open()
 check("confirmed game object bypasses wait", not greeting:IsWaiting())
