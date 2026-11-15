@@ -1291,6 +1291,16 @@ function Options:Setup()
         end
         local close = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
         close:SetPoint("TOPRIGHT", -4, -4)
+        -- Crop just the metal close-button housing from the UI-Frame atlas
+        -- already bundled with the Compendium. The full top-right corner
+        -- includes long header and side rails that should not appear here.
+        -- Source pixels: x=90..114, y=2..26 in the 128x128 atlas.
+        local closeHousing = close:CreateTexture(nil, "BACKGROUND")
+        closeHousing:SetTexture([[Interface\AddOns\SoftSpoken\Compendium\Textures\Skin\UI-Frame]])
+        closeHousing:SetTexCoord(90/128, 114/128, 2/128, 26/128)
+        closeHousing:SetWidth(32)
+        closeHousing:SetHeight(32)
+        closeHousing:SetPoint("CENTER", close, "CENTER", 0, 0)
         close:SetScript("OnClick", function() panel:Hide() end)
     end
 end
