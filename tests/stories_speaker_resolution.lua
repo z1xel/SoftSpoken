@@ -58,7 +58,7 @@ SpokenQuestsCompendium = {
         [106] = { starterObject = 6060 }, -- corpus starter overrides pack item
         [107] = { starterItem = 7070 }, -- item starter without pack metadata
         [108] = { starter = 8080, ender = 8081 }, -- separate NPC ender
-        [109] = { starterObject = 9090, enderObject = 9091 }, -- object stages
+        [90109] = { starterObject = 9090, enderObject = 9091 }, -- synthetic object-stage fixture; real quest 109 is Guard Thomas
         [111] = { starter = -4 }, -- invalid starter retains pack fallback
         [814] = { starter = 3191 }, -- restored Vanilla quest absent from pack giver index
         [236] = { starter = 888, ender = 2142 },
@@ -74,6 +74,17 @@ SpokenQuestsCompendium = {
         [5403] = { starter = 10839, ender = 10839 },
         [5407] = { starter = 10840, ender = 10840 },
         [5408] = { starter = 10840, ender = 10840 },
+        [109] = { starter = 261, ender = 234 },
+        [249] = { starterObject = 31, ender = 313 },
+        [1361] = { starter = 2229, ender = 3389 },
+        [2933] = { starterObject = 142702, ender = 2216 },
+        [3447] = { starterObject = 148836, enderObject = 148838 },
+        [6068] = { starter = 3154, ender = 3171 },
+        [6069] = { starter = 3407, ender = 3171 },
+        [6073] = { starter = 4205, ender = 3601 },
+        [6074] = { starter = 895, ender = 1231 },
+        [6075] = { starter = 5117, ender = 1231 },
+        [8227] = { starterObject = 180366, ender = 12919 },
         [60030] = { starterAlliance = 51292, starterHorde = 51293 },
         [60031] = { starterAlliance = 51292, starterHorde = 51293 },
         [60032] = { starterAlliance = 51292, starterHorde = 51293 },
@@ -121,8 +132,8 @@ quest(107, "complete", 3, 7070)
 quest(108, "accept", 8, 8080)
 quest(108, "progress", 8, 8081)
 quest(108, "complete", 8, 8081)
-quest(109, "accept", 11, 9090)
-quest(109, "complete", 11, 9091)
+quest(90109, "accept", 11, 9090)
+quest(90109, "complete", 11, 9091)
 quest(111, "accept", 8, 1110)
 quest(111, "complete", 8, 1110)
 -- Turtle's active Scourgestones variants differ from Vanilla by quest ID.
@@ -135,6 +146,41 @@ for questID, speakerID in pairs({
     quest(questID, "progress", 8, speakerID)
     quest(questID, "complete", 8, speakerID)
 end
+-- Source-backed 1.12/Turtle quest starters. Physical object starters and
+-- their distinct NPC/object completion targets must remain separate.
+quest(109, "accept", 8, 261)
+quest(109, "progress", 8, 234)
+quest(109, "complete", 8, 234)
+quest(249, "accept", 11, 31)
+quest(249, "progress", 8, 313)
+quest(249, "complete", 8, 313)
+quest(1361, "accept", 8, 2229)
+quest(1361, "progress", 8, 3389)
+quest(1361, "complete", 8, 3389)
+quest(2933, "accept", 11, 142702)
+quest(2933, "progress", 8, 2216)
+quest(2933, "complete", 8, 2216)
+quest(3447, "accept", 11, 148836)
+quest(3447, "progress", 11, 148838)
+quest(3447, "complete", 11, 148838)
+quest(6068, "accept", 8, 3154)
+quest(6068, "progress", 8, 3171)
+quest(6068, "complete", 8, 3171)
+quest(6069, "accept", 8, 3407)
+quest(6069, "progress", 8, 3171)
+quest(6069, "complete", 8, 3171)
+quest(6073, "accept", 8, 4205)
+quest(6073, "progress", 8, 3601)
+quest(6073, "complete", 8, 3601)
+quest(6074, "accept", 8, 895)
+quest(6074, "progress", 8, 1231)
+quest(6074, "complete", 8, 1231)
+quest(6075, "accept", 8, 5117)
+quest(6075, "progress", 8, 1231)
+quest(6075, "complete", 8, 1231)
+quest(8227, "accept", 11, 180366)
+quest(8227, "progress", 8, 12919)
+quest(8227, "complete", 8, 12919)
 quest(814, "accept", 8, 3191)
 quest(814, "progress", 8, 3191)
 quest(814, "complete", 8, 3191)
@@ -188,6 +234,14 @@ equal(R:StageForEvent(5), nil, "gossip has no quest stage")
 sound({event=3,questID=101}, 8, 2020, "manual completion")
 sound({event=1,questID=105}, 8, 5050, "corpus NPC starter")
 sound({event=3,questID=105}, 8, 5050, "same-starter hand-in")
+sound({event=1,questID=8227,unitIsObjectOrItem=true}, 11, 180366,
+    "Battered Tackle Box preferred over tape item as physical starter")
+sound({event=3,questID=8227}, 8, 12919,
+    "Nat Pagle receives the measuring tape")
+sound({event=1,questID=249,unitIsObjectOrItem=true}, 11, 31,
+    "Morganth starts at Old Lion Statue")
+sound({event=3,questID=249}, 8, 313,
+    "Morganth ends at Theocritus")
 sound({event=1,questID=3111}, 8, 658, "Turtle mage accept speaker")
 sound({event=3,questID=3111}, 8, 60516, "Turtle mage hand-in speaker")
 sound({event=3,questID=236,portraitGUID="creature:2142"}, 8, 2142,
@@ -246,6 +300,23 @@ local turtleScourgestoneEntries = {
 for questID, expected in pairs(turtleScourgestoneEntries) do
     assert(string.find(compendium, expected, 1, true),
         "Turtle speaker or faction metadata mismatch for quest " .. questID)
+end
+local verifiedTurtleStarters = {
+    [109] = '[109] = { "Report to Gryan Stoutmantle", zones = { 1429 }, starter = 261, ender = 234, races = 4294967373 },',
+    [249] = '[249] = { "Morganth", zones = { 1433 }, prev = 248, starterObject = 31, ender = 313, races = 4294967373 },',
+    [1361] = '[1361] = { "Regthar Deathgate", zones = { 1443 }, starter = 2229, ender = 3389, races = 8589934770 },',
+    [2933] = '[2933] = { "Venom Bottles", zones = { 1425 }, starterObject = 142702, ender = 2216, races = 8589934770 },',
+    [3447] = '[3447] = { "Secret of the Circle", zones = { 1435 }, dungeon = 109, prev = 3444, starterObject = 148836, enderObject = 148838 },',
+    [6068] = '[6068] = { "The Hunter\'s Path", sort = 261, starter = 3154, ender = 3171, races = 130, classes = 4 },',
+    [6069] = '[6069] = { "The Hunter\'s Path", sort = 261, starter = 3407, ender = 3171, races = 130, classes = 4 },',
+    [6073] = '[6073] = { "The Hunter\'s Path", sort = 261, starter = 4205, ender = 3601, races = 8, classes = 4 },',
+    [6074] = '[6074] = { "The Hunter\'s Path", sort = 261, starter = 895, ender = 1231, races = 4, classes = 4 },',
+    [6075] = '[6075] = { "The Hunter\'s Path", sort = 261, starter = 5117, ender = 1231, races = 4, classes = 4 },',
+    [8227] = '[8227] = { "Nat\'s Measuring Tape", zones = { 1434 }, dungeon = 309, starterObject = 180366, ender = 12919 },',
+}
+for questID, expected in pairs(verifiedTurtleStarters) do
+    assert(string.find(compendium, expected, 1, true),
+        "Vanilla/Turtle quest speaker mapping mismatch for " .. questID)
 end
 local restoredEntries = {
     [236] = '[236] = { "Watcher Callahan", zones = { 1431 }, starter = 888, ender = 2142, races = 4294967373 },',

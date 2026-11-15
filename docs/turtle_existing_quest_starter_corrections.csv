@@ -1,0 +1,12 @@
+quest_id,starter_entity,ender_entity,reason,source
+109,U:261,U:234,Turtle pfQuest restricts start to Guard Thomas,Turtle pfQuest quest records
+249,O:31,U:313,Old Lion Statue starts; Theocritus receives; both explicit Turtle source relations,Turtle pfQuest quest records
+1361,U:2229,U:3389,Krusk only in Turtle pfQuest and OctoWow; keep Regthar as ender,Turtle pfQuest quest records
+2933,O:142702,U:2216,Turtle pfQuest retains object 142702 among original Vanilla Venom Bottle candidates,Turtle pfQuest quest records
+3447,O:148836,O:148838,Turtle pfQuest switches starter to Altar of Hakkar and retains Idol of Hakkar ender,Turtle pfQuest quest records
+6068,U:3154,U:3171,Jen'shan is explicit Turtle pfQuest starter,Turtle pfQuest quest records
+6069,U:3407,U:3171,Sian'dur is explicit Turtle pfQuest starter,Turtle pfQuest quest records
+6073,U:4205,U:3601,Dorion is explicit Turtle pfQuest starter,Turtle pfQuest quest records
+6074,U:895,U:1231,Thorgas Grimson is explicit Turtle pfQuest starter,Turtle pfQuest quest records
+6075,U:5117,U:1231,Regnus Thundergranite is explicit Turtle pfQuest starter,Turtle pfQuest quest records
+8227,O:180366,U:12919,Deliberately keep the Battered Tackle Box as primary physical starter; original Vanilla pfQuest and OctoWow screenshot also list tape item 19973,Vanilla pfQuest + submitted OctoWow screenshot; box preferred
