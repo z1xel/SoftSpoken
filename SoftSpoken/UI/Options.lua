@@ -1290,7 +1290,7 @@ function Options:Setup()
             table.insert(UISpecialFrames, "SpokenOptionsPanel")
         end
         local close = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
-        close:SetPoint("TOPRIGHT", -4, -4)
+        close:SetPoint("TOPRIGHT", -5, -5)
         -- The close-button housing is 24x24 pixels in our bundled
         -- 128x128 UI-Frame atlas. Keep it at its natural size instead of
         -- stretching it to 32x32, which made the corner excessively bulky.
