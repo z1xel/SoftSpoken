@@ -447,7 +447,12 @@ function Addon:OnInitialize()
     }
 
     Player:Setup()
-    GreetingFirst:Setup()
+    -- Optional NPC greeting setup must not prevent voice-pack discovery if a
+    -- client lacks the sound APIs or CVars it expects.
+    local greetingReady, greetingError = pcall(GreetingFirst.Setup, GreetingFirst)
+    if not greetingReady then
+        Debug:Record("greeting-first-error", tostring(greetingError))
+    end
     -- The copy-link popup behind the Report button. Guarded because a failure to build a
     -- dialog must not stop playback initializing.
     local reportButtonReady, reportButtonError = pcall(ReportButton.Initialize, ReportButton)
