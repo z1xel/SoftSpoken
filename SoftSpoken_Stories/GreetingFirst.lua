@@ -104,13 +104,27 @@ end
 --- On the first window of an NPC visit, gate upcoming quest/gossip narration.
 function GreetingFirst:Open()
     opened = opened + 1
-    local npc = Utils:GetNPCGUID() or Utils:GetNPCName()
+    -- On original Vanilla, Utils:GetNPCGUID() can be nil. ClassicAPI may
+    -- expose the interacting NPC's GUID independently of the legacy quest
+    -- identity logic. Use it when available to distinguish same-named NPCs.
+    local npc = Utils:GetNPCGUID()
+    if not npc and type(UnitGUID) == "function" then
+        local ok, guid = pcall(UnitGUID, "npc")
+        if ok and type(guid) == "string" and guid ~= "" then
+            npc = guid
+        end
+    end
+    npc = npc or Utils:GetNPCName() or "<unresolved>"
     if visit and visit == npc then return end
     visit = npc
-    -- An earlier SoftSpoken clip may still be playing when another NPC is
-    -- opened. The next clip still needs a gate; don't skip it merely because
-    -- the queue is currently active.
-    if Utils:IsNPCObjectOrItem() then return end
+
+    -- Do NOT treat a missing 'npc' unit token as proof this is an object.
+    -- On 1.12, quest events can precede the NPC token becoming available.
+    -- Previously IsNPCObjectOrItem() skipped this wait and marked the visit
+    -- as seen, so even a later panel dispatch could not repair the overlap.
+    -- Unknown/object interactions may get an unnecessary delay, which is
+    -- safer than talking over an NPC when the client has not resolved it.
+    -- A currently playing SoftSpoken clip also must not suppress this gate.
 
     local now, previousHoldUntil = GetTime(), holdUntil
     holdUntil = math.max(previousHoldUntil, now + FALLBACK)
