@@ -1,0 +1,70 @@
+name: Turtle quest source coverage audit
+
+on:
+  push:
+    branches:
+      - audit/tortoise-text-coverage
+    paths:
+      - scripts/audit_tortoise_quest_coverage.py
+      - .github/workflows/tortoise-quest-audit.yml
+      - docs/turtle_exclusive_import.csv
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out SoftSpoken audit branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Retrieve pinned public SQLite snapshot (no third-party code executed)
+        uses: actions/checkout@v4
+        with:
+          repository: Xian55/tortoise-db-viewer
+          ref: 567ce23c73087e9b67fd2d4732c171d751e54bba
+          path: .audit-source
+          persist-credentials: false
+          sparse-checkout: |
+            data/tortoise.sqlite.br
+            data/version.json
+          sparse-checkout-cone-mode: false
+
+      - name: Verify snapshot and decompress
+        shell: bash
+        run: |
+          test -s .audit-source/data/tortoise.sqlite.br
+          cat .audit-source/data/version.json
+          sha256sum .audit-source/data/tortoise.sqlite.br
+          node -e 'const fs=require("fs"),z=require("zlib"); const p=".audit-source/data/tortoise.sqlite.br"; const data=z.brotliDecompressSync(fs.readFileSync(p)); fs.writeFileSync(".audit-source/data/tortoise.sqlite",data); console.log("SQLite bytes:",data.length);'
+
+      - name: Compare Turtle-exclusive quest IDs, titles and dialogue availability
+        run: |
+          python3 scripts/audit_tortoise_quest_coverage.py \
+            --db .audit-source/data/tortoise.sqlite \
+            --manifest docs/turtle_exclusive_import.csv \
+            --out docs/audits/tortoise_quest_coverage \
+            --source-ref 'Xian55/tortoise-db-viewer cdn@567ce23c73087e9b67fd2d4732c171d751e54bba; version=80f9b3153120'
+
+      - name: Upload read-only reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: tortoise-quest-coverage
+          path: docs/audits/tortoise_quest_coverage/
+          retention-days: 30
+
+      - name: Commit report back to this isolated audit branch
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/audits/tortoise_quest_coverage/
+          if ! git diff --cached --quiet; then
+            git commit -m 'Audit Turtle-exclusive quest dialogue and classification coverage'
+            git push origin HEAD:audit/tortoise-text-coverage
+          fi
