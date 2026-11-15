@@ -97,8 +97,10 @@ sharedView:ApplyTypography()
 eq(typographyCalls,1,"shared typography callback")
 SSCPlayButton={Create=function(parent) return Frame("Button",parent) end}
 SSCQuestFactionCrest={Resolve=function() return "crest.tga","Faction crest" end}
-local seen={ [101]=true,[102]=true,[103]=true,[8151]=true,[8233]=true }
-local completed={ [101]=true,[102]=true,[8151]=true,[8233]=true }
+local seen={ [101]=true,[102]=true,[103]=true,[8151]=true,[8233]=true,
+    [2954]=true,[5524]=true }
+local completed={ [101]=true,[102]=true,[8151]=true,[8233]=true,
+    [2954]=true,[5524]=true }
 SSCQuestState={
     IsSeen=function(self,id) return seen[id] or false end,
     IsCompleted=function(self,id) return completed[id] or false end,
@@ -111,6 +113,7 @@ local speakers={
     [103]={accept=3001,progress=3002,complete=3002},
     [8151]={progress=8405,complete=8405},
     [8233]={progress=6768,complete=6768},
+    [2954]={accept=7918},
 }
 VoiceOver={
     Enums={GUID={
@@ -119,15 +122,21 @@ VoiceOver={
     }},
     SpeakerResolver={
         MultipleSpeakers=function(self,id,stage)
-            if stage~="accept" then return nil end
-            if id==8151 then return {3038,3352,3406,4205,5116,5516} end
-            if id==8233 then return {3328,4215,4583,5166,13283} end
+            if stage=="accept" then
+                if id==8151 then return {3038,3352,3406,4205,5116,5516} end
+                if id==8233 then return {3328,4215,4583,5166,13283} end
+                if id==5524 then return {10856,10857} end
+            else
+                if id==2954 then return {7918,{kind="GameObject",id=142343}} end
+                if id==5524 then return {10856,10857} end
+            end
         end,
         ForQuest=function(self,id,stage)
             local speaker=speakers[id] and speakers[id][stage]
             return speaker and "Creature",speaker
         end,
         Name=function(self,kind,id,title)
+            if kind=="GameObject" and id==142343 then return "Uldum Pedestal" end
             return id and ("NPC "..id) or title
         end,
     },
@@ -144,6 +153,8 @@ SpokenQuestsText={
     [103]={accept="Accept C",progress="Progress C",complete="Finish C"},
     [8151]={accept="The Hunter's Charm",progress="Progress H",complete="Finish H"},
     [8233]={accept="A Simple Request",progress="Progress R",complete="Finish R"},
+    [2954]={accept="The Stone Watcher",complete="The Uldum Pedestal"},
+    [5524]={accept="Chromatic Mantle",complete="Quartermaster"},
 }
 local known, requests, listeners, nativePaints = {}, {}, {}, {}
 Spoken={
@@ -380,6 +391,25 @@ assert(string.find(face("accept").affiliationLabel,"NPC 13283 (13283)",1,true),
     "tooltip lists all five Rogue candidates")
 eq(details.parts.complete.speaker.text,"NPC 6768",
     "A Simple Request keeps its unique ender")
+-- A mixed NPC/gameobject hand-in names the object rather than assigning
+-- it an arbitrary creature identity, and preserves the unknown face icon.
+details:Show(2954)
+eq(details.parts.complete.speaker.text,"Multiple speakers possible",
+    "Stone Watcher completion is ambiguous")
+eq(face("complete").icon.texture,[[Interface\Icons\INV_Misc_QuestionMark]],
+    "mixed ender uses native Blizzard icon")
+assert(string.find(face("complete").affiliationLabel,"NPC 7918 (7918)",1,true),
+    "mixed tooltip retains the creature candidate")
+assert(string.find(face("complete").affiliationLabel,"Uldum Pedestal (142343)",1,true),
+    "mixed tooltip resolves the game object candidate")
+eq(face("complete").binding,nil,"mixed hand-in does not bind a random NPC portrait")
+eq(VoiceOver.DataModules.requestsByEvent[3].unitGUID,nil,
+    "Compendium does not invent a GUID to play ender audio")
+details:Show(5524)
+eq(face("accept").icon.texture,[[Interface\Icons\INV_Misc_QuestionMark]],
+    "two valid quartermaster starters")
+eq(face("complete").icon.texture,[[Interface\Icons\INV_Misc_QuestionMark]],
+    "two valid quartermaster enders")
 details:Show(101)
 eq(face("accept").icon.texture,"crest.tga",
     "reusing the holder clears the question-mark portrait")
