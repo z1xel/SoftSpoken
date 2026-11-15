@@ -52,8 +52,11 @@ local function SavedText(id,stage)
     local r=db and db[id]
     return r and r[stage]
 end
+local MULTIPLE_LABEL="Multiple speakers possible"
 local function SpeakerLabel(id,stage)
     local resolver=VoiceOver and VoiceOver.SpeakerResolver
+    local candidates=resolver and resolver:MultipleSpeakers(id,stage)
+    if candidates then return MULTIPLE_LABEL,nil,nil,candidates end
     local kind,npc
     if resolver then kind,npc=resolver:ForQuest(id,stage) end
     local title=M:Title(id)
@@ -62,7 +65,10 @@ end
 local function SoundData(id,stage)
     local v=VoiceOver
     local title=M:Title(id,true)
-    local name,kind,npc=SpeakerLabel(id,stage)
+    local name,kind,npc,candidates=SpeakerLabel(id,stage)
+    -- The placeholder is display-only. With no live NPC, let the sound pack
+    -- try its shared quest-stage recording instead of inventing a speaker.
+    if candidates then name=title end
     local e=v and v.Enums and v.Enums.GUID
     local guid
     if npc and kind and e and e.CanHaveID and e:CanHaveID(kind) then
@@ -198,6 +204,14 @@ local function Portrait(parent)
     -- separate so ClassicAPI portrait repaints cannot replace the ring.
     if icon.SetMask then icon:SetMask(PORTRAIT_MASK) end
     holder.icon=icon
+    local question=holder:CreateFontString(nil,"OVERLAY","GameFontNormalLarge")
+    question:SetFont("Fonts\\MORPHEUS.TTF",32,"")
+    question:SetTextColor(.25,.17,.09,1)
+    question:SetWidth(45);question:SetHeight(45)
+    question:SetPoint("CENTER",icon,"CENTER",0,0)
+    question:SetText("?")
+    question:Hide()
+    holder.question=question
     local ring=holder:CreateTexture(nil,"OVERLAY")
     ring:SetTexture(PORTRAIT_RING)
     ring:SetWidth(RING_UI_SIZE);ring:SetHeight(RING_UI_SIZE)
@@ -227,11 +241,27 @@ local function PaintCrest(holder)
     local texture,label=FactionCrest.Resolve()
     holder.icon:SetTexCoord(0,1,0,1)
     holder.icon:SetTexture(texture)
+    holder.question:Hide()
     holder.affiliationLabel=label
     holder.creatureID=nil
     holder.pendingCreatureID=nil
     holder.pendingItemID=nil
     holder.binding=nil
+end
+
+-- Show a neutral question-mark portrait when more than one NPC could speak.
+-- The tooltip retains every known starter/ender; no NPC is chosen for display.
+local function PaintMultiple(holder,candidates)
+    holder.icon:SetTexture(.78,.69,.54,1)
+    holder.question:Show()
+    local resolver=VoiceOver and VoiceOver.SpeakerResolver
+    local creature=VoiceOver and VoiceOver.Enums and VoiceOver.Enums.GUID.Creature
+    local names={MULTIPLE_LABEL}
+    for _,id in ipairs(candidates) do
+        local name=resolver and resolver:Name(creature,id,"NPC "..tostring(id))
+        table.insert(names,name.." ("..tostring(id)..")")
+    end
+    holder.affiliationLabel=table.concat(names,"\n")
 end
 
 local function ValidIcon(icon)
@@ -309,9 +339,13 @@ function P:BindItemPortrait(part,questID,stage,itemID,speaker)
     end
 end
 
-function P:BindPortrait(part,questID,stage,kind,npc,speaker)
+function P:BindPortrait(part,questID,stage,kind,npc,speaker,candidates)
     local holder=part.face
     PaintCrest(holder)
+    if candidates then
+        PaintMultiple(holder,candidates)
+        return
+    end
     local enums=VoiceOver and VoiceOver.Enums and VoiceOver.Enums.GUID
     if enums and kind==enums.Item then
         self:BindItemPortrait(part,questID,stage,npc,speaker)
@@ -395,15 +429,27 @@ end
 
 -- Rebind on tab/window reopen: an NPC may have finished loading while the
 -- page was hidden and its callback unsubscribed.
+local function ShowSpeaker(self,part,speaker,candidates)
+    part.multipleSpeakers=candidates and true or false
+    part.speaker:SetText(speaker)
+    MatchFont(part.speaker,self.page and self.page.title,0,QuestTitleFont,
+        false,"Fonts\\MORPHEUS.TTF",part.multipleSpeakers and .72 or .85)
+    if part.multipleSpeakers then
+        part.speaker:SetTextColor(.43,.32,.20,1)
+    else
+        part.speaker:SetTextColor(0,0,0,1)
+    end
+end
+
 function P:RebindPortraits()
     if not self.active or not self.id then return end
     self.generation=self.generation+1
     for _,stage in ipairs(MOMENTS) do
         local part=self.parts[stage]
         if part:IsShown() then
-            local speaker,kind,npc=SpeakerLabel(self.id,stage)
-            part.speaker:SetText(speaker)
-            self:BindPortrait(part,self.id,stage,kind,npc,speaker)
+            local speaker,kind,npc,candidates=SpeakerLabel(self.id,stage)
+            ShowSpeaker(self,part,speaker,candidates)
+            self:BindPortrait(part,self.id,stage,kind,npc,speaker,candidates)
         end
     end
 end
@@ -476,8 +522,13 @@ function P:ApplyTypography()
         if part.content.SetSpacing then part.content:SetSpacing(0) end
         -- Speaker name is 85% of the Description heading size;
         -- keep its black Morpheus face without the QuestTitleFont shadow.
-        MatchFont(part.speaker,heading,0,QuestTitleFont,false,"Fonts\\MORPHEUS.TTF",.85)
-        part.speaker:SetTextColor(0,0,0,1)
+        MatchFont(part.speaker,heading,0,QuestTitleFont,false,
+            "Fonts\\MORPHEUS.TTF",part.multipleSpeakers and .72 or .85)
+        if part.multipleSpeakers then
+            part.speaker:SetTextColor(.43,.32,.20,1)
+        else
+            part.speaker:SetTextColor(0,0,0,1)
+        end
         MatchFont(part.title,heading,0,QuestTitleFont,true)
     end
 end
@@ -631,9 +682,9 @@ function P:Show(id)
             else
                 part.button:Disable();part.button:Hide()
             end
-            local speaker,kind,npc=SpeakerLabel(id,stage)
-            part.speaker:SetText(speaker)
-            self:BindPortrait(part,id,stage,kind,npc,speaker)
+            local speaker,kind,npc,candidates=SpeakerLabel(id,stage)
+            ShowSpeaker(self,part,speaker,candidates)
+            self:BindPortrait(part,id,stage,kind,npc,speaker,candidates)
             part.content:SetText(text or (voiced and "Audio available. Dialogue text not recorded." or "No dialogue text available."))
         end
     end

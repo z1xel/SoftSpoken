@@ -41,6 +41,29 @@ function R:StageForEvent(event)
     if event == events.QuestComplete then return "complete" end
 end
 
+-- A quest stage may have several legitimate NPC speakers. A static quest ID
+-- cannot select among them; actual dialogue has a GUID, whereas the Compendium
+-- should display the entire set rather than pick an arbitrary pack fallback.
+function R:MultipleSpeakers(questID, stage)
+    local id = PositiveID(questID)
+    if not id or (stage ~= "accept" and stage ~= "progress" and stage ~= "complete") then return nil end
+    local corpus = rawget(_G, "SpokenQuestsCompendium")
+    local quest = corpus and corpus.quests and corpus.quests[id]
+    if not quest then return nil end
+    local speakers
+    if stage == "accept" then
+        speakers = quest.starters
+    else
+        speakers = quest.enders
+        if not speakers and not quest.ender and not quest.enderObject then
+            speakers = quest.starters
+        end
+    end
+    if type(speakers) == "table" and table.getn(speakers) > 1 then
+        return speakers
+    end
+end
+
 -- Data/Compendium.lua is loaded after the narrator module. Read it lazily,
 -- without requiring the Compendium window or any of its page/list modules.
 function R:ForQuest(questID, stage)
@@ -50,6 +73,9 @@ function R:ForQuest(questID, stage)
     local corpus = rawget(_G, "SpokenQuestsCompendium")
     local quest = corpus and corpus.quests and corpus.quests[id]
     if quest then
+        -- Never choose one of several valid NPCs just because a legacy pack
+        -- happens to contain a single quest-giver fallback.
+        if self:MultipleSpeakers(id, stage) then return nil end
         if stage ~= "accept" then
             local ender = PositiveID(quest.ender)
             if ender then return Enums.GUID.Creature, ender end

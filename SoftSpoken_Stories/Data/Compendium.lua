@@ -29,6 +29,10 @@
 -- Optional starter = creature ID, starterObject = game object ID, starterItem = item ID.
 -- starterAlliance / starterHorde are creature IDs selected by player's faction;
 -- if there is no explicit ender, the chosen faction NPC is the hand-in as well.
+-- Optional starters = { creature IDs... } / enders = { creature IDs... }
+-- preserve all known speakers when a stage has several valid NPCs.
+-- The Compendium then displays an ambiguous speaker instead of inventing one;
+-- live narration still uses the NPC who actually opened the dialogue.
 -- When absent, legacy quest-giver resolution continues through the registered audio packs.
 -- Source review of eight restored shared-ID quests:
 -- docs/turtle_modified_shared_quest_resolutions.csv.
@@ -3341,7 +3345,7 @@ SpokenQuestsCompendium = {
 		[8148] = { "Maelstrom's Wrath", zones = { 1434 }, dungeon = 309, prev = 8147, ender = 14905, classes = 4 },
 		[8149] = { "Honoring a Hero", sort = "harvestfestival", races = 4294967373 },
 		[8150] = { "Honoring a Hero", sort = "harvestfestival", races = 8589934770 },
-		[8151] = { "The Hunter's Charm", sort = 261, ender = 8405, classes = 4 },
+		[8151] = { "The Hunter's Charm", sort = 261, starters = { 3038, 3352, 3406, 4205, 5116, 5516 }, ender = 8405, classes = 4 },
 		[8153] = { "Courser Antlers", sort = 261, prev = 8151, classes = 4 },
 		[8154] = { "Arathi Basin Resources!", zones = { 1461 }, races = 4294967373 },
 		[8155] = { "Arathi Basin Resources!", zones = { 1461 }, races = 4294967373 },
@@ -3388,7 +3392,7 @@ SpokenQuestsCompendium = {
 		[8229] = { "Could I get a Fishing Flier?", sort = 101, ender = 15116, races = 8589934770 },
 		[8231] = { "Wavethrashing", sort = 261, prev = 8153, classes = 4 },
 		[8232] = { "The Green Drake", sort = 261, prev = 8231, classes = 4 },
-		[8233] = { "A Simple Request", sort = 162, ender = 6768, classes = 8 },
+		[8233] = { "A Simple Request", sort = 162, starters = { 3328, 4215, 4583, 5166, 13283 }, ender = 6768, classes = 8 },
 		[8234] = { "Sealed Azure Bag", sort = 162, prev = 8233, ender = 8379, classes = 8 },
 		[8235] = { "Encoded Fragments", sort = 162, prev = 8234, classes = 8 },
 		[8236] = { "The Azure Key", sort = 162, prev = 8235, ender = 6768, classes = 8 },

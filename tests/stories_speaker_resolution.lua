@@ -25,6 +25,8 @@ VoiceOver = setmetatable({
             if id == 106 then return 3, 600 end
             if id == 111 then return 8, 1110 end
             if id == 60030 then return 8, 9999 end -- legacy fallback when faction is unknown
+            if id == 8151 then return 8, 16738 end -- wrong non-Vanilla trainer fallback
+            if id == 8233 then return 8, 16685 end -- wrong non-Vanilla trainer fallback
         end,
         GetObjectName = function(self, kind, id)
             if id == 1010 then return "Quest giver" end
@@ -69,6 +71,8 @@ SpokenQuestsCompendium = {
         [6131] = { starter = 11554 },
         [8290] = { starter = 14733 },
         [8295] = { starter = 14781 },
+        [8151] = { starters = {3038,3352,3406,4205,5116,5516}, ender = 8405 },
+        [8233] = { starters = {3328,4215,4583,5166,13283}, ender = 6768 },
         [5125] = { starter = 10931, ender = 10931 },
         [5402] = { starter = 10839, ender = 10839 },
         [5403] = { starter = 10839, ender = 10839 },
@@ -181,6 +185,21 @@ quest(6075, "complete", 8, 1231)
 quest(8227, "accept", 11, 180366)
 quest(8227, "progress", 8, 12919)
 quest(8227, "complete", 8, 12919)
+-- A multi-giver quest has no canonical indexed starter, regardless of the
+-- legacy data pack's (incorrect) single fallback. Completion stays explicit.
+local hunterStarters=assert(R:MultipleSpeakers(8151,"accept"))
+local rogueStarters=assert(R:MultipleSpeakers(8233,"accept"))
+equal(table.getn(hunterStarters),6,"six Turtle hunter starters")
+equal(table.getn(rogueStarters),5,"five Turtle rogue starters")
+equal(hunterStarters[1],3038,"hunter candidate order")
+equal(rogueStarters[5],13283,"rogue candidate order")
+equal(R:MultipleSpeakers(8151,"complete"),nil,"known hunter ender not ambiguous")
+quest(8151,"accept",nil,nil)
+quest(8151,"progress",8,8405)
+quest(8151,"complete",8,8405)
+quest(8233,"accept",nil,nil)
+quest(8233,"progress",8,6768)
+quest(8233,"complete",8,6768)
 quest(814, "accept", 8, 3191)
 quest(814, "progress", 8, 3191)
 quest(814, "complete", 8, 3191)
@@ -234,6 +253,13 @@ equal(R:StageForEvent(5), nil, "gossip has no quest stage")
 sound({event=3,questID=101}, 8, 2020, "manual completion")
 sound({event=1,questID=105}, 8, 5050, "corpus NPC starter")
 sound({event=3,questID=105}, 8, 5050, "same-starter hand-in")
+-- The actual dialogue speaker wins even when the corpus has six possibilities.
+sound({event=1,questID=8151},nil,nil,
+    "multi-speaker quest must not fabricate a giver from pack metadata")
+sound({event=1,questID=8151,unitGUID="creature:3038"},8,3038,
+    "live hunter trainer is selected from its creature GUID")
+sound({event=1,questID=8233,unitGUID="creature:13283"},8,13283,
+    "live rogue trainer is selected from its creature GUID")
 sound({event=1,questID=8227,unitIsObjectOrItem=true}, 11, 180366,
     "Battered Tackle Box preferred over tape item as physical starter")
 sound({event=3,questID=8227}, 8, 12919,
@@ -318,6 +344,14 @@ for questID, expected in pairs(verifiedTurtleStarters) do
     assert(string.find(compendium, expected, 1, true),
         "Vanilla/Turtle quest speaker mapping mismatch for " .. questID)
 end
+local multiSpeakerRows = {
+    [8151] = '[8151] = { "The Hunter\'s Charm", sort = 261, starters = { 3038, 3352, 3406, 4205, 5116, 5516 }, ender = 8405, classes = 4 },',
+    [8233] = '[8233] = { "A Simple Request", sort = 162, starters = { 3328, 4215, 4583, 5166, 13283 }, ender = 6768, classes = 8 },',
+}
+for questID, expected in pairs(multiSpeakerRows) do
+    assert(string.find(compendium,expected,1,true),
+        "Turtle multiple-starter candidates missing for quest "..questID)
+end
 local restoredEntries = {
     [236] = '[236] = { "Watcher Callahan", zones = { 1431 }, starter = 888, ender = 2142, races = 4294967373 },',
     [810] = '[810] = { "Study to Survive", zones = { 1411 }, starter = 3189, races = 8589934770 },',
@@ -335,6 +369,14 @@ end
 assert(string.find(compendium, '[60516] = "Marrek Stromnur"', 1, true),
     "corpus NPC name for Marrek Stromnur must be preserved")
 local page = assert(io.open("SoftSpoken_Stories/Compendium/QuestPage_112.lua", "r")):read("*a")
+assert(string.find(page,'local MULTIPLE_LABEL="Multiple speakers possible"',1,true),
+    "Compendium should label ambiguous stages without pretending to know the speaker")
+assert(string.find(page,'holder.question:Show()',1,true),
+    "multiple speakers require a question-mark portrait")
+assert(string.find(page,'PaintMultiple(holder,candidates)',1,true),
+    "multi-speaker stages must paint the neutral portrait")
+assert(string.find(page,'if candidates then name=title end',1,true),
+    "ambiguous label must never be supplied as an NPC name for audio")
 assert(string.find(page, "resolver:ForQuest(id,stage)", 1, true),
     "Compendium and narrator must use shared stage resolver")
 assert(not string.find(page, "local function Speaker(id,stage)", 1, true),
