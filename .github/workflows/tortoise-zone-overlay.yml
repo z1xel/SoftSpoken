@@ -5,6 +5,7 @@ on:
     paths:
       - scripts/build_tortoise_zone_overlay.py
       - scripts/reapply_tortoise_zone_overlay.py
+      - scripts/reapply_turtle_quest_catalog.py
       - SoftSpoken_Stories/Compendium/QuestCatalog_112.lua
       - SoftSpoken_Stories/addon.xml
       - tests/tortoise_zone_catalog.lua
@@ -58,6 +59,9 @@ jobs:
           luac5.1 -p SoftSpoken_Stories/Data/Compendium.lua
           luac5.1 -p SoftSpoken_Stories/Compendium/QuestCatalog_112.lua
           lua5.1 tests/tortoise_zone_catalog.lua
+          lua5.1 tests/stories_speaker_resolution.lua
+          lua5.1 tests/stories_compendium_portrait_lifecycle.lua
+          lua5.1 tests/stories_portrait_preloading.lua
           python3 tests/test_turtle_exclusive_catalog_import.py
           python3 tests/test_turtle_shared_id_coverage.py
           python3 tests/test_ui_packaging.py
