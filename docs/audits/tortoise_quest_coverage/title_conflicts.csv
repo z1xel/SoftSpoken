@@ -1,0 +1,30 @@
+quest_id,manifest_status,catalog_title,source_title,source_record,title_match,accept_present,progress_present,complete_present,all_three,objectives_present,endtext_present,zone_or_sort,classification_kind,accept_chars,progress_chars,complete_chars
+40128,already_present,An Ancient Acquisition,[DEPRECATED] An Ancient Acquisition,1,different,1,1,1,1,1,0,17,zone,604,16,120
+40129,already_present,Stealing a Core,[DEPRECATED] Stealing a Core,1,different,1,1,1,1,1,0,1517,zone,685,69,113
+40132,already_present,The Activation,[DEPRECATED] The Activation,1,different,1,1,1,1,1,0,17,zone,205,23,699
+41098,already_present,A Missive From Gadgetzan,[DEPRECATED] A Missive From Gadgetzan,1,different,1,1,1,1,1,0,440,zone,200,12,28
+41100,already_present,A Letter From Rayne,[DEPRECATED] A Letter From Rayne,1,different,1,1,1,1,1,0,139,zone,188,26,51
+41103,already_present,A Call From Torble,[DEPRECATED] A Call From Torble,1,different,1,1,1,1,1,0,17,zone,239,4,25
+41105,already_present,Sparksprocket's Guest of Honor,[DEPRECATED] Sparksprocket's Guest of Honor,1,different,1,1,1,1,1,0,17,zone,327,7,15
+41797,imported,A Good Friend,A Dear Friend,1,different,1,1,1,1,1,0,5581,zone,990,47,598
+41844,imported,The Dead Can't Complain,The Dead Can’t Complain,1,different,1,1,1,1,1,0,5628,zone,949,175,318
+41927,imported,Lord Blackwald II's Riding Whistle,Lord Blackwald II’s Riding Whistle,1,different,1,1,1,1,1,0,41,zone,256,496,383
+41928,imported,Crypt Lord's Beckoning,Crypt Lord’s Beckoning,1,different,1,1,1,1,1,0,139,zone,441,537,466
+41937,imported,Nightmare's End,Nightmare’s End,1,different,1,1,1,1,1,0,5640,zone,359,54,473
+41939,imported,Vortalus' Edict,Vortalus’ Edict,1,different,1,1,1,1,1,0,-82,sort,984,194,635
+41947,imported,Wanted: Tama'an the Ruthless,Wanted: Tama’an the Ruthless,1,different,1,1,1,1,1,0,5642,zone,309,68,165
+41951,already_present,Merchant's Knowledge,Merchant’s Knowledge,1,different,1,1,1,1,1,0,5642,zone,694,121,118
+41966,imported,"Peroth'arn, Nightmare's Herald","Peroth’arn, Nightmare’s Herald",1,different,1,1,1,1,1,0,5640,zone,434,86,590
+41983,imported,The Great Iqa'quluk,The Great Iqa’quluk,1,different,1,1,1,1,1,0,5024,zone,931,29,494
+41985,imported,Don't tell the Others,Don’t tell the Others,1,different,1,1,1,1,1,0,440,zone,725,24,343
+41986,already_present,Oglethorbe's Scientific Hunger,Oglethorbe’s Scientific Hunger,1,different,0,1,1,0,0,0,35,zone,0,766,302
+41996,imported,Siren's Song,Siren’s Song,1,different,1,1,1,1,1,0,5642,zone,844,26,135
+42020,imported,Brother's Duty,Brother’s Duty,1,different,1,1,1,1,1,0,5642,zone,856,35,209
+42048,imported,Rainhorn's Frustration,Rainhorn’s Frustration,1,different,1,1,1,1,1,0,5642,zone,614,21,159
+42066,imported,Ghosts of Maras'ethil,Ghosts of Maras’ethil,1,different,1,1,1,1,1,0,5642,zone,830,358,334
+42088,imported,An'she's Respite,An’she’s Respite,1,different,1,1,1,1,1,0,5642,zone,815,155,266
+42094,imported,The Moth's Heresy,The Moth’s Heresy,1,different,1,1,1,1,1,0,5642,zone,985,187,431
+42095,imported,A Dryad's Counsel,A Dryad’s Counsel,1,different,1,1,1,1,1,0,5642,zone,529,4,281
+42096,imported,The Rot of Elun'aran,The Rot of Elun’aran,1,different,1,1,1,1,1,0,5642,zone,824,129,173
+80710,imported,It's All in Their Brains,It’s All in Their Brains,1,different,1,1,1,1,1,0,139,zone,450,55,182
+80725,imported,In Gunther's Favor,In Gunther’s Favor,1,different,1,1,1,1,1,0,1497,zone,675,20,218

@@ -1,0 +1,54 @@
+{
+  "by_manifest_status": {
+    "already_present": {
+      "accept": 62,
+      "all_three": 50,
+      "classified": 130,
+      "complete": 126,
+      "endtext": 4,
+      "objectives": 67,
+      "progress": 120,
+      "sorts": 14,
+      "source_record": 130,
+      "total": 130,
+      "zones": 116
+    },
+    "imported": {
+      "accept": 2241,
+      "all_three": 2183,
+      "classified": 2245,
+      "complete": 2243,
+      "endtext": 30,
+      "objectives": 2234,
+      "progress": 2191,
+      "sorts": 122,
+      "source_record": 2247,
+      "total": 2247,
+      "zones": 2123
+    }
+  },
+  "counts": {
+    "accept": 2303,
+    "all_three": 2233,
+    "classified": 2375,
+    "complete": 2369,
+    "endtext": 34,
+    "objectives": 2301,
+    "progress": 2311,
+    "sorts": 136,
+    "source_record": 2377,
+    "title_different": 29,
+    "title_exact": 2346,
+    "title_normalized": 2,
+    "zones": 2239
+  },
+  "dataset": "Tortoise-WoW viewer SQLite, community restoration (not live Turtle WoW)",
+  "manifest_status_counts": {
+    "already_present": 130,
+    "excluded_nonplayable": 74,
+    "imported": 2247
+  },
+  "source_ref": "Xian55/tortoise-db-viewer cdn@567ce23c73087e9b67fd2d4732c171d751e54bba; version=80f9b3153120",
+  "targets": 2377,
+  "warning": "Read-only coverage; neither live equivalence nor text redistribution rights established."
+}
