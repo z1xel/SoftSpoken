@@ -46,7 +46,8 @@ local function DrawOrnateHeaderBand(window)
     local art = [[Interface\ChatFrame\UI-ChatInputBorder-]]
     local leftX, rightX = 2, -2
     local topY, bottomY = -17, -111
-    local cornerW, cornerH = 28, 16
+    -- Crop off the 12-unit dark interior; retain only the lower metal edge.
+    local cornerW, cornerH = 28, 4
 
     local function Part(file, layer, u1, u2, v1, v2, width, height, anchor, relative, x, y)
         local tex = window:CreateTexture(nil, layer)
@@ -59,20 +60,14 @@ local function DrawOrnateHeaderBand(window)
     end
 
     -- Bottom ornamentation only. No top corners or horizontal top rail.
-    local bl = Part("Left", "BORDER", 0, 28/256, 0.5, 1,
+    local bl = Part("Left", "BORDER", 0, 28/256, 0.875, 1,
         cornerW, cornerH, "BOTTOMLEFT", "TOPLEFT", leftX, bottomY)
-    local br = Part("Right", "ARTWORK", 228/256, 1, 0.5, 1,
+    local br = Part("Right", "ARTWORK", 228/256, 1, 0.875, 1,
         cornerW, cornerH, "BOTTOMRIGHT", "TOPRIGHT", rightX, bottomY)
 
-    -- The chat-input art has a dark interior above its silver lower edge.
-    -- Normal alpha blending paints that interior as an unwanted dark strip.
-    -- Additive blending retains the trim without darkening the window behind it.
-    bl:SetBlendMode("ADD")
-    br:SetBlendMode("ADD")
     local bottom = window:CreateTexture(nil, "BORDER")
     bottom:SetTexture(art .. "Left")
-    bottom:SetBlendMode("ADD")
-    bottom:SetTexCoord(75/256, 1, 0.5, 1)
+    bottom:SetTexCoord(75/256, 1, 0.875, 1)
     bottom:SetHeight(cornerH)
     bottom:SetPoint("BOTTOMLEFT", bl, "BOTTOMRIGHT", 0, 0)
     bottom:SetPoint("BOTTOMRIGHT", br, "BOTTOMLEFT", 0, 0)
@@ -85,7 +80,7 @@ local function DrawOrnateHeaderBand(window)
         tex:SetWidth(4)
         local edge = right and "TOPRIGHT" or "TOPLEFT"
         local x = right and (rightX - 8) or (leftX + 8)
-        tex:SetPoint(edge, window, edge, x, topY - cornerH)
+        tex:SetPoint(edge, window, edge, x, topY - 16)
         tex:SetPoint(right and "BOTTOMRIGHT" or "BOTTOMLEFT",
             window, edge, x, bottomY + cornerH)
     end
