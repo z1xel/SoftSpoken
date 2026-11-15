@@ -73,6 +73,11 @@ SpokenQuestsCompendium = {
         [8295] = { starter = 14781 },
         [8151] = { starters = {3038,3352,3406,4205,5116,5516}, ender = 8405 },
         [8233] = { starters = {3328,4215,4583,5166,13283}, ender = 6768 },
+        [2954] = { starter = 7918, enders = {7918}, enderObjects = {142343} },
+        [3525] = { starter = 8516, enders = {8516}, enderObjects = {152097} },
+        [5524] = { starters = {10856,10857}, enders = {10856,10857} },
+        [9339] = { starters = {16817,16818}, enders = {16817,16818} },
+        [9365] = { starters = {16817,16818}, enders = {16817,16818} },
         [5125] = { starter = 10931, ender = 10931 },
         [5402] = { starter = 10839, ender = 10839 },
         [5403] = { starter = 10839, ender = 10839 },
@@ -200,6 +205,38 @@ quest(8151,"complete",8,8405)
 quest(8233,"accept",nil,nil)
 quest(8233,"progress",8,6768)
 quest(8233,"complete",8,6768)
+-- Multi-ender relationships can combine NPC and game object IDs. Neither
+-- one may be chosen arbitrarily in the static Compendium.
+for _, id in ipairs({2954,3525}) do
+    local enders=assert(R:MultipleSpeakers(id,"complete"))
+    equal(table.getn(enders),2,"combined NPC/object enders")
+    equal(enders[2].kind,11,"world object keeps its own GUID kind")
+    quest(id,"complete",nil,nil)
+    quest(id,"progress",nil,nil)
+end
+local pedestal=R:MultipleSpeakers(2954,"complete")
+equal(pedestal[1],7918,"Stone Watcher hand-in NPC")
+equal(pedestal[2].id,142343,"Uldum Pedestal hand-in object")
+local brazier=R:MultipleSpeakers(3525,"complete")
+equal(brazier[1],8516,"Belnistrasz hand-in NPC")
+equal(brazier[2].id,152097,"Belnistrasz brazier object")
+quest(2954,"accept",8,7918)
+quest(3525,"accept",8,8516)
+for _, id in ipairs({5524,9339,9365}) do
+    equal(table.getn(assert(R:MultipleSpeakers(id,"accept"))),2,
+        "alternate starters must be retained")
+    equal(table.getn(assert(R:MultipleSpeakers(id,"complete"))),2,
+        "alternate enders must be retained")
+    quest(id,"accept",nil,nil)
+    quest(id,"progress",nil,nil)
+    quest(id,"complete",nil,nil)
+end
+sound({event=3,questID=2954,unitGUID="creature:7918"},8,7918,
+    "live Stone Watcher overrides ambiguous enders")
+sound({event=3,questID=5524,unitGUID="creature:10857"},8,10857,
+    "live quartermaster overrides ambiguous enders")
+sound({event=3,questID=9339,unitGUID="creature:16818"},8,16818,
+    "live festival NPC overrides ambiguous enders")
 quest(814, "accept", 8, 3191)
 quest(814, "progress", 8, 3191)
 quest(814, "complete", 8, 3191)
@@ -351,6 +388,18 @@ local multiSpeakerRows = {
 for questID, expected in pairs(multiSpeakerRows) do
     assert(string.find(compendium,expected,1,true),
         "Turtle multiple-starter candidates missing for quest "..questID)
+end
+-- Keep all reviewed Turtle ender alternatives in the actual corpus.
+local turtleMultipleEnders = {
+    [2954] = '[2954] = { "The Stone Watcher", zones = { 1446 }, prev = 2946, starter = 7918, enders = { 7918 }, enderObjects = { 142343 } },',
+    [3525] = '[3525] = { "Extinguishing the Idol", zones = { 1413 }, dungeon = 129, prev = 3523, starter = 8516, enders = { 8516 }, enderObjects = { 152097 } },',
+    [5524] = '[5524] = { "Chromatic Mantle of the Dawn", zones = { 1422 }, starters = { 10856, 10857 }, enders = { 10856, 10857 } },',
+    [9339] = '[9339] = { "A Thief\'s Reward", sort = 369, prev = 9324, starters = { 16817, 16818 }, enders = { 16817, 16818 }, races = 4294967373 },',
+    [9365] = '[9365] = { "A Thief\'s Reward", sort = 369, prev = 9330, starters = { 16817, 16818 }, enders = { 16817, 16818 }, races = 8589934770 },',
+}
+for id, expected in pairs(turtleMultipleEnders) do
+    assert(string.find(compendium,expected,1,true),
+        "Turtle ender alternatives missing from Compendium for quest "..id)
 end
 local restoredEntries = {
     [236] = '[236] = { "Watcher Callahan", zones = { 1431 }, starter = 888, ender = 2142, races = 4294967373 },',
