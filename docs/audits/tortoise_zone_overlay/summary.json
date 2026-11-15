@@ -1,0 +1,28 @@
+{
+  "source": "Pinned Tortoise SQLite + frozen SQL availability audit",
+  "counts": {
+    "classification_sort": 136,
+    "classification_turtleArea": 978,
+    "classification_zones": 1258,
+    "cohort_older_shared_id_held": 19,
+    "cohort_older_shared_id_selected": 13,
+    "cohort_turtle_exclusive_held": 18,
+    "cohort_turtle_exclusive_selected": 2359,
+    "resolution_ancestor_native_map": 153,
+    "resolution_ancestor_turtle_area": 12,
+    "resolution_direct_native_map": 1105,
+    "resolution_direct_turtle_area": 966,
+    "resolution_held": 27,
+    "resolution_missing_area_template": 1,
+    "resolution_reserved_world_area": 7,
+    "resolution_server_quest_sort": 136,
+    "resolution_zero_area_or_sort": 2,
+    "status_held": 37,
+    "status_selected": 2372
+  },
+  "areas_meta": 45,
+  "total_audited": 2409,
+  "selected": 2372,
+  "held": 37,
+  "note": "No new quest IDs; positive source AreaTable IDs are never used as uiMapIDs."
+}
