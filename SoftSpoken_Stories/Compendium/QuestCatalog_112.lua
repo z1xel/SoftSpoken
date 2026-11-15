@@ -5,11 +5,15 @@ local M=SSCQuestCatalog
 local S=SSCQuestState
 local sections={
     {key="classes",label="Classes",sorts={[61]=true,[81]=true,[82]=true,[141]=true,[161]=true,[162]=true,[261]=true,[262]=true,[263]=true}},
-    {key="professions",label="Professions",sorts={[24]=true,[101]=true,[121]=true,[181]=true,[182]=true,[201]=true,[264]=true,[304]=true,[324]=true,[666]=true}},
+    {key="professions",label="Professions",sorts={[24]=true,[101]=true,[121]=true,[181]=true,[182]=true,[201]=true,[264]=true,[304]=true,[324]=true,[666]=true,[371]=true}},
     {key="events",label="Holidays and Events",sorts={[22]=true,[284]=true,[364]=true,[365]=true,[366]=true,[368]=true,[369]=true,winterveil=true,hallowsend=true,loveisintheair=true,harvestfestival=true}},
     {key="other",label="Other"},
 }
-local specialNames={winterveil="Winter Veil",hallowsend="Hallow's End",loveisintheair="Love is in the Air",harvestfestival="Harvest Festival",argentdawn="Argent Dawn",library="Library",[284]="Children's Week",[367]="Commendations",[368]="Scourge Invasion"}
+local specialNames={winterveil="Winter Veil",hallowsend="Hallow's End",loveisintheair="Love is in the Air",harvestfestival="Harvest Festival",argentdawn="Argent Dawn",library="Library",[284]="Children's Week",[367]="Commendations",[368]="Scourge Invasion",
+    [22]="Seasonal",[371]="Jewelcrafting",
+    -- Turtle reuses retired sort IDs for unrelated quests; do NOT display
+    -- misleading old Vanilla dungeon labels for these nonmatching categories.
+    [21]="Legacy category 21",[241]="Legacy category 241",[374]="Turtle category 374"}
 local raceBits={[95]=32,[96]=33}
 -- Stock 1.12 UnitRace/UnitClass commonly return only localized/token names;
 -- modern ClassicAPI may provide numeric IDs. Handle either without guessing
