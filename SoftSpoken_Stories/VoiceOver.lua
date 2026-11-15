@@ -1289,14 +1289,11 @@ function Addon:BeginGreetingWait(event)
         or not Player.source then
         return
     end
-    local quest = QUEST_EVENTS[event]
-    if not (SPEECH_EVENTS[event] or quest) then
+    if not (SPEECH_EVENTS[event] or QUEST_EVENTS[event]) then
         return
     end
-    -- Read When Window Closes intentionally defers quest playback already.
-    if quest and self.db.profile.Audio.ReadAfterClose then
-        return
-    end
+    -- Even with Read When Window Closes, a quickly closed window may enqueue
+    -- narration before the native greeting has finished. Keep the gate.
     GreetingFirst:Open()
 end
 
