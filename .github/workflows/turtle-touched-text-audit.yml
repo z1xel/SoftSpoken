@@ -7,7 +7,7 @@ on:
       - scripts/audit_turtle_touched_text.py
       - scripts/export_static_quest_text_for_audit.lua
       - scripts/extract_tortoise_methods.mjs
-      - scripts/extract_pfquest_touched_ids.py
+      - scripts/diff_pfquest_turtle_quests.lua
       - tests/test_turtle_touched_text_audit.py
   workflow_dispatch:
 permissions:
@@ -70,6 +70,17 @@ jobs:
           sparse-checkout-cone-mode: false
           persist-credentials: false
 
+      - name: Checkout pinned Vanilla pfQuest metadata for structural diff
+        uses: actions/checkout@v4
+        with:
+          repository: shagu/pfQuest
+          ref: 104f35678ca39ab1fb78b655f815cc7016f5e0c8
+          path: .audit-pfquest-vanilla
+          sparse-checkout: |
+            db/quests.lua
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
       - name: Download and verify the independent Vanilla 1.12 baseline
         shell: bash
         run: |
@@ -114,9 +125,11 @@ jobs:
 
       - name: Extract explicit Turtle pfQuest overridden quest IDs
         run: |
-          python3 scripts/extract_pfquest_touched_ids.py \
-            --input .audit-pfquest/db/quests-turtle.lua \
-            --out .audit-pfquest-overrides.csv
+          sudo apt-get update -qq && sudo apt-get install -y lua5.1
+          lua5.1 scripts/diff_pfquest_turtle_quests.lua \
+            .audit-pfquest-vanilla/db/quests.lua \
+            .audit-pfquest/db/quests-turtle.lua \
+            .audit-pfquest-overrides.csv
           python3 - <<'PY'
           import csv
           migration=list(csv.DictReader(open(".audit-migration-text-changes.csv")))
@@ -139,7 +152,6 @@ jobs:
               for r in rows:f.write(r["quest_id"]+"\n")
           print("Turtle-touched review candidate IDs:",len(rows))
           PY
-          sudo apt-get update -qq && sudo apt-get install -y lua5.1
           # All dialogue bytes exist only in this ephemeral CI working tree.
           lua5.1 scripts/export_static_quest_text_for_audit.lua \
             .audit-scoped-quest-ids .audit-static-text-hex.tsv
