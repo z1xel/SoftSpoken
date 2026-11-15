@@ -1245,6 +1245,20 @@ function Options:Setup()
             panel:SetBackdropColor(0.075, 0.07, 0.085, 1)
         end
 
+        -- Give only the upper title/tab section the same tiled rock backing
+        -- used by the Compendium. Keep the search surround and scroll content
+        -- on the existing dark window backdrop.
+        local headerRock = CreateFrame("Frame", nil, panel)
+        headerRock:SetPoint("TOPLEFT", panel, "TOPLEFT", 10, -11)
+        headerRock:SetPoint("BOTTOMRIGHT", panel, "TOPRIGHT", -10, -65)
+        headerRock:SetFrameLevel(panel:GetFrameLevel())
+        headerRock:EnableMouse(false)
+        headerRock:SetBackdrop({
+            bgFile = [[Interface\AddOns\SoftSpoken\Compendium\Textures\Skin\UI-Background-Rock-Classic]],
+            tile = true, tileSize = 256,
+            insets = {left = 0, right = 0, top = 0, bottom = 0},
+        })
+
         -- The native 400x64 UI-DialogBox-Header is centered on this window.
         -- Blizzard's Key Bindings uses a -30 horizontal offset for its own
         -- asymmetric frame; retaining that offset shifts SoftSpoken's plaque
