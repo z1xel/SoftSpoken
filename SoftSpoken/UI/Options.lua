@@ -18,7 +18,7 @@ local BOTTOM = 16 -- the margin under the last row
 local LEGACY_WIDTH = 550
 local LEGACY_CONTENT_WIDTH = 470
 local LEGACY_NAV_WIDTH = 514
-local LEGACY_NAV_TOP = -77
+local LEGACY_NAV_TOP = -37
 local LEGACY_SCROLL_TOP = -116
 
 local panel

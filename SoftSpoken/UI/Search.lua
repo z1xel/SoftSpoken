@@ -199,7 +199,7 @@ end
 
 function Search:BuildLegacy(parent)
     local row = self:Build(parent)
-    row:SetPoint("TOPLEFT", parent, "TOPLEFT", 26, -37)
+    row:SetPoint("TOPLEFT", parent, "TOPLEFT", 26, -77)
     row:Show()
     return row
 end
