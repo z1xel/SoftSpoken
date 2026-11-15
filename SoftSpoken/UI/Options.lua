@@ -34,18 +34,16 @@ local Layout = SpokenLayout
 -- Product name stays consistent across locales, unlike descriptive settings text.
 local HOME_TITLE = "SoftSpoken"
 
--- The framed header around the legacy navigation tabs uses the same
--- three-piece Blizzard chat-input border as the Compendium search field:
--- a full-size ornamental cap at either end and a narrow straight middle.
+-- Full-width ornamental surround for the search row using the same native
+-- chat-input artwork, cap sizes, and silver rails as main.
 -- Draw directly on the panel's BORDER layer, behind its title and real buttons;
 -- a child Frame here would sit above them and risk blocking the tabs.
 local function DrawOrnateHeaderBand(window)
-    -- Open-top U-shaped silver trim beneath the navigation tabs.
-    -- Keep only the bottom corners/rail and the two vertical sides;
-    -- the title and existing window chrome supply the upper decoration.
+    -- Both horizontal rails and all four corner caps surround the search.
+    -- The original open-top U from main omitted its three top pieces.
     local art = [[Interface\ChatFrame\UI-ChatInputBorder-]]
     local leftX, rightX = 2, -2
-    local topY, bottomY = -17, -111
+    local topY, bottomY = -61, -111
     local cornerW, cornerH = 28, 16
 
     local function Part(file, layer, u1, u2, v1, v2, width, height, anchor, relative, x, y)
@@ -58,7 +56,19 @@ local function DrawOrnateHeaderBand(window)
         return tex
     end
 
-    -- Bottom ornamentation only. No top corners or horizontal top rail.
+    -- These are the three missing pieces: the upper corner caps and top rail.
+    local tl = Part("Left", "BORDER", 0, 28/256, 0, 0.5,
+        cornerW, cornerH, "TOPLEFT", "TOPLEFT", leftX, topY)
+    local tr = Part("Right", "ARTWORK", 228/256, 1, 0, 0.5,
+        cornerW, cornerH, "TOPRIGHT", "TOPRIGHT", rightX, topY)
+
+    local top = window:CreateTexture(nil, "BORDER")
+    top:SetTexture(art .. "Left")
+    top:SetTexCoord(75/256, 1, 0, 0.5)
+    top:SetHeight(cornerH)
+    top:SetPoint("TOPLEFT", tl, "TOPRIGHT", 0, 0)
+    top:SetPoint("TOPRIGHT", tr, "TOPLEFT", 0, 0)
+
     local bl = Part("Left", "BORDER", 0, 28/256, 0.5, 1,
         cornerW, cornerH, "BOTTOMLEFT", "TOPLEFT", leftX, bottomY)
     local br = Part("Right", "ARTWORK", 228/256, 1, 0.5, 1,
@@ -71,7 +81,7 @@ local function DrawOrnateHeaderBand(window)
     bottom:SetPoint("BOTTOMLEFT", bl, "BOTTOMRIGHT", 0, 0)
     bottom:SetPoint("BOTTOMRIGHT", br, "BOTTOMLEFT", 0, 0)
 
-    -- Vertical sides still join the lower corners, as before.
+    -- The side rails join the new upper caps to the existing lower caps.
     local function Vertical(file, u1, u2, right)
         local tex = window:CreateTexture(nil, right and "ARTWORK" or "BORDER")
         tex:SetTexture(art .. file)
