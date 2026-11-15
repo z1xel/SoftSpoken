@@ -93,6 +93,18 @@ advance(1.51)
 check("duplicate event must not extend wait", not greeting:IsWaiting())
 
 greeting = reset()
+state.exists = 1 -- native 1.12 UnitExists uses 1/nil, not Lua boolean
+greeting:Open()
+check("Vanilla numeric 1 is positive NPC evidence", greeting:IsWaiting())
+check("numeric NPC token gets the full wait", 
+    greeting:DescribeTiming():find("fixed fallback", 1, true) ~= nil)
+
+greeting = reset()
+state.exists, state.player = 1, 1 -- native 1.12 numeric booleans
+greeting:Open()
+check("Vanilla numeric 1 identifies a player, not an NPC", not greeting:IsWaiting())
+
+greeting = reset()
 state.exists, state.name = true, "Thrall"
 env.VanillaGreetingLengths = {
     ["creature/thrall/thrallgreeting02.wav"] = 4015,
