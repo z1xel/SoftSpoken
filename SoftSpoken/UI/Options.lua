@@ -1291,10 +1291,10 @@ function Options:Setup()
         end
         local close = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
         close:SetPoint("TOPRIGHT", -5, -5)
-        -- Use the original 24x24 atlas housing, mirrored on both axes.
-        -- Parent it to the window at BACKGROUND level so its silver border
-        -- can draw over the housing while the native close button stays on top.
-        local closeHousing = panel:CreateTexture(nil, "BACKGROUND")
+        -- Keep the mirrored housing on the rock frame's BORDER layer:
+        -- above that frame's rock backdrop, beneath its ARTWORK/OVERLAY
+        -- decoration, and below the native close button.
+        local closeHousing = headerRock:CreateTexture(nil, "BORDER")
         closeHousing:SetTexture([[Interface\AddOns\SoftSpoken\Compendium\Textures\Skin\UI-Frame]])
         closeHousing:SetTexCoord(114/128, 90/128, 26/128, 2/128)
         closeHousing:SetWidth(24)
