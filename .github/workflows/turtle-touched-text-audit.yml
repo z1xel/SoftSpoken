@@ -6,6 +6,8 @@ on:
       - .github/workflows/turtle-touched-text-audit.yml
       - scripts/audit_turtle_touched_text.py
       - scripts/export_static_quest_text_for_audit.lua
+      - scripts/extract_tortoise_methods.mjs
+      - scripts/extract_pfquest_touched_ids.py
       - tests/test_turtle_touched_text_audit.py
   workflow_dispatch:
 permissions:
@@ -57,6 +59,17 @@ jobs:
           sparse-checkout-cone-mode: false
           persist-credentials: false
 
+      - name: Checkout pinned Turtle-specific pfQuest metadata overrides
+        uses: actions/checkout@v4
+        with:
+          repository: shagu/pfQuest-turtle
+          ref: 0bc7bf4e55d8867a065354da6f386461255e4801
+          path: .audit-pfquest
+          sparse-checkout: |
+            db/quests-turtle.lua
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
       - name: Download and verify the independent Vanilla 1.12 baseline
         shell: bash
         run: |
@@ -99,12 +112,25 @@ jobs:
           node scripts/extract_tortoise_methods.mjs
           python3 -c 'import csv; r=list(csv.DictReader(open(".audit-methods.csv"))); assert len(r)>6500; print("Migration-validated Method rows:",len(r))'
 
+      - name: Extract explicit Turtle pfQuest overridden quest IDs
+        run: |
+          python3 scripts/extract_pfquest_touched_ids.py \
+            --input .audit-pfquest/db/quests-turtle.lua \
+            --out .audit-pfquest-overrides.csv
+          python3 - <<'PY'
+          import csv
+          migration=list(csv.DictReader(open(".audit-migration-text-changes.csv")))
+          print("Tortoise SQL migration text changes:",len(migration))
+          PY
+
       - name: Compare ONLY changed and restored shared-ID quest text
         run: |
           python3 scripts/audit_turtle_touched_text.py \
             --turtle .audit-viewer-data/data/tortoise.sqlite \
             --vanilla "$(cat .audit-vanilla-path)" \
             --methods .audit-methods.csv
+            --pfquest-overrides .audit-pfquest-overrides.csv \
+            --turtle-migrations .audit-migration-text-changes.csv
           python3 - <<'PY'
           import csv
           p="docs/audits/turtle_touched_text_coverage/review_scoped_quests.csv"
@@ -120,9 +146,11 @@ jobs:
           python3 scripts/audit_turtle_touched_text.py \
             --turtle .audit-viewer-data/data/tortoise.sqlite \
             --vanilla "$(cat .audit-vanilla-path)" \
-            --methods .audit-methods.csv \
+            --methods .audit-methods.csv
+            --pfquest-overrides .audit-pfquest-overrides.csv \
+            --turtle-migrations .audit-migration-text-changes.csv \
             --lua-stages .audit-static-text-hex.tsv
-          rm -f .audit-static-text-hex.tsv .audit-scoped-quest-ids .audit-methods.csv
+          rm -f .audit-static-text-hex.tsv .audit-scoped-quest-ids .audit-methods.csv .audit-migration-text-changes.csv .audit-pfquest-overrides.csv
           cat docs/audits/turtle_touched_text_coverage/summary.json
 
       - name: Verify no static text, catalog, or Vanilla source was changed
