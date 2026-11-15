@@ -131,7 +131,11 @@ VoiceOver={
             return id and ("NPC "..id) or title
         end,
     },
-    DataModules={PrepareSound=function(self,sound) self.lastRequest=sound;return nil end},
+    DataModules={PrepareSound=function(self,sound)
+        self.requestsByEvent=self.requestsByEvent or {}
+        self.requestsByEvent[sound.event]=sound
+        return nil
+    end},
     Player={Queued=function() return {} end},
 }
 SpokenQuestsText={
@@ -362,9 +366,9 @@ assert(string.find(face("accept").affiliationLabel,"NPC 3038 (3038)",1,true),
     "tooltip lists a valid Hunter trainer")
 assert(string.find(face("accept").affiliationLabel,"NPC 5516 (5516)",1,true),
     "tooltip includes the last Hunter trainer")
-eq(VoiceOver.DataModules.lastRequest.name,"Quest 8151",
+eq(VoiceOver.DataModules.requestsByEvent[1].name,"Quest 8151",
     "playback request uses quest title, not the placeholder speaker name")
-eq(VoiceOver.DataModules.lastRequest.unitGUID,nil,
+eq(VoiceOver.DataModules.requestsByEvent[1].unitGUID,nil,
     "Compendium does not supply an arbitrary multi-giver GUID")
 eq(details.parts.complete.speaker.text,"NPC 8405",
     "the Hunter's Charm keeps its unique completion speaker")
