@@ -5,10 +5,13 @@ on:
     paths:
       - .github/workflows/turtle-touched-text-audit.yml
       - scripts/audit_turtle_touched_text.py
+      - scripts/import_turtle_touched_text.py
+      - scripts/prepare_tortoise_quest_overlay.py
       - scripts/export_static_quest_text_for_audit.lua
       - scripts/extract_tortoise_methods.mjs
       - scripts/diff_pfquest_turtle_quests.lua
       - tests/test_turtle_touched_text_audit.py
+      - tests/test_import_turtle_touched_text.py
       - docs/turtle_verified_live_shared_ids.csv
   workflow_dispatch:
 concurrency:
@@ -171,6 +174,26 @@ jobs:
             --lua-stages .audit-static-text-hex.tsv
           rm -f .audit-static-text-hex.tsv .audit-scoped-quest-ids .audit-methods.csv .audit-migration-text-changes.csv .audit-pfquest-overrides.csv .audit-pfquest-vanilla-ids.csv
           cat docs/audits/turtle_touched_text_coverage/summary.json
+
+      - name: Validate the first restored-quest batch without publishing dialogue
+        run: |
+          set -euo pipefail
+          python3 scripts/import_turtle_touched_text.py \
+            --db .audit-viewer-data/data/tortoise.sqlite
+          python3 -m unittest discover -s tests -p 'test_import_turtle_touched_text.py'
+          python3 - <<'PY'
+          import csv,json
+          p="docs/audits/turtle_touched_text_coverage/"
+          with open(p+"directly_supported_text_gaps.csv",newline="",encoding="utf-8") as f:
+              rows=list(csv.DictReader(f))
+          assert len(rows)==509, f"Expected exactly 509 supported stage candidates, saw {len(rows)}"
+          assert all(r["source_migration_modified_stage"]=="1" or (
+              r["category"]=="legacy_id_absent_from_vanilla" and
+              r["vanilla_pfquest_present"]=="0") for r in rows)
+          print("Strict stage-scoped audit: 509 candidates; first batch: 13 verified stage hashes")
+          PY
+          git diff --exit-code -- SoftSpoken_Stories/Data/QuestText.lua \
+            SoftSpoken_Stories/Data/TurtleQuestText.lua
 
       - name: Verify no static text, catalog, or Vanilla source was changed
         run: |
