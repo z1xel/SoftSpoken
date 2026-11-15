@@ -165,12 +165,16 @@ local function SortedKeys(t, names)
     return keys
 end
 function M:BuildTree()
-    local all,zones,sorts,unknown={},{},{},{}
+    local all,zones,turtleAreas,sorts,unknown={},{},{},{},{}
     for id,entry in pairs(Raw().quests) do
         if Allowed(entry) then
             all[id]=true
             if type(entry.zones)=="table" and table.getn(entry.zones)>0 then
                 for _,zone in ipairs(entry.zones) do AddTo(zones,zone,id) end
+            elseif type(entry.turtleArea)=="number" and entry.turtleArea>0 then
+                -- Turtle AreaTable IDs are not native uiMapIDs. Keep their named
+                -- region grouping separate so we never navigate to a false map.
+                AddTo(turtleAreas,entry.turtleArea,id)
             elseif entry.sort then
                 AddTo(sorts,entry.sort,id)
             else
@@ -216,6 +220,21 @@ function M:BuildTree()
         local cont=SSCCompendium and SSCCompendium.ContinentOf and SSCCompendium.ContinentOf(parentZone)
         local parent=(cityIn[zone] and zoneNodes[cityIn[zone]]) or continents[cont] or loose
         Attach(parent,zoneNodes[zone])
+    end
+    -- Turtle-only regions and instanced areas have no equivalent 1.12 UI map
+    -- ID. Their verified AreaTable metadata supplies a readable place name and
+    -- continent, without assigning a fabricated native map ID.
+    local areaMeta=_G.SSCTurtleAreaMeta or {}
+    for _,areaID in ipairs(SortedKeys(turtleAreas,function(k)
+        local meta=areaMeta[k]
+        return meta and meta.name or tostring(k)
+    end)) do
+        local meta=areaMeta[areaID]
+        local name=(meta and meta.name) or ("Turtle Area "..areaID)
+        local parent=(meta and continents[meta.continent]) or loose
+        local areaNode=Attach(parent,Node("turtle-area:"..areaID,name,"zone"))
+        areaNode.areaID=areaID
+        MakeLeaves(areaNode,turtleAreas[areaID])
     end
     for _,section in ipairs(sections) do
         local sec=Attach(root,Node("section:"..section.key,section.label,"section"))
