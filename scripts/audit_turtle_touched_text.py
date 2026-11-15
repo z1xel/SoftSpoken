@@ -21,11 +21,11 @@ COLUMNS=("quest_id catalog_title turtle_title vanilla_title turtle_method "
          "category source_status baseline_status title_different objective_different "
          "changed_stages stage_differences world_evidence curated_status "
          "turtle_starter_spawns source_title_agrees_catalog eligibility_reason "
-         "vanilla_quest_present source_zone baseline_zone").split()
+         "vanilla_quest_present source_zone baseline_zone turtle_evidence provenance_class").split()
 STAGE_COLUMNS=("quest_id catalog_title category stage source_present baseline_present "
                "source_diff_baseline source_chars source_sha256 spoken_present "
                "spoken_matches_turtle turtle_overlay_present turtle_overlay_matches_turtle "
-               "coverage resolution").split()
+               "coverage resolution source_migration_modified_stage turtle_evidence provenance_class").split()
 PHRASES=("deprecated","cancelled","canceled","disabled","dummy","<nyi>","<test>","<unused>")
 def norm(v):
     v=unicodedata.normalize("NFKC",(v or "")).replace("\u2019","'").replace("\u2018","'").replace("\u201c",'"').replace("\u201d",'"')
@@ -91,6 +91,10 @@ def main():
     ap.add_argument("--vanilla",required=True,type=Path)
     ap.add_argument("--methods",type=Path,required=True)
     ap.add_argument("--lua-stages",type=Path,help="Ephemeral dump of *existing* Lua corpus stages; never commit this")
+    ap.add_argument("--pfquest-overrides",required=True,type=Path,
+                    help="Pinned pfQuest-turtle explicit quest override IDs")
+    ap.add_argument("--turtle-migrations",required=True,type=Path,
+                    help="Quest text fields changed by pinned Turtle SQL migrations")
     ap.add_argument("--catalog",type=Path,default=ROOT/"SoftSpoken_Stories/Data/Compendium.lua")
     ap.add_argument("--exclusive",type=Path,default=ROOT/"docs/turtle_exclusive_import.csv")
     ap.add_argument("--shared",type=Path,default=ROOT/"docs/turtle_shared_id_coverage.csv")
@@ -104,12 +108,16 @@ def main():
     known_modified={int(r["quest_id"]) for r in records(args.modified)}
     local_audit={int(r["quest_id"]):r for r in records(args.shared_audit)}
     methods={int(r["entry"]):r for r in records(args.methods)}
+    pfquest={int(r["quest_id"]) for r in records(args.pfquest_overrides)}
+    migration={int(r["entry"]):r for r in records(args.turtle_migrations)}
+    if not pfquest or not migration:
+        raise ValueError("Cannot audit Turtle-touched text without source-specific change provenance")
     with sqlite3.connect("file:"+str(args.turtle.resolve())+"?mode=ro",uri=True) as c:
         tw=get_turtle(c)
     with sqlite3.connect("file:"+str(args.vanilla.resolve())+"?mode=ro",uri=True) as c:
         vanilla=get_vanilla(c)
     static=get_static(args.lua_stages)
-    listed,chosen,stages,held=[],[],[],[]
+    listed,chosen,stages,held,uncorroborated=[],[],[],[],[]
     count=collections.Counter()
     for id,title in sorted(titles.items()):
         # This is deliberately NOT a fresh audit of every Spoken quest.
@@ -133,6 +141,19 @@ def main():
         audit=local_audit.get(id,{})
         proven_world=audit.get("review_category")=="world_linked_candidate"
         curated=(known=="imported" or id in known_modified or proven_world)
+        pfquest_override=(id in pfquest)
+        migrated=migration.get(id)
+        changed_fields=set((migrated or {}).get("modified_text_fields","").split(";"))-{""}
+        provenance = ";".join(filter(None,[
+            "known_curated_turtle" if curated else "",
+            "pfquest_turtle_quest_override" if pfquest_override else "",
+            "world_sql_migration:"+",".join(sorted(changed_fields)) if migrated else ""
+        ]))
+        strong_provenance=bool(pfquest_override or migrated or curated)
+        direct_text_provenance=bool(migrated)
+        provenance_class=("turtle_sql_migration" if direct_text_provenance
+                          else "pfquest_explicit_override" if pfquest_override
+                          else "curated_turtle_relationship" if curated else "none")
         # Source comparison by dialogue stage, plus title and objective changes.
         changed=[]
         for stage,(twcol,vancol) in STAGES.items():
@@ -151,13 +172,21 @@ def main():
         else:
             count["excluded_unchanged_vanilla"]+=1
             continue
+        # A disagreement between TWO emulated 1.12 community databases alone
+        # does NOT establish a Turtle edit. Save such candidates as unverified,
+        # never audit/override ordinary Spoken text for those quests.
+        unverified = baseline_present and not strong_provenance
+        if unverified:
+            count["excluded_uncorroborated_database_differences"]+=1
         if not method_ok or disabled:
             reason="method_disabled_or_unverified"
         elif explicit_removed:
             reason="explicitly_removed_by_turtle"
         elif retired:
             reason="source_retired_or_placeholder"
-        elif not base and not curated:
+        elif titlekey(src["title"]) != titlekey(title):
+            reason="source_catalog_title_disagreement"
+        elif not base and not (curated or migrated):
             reason="legacy_id_requires_world_evidence"
         else:
             reason=""
@@ -176,8 +205,13 @@ def main():
             "source_title_agrees_catalog":int(titlekey(src["title"])==titlekey(title)),
             "eligibility_reason":reason or "review_candidate",
             "vanilla_quest_present":int(baseline_present),"source_zone":src["zone"],
-            "baseline_zone":base["zoneorsort"] if base else ""
+            "baseline_zone":base["zoneorsort"] if base else "",
+            "turtle_evidence":provenance,
+            "provenance_class":provenance_class,
         }
+        if unverified:
+            uncorroborated.append(row)
+            continue
         listed.append(row);count["candidates_"+category]+=1
         if reason:
             held.append(row);count["hold_"+reason]+=1
@@ -222,21 +256,35 @@ def main():
                 "spoken_matches_turtle":int(bool(spoken and spoken==source)),
                 "turtle_overlay_present":int(bool(over)),
                 "turtle_overlay_matches_turtle":int(bool(over and over==source)),
-                "coverage":coverage,"resolution":resolution}
+                "coverage":coverage,"resolution":resolution,
+                "source_migration_modified_stage":int(bool(migrated and (
+                    (migrated.get("source_quest_introduced_by_migration")=="1") or
+                    ({"accept":"Details","progress":"RequestItemsText",
+                      "complete":"OfferRewardText"}[stage] in changed_fields)))),
+                "turtle_evidence":provenance,
+                "provenance_class":provenance_class}
             stages.append(sr);count["stage_"+coverage]+=1
     out=args.out;out.mkdir(parents=True,exist_ok=True)
     csv_out(out/"candidate_quests.csv",COLUMNS,listed)
     csv_out(out/"review_scoped_quests.csv",COLUMNS,chosen)
     csv_out(out/"held_quests.csv",COLUMNS,held)
+    csv_out(out/"uncorroborated_cross_database_variants.csv",COLUMNS,uncorroborated)
     csv_out(out/"stage_coverage.csv",STAGE_COLUMNS,stages)
     missing=[r for r in stages if r["coverage"] in {
         "spoken_outdated_for_turtle","turtle_stage_missing","turtle_override_conflict"}]
     csv_out(out/"turtle_specific_text_gaps.csv",STAGE_COLUMNS,missing)
+    directly_supported=[r for r in missing if r["category"]=="legacy_id_absent_from_vanilla"
+                        or r["source_migration_modified_stage"]==1]
+    csv_out(out/"directly_supported_text_gaps.csv",STAGE_COLUMNS,directly_supported)
     summary={
         "scope":"Existing Compendium quests only, excluding the separate Turtle-exclusive import; no Vanilla text overwritten.",
         "turtle_source":"Pinned community Tortoise SQLite, not authenticated live Turtle WoW",
         "baseline":"Independent cMaNGOS Classic 1.12; differences are candidates, not confirmed deliberate Turtle edits.",
         "counts":dict(sorted(count.items())),
+        "directly_supported_text_gaps":len(directly_supported),
+        "uncorroborated_cross_database_variants":len(uncorroborated),
+        "pfquest_quest_override_ids":len(pfquest),
+        "turtle_sql_migration_text_changed_ids":len(migration),
         "catalog_quests":len(titles),"vanilla_quest_rows":len(vanilla),
         "tortoise_quest_rows":len(tw),"review_candidates":len(chosen),
         "held_candidates":len(held),"total_scoped_candidates":len(listed),
@@ -244,6 +292,7 @@ def main():
         "static_lua_inspected":bool(args.lua_stages),
         "caveats":["Live per-character SSCQuestJournal dialogue is not included in a static file audit.",
                    "cMaNGOS and Turtle are two evolving community database restorations; a text diff alone does not establish authorship or server availability.",
+                   "Only explicit pfQuest Turtle overrides, verified Turtle SQL quest migrations or precurated Turtle relationships qualify a shared-ID review target.",
                    "An intentionally blank progress or acceptance stage is not a missing transcript.",
                    "No changed quest body, no new quest ID and no original Spoken text is written by this audit."]
     }
