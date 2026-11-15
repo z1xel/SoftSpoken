@@ -2,7 +2,7 @@
 
 **Date:** November 15, 2026  
 **Branch:** `audit/turtle-touched-text-coverage`  
-**Status:** Read-only audit; no quest prose or `SpokenQuestsText` changed.
+**Status:** Read-only provenance audit completed; the first 13 verified stage overrides are now committed to the Turtle-only Lua table. `SpokenQuestsText` remains unchanged.
 
 ## The question
 
@@ -101,7 +101,7 @@ No third-party quest dialogue bodies are committed by this audit.
 ### Safety / limitations
 
 - **No** original `SoftSpoken_Stories/Data/QuestText.lua` modifications.
-- **No** `SoftSpoken_Stories/Data/TurtleQuestText.lua` modifications.
+- Existing Turtle-exclusive entries in `SoftSpoken_Stories/Data/TurtleQuestText.lua` are preserved; the first 13 verified stages are appended.
 - **No** `SoftSpoken_Stories/Data/Compendium.lua` modifications.
 - Live, per-character `SSCQuestJournal` capture is not available to a
   static source audit, so in-game appearance may differ.
@@ -134,8 +134,8 @@ source title, normalized SHA-256 content hash, and raw source character count
 for each targeted stage against the supplied pinned Tortoise SQLite. It
 rejects pre-existing per-quest Turtle text assignments, incomplete manifests,
 or any stage whose provenance no longer qualifies. Tests verify collisions,
-hash failures, scope and idempotency. The audit CI independently checked all
-13 hashes without copying quest dialogue into a commit or CI artifact.
+hash failures, scope and idempotency. GitHub Actions checked all 13 hashes
+and committed these exact stages to the existing Turtle quest text file.
 
 For a **populated** Turtle text table, the safest one-command local operation
 is to append only the audited stage batch. It preserves every existing line
@@ -166,9 +166,9 @@ To add just the first batch to an existing local Turtle text table:
 python3 scripts/import_turtle_touched_text.py --db /path/to/tortoise.sqlite --write --local-only
 ```
 
-**No generated third-party dialogue is committed to the public audit branch.**
-Only text-free evidence, scripts and tests are committed. The Tortoise
+**Committed:** 13 stages for quest IDs 820, 3111, 3578, 3579 and 3580, into
+`SoftSpoken_Stories/Data/TurtleQuestText.lua` on the audit branch. The existing
+2,369 entries and original Spoken table remain unchanged. This completes the
+first batch; 496 other high-priority stages remain unimported. The Tortoise
 snapshot is a community reconstruction rather than an authenticated live
-Turtle server export; hash verification establishes agreement with that pinned
-source, **not live-server authorship or redistribution rights**. Review actual
-live dialogue and permissions separately before publishing an imported corpus.
+Turtle server export, so in-game text may differ.
