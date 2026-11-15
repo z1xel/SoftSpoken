@@ -167,7 +167,7 @@ def main():
         explicit_removed=known in {"removed_by_turtle","excluded_internal"}
         audit=local_audit.get(id,{})
         evidence,proven_world,spawned_npc,spawned_obj=world.get(id,("",False,0,0))
-        curated=(known=="imported" or id in known_modified or proven_world)
+        curated=(known=="imported" or id in known_modified)
         pfquest_override=(id in pfquest)
         migrated=migration.get(id)
         changed_fields=set((migrated or {}).get("modified_text_fields","").split(";"))-{""}
