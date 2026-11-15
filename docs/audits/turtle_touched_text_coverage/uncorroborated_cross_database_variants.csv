@@ -1,0 +1,258 @@
+quest_id,catalog_title,turtle_title,vanilla_title,turtle_method,category,source_status,baseline_status,title_different,objective_different,changed_stages,stage_differences,world_evidence,curated_status,turtle_starter_spawns,source_title_agrees_catalog,eligibility_reason,vanilla_quest_present,source_zone,baseline_zone,turtle_evidence,provenance_class
+28,Trial of the Lake,Trial of the Lake,Trial of the Lake,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,-263,-263,,none
+29,Trial of the Lake,Trial of the Lake,Trial of the Lake,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,-263,-263,,none
+103,Keeper of the Flame,Keeper of the Flame,Keeper of the Flame,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,40,40,,none
+104,The Coastal Menace,The Coastal Menace,The Coastal Menace,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,40,40,,none
+136,Captain Sander's Hidden Treasure,Captain Sander's Hidden Treasure,Captain Sander's Hidden Treasure,2,dialogue_difference_candidate,present,present,0,0,accept,1,item_starter_unverified,,0,1,review_candidate,1,40,40,,none
+152,The Coast Isn't Clear,The Coast Isn't Clear,The Coast Isn't Clear,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,40,40,,none
+187,Tiger Mastery,Tiger Mastery,Tiger Mastery,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+188,Tiger Mastery,Tiger Mastery,Tiger Mastery,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+191,Panther Mastery,Panther Mastery,Panther Mastery,2,dialogue_difference_candidate,present,present,0,0,accept;progress,2,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+192,Panther Mastery,Panther Mastery,Panther Mastery,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+193,Panther Mastery,Panther Mastery,Panther Mastery,2,dialogue_difference_candidate,present,present,0,0,accept;progress;complete,3,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+201,Investigate the Camp,Investigate the Camp,Investigate the Camp,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+208,Big Game Hunter,Big Game Hunter,Big Game Hunter,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+209,Skullsplitter Tusks,Skullsplitter Tusks,Skullsplitter Tusks,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+338,The Green Hills of Stranglethorn,The Green Hills of Stranglethorn,The Green Hills of Stranglethorn,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+339,Chapter I,Chapter I,Chapter I,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+340,Chapter II,Chapter II,Chapter II,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+341,Chapter III,Chapter III,Chapter III,2,dialogue_difference_candidate,present,present,0,1,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+342,Chapter IV,Chapter IV,Chapter IV,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+587,Up to Snuff,Up to Snuff,Up to Snuff,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+595,The Bloodsail Buccaneers,The Bloodsail Buccaneers,The Bloodsail Buccaneers,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+597,The Bloodsail Buccaneers,The Bloodsail Buccaneers,The Bloodsail Buccaneers,2,dialogue_difference_candidate,present,present,0,0,accept,1,object_with_spawn,,1,1,review_candidate,1,33,33,,none
+599,The Bloodsail Buccaneers,The Bloodsail Buccaneers,The Bloodsail Buccaneers,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+604,The Bloodsail Buccaneers,The Bloodsail Buccaneers,The Bloodsail Buccaneers,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+608,The Bloodsail Buccaneers,The Bloodsail Buccaneers,The Bloodsail Buccaneers,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+621,Zanzil's Secret,Zanzil's Secret,Zanzil's Secret,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+624,Cortello's Riddle,Cortello's Riddle,Cortello's Riddle,2,dialogue_difference_candidate,present,present,0,0,accept,1,item_starter_unverified,,0,1,review_candidate,1,33,33,,none
+625,Cortello's Riddle,Cortello's Riddle,Cortello's Riddle,2,dialogue_difference_candidate,present,present,0,0,accept,1,object_with_spawn,,1,1,review_candidate,1,33,33,,none
+626,Cortello's Riddle,Cortello's Riddle,Cortello's Riddle,2,dialogue_difference_candidate,present,present,0,0,accept,1,object_with_spawn,,1,1,review_candidate,1,33,33,,none
+665,Sunken Treasure,Sunken Treasure,Sunken Treasure,2,dialogue_difference_candidate,present,present,0,0,accept;progress,2,npc_with_spawn,,1,1,review_candidate,1,45,45,,none
+668,Sunken Treasure,Sunken Treasure,Sunken Treasure,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,45,45,,none
+669,Sunken Treasure,Sunken Treasure,Sunken Treasure,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,45,45,,none
+670,Sunken Treasure,Sunken Treasure,Sunken Treasure,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,45,45,,none
+894,Samophlange,Samophlange,Samophlange,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,17,17,,none
+969,Luck Be With You,Luck Be With You,Luck Be With You,2,dialogue_difference_candidate,present,present,0,1,accept,1,npc_with_spawn,,1,1,review_candidate,1,618,618,,none
+1105,Hardened Shells,Hardened Shells,Hardened Shells,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,400,400,,none
+1144,Willix the Importer,Willix the Importer,Willix the Importer,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,1717,1717,,none
+1175,A Bump in the Road,A Bump in the Road,A Bump in the Road,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,400,400,,none
+1177,Hungry!,Hungry!,Hungry!,2,dialogue_difference_candidate,present,present,0,1,accept,1,npc_with_spawn,,1,1,review_candidate,1,15,15,,none
+1181,Goblin Sponsorship,Goblin Sponsorship,Goblin Sponsorship,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,400,400,,none
+1182,Goblin Sponsorship,Goblin Sponsorship,Goblin Sponsorship,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,400,400,,none
+1187,Razzeric's Tweaking,Razzeric's Tweaking,Razzeric's Tweaking,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,400,400,,none
+1188,Safety First,Safety First,Safety First,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,400,400,,none
+1190,Keeping Pace,Keeping Pace,Keeping Pace,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,400,400,,none
+1194,Rizzle's Schematics,Rizzle's Schematics,Rizzle's Schematics,2,dialogue_difference_candidate,present,present,0,0,accept,1,object_with_spawn,,1,1,review_candidate,1,400,400,,none
+1206,Jarl Needs Eyes,Jarl Needs Eyes,Jarl Needs Eyes,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,15,15,,none
+1703,Mathiel,Mathiel,Mathiel,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,-81,-81,,none
+1704,Klockmort Spannerspan,Klockmort Spannerspan,Klockmort Spannerspan,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-81,-81,,none
+1707,Water Pouch Bounty,Water Pouch Bounty,Water Pouch Bounty,2,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,440,440,,none
+1718,The Islander,The Islander,The Islander,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,5,1,review_candidate,1,-81,-81,,none
+1719,The Affray,The Affray,The Affray,2,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,-81,-81,,none
+1740,The Orb of Soran'ruk,The Orb of Soran'ruk,The Orb of Soran'ruk,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-61,-61,,none
+1795,The Binding,The Binding,The Binding,2,dialogue_difference_candidate,present,present,0,0,accept;progress,2,npc_with_spawn,,1,1,review_candidate,1,-61,-61,,none
+1799,Fragments of the Orb of Orahil,Fragments of the Orb of Orahil,Fragments of the Orb of Orahil,2,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,-61,-61,,none
+1956,Power in Uldaman,Power in Uldaman,Power in Uldaman,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,-161,-161,,none
+2521,To Serve Kum'isha,To Serve Kum'isha,To Serve Kum'isha,2,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,4,4,,none
+2583,A Boar's Vitality,A Boar's Vitality,A Boar's Vitality,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,4,4,,none
+2584,Spirit of the Boar,Spirit of the Boar,Spirit of the Boar,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,4,4,,none
+2585,The Decisive Striker,The Decisive Striker,The Decisive Striker,2,dialogue_difference_candidate,present,present,0,1,progress,1,npc_with_spawn,,1,1,review_candidate,1,4,4,,none
+2701,Heroes of Old,Heroes of Old,Heroes of Old,2,dialogue_difference_candidate,present,present,0,0,accept,1,unspawned_starter_relation,,0,1,review_candidate,1,4,4,,none
+2772,The World At Your Feet,The World At Your Feet,The World At Your Feet,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,-121,-121,,none
+3065,Simple Tablet,Simple Tablet,Simple Tablet,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,-81,-81,,none
+3083,Encrypted Tablet,Encrypted Tablet,Encrypted Tablet,2,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,-162,-162,,none
+3107,Consecrated Rune,Consecrated Rune,Consecrated Rune,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,-141,-141,,none
+3112,Simple Memorandum,Simple Memorandum,Simple Memorandum,2,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,-81,-81,,none
+3161,Gahz'ridian,Gahz'ridian,Gahz'ridian,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,440,440,,none
+3379,Shadoweaver,Shadoweaver,Shadoweaver,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,-264,-264,,none
+3382,A Crew Under Fire,A Crew Under Fire,A Crew Under Fire,2,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,16,16,,none
+3443,Forging the Shaft,Forging the Shaft,Forging the Shaft,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,51,51,,none
+3463,Set Them Ablaze!,Set Them Ablaze!,Set Them Ablaze!,2,dialogue_difference_candidate,present,present,0,1,accept,1,npc_with_spawn,,1,1,review_candidate,1,51,51,,none
+3501,Everything Counts In Large Amounts,Everything Counts In Large Amounts,Everything Counts In Large Amounts,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,4,4,,none
+3502,One Draenei's Junk...,One Draenei's Junk...,One Draenei's Junk...,2,dialogue_difference_candidate,present,present,0,1,accept;complete,2,npc_with_spawn,,1,1,review_candidate,1,4,4,,none
+3602,Azsharite,Azsharite,Azsharite,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,16,16,,none
+3626,Return to the Blasted Lands,Return to the Blasted Lands,Return to the Blasted Lands,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,33,33,,none
+3627,Uniting the Shattered Amulet,Uniting the Shattered Amulet,Uniting the Shattered Amulet,2,dialogue_difference_candidate,present,present,0,1,accept,1,npc_with_spawn,,1,1,review_candidate,1,4,4,,none
+3646,Membership Card Renewal,Membership Card Renewal,Membership Card Renewal,0,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-201,-201,,none
+3881,Expedition Salvation,Expedition Salvation,Expedition Salvation,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,490,490,,none
+3962,It's Dangerous to Go Alone,It's Dangerous to Go Alone,It's Dangerous to Go Alone,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,490,490,,none
+4024,A Taste of Flame,A Taste of Flame,A Taste of Flame,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,1584,1584,,none
+4245,Chasing A-Me 01,Chasing A-Me 01,Chasing A-Me 01,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,490,490,,none
+4292,The Bait for Lar'korwi,The Bait for Lar'korwi,The Bait for Lar'korwi,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,490,490,,none
+4462,Corrupted Night Dragon,Corrupted Night Dragon,Corrupted Night Dragon,0,dialogue_difference_candidate,present,present,0,0,progress,1,object_with_spawn,,1,1,review_candidate,1,361,361,,none
+4602,The Sparklematic 5200!,The Sparklematic 5200!,The Sparklematic 5200!,2,dialogue_difference_candidate,present,present,0,0,complete,1,object_with_spawn,,1,1,review_candidate,1,133,133,,none
+4729,Kibler's Exotic Pets,Kibler's Exotic Pets,Kibler's Exotic Pets,2,dialogue_difference_candidate,present,present,0,0,accept;progress,2,npc_with_spawn,,1,1,review_candidate,1,1583,1583,,none
+4862,En-Ay-Es-Tee-Why,En-Ay-Es-Tee-Why,En-Ay-Es-Tee-Why,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,1583,1583,,none
+4971,A Matter of Time,A Matter of Time,A Matter of Time,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,28,28,,none
+4973,Counting Out Time,Counting Out Time,Counting Out Time,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,28,28,,none
+4984,The Wildlife Suffers Too,The Wildlife Suffers Too,The Wildlife Suffers Too,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,28,28,,none
+5087,Winterfall Runners,Winterfall Runners,Winterfall Runners,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,618,618,,none
+5124,Fiery Plate Gauntlets,Fiery Plate Gauntlets,Fiery Plate Gauntlets,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,618,618,,none
+5126,Lorax's Tale,Lorax's Tale,Lorax's Tale,2,dialogue_difference_candidate,present,present,0,1,complete,1,npc_with_spawn,,1,1,review_candidate,1,618,618,,none
+5163,"Are We There, Yeti?","Are We There, Yeti?","Are We There, Yeti?",2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,618,618,,none
+5164,Catalogue of the Wayward,Catalogue of the Wayward,Catalogue of the Wayward,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,28,28,,none
+5166,Breastplate of the Chromatic Flight,Breastplates of the Chromatic Flight,Breastplate of the Chromatic Flight,2,other_quest_text_difference_candidate,present,present,1,0,,0,object_with_spawn,,1,0,source_catalog_title_disagreement,1,28,28,,none
+5212,The Flesh Does Not Lie,The Flesh Does Not Lie,The Flesh Does Not Lie,2,dialogue_difference_candidate,present,present,0,1,accept,1,npc_with_spawn,,1,1,review_candidate,1,2017,2017,,none
+5213,The Active Agent,The Active Agent,The Active Agent,2,dialogue_difference_candidate,present,present,0,1,accept,1,npc_with_spawn,,1,1,review_candidate,1,2017,2017,,none
+5263,Above and Beyond,Above and Beyond,Above and Beyond,2,dialogue_difference_candidate,present,present,0,1,accept,1,npc_with_spawn,,1,1,review_candidate,1,2017,2017,,none
+5264,Lord Maxwell Tyrosus,Lord Maxwell Tyrosus,Lord Maxwell Tyrosus,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,139,139,,none
+5305,Sweet Serenity,Sweet Serenity,Sweet Serenity,2,dialogue_difference_candidate,present,present,0,1,accept,1,npc_with_spawn,,1,1,review_candidate,1,-121,-121,,none
+5306,Snakestone of the Shadow Huntress,Snakestone of the Shadow Huntress,Snakestone of the Shadow Huntress,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-121,-121,,none
+5307,Corruption,Corruption,Corruption,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-121,-121,,none
+5382,"Doctor Theolen Krastinov, the Butcher","Doctor Theolen Krastinov, the Butcher","Doctor Theolen Krastinov, the Butcher",2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,2057,2057,,none
+5385,The Remains of Trey Lightforge,The Remains of Trey Lightforge,The Remains of Trey Lightforge,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,361,361,,none
+5463,Menethil's Gift,Menethil's Gift,Menethil's Gift,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,2017,2017,,none
+5504,Mantles of the Dawn,Mantles of the Dawn,Mantles of the Dawn,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,28,28,,none
+5507,Mantles of the Dawn,Mantles of the Dawn,Mantles of the Dawn,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,28,28,,none
+5513,Mantles of the Dawn,Mantles of the Dawn,Mantles of the Dawn,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,139,139,,none
+5525,Free Knot!,Free Knot!,Free Knot!,0,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,2557,2557,,none
+5625,Garments of the Light,Garments of the Light,Garments of the Light,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,-262,-262,,none
+5629,Returning Home,Returning Home,Returning Home,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,-262,-262,,none
+5634,Desperate Prayer,Desperate Prayer,Desperate Prayer,0,dialogue_difference_candidate,present,present,0,1,accept;complete,2,npc_with_spawn,,1,1,review_candidate,1,-262,-262,,none
+5652,Hex of Weakness,Hex of Weakness,Hex of Weakness,0,dialogue_difference_candidate,present,present,0,1,accept,1,npc_with_spawn,,1,1,review_candidate,1,-262,-262,,none
+5672,Elune's Grace,Elune's Grace,Elune's Grace,0,dialogue_difference_candidate,present,present,0,1,accept,1,npc_with_spawn,,1,1,review_candidate,1,-262,-262,,none
+5676,Arcane Feedback,Arcane Feedback,Arcane Feedback,0,dialogue_difference_candidate,present,present,0,1,accept,1,npc_with_spawn,,1,1,review_candidate,1,-262,-262,,none
+5679,Devouring Plague,Devouring Plague,Devouring Plague,0,dialogue_difference_candidate,present,present,0,1,accept,1,npc_with_spawn,,1,1,review_candidate,1,-262,-262,,none
+5680,Shadowguard,Shadowguard,Shadowguard,0,dialogue_difference_candidate,present,present,0,1,accept,1,npc_with_spawn,,1,1,review_candidate,1,-262,-262,,none
+5863,The Dunemaul Compound,The Dunemaul Compound,The Dunemaul Compound,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,440,440,,none
+6025,Unfinished Business,Unfinished Business,Unfinished Business,2,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,28,28,,none
+6064,Taming the Beast,Taming the Beast,Taming the Beast,2,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,-261,-261,,none
+6072,The Hunter's Path,The Hunter's Path,The Hunter's Path,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,-261,-261,,none
+6081,Training the Beast,Training the Beast,Training the Beast,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-261,-261,,none
+6082,Taming the Beast,Taming the Beast,Taming the Beast,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-261,-261,,none
+6086,Training the Beast,Training the Beast,Training the Beast,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-261,-261,,none
+6088,Taming the Beast,Taming the Beast,Taming the Beast,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-261,-261,,none
+6721,The Hunter's Path,The Hunter's Path,The Hunter's Path,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,1537,-261,,none
+7463,Arcane Refreshment,Arcane Refreshment,Arcane Refreshment,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,2557,2557,,none
+7581,The Prison's Bindings,The Prison's Bindings,The Prison's Bindings,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,-61,-61,,none
+7603,Kroshius' Infernal Core,Kroshius' Infernal Core,Kroshius' Infernal Core,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-61,-61,,none
+7621,A Warning,A Warning,A Warning,0,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,-262,-262,,none
+7622,The Balance of Light and Shadow,The Balance of Light and Shadow,The Balance of Light and Shadow,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,-262,-262,,none
+7623,Lord Banehollow,Lord Banehollow,Lord Banehollow,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,-61,-61,,none
+7624,Ulathek the Traitor,Ulathek the Traitor,Ulathek the Traitor,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,-61,-61,,none
+7630,Arcanite,Arcanite,Arcanite,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,-61,-61,,none
+7654,Imperial Plate Boots,Imperial Plate Boots,Imperial Plate Boots,0,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,-121,-121,,none
+7655,Imperial Plate Bracer,Imperial Plate Bracer,Imperial Plate Bracer,0,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,-121,-121,,none
+7657,Imperial Plate Helm,Imperial Plate Helm,Imperial Plate Helm,0,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,-121,-121,,none
+7658,Imperial Plate Leggings,Imperial Plate Leggings,Imperial Plate Leggings,0,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,-121,-121,,none
+7659,Imperial Plate Shoulders,Imperial Plate Shoulders,Imperial Plate Shoulders,0,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,-121,-121,,none
+7722,What the Flux?,What the Flux?,What the Flux?,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,51,51,,none
+7838,Arena Grandmaster,Arena Grandmaster,Arena Grandmaster,0,dialogue_difference_candidate,present,present,0,0,accept;progress,2,npc_with_spawn,,1,1,review_candidate,1,0,33,,none
+7889,Coarse Weightstone,Coarse Weightstone,Coarse Weightstone,0,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,-364,-364,,none
+7907,Darkmoon Beast Deck,Darkmoon Beast Deck,Darkmoon Beast Deck,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,item_starter_unverified,,0,1,review_candidate,1,-364,-364,,none
+7937,Your Fortune Awaits You...,Your Fortune Awaits You...,Your Fortune Awaits You...,2,dialogue_difference_candidate,present,present,0,0,accept,1,item_starter_unverified,,0,1,review_candidate,1,-364,-364,,none
+7944,Your Fortune Awaits You...,Your Fortune Awaits You...,Your Fortune Awaits You...,2,dialogue_difference_candidate,present,present,0,0,accept,1,item_starter_unverified,,0,1,review_candidate,1,-364,-364,,none
+7945,Your Fortune Awaits You...,Your Fortune Awaits You...,Your Fortune Awaits You...,2,dialogue_difference_candidate,present,present,0,0,accept,1,item_starter_unverified,,0,1,review_candidate,1,-364,-364,,none
+8153,Courser Antlers,Courser Antlers,Courser Antlers,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-261,-261,,none
+8195,"Zulian, Razzashi, and Hakkari Coins","Zulian, Razzashi, and Hakkari Coins","Zulian, Razzashi, and Hakkari Coins",0,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,19,19,,none
+8196,Essence Mangoes,Essence Mangoes,Essence Mangoes,0,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,19,19,,none
+8231,Wavethrashing,Wavethrashing,Wavethrashing,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-261,-261,,none
+8232,The Green Drake,The Green Drake,The Green Drake,2,dialogue_difference_candidate,present,present,0,0,accept;complete,2,npc_with_spawn,,1,1,review_candidate,1,-261,-261,,none
+8234,Sealed Azure Bag,Sealed Azure Bag,Sealed Azure Bag,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-162,-162,,none
+8235,Encoded Fragments,Encoded Fragments,Encoded Fragments,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-162,-162,,none
+8236,The Azure Key,The Azure Key,The Azure Key,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-162,-162,,none
+8238,"Gurubashi, Vilebranch, and Witherbark Coins","Gurubashi, Vilebranch, and Witherbark Coins","Gurubashi, Vilebranch, and Witherbark Coins",0,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,19,19,,none
+8239,"Sandfury, Skullsplitter, and Bloodscalp Coins","Sandfury, Skullsplitter, and Bloodscalp Coins","Sandfury, Skullsplitter, and Bloodscalp Coins",0,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,19,19,,none
+8251,Magic Dust,Magic Dust,Magic Dust,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-161,-161,,none
+8252,The Siren's Coral,The Siren's Coral,The Siren's Coral,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-161,-161,,none
+8253,Destroy Morphaz,Destroy Morphaz,Destroy Morphaz,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-161,-161,,none
+8255,Of Coursers We Know,Of Coursers We Know,Of Coursers We Know,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-262,-262,,none
+8256,The Ichor of Undeath,The Ichor of Undeath,The Ichor of Undeath,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-262,-262,,none
+8257,Blood of Morphaz,Blood of Morphaz,Blood of Morphaz,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-262,-262,,none
+8306,Into The Maw of Madness,Into The Maw of Madness,Into The Maw of Madness,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,1377,1377,,none
+8332,Dukes of the Council,Dukes of the Council,Dukes of the Council,2,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,1377,1377,,none
+8420,Hot and Itchy,Hot and Itchy,Hot and Itchy,2,dialogue_difference_candidate,present,present,0,0,accept;complete,2,npc_with_spawn,,1,1,review_candidate,1,-61,-61,,none
+8421,The Wrong Stuff,The Wrong Stuff,The Wrong Stuff,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-61,-61,,none
+8422,Trolls of a Feather,Trolls of a Feather,Trolls of a Feather,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-61,-61,,none
+8423,Warrior Kinship,Warrior Kinship,Warrior Kinship,2,dialogue_difference_candidate,present,present,0,0,accept;complete,2,npc_with_spawn,,1,1,review_candidate,1,-81,-81,,none
+8425,Voodoo Feathers,Voodoo Feathers,Voodoo Feathers,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-81,-81,,none
+8462,Speak to Nafien,Speak to Nafien,Speak to Nafien,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,361,361,,none
+8466,Feathers for Grazle,Feathers for Grazle,Feathers for Grazle,0,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,361,361,,none
+8467,Feathers for Nafien,Feathers for Nafien,Feathers for Nafien,0,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,361,361,,none
+8469,Beads for Salfa,Beads for Salfa,Beads for Salfa,0,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,361,361,,none
+8708,Mace of Unending Life,Mace of Unending Life,Mace of Unending Life,2,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,3428,3428,,none
+8762,Metzen the Reindeer,Metzen the Reindeer,Metzen the Reindeer,2,dialogue_difference_candidate,present,present,0,0,accept;progress;complete,3,npc_with_spawn,,1,1,review_candidate,1,-22,-22,,none
+8767,A Gently Shaken Gift,A Gently Shaken Gift,A Gently Shaken Gift,0,dialogue_difference_candidate,present,present,0,0,complete,1,object_with_spawn,,1,1,review_candidate,1,-22,-22,,none
+8862,Elune's Candle,Elune's Candle,Elune's Candle,0,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,-366,-366,,none
+8865,Festive Lunar Pant Suits,Festive Lunar Pant Suits,Festive Lunar Pant Suits,0,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,-366,-366,,none
+8868,Elune's Blessing,Elune's Blessing,Elune's Blessing,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,-241,-366,,none
+8876,Small Rockets,Small Rockets,Small Rockets,0,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,-366,-366,,none
+8878,Festive Recipes,Festive Recipes,Festive Recipes,0,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,-366,-366,,none
+8879,Large Rockets,Large Rockets,Large Rockets,0,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,-366,-366,,none
+8882,Cluster Launcher,Cluster Launcher,Cluster Launcher,0,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,-366,-366,,none
+8945,Dead Man's Plea,Dead Man's Plea,Dead Man's Plea,2,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,2017,2017,,none
+8987,More Components of Importance,More Components of Importance,More Components of Importance,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,25,25,,none
+9036,Dreadnaught Legplates,Dreadnaught Legplates,Dreadnaught Legplates,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9037,Dreadnaught Helmet,Dreadnaught Helmet,Dreadnaught Helmet,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9038,Dreadnaught Pauldrons,Dreadnaught Pauldrons,Dreadnaught Pauldrons,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9039,Dreadnaught Sabatons,Dreadnaught Sabatons,Dreadnaught Sabatons,2,dialogue_difference_candidate,present,present,0,1,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9040,Dreadnaught Gauntlets,Dreadnaught Gauntlets,Dreadnaught Gauntlets,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9041,Dreadnaught Waistguard,Dreadnaught Waistguard,Dreadnaught Waistguard,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9042,Dreadnaught Bracers,Dreadnaught Bracers,Dreadnaught Bracers,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9044,Redemption Legguards,Redemption Legguards,Redemption Legguards,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9045,Redemption Headpiece,Redemption Headpiece,Redemption Headpiece,2,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9047,Redemption Boots,Redemption Boots,Redemption Boots,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9048,Redemption Handguards,Redemption Handguards,Redemption Handguards,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9049,Redemption Girdle,Redemption Girdle,Redemption Girdle,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9050,Redemption Wristguards,Redemption Wristguards,Redemption Wristguards,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9051,Toxic Test,Toxic Test,Toxic Test,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-263,-263,,none
+9052,Bloodpetal Poison,Bloodpetal Poison,Bloodpetal Poison,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-263,-263,,none
+9053,A Better Ingredient,A Better Ingredient,A Better Ingredient,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-263,-263,,none
+9063,Torwa Pathfinder,Torwa Pathfinder,Torwa Pathfinder,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,4,1,review_candidate,1,-263,-263,,none
+9068,Earthshatter Tunic,Earthshatter Tunic,Earthshatter Tunic,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9069,Earthshatter Legguards,Earthshatter Legguards,Earthshatter Legguards,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9070,Earthshatter Headpiece,Earthshatter Headpiece,Earthshatter Headpiece,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9071,Earthshatter Spaulders,Earthshatter Spaulders,Earthshatter Spaulders,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9072,Earthshatter Boots,Earthshatter Boots,Earthshatter Boots,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9074,Earthshatter Girdle,Earthshatter Girdle,Earthshatter Girdle,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9075,Earthshatter Wristguards,Earthshatter Wristguards,Earthshatter Wristguards,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9079,Bonescythe Helmet,Bonescythe Helmet,Bonescythe Helmet,2,dialogue_difference_candidate,present,present,0,1,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9085,Shadows of Doom,Shadows of Doom,Shadows of Doom,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-368,-368,,none
+9103,Plagueheart Robe,Plagueheart Robe,Plagueheart Robe,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9104,Plagueheart Leggings,Plagueheart Leggings,Plagueheart Leggings,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9105,Plagueheart Circlet,Plagueheart Circlet,Plagueheart Circlet,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9106,Plagueheart Shoulderpads,Plagueheart Shoulderpads,Plagueheart Shoulderpads,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9107,Plagueheart Sandals,Plagueheart Sandals,Plagueheart Sandals,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9108,Plagueheart Gloves,Plagueheart Gloves,Plagueheart Gloves,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9109,Plagueheart Belt,Plagueheart Belt,Plagueheart Belt,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9110,Plagueheart Bindings,Plagueheart Bindings,Plagueheart Bindings,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9111,Robe of Faith,Robe of Faith,Robe of Faith,2,dialogue_difference_candidate,present,present,0,0,accept;progress;complete,3,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9112,Leggings of Faith,Leggings of Faith,Leggings of Faith,2,dialogue_difference_candidate,present,present,0,0,accept;progress;complete,3,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9113,Circlet of Faith,Circlet of Faith,Circlet of Faith,2,dialogue_difference_candidate,present,present,0,0,accept;progress;complete,3,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9114,Shoulderpads of Faith,Shoulderpads of Faith,Shoulderpads of Faith,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9115,Sandals of Faith,Sandals of Faith,Sandals of Faith,2,dialogue_difference_candidate,present,present,0,1,accept,1,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9116,Gloves of Faith,Gloves of Faith,Gloves of Faith,2,dialogue_difference_candidate,present,present,0,1,accept,1,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9117,Belt of Faith,Belt of Faith,Belt of Faith,2,dialogue_difference_candidate,present,present,0,0,accept;progress;complete,3,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9120,The Fall of Kel'Thuzad,The Fall of Kel'Thuzad,The Fall of Kel'Thuzad,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,item_starter_unverified,,0,1,review_candidate,1,3456,3456,,none
+9121,The Dread Citadel - Naxxramas,The Dread Citadel - Naxxramas,The Dread Citadel - Naxxramas,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,139,139,,none
+9124,Cryptstalker Armor Doesn't Make Itself...,Cryptstalker Armor Doesn't Make Itself...,Cryptstalker Armor Doesn't Make Itself...,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,139,139,,none
+9128,The Elemental Equation,The Elemental Equation,The Elemental Equation,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,139,139,,none
+9131,Binding the Dreadnaught,Binding the Dreadnaught,Binding the Dreadnaught,2,dialogue_difference_candidate,present,present,0,0,complete,1,npc_with_spawn,,1,1,review_candidate,1,139,139,,none
+9141,"They Call Me ""The Rooster""","They Call Me ""The Rooster""","They Call Me ""The Rooster""",2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,139,139,,none
+9153,Under the Shadow,Under the Shadow,Under the Shadow,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-368,-368,,none
+9154,Light's Hope Chapel,Light's Hope Chapel,Light's Hope Chapel,2,dialogue_difference_candidate,present,present,0,0,accept;progress;complete,3,npc_with_spawn,,2,1,review_candidate,1,-368,-368,,none
+9184,Craftsman's Writ - Wicked Leather Headband,Craftsman's Writ - Wicked Leather Headband,Craftsman's Writ - Wicked Leather Headband,2,other_quest_text_difference_candidate,present,present,0,1,,0,item_starter_unverified,,0,1,review_candidate,1,139,139,,none
+9185,Craftsman's Writ - Rugged Armor Kit,Craftsman's Writ - Rugged Armor Kit,Craftsman's Writ - Rugged Armor Kit,2,other_quest_text_difference_candidate,present,present,0,1,,0,item_starter_unverified,,0,1,review_candidate,1,139,139,,none
+9196,Craftsman's Writ - Thorium Grenade,Craftsman's Writ - Thorium Grenade,Craftsman's Writ - Thorium Grenade,2,dialogue_difference_candidate,present,present,0,0,accept,1,item_starter_unverified,,0,1,review_candidate,1,139,139,,none
+9200,Craftsman's Writ - Major Mana Potion,Craftsman's Writ - Major Mana Potion,Craftsman's Writ - Major Mana Potion,2,dialogue_difference_candidate,present,present,0,0,accept,1,item_starter_unverified,,0,1,review_candidate,1,139,139,,none
+9201,Craftsman's Writ - Greater Arcane Protection Potion,Craftsman's Writ - Greater Arcane Protection Potion,Craftsman's Writ - Greater Arcane Protection Potion,2,dialogue_difference_candidate,present,present,0,1,accept,1,item_starter_unverified,,0,1,review_candidate,1,139,139,,none
+9221,Superior Armaments of Battle - Friend of the Dawn,Superior Armaments of Battle - Friend of the Dawn,Superior Armaments of Battle - Friend of the Dawn,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,139,139,,none
+9222,Epic Armaments of Battle - Friend of the Dawn,Epic Armaments of Battle - Friend of the Dawn,Epic Armaments of Battle - Friend of the Dawn,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,139,139,,none
+9226,Superior Armaments of Battle - Revered Amongst the Dawn,Superior Armaments of Battle - Revered Amongst the Dawn,Superior Armaments of Battle - Revered Amongst the Dawn,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,139,139,,none
+9230,Ramaladni's Icy Grasp,Ramaladni's Icy Grasp,Ramaladni's Icy Grasp,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9233,Omarion's Handbook,Omarion's Handbook,Omarion's Handbook,2,other_quest_text_difference_candidate,present,present,0,1,,0,item_starter_unverified,,0,1,review_candidate,1,3456,3456,,none
+9236,Icebane Breastplate,Icebane Breastplate,Icebane Breastplate,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9241,Polar Bracers,Polar Bracers,Polar Bracers,2,other_quest_text_difference_candidate,present,present,0,1,,0,npc_with_spawn,,1,1,review_candidate,1,3456,3456,,none
+9248,A Humble Offering,A Humble Offering,A Humble Offering,2,dialogue_difference_candidate,present,present,0,0,progress,1,npc_with_spawn,,1,1,review_candidate,1,1377,1377,,none
+9295,Letter from the Front,Letter from the Front,Letter from the Front,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,item_starter_unverified,,0,1,review_candidate,1,-368,-368,,none
+9299,Note from the Front,Note from the Front,Note from the Front,2,dialogue_difference_candidate,present,present,0,0,complete,1,item_starter_unverified,,0,1,review_candidate,1,-368,-368,,none
+9300,Page from the Front,Page from the Front,Page from the Front,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,item_starter_unverified,,0,1,review_candidate,1,-368,-368,,none
+9301,Envelope from the Front,Envelope from the Front,Envelope from the Front,2,dialogue_difference_candidate,present,present,0,0,complete,1,item_starter_unverified,,0,1,review_candidate,1,-368,-368,,none
+9302,Missive from the Front,Missive from the Front,Missive from the Front,2,dialogue_difference_candidate,present,present,0,0,progress;complete,2,item_starter_unverified,,0,1,review_candidate,1,-368,-368,,none
+9304,Document from the Front,Document from the Front,Document from the Front,2,dialogue_difference_candidate,present,present,0,0,complete,1,item_starter_unverified,,0,1,review_candidate,1,-368,-368,,none
+9319,A Light in Dark Places,A Light in Dark Places,A Light in Dark Places,2,dialogue_difference_candidate,present,present,0,0,accept;progress;complete,3,npc_with_spawn,,1,1,review_candidate,1,-369,-369,,none
+9323,Wild Fires in the Eastern Kingdoms,Wild Fires in the Eastern Kingdoms,Wild Fires in the Eastern Kingdoms,2,dialogue_difference_candidate,present,present,0,0,accept;progress,2,npc_with_spawn,,1,1,review_candidate,1,-369,-369,,none
+9362,Warlord Krellian,Warlord Krellian,Warlord Krellian,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-161,-161,,none
+9364,Fragmented Magic,Fragmented Magic,Fragmented Magic,2,dialogue_difference_candidate,present,present,0,0,accept,1,npc_with_spawn,,1,1,review_candidate,1,-161,-161,,none
+9386,A Light in Dark Places,A Light in Dark Places,A Light in Dark Places,2,dialogue_difference_candidate,present,present,0,0,accept;progress;complete,3,npc_with_spawn,,1,1,review_candidate,1,-369,-369,,none
