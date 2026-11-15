@@ -1,0 +1,116 @@
+name: Audit Turtle SQL evidence for unclassified Compendium quests
+
+on:
+  push:
+    branches:
+      - audit/tortoise-unclassified-integrity
+    paths:
+      - scripts/audit_tortoise_unclassified.py
+      - scripts/extract_tortoise_methods.mjs
+      - .github/workflows/tortoise-unclassified-integrity.yml
+      - SoftSpoken_Stories/Data/Compendium.lua
+      - docs/turtle_shared_id_coverage.csv
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out SoftSpoken audit branch
+        uses: actions/checkout@v4
+
+      - name: Obtain immutable Tortoise viewer SQLite snapshot
+        uses: actions/checkout@v4
+        with:
+          repository: Xian55/tortoise-db-viewer
+          ref: 567ce23c73087e9b67fd2d4732c171d751e54bba
+          path: .audit-viewer-data
+          sparse-checkout: |
+            data/tortoise.sqlite.br
+            data/version.json
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Obtain pinned Tortoise SQL and world migrations
+        uses: actions/checkout@v4
+        with:
+          repository: tortoise-wow/tortoise-wow
+          ref: 48cb227f2cb698920dc2f60eeadd6546243eb75e
+          path: .audit-world
+          filter: blob:none
+          sparse-checkout: |
+            sql/base/tw_world_quest_template.sql
+            sql/database_updates
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Get pinned viewer's SQL staging parsers
+        uses: actions/checkout@v4
+        with:
+          repository: Xian55/tortoise-db-viewer
+          ref: 8f90ff8a959e36345530d0a80458f3c50b13e2f0
+          path: .audit-viewer
+          sparse-checkout: |
+            scripts/lib/staging.mjs
+            scripts/lib/mysqlexec.mjs
+            scripts/lib/sqldump.mjs
+            scripts/lib/sqlite.mjs
+            package.json
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Decompress verified published SQLite snapshot
+        shell: bash
+        run: |
+          test -s .audit-viewer-data/data/tortoise.sqlite.br
+          node -e 'const fs=require("fs"),z=require("zlib");const p=".audit-viewer-data/data/tortoise.sqlite.br";const b=z.brotliDecompressSync(fs.readFileSync(p));fs.writeFileSync(".audit-viewer-data/data/tortoise.sqlite",b);'
+          python3 -c 'import sqlite3; c=sqlite3.connect("file:.audit-viewer-data/data/tortoise.sqlite?mode=ro",uri=True); print("Quest rows:",c.execute("select count(*) from quests").fetchone()[0]); c.close()'
+
+      - name: Install SQLite staging dependency
+        working-directory: .audit-viewer
+        run: npm install --no-save --no-package-lock --no-audit --no-fund better-sqlite3@11.8.1
+
+      - name: Recover source Method values, applying world migrations
+        run: |
+          node --check scripts/extract_tortoise_methods.mjs
+          node scripts/extract_tortoise_methods.mjs
+          cat .audit-methods-meta.json
+
+      - name: Audit every existing unclassified Compendium quest
+        run: |
+          python3 scripts/audit_tortoise_unclassified.py \
+            --db .audit-viewer-data/data/tortoise.sqlite \
+            --methods .audit-methods.csv \
+            --out docs/audits/tortoise_unclassified_integrity \
+            --source-ref 'viewer cdn@567ce23c + tortoise main@48cb227f with migrations'
+          python3 -c 'import json; d=json.load(open("docs/audits/tortoise_unclassified_integrity/summary.json")); assert d["unclassified_existing"]>0; assert d["focus_820"]["catalog_title"]=="What Do You Rely On?"; print("Audited", d["unclassified_existing"], "unclassified catalog records")'
+
+      - name: Ensure Compendium and prior exclusions remain unchanged
+        run: |
+          git diff --exit-code -- SoftSpoken_Stories/Data/Compendium.lua
+          python3 tests/test_turtle_exclusive_catalog_import.py
+          python3 tests/test_turtle_shared_id_coverage.py
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: turtle-unclassified-sql-integrity
+          path: |
+            docs/audits/tortoise_unclassified_integrity/
+            .audit-methods-meta.json
+          retention-days: 30
+
+      - name: Commit only read-only audit reports
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/audits/tortoise_unclassified_integrity/
+          if ! git diff --cached --quiet; then
+            git commit -m 'Audit SQL links, spawns, Method and classification for existing uncatalogued quests'
+            git push origin HEAD:audit/tortoise-unclassified-integrity
+          fi
