@@ -18,6 +18,7 @@
     <Include file="FactionCrest.lua"/>
     <Include file="SpeakerResolver.lua"/>
     <Include file="Player.lua"/>
+    <Include file="Data\VanillaGreetingLengths.lua"/>
     <Include file="GreetingFirst.lua"/>
     <Include file="VoiceOver.lua"/>
     <Include file="FollowupLines.lua"/>

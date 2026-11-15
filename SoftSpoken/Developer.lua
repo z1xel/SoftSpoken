@@ -120,17 +120,16 @@ function Developer:Context()
     local audio = profile and profile.Audio or {}
     table.insert(lines, format("narrator style %s, window %s", tostring(Addon:PlayerStyle()),
         PlayerFrame.frame and (PlayerFrame.frame:IsShown() and "shown" or "hidden") or "not built"))
-    if Version.IsLegacyVanilla then
-        table.insert(lines, format("line gap %s s, Vanilla master %s, effects %s, music %s, ambience %s",
-            tostring(audio.LineGap), tostring(GetCVar("MasterVolume")),
-            tostring(GetCVar("SoundVolume")), tostring(GetCVar("MusicVolume")),
-            tostring(GetCVar("AmbienceVolume"))))
-    else
-        table.insert(lines, format("line gap %s s, master %s/%s, dialog %s/%s",
-            tostring(audio.LineGap), tostring(GetCVar("Sound_EnableAllSound")),
-            tostring(GetCVar("Sound_MasterVolume")),
-            tostring(GetCVar("Sound_EnableDialog")), tostring(GetCVar("Sound_DialogVolume"))))
+    local function AudioCVar(name)
+        local ok, value = pcall(GetCVar, name)
+        if ok and value ~= nil and tostring(value) ~= "" then
+            return tostring(value)
+        end
+        return "unavailable"
     end
+    table.insert(lines, format("line gap %s s, Vanilla master %s, effects %s, music %s, ambience %s",
+        tostring(audio.LineGap), AudioCVar("MasterVolume"), AudioCVar("SoundVolume"),
+        AudioCVar("MusicVolume"), AudioCVar("AmbienceVolume")))
     -- Read-only engine report: no fake independent volume control and no
     -- global CVars are changed to collect these details. 'handle present'
     -- deliberately avoids exposing a native address/pointer.
@@ -145,29 +144,15 @@ function Developer:Context()
     local swVersion = SUPERWOW_VERSION
     table.insert(lines, format("SuperWoW version %s",
         swVersion == nil and "not reported" or tostring(swVersion)))
-    local function AudioCVar(name)
-        local ok, value = pcall(GetCVar, name)
-        if ok and value ~= nil and tostring(value) ~= "" then
-            return tostring(value)
-        end
-        return "unavailable"
-    end
     table.insert(lines, format("sound capacity UncapSounds %s, software channels %s, hardware channels %s, background %s",
         AudioCVar("UncapSounds"), AudioCVar("SoundSoftwareChannels"),
         AudioCVar("SoundMaxHardwareChannels"), AudioCVar("BackgroundSound")))
-    if Version.IsLegacyVanilla then
-        local mix = audio.LowerOthers or {}
-        table.insert(lines, format("effects toggle %s, other-sounds ducking %s, targets Music %s Ambience %s SFX %s, active %s, voice bus %s",
-            tostring(GetCVar("MasterSoundEffects")),
-            tostring(mix.Enabled), tostring(mix.Music), tostring(mix.Ambience),
-            tostring(mix.SFX), tostring(OtherSounds and OtherSounds.lowered or false),
-            tostring(OtherSounds and OtherSounds.voice or "none")))
-    else
-        table.insert(lines, format("sound categories: SFX %s/%s, Music %s/%s, Ambience %s/%s",
-            tostring(GetCVar("Sound_EnableSFX")), tostring(GetCVar("Sound_SFXVolume")),
-            tostring(GetCVar("Sound_EnableMusic")), tostring(GetCVar("Sound_MusicVolume")),
-            tostring(GetCVar("Sound_EnableAmbience")), tostring(GetCVar("Sound_AmbienceVolume"))))
-    end
+    local mix = audio.LowerOthers or {}
+    table.insert(lines, format("effects toggle %s, other-sounds ducking %s, targets Music %s Ambience %s SFX %s, active %s, voice bus %s",
+        AudioCVar("MasterSoundEffects"),
+        tostring(mix.Enabled), tostring(mix.Music), tostring(mix.Ambience),
+        tostring(mix.SFX), tostring(OtherSounds and OtherSounds.lowered or false),
+        tostring(OtherSounds and OtherSounds.voice or "none")))
     for key, source in Sources:Iterate() do
         table.insert(lines, format("module %s (%s): %s", key, tostring(source.addon),
             Sources:IsTurnedOff(source) and "turned off" or "on"))

@@ -1,236 +1,287 @@
 setfenv(1, VoiceOver)
 
--- Game Greeting First (Audio.GreetingFirst, off by default): the NPC's own greeting is not cut as
--- its window opens, and what Spoken reads off that window waits until the greeting is over.
---
--- The client cannot say which sound is an NPC's voice. A sound played at no volume hands back a
--- handle number next to the greeting's, and of the handles around it, one playing at exactly
--- Master x Dialog volume is the voice. That needs Dialog below 100% (a Master sound plays at
--- Master x 1) and at a level none of SFX, Music or Ambience is at, so SetDialogApart moves it 1%.
--- Without these calls, or for a greeting already playing as Dialog moves, the line waits 1.5s.
+-- Game Greeting First (Audio.GreetingFirst, off by default): on original Vanilla 1.12
+-- there is no independent NPC-dialogue mixer or reliable native completion event.
+-- ClassicAPI provides recent sound FILE paths and start times, but not the native
+-- sound handles associated with those paths. For known Vanilla NPC greetings we
+-- therefore use the measured recording length; otherwise we wait 2.0 seconds.
+-- This estimates the end of a greeting; it does not detect playback completion.
 GreetingFirst = {}
 
-local FALLBACK, END_GAP, POLL = 1.5, 0.05, 0.025
--- Two volumes this close are the same level.
-local SAME_LEVEL = 0.00001
--- How long a voice has to show up before there is taken to be none, and the longest wait.
-local DISCOVERY, LONGEST = 0.25, 10
--- The handles asked about either side of the marker, how many a poll asks, and how many
--- voices at once is too many to be one NPC.
-local RADIUS, BUDGET, MOST_VOICES = 128, 64, 32
--- A checkbox click, played at no volume and stopped at once.
-local MARKER_KIT = 856
+local FALLBACK = 2.0
+local END_PADDING = 0.12
+-- A greeting may begin just before its dialog event or shortly afterward.
+local EARLY_START, LATE_START = 0.45, 0.30
+local PROBE_GAPS = { 0.10, 0.16 }
+-- Let the Vanilla "npc" unit token settle without imposing a full 2s wait on objects.
+local CLASSIFY_TIMEOUT, CLASSIFY_INTERVAL = 0.20, 0.05
 local WINDOWS = { "GossipFrame", "QuestFrame", "DUIQuestFrame", "ImmersionFrame" }
-local OTHER_CHANNELS = { "SFX", "Music", "Ambience" }
 
-local watch          -- the greeting being listened to, or nil
-local holdUntil = 0  -- the fixed wait, where there is nothing to listen with
-local visit          -- the NPC whose windows are open: it greets once, as the first opens
-local opened = 0     -- windows opened, to tell a closing visit from gossip turning into a quest
+local holdUntil = 0
+local visit          -- confirmed NPC identity for this open conversation (name and/or GUID)
+local anonymousVisit = false  -- confirmed npc token, but no stable identity yet
+local unresolvedSkipped = false -- this conversation timed out without confirmed NPC evidence
+local pending        -- brief unresolved interaction check, never recorded as an NPC visit
+local opened = 0     -- identify gossip-to-quest transitions within the same visit
+local generation = 0 -- invalidate probes belonging to an earlier NPC
+local wakeSerial = 0 -- invalidate outdated wake timers after a new duration is chosen
 
 function GreetingFirst:IsOn()
     return Addon.db and Addon.db.profile.Audio.GreetingFirst == true
 end
 
 function GreetingFirst:IsWaiting()
-    return watch ~= nil or GetTime() < holdUntil
+    if not self:IsOn() then return false end
+    -- Keep a short unresolved classification gate active until the resolution
+    -- timer runs, even if the initial 0.2s wake happens on the same frame.
+    -- Bound it as a failsafe if an optional timer unexpectedly fails.
+    if pending and GetTime() < pending.startedAt + CLASSIFY_TIMEOUT + 0.20 then
+        return true
+    end
+    return GetTime() < holdUntil
 end
 
 local function Retry()
-    -- Held lines are otherwise retried once a second.
     if Player.source and Player.source.Retry then
-        Player.source:Retry()
+        Player.source:Retry() -- shared queue, so this also releases held gossip lines
     end
 end
 
-local function Number(cvar)
-    return tonumber(GetCVar(cvar))
+local function ScheduleWake()
+    wakeSerial = wakeSerial + 1
+    local serial = wakeSerial
+    Addon:ScheduleTimer(function()
+        if serial == wakeSerial and not GreetingFirst:IsWaiting() then
+            Retry()
+        end
+    end, math.max(0.01, holdUntil - GetTime()))
 end
 
---- Whether a Dialog level can't be told from other sounds: 100% is shared with every sound on the
---- Master channel, and any other level with SFX, Music or Ambience at it.
-local function Shared(dialog)
-    if math.abs(dialog - 1) < SAME_LEVEL then
-        return true
+local function CanObserve()
+    return type(VanillaGreetingLengths) == "table"
+        and type(C_Sound) == "table"
+        and type(C_Sound.GetRecentSoundFiles) == "function"
+end
+
+-- The client's path has a Sound\ prefix and may use any case/separator.
+-- The lookup includes only files verified in the original 1.12.1 archive.
+local function NormalizePath(path)
+    -- ClassicAPI reports paths in the game's casing (usually "Sound\\").
+    -- Lowercase FIRST; stripping before lowercasing fails on that prefix
+    -- and causes every real Vanilla path to miss the duration table.
+    local normalized = string.lower(string.gsub(path, "\\", "/"))
+    return string.gsub(normalized, "^sound/", "")
+end
+
+-- This is a timing estimate using a file's start and recorded duration.
+-- GetRecentSoundFiles includes failed opens; an entry does NOT prove audibility.
+local function RecentGreetingEnd(openedAt)
+    local ok, recent = pcall(C_Sound.GetRecentSoundFiles)
+    if not ok or type(recent) ~= "table" then
+        return nil
     end
-    for _, channel in ipairs(OTHER_CHANNELS) do
-        local volume = Number("Sound_" .. channel .. "Volume")
-        if not volume or math.abs(volume - dialog) < SAME_LEVEL then
-            return true
+    local newest, candidateEnd, candidateFile
+    local latestAllowed = math.min(GetTime() + 0.05, openedAt + LATE_START)
+    for _, entry in ipairs(recent) do
+        if type(entry) == "table" and not entry.muted and type(entry.file) == "string"
+            and type(entry.time) == "number" then
+            local playedAt = entry.time / 1000
+            if playedAt >= openedAt - EARLY_START and playedAt <= latestAllowed then
+                local duration = VanillaGreetingLengths[NormalizePath(entry.file)]
+                if type(duration) == "number" and duration > 0
+                    and (not newest or playedAt > newest) then
+                    newest = playedAt
+                    candidateEnd = playedAt + duration / 1000 + END_PADDING
+                    candidateFile = entry.file
+                end
+            end
         end
     end
-    return false
+    return candidateEnd, candidateFile
 end
 
---- The volume an NPC's voice plays at: nil where it cannot be told from other sounds, 0 where
---- the game's dialogue is not heard at all.
-local function VoiceVolume()
-    local master, dialog = Number("Sound_MasterVolume"), Number("Sound_DialogVolume")
-    if not master or not dialog then
-        return nil
-    end
-    if master == 0 or dialog == 0 or GetCVar("Sound_EnableAllSound") == "0" or GetCVar("Sound_EnableDialog") == "0" then
-        return 0
-    end
-    if Shared(dialog) then
-        return nil
-    end
-    return master * dialog
-end
-
---- Moves the Dialog slider 1% where it is at 100% or shares a level with SFX, Music or Ambience,
---- and says so in chat. Kept rather than put back: a greeting starts before Spoken hears of the
---- window, so the level has to be apart already. Returns whether it moved.
-function GreetingFirst:SetDialogApart()
-    local dialog = Number("Sound_DialogVolume")
-    if not dialog or dialog <= 0 or not Shared(dialog) then
-        return false
-    end
-    for _, step in ipairs({ -0.01, 0.01, -0.02, 0.02, -0.03, 0.03 }) do
-        local volume = math.floor((dialog + step) * 100 + 0.5) / 100
-        if volume > 0 and volume <= 1 and not Shared(volume) then
-            SetCVar("Sound_DialogVolume", tostring(volume))
-            print(format(L.GREETING_DIALOG_APART, math.floor(volume * 100 + 0.5)))
-            return true
-        end
-    end
-    return false
-end
-
-local function CanListen()
-    return C_Sound and C_Sound.PlaySoundWithOptions and C_Sound.IsPlaying and C_Sound.GetSoundScaledVolume
-        and StopSound and true or false
-end
-
---- A handle number from now: the greeting that just started has one close to it.
-local function Marker()
-    local ok, willPlay, handle = pcall(C_Sound.PlaySoundWithOptions, {
-        soundKitID = MARKER_KIT, uiSoundSubType = "SFX", forceNoDuplicates = false,
-        runFinishCallback = false, volumeOverride = 0,
-    })
-    if not ok or not willPlay or type(handle) ~= "number" then
-        return nil
-    end
-    pcall(StopSound, handle)
-    return handle
-end
-
-local function Wait(seconds)
-    watch = nil
-    holdUntil = math.max(holdUntil, GetTime() + seconds)
-    Addon:ScheduleTimer(Retry, seconds)
-end
-
-local function Fallback(state, now)
-    return Wait(math.max(0, state.started + FALLBACK - now))
-end
-
-local function Done()
-    watch = nil
-    Retry()
-end
-
-local function Speaking(handle)
-    local ok, playing = pcall(C_Sound.IsPlaying, handle)
-    return ok and playing == true
-end
-
-local function Poll(state)
-    if watch ~= state then
+local function Probe(openedAt, token, previousHoldUntil, attempt)
+    if token ~= generation then return end
+    local endAt, file = RecentGreetingEnd(openedAt)
+    if endAt then
+        -- Preserve a previous NPC's outstanding wait when rapidly changing targets.
+        holdUntil = math.max(previousHoldUntil, endAt)
+        GreetingFirst.lastTiming = { method = "recording length", seconds = math.max(0, holdUntil - openedAt), file = file }
+        ScheduleWake()
         return
+    end
+    if attempt <= table.getn(PROBE_GAPS) then
+        Addon:ScheduleTimer(function()
+            Probe(openedAt, token, previousHoldUntil, attempt + 1)
+        end, PROBE_GAPS[attempt])
+    end
+end
+
+-- No negative inference from an absent "npc" token: it may be a GameObject,
+-- or simply an NPC whose unit token is not populated yet on the 1.12 event.
+-- Only positive evidence identifies a creature or a non-NPC object/player.
+local function GUIDIs(guid, method)
+    if type(guid) ~= "string" or guid == ""
+        or type(C_PlayerInfo) ~= "table"
+        or type(C_PlayerInfo[method]) ~= "function" then return false end
+    local ok, result = pcall(C_PlayerInfo[method], guid)
+    return ok and (result == true or result == 1)
+end
+
+local function IdentifyInteraction()
+    local exists
+    if type(UnitExists) == "function" then
+        local ok, result = pcall(UnitExists, "npc")
+        -- Original 1.12 returns 1/nil, while newer implementations may
+        -- expose real Lua booleans. Comparing only against true drops 1.
+        if ok then exists = (result == true or result == 1) end
+    end
+
+    local name
+    if Utils.GetNPCName then
+        local ok, value = pcall(Utils.GetNPCName, Utils)
+        if ok and type(value) == "string" and value ~= "" then name = value end
+    end
+
+    -- ClassicAPI may expose UnitGUID("npc") even though the old 1.12
+    -- Utils:GetNPCGUID() intentionally returns nil.
+    local guid
+    if type(UnitGUID) == "function" then
+        local ok, value = pcall(UnitGUID, "npc")
+        if ok and type(value) == "string" and value ~= "" then guid = value end
+    end
+    if GUIDIs(guid, "GUIDIsGameObject") or GUIDIs(guid, "GUIDIsPlayer") then
+        return "non-npc"
+    end
+    if exists and type(UnitIsPlayer) == "function" then
+        local ok, player = pcall(UnitIsPlayer, "npc")
+        if ok and (player == true or player == 1) then return "non-npc" end
+    end
+    if exists or name or GUIDIs(guid, "GUIDIsCreature") then
+        return "npc", name, guid
+    end
+    return "unresolved"
+end
+
+local function SameVisit(name, guid)
+    if not visit then return false end
+    if guid and visit.guid then return guid == visit.guid end
+    return name ~= nil and visit.name == name
+end
+
+local function StartNPCWait(openedAt, previousHoldUntil, name, guid)
+    if SameVisit(name, guid) then return end
+    if anonymousVisit then
+        -- The same positive NPC token can acquire its name/GUID a frame later;
+        -- do not add a second wait just to learn its identity.
+        if name or guid then
+            visit = { name = name, guid = guid }
+            anonymousVisit = false
+        end
+        return
+    end
+    if name or guid then
+        visit = { name = name, guid = guid }
+    else
+        anonymousVisit = true -- confirmed NPC, identity not yet resolved
     end
     local now = GetTime()
-    local expected = VoiceVolume()
-    if not expected or now >= state.started + LONGEST then
-        return Fallback(state, now)
+    holdUntil = math.max(previousHoldUntil, openedAt + FALLBACK)
+    GreetingFirst.lastTiming = { method = "fixed fallback", seconds = math.max(0, holdUntil - now) }
+    generation = generation + 1
+    ScheduleWake()
+    if CanObserve() then
+        Probe(openedAt, generation, previousHoldUntil, 1)
     end
-    if expected == 0 then
-        return Done()
-    end
-    -- Spoken's own line, should another part's start meanwhile, is not the NPC.
-    local nowPlaying = Spoken.GetNowPlaying and Spoken:GetNowPlaying()
-    local own = nowPlaying and nowPlaying.handle
-    local count = 0
-    for handle in pairs(state.voices) do
-        if Speaking(handle) then
-            count = count + 1
-        else
-            state.voices[handle] = nil
-            state.lastEnd = now
-        end
-    end
-    for _ = 1, BUDGET do
-        local handle = state.next
-        state.next = handle >= state.last and state.first or handle + 1
-        if not state.voices[handle] and handle ~= state.marker and handle ~= own and Speaking(handle) then
-            local ok, volume = pcall(C_Sound.GetSoundScaledVolume, handle)
-            if ok and type(volume) == "number" and math.abs(volume - expected) <= 0.000001 then
-                if count >= MOST_VOICES then
-                    return Fallback(state, now)
-                end
-                state.voices[handle] = true
-                count = count + 1
-            end
-        end
-    end
-    if count == 0 then
-        -- A voice found and gone leaves lastEnd. Silence and a voice not found look the same, so
-        -- no voice found means the fixed wait.
-        if not state.lastEnd then
-            if now >= state.started + DISCOVERY then
-                return Fallback(state, now)
-            end
-        elseif now >= state.lastEnd + END_GAP then
-            return Done()
-        end
-    end
-    Addon:ScheduleTimer(Poll, POLL, state)
 end
 
---- An NPC's window opened. The first window of a visit is where the NPC greets: Spoken's lines
---- wait for that greeting. The windows after it, a quest picked from the gossip, do not.
+local function FinishUnresolved(state, reason)
+    if pending ~= state then return end
+    pending = nil
+    unresolvedSkipped = true  -- per conversation, NOT a cached NPC visit
+    -- Restore only the hold which preceded this unresolved interaction.
+    holdUntil = state.previousHoldUntil
+    GreetingFirst.lastTiming = { method = reason, seconds = 0 }
+    ScheduleWake()
+end
+
+local function CheckPending(state)
+    if pending ~= state then return end
+    if not GreetingFirst:IsOn() then
+        return FinishUnresolved(state, "disabled")
+    end
+    local kind, name, guid = IdentifyInteraction()
+    if kind == "npc" then
+        pending = nil
+        StartNPCWait(state.startedAt, state.previousHoldUntil, name, guid)
+    elseif kind == "non-npc" then
+        FinishUnresolved(state, "object/player: no greeting wait")
+    elseif GetTime() >= state.startedAt + CLASSIFY_TIMEOUT then
+        FinishUnresolved(state, "unresolved: no greeting wait")
+    else
+        local remaining = state.startedAt + CLASSIFY_TIMEOUT - GetTime()
+        Addon:ScheduleTimer(function() CheckPending(state) end,
+            math.min(CLASSIFY_INTERVAL, remaining))
+    end
+end
+
+--- On an automatic quest or gossip event, identify an NPC before timing its
+--- greeting. Unknown interactions receive only a bounded 0.2s classification
+--- gate; they do NOT get the 2.5s greeting fallback or enter the visit cache.
 function GreetingFirst:Open()
     opened = opened + 1
-    local npc = Utils:GetNPCGUID() or Utils:GetNPCName()
-    if visit and visit == npc then
+    if unresolvedSkipped then return end
+
+    local kind, name, guid = IdentifyInteraction()
+    if kind == "non-npc" then
+        if pending then
+            FinishUnresolved(pending, "object/player: no greeting wait")
+        else
+            self.lastTiming = { method = "object/player: no greeting wait", seconds = 0 }
+        end
         return
     end
-    visit = npc
-    -- An object or an item says nothing; and while Spoken speaks the NPC is silenced anyway, or
-    -- talks over a line the new one queues behind.
-    if Utils:IsNPCObjectOrItem() or Spoken:IsPlaying() then
+    if kind == "npc" then
+        if pending then
+            local state = pending
+            pending = nil
+            StartNPCWait(state.startedAt, state.previousHoldUntil, name, guid)
+        else
+            StartNPCWait(GetTime(), holdUntil, name, guid)
+        end
         return
     end
-    self:SetDialogApart()
-    local expected = VoiceVolume()
-    if expected == 0 then
-        return
-    end
-    local marker = expected and CanListen() and Marker()
-    if not marker then
-        return Wait(FALLBACK)
-    end
-    local state = {
-        started = GetTime(), voices = {}, marker = marker,
-        first = math.max(0, marker - RADIUS), last = marker + RADIUS,
-    }
-    state.next = state.first
-    watch = state
-    Addon:ScheduleTimer(Poll, POLL, state)
+
+    -- The current NPC conversation may briefly lose its unit token while
+    -- switching quest pages. Do not introduce a new wait for that same visit.
+    if visit or anonymousVisit or pending then return end
+
+    local startedAt = GetTime()
+    local state = { startedAt = startedAt, previousHoldUntil = holdUntil }
+    pending = state
+    holdUntil = math.max(holdUntil, startedAt + CLASSIFY_TIMEOUT)
+    self.lastTiming = { method = "checking NPC identity", seconds = CLASSIFY_TIMEOUT }
+    ScheduleWake()
+    Addon:ScheduleTimer(function() CheckPending(state) end, CLASSIFY_INTERVAL)
 end
 
---- A window closed. Unless another opens at once (gossip turning into a quest), the visit is over
---- and the NPC greets again next time.
+--- A window closed. A gossip-to-quest transition does not constitute a new visit.
 function GreetingFirst:Closed()
     if not self:IsOn() then
         visit = nil
+        anonymousVisit = false
+        unresolvedSkipped = false
+        if pending then
+            local state = pending
+            pending = nil
+            holdUntil = state.previousHoldUntil
+            ScheduleWake()
+        end
         return
     end
     local before = opened
     Addon:ScheduleTimer(function()
-        if opened ~= before then
-            return
-        end
+        if opened ~= before then return end
         for _, name in ipairs(WINDOWS) do
             local frame = _G[name]
             if frame and frame.IsVisible and frame:IsVisible() then
@@ -238,15 +289,28 @@ function GreetingFirst:Closed()
             end
         end
         visit = nil
+        anonymousVisit = false
+        unresolvedSkipped = false
+        if pending then
+            local state = pending
+            pending = nil
+            holdUntil = state.previousHoldUntil
+            ScheduleWake()
+        end
     end, 0.1)
 end
 
+function GreetingFirst:DescribeTiming()
+    if not self:IsOn() then return "disabled (enable NPC Voice Before Reading)" end
+    local timing = self.lastTiming
+    if not timing then return "no NPC interaction yet" end
+    return string.format("%s, %.2fs%s", timing.method, timing.seconds,
+        timing.file and (", file " .. timing.file) or "")
+end
+
 function GreetingFirst:Setup()
-    if self.ready or not Player.source then
-        return
-    end
+    if self.ready or not Player.source then return end
     self.ready = true
-    -- Quest lines and gossip lines are two sources: each waits for the NPC's greeting.
     for _, source in ipairs({ Player.source, Player.gossipSource }) do
         source:AddGate(function()
             if GreetingFirst:IsWaiting() then
@@ -259,7 +323,4 @@ function GreetingFirst:Setup()
         pcall(frame.RegisterEvent, frame, event)
     end
     frame:SetScript("OnEvent", function() GreetingFirst:Closed() end)
-    if self:IsOn() then
-        self:SetDialogApart()
-    end
 end

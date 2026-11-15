@@ -196,6 +196,15 @@ function Addon:InvokeQuestHandler(event, source, manual)
         Debug:Record("autoplay-off", format("Not reading %s: autoplay is off", event))
         return false
     end
+    -- Every automatic narration route, including panel/quest-log fallbacks, must arm
+    -- NPC Voice Before Reading *before* the handler enqueues its clip. Some 1.12
+    -- client UI hooks dispatch without an earlier usable sound/gossip event.
+    if not manual then
+        local ready, greetingError = pcall(self.BeginGreetingWait, self, event)
+        if not ready then
+            Debug:Record("greeting-wait-error", tostring(greetingError))
+        end
+    end
     -- Read while DialogueUI's window is still appearing, the voice would run ahead of the words
     -- it marks, so autoplay waits for the window.
     local bridge = not manual and rawget(VoiceOver, "DialogueUIBridge")
@@ -347,8 +356,8 @@ local defaults = {
             -- live here. They describe how anything is played rather than what this addon
             -- reads, so they are Spoken's settings now.
             StopAudioOnDisengage = false,
-            -- On, the NPC's own greeting is heard and what Spoken reads waits for it
-            -- (GreetingFirst.lua); off, Silence NPC Voices cuts it where a pack has one.
+            -- On, the NPC's own greeting is heard and automatic narration waits
+            -- for its estimated end (GreetingFirst.lua). Vanilla has no NPC-only mute.
             GreetingFirst = false,
             -- Off, no quest dialog, greeting or gossip reads itself: nothing plays until
             -- the Play button on the window is pressed (UI/DialogPlayButton.lua) or
@@ -447,7 +456,11 @@ function Addon:OnInitialize()
     }
 
     Player:Setup()
-    GreetingFirst:Setup()
+    -- Optional NPC greeting setup must never prevent voice-pack discovery.
+    local greetingReady, greetingError = pcall(GreetingFirst.Setup, GreetingFirst)
+    if not greetingReady then
+        Debug:Record("greeting-first-error", tostring(greetingError))
+    end
     -- The copy-link popup behind the Report button. Guarded because a failure to build a
     -- dialog must not stop playback initializing.
     local reportButtonReady, reportButtonError = pcall(ReportButton.Initialize, ReportButton)
@@ -747,7 +760,7 @@ function Addon:OnInitialize()
             -- Through pcall because a snapshot is a fallback, and a client that refuses one
             -- of these globals must not stop the event from being recorded.
             pcall(CaptureQuestSnapshot, event)
-            pcall(self.MuteGreetingAhead, self, event)
+            pcall(self.BeginGreetingWait, self, event)
         end
     end)
 
@@ -821,6 +834,14 @@ function Addon:OnInitialize()
     }
     local deferredEventGeneration = {}
     local function SignalDirectEvent(event, source)
+        -- Also reached by the panel OnShow / QuestFrame hooks, not only the
+        -- direct-event frame. Arm the gate before the 0.1-second speech deferral.
+        if QUEST_EVENTS[event] or SPEECH_EVENTS[event] then
+            local ready, greetingError = pcall(self.BeginGreetingWait, self, event)
+            if not ready then
+                Debug:Record("greeting-wait-error", tostring(greetingError))
+            end
+        end
         if event == "QUEST_FINISHED" then
             deferredEventGeneration.QUEST_GREETING = (deferredEventGeneration.QUEST_GREETING or 0) + 1
         elseif event == "GOSSIP_CLOSED" then
@@ -849,10 +870,6 @@ function Addon:OnInitialize()
         end
     end
     self.directEventFrame:SetScript("OnEvent", function(frame, event)
-        -- Before the deferral: the greeting is already playing.
-        if deferredSpeechEvents[event] then
-            pcall(self.MuteGreetingAhead, self, event)
-        end
         SignalDirectEvent(event, "direct frame")
     end)
 
@@ -1262,83 +1279,22 @@ function Addon:ShouldPlayGossip(guid, text, manual, followsOption)
     return true, npcKey
 end
 
---- An NPC's own greeting starts the moment its dialog opens, and the line that replaces it
---- is read off the dialog a moment later -- 0.1s for gossip, 0.4s of stable globals for a
---- quest. The player muting the game's dialogue only once that line started is what cut the
---- greeting off mid-word, so for a dialog that is going to be read the mute is taken here,
---- in the frame the dialog opened, and the greeting is not heard at all. A dialog nothing
---- will be read for keeps its greeting: that is what the lookups below are for.
----@param event string
-function Addon:MuteGreetingAhead(event)
-    if not Spoken.MuteGameDialogueAhead or not self:IsPageOn(event) or not self:IsAutoplayOn() or self.dataModulesPending
+--- On 1.12 there is no separate NPC dialogue channel to mute. If enabled, give
+--- the native greeting time to play before auto-reading an NPC window. Direct
+--- game events arm this early; InvokeQuestHandler also arms it for UI fallbacks
+--- that bypass those events.
+function Addon:BeginGreetingWait(event)
+    if not GreetingFirst:IsOn() or not self:IsPageOn(event)
+        or not self:IsAutoplayOn() or self.dataModulesPending
         or not Player.source then
         return
     end
-    local quest = QUEST_EVENTS[event]
-    if not (SPEECH_EVENTS[event] or quest) then
+    if not (SPEECH_EVENTS[event] or QUEST_EVENTS[event]) then
         return
     end
-    -- A quest read that waits for the window to close leaves the NPC's greeting alone.
-    if quest and self.db.profile.Audio.ReadAfterClose then
-        return
-    end
-    -- Game Greeting First: nothing is cut, and the line waits for the greeting instead.
-    if GreetingFirst:IsOn() then
-        GreetingFirst:Open()
-        return
-    end
-    -- Silenced only where a pack reads the line; any other NPC keeps its greeting. A quest whose
-    -- ID is not known yet is muted too: its greeting starts now, and with no line the mute lifts.
-    local questID = quest and QuestIDFor(event)
-    if (quest and (not questID or questID == 0)) or self:ExpectedLine(event) then
-        Spoken:MuteGameDialogueAhead(self:PartOfPage(event) == "gossip" and Player.gossipSource or Player.source)
-    end
-end
-
---- The text autoplay will read for the dialog that just opened, or nil. Asked before the line is
---- queued; `textIsCurrent` when the page is drawn, to check its own line, not just the speaker.
----@param event string
----@param textIsCurrent boolean?
----@return string?
-function Addon:ExpectedLine(event, textIsCurrent)
-    if not self:IsPageOn(event) or not self:IsAutoplayOn() or self.dataModulesPending or not Player.source
-        or (Spoken.ReadsHere and not Spoken:ReadsHere()) then
-        return nil
-    end
-    local speech, quest = SPEECH_EVENTS[event], QUEST_EVENTS[event]
-    if speech then
-        -- The page text is not to be trusted yet (see the deferred read), so this asks only
-        -- whether any pack voices this speaker at all.
-        local guid = Utils:GetNPCGUID()
-        local speaker = { unitGUID = guid, name = Utils:GetNPCName(), unitIsObjectOrItem = Utils:IsNPCObjectOrItem() }
-        if not guid and not speaker.name then
-            return nil
-        end
-        local followsOption = event == "GOSSIP_SHOW" and gossipOptionPicked
-        if not self:ShouldPlayGossip(guid, nil, false, followsOption)
-            or not DataModules:HasGossipFor(speaker) then
-            return nil
-        end
-        if textIsCurrent and not self:GetVisibleLine(event) then
-            return nil
-        end
-        return speech.text() or ""
-    elseif quest then
-        if self.db.profile.Audio.ReadAfterClose then
-            return nil
-        end
-        -- The quest ID can still be the previous quest's this early; the worst that costs is
-        -- one greeting muted for nothing, or one cut off as it was before.
-        local questID = QuestIDFor(event)
-        if not questID or questID == 0 then
-            return nil
-        end
-        if not DataModules:PrepareSound({ event = quest.sound, questID = questID }) then
-            return nil
-        end
-        return quest.text() or ""
-    end
-    return nil
+    -- Even with Read When Window Closes, a quickly closed window may enqueue
+    -- narration before the native greeting has finished. Keep the gate.
+    GreetingFirst:Open()
 end
 
 function Addon:QUEST_GREETING(event, manual)
