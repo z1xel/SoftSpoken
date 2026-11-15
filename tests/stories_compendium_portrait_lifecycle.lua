@@ -182,7 +182,27 @@ SetPortraitTextureFromCreatureDisplayID=function(texture,displayID)
     nativePaints[#nativePaints+1]={texture=texture,displayID=displayID}
     texture:SetTexture("portrait:"..displayID)
 end
+dofile("SoftSpoken_Stories/Data/TurtleQuestText.lua")
 dofile("SoftSpoken_Stories/Compendium/QuestPage_112.lua")
+-- A Turtle overlay is additive and resolved separately for each quest stage.
+-- The production table is deliberately empty until source distribution is reviewed.
+local originalJournal=SSCQuestJournal
+local originalTurtle=SSCTurtleQuestText
+SSCTurtleQuestText={
+    [101]={accept="Turtle Accept $N"},
+    [102]={progress="   ",complete="Turtle Complete"},
+    [103]={complete="Turtle Completion $C"},
+}
+SSCQuestJournal={dialogue={[101]={progress="Live Progress $N"}}}
+eq(SSCQuestPage:Text(101,"accept"),"Turtle Accept Player","Turtle acceptance override")
+eq(SSCQuestPage:Text(101,"progress"),"Live Progress Player","live text first")
+eq(SSCQuestPage:Text(101,"complete"),"Finish A","fallback stage to original Spoken")
+eq(SSCQuestPage:Text(102,"progress"),"Progress B","blank Turtle stage falls back")
+eq(SSCQuestPage:Text(102,"complete"),"Turtle Complete","Turtle completion override")
+eq(SSCQuestPage:Text(103,"complete"),"Turtle Completion Mage","Turtle token substitution")
+eq(SSCQuestPage:Text(103,"accept"),"Accept C","original corpus remains available")
+SSCTurtleQuestText=originalTurtle
+SSCQuestJournal=originalJournal
 local baseTypography=function() end
 local baseReflow=function() end
 local view={
