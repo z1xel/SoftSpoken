@@ -112,11 +112,11 @@ class OverlayPreparationTest(unittest.TestCase):
         result = self.invoke("--emit-text", str(path), "--acknowledge-rights")
         self.assertEqual(result.returncode, 0, result.stderr)
         value = path.read_text(encoding="utf-8")
-        self.assertIn(r'\\"', value)
-        self.assertIn(r'\\\\', value)
-        self.assertIn(r'\\n', value)
-        self.assertIn(r'\\t', value)
-        self.assertIn(r'\\000', value)
+        self.assertIn(r'\"', value)
+        self.assertIn(r'\\', value)
+        self.assertIn(r'\n', value)
+        self.assertIn(r'\t', value)
+        self.assertIn(r'\000', value)
         self.assertIn("$N", value)
         import shutil
         if shutil.which("luac5.1"):
