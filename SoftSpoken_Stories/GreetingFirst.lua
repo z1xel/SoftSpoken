@@ -44,7 +44,14 @@ local function Retry()
 end
 
 local function Number(cvar)
-    return tonumber(GetCVar(cvar))
+    -- Some 1.12 clients have no modern sound CVars. GetCVar can return no
+    -- values, so capture its result before converting; missing or invalid
+    -- values let greeting detection use its existing fixed-delay fallback.
+    local ok, value = pcall(GetCVar, cvar)
+    if not ok or (type(value) ~= "string" and type(value) ~= "number") then
+        return nil
+    end
+    return tonumber(value)
 end
 
 --- Whether a Dialog level can't be told from other sounds: 100% is shared with every sound on the
