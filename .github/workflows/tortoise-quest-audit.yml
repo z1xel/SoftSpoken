@@ -11,6 +11,7 @@ on:
       - SoftSpoken_Stories/Data/TurtleQuestText.lua
       - SoftSpoken_Stories/addon.xml
       - tests/stories_compendium_portrait_lifecycle.lua
+      - tests/test_prepare_tortoise_overlay.py
       - .github/workflows/tortoise-quest-audit.yml
       - docs/turtle_exclusive_import.csv
   workflow_dispatch:
@@ -63,6 +64,9 @@ jobs:
             --manifest docs/turtle_exclusive_import.csv \
             --out docs/audits/tortoise_quest_overlay \
             --source-ref 'Xian55/tortoise-db-viewer cdn@567ce23c73087e9b67fd2d4732c171d751e54bba; version=80f9b3153120'
+
+      - name: Check synthetic parser, hold rules, and optional local-only export
+        run: python3 -m unittest discover -s tests -p 'test_prepare_tortoise_overlay.py' -v
 
       - name: Install Lua 5.1 and validate optional text overlay
         run: |
