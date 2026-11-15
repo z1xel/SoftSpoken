@@ -75,6 +75,8 @@ jobs:
           luac5.1 -p SoftSpoken_Stories/Data/TurtleQuestText.lua
           luac5.1 -p SoftSpoken_Stories/Compendium/QuestPage_112.lua
           lua5.1 tests/stories_compendium_portrait_lifecycle.lua
+          lua5.1 tests/stories_speaker_resolution.lua
+          python3 tests/test_ui_packaging.py
 
       - name: Upload read-only reports
         uses: actions/upload-artifact@v4
