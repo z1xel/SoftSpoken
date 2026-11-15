@@ -24,14 +24,19 @@ const SOURCE_URL = "https://raw.githubusercontent.com/Xian55/tortoise-db-viewer/
 
 function parseArgs(args) {
     if (args.length === 1 && (args[0] === "--help" || args[0] === "-h")) {
-        console.log("node scripts/import_tortoise_quest_dialogue.mjs [--source-sqlite PATH]");
-        console.log("Writes the imported dialogue into SoftSpoken_Stories/Data/TurtleQuestText.lua");
+        console.log("node scripts/import_tortoise_quest_dialogue.mjs [--touched-only] [--source-sqlite PATH]");
+        console.log("--touched-only adds just the 13 audited stages, preserving all existing Turtle text");
+        console.log("Default regenerates the pinned exclusive text and adds the first audited batch.");
         return null;
     }
-    if (args.length === 0) return {};
-    if (args.length !== 2 || args[0] !== "--source-sqlite")
-        throw new Error("Expected --source-sqlite PATH, or no arguments");
-    return { db: resolve(args[1]) };
+    const touchedCount = args.filter(x => x === "--touched-only").length;
+    if (touchedCount > 1) throw new Error("--touched-only supplied more than once");
+    const touchedOnly = touchedCount === 1;
+    const remaining = args.filter(x => x !== "--touched-only");
+    if (remaining.length === 0) return { touchedOnly };
+    if (remaining.length !== 2 || remaining[0] !== "--source-sqlite")
+        throw new Error("Expected [--touched-only] [--source-sqlite PATH]");
+    return { db: resolve(remaining[1]), touchedOnly };
 }
 
 async function getDb(input, temp) {
@@ -79,6 +84,20 @@ async function main() {
     const temp = mkdtempSync(join(tmpdir(), "softspoken-quest-text-"));
     try {
         const db = await getDb(input, temp);
+        if (input.touchedOnly) {
+            // Recommended for a populated install: preserve the existing
+            // exclusive dialogue bytes and append only stage-verified overrides.
+            runPython([
+                join(ROOT, "scripts", "import_turtle_touched_text.py"),
+                "--db", db,
+                "--manifest", join(ROOT, "docs", "audits", "turtle_touched_text_coverage",
+                                   "directly_supported_text_gaps.csv"),
+                "--destination", OUTPUT,
+                "--write", "--local-only"
+            ]);
+            console.log("Added the first 13 audited Turtle-touched stages without rebuilding the exclusive corpus.");
+            return;
+        }
         const staged = join(temp, "TurtleQuestText.lua");
         const report = join(temp, "report");
         runPython([
