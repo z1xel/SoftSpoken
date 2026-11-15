@@ -6,6 +6,11 @@ on:
       - audit/tortoise-text-coverage
     paths:
       - scripts/audit_tortoise_quest_coverage.py
+      - scripts/prepare_tortoise_quest_overlay.py
+      - SoftSpoken_Stories/Compendium/QuestPage_112.lua
+      - SoftSpoken_Stories/Data/TurtleQuestText.lua
+      - SoftSpoken_Stories/addon.xml
+      - tests/stories_compendium_portrait_lifecycle.lua
       - .github/workflows/tortoise-quest-audit.yml
       - docs/turtle_exclusive_import.csv
   workflow_dispatch:
@@ -51,11 +56,29 @@ jobs:
             --out docs/audits/tortoise_quest_coverage \
             --source-ref 'Xian55/tortoise-db-viewer cdn@567ce23c73087e9b67fd2d4732c171d751e54bba; version=80f9b3153120'
 
+      - name: Prepare conservative Turtle-only overlay decisions (no source text exported)
+        run: |
+          python3 scripts/prepare_tortoise_quest_overlay.py \
+            --db .audit-source/data/tortoise.sqlite \
+            --manifest docs/turtle_exclusive_import.csv \
+            --out docs/audits/tortoise_quest_overlay \
+            --source-ref 'Xian55/tortoise-db-viewer cdn@567ce23c73087e9b67fd2d4732c171d751e54bba; version=80f9b3153120'
+
+      - name: Install Lua 5.1 and validate optional text overlay
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y lua5.1
+          luac5.1 -p SoftSpoken_Stories/Data/TurtleQuestText.lua
+          luac5.1 -p SoftSpoken_Stories/Compendium/QuestPage_112.lua
+          lua5.1 tests/stories_compendium_portrait_lifecycle.lua
+
       - name: Upload read-only reports
         uses: actions/upload-artifact@v4
         with:
           name: tortoise-quest-coverage
-          path: docs/audits/tortoise_quest_coverage/
+          path: |
+            docs/audits/tortoise_quest_coverage/
+            docs/audits/tortoise_quest_overlay/
           retention-days: 30
 
       - name: Commit report back to this isolated audit branch
@@ -63,8 +86,8 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add docs/audits/tortoise_quest_coverage/
+          git add docs/audits/tortoise_quest_coverage/ docs/audits/tortoise_quest_overlay/
           if ! git diff --cached --quiet; then
-            git commit -m 'Audit Turtle-exclusive quest dialogue and classification coverage'
+            git commit -m 'Audit Turtle-exclusive quest coverage and safe import decisions'
             git push origin HEAD:audit/tortoise-text-coverage
           fi
