@@ -1,0 +1,161 @@
+name: Read-only Turtle-touched quest text coverage audit
+on:
+  push:
+    branches: [audit/turtle-touched-text-coverage]
+    paths:
+      - .github/workflows/turtle-touched-text-audit.yml
+      - scripts/audit_turtle_touched_text.py
+      - scripts/export_static_quest_text_for_audit.lua
+      - tests/test_turtle_touched_text_audit.py
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  touched-text-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 27
+    steps:
+      - name: Check out isolated audit branch
+        uses: actions/checkout@v4
+
+      - name: Get immutable Tortoise SQLite source
+        uses: actions/checkout@v4
+        with:
+          repository: Xian55/tortoise-db-viewer
+          ref: 567ce23c73087e9b67fd2d4732c171d751e54bba
+          path: .audit-viewer-data
+          sparse-checkout: |
+            data/tortoise.sqlite.br
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Get pinned world quest SQL and migrations
+        uses: actions/checkout@v4
+        with:
+          repository: tortoise-wow/tortoise-wow
+          ref: 48cb227f2cb698920dc2f60eeadd6546243eb75e
+          path: .audit-world
+          filter: blob:none
+          sparse-checkout: |
+            sql/base/tw_world_quest_template.sql
+            sql/database_updates
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Get Tortoise raw SQL staging parser
+        uses: actions/checkout@v4
+        with:
+          repository: Xian55/tortoise-db-viewer
+          ref: 8f90ff8a959e36345530d0a80458f3c50b13e2f0
+          path: .audit-viewer
+          sparse-checkout: |
+            scripts/lib/staging.mjs
+            scripts/lib/mysqlexec.mjs
+            scripts/lib/sqldump.mjs
+            scripts/lib/sqlite.mjs
+            package.json
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Download and verify the independent Vanilla 1.12 baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fLsS --retry 3 --retry-delay 3 \
+            https://github.com/cmangos/classic-db/releases/download/latest/classic-sqlite-db.zip \
+            -o /tmp/classic-sqlite-db.zip
+          echo '78c08a0b8d0e253d8a094ae830942d0a8b3316ad1a1ebba4be57342bc2c3d0d1  /tmp/classic-sqlite-db.zip' | sha256sum -c
+          mkdir -p .audit-vanilla
+          unzip -q /tmp/classic-sqlite-db.zip -d .audit-vanilla
+          find .audit-vanilla -type f -maxdepth 5 | head -30
+          python3 - <<'PY'
+          import pathlib,sqlite3
+          paths=list(pathlib.Path(".audit-vanilla").rglob("*.sqlite"))+list(pathlib.Path(".audit-vanilla").rglob("*.db"))
+          verified=[]
+          for p in paths:
+              try:
+                  with sqlite3.connect("file:"+str(p.resolve())+"?mode=ro",uri=True) as db:
+                      if db.execute("SELECT name FROM sqlite_master WHERE name='quest_template'").fetchone():
+                          verified.append(p)
+              except sqlite3.DatabaseError:
+                  pass
+          if len(verified)!=1:raise SystemExit("Expected precisely one Classic quest_template SQLite, got "+str(verified))
+          pathlib.Path(".audit-vanilla-path").write_text(str(verified[0]))
+          with sqlite3.connect(str(verified[0])) as db:
+              print("Vanilla quest rows:",db.execute("SELECT count(*) FROM quest_template").fetchone()[0])
+              print("Vanilla quest fields:",[r[1] for r in db.execute("PRAGMA table_info(quest_template)")][:50])
+          PY
+
+      - name: Verify and decompress pinned Turtle source
+        run: |
+          node -e 'const fs=require("fs"),z=require("zlib"),c=require("crypto");const p=".audit-viewer-data/data/tortoise.sqlite.br";const b=fs.readFileSync(p);const sha=c.createHash("sha1").update(Buffer.from("blob "+b.length+"\0")).update(b).digest("hex");if(sha!=="7b126fce5260502fa40f9f6b67190f920e60a0f6")throw Error("Tortoise pin changed: "+sha);fs.writeFileSync(".audit-viewer-data/data/tortoise.sqlite",z.brotliDecompressSync(b))'
+
+      - name: Install raw SQL staging dependency
+        working-directory: .audit-viewer
+        run: npm install --omit=dev --no-save --no-package-lock --no-audit --no-fund better-sqlite3@11.8.1
+
+      - name: Recover migration-applied Turtle quest Method/disabled evidence
+        run: |
+          node scripts/extract_tortoise_methods.mjs
+          python3 -c 'import csv; r=list(csv.DictReader(open(".audit-methods.csv"))); assert len(r)>6500; print("Migration-validated Method rows:",len(r))'
+
+      - name: Compare ONLY changed and restored shared-ID quest text
+        run: |
+          python3 scripts/audit_turtle_touched_text.py \
+            --turtle .audit-viewer-data/data/tortoise.sqlite \
+            --vanilla "$(cat .audit-vanilla-path)" \
+            --methods .audit-methods.csv
+          python3 - <<'PY'
+          import csv
+          p="docs/audits/turtle_touched_text_coverage/review_scoped_quests.csv"
+          with open(p,newline="",encoding="utf-8") as f: rows=list(csv.DictReader(f))
+          with open(".audit-scoped-quest-ids","w") as f:
+              for r in rows:f.write(r["quest_id"]+"\n")
+          print("Turtle-touched review candidate IDs:",len(rows))
+          PY
+          sudo apt-get update -qq && sudo apt-get install -y lua5.1
+          # All dialogue bytes exist only in this ephemeral CI working tree.
+          lua5.1 scripts/export_static_quest_text_for_audit.lua \
+            .audit-scoped-quest-ids .audit-static-text-hex.tsv
+          python3 scripts/audit_turtle_touched_text.py \
+            --turtle .audit-viewer-data/data/tortoise.sqlite \
+            --vanilla "$(cat .audit-vanilla-path)" \
+            --methods .audit-methods.csv \
+            --lua-stages .audit-static-text-hex.tsv
+          rm -f .audit-static-text-hex.tsv .audit-scoped-quest-ids .audit-methods.csv
+          cat docs/audits/turtle_touched_text_coverage/summary.json
+
+      - name: Verify no static text, catalog, or Vanilla source was changed
+        run: |
+          python3 -m unittest discover -s tests -p 'test_turtle_touched_text_audit.py'
+          git diff --exit-code -- SoftSpoken_Stories/Data/QuestText.lua \
+            SoftSpoken_Stories/Data/TurtleQuestText.lua \
+            SoftSpoken_Stories/Data/Compendium.lua
+          python3 - <<'PY'
+          import csv,json
+          p="docs/audits/turtle_touched_text_coverage/"
+          s=json.load(open(p+"summary.json"))
+          assert s["review_candidates"]>0, "Audit unexpectedly selected no changed quests"
+          assert s["reviewed_stages"]==3*s["review_candidates"]
+          with open(p+"review_scoped_quests.csv",newline="") as f:
+              r=list(csv.DictReader(f))
+          assert all(int(row["quest_id"])<20000 or row["category"]!="legacy_id_absent_from_vanilla" for row in r)
+          print("Read-only quest text audit assertions passed")
+          PY
+
+      - name: Upload only text-free review reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: turtle-touched-quest-text-coverage
+          path: docs/audits/turtle_touched_text_coverage/
+          retention-days: 30
+
+      - name: Commit only text-free coverage reports to isolated branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/audits/turtle_touched_text_coverage/
+          if ! git diff --cached --quiet; then
+            git commit -m 'Audit Turtle-touched shared-ID quest dialogue coverage without altering Spoken'
+            git push origin HEAD:audit/turtle-touched-text-coverage
+          fi
