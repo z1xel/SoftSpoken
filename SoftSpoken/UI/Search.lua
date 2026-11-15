@@ -256,9 +256,9 @@ function Search:Build(parent)
 end
 function Search:BuildLegacy(parent)
     local row = self:Build(parent)
-    -- Match the full-width ornamental frame with balanced 18-unit margins.
-    row:SetPoint("TOPLEFT", parent, "TOPLEFT", 15, -70)
-    self:Fit(520)
+    -- Match the full-width ornamental frame with balanced 12-unit margins.
+    row:SetPoint("TOPLEFT", parent, "TOPLEFT", 12, -70)
+    self:Fit(526)
     row:Show()
     return row
 end
