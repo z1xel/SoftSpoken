@@ -40,6 +40,22 @@ class TurtleTouchedTextTest(unittest.TestCase):
             self.assertEqual(data[(820,"turtle")]["complete"],"World")
             self.assertNotIn((810,"spoken"),data)
 
+    def test_vanilla_pfquest_presence_requires_stage_specific_migration(self):
+        base = {"category": "legacy_id_absent_from_vanilla",
+                "vanilla_pfquest_present": 1,
+                "source_migration_modified_stage": 0}
+        self.assertFalse(a.eligible_direct_turtle_stage(base))
+        self.assertTrue(a.eligible_direct_turtle_stage({
+            **base, "source_migration_modified_stage": 1}))
+        self.assertTrue(a.eligible_direct_turtle_stage({
+            **base, "vanilla_pfquest_present": 0}))
+        self.assertFalse(a.eligible_direct_turtle_stage({
+            **base, "category": "dialogue_difference_candidate",
+            "vanilla_pfquest_present": 0}))
+        self.assertTrue(a.eligible_direct_turtle_stage({
+            **base, "category": "dialogue_difference_candidate",
+            "source_migration_modified_stage": 1}))
+
     def test_source_hash_never_contains_raw_text(self):
         self.assertEqual(len(a.sha("A historical quest")),64)
         self.assertEqual(a.sha(""),"")
