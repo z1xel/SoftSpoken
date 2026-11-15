@@ -106,11 +106,18 @@ local function Play(id,stage)
     if table.getn(same)>0 then return end -- upstream's play/stop behavior
     v.Player:PlayNow(SoundData(id,stage))
 end
--- Text for an encountered Turtle quest can come from the live quest window.
--- Otherwise use the original Spoken corpus without modifying its source file.
+-- Per-stage priority: a live Turtle interaction, a validated Turtle-only overlay,
+-- then the original Spoken text. Never overwrite the original corpus in-place.
 function P:Text(id,stage)
     local captured=SavedText(id,stage)
-    if type(captured)=="string" and captured~="" then return Fill(captured) end
+    if type(captured)=="string" and string.find(captured,"%S") then
+        return Fill(captured)
+    end
+    local turtle=_G.SSCTurtleQuestText and _G.SSCTurtleQuestText[id]
+    local override=turtle and turtle[stage]
+    if type(override)=="string" and string.find(override,"%S") then
+        return Fill(override)
+    end
     local english=Database(id)
     return english and Fill(english[stage]) or nil
 end
