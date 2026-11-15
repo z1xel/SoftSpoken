@@ -43,7 +43,9 @@ local function DrawOrnateHeaderBand(window)
     -- The original open-top U from main omitted its three top pieces.
     local art = [[Interface\ChatFrame\UI-ChatInputBorder-]]
     local leftX, rightX = 2, -2
-    local topY, bottomY = -61, -111
+    -- Search EditBox spans approximately y=-72..-93. Keep the native
+    -- 16-unit corner pieces and give the field 7-8 units of vertical padding.
+    local topY, bottomY = -65, -101
     local cornerW, cornerH = 28, 16
 
     local function Part(file, layer, u1, u2, v1, v2, width, height, anchor, relative, x, y)
