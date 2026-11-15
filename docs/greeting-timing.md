@@ -119,8 +119,7 @@ narration normally uses the ClassicAPI Master channel.
 
 SoftSpoken's OtherSounds mixer lowers SoundVolume (and optionally music and
 ambience) only when narration actually starts. There is no volume change
-when beginning the greeting gate. Its regular 1.2s settling period could,
-however, leave SoundVolume lowered from a previous recording as a new native
-greeting begins. When the narrator queue becomes held, OtherSounds now
-restores any remaining attenuation immediately. If another recording is
-actually speaking, its attenuation is deliberately left alone.
+when beginning the greeting gate. The original 1.2s volume-restoration settling period is intentionally
+unchanged. A greeting can therefore still encounter residual attenuation
+from a previous recording; addressing this requires a separate design and
+is not part of the greeting timing fix.
