@@ -94,9 +94,19 @@ def apply(original, rows):
                 original_body
             ):
                 raise ValueError("Conflicting pre-existing classification for quest " + str(qid))
+            # Keep the original row's WoW-style space before the closing
+            # brace. Early overlays appended after that space, producing
+            # 'starter = 3304 , zones = {...}}' and breaking legacy parsers.
+            suffix = ", " + wanted + "}"
+            if original_body.endswith(suffix):
+                cleaned = original_body[:-len(suffix)].rstrip() + ", " + wanted + " }"
+                if cleaned != original_body:
+                    outputs.append(body[last:m.start()])
+                    outputs.append(m[1] + cleaned + m[4])
+                    last = m.end()
             preserved += 1
             continue
-        append = original_body[:-1] + ", " + wanted + "}"
+        append = original_body[:-1].rstrip() + ", " + wanted + " }"
         outputs.append(body[last:m.start()])
         outputs.append(m[1] + append + m[4])
         last = m.end()
