@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "SoftSpoken_Stories" / "Data" / "Compendium.lua"
 MANIFEST = ROOT / "docs" / "turtle_exclusive_import.csv"
 NAMES = ROOT / "docs" / "turtle_exclusive_speaker_names.csv"
+ZONES = ROOT / "docs" / "tortoise_zone_overlay.csv"
 
 
 def records(path):
@@ -41,6 +42,9 @@ class TurtleExclusiveCatalogTest(unittest.TestCase):
         cls.text, cls.catalog = catalog()
         cls.source = records(MANIFEST)
         cls.names = records(NAMES)
+        cls.zone_overlay = {
+            int(r["quest_id"]): r for r in records(ZONES)
+        }
 
     def test_whole_source_accounted_for(self):
         self.assertEqual(len(self.source), 2451)
@@ -57,7 +61,20 @@ class TurtleExclusiveCatalogTest(unittest.TestCase):
             with self.subTest(quest=quest_id):
                 if row["status"] == "imported":
                     self.assertIn(quest_id, self.catalog)
-                    self.assertEqual(self.catalog[quest_id] + ",",
+                    actual = self.catalog[quest_id]
+                    # Remove ONLY the precise, approved generated classification.
+                    # All original starter/ender/race/chain fields must still match
+                    # the frozen pfQuest Turtle import verbatim.
+                    overlay = self.zone_overlay.get(quest_id)
+                    if overlay:
+                        kind, value = overlay["classification"], int(overlay["value"])
+                        field = ("zones = {" + str(value) + "}" if kind == "zones"
+                                 else kind + " = " + str(value))
+                        suffix = ", " + field + "}"
+                        self.assertTrue(actual.endswith(suffix),
+                                        "Quest overlay not at end of quest row")
+                        actual = actual[:-len(suffix)] + "}"
+                    self.assertEqual(actual + ",",
                                      row["compendium_row"].split(" = ", 1)[1])
                 elif row["status"] == "excluded_nonplayable":
                     self.assertNotIn(quest_id, self.catalog)
