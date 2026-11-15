@@ -25,8 +25,8 @@ const SOURCE_URL = "https://raw.githubusercontent.com/Xian55/tortoise-db-viewer/
 function parseArgs(args) {
     if (args.length === 1 && (args[0] === "--help" || args[0] === "-h")) {
         console.log("node scripts/import_tortoise_quest_dialogue.mjs [--touched-only] [--source-sqlite PATH]");
-        console.log("--touched-only adds just the 13 audited stages, preserving all existing Turtle text");
-        console.log("Default regenerates the pinned exclusive text and adds the first audited batch.");
+        console.log("--touched-only appends both verified shared-ID batches (13 + 207 stages), preserving existing text");
+        console.log("Default regenerates 2369 exclusive quests plus both verified batches.");
         return null;
     }
     const touchedCount = args.filter(x => x === "--touched-only").length;
@@ -95,7 +95,13 @@ async function main() {
                 "--destination", OUTPUT,
                 "--write", "--local-only"
             ]);
-            console.log("Added the first 13 audited Turtle-touched stages without rebuilding the exclusive corpus.");
+            runPython([
+                join(ROOT, "scripts", "import_turtle_missing_stages.py"),
+                "--db", db,
+                "--destination", OUTPUT,
+                "--write"
+            ]);
+            console.log("Added 13 restored and 207 missing stages without rebuilding the exclusive corpus.");
             return;
         }
         const staged = join(temp, "TurtleQuestText.lua");
@@ -124,19 +130,29 @@ async function main() {
             "--destination", staged,
             "--write", "--local-only"
         ]);
+        // This second stage batch is stage-specific and never changes the
+        // previously imported 13 restored stages or existing high-ID text.
+        runPython([
+            join(ROOT, "scripts", "import_turtle_missing_stages.py"),
+            "--db", db,
+            "--destination", staged,
+            "--write"
+        ]);
         const lua = readFileSync(staged, "utf8");
         if (!lua.includes("SSCTurtleQuestText[40001]"))
             throw new Error("Staged Lua is missing a known imported quest");
         if (!lua.includes("SSCTurtleQuestText[820].accept =") ||
             !lua.includes("SSCTurtleQuestText[3111].accept =") ||
-            !lua.includes("SSCTurtleQuestText[3580].complete ="))
+            !lua.includes("SSCTurtleQuestText[3580].complete =") ||
+            !lua.includes("SSCTurtleQuestText[38].progress =") ||
+            !lua.includes("-- END Turtle-touched missing 207 dialogue stages"))
             throw new Error("Staged Lua is missing the verified restored quest batch");
         // The target is overwritten only after a complete, checked export.
         renameSync(staged, OUTPUT);
         console.log("\nImported " + summary.generated.quest_rows_written + " quests directly into:");
         console.log(OUTPUT);
         console.log("Exclusive quest dialogue stages: " + JSON.stringify(summary.generated.stages_written));
-        console.log("Additional restored shared-ID dialogue: 5 quests / 13 verified stages.");
+        console.log("Additional shared-ID dialogue: 13 restored stages + 207 missing stages, 211 quests.");
         console.log("Held for later source verification: " + summary.held.join(", "));
         console.log("No companion addon was created. Preserve this local file when updating the repo.");
     } finally {
