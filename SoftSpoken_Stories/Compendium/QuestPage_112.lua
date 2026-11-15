@@ -160,6 +160,8 @@ local ITEM_FALLBACK = "Interface\\Icons\\INV_Misc_Note_01"
 local ITEM_ICON_CROP = { 0, 1, 0, 1 }
 -- Generic GameObjects have no inventory icon; match upstream Spoken's notice.
 local GAMEOBJECT_FALLBACK = "Interface\\Icons\\INV_Misc_Note_01"
+-- Native Vanilla WoW icon displayed instead of choosing an arbitrary NPC.
+local MULTIPLE_SPEAKERS_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
 
 -- User-selected CharacterTab ring: 77x77 image pixels stored in a 128x128
 -- power-of-two TGA for Vanilla 1.12. Its on-screen size is independent of
@@ -204,14 +206,6 @@ local function Portrait(parent)
     -- separate so ClassicAPI portrait repaints cannot replace the ring.
     if icon.SetMask then icon:SetMask(PORTRAIT_MASK) end
     holder.icon=icon
-    local question=holder:CreateFontString(nil,"OVERLAY","GameFontNormalLarge")
-    question:SetFont("Fonts\\MORPHEUS.TTF",32,"")
-    question:SetTextColor(.25,.17,.09,1)
-    question:SetWidth(45);question:SetHeight(45)
-    question:SetPoint("CENTER",icon,"CENTER",0,0)
-    question:SetText("?")
-    question:Hide()
-    holder.question=question
     local ring=holder:CreateTexture(nil,"OVERLAY")
     ring:SetTexture(PORTRAIT_RING)
     ring:SetWidth(RING_UI_SIZE);ring:SetHeight(RING_UI_SIZE)
@@ -241,7 +235,6 @@ local function PaintCrest(holder)
     local texture,label=FactionCrest.Resolve()
     holder.icon:SetTexCoord(0,1,0,1)
     holder.icon:SetTexture(texture)
-    holder.question:Hide()
     holder.affiliationLabel=label
     holder.creatureID=nil
     holder.pendingCreatureID=nil
@@ -252,8 +245,8 @@ end
 -- Show a neutral question-mark portrait when more than one NPC could speak.
 -- The tooltip retains every known starter/ender; no NPC is chosen for display.
 local function PaintMultiple(holder,candidates)
-    holder.icon:SetTexture(.78,.69,.54,1)
-    holder.question:Show()
+    holder.icon:SetTexCoord(0,1,0,1)
+    holder.icon:SetTexture(MULTIPLE_SPEAKERS_ICON)
     local resolver=VoiceOver and VoiceOver.SpeakerResolver
     local creature=VoiceOver and VoiceOver.Enums and VoiceOver.Enums.GUID.Creature
     local names={MULTIPLE_LABEL}

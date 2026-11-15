@@ -371,8 +371,10 @@ assert(string.find(compendium, '[60516] = "Marrek Stromnur"', 1, true),
 local page = assert(io.open("SoftSpoken_Stories/Compendium/QuestPage_112.lua", "r")):read("*a")
 assert(string.find(page,'local MULTIPLE_LABEL="Multiple speakers possible"',1,true),
     "Compendium should label ambiguous stages without pretending to know the speaker")
-assert(string.find(page,'holder.question:Show()',1,true),
-    "multiple speakers require a question-mark portrait")
+assert(string.find(page,'local MULTIPLE_SPEAKERS_ICON = "Interface\\\\Icons\\\\INV_Misc_QuestionMark"',1,true),
+    "multiple speakers must use the native WoW question-mark icon")
+assert(string.find(page,'holder.icon:SetTexture(MULTIPLE_SPEAKERS_ICON)',1,true),
+    "native question-mark artwork must be painted into the portrait texture")
 assert(string.find(page,'PaintMultiple(holder,candidates)',1,true),
     "multi-speaker stages must paint the neutral portrait")
 assert(string.find(page,'if candidates then name=title end',1,true),

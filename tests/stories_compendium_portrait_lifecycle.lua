@@ -248,8 +248,7 @@ for _,stage in ipairs({"accept","progress","complete"}) do
     eq(f.badgeLayer.point[3],"CENTER",stage.." badge socket source anchor")
     eq(f.badgeLayer.point[4],18.5,stage.." exact badge x offset")
     near(f.badgeLayer.point[5],(38.5-58)*68/77-1,stage.." measured socket y shifted down")
-    eq(f.question.text,"?",stage.." neutral portrait glyph")
-    eq(f.question:IsShown(),false,stage.." question mark is hidden by default")
+    -- No extra FontString is required: multiple speakers reuse the face texture.
 end
 local function assertPortrait(stage,creatureID,displayID)
     local f=face(stage)
@@ -358,8 +357,8 @@ eq(details.parts.accept.speaker.text,"Multiple speakers possible",
     "hunter quest's starter label is ambiguous")
 eq(details.parts.accept.speaker.textColor[1],.43,
     "ambiguous label is visually subdued")
-eq(face("accept").question:IsShown(),true,"question mark replaces Hunter starter portrait")
-eq(face("accept").icon.texture,.78,"neutral portrait uses parchment-colored fill")
+eq(face("accept").icon.texture,[[Interface\Icons\INV_Misc_QuestionMark]],
+    "native WoW question-mark icon replaces Hunter starter portrait")
 eq(face("accept").binding,nil,"multi-giver portrait has no NPC binding")
 eq(face("accept").pendingCreatureID,nil,"multi-giver portrait never queues a portrait")
 assert(string.find(face("accept").affiliationLabel,"NPC 3038 (3038)",1,true),
@@ -372,16 +371,17 @@ eq(VoiceOver.DataModules.requestsByEvent[1].unitGUID,nil,
     "Compendium does not supply an arbitrary multi-giver GUID")
 eq(details.parts.complete.speaker.text,"NPC 8405",
     "the Hunter's Charm keeps its unique completion speaker")
-eq(face("complete").question:IsShown(),false,
+assert(face("complete").icon.texture~=[[Interface\Icons\INV_Misc_QuestionMark]],
     "unique ender portrait is not ambiguous")
 details:Show(8233)
-eq(face("accept").question:IsShown(),true,"Rogue starter is ambiguous")
+eq(face("accept").icon.texture,[[Interface\Icons\INV_Misc_QuestionMark]],
+    "native WoW question-mark icon replaces Rogue starter portrait")
 assert(string.find(face("accept").affiliationLabel,"NPC 13283 (13283)",1,true),
     "tooltip lists all five Rogue candidates")
 eq(details.parts.complete.speaker.text,"NPC 6768",
     "A Simple Request keeps its unique ender")
 details:Show(101)
-eq(face("accept").question:IsShown(),false,
+eq(face("accept").icon.texture,"crest.tga",
     "reusing the holder clears the question-mark portrait")
 eq(details.parts.accept.speaker.textColor[1],0,
     "ordinary speaker label resets to black")
