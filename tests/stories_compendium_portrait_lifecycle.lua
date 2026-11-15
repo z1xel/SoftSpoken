@@ -97,8 +97,8 @@ sharedView:ApplyTypography()
 eq(typographyCalls,1,"shared typography callback")
 SSCPlayButton={Create=function(parent) return Frame("Button",parent) end}
 SSCQuestFactionCrest={Resolve=function() return "crest.tga","Faction crest" end}
-local seen={ [101]=true,[102]=true,[103]=true }
-local completed={ [101]=true,[102]=true }
+local seen={ [101]=true,[102]=true,[103]=true,[8151]=true,[8233]=true }
+local completed={ [101]=true,[102]=true,[8151]=true,[8233]=true }
 SSCQuestState={
     IsSeen=function(self,id) return seen[id] or false end,
     IsCompleted=function(self,id) return completed[id] or false end,
@@ -109,6 +109,8 @@ local speakers={
     [101]={accept=1001,progress=1002,complete=1002},
     [102]={accept=2001,progress=2002,complete=2002},
     [103]={accept=3001,progress=3002,complete=3002},
+    [8151]={progress=8405,complete=8405},
+    [8233]={progress=6768,complete=6768},
 }
 VoiceOver={
     Enums={GUID={
@@ -116,6 +118,11 @@ VoiceOver={
         IsCreature=function(self,kind) return kind==self.Creature end,
     }},
     SpeakerResolver={
+        MultipleSpeakers=function(self,id,stage)
+            if stage~="accept" then return nil end
+            if id==8151 then return {3038,3352,3406,4205,5116,5516} end
+            if id==8233 then return {3328,4215,4583,5166,13283} end
+        end,
         ForQuest=function(self,id,stage)
             local speaker=speakers[id] and speakers[id][stage]
             return speaker and "Creature",speaker
@@ -124,13 +131,15 @@ VoiceOver={
             return id and ("NPC "..id) or title
         end,
     },
-    DataModules={PrepareSound=function() return nil end},
+    DataModules={PrepareSound=function(self,sound) self.lastRequest=sound;return nil end},
     Player={Queued=function() return {} end},
 }
 SpokenQuestsText={
     [101]={accept="Accept A",progress="Progress A",complete="Finish A"},
     [102]={accept="Accept B",progress="Progress B",complete="Finish B"},
     [103]={accept="Accept C",progress="Progress C",complete="Finish C"},
+    [8151]={accept="The Hunter's Charm",progress="Progress H",complete="Finish H"},
+    [8233]={accept="A Simple Request",progress="Progress R",complete="Finish R"},
 }
 local known, requests, listeners, nativePaints = {}, {}, {}, {}
 Spoken={
@@ -235,6 +244,8 @@ for _,stage in ipairs({"accept","progress","complete"}) do
     eq(f.badgeLayer.point[3],"CENTER",stage.." badge socket source anchor")
     eq(f.badgeLayer.point[4],18.5,stage.." exact badge x offset")
     near(f.badgeLayer.point[5],(38.5-58)*68/77-1,stage.." measured socket y shifted down")
+    eq(f.question.text,"?",stage.." neutral portrait glyph")
+    eq(f.question:IsShown(),false,stage.." question mark is hidden by default")
 end
 local function assertPortrait(stage,creatureID,displayID)
     local f=face(stage)
@@ -335,6 +346,41 @@ SetPortraitTextureFromCreatureDisplayID=nil
 details:Show(101)
 eq(face("accept").icon.texture,"crest.tga","missing native renderer fallback")
 eq(requests[1001],beforeRequests,"missing native renderer does not query")
+
+-- Ambiguous stages must show a neutral question mark without requesting
+-- any NPC portrait, while the same quest's known ender remains identifiable.
+details:Show(8151)
+eq(details.parts.accept.speaker.text,"Multiple speakers possible",
+    "hunter quest's starter label is ambiguous")
+eq(details.parts.accept.speaker.textColor[1],.43,
+    "ambiguous label is visually subdued")
+eq(face("accept").question:IsShown(),true,"question mark replaces Hunter starter portrait")
+eq(face("accept").icon.texture,.78,"neutral portrait uses parchment-colored fill")
+eq(face("accept").binding,nil,"multi-giver portrait has no NPC binding")
+eq(face("accept").pendingCreatureID,nil,"multi-giver portrait never queues a portrait")
+assert(string.find(face("accept").affiliationLabel,"NPC 3038 (3038)",1,true),
+    "tooltip lists a valid Hunter trainer")
+assert(string.find(face("accept").affiliationLabel,"NPC 5516 (5516)",1,true),
+    "tooltip includes the last Hunter trainer")
+eq(VoiceOver.DataModules.lastRequest.name,"Quest 8151",
+    "playback request uses quest title, not the placeholder speaker name")
+eq(VoiceOver.DataModules.lastRequest.unitGUID,nil,
+    "Compendium does not supply an arbitrary multi-giver GUID")
+eq(details.parts.complete.speaker.text,"NPC 8405",
+    "the Hunter's Charm keeps its unique completion speaker")
+eq(face("complete").question:IsShown(),false,
+    "unique ender portrait is not ambiguous")
+details:Show(8233)
+eq(face("accept").question:IsShown(),true,"Rogue starter is ambiguous")
+assert(string.find(face("accept").affiliationLabel,"NPC 13283 (13283)",1,true),
+    "tooltip lists all five Rogue candidates")
+eq(details.parts.complete.speaker.text,"NPC 6768",
+    "A Simple Request keeps its unique ender")
+details:Show(101)
+eq(face("accept").question:IsShown(),false,
+    "reusing the holder clears the question-mark portrait")
+eq(details.parts.accept.speaker.textColor[1],0,
+    "ordinary speaker label resets to black")
 
 -- The quarter-second ticker remains solely for audio buttons.
 local source=assert(io.open("SoftSpoken_Stories/Compendium/QuestPage_112.lua","r")):read("*a")
