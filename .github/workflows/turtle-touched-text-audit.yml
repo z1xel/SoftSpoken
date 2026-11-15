@@ -6,6 +6,7 @@ on:
       - .github/workflows/turtle-touched-text-audit.yml
       - scripts/audit_turtle_touched_text.py
       - scripts/import_turtle_touched_text.py
+      - scripts/import_tortoise_quest_dialogue.mjs
       - scripts/prepare_tortoise_quest_overlay.py
       - scripts/export_static_quest_text_for_audit.lua
       - scripts/extract_tortoise_methods.mjs
@@ -194,6 +195,37 @@ jobs:
           PY
           git diff --exit-code -- SoftSpoken_Stories/Data/QuestText.lua \
             SoftSpoken_Stories/Data/TurtleQuestText.lua
+
+      - name: Smoke-test the one-command local combined import, then restore corpus
+        shell: bash
+        run: |
+          set -euo pipefail
+          trap 'git restore -- SoftSpoken_Stories/Data/TurtleQuestText.lua' EXIT
+          node scripts/import_tortoise_quest_dialogue.mjs \
+            --source-sqlite .audit-viewer-data/data/tortoise.sqlite
+          luac5.1 -p SoftSpoken_Stories/Data/TurtleQuestText.lua
+          lua5.1 - <<'LUA'
+          dofile("SoftSpoken_Stories/Data/TurtleQuestText.lua")
+          local exclusive, touched = 0, 0
+          for id in pairs(SSCTurtleQuestText) do
+              if id >= 20000 then exclusive = exclusive + 1
+              else touched = touched + 1 end
+          end
+          assert(exclusive == 2369, "exclusive rows changed: "..exclusive)
+          assert(touched == 5, "first-batch quest count changed: "..touched)
+          assert(SSCTurtleQuestText[820].accept and SSCTurtleQuestText[820].progress and
+                 SSCTurtleQuestText[820].complete)
+          assert(SSCTurtleQuestText[3111].accept and not SSCTurtleQuestText[3111].progress and
+                 not SSCTurtleQuestText[3111].complete)
+          for _, id in ipairs({3578,3579,3580}) do
+              assert(SSCTurtleQuestText[id].accept and SSCTurtleQuestText[id].progress and
+                     SSCTurtleQuestText[id].complete)
+          end
+          print("Combined local Lua import validated: 2369 exclusive quests + 13 first-batch stages")
+          LUA
+          git restore -- SoftSpoken_Stories/Data/TurtleQuestText.lua
+          git diff --exit-code -- SoftSpoken_Stories/Data/TurtleQuestText.lua \
+            SoftSpoken_Stories/Data/QuestText.lua
 
       - name: Verify no static text, catalog, or Vanilla source was changed
         run: |
