@@ -37,8 +37,8 @@ Decision reports: `docs/audits/tortoise_quest_overlay/summary.json` and `decisio
 
 ## Existing text/overlay contract
 
-- `SoftSpoken_Stories/Data/QuestText.lua` is currently empty. The original `SpokenQuestsText` may be supplied externally at runtime; its complete corpus is not included here. The current audit therefore cannot establish **verbatim** agreement between both dialogue corpora.
-- `SoftSpoken_Stories/Data/TurtleQuestText.lua` is the **single** import destination and is loaded directly by `addon.xml` before the quest page. No companion addon exists. The tracked source is initially an empty table; the importer populates it in-place in the local working tree.
+- `SoftSpoken_Stories/Data/QuestText.lua` **is populated** (approximately 2.86 MB in the audited branch), and its original `SpokenQuestsText` stages are included in the read-only shared-ID audit. Never edit that source as part of Turtle dialogue integration.
+- `SoftSpoken_Stories/Data/TurtleQuestText.lua` **is also populated** (approximately 2.17 MB, 2,369 source/title-compatible exclusive quest rows). It is the **single** Turtle text destination and is loaded directly by `addon.xml` before the quest page. No companion addon exists. The first-batch stage importer appends audited shared-ID overrides without rewriting any existing entries; the broader one-command exclusive importer regenerates the pinned corpus in a local working tree.
 - `SSCQuestPage:Text(id, stage)` selects each stage independently in this order: (1) per-character live capture, (2) Turtle overlay, (3) existing Spoken text. Missing/whitespace-only Turtle stages do not hide the fallback.
 - Text is not copied to, nor does this branch modify, the authoritative Vanilla `SpokenQuestsText` table.
 
