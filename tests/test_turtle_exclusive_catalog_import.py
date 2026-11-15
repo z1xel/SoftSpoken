@@ -58,7 +58,7 @@ class TurtleExclusiveCatalogTest(unittest.TestCase):
                 if row["status"] == "imported":
                     self.assertIn(quest_id, self.catalog)
                     self.assertEqual(self.catalog[quest_id] + ",",
-                                     row["compendium_row"].split(" = ", 1)[1] + ",")
+                                     row["compendium_row"].split(" = ", 1)[1])
                 elif row["status"] == "excluded_nonplayable":
                     self.assertNotIn(quest_id, self.catalog)
                 else:
