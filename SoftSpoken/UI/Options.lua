@@ -1250,7 +1250,7 @@ function Options:Setup()
         -- on the existing dark window backdrop.
         local headerRock = CreateFrame("Frame", nil, panel)
         headerRock:SetPoint("TOPLEFT", panel, "TOPLEFT", 10, -11)
-        headerRock:SetPoint("BOTTOMRIGHT", panel, "TOPRIGHT", -10, -101)
+        headerRock:SetPoint("BOTTOMRIGHT", panel, "TOPRIGHT", -10, -93)
         headerRock:SetFrameLevel(panel:GetFrameLevel())
         headerRock:EnableMouse(false)
         headerRock:SetBackdrop({
