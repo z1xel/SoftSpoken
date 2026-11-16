@@ -1,10 +1,10 @@
 # Case review: 35 substantial Spoken–Tortoise dialogue differences
 
-**Read-only conclusion:** 13 candidate source corrections and 22 records where the original Spoken stage should be retained. These are source-adjudication recommendations; no stage is changed by this document.
+**Implementation status:** All 13 Tier 3 completion-only overrides have been committed in `TurtleQuestText.lua`. The other 22 substantial-conflict stages retain the original Spoken text. The original 289-case comparison remains a historical audit snapshot.
 
 ## 1. Thirteen Naxxramas tier-3 completions: Turtle appears preferable
 
-The existing Spoken corpus uses generic, frequently misspelled fulfillment messages such as `Exellent $N`, whereas the Tortoise snapshot supplies item/NPC-appropriate lines consistent with Classic quest records. This is a meaningful potential improvement, not a Turtle-exclusive storyline edit. **Candidate to import only the listed `complete` stages into the Turtle overlay, preserving the original Spoken corpus.**
+The existing Spoken corpus uses generic, frequently misspelled fulfillment messages such as `Exellent $N`, whereas the Tortoise snapshot supplies item/NPC-appropriate lines consistent with Classic quest records. This is a meaningful potential improvement, not a Turtle-exclusive storyline edit. **Implemented:** exactly these 13 `complete` stages are now in the Turtle overlay, preserving the original Spoken corpus.
 
 | Quest ID | Quest | Stage | Spoken characters | Tortoise characters |
 | ---: | --- | --- | ---: | ---: |
@@ -65,11 +65,11 @@ Classic cross-checks: [2603](https://www.wowhead.com/classic/quest=2603), [4727]
 ## Implications
 
 - **Do not import all 289 source-conflicting stages.** A stage-level SQL migration is evidence of a source change, not proof that the changed field contains the correct words.
-- **Candidate next import:** the 13 Classic-corroborated tier-3 completion texts, in the existing Turtle-only Lua data. Leave original Spoken untouched.
-- **Urgent correction needed:** the separate 207-stage import has three confirmed problematic *progress* overrides: **6283, 8051 and 8146**. See [imported stage exception review](imported_207_exception_review.md). Correct these before promoting the branch; do not overwrite original Spoken.
+- **Completed:** the 13 Classic-corroborated Tier 3 completion texts were imported into the existing Turtle-only Lua data; the original Spoken dataset is unchanged.
+- **Completed:** the three incorrect imported *progress* overrides (**6283, 8051 and 8146**) were replaced with verified Classic-stage text. See [imported stage exception review](imported_207_exception_review.md). Other 204 stages from the 207 batch remain byte-for-byte unchanged.
 - **Independent baseline caveat:** the cMaNGOS snapshot disagrees with Classic stage assignments for some repeatables and quest chains. Its numerical similarity scores are not themselves evidence that a source migration is right or wrong.
 - Keep the other 22 substantial-conflict stages on original Spoken.
-- The remaining 254 cosmetic/minor/moderate cases are still pending review.
+- The remaining 254 cosmetic/minor/moderate cases are separately triaged in [their own review](remaining_254_review.md); none was overridden.
 
 ## Technical evidence
 
