@@ -1,0 +1,36 @@
+quest_id,title,stage,spoken_chars,turtle_chars,difference_chars,spoken_turtle_similarity,relationship,vanilla_status,spoken_vanilla_similarity,turtle_vanilla_similarity,reused_turtle_source_count,source_sha256
+100,Call of Water,complete,115,37,-78,0.4868,turtle_is_spoken_prefix,spoken_closer_to_vanilla,1.0,0.4868,1,33a37395625350692b14236ae8436eb8e772f8dc1ed353fa4ab8fae0b2e02888
+311,Return to Marleth,complete,170,63,-107,0.5408,turtle_is_spoken_prefix,spoken_closer_to_vanilla,1.0,0.5408,1,d7b700871f1e045346d9f15169c0d685b3b8223c7f2b75a67421babb5fdce4bb
+478,Maps and Runes,complete,219,42,-177,0.3218,turtle_is_spoken_prefix,spoken_closer_to_vanilla,0.9817,0.3218,1,58d78a610fe6dba855584be7ab63f7c43746f50622e948675b71679da84f3686
+510,Foreboding Plans,complete,216,28,-188,0.2295,turtle_is_spoken_prefix,spoken_closer_to_vanilla,1.0,0.2295,1,f257631681e8ac3c7b71d0e031dd2b102e97c20be0833e490627cfb060a50c80
+511,Encrypted Letter,complete,193,57,-136,0.448,turtle_is_spoken_prefix,spoken_closer_to_vanilla,0.9974,0.4542,1,14898667dd28dcae996d8757f27a1a2cb2ae0b6c54cebd9863fcc1078d5bad52
+1239,The Severed Head,complete,276,59,-217,0.3522,turtle_is_spoken_prefix,spoken_closer_to_vanilla,1.0,0.3522,1,3179e8c408db1ac1372a65d5dcb5e3eb2d91bc0b02f6fe3a977451249c80df5f
+1268,Suspicious Hoofprints,complete,385,194,-191,0.6701,turtle_is_spoken_prefix,spoken_closer_to_vanilla,0.9896,0.6701,1,35ea0354b7171b434e4fddc1e872d59b97251696a2de78dafdcb4b46e61ae6a5
+1953,Return to the Marsh,complete,270,95,-175,0.5205,turtle_is_spoken_prefix,spoken_closer_to_vanilla,1.0,0.5205,1,47a19fd993b9eb6edc8e2b393b3fe680eb64faec3f2f09e1563a5bb88f5a361d
+2603,Vulture's Vigor,accept,505,233,-272,0.1707,shorter_but_rewritten,spoken_closer_to_vanilla,1.0,0.2087,1,8a0e0574a826195b046cb3b3418d889b4129052fca1c6f170ae236059269efb2
+3914,Linken's Sword,complete,128,26,-102,0.3377,turtle_is_spoken_prefix,spoken_closer_to_vanilla,1.0,0.3377,1,73e8ba0028858452bcbf26404478ac2e82d11d741d74b128aec421af37331bf2
+4727,Beached Sea Turtle,complete,249,347,98,0.2584,longer_but_rewritten,approximately_equal,0.2575,0.2936,1,989b4a5adb11b272d6c3b672279c6d47d198bdae3d05aab9a4848291d0c5ee14
+5538,Mold Rhymes With...,complete,253,497,244,0.2773,longer_but_rewritten,spoken_closer_to_vanilla,0.9843,0.2918,1,07521c37d9e6af24f499c1d5b31d9c3d56f041d2c8e9207c09b43660ddc5bce8
+6283,Bloodfury Bloodline,complete,290,217,-73,0.2604,shorter_but_rewritten,spoken_closer_to_vanilla,1.0,0.2406,1,eb672a6a875f6fafa00a4f8ff02bfb6a783270028d13895d74dbe181fbef6e22
+8050,The Eye of Zuldazar,complete,130,91,-39,0.371,shorter_but_rewritten,turtle_closer_to_vanilla,0.3801,0.989,1,0c0961c66eb278028289b70afe461c483f35fe3bf3b5c8b6f7c5993c611b4e1b
+8051,The Eye of Zuldazar,complete,91,130,39,0.3891,longer_but_rewritten,turtle_closer_to_vanilla,0.3891,0.9923,1,13d27c86b23555960cbc70113c754ca29691244b7bd47cda870db2042e03263b
+8146,The Maelstrom's Tendril,complete,53,76,23,0.3256,longer_but_rewritten,turtle_closer_to_vanilla,0.3256,0.9868,1,6ae2cfecd13e9c3a7bae027f0fe02d3fa69b32b5ea47729be3dce1598d8022ac
+8151,The Hunter's Charm,complete,300,92,-208,0.4592,shorter_but_rewritten,spoken_closer_to_vanilla,0.9662,0.4792,1,d54b7f174472742540aa5fd6d3599b87d7068e3003a7938c1750564f1e4e939f
+8233,A Simple Request,complete,340,87,-253,0.4075,turtle_is_spoken_prefix,spoken_closer_to_vanilla,0.9882,0.4075,1,88d6f00bf93a1d3b654f20febfebcfce7e3bdf667e05d83b803770940426f044
+8313,Sharing the Knowledge,complete,172,28,-144,0.28,turtle_is_spoken_prefix,spoken_closer_to_vanilla,1.0,0.28,1,df081d8d4d0c9b9a437eeeed48e53facdbe9cf7bb287a4f44da47f43a5b94ce0
+8419,An Imp's Request,complete,175,27,-148,0.2574,turtle_is_spoken_prefix,spoken_closer_to_vanilla,0.9577,0.2415,1,3ca34ca9061be4625aae9d8832b5b54a7cd5b437cbf04fbe19d20dbb301200bb
+9034,Dreadnaught Breastplate,complete,98,57,-41,0.271,shorter_but_rewritten,spoken_closer_to_vanilla,1.0,0.2194,1,57001159b746029b8f0cf6355ace8f2479152e2b3259b2b10448e3af5c14cddf
+9043,Redemption Tunic,complete,91,27,-64,0.2034,shorter_but_rewritten,spoken_closer_to_vanilla,1.0,0.2203,1,e010a51798fd816942d5fc125f14987040f355470b5c294217e8000ee703674e
+9046,Redemption Spaulders,complete,95,101,6,0.2551,longer_but_rewritten,spoken_closer_to_vanilla,1.0,0.2449,1,3116b7fed1972f7ec50dad7695dfca16e83368d1bc43c7d0abac3fdce561c32f
+9057,Cryptstalker Spaulders,complete,97,141,44,0.2101,longer_but_rewritten,spoken_closer_to_vanilla,1.0,0.2437,1,737f4b2bde82b6b0a94a6907be5a294a792836ac94754e0690cfd13b777103e1
+9077,Bonescythe Breastplate,complete,95,157,62,0.2937,longer_but_rewritten,spoken_closer_to_vanilla,1.0,0.3333,1,dd5384439ef7e3a0db5c42e792ae49dcf8b4406bb6bdcf11a66aee8965f934d4
+9095,Frostfire Robe,complete,87,122,35,0.3732,longer_but_rewritten,spoken_closer_to_vanilla,1.0,0.3254,8,ae6305394f4e6087a5f4a66f8496c75e0c40044eaebe09b7b91bb5d9755a2f8e
+9096,Frostfire Leggings,complete,91,122,31,0.3662,longer_but_rewritten,spoken_closer_to_vanilla,1.0,0.3192,8,ae6305394f4e6087a5f4a66f8496c75e0c40044eaebe09b7b91bb5d9755a2f8e
+9097,Frostfire Circlet,complete,90,122,32,0.3679,longer_but_rewritten,spoken_closer_to_vanilla,1.0,0.3208,8,ae6305394f4e6087a5f4a66f8496c75e0c40044eaebe09b7b91bb5d9755a2f8e
+9098,Frostfire Shoulderpads,complete,95,122,27,0.3594,longer_but_rewritten,spoken_closer_to_vanilla,1.0,0.3134,8,ae6305394f4e6087a5f4a66f8496c75e0c40044eaebe09b7b91bb5d9755a2f8e
+9099,Frostfire Sandals,complete,90,122,32,0.3679,longer_but_rewritten,spoken_closer_to_vanilla,1.0,0.3208,8,ae6305394f4e6087a5f4a66f8496c75e0c40044eaebe09b7b91bb5d9755a2f8e
+9100,Frostfire Gloves,complete,89,122,33,0.3697,longer_but_rewritten,spoken_closer_to_vanilla,1.0,0.3223,8,ae6305394f4e6087a5f4a66f8496c75e0c40044eaebe09b7b91bb5d9755a2f8e
+9101,Frostfire Belt,complete,88,122,34,0.3714,longer_but_rewritten,spoken_closer_to_vanilla,1.0,0.3238,8,ae6305394f4e6087a5f4a66f8496c75e0c40044eaebe09b7b91bb5d9755a2f8e
+9102,Frostfire Bindings,complete,91,122,31,0.3662,longer_but_rewritten,spoken_closer_to_vanilla,1.0,0.3192,8,ae6305394f4e6087a5f4a66f8496c75e0c40044eaebe09b7b91bb5d9755a2f8e
+9339,A Thief's Reward,complete,151,33,-118,0.3478,turtle_is_spoken_prefix,spoken_closer_to_vanilla,0.9967,0.3459,2,4f84f3a9899c7856c358247a54b461ee9865437d5c56f1c2f9c60f409918e86f
+9365,A Thief's Reward,complete,151,33,-118,0.3478,turtle_is_spoken_prefix,spoken_closer_to_vanilla,0.9967,0.3459,2,4f84f3a9899c7856c358247a54b461ee9865437d5c56f1c2f9c60f409918e86f

@@ -1,0 +1,17 @@
+{
+  "total": 35,
+  "counts": {
+    "baseline_approximately_equal": 1,
+    "baseline_spoken_closer_to_vanilla": 31,
+    "baseline_turtle_closer_to_vanilla": 3,
+    "has_identical_turtle_text_across_quests": 10,
+    "longer_turtle": 15,
+    "shape_longer_but_rewritten": 15,
+    "shape_shorter_but_rewritten": 6,
+    "shape_turtle_is_spoken_prefix": 14,
+    "shorter_turtle": 20
+  },
+  "source": "original Spoken text, pinned Tortoise SQLite, pinned cMaNGOS Classic",
+  "read_only": true,
+  "caveat": "Vanilla baseline is another community database; closeness does not prove live correctness."
+}
