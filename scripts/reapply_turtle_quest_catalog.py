@@ -134,6 +134,17 @@ def main():
             "--check" if args.check else "--apply",
             "--catalog", str(args.catalog)
         ], check=True)
+    # Exactly one externally corroborated identity alias: the catalog calls
+    # quest 41797 "A Good Friend", while the pinned source calls it
+    # "A Dear Friend". This is a NORTHWIND classification, not a quest rename.
+    title_alias = ROOT / "docs/audits/turtle_hold_resolution/approved_41797_identity.json"
+    if title_alias.exists():
+        subprocess.run([
+            sys.executable,
+            str(ROOT / "scripts/reapply_turtle_zone_exception.py"),
+            "--check" if args.check else "--apply",
+            "--catalog", str(args.catalog)
+        ], check=True)
 
 
 if __name__ == "__main__":
