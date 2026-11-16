@@ -1,0 +1,208 @@
+quest_id,catalog_title,stage,source_sha256,vanilla_same_similarity,vanilla_best_other_stage,vanilla_best_other_similarity,spoken_same_quest_other_stage,spoken_other_similarity,classification
+38,Westfall Stew,progress,f581fe1075e30a167215c40601cb966c7be6e26c9031c6cb5cb1cb352fa1f59a,0.9356,accept,0.8195,accept,0.782,strong_same_stage_match
+48,Sweet Amber,progress,84feeaebefa5d484030e6fcb25c1a1bb905db387f3f0dd31cb348f1652c6c645,0.9862,accept,0.8889,accept,0.8737,strong_same_stage_match
+49,Sweet Amber,progress,5faaf0e41719d357a9d52faa3a8384e86729cf0a018fa0ae17bffa28277e2156,0.9852,accept,0.9243,accept,0.9086,strong_same_stage_match
+50,Sweet Amber,progress,b35cd9bfa6216bda31f68137637f662df3889cbf21633560dbfc0fef7b856051,0.986,accept,0.8821,accept,0.8667,strong_same_stage_match
+51,Sweet Amber,progress,2fb495e7e352b8d1f95601b9ed706e0ae949d5c868986a3917f440064f1dd0c7,0.986,accept,0.89,accept,0.8747,strong_same_stage_match
+53,Sweet Amber,progress,02656c2d5f9f2a9aa64709d7b52b93026876b7337bde744c37a0bf1607a8f98a,0.9862,accept,0.8696,accept,0.8542,strong_same_stage_match
+113,Insect Part Analysis,progress,b276dbe07d4e1257db3b6d04ae6aeff47c532608e22b676a1f04fa1c59ef1003,0.9857,complete,0.204,complete,0.204,strong_same_stage_match
+117,Thunderbrew,progress,1fce85b456093a5298dd7bcf9081afc4dbb28e6f62b7e3d06513931f315dbc47,0.9693,accept,0.9693,accept,0.9488,strong_same_stage_match
+185,Tiger Mastery,progress,6237cccc0cf032f1c022c4030a240b658dcd9671b0a187296ac123a8798fcff4,0.9926,accept,0.2412,accept,0.2412,strong_same_stage_match
+190,Panther Mastery,progress,997f77d87b0dee32b098c3334b4fb8808c164db8508b6e67b49a948008302703,0.9928,accept,0.2517,accept,0.2547,strong_same_stage_match
+196,Raptor Mastery,progress,b510a44737158e271ab4d547f7b442e60ad4224d6577e1ba1dbce3ec8b36e056,0.9978,accept,0.249,accept,0.249,strong_same_stage_match
+213,Hostile Takeover,progress,c9c76441c9ad74937e83aa85fa4a32ba30493c481132d7a21b79e6b0cca96e46,0.9864,complete,0.2376,complete,0.2376,strong_same_stage_match
+237,In Defense of the King's Lands,progress,611d87832e0f1c3dc70ec532068d6357dbe234a1992dad7a56819defb6ac8fe0,0.9952,accept,0.3537,accept,0.3537,strong_same_stage_match
+269,Seeking Wisdom,progress,fa47a27d51e7f7046c1c46038dff3fdb127ddb6b1b1d6bd30ea41ced97f34e77,0.9632,accept,0.2759,accept,0.2759,strong_same_stage_match
+303,The Dark Iron War,progress,295c13db794a74538dbb22c82ed2f700d9f56717eb4b62e497fe1bc53e2ed84a,0.9942,complete,0.4125,complete,0.4125,strong_same_stage_match
+364,The Mindless Ones,progress,c6b9509e7ec9e60585ae30b397b237398e675893ec8c42ca1ece6007aeb77b4e,0.993,complete,0.2235,complete,0.2235,strong_same_stage_match
+372,At War With The Scarlet Crusade,progress,bee0cc3458f7b7e3839b48a180336c67a875269e5fa01560fde86e73df925499,0.995,complete,0.3148,complete,0.2857,strong_same_stage_match
+409,Proving Allegiance,progress,fcc4f5ae2f9aaf8a8c0f469180ae83a7e40f357bb90afca283ff4b27f30677db,0.973,complete,0.1985,complete,0.1985,strong_same_stage_match
+429,Wild Hearts,progress,d1bafcca69975df5239ed1271fcdb91ae00909a2989e107229e50ad9cf3c72e4,0.9863,complete,0.2026,complete,0.2021,strong_same_stage_match
+487,The Road to Darnassus,progress,ae25b1b0fb29984d0d9bab60f979780e0f27c6d819f5e5481e6267213897614d,0.9892,complete,0.3122,complete,0.2785,strong_same_stage_match
+516,Beren's Peril,progress,b50a1cd5108ac81057373d2aa70d0d9e6051f6c988d43cb9b8a21ab6ef75ac87,0.9833,accept,0.1281,accept,0.1281,strong_same_stage_match
+528,Battle of Hillsbrad,progress,b758c78d6b52c9b87e6108147282b937bf669fc87d5267819e10f7a0aea47180,0.99,complete,0.3497,complete,0.3497,strong_same_stage_match
+549,WANTED: Syndicate Personnel,progress,f460594314638994ad478707ebefa61ef04b2df35f5434717592dd81b47d8f58,0.9932,complete,0.2318,complete,0.2318,strong_same_stage_match
+568,The Defense of Grom'gol,progress,158cb448cfae3c8099a14e84d7220bc0b3aac3310eec9e65093eb7d10a96cc67,0.9881,complete,0.4065,complete,0.3902,strong_same_stage_match
+575,Supply and Demand,progress,457e9c3f4f8595d93dc62d67179963b323456a8e9ac7041cc4670ed58e968316,0.9954,complete,0.2464,complete,0.2464,strong_same_stage_match
+577,Some Assembly Required,progress,b9e1849d304c52c99812e44881fecd48b84315e0408515ea5639d676b4f53d78,0.9958,complete,0.2432,complete,0.2587,strong_same_stage_match
+579,Stormwind Library,progress,ab3b9ccd6c1238128de44040b1b9f135ec95fc501b26087f7153611797668c3e,0.9845,complete,0.1208,complete,0.1208,strong_same_stage_match
+640,The Broken Sigil,progress,a1bf3deab3356cd1af91c8291f4068d97b41540936c8256d017a01a0f3098b2e,0.9844,complete,0.186,complete,0.186,strong_same_stage_match
+662,Deep Sea Salvage,progress,c6aec7cdf18effbd182279e86559ae01cf7721b78431cee84e44fb0fdb875a3e,0.9968,accept,0.2681,accept,0.2558,strong_same_stage_match
+676,The Hammer May Fall,progress,1cce2bce5e3a72304337c2f69a5cb5f2f0b8856879ea66ffbb1a25bc59020757,0.98,complete,0.2585,complete,0.2585,strong_same_stage_match
+714,Gyro... What?,progress,099cfafaa989087fa4e8e339820de4ac5dc19df6e6f555bd093cd8702398f32a,0.9355,accept,0.1057,accept,0.1057,strong_same_stage_match
+724,Prospect of Faith,progress,74fa5dd502180049203a4ab6059a7a1dcb19a4170c86dad46c5b5049cb3411ff,0.9728,complete,0.276,complete,0.276,strong_same_stage_match
+736,"The Star, the Hand and the Heart",progress,9485ccb2b1acbc51780ca63d124b070dcb6cfbac86872c74733b9b946f1a87bd,0.9615,complete,0.2282,complete,0.2282,strong_same_stage_match
+833,A Sacred Burial,progress,baffbe79b1c0cc567bc6e52dd88e79e345cc01fb13845db553c49d13610e7572,0.9878,complete,0.3153,complete,0.3153,strong_same_stage_match
+862,Dig Rat Stew,progress,651d0ec9189f49a3d90172d2fd3c46971a067818f8c7e871d83046248db136d9,0.9667,complete,0.1199,complete,0.1199,strong_same_stage_match
+968,The Powers Below,progress,7e717cbc84ce93a7d9310ecc6deaefaca91a3788ec4a20b74271730d51d8ffa0,0.9217,complete,0.1288,complete,0.1288,strong_same_stage_match
+973,The Tower of Althalaxx,progress,ea75f4cddfc7108162c518ce2e0a164ba3efa831be2c7dc2eae280b08bc54fd6,0.9767,complete,0.1322,complete,0.1322,strong_same_stage_match
+992,Gadgetzan Water Survey,progress,fe34c909649da82c85df88e4970fcb61d7402fb9cc4fbd3d6b5157e6196196e5,0.9863,complete,0.189,complete,0.189,strong_same_stage_match
+995,Escape Through Stealth,progress,01e49b46112a237b1ce0522b48fb80d1738c9880cea492d7b6deb79a01678050,0.875,accept,0.0333,accept,0.0333,modified_same_stage_candidate
+1046,Raene's Cleansing,progress,1b4adeaf8c9dd2619177cf83b877b9ed7ddc45a5e5a538965a5f97670d2edb88,0.9917,accept,0.3475,accept,0.3475,strong_same_stage_match
+1048,Into The Scarlet Monastery,progress,54e8d9f076e6890ae68ac10a065eeb9465fc81b800770cadbe3e5a182a37c79b,0.9969,complete,0.2348,complete,0.2348,strong_same_stage_match
+1145,The Swarm Grows,progress,df5ec65a3a708083e8fd88e842dab55f41f47ca367ba1f334594d1d57b1a2d9f,0.995,complete,0.2315,complete,0.2315,strong_same_stage_match
+1172,The Brood of Onyxia,progress,8a5001fe982338a4bebc4a5d0da85247dacdf7a364e46aa4cd9f6b4170b00b11,0.9957,complete,0.2611,accept,0.2453,strong_same_stage_match
+1240,The Troll Witchdoctor,progress,3d11f3744f92b92052a424777e9cbe406b68cab2c909d01cac573594215ac92c,0.9375,complete,0.2643,complete,0.2643,strong_same_stage_match
+1251,The Black Shield,progress,9af482a5103c7544807341fcd61a3e77dc56d4d116f6af9c83b25d34f8e8abee,0.9875,accept,0.3476,accept,0.3476,strong_same_stage_match
+1276,The Black Shield,progress,85f87e81f01e6eeb2953f015ca96a02d608970884ce828e1e743a028325b1fbd,0.9787,complete,0.2188,complete,0.2188,strong_same_stage_match
+1321,The Black Shield,progress,4ccc4c858454c7a369d4a2a78b75a52491571642b314a14f86a798910ecd5bcf,0.9524,accept,0.1475,accept,0.1475,strong_same_stage_match
+1481,The Corrupter,progress,91f67ac0bbd530e2910a7282b22ecd2fd9ee8bf1d2f21d02f733944a8ef138ed,0.9957,complete,0.2711,complete,0.2711,strong_same_stage_match
+1482,The Corrupter,progress,b8fe30c4f474d990cc815e89cf2c988b721361196a315b36e4e91b491e6ef192,0.9963,complete,0.2518,complete,0.2518,strong_same_stage_match
+1878,Water Pouch Bounty,progress,27f37147712c472c8f36663f14fb7ff93695aafb19bcde3a9317e098f2b86513,0.9912,complete,0.3107,complete,0.3107,strong_same_stage_match
+1920,Investigate the Blue Recluse,progress,3a0b757685fbfcad6bba13acfb56095225a96bf25c20dcc97c0248ecf7453676,0.9911,complete,0.3741,complete,0.3741,strong_same_stage_match
+2201,Find the Gems,progress,c53faeba083da49f4cde6c1b4f7f31b204863e247c9ef2e51cd1bdf152c5ff91,0.9985,accept,0.302,accept,0.302,strong_same_stage_match
+2381,Plundering the Plunderers,progress,9c49642a1926a31e792ab713a2fd90ab3eb2530b44c73908c229c3f26f8ac1f1,0.9756,complete,0.302,complete,0.3061,strong_same_stage_match
+2520,Sathrah's Sacrifice,progress,fc7b405029059019e8b93e6fbc16477479ee6319863c61508ff43cd10337d1c5,0.98,complete,0.2691,complete,0.2691,strong_same_stage_match
+2609,The Touch of Zanzil,progress,8511927e082a23b68950125308a8c0bba53ef223469d3f114d58c115055b1d46,0.9914,complete,0.1913,complete,0.1913,strong_same_stage_match
+2841,Rig Wars,progress,0e0ca3ca01cc55e97c0c7a1d967f476f75860d9e4e6c0868d56ad559f2ec0ccf,0.9837,complete,0.1974,complete,0.1974,strong_same_stage_match
+2860,Master of the Wild Leather,progress,45dcb6ccdc0883f73ab03ae8225ebdbd48805538288f15ff3a3262ce6674b60c,0.9939,complete,0.2131,complete,0.2131,strong_same_stage_match
+2877,Skulk Rock Clean-up,progress,237498767109fa75783f80fffe2520496a6db9e2eed985fb92f46f9cf5ac5712,0.9934,complete,0.2679,complete,0.2679,strong_same_stage_match
+3082,Etched Tablet,progress,6121518143e7db02673a1f643d1b6dd6a25a53f06cae07259129e4884cd7f5f3,0.9665,complete,0.1799,complete,0.179,strong_same_stage_match
+3091,Simple Note,progress,027c18e97cdff851f5c278a044ffc98c68cff75abd7a9cb0ce7da20f084ea6c5,0.9786,accept,0.2993,accept,0.3007,strong_same_stage_match
+3099,Tainted Scroll,progress,080da8ca110e787f7b11080d0443ad157d4af6ceb261505417e61602281cfde6,0.987,accept,0.3396,accept,0.3396,strong_same_stage_match
+3115,Tainted Memorandum,progress,0e4465ff882569bfcb2ca0d4bff37c1ddccc88a60096defa95c7246d5b1d9193,0.9979,complete,0.2188,complete,0.2188,strong_same_stage_match
+3118,Encrypted Sigil,progress,08b6c5377ad81f0b320efd26bc8131e4ad7c0e46c55645c5573576cd08c5d878,0.986,complete,0.217,complete,0.217,strong_same_stage_match
+3119,Hallowed Sigil,progress,ddb8319a34f3763b76a399c13aabaff6ba88ef4207cd6bf2be3a6430253ed022,0.9654,accept,0.2621,accept,0.2621,strong_same_stage_match
+3141,Loramus,progress,daa9c5f0e7bf2a9044da29d7fa46bfdc563142678bd8331b7f89b79c145d4c7f,0.9583,complete,0.3429,complete,0.3429,strong_same_stage_match
+3441,Divine Retribution,progress,af2c30e82ec02fc03c1a79c14bfd8ba84e8a53b6b6b51f070123470720c99155,0.9643,accept,0.2642,accept,0.2642,strong_same_stage_match
+3511,The Name of the Beast,progress,e3fa805994fddaf688b5aabbe63d1fc1daa99d7779aa983f0ee680ce01364880,0.9672,complete,0.1969,complete,0.2011,strong_same_stage_match
+3561,Delivery to Archmage Xylem,progress,c0ebcee3f565410b8d66f9cd758387cb41fd93cf5dccaba8373e37f3ca29c04d,0.9643,complete,0.1422,complete,0.1422,strong_same_stage_match
+3625,Enchanted Azsharite Fel Weaponry,progress,bc24ca3be2ba203f5c277fe09d968fc02d861532568859b7a575770e333f0292,0.9882,complete,0.2924,complete,0.2924,strong_same_stage_match
+3628,"You Are Rakh'likh, Demon",progress,50fa44c2380800f2755aec0dbc3d8c2096972675fe016a1a68ce2bf36e7ec5c1,0.9375,complete,0.1579,complete,0.1622,strong_same_stage_match
+3901,Rattling the Rattlecages,progress,948e764ab27e80fffe856ad6d11ea2af964895c4786a7430253e29ea7547d203,0.986,accept,0.2193,accept,0.2193,strong_same_stage_match
+3907,Disharmony of Fire,progress,b5a929ae30d63f9f0d198292c981172caf385ede83881ed085822210ce7a2b7a,0.9667,accept,0.1419,accept,0.1379,strong_same_stage_match
+4081,KILL ON SIGHT: Dark Iron Dwarves,progress,76a24899cfeb10ac123317f1f995d8cfd6ad6074c43cd5509676ea5c4e8c8494,0.95,complete,0.2705,complete,0.2705,strong_same_stage_match
+4108,Salve via Hunting,progress,7caa40ca5452b07e89a23b46103a7649bfb3ab9801f423392db7d50bb372d389,0.9974,complete,0.2015,complete,0.2015,strong_same_stage_match
+4265,Freed from the Hive,progress,604a9e1e44ff82f28273df80f2bd65b532616f795d213f9a85b20d64b511d710,0.9697,complete,0.0989,complete,0.0989,strong_same_stage_match
+4322,Jail Break!,progress,7483dfc698029292cd46e612c2f8fa4382438023c1afdd752fc85bbdd2b193d8,0.987,complete,0.2436,complete,0.2436,strong_same_stage_match
+4542,Message to Freewind Post,progress,07ebf27c4466d23b78f79852322fc628f072a6721654242200dec6284d8c64fb,0.98,accept,0.1775,accept,0.1794,strong_same_stage_match
+4740,WANTED: Murkdeep!,progress,bf0e45e928e43e90493622971f6d8871ed3309504235f8209468cef53e70e51e,0.9918,accept,0.2353,accept,0.2353,strong_same_stage_match
+4786,The Completed Robe,progress,b1710f695d248e045a6b32e68f17e17727b5839afbfefc8451294ffdc157f311,0.9333,accept,0.1748,accept,0.1748,strong_same_stage_match
+4803,Shardtooth E'ko,progress,ac72230a55997beb91fd26e75bf28a9a4cfeaaff8c5257421ea66e6843f7b549,0.994,complete,0.2673,complete,0.2673,strong_same_stage_match
+4804,Chillwind E'ko,progress,b3290ed1e24345f7dd2288dc2a97b14b4bf8a29621ae4533c1cc9e886d27aab4,0.9936,complete,0.2774,complete,0.2774,strong_same_stage_match
+4805,Ice Thistle E'ko,progress,c70d6c82d20e577f5898b3a77a1cdb589c11b2e234a95981e8c513c5cf0e3bb5,0.9946,complete,0.2431,complete,0.2431,strong_same_stage_match
+4807,Wildkin E'ko,progress,212289bd18c8172ce40bbf995f424d2600e2eeb407a5b91a9c5845f417a53a0c,0.9942,complete,0.2613,complete,0.2613,strong_same_stage_match
+5042,Agamaggan's Strength,progress,88a3b7b5def8f7a1c5e03ebb145537477b07be5f5bde23c7743bf308f4d55850,0.9954,complete,0.2455,complete,0.2455,strong_same_stage_match
+5044,Wisdom of Agamaggan,progress,7902286195ec0819193e49d6deca4f06757036558788a63425c344976f9e325c,0.9965,complete,0.2455,complete,0.2455,strong_same_stage_match
+5054,Ursius of the Shardtooth,progress,eacc2509ccc58bee2d1cfa4128fac6e8cce9d3bb13d76fda23ce81e4091f2b2a,0.9643,complete,0.1203,complete,0.1203,strong_same_stage_match
+5203,Rescue From Jaedenar,progress,bf407ca45e0705e62e8b4ae0cb4c6793851016bcad9ca4b9c04e57eba2f4d46d,0.9839,complete,0.1521,complete,0.1521,strong_same_stage_match
+5341,Barov Family Fortune,progress,3390a88217df8146549e7f04dd4bcb3810c75a7e922833ebe4e551cb8b3caeec,0.9891,complete,0.3077,complete,0.2378,strong_same_stage_match
+5381,Hand of Iruxos,progress,d22e14f0a918371cb5fa33d84b192b0b37c04da7c182ebb01d6432a8537e60e7,0.9667,complete,0.2239,complete,0.2308,strong_same_stage_match
+5441,Lazy Peons,progress,02df3809d23d74cdf411fe06bb36e54e4d1a6e4ed40675440e4096b583af9840,0.9947,complete,0.324,complete,0.324,strong_same_stage_match
+5505,The Key to Scholomance,progress,d81c82a24f4e63917a0488b3f1dfcbcc5579f4084127f45a1df148d29b307544,0,complete,0.8596,complete,0.8612,investigate_other_stage
+5511,The Key to Scholomance,progress,d81c82a24f4e63917a0488b3f1dfcbcc5579f4084127f45a1df148d29b307544,0,complete,0.8059,complete,0.8072,investigate_other_stage
+5535,Spiritual Unrest,progress,165d409812dfd689f245437d8e684754fc1681f1c02836f1ea524384a156403a,0.997,complete,0.312,complete,0.312,strong_same_stage_match
+5536,A Land Filled with Hatred,progress,a96413c2abc0f04865ea541a5c17be6d30a52588fe10a1caba0227c99d479791,0.9928,complete,0.209,complete,0.209,strong_same_stage_match
+5538,Mold Rhymes With...,progress,9b0e831fc3d2b2d9e0ade71bad2ff2f9df700c9ea780bf39a9759bccb0e794d0,0.9798,complete,0.2899,complete,0.3048,strong_same_stage_match
+5542,Demon Dogs,progress,af3d228b8a1a5c0bbda25a744a4034cc253c3887103f7456bbfc627cdbf50663,0.9815,complete,0.3361,complete,0.3361,strong_same_stage_match
+5543,Blood Tinged Skies,progress,acd79ccca3e7cb2ef084b8942c29be252245614200b556666dbc03d2ebcf3563,0.9892,accept,0.1564,accept,0.1564,strong_same_stage_match
+5544,Carrion Grubbage,progress,27ed2a7b176fb7fc033e4d0b1a0288b11d9276845d9588579fedf6ba66d4d9b3,0.975,complete,0.2637,complete,0.2637,strong_same_stage_match
+5727,Hidden Enemies,progress,399de053cb6c91e6f70dc00b2861f0f8c90cb815c853a9f7d999ece2ed81713d,0.9966,complete,0.3697,complete,0.3664,strong_same_stage_match
+5887,Salve via Hunting,progress,7caa40ca5452b07e89a23b46103a7649bfb3ab9801f423392db7d50bb372d389,0.9974,complete,0.2015,complete,0.2015,strong_same_stage_match
+6026,That's Asking A Lot,progress,6ac3cfa2559de496f9fe5e1a6bbe5eaad574f4c332b4d12aeb5ff6fac3c3aa51,0.9748,complete,0.2286,complete,0.2286,strong_same_stage_match
+6027,Book of the Ancients,progress,9a566d93e3115ee81bbb80dd5cd3afc64a6af12d676960ddf36428f5af6eecef,0.9733,complete,0.2146,complete,0.2179,strong_same_stage_match
+6028,The Everlook Report,progress,3e7458e069974289815c422975955a50c02897db3dc24f0143e7eec89e91c40d,0.9934,accept,0.2727,accept,0.2727,strong_same_stage_match
+6135,"Duskwing, Oh How I Hate Thee...",progress,deebb8bff98645f3191d55cd0279fbbd43d8f8f2cc7fceb07cff76c0bfb66b3d,0.9844,complete,0.3425,complete,0.3521,strong_same_stage_match
+6283,Bloodfury Bloodline,progress,741ffdd0ee1201bb9f787a47f0ded8ba3e4e60933ffbac17da2b46b3a4133351,0.1818,complete,1.0,complete,1.0,likely_wrong_stage
+6301,Cycle of Rebirth,progress,feff2d732dd7474e8b827febc0fa1895b74149c40e3c5be17de1af5a90cd9014,0.7875,accept,0.2189,accept,0.2189,modified_same_stage_candidate
+6442,Naga at the Zoram Strand,progress,5a509160302c2a41c224218ac899a708f7307c545cf2d06056184d621d11155f,0.9851,complete,0.4029,complete,0.4029,strong_same_stage_match
+6628,Test of Lore,progress,0d82c1dc428d66a28b825d74bbfbdb84ae74d7246ce4394f8b34f8782a32af42,0.9956,complete,0.3003,complete,0.3003,strong_same_stage_match
+6662,"Me Brother, Nipsy",progress,4d011b3b0d0398eb93f7e385bd991f97035068c11c17f66ef1f03a50b6888b10,0.4967,accept,0.105,accept,0.105,uncorroborated_stage_text
+6801,Lokholar the Ice Lord,progress,014939d804d4f655ae16db00161798c306cb74d26e1e1b7ccde56d0c5ba2d811,0.9973,complete,0.1874,complete,0.1874,strong_same_stage_match
+6805,Stormers and Rumblers,progress,3fa1bf27af6cb30a6b07369df0ce06bcc336d747f18b76abb25029746c25dff3,0.9884,accept,0.1874,accept,0.1874,strong_same_stage_match
+6823,Agent of Hydraxis,progress,772e48045352c503959b738a3dc4ef05bf5451c1f45e1da04f0babd2a9339e54,0,accept,0.3968,accept,0.3968,uncorroborated_stage_text
+6825,Call of Air - Guse's Fleet,progress,48a3a4874417d9f7c4efac8c709a28005dcc34e119a82d282a38332081831f46,0.9967,complete,0.2251,complete,0.2251,strong_same_stage_match
+6826,Call of Air - Jeztor's Fleet,progress,9f6252371532d4bbf7257c6fcef8f9d0cfbcd8b26d2f4572fec37358946cebfb,0.9974,complete,0.1468,complete,0.1468,strong_same_stage_match
+6861,Zinfizzlex's Portable Shredder Unit,progress,2d34c4154a9ccff8ea29b6e1ff7fe4dc35d95c5acf7dbfcfbe33d3f84836c9d2,0.9949,accept,0.0161,accept,0.9236,strong_same_stage_match
+6862,Zinfizzlex's Portable Shredder Unit,progress,2d34c4154a9ccff8ea29b6e1ff7fe4dc35d95c5acf7dbfcfbe33d3f84836c9d2,0.9949,accept,0.0161,accept,0.9083,strong_same_stage_match
+6881,Ivus the Forest Lord,progress,e2e0103fc4e56d634ce1ced4dbf08197fbd118adde3c17d405ebebd73dee664f,0.9974,complete,0.1925,complete,0.1925,strong_same_stage_match
+7026,Ram Riding Harnesses,progress,9881c3255086c19bf3771abe98b7c1fc8a8306f0fb8b4acbe650e0a5624aea6c,0.2308,accept,0.9261,complete,0.0991,likely_wrong_stage
+7163,Rise and Be Recognized,progress,95cd20f7fa06f388508ad41d7f4274e19387b2b2df466d854930384295a16239,0.9831,accept,0.9958,complete,0.289,strong_same_stage_match
+7165,Earned Reverence,progress,cf0ce38b8eaacb641f5f34f5d4f8931d5a9a3b8d9edadda5b53783f2733ed0b0,0.9901,accept,0.4668,complete,0.338,strong_same_stage_match
+7167,The Eye of Command,progress,513c4cd250e5eaa1e91b1b208fc5a5e866b7395d7240b3ab2494866c8c2a98af,0.9829,accept,0.936,complete,0.1818,strong_same_stage_match
+7168,Rise and Be Recognized,progress,466a501ae1d675a4b0178107ed65fa011d206be444bfd132ac3815ae3b8077d4,0.9819,accept,1.0,complete,0.303,strong_same_stage_match
+7171,Legendary Heroes,progress,0a5f6c470f5bca6e3203e0f702cfb7c2fc4b80a9aa32ca51b8ec015e2c6b47b8,0.9817,accept,0.3793,complete,0.1105,strong_same_stage_match
+7172,The Eye of Command,progress,63dafe0b7a114379534a0c67b2e71536ab0ac8cda32c5c5907dfe589e127c277,0.9858,accept,0.3456,complete,0.2997,strong_same_stage_match
+7341,A Fair Trade,progress,4bcce1fd48fba808d17f902a92e1b758b6197c95565b3546488097870122ca77,0.998,complete,0.1571,complete,0.1571,strong_same_stage_match
+7381,The Return of Korrak,progress,39ea002eff9f28bfbe80313ac6400a72abb9449df14904ea1c06903683bee0fb,0,accept,0.2302,accept,0.2302,uncorroborated_stage_text
+7381,The Return of Korrak,complete,bd8a6e27be51b8135174d340111eb2cebf342c7d88bc7cb5e8692df9ce73cb3b,0,accept,0.1884,accept,0.1884,uncorroborated_stage_text
+7382,Korrak the Everliving,progress,39ea002eff9f28bfbe80313ac6400a72abb9449df14904ea1c06903683bee0fb,0,accept,0.1019,complete,0.3265,uncorroborated_stage_text
+7736,Restoring Fiery Flux Supplies via Kingsblood,progress,447a438b9407ecc66e454cc0235e2644c6363be6b9e233cea1d6d71448bfd2a9,0.9971,accept,0.9765,complete,0.1843,strong_same_stage_match
+7737,Gaining Acceptance,progress,9a943a27a37459b24ece43d9af449b2466d8c91d6866eedeae4b2de6a87499bf,0.9959,complete,0.112,complete,0.112,strong_same_stage_match
+7829,Hunt the Savages,progress,f4c6e67dbfe79e7a62df0639802cf58e3e3145b915725e5ec20ed41ffae2fe8b,0.9848,complete,0.2656,complete,0.2656,strong_same_stage_match
+8042,Strength of Mount Mugamba,progress,4cc545f40b0b17e371c5c27c29a6233aa770a18b89a37442b04af187d77afcee,0.997,complete,0.0981,complete,0.0981,strong_same_stage_match
+8043,Strength of Mount Mugamba,progress,d7f5686841534c67357c79afcf26c397469d1789786f42a287f2efabb660545e,0.992,complete,0.1329,complete,0.1329,strong_same_stage_match
+8046,The Heathen's Brand,progress,d734a9f05b2e3e2ece6786f04436f5686227ae9b041549213f71adf1a472e1fd,0.9942,complete,0.3394,complete,0.3394,strong_same_stage_match
+8047,The Heathen's Brand,progress,d64f8502fdcf3f7a48387e99c051eb9b5320a4d436bcf00b8dc61a552dc1fdfa,0.9953,complete,0.226,complete,0.226,strong_same_stage_match
+8048,The Hero's Brand,progress,edb975c43acc2c56d5714b5439d5b9134d2d08a902625f17a37f797a89991c7b,0.9959,complete,0.2671,complete,0.2671,strong_same_stage_match
+8051,The Eye of Zuldazar,progress,048f2acd0e2b63cbf376db7650d0fd8e4dfb9d05ea5b078a6635dc6d5b3b4a38,0.9929,complete,0.1407,complete,0.2944,strong_same_stage_match
+8052,The All-Seeing Eye of Zuldazar,progress,b0005c0ee9916fd5e55215a31e47e948749b41d411d160cb2bd4b2fa9ad8b8c7,0.9953,complete,0.2146,complete,0.2146,strong_same_stage_match
+8102,The Pebble of Kajaro,progress,7d0599b7bf3664d436825bd7d92396aa9fb6579d841addd9dec843d83d5a52f5,0.9955,complete,0.1704,complete,0.1704,strong_same_stage_match
+8103,The Pebble of Kajaro,progress,41c3d145bd780d5b64cb1c552a3acf38fc15a28434858a2f8e34d1afa05ea497,0.9961,complete,0.2171,complete,0.2171,strong_same_stage_match
+8104,The Jewel of Kajaro,progress,771ccaed13645bdb49d4a1a477d6c6227a93699bdc2c3d333dc4c8d4f321031c,0.9808,complete,0.159,complete,0.159,strong_same_stage_match
+8107,Kezan's Taint,progress,ac8bbed808d831680cf2374c6b71e00eb18d15684c9a1c55a2488bcc96536dfd,0.9935,complete,0.2381,complete,0.2381,strong_same_stage_match
+8108,Kezan's Taint,progress,ca47a709eaa855d2726ae190454ebf0bf163e89f6008276fd2f1cbb6b3f87ef8,0.9939,complete,0.2278,complete,0.2278,strong_same_stage_match
+8109,Kezan's Unstoppable Taint,progress,b06fd8bb1b399e2a4d7531a8f09f4e9e01f8d9a51e1fb23a9222348a13cc0411,0.9956,complete,0.2493,complete,0.2493,strong_same_stage_match
+8113,Pristine Enchanted South Seas Kelp,progress,f99b7ff8706d4e8e35131e8e6a4387168c168c1afa25940102cf07dc2a113d3d,0.9961,complete,0.231,complete,0.231,strong_same_stage_match
+8117,Vision of Voodress,progress,0a5d74a963f78e8bd77b95d16b9d5be187a51a4e9e40d80ed4ce23aaca4bb5e7,0.9954,complete,0.1362,complete,0.1362,strong_same_stage_match
+8118,Vision of Voodress,progress,1098db32edf794e64868239ce6be93052b519ca69af2840a75bf3ba1b14fa180,0.9952,complete,0.2257,complete,0.2257,strong_same_stage_match
+8119,The Unmarred Vision of Voodress,progress,0a3d7895033631a25d6628879aca38b2bc83cfe6913b66b393530d390e90b73f,0.9939,complete,0.2703,complete,0.2703,strong_same_stage_match
+8146,The Maelstrom's Tendril,progress,c0768abe3742b7936708f559f7e0319583b153812c5ddc35fba2a0e952baae78,0.9965,complete,0.2541,complete,0.1416,strong_same_stage_match
+8147,The Maelstrom's Tendril,progress,53bd2600f496b30e14924a3d6f964fcb1e0259f54c0b24611412e64f612ddc0c,0.997,complete,0.1969,complete,0.1969,strong_same_stage_match
+8227,Nat's Measuring Tape,progress,c762bcaf7eab2c2dcfd5f3270da976c4e9b83ddda92e92d5276cb994bcffd34c,0.9159,accept,0.1818,accept,0.1818,modified_same_stage_candidate
+8241,Restoring Fiery Flux Supplies via Iron,progress,db693db27f0279ad1a21fdca5a9992821a215e7978174680ba79141f02f0f7d3,0.9971,accept,1.0,complete,0.1848,strong_same_stage_match
+8242,Restoring Fiery Flux Supplies via Heavy Leather,progress,2a984dbdb4fcaf2488b736836683190750436838266ebbbd735d0848136a17dd,0.9913,accept,1.0,complete,0.1831,strong_same_stage_match
+8243,Zanza's Potent Potables,progress,8dc1e96aa1ca65a8a47ac99838f69a162aa5a75c5ae80046671ea7e2f24f340e,0.9756,complete,0.1667,complete,0.1667,strong_same_stage_match
+8246,Signets of the Zandalar,progress,dba51c684d3a74f0eda8e3df070658d1c102fda949b1cf6612500b8d70a19890,0.9933,complete,0.1203,complete,0.1203,strong_same_stage_match
+8506,The Alliance Needs More Purple Lotus!,progress,8e39e59c89054e2383860dfa1e5789317df86622f3318e2ac3e41328286032cb,0,accept,0.9928,accept,0.9928,likely_wrong_stage
+8508,Field Duty Papers,progress,232a3ba429ae098df1268051f590c69c2fef97981a47fdc47b7e6983c469df48,0.9167,complete,0.1422,complete,0.1422,modified_same_stage_candidate
+8513,The Alliance Needs Medium Leather!,progress,284652e7633521d867d97bb40a071cb16d7f5cfc5caf51df2ee08298dd1b5a1d,0.9935,accept,0.3368,accept,0.3368,strong_same_stage_match
+8514,The Alliance Needs More Medium Leather!,progress,3403fb2f1d94b3603c97aa218c69e96cbdd7fd491b786edbad05f42d93da9242,0.9983,accept,0.7761,complete,0.3105,strong_same_stage_match
+8520,The Alliance Needs Silk Bandages!,progress,9664b1cf28c0121793282a86b3f52d71e7bdf724757a48571c715dc6aa8d9897,0.1407,accept,0.2896,complete,0.3534,uncorroborated_stage_text
+8521,The Alliance Needs More Silk Bandages!,progress,2ce9c4bd712298831f42b7edd788a6a9534fa1b86ff42ceab5532dc979ea932d,0.9968,accept,0.5172,complete,0.1364,strong_same_stage_match
+8527,The Alliance Needs More Roast Raptor!,progress,2e479c2a9bf866b94345b6d19794d846be5519b0548ee0b4b53e94bd19dc7cc9,0,accept,0.9869,accept,0.9869,likely_wrong_stage
+8542,The Horde Needs Tin Bars!,progress,924b0ccb06cf3ff7adcabebfe9c716577ac4169a09aa12f192dbf1b13bf68028,0.2688,complete,0.3671,complete,0.2243,uncorroborated_stage_text
+8549,The Horde Needs Peacebloom!,progress,719fcd58c628ffc84c3420e7c7850d8eb7b721e6b4aac06986b8374ee7e47a44,0.2623,complete,0.2394,complete,0.1359,uncorroborated_stage_text
+8579,Mortal Champions,progress,de7aae4f7be4af88c1dfdc8e324605f0f9a9871465a99914b5e8ea9a39128df3,0.9867,complete,0.2023,complete,0.2023,strong_same_stage_match
+8582,The Horde Needs Purple Lotus!,progress,6c4e92fbc3a10f9e332a929c265a1b8297800706fcb77ef8483f4410e7269ab2,0.9945,complete,0.2902,complete,0.2902,strong_same_stage_match
+8583,The Horde Needs More Purple Lotus!,progress,ad3e5554653ee15244c55707c869f4f261f7b46e71d84f8ab36b9496f414a603,0,accept,1.0,complete,0.241,likely_wrong_stage
+8589,The Horde Needs More Heavy Leather!,progress,ec9ba8bfb0b136abe4d335dd4661a8b63899189cec941fd3e1b959074a2d010c,0,accept,0.9869,complete,0.424,likely_wrong_stage
+8591,The Horde Needs More Thick Leather!,progress,440a5ffa7fa22a1647f9972076aa804ca345aee9af1e17e4ca39e50a34c0301c,0,accept,0.9871,complete,0.2976,likely_wrong_stage
+8601,The Horde Needs More Rugged Leather!,progress,c3a2d3f8421c3792bc6e807c200911aad4aace31f3e6b394ff1a252d9e652987,0,accept,1.0,complete,0.3115,likely_wrong_stage
+8604,The Horde Needs Wool Bandages!,progress,d2363b8aab6f5323d18a6f4b4515154e96cafa2bf53e5a58f2e90b0b684a5829,0.3182,complete,0.2353,complete,0.1935,uncorroborated_stage_text
+8608,The Horde Needs More Mageweave Bandages!,progress,afdb8c66274c7568c3e62bb29b3610877a0fa9825ffabb6d9a712f9b64c280c9,0,accept,1.0,complete,0.3933,likely_wrong_stage
+8609,The Horde Needs Runecloth Bandages!,progress,948420ea14b955720fd32be5ce0a1e3ba1a5cd71897e8fef3c9c0bd20108e766,0.1518,accept,0.2304,complete,0.3983,uncorroborated_stage_text
+8611,The Horde Needs Lean Wolf Steaks!,progress,44b0796b1dc7063c6686f4b9219ab64ee434d07d75ce10353b3f3a69510e2a0a,0.2327,accept,0.2671,complete,0.2827,uncorroborated_stage_text
+8612,The Horde Needs More Lean Wolf Steaks!,progress,8f0c134d3ed7c3de2ce34c4c583d23ca0a7fca5e4369ad45dfe15fa494377726,0,accept,1.0,complete,0.1672,likely_wrong_stage
+8621,Stormcaller's Footguards,progress,1e2ab927cd5d899394ff432c93190a23ee29141c7d2b12cda602b18650386db7,0.9762,accept,0.1441,complete,0.2434,strong_same_stage_match
+8622,Stormcaller's Hauberk,progress,1e2ab927cd5d899394ff432c93190a23ee29141c7d2b12cda602b18650386db7,0.9762,accept,0.0961,complete,0.1405,strong_same_stage_match
+8623,Stormcaller's Diadem,progress,1e2ab927cd5d899394ff432c93190a23ee29141c7d2b12cda602b18650386db7,0.9762,accept,0.1222,complete,0.156,strong_same_stage_match
+8624,Stormcaller's Leggings,progress,1e2ab927cd5d899394ff432c93190a23ee29141c7d2b12cda602b18650386db7,0.9762,accept,0.1062,complete,0.1226,strong_same_stage_match
+8631,Enigma Leggings,progress,1e2ab927cd5d899394ff432c93190a23ee29141c7d2b12cda602b18650386db7,0.9762,accept,0.1062,complete,0.1226,strong_same_stage_match
+8640,Deathdealer's Leggings,progress,1e2ab927cd5d899394ff432c93190a23ee29141c7d2b12cda602b18650386db7,0.9762,accept,0.1062,complete,0.1226,strong_same_stage_match
+8658,Striker's Leggings,progress,1e2ab927cd5d899394ff432c93190a23ee29141c7d2b12cda602b18650386db7,0.9762,accept,0.1062,complete,0.1226,strong_same_stage_match
+8687,Target: Hive'Zora Tunnelers,progress,4485f7e25038ac519e1721e10c5b4e901aca2a51a0bc7735df7a4e3919336b93,0.9706,accept,0.2192,accept,0.2192,strong_same_stage_match
+8732,Field Duty Papers,progress,1717bffa498a6718280efaeaa508023516714cb84ec8ef1b31f3e54d5845fe45,0.9167,complete,0.1422,complete,0.1422,modified_same_stage_candidate
+8763,The Hero of the Day,progress,22be8e2c694f9f4bafc1570da323e60f889e431adbac3e7c1a7e98cf00c014fa,0.9987,accept,0.3077,accept,0.3077,strong_same_stage_match
+8793,The Horde Needs Your Help!,complete,0de8383d94e5b4ad740f8cf0ce09cbf45a747ab0de5974ccddf4111fe69aab34,0.9954,accept,0.3297,accept,0,strong_same_stage_match
+8794,The Horde Needs Your Help!,complete,0de8383d94e5b4ad740f8cf0ce09cbf45a747ab0de5974ccddf4111fe69aab34,0.9954,accept,0.3297,accept,0,strong_same_stage_match
+8799,The Hero of the Day,progress,22be8e2c694f9f4bafc1570da323e60f889e431adbac3e7c1a7e98cf00c014fa,0.9987,accept,0.3077,accept,0.3077,strong_same_stage_match
+8863,Festival Dumplings,progress,d2850af1ef1b711f4f89ad47137f1aad6eff087966c869a88e1f2104ea2bd3c6,0.9933,complete,0.2784,complete,0.2784,strong_same_stage_match
+9054,Cryptstalker Tunic,progress,78746df9feb225d12e15d70a6196ece7bd61a19a834014ab7780968871cfdfc1,0.2642,complete,0.3206,complete,0.3206,uncorroborated_stage_text
+9055,Cryptstalker Legguards,progress,78746df9feb225d12e15d70a6196ece7bd61a19a834014ab7780968871cfdfc1,0.2642,complete,0.3111,complete,0.1748,uncorroborated_stage_text
+9056,Cryptstalker Headpiece,progress,78746df9feb225d12e15d70a6196ece7bd61a19a834014ab7780968871cfdfc1,0.2642,complete,0.3111,complete,0.3111,uncorroborated_stage_text
+9057,Cryptstalker Spaulders,progress,78746df9feb225d12e15d70a6196ece7bd61a19a834014ab7780968871cfdfc1,0.2642,complete,0.3111,complete,0.3111,uncorroborated_stage_text
+9058,Cryptstalker Boots,progress,78746df9feb225d12e15d70a6196ece7bd61a19a834014ab7780968871cfdfc1,0.2642,complete,0.3206,complete,0.3206,uncorroborated_stage_text
+9059,Cryptstalker Handguards,progress,78746df9feb225d12e15d70a6196ece7bd61a19a834014ab7780968871cfdfc1,0.2642,complete,0.3088,complete,0.3333,uncorroborated_stage_text
+9060,Cryptstalker Girdle,progress,78746df9feb225d12e15d70a6196ece7bd61a19a834014ab7780968871cfdfc1,0.2642,complete,0.3182,complete,0.1839,uncorroborated_stage_text
+9061,Cryptstalker Wristguards,progress,78746df9feb225d12e15d70a6196ece7bd61a19a834014ab7780968871cfdfc1,0.2642,complete,0.3066,complete,0.3066,uncorroborated_stage_text
+9125,Crypt Fiend Parts,progress,024ddc04ec195e834b211a63b06d1523ec9916589cd9d89ed86248ea74d31639,0.9939,complete,0.2946,complete,0.2946,strong_same_stage_match
+9126,Bonescythe Digs,progress,17a3b98d7ab5d63a0e866a286adb376a84484901dbee0a28a8c12b850af66b65,0.98,complete,0.2605,complete,0.2605,strong_same_stage_match
+9127,Bone Fragments,progress,e4d033263f2cb64a581e488c4f8c326e5249696462b25289aa7ce23b549d27a9,0.9941,complete,0.1667,complete,0.1667,strong_same_stage_match
+9211,The Ice Guard,progress,4b4adae16503576ca09443bf9d8fa0129efb48176d98ce2c121d00de9ee2b2cf,0.9762,complete,0.2652,complete,0.2652,strong_same_stage_match
+9257,"Atiesh, Greatstaff of the Guardian",progress,b13193e37742cc3628ebe826385004c1030593359b72cafd6c3ad43f6d2312db,0,accept,0.0639,complete,0.1667,uncorroborated_stage_text
+9267,Mending Old Wounds,progress,d400bde97075442f33d919fb5518b97d5dc3c7f919d78010d7dbe7def20aad62,0.9973,complete,0.2937,complete,0.2937,strong_same_stage_match
+9269,"Atiesh, Greatstaff of the Guardian",progress,b13193e37742cc3628ebe826385004c1030593359b72cafd6c3ad43f6d2312db,0,accept,0.0639,complete,0.1667,uncorroborated_stage_text
+9270,"Atiesh, Greatstaff of the Guardian",progress,b13193e37742cc3628ebe826385004c1030593359b72cafd6c3ad43f6d2312db,0,accept,0.0639,complete,0.1667,uncorroborated_stage_text
+9271,"Atiesh, Greatstaff of the Guardian",progress,b13193e37742cc3628ebe826385004c1030593359b72cafd6c3ad43f6d2312db,0,accept,0.0639,complete,0.1667,uncorroborated_stage_text
+9422,Scouring the Desert,progress,fa65e9ac5d7918cdcfae55a3051364049b023e18678904799ce6aca8e42c6430,0.9909,complete,0.3117,complete,0.3149,strong_same_stage_match

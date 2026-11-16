@@ -1,0 +1,329 @@
+{
+  "audited_imported_stages": 207,
+  "classifications": {
+    "investigate_other_stage": 2,
+    "likely_wrong_stage": 10,
+    "modified_same_stage_candidate": 5,
+    "strong_same_stage_match": 167,
+    "uncorroborated_stage_text": 23
+  },
+  "flagged_for_review": [
+    {
+      "quest_id": 5505,
+      "title": "The Key to Scholomance",
+      "stage": "progress",
+      "category": "investigate_other_stage",
+      "same": 0,
+      "other": 0.8596,
+      "alternate_stage": "complete"
+    },
+    {
+      "quest_id": 5511,
+      "title": "The Key to Scholomance",
+      "stage": "progress",
+      "category": "investigate_other_stage",
+      "same": 0,
+      "other": 0.8059,
+      "alternate_stage": "complete"
+    },
+    {
+      "quest_id": 6283,
+      "title": "Bloodfury Bloodline",
+      "stage": "progress",
+      "category": "likely_wrong_stage",
+      "same": 0.1818,
+      "other": 1.0,
+      "alternate_stage": "complete"
+    },
+    {
+      "quest_id": 6662,
+      "title": "Me Brother, Nipsy",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0.4967,
+      "other": 0.105,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 6823,
+      "title": "Agent of Hydraxis",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0,
+      "other": 0.3968,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 7026,
+      "title": "Ram Riding Harnesses",
+      "stage": "progress",
+      "category": "likely_wrong_stage",
+      "same": 0.2308,
+      "other": 0.9261,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 7381,
+      "title": "The Return of Korrak",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0,
+      "other": 0.2302,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 7381,
+      "title": "The Return of Korrak",
+      "stage": "complete",
+      "category": "uncorroborated_stage_text",
+      "same": 0,
+      "other": 0.1884,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 7382,
+      "title": "Korrak the Everliving",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0,
+      "other": 0.1019,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 8506,
+      "title": "The Alliance Needs More Purple Lotus!",
+      "stage": "progress",
+      "category": "likely_wrong_stage",
+      "same": 0,
+      "other": 0.9928,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 8520,
+      "title": "The Alliance Needs Silk Bandages!",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0.1407,
+      "other": 0.2896,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 8527,
+      "title": "The Alliance Needs More Roast Raptor!",
+      "stage": "progress",
+      "category": "likely_wrong_stage",
+      "same": 0,
+      "other": 0.9869,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 8542,
+      "title": "The Horde Needs Tin Bars!",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0.2688,
+      "other": 0.3671,
+      "alternate_stage": "complete"
+    },
+    {
+      "quest_id": 8549,
+      "title": "The Horde Needs Peacebloom!",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0.2623,
+      "other": 0.2394,
+      "alternate_stage": "complete"
+    },
+    {
+      "quest_id": 8583,
+      "title": "The Horde Needs More Purple Lotus!",
+      "stage": "progress",
+      "category": "likely_wrong_stage",
+      "same": 0,
+      "other": 1.0,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 8589,
+      "title": "The Horde Needs More Heavy Leather!",
+      "stage": "progress",
+      "category": "likely_wrong_stage",
+      "same": 0,
+      "other": 0.9869,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 8591,
+      "title": "The Horde Needs More Thick Leather!",
+      "stage": "progress",
+      "category": "likely_wrong_stage",
+      "same": 0,
+      "other": 0.9871,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 8601,
+      "title": "The Horde Needs More Rugged Leather!",
+      "stage": "progress",
+      "category": "likely_wrong_stage",
+      "same": 0,
+      "other": 1.0,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 8604,
+      "title": "The Horde Needs Wool Bandages!",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0.3182,
+      "other": 0.2353,
+      "alternate_stage": "complete"
+    },
+    {
+      "quest_id": 8608,
+      "title": "The Horde Needs More Mageweave Bandages!",
+      "stage": "progress",
+      "category": "likely_wrong_stage",
+      "same": 0,
+      "other": 1.0,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 8609,
+      "title": "The Horde Needs Runecloth Bandages!",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0.1518,
+      "other": 0.2304,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 8611,
+      "title": "The Horde Needs Lean Wolf Steaks!",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0.2327,
+      "other": 0.2671,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 8612,
+      "title": "The Horde Needs More Lean Wolf Steaks!",
+      "stage": "progress",
+      "category": "likely_wrong_stage",
+      "same": 0,
+      "other": 1.0,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 9054,
+      "title": "Cryptstalker Tunic",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0.2642,
+      "other": 0.3206,
+      "alternate_stage": "complete"
+    },
+    {
+      "quest_id": 9055,
+      "title": "Cryptstalker Legguards",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0.2642,
+      "other": 0.3111,
+      "alternate_stage": "complete"
+    },
+    {
+      "quest_id": 9056,
+      "title": "Cryptstalker Headpiece",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0.2642,
+      "other": 0.3111,
+      "alternate_stage": "complete"
+    },
+    {
+      "quest_id": 9057,
+      "title": "Cryptstalker Spaulders",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0.2642,
+      "other": 0.3111,
+      "alternate_stage": "complete"
+    },
+    {
+      "quest_id": 9058,
+      "title": "Cryptstalker Boots",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0.2642,
+      "other": 0.3206,
+      "alternate_stage": "complete"
+    },
+    {
+      "quest_id": 9059,
+      "title": "Cryptstalker Handguards",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0.2642,
+      "other": 0.3088,
+      "alternate_stage": "complete"
+    },
+    {
+      "quest_id": 9060,
+      "title": "Cryptstalker Girdle",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0.2642,
+      "other": 0.3182,
+      "alternate_stage": "complete"
+    },
+    {
+      "quest_id": 9061,
+      "title": "Cryptstalker Wristguards",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0.2642,
+      "other": 0.3066,
+      "alternate_stage": "complete"
+    },
+    {
+      "quest_id": 9257,
+      "title": "Atiesh, Greatstaff of the Guardian",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0,
+      "other": 0.0639,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 9269,
+      "title": "Atiesh, Greatstaff of the Guardian",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0,
+      "other": 0.0639,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 9270,
+      "title": "Atiesh, Greatstaff of the Guardian",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0,
+      "other": 0.0639,
+      "alternate_stage": "accept"
+    },
+    {
+      "quest_id": 9271,
+      "title": "Atiesh, Greatstaff of the Guardian",
+      "stage": "progress",
+      "category": "uncorroborated_stage_text",
+      "same": 0,
+      "other": 0.0639,
+      "alternate_stage": "accept"
+    }
+  ],
+  "read_only": true,
+  "note": "Comparison to independent community Vanilla baseline is a diagnostic, not proof of live Turtle stage behavior."
+}
