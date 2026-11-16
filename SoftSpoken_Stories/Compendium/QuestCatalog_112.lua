@@ -218,8 +218,8 @@ function M:BuildTree()
             if entry and entry.dungeon then AddTo(byDungeon,entry.dungeon,id)
             else table.insert(normal,id) end
         end
-        for _,dungeon in ipairs(SortedKeys(byDungeon,function(id) return "Dungeon "..tostring(id) end)) do
-            local dungeonNode=Attach(zoneNode,Node("dungeon:"..zone..":"..dungeon,"Dungeon "..dungeon,"dungeon"))
+        for _,dungeon in ipairs(SortedKeys(byDungeon,function(id) return SSCCompendium.DungeonName(id) end)) do
+            local dungeonNode=Attach(zoneNode,Node("dungeon:"..zone..":"..dungeon,SSCCompendium.DungeonName(dungeon),"dungeon"))
             MakeLeaves(dungeonNode,byDungeon[dungeon])
         end
         MakeLeaves(zoneNode,normal)

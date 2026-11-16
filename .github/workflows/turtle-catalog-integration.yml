@@ -8,6 +8,7 @@ on:
     paths:
       - 'SoftSpoken_Stories/**'
       - 'SoftSpoken/Compendium/UI/MapNames.lua'
+      - 'SoftSpoken/Compendium/UI/DungeonNames.lua'
       - 'tests/**'
       - 'scripts/audit_turtle_hold_resolutions.py'
       - 'scripts/reapply_turtle_quest_catalog.py'
@@ -45,6 +46,7 @@ jobs:
         run: |
           for file in \
             SoftSpoken/Compendium/UI/MapNames.lua \
+            SoftSpoken/Compendium/UI/DungeonNames.lua \
             SoftSpoken_Stories/Data/Compendium.lua \
             SoftSpoken_Stories/Data/QuestText.lua \
             SoftSpoken_Stories/Data/TurtleQuestText.lua \
@@ -88,6 +90,7 @@ jobs:
         run: |
           lua5.1 tests/tortoise_zone_catalog.lua
           python3 tests/test_compendium_map_names.py
+          python3 tests/test_compendium_dungeon_names.py
           lua5.1 tests/stories_speaker_resolution.lua
           lua5.1 tests/stories_compendium_portrait_lifecycle.lua
           lua5.1 tests/stories_portrait_preloading.lua
