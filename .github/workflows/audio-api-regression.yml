@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - development/audio-api
+      - dev
       - main
     paths:
       - "SoftSpoken/SoundUtils.lua"

@@ -38,7 +38,9 @@ local function Build()
     help:SetPoint("TOPLEFT", window, "TOPLEFT", 28, -49)
     help:SetText("Click the report, then press Ctrl+A and Ctrl+C to copy.")
 
-    scroll = CreateFrame("ScrollFrame", nil, window, "UIPanelScrollFrameTemplate")
+    -- Vanilla's UIPanelScrollFrameTemplate builds globally named scrollbar children.
+    -- Give the parent a stable name so template OnLoad can resolve those children.
+    scroll = CreateFrame("ScrollFrame", "SoftSpokenDiagnosticsScrollFrame", window, "UIPanelScrollFrameTemplate")
     scroll:SetPoint("TOPLEFT", window, "TOPLEFT", 29, -78)
     scroll:SetPoint("BOTTOMRIGHT", window, "BOTTOMRIGHT", -49, 27)
 

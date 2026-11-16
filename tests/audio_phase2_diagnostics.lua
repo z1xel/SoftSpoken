@@ -87,4 +87,14 @@ combined=table.concat(dev:Context(),"\\n")
 assert(combined:find("SuperWoW version 2.2",1,true))
 assert(combined:find("sound capacity UncapSounds 1, software channels 64, hardware channels 64, background 1",1,true))
 eq(writes,0)
+-- The 1.12 client may return zero values (not even nil) for audio CVars.
+-- Diagnostics must remain readable and must never mutate settings in that case.
+local originalGetCVar = GetCVar
+GetCVar = function() end
+local ok, unavailable = pcall(function() return dev:Context() end)
+assert(ok, "read-only diagnostic failed when GetCVar returned zero values")
+assert(table.concat(unavailable, "\\n"):find("Vanilla master unavailable", 1, true),
+    "missing CVar values must be displayed as unavailable")
+GetCVar = originalGetCVar
+eq(writes, 0)
 print("audio_phase2_diagnostics.lua: read-only status, channels and privacy passed")

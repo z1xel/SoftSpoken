@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - "SoftSpoken/UI/Options.lua"
+      - "SoftSpoken/UI/Diagnostics.lua"
+      - "tests/diagnostics_viewer_112.lua"
+      - "tests/greetingfirst_classification.lua"
       - "SoftSpoken/UI/Portrait.lua"
       - "SoftSpoken/CreatureAppearance.lua"
       - "SoftSpoken/API.lua"
@@ -48,6 +51,9 @@ on:
   pull_request:
     paths:
       - "SoftSpoken/UI/Options.lua"
+      - "SoftSpoken/UI/Diagnostics.lua"
+      - "tests/diagnostics_viewer_112.lua"
+      - "tests/greetingfirst_classification.lua"
       - "SoftSpoken/UI/Portrait.lua"
       - "SoftSpoken/CreatureAppearance.lua"
       - "SoftSpoken/API.lua"
@@ -103,6 +109,7 @@ jobs:
       - name: Check changed addon Lua syntax
         run: |
           luac5.1 -p SoftSpoken/UI/Options.lua SoftSpoken/Strings.lua
+          luac5.1 -p SoftSpoken/UI/Diagnostics.lua tests/diagnostics_viewer_112.lua tests/greetingfirst_classification.lua
           luac5.1 -p SoftSpoken/Compendium/UI/Compendium.lua SoftSpoken/Compendium/UI/FrameSkin.lua SoftSpoken/Compendium/UI/InteriorSkin.lua
           luac5.1 -p SoftSpoken/Compendium/UI/NativeScrollbar.lua SoftSpoken/Compendium/UI/LorePage.lua SoftSpoken/Compendium/UI/TextView.lua SoftSpoken/Compendium/UI/PagePane.lua
           luac5.1 -p SoftSpoken/UI/Portrait.lua SoftSpoken/CreatureAppearance.lua SoftSpoken/Compat.lua SoftSpoken/API.lua
@@ -119,6 +126,10 @@ jobs:
         run: lua5.1 tests/compendium_book_mask.lua
       - name: Check bounded Vanilla UI fallback polling
         run: lua5.1 tests/compendium_scroll_efficiency.lua
+      - name: Check Vanilla diagnostics scroll template and readable reports
+        run: lua5.1 tests/diagnostics_viewer_112.lua
+      - name: Check Stories greeting classification and missing-CVar safety
+        run: lua5.1 tests/greetingfirst_classification.lua
       - name: Check installable UI assets, manifests and legacy identifiers
         run: python3 tests/test_ui_packaging.py
       - name: Check native player duration and UI progress
