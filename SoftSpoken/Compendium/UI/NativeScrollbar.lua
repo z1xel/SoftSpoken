@@ -283,12 +283,11 @@ function Skin.AttachSettings(panel,scroll)
     local bar=getglobal(name.."ScrollBar")
     if not bar then return end
 
-    -- Housing is shifted up one unit overall, with one additional unit
-    -- extended at the top. The content viewport and its scroll range
-    -- are unchanged.
+    -- Extend the housing five units upward at the top while keeping
+    -- its bottom edge, content viewport, and scroll range unchanged.
     local slot,reflow=Housing(panel,-9)
     slot:ClearAllPoints()
-    slot:SetPoint("TOPRIGHT",panel,"TOPRIGHT",-9,-105)
+    slot:SetPoint("TOPRIGHT",panel,"TOPRIGHT",-9,-100)
     slot:SetPoint("BOTTOMRIGHT",panel,"BOTTOMRIGHT",-9,12)
     slot:SetFrameLevel(panel:GetFrameLevel()+2)
 
