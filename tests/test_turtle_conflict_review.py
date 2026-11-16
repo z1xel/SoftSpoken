@@ -26,6 +26,15 @@ class TestDialogueComparison(unittest.TestCase):
         self.assertIn("$N", row["spoken_tokens"])
         self.assertIn("$C", row["turtle_tokens"])
 
+    def test_wow_directive_lexer_stops_at_one_character(self):
+        self.assertEqual(review.variables("$BHello, $n! $gking:queen;"),
+                         ["$B", "$n", "$g"])
+        row = review.compare_text("$bHello $n!", "$BHello $N!")
+        self.assertEqual(row["directive_case_only"], 1)
+        self.assertEqual(row["directive_sequence_changed"], 0)
+        changed = review.compare_text("Thank you $N", "Thank you $C")
+        self.assertEqual(changed["directive_sequence_changed"], 1)
+
     def test_same_text_is_not_conflict(self):
         with self.assertRaisesRegex(ValueError, "two different"):
             review.compare_text("The same text.", "The same text.")
