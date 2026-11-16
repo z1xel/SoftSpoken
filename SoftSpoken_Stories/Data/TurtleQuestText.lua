@@ -12169,3 +12169,12 @@ SSCTurtleQuestText[9101].complete = "Do not forget that power left unchecked is 
 SSCTurtleQuestText[9102] = SSCTurtleQuestText[9102] or {}
 SSCTurtleQuestText[9102].complete = "Do not forget that power left unchecked is as destructive as power left unused, $C. Use discretion when donning Frostfire."
 -- END verified Tier 3 completion dialogue (13 quest stages)
+-- BEGIN verified Turtle title alias quest 41797
+-- Checked against pinned Tortoise SQLite and independently corroborated NPC/objective identity.
+-- Original Spoken text unchanged; only this approved title alias is allowed.
+SSCTurtleQuestText[41797] = {
+    accept = "Duskwood grows more dangerous with each passing day. Either its the rabid worgen, wandering dead or thieving cutthroats - there is always something out for your life out here. In the end, one may wonder why we're all still here. The answer is simple: these woods are our home, and we're not letting these monstrosities take them from us.$B$BStill, me being here weighs heavy on the hearts of my friends, on Barbara's more than others'. She is the fletcher of Lord Amberwood, the ruling noble of Northwind north of Stormwind. I haven't seen her in a long time, let alone written to her about my well-being. She must be worried sick about me, and it shames me deeply. If you have a moment to spare, could you deliver this letter to her? In it are things written I should've said to her a long time ago, so I'm entrusting you with a very important task. If you could do that for me, I'd be eternally grateful to you.$B$BThe quickest way to Northwind is by passing through the Stormwind Harbor.",
+    progress = "How can I help you? Need to refill your quiver?",
+    complete = "A letter from Avette? How is she? I heard Duskwood is a treacherous place nowadays, not safe for any of the common folk.$B$B<Barbara opens the letter and quickly glances over a few lines. While doing so, a chuckle escapes her.>$B$BI see I have nothing to worry about, how relieving. It's been too long since I've heard from her and I was beginning to assume the worst. Once Northwind's troubles subside, I will pay her a visit. It is more than overdue. Here, take these few coins as thanks from me and Avette. Trust me, you did more than you think for the both of us. Stay safe on your travels, $N.",
+}
+-- END verified Turtle title alias quest 41797
