@@ -18,6 +18,7 @@ MANIFEST = ROOT / "docs" / "turtle_exclusive_import.csv"
 NAMES = ROOT / "docs" / "turtle_exclusive_speaker_names.csv"
 ZONES = ROOT / "docs" / "tortoise_zone_overlay.csv"
 SPEAKERS = ROOT / "docs" / "turtle_speaker_recovery.csv"
+APPROVED_TITLE_ALIAS = ROOT / "docs/audits/turtle_hold_resolution/approved_41797_identity.json"
 
 
 def records(path):
@@ -78,6 +79,12 @@ class TurtleExclusiveCatalogTest(unittest.TestCase):
                         self.assertTrue(actual.endswith(suffix),
                                         "Quest overlay not at end of quest row")
                         actual = actual[:-len(suffix)] + " }"
+                    # Quest 41797's independently corroborated Northwind
+                    # classification is a separate reviewed alias, not part
+                    # of the original frozen pfQuest or bulk zone manifest.
+                    if quest_id == 41797:
+                        self.assertIn(", turtleArea = 5581 }", actual)
+                        actual = actual.replace(", turtleArea = 5581 }", " }", 1)
                     # Remove ONLY the exact reviewed NPC role overlay,
                     # leaving the original pfQuest manifest row immutable.
                     for record in self.speaker_overlay.get(quest_id, []):
@@ -90,6 +97,16 @@ class TurtleExclusiveCatalogTest(unittest.TestCase):
                     self.assertNotIn(quest_id, self.catalog)
                 else:
                     self.assertIn(quest_id, self.catalog)
+
+    def test_approved_alias_does_not_rename_original_quest(self):
+        approved = json.loads(APPROVED_TITLE_ALIAS.read_text(encoding="utf-8"))
+        self.assertEqual(approved["quest_id"],41797)
+        self.assertEqual(approved["catalog_title"],"A Good Friend")
+        self.assertEqual(approved["source_title"],"A Dear Friend")
+        self.assertIn('"A Good Friend"',self.catalog[41797])
+        self.assertIn("starter = 228, ender = 62307, turtleArea = 5581",
+                      self.catalog[41797])
+        self.assertIn("Northwind",approved["region"])
 
     def test_relationship_provenance_and_ambiguity(self):
         imports = [r for r in self.source if r["status"] == "imported"]
