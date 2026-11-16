@@ -1,0 +1,24 @@
+{
+  "historical_289_conflicts": 289,
+  "substantial_adjudicated_separately": 35,
+  "remaining_review_count": 254,
+  "category_counts": {
+    "punctuation_or_whitespace": 163,
+    "minor_wording": 76,
+    "moderate_wording": 15
+  },
+  "triage_counts": {
+    "retain_spoken_cosmetic": 163,
+    "manual_review_minor_directives": 57,
+    "manual_review_minor_prose": 19,
+    "retain_spoken_possible_truncation": 11,
+    "manual_review_moderate": 4
+  },
+  "cases_with_modified_directive_sequence": 72,
+  "cosmetic_directive_case_only": 149,
+  "duplicate_source_families": 19,
+  "rows_in_duplicate_families": 73,
+  "recommended_automatic_overrides": 0,
+  "source": "Historical pre-Tier-3 289-conflict similarity report",
+  "caveat": "Heuristic triage; 'retain' means do not override while source comparison remains uncorroborated."
+}
