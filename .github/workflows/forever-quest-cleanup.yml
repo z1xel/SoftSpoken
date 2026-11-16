@@ -45,8 +45,16 @@ jobs:
           git show 6c5a79ffc28e5c52977fc14f9cdf16b376c17af4:SoftSpoken_Stories/Data/Compendium.lua > /tmp/quest-source/Compendium.lua
           git show 6c5a79ffc28e5c52977fc14f9cdf16b376c17af4:SoftSpoken_Stories/Data/QuestText.lua > /tmp/quest-source/QuestText.lua
           python3 scripts/clean_forever_quest_data.py --apply --catalog /tmp/quest-source/Compendium.lua --text /tmp/quest-source/QuestText.lua
-          cmp -s /tmp/quest-source/Compendium.lua SoftSpoken_Stories/Data/Compendium.lua
-          cmp -s /tmp/quest-source/QuestText.lua SoftSpoken_Stories/Data/QuestText.lua
+          if ! cmp -s /tmp/quest-source/Compendium.lua SoftSpoken_Stories/Data/Compendium.lua; then
+            echo 'Compendium regeneration mismatch:'
+            diff -u /tmp/quest-source/Compendium.lua SoftSpoken_Stories/Data/Compendium.lua | head -100 || true
+            exit 1
+          fi
+          if ! cmp -s /tmp/quest-source/QuestText.lua SoftSpoken_Stories/Data/QuestText.lua; then
+            echo 'QuestText regeneration mismatch:'
+            diff -u /tmp/quest-source/QuestText.lua SoftSpoken_Stories/Data/QuestText.lua | head -100 || true
+            exit 1
+          fi
           echo 'PASS: only reviewed quest/dialogue exclusions and their dangling chain edges changed'
 
       - name: Validate Lua syntax and Compendium behavior
