@@ -123,6 +123,14 @@ def zone_resolution(row):
         if reason!="title_disagreement" or row["source_area_id"]!="5581":
             raise ValueError("41797 classification source drifted")
         return "approved_title_alias","Use existing named Northwind region 5581"
+    if id in (708,3366):
+        expected={708:("3","The Black Box"),3366:("718","The Glowing Shard")}
+        area,title=expected[id]
+        if (reason!="shared_id_not_world_linked" or row["source_area_id"]!=area
+                or row["catalog_title"]!=title or row["source_title"]!=title
+                or row["source_method"]!="2"):
+            raise ValueError("Item-origin quest classification source drift: "+str(id))
+        return "approved_item_origin_zone","Item or loot initiated; category is source-backed without claiming a spawned NPC"
     if reason=="missing_area_template":
         return "hold_unmapped_area","No matching AreaTable entry; prior ring quests not an authenticated replacement"
     if reason=="reserved_world_area":
@@ -183,6 +191,9 @@ def main():
             source=source_quest(conn,int(zone["quest_id"]))
             if not source or source["title"]!=zone["source_title"]:
                 raise ValueError("Source title changed for zone hold "+zone["quest_id"])
+            if int(zone["quest_id"]) in (708,3366):
+                if int(source["zone"])!=int(zone["source_area_id"]):
+                    raise ValueError("Item-origin classification area drifted")
     zone_rows=[]
     for row in zones:
         status,action=zone_resolution(row)
@@ -223,7 +234,7 @@ def main():
         "unique_ids_across_all_three":len({int(r["quest_id"]) for r in zones+shared}|set(exclusive["held"])),
         "overlap_zone_and_shared":sorted({int(r["quest_id"]) for r in zones}&{int(r["quest_id"]) for r in shared}),
         "direct_text_import_approved":[41797],
-        "direct_zone_classification_approved":[41797],
+        "direct_zone_classification_approved":[708,3366,41797],
         "other_quest_text_imports_approved":[],
         "text_files_modified":False,
         "availability_not_inferred_from_source_presence":True
