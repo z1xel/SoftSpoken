@@ -102,6 +102,18 @@ jobs:
           PY
           git diff --exit-code -- SoftSpoken_Stories/Data/QuestText.lua
 
+      - name: Check atomic incremental and full source regeneration
+        run: |
+          sha256sum SoftSpoken_Stories/Data/TurtleQuestText.lua > /tmp/held-quest-original.sha
+          node scripts/import_tortoise_quest_dialogue.mjs --touched-only \
+            --source-sqlite .hold-source/data/tortoise.sqlite
+          sha256sum -c /tmp/held-quest-original.sha
+          node scripts/import_tortoise_quest_dialogue.mjs \
+            --source-sqlite .hold-source/data/tortoise.sqlite
+          sha256sum -c /tmp/held-quest-original.sha
+          git diff --exit-code -- SoftSpoken_Stories/Data/QuestText.lua
+          echo 'PASS: both regeneration modes preserve every Turtle text byte'
+
       - name: Commit source evidence and the single approved quest dialogue
         run: |
           git config user.name 'github-actions[bot]'
