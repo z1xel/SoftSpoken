@@ -5,12 +5,14 @@
   "quests_with_at_least_one_missing_side": 36,
   "status_counts": {
     "ender_chain_without_typed_relationship": 3,
+    "ender_manifest_only_gap": 11,
     "ender_present": 5,
-    "ender_recoverable_source_relationship": 21,
+    "ender_recoverable_source_relationship": 10,
     "ender_unresolved_no_typed_source_link": 7,
     "starter_chain_without_typed_relationship": 3,
+    "starter_manifest_only_gap": 9,
     "starter_present": 5,
-    "starter_recoverable_source_relationship": 16,
+    "starter_recoverable_source_relationship": 7,
     "starter_unresolved_no_typed_source_link": 12
   },
   "source_quest_rows_missing": 0,
