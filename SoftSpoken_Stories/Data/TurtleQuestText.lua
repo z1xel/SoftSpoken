@@ -11722,7 +11722,9 @@ SSCTurtleQuestText[3580].progress = "Go swiftly, young one! Saern will help you 
 SSCTurtleQuestText[3580].complete = "Ah, the Winds led you to me I see. I've been expecting you.$B$BSamantha Swifthoof sent you, of course. Girl did very well to travel further than Mulgore and Barrens. I'm only glad she found help even at the continent so far from here in your actions, honorable deed should always be rewarded.$B$BThere's an expert on Plainsrunning skill resides at the Hunter's Rise in Thunder Bluff you should see, her name is Saern Priderunner.$B$BShe can teach you on how you should handle your body for Plainsrunning only when you have your spirit high with the Blessing of the Wind.$B$BReach her while the Blessing is still supporting your spirit and body!$B$BThe Blessing of the Wind be bestowed upon you! Al'akir, hear my plea and grant this tauren swiftness of your gales and strength of your storms!"
 -- END Turtle-touched first batch
 -- BEGIN Turtle-touched missing 207 dialogue stages
--- Hash-verified against pinned Tortoise SQLite; no Spoken stages overwritten.
+-- 204 stages from pinned Turtle hashes; 3 corrected using reviewed Classic quest progress text.
+-- Original Tortoise hashes verified before corrected progress values were substituted.
+-- No Spoken stages overwritten.
 SSCTurtleQuestText[38] = SSCTurtleQuestText[38] or {}
 SSCTurtleQuestText[38].progress = "Come back with the following ingredients:$B$B3 Stringy Vulture Meat$B$B3 Goretusk Snouts$B$B3 Murloc Eyes$B$B3 Okra"
 SSCTurtleQuestText[48] = SSCTurtleQuestText[48] or {}
@@ -11932,7 +11934,7 @@ SSCTurtleQuestText[6028].progress = "Greetings, $C.  On behalf of the Argent Daw
 SSCTurtleQuestText[6135] = SSCTurtleQuestText[6135] or {}
 SSCTurtleQuestText[6135].progress = "I would not recommend that you take on this challenge alone, $C."
 SSCTurtleQuestText[6283] = SSCTurtleQuestText[6283] or {}
-SSCTurtleQuestText[6283].progress = "Already I feel the anger leave me. What will I do with my time? Knowing evil moves near my land kept my thoughts moving, though now they are silent. Perhaps this is a good thing... maybe now I can focus on the good, as all Tauren should.$B$BPlease accept this as a reward for your troubles."
+SSCTurtleQuestText[6283].progress = "Bloodfury Ripper is a nasty creature! You will have success finding her along the western hill line in the Charred Vale.$B$BThe bloodfuries will be helpless with out... surely we can vanquish them forever!"
 SSCTurtleQuestText[6301] = SSCTurtleQuestText[6301] or {}
 SSCTurtleQuestText[6301].progress = "The continuous destruction caused by war and those that seek a profit from lumber pains me deeply. To aid the cycle of rebirth and replenish the lands, I need Gaea seeds. Do you have them, $C?"
 SSCTurtleQuestText[6442] = SSCTurtleQuestText[6442] or {}
@@ -11995,7 +11997,7 @@ SSCTurtleQuestText[8047].progress = "I must confess, I did not think you had the
 SSCTurtleQuestText[8048] = SSCTurtleQuestText[8048] or {}
 SSCTurtleQuestText[8048].progress = "The King has acknowledged your existence, $C. You are the first of your kind to be accepted by Rastakhan as a true ally of Zandalar.$B$BYou will be rewarded greatly for your efforts. Present your brand and I shall apply the final amplification."
 SSCTurtleQuestText[8051] = SSCTurtleQuestText[8051] or {}
-SSCTurtleQuestText[8051].progress = "Welcome $C. The Eye of Zuldazar pulses with energy. You are ready to take the next step. Hand me the talisman and I shall perform the imbue."
+SSCTurtleQuestText[8051].progress = "Tales of your battles against the Gurubashi are whispered in the winds, $C. Even royalty is beginning to talk of your deeds. It is rumored that King Rastakhan even mentioned you by name.$B$BThe time has come to imbue the Eye. Hand me the talisman and I shall perform the service."
 SSCTurtleQuestText[8052] = SSCTurtleQuestText[8052] or {}
 SSCTurtleQuestText[8052].progress = "If only we had ten-thousand more like you, $N. The armies of Hakkar would be scattered to the wind in the blink of an eye.$B$B<Al'tabim sighs.>$B$BAlas, the Eye is ready to realize its full potential. Give it to me."
 SSCTurtleQuestText[8102] = SSCTurtleQuestText[8102] or {}
@@ -12019,7 +12021,7 @@ SSCTurtleQuestText[8118].progress = "Sha-mon! Maywiki make a joke!$B$B<Maywiki l
 SSCTurtleQuestText[8119] = SSCTurtleQuestText[8119] or {}
 SSCTurtleQuestText[8119].progress = "<Maywiki points to your talisman.>$B$BLook at it, $N! It's come alive. The spirits dance around the orb.$B$BGive it to Maywiki so she can make one last adjustment."
 SSCTurtleQuestText[8146] = SSCTurtleQuestText[8146] or {}
-SSCTurtleQuestText[8146].progress = "Even from here I can hear the sound of your volleys laying waste to our enemies. Their cries echo in agony.$B$BYou have made quite a name for yourself among the trolls of Zandalar, $N. We are grateful for all that you have done.$B$BHand me your talisman so that I may add another weave."
+SSCTurtleQuestText[8146].progress = "Ah, $N, it is good to smell you again.$B$BYou'll have to excuse my sense of humor. It can be most foul at times.$B$BI sense that you have caused great anguish to our enemies. The forces of Hakkar cry out your name in anger. This is most excellent.$B$BYou have earned another weave on your talisman. Hand it to me."
 SSCTurtleQuestText[8147] = SSCTurtleQuestText[8147] or {}
 SSCTurtleQuestText[8147].progress = "Ah, $N, it is good to smell you again.$B$B<Falthir grins.>$B$BYou'll have to excuse my sense of humor. It can be most foul at times.$B$BI sense that you have caused great anguish to our enemies. The forces of Hakkar cry out your name in anger. This is most excellent.$B$BYou have earned another weave on your talisman. Hand it to me."
 SSCTurtleQuestText[8227] = SSCTurtleQuestText[8227] or {}
@@ -12137,3 +12139,33 @@ SSCTurtleQuestText[9271].progress = "I must not interfere, $R."
 SSCTurtleQuestText[9422] = SSCTurtleQuestText[9422] or {}
 SSCTurtleQuestText[9422].progress = "Be wary of the dangers of the desert, $N. With the Alliance lurking in the dunes, any step could be your last."
 -- END Turtle-touched missing 207 dialogue stages
+-- BEGIN verified Tier 3 completion dialogue (13 quest stages)
+-- 13 Classic-corroborated Tier 3 completion responses from pinned Turtle source.
+-- Stage-specific override; original Spoken data is unchanged.
+SSCTurtleQuestText[9034] = SSCTurtleQuestText[9034] or {}
+SSCTurtleQuestText[9034].complete = "Let them know fear once more, $C. Let them feel no mercy."
+SSCTurtleQuestText[9043] = SSCTurtleQuestText[9043] or {}
+SSCTurtleQuestText[9043].complete = "Wear it in good health, $C."
+SSCTurtleQuestText[9046] = SSCTurtleQuestText[9046] or {}
+SSCTurtleQuestText[9046].complete = "Any $C will tell you that the brunt of their power comes from the shoulders. The bigger the better..."
+SSCTurtleQuestText[9057] = SSCTurtleQuestText[9057] or {}
+SSCTurtleQuestText[9057].complete = "I have taken special care in making these shoulders as large and pronounced as possible.$B$BTake my word for it; you're going to love them..."
+SSCTurtleQuestText[9077] = SSCTurtleQuestText[9077] or {}
+SSCTurtleQuestText[9077].complete = "There you go, $R. As promised, the Bonescythe breastplate. I hope the fashion authorities aren't around. You'd be thrown in the slammer for wearing that out!"
+SSCTurtleQuestText[9095] = SSCTurtleQuestText[9095] or {}
+SSCTurtleQuestText[9095].complete = "Do not forget that power left unchecked is as destructive as power left unused, $C. Use discretion when donning Frostfire."
+SSCTurtleQuestText[9096] = SSCTurtleQuestText[9096] or {}
+SSCTurtleQuestText[9096].complete = "Do not forget that power left unchecked is as destructive as power left unused, $C. Use discretion when donning Frostfire."
+SSCTurtleQuestText[9097] = SSCTurtleQuestText[9097] or {}
+SSCTurtleQuestText[9097].complete = "Do not forget that power left unchecked is as destructive as power left unused, $C. Use discretion when donning Frostfire."
+SSCTurtleQuestText[9098] = SSCTurtleQuestText[9098] or {}
+SSCTurtleQuestText[9098].complete = "Do not forget that power left unchecked is as destructive as power left unused, $C. Use discretion when donning Frostfire."
+SSCTurtleQuestText[9099] = SSCTurtleQuestText[9099] or {}
+SSCTurtleQuestText[9099].complete = "Do not forget that power left unchecked is as destructive as power left unused, $C. Use discretion when donning Frostfire."
+SSCTurtleQuestText[9100] = SSCTurtleQuestText[9100] or {}
+SSCTurtleQuestText[9100].complete = "Do not forget that power left unchecked is as destructive as power left unused, $C. Use discretion when donning Frostfire."
+SSCTurtleQuestText[9101] = SSCTurtleQuestText[9101] or {}
+SSCTurtleQuestText[9101].complete = "Do not forget that power left unchecked is as destructive as power left unused, $C. Use discretion when donning Frostfire."
+SSCTurtleQuestText[9102] = SSCTurtleQuestText[9102] or {}
+SSCTurtleQuestText[9102].complete = "Do not forget that power left unchecked is as destructive as power left unused, $C. Use discretion when donning Frostfire."
+-- END verified Tier 3 completion dialogue (13 quest stages)
