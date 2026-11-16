@@ -1,0 +1,78 @@
+name: Turtle held quest classification and dialogue adjudication
+on:
+  push:
+    branches: [audit/turtle-touched-text-coverage]
+    paths:
+      - .github/workflows/turtle-hold-resolution.yml
+      - scripts/audit_turtle_hold_resolutions.py
+      - docs/audits/tortoise_zone_overlay/holds.csv
+      - docs/audits/turtle_touched_text_coverage/held_quests.csv
+      - docs/audits/tortoise_quest_overlay/summary.json
+  workflow_dispatch:
+concurrency:
+  group: turtle-held-quest-audit
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  audit-held-quests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout isolated audit branch
+        uses: actions/checkout@v4
+      - name: Fetch immutable Turtle source
+        uses: actions/checkout@v4
+        with:
+          repository: Xian55/tortoise-db-viewer
+          ref: 567ce23c73087e9b67fd2d4732c171d751e54bba
+          path: .hold-source
+          sparse-checkout: |
+            data/tortoise.sqlite.br
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - name: Verify and decode Turtle database
+        run: |
+          node - <<'JS'
+          const fs = require('fs'), zlib = require('zlib'), crypto = require('crypto');
+          const input = fs.readFileSync('.hold-source/data/tortoise.sqlite.br');
+          const sha = crypto.createHash('sha1')
+            .update(Buffer.from('blob '+input.length+'\0')).update(input)
+            .digest('hex');
+          if (sha !== '7b126fce5260502fa40f9f6b67190f920e60a0f6')
+            throw Error('Pinned Tortoise source changed: '+sha);
+          const db = zlib.brotliDecompressSync(input);
+          if (db.subarray(0,16).toString('latin1') !== 'SQLite format 3\0')
+            throw Error('Invalid decompressed Turtle SQLite');
+          fs.writeFileSync('.hold-source/data/tortoise.sqlite',db);
+          JS
+      - name: Resolve source-backed holds without altering gameplay data
+        run: |
+          python3 scripts/audit_turtle_hold_resolutions.py \
+            --turtle .hold-source/data/tortoise.sqlite
+          python3 - <<'PY'
+          import csv,json,pathlib
+          root=pathlib.Path('docs/audits/turtle_hold_resolution')
+          summary=json.loads((root/'summary.json').read_text())
+          assert summary['original_zone_holds']==37
+          assert summary['original_shared_text_holds']==49
+          assert summary['original_exclusive_text_holds']==8
+          assert summary['direct_text_import_approved']==[41797]
+          assert summary['direct_zone_classification_approved']==[41797]
+          for name,n in [('zone_37_resolution.csv',37),('shared_49_resolution.csv',49),
+                         ('exclusive_8_resolution.csv',8)]:
+              with (root/name).open(newline='',encoding='utf-8') as f:
+                  assert len(list(csv.DictReader(f)))==n
+          print('All three held cohorts validated, 41797 identity corroborated')
+          PY
+      - name: Commit source evidence, not speculative quest records
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/audits/turtle_hold_resolution/
+          if ! git diff --cached --quiet; then
+            git commit -m 'Classify 37 zone, 49 shared text and eight exclusive Turtle holds'
+            git fetch origin audit/turtle-touched-text-coverage
+            git rebase origin/audit/turtle-touched-text-coverage
+            git push origin HEAD:audit/turtle-touched-text-coverage
+          fi
