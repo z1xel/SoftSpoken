@@ -50,7 +50,7 @@ def catalog_rows(path):
     data=path.read_text(encoding="utf-8")
     body=data.split("\tquests = {",1)[1].split("\n\t},\n\n\tsorts = {",1)[0]
     out={}
-    for m in re.finditer(r'(?m)^\s*\[(\d+)\]\s*=\s*\{\s*("(?:\\.|[^"\\])*")([^"\r\n]*),\s*$',body):
+    for m in re.finditer(r'(?m)^\s*\[(\d+)\]\s*=\s*\{\s*("(?:\\.|[^"\\])*")',body):
         qid=int(m[1])
         if qid in out:raise ValueError("Duplicate quest row "+str(qid))
         out[qid]={"title":json.loads(m[2]),"line":m[0]}
