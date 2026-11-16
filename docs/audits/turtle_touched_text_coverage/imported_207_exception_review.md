@@ -1,6 +1,6 @@
 # Stage alignment follow-up for the 207 imported quest texts
 
-**Status:** Read-only review. No production dialogue changed by this report.
+**Status:** Historical read-only diagnostic, followed by three committed progress-stage repairs for quests 6283, 8051 and 8146. The other 204 imported stages were preserved.
 
 ## Audit results
 
@@ -23,9 +23,9 @@ All 207 previously added stages were re-compared against the matching and altern
 
 **Do not blindly undo** stages flagged merely by comparison with cMaNGOS.
 
-## Confirmed or strongly demonstrated problem stages already present in the Turtle overlay
+## Confirmed problematic stages (now corrected in the Turtle overlay)
 
-| Quest ID | Imported stage | Turtle overlay currently contains | Authentic Classic stage |
+| Quest ID | Imported stage | Tortoise originally supplied | Corrected Classic stage |
 | ---: | --- | --- | --- |
 | **6283 — Bloodfury Bloodline** | progress | The quest's completion response instead of the actual pre-turn-in response | The NPC discusses Bloodfury Ripper while the quest is still unfinished |
 | **8051 — The Eye of Zuldazar** | progress | The text for the *different* quest 8050 ("Welcome ... The Eye of Zuldazar pulses ...") | The 8051 progress text discusses battles against the Gurubashi and imbuing the Eye |
@@ -33,7 +33,7 @@ All 207 previously added stages were re-compared against the matching and altern
 
 Classic references: [6283](https://www.wowhead.com/classic/quest=6283), [8050](https://www.wowhead.com/classic/quest=8050), [8051](https://www.wowhead.com/classic/quest=8051), [8146](https://www.wowhead.com/classic/quest=8146), [8147](https://www.wowhead.com/classic/quest=8147).
 
-These three are **not** merely cMaNGOS similarity alerts. The imported Turtle stage content was examined directly and compared to quest-specific Classic progress dialogue. They should be corrected in the existing overlay before promoting the audit branch; do not overwrite `SpokenQuestsText`.
+These three were **not** merely cMaNGOS similarity alerts. They have been corrected in the same Turtle-only Lua table, with `$N`, `$C` and `$B` placeholders adapted for the Vanilla UI. The corrected prose and source links are pinned in [verified_progress_corrections.json](verified_progress_corrections.json). The original `SpokenQuestsText` remains unchanged.
 
 ## Other records
 
@@ -46,4 +46,4 @@ These three are **not** merely cMaNGOS similarity alerts. The imported Turtle st
 - [Detailed CSV](imported_207_stage_alignment.csv) and [summary](imported_207_stage_alignment_summary.json)
 - [Script](../../../scripts/audit_imported_missing_stage_alignment.py) compares pinned source and stage hashes, without copying or modifying dialogue.
 
-The 35 substantial pre-existing-text conflicts are resolved separately in [adjudication](substantial_35_adjudication.md): 13 Tier 3 candidates to import, 15 shortened text stages to preserve, and 7 wrong source-mapping cases to preserve.
+The 35 substantial pre-existing-text conflicts are resolved separately in [adjudication](substantial_35_adjudication.md): 13 Tier 3 completions imported, 15 shortened texts preserved, and 7 source-misassignment candidates left on original Spoken text. This stage-alignment report remains an earlier snapshot of the *uncorrected* pinned Tortoise source, not the current Turtle overlay.
