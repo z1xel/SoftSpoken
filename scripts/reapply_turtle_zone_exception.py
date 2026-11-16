@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Replay ONE independently verified title-aliased Turtle quest classification.
+"""Replay three vetted quest-classification exceptions without changing quest IDs.
 
-Quest 41797 has a catalog alias "A Good Friend" and source title "A Dear Friend".
-The pinned source matches its ID, exact starter/ender IDs and letter objective.
-Never classify other title mismatches or developer-only/unspawned quests.
+41797 "A Good Friend" / "A Dear Friend": vetted Northwind title alias.
+708 The Black Box: item starter; source zone Badlands.
+3366 The Glowing Shard: Wailing Caverns item-drop quest.
+The wider 37 zone holds remain protected; these three are the ONLY exceptions.
 """
 import argparse
 import csv
@@ -11,140 +12,108 @@ import json
 import re
 from pathlib import Path
 
-ROOT=Path(__file__).resolve().parents[1]
-CATALOG=ROOT/"SoftSpoken_Stories/Data/Compendium.lua"
-APPROVED=ROOT/"docs/audits/turtle_hold_resolution/approved_41797_identity.json"
-OLDER=ROOT/"docs/turtle_older_zone_recoveries.csv"
-OLDER_SPECS={
-    708:("The Black Box",3,"zones",1418,"starterItem",4613),
-    3366:("The Glowing Shard",718,"turtleArea",718,"ender",8418),
+ROOT = Path(__file__).resolve().parents[1]
+CATALOG = ROOT / "SoftSpoken_Stories/Data/Compendium.lua"
+APPROVED = ROOT / "docs/audits/turtle_hold_resolution/approved_41797_identity.json"
+OLDER = ROOT / "docs/turtle_older_zone_recoveries.csv"
+EXPECTED = {
+    "quest_id": 41797, "catalog_title": "A Good Friend",
+    "source_title": "A Dear Friend", "source_zone": 5581,
+    "starter_id": 228, "ender_id": 62307,
 }
-EXPECTED={
-    "quest_id":41797,"catalog_title":"A Good Friend","source_title":"A Dear Friend",
-    "source_zone":5581,"starter_id":228,"ender_id":62307
+OLDER_SPECS = {
+    708: ("The Black Box", 3, "zones", 1418, "starterItem", 4613),
+    3366: ("The Glowing Shard", 718, "turtleArea", 718, "ender", 8418),
 }
 
 
-def verify_record(p=APPROVED):
-    j=json.loads(p.read_text(encoding="utf-8"))
-    for k,v in EXPECTED.items():
-        if j.get(k)!=v:
-            raise ValueError(f"41797 title alias changed: {k}")
-    if j.get("decision")!="allow_exact_title_alias_without_renaming_catalog":
-        raise ValueError("Quest 41797 alias was not approved")
-    if not j.get("stage_hashes",{}).get("accept"):
-        raise ValueError("Missing pinned source fingerprint")
-    return j
+def verify_record(path=APPROVED):
+    data = json.loads(path.read_text(encoding="utf-8"))
+    for key, value in EXPECTED.items():
+        if data.get(key) != value:
+            raise ValueError(f"41797 approved identity changed: {key}")
+    if data.get("decision") != "allow_exact_title_alias_without_renaming_catalog":
+        raise ValueError("41797 title alias is not approved")
+    if not all(data.get("stage_hashes", {}).get(stage)
+               for stage in ("accept", "progress", "complete")):
+        raise ValueError("Missing pinned quest text fingerprints")
+    return data
 
 
-def apply_older(text,manifest=OLDER):
-    with manifest.open(newline="",encoding="utf-8") as stream:
-        rows=list(csv.DictReader(stream))
-    if len(rows)!=2 or {int(r["quest_id"]) for r in rows}!=set(OLDER_SPECS):
-        raise ValueError("Unexpected older quest classification approval roster")
-    changed=False
-    for row in rows:
-        qid=int(row["quest_id"])
-        title,area,kind,value,guard,actor=OLDER_SPECS[qid]
-        if (row["catalog_title"]!=title or int(row["source_area"])!=area or
-                row["classification"]!=kind or int(row["value"])!=value or
-                row["guard_field"]!=guard or int(row["guard_id"])!=actor or
-                not row["reference"].startswith("https://")):
-            raise ValueError("Older classification source guard changed: "+str(qid))
-        pattern=(r'(?m)^(\s*\['+str(qid)+
-                 r'\]\s*=\s*\{\s*)'+re.escape(json.dumps(title))+
-                 r'([^\r\n]*)(\},[ \t]*)
-    match=re.search(r'(?m)^(\s*\[41797\]\s*=\s*\{\s*)"A Good Friend"([^{}\r\n]*)(\},[ \t]*)$',text)
-    if not match:
-        raise ValueError("Missing or changed quest 41797")
-    fields=match[2]
-    if not re.search(r'\bstarter\s*=\s*228\b',fields) or not re.search(
-            r'\bender\s*=\s*62307\b',fields):
-        raise ValueError("Source starter/ender quest identity changed")
-    expected="turtleArea = 5581"
-    if re.search(r'\b(?:turtleArea|zones|sort)\s*=',fields):
-        if re.search(r'\bturtleArea\s*=\s*5581\b',fields):
-            return text,False
-        raise ValueError("Quest 41797 has conflicting preexisting classification")
-    raw=match[0]
-    updated=match[1]+'"A Good Friend"'+fields.rstrip()+', '+expected+' '+match[3]
-    return text.replace(raw,updated,1),True
-
-
-def main():
-    p=argparse.ArgumentParser(description=__doc__)
-    opts=p.add_mutually_exclusive_group(required=True)
-    opts.add_argument("--apply",action="store_true")
-    opts.add_argument("--check",action="store_true")
-    p.add_argument("--catalog",type=Path,default=CATALOG)
-    p.add_argument("--approval",type=Path,default=APPROVED)
-    a=p.parse_args()
-    verify_record(a.approval)
-    old=a.catalog.read_text(encoding="utf-8")
-    result,changed=apply(old)
-    result,more=apply_older(result)
-    changed=changed or more
-    if a.check:
-        if changed:raise SystemExit("Quest 41797 is missing Northwind classification")
-        print("PASS: 41797 Northwind, 708 Badlands, 3366 Wailing Caverns classifications")
-    else:
-        if changed:a.catalog.write_text(result,encoding="utf-8")
-        print("Applied" if changed else "Preserved","41797, 708, 3366 approved classifications")
-
-
-if __name__=="__main__":main()
-)
-        m=re.search(pattern,text)
-        if not m:raise ValueError("Expected existing Classic quest "+str(qid))
-        body=m[2]
-        if not re.search(r'\b'+guard+r'\s*=\s*'+str(actor)+r'\b',body):
-            raise ValueError("Existing quest role changed "+str(qid))
-        new_value=(f"zones = {{{value}}}" if kind=="zones" else f"turtleArea = {value}")
-        if re.search(r'\b(?:zones|sort|turtleArea)\s*=',body):
-            if not re.search(r'\b'+kind+r'\s*=\s*(?:\{\s*)?'+str(value)+r'(?:\s*\})?',body):
-                raise ValueError("Existing classification contradicts reviewed quest "+str(qid))
-            continue
-        replacement=m[1]+json.dumps(title)+body.rstrip()+", "+new_value+" "+m[3]
-        text=text.replace(m[0],replacement,1)
-        changed=True
-    return text,changed
+def modify_quest(text, qid, title, guards, assignment):
+    lines = text.splitlines(keepends=True)
+    prefix = f"\t\t[{qid}] = {{ {json.dumps(title, ensure_ascii=False)}"
+    matches = [i for i, line in enumerate(lines) if line.startswith(prefix)]
+    if len(matches) != 1:
+        raise ValueError(f"Missing/duplicate or renamed quest {qid}")
+    index = matches[0]
+    line = lines[index]
+    ending = "\r\n" if line.endswith("\r\n") else "\n" if line.endswith("\n") else ""
+    body = line[:-len(ending)] if ending else line
+    if not body.endswith(" },"):
+        raise ValueError(f"Unexpected quest row syntax for {qid}")
+    for name, actor in guards.items():
+        if not re.search(r"\b" + re.escape(name) +
+                         r"\s*=\s*" + str(actor) + r"\b", body):
+            raise ValueError(f"Missing validated {name} for quest {qid}")
+    if re.search(r"\b(?:turtleArea|zones|sort)\s*=", body):
+        if assignment not in body:
+            raise ValueError(f"Quest {qid} has a conflicting classification")
+        return text, False
+    lines[index] = body[:-3].rstrip() + ", " + assignment + " }," + ending
+    return "".join(lines), True
 
 
 def apply(text):
-    match=re.search(r'(?m)^(\s*\[41797\]\s*=\s*\{\s*)"A Good Friend"([^{}\r\n]*)(\},[ \t]*)$',text)
-    if not match:
-        raise ValueError("Missing or changed quest 41797")
-    fields=match[2]
-    if not re.search(r'\bstarter\s*=\s*228\b',fields) or not re.search(
-            r'\bender\s*=\s*62307\b',fields):
-        raise ValueError("Source starter/ender quest identity changed")
-    expected="turtleArea = 5581"
-    if re.search(r'\b(?:turtleArea|zones|sort)\s*=',fields):
-        if re.search(r'\bturtleArea\s*=\s*5581\b',fields):
-            return text,False
-        raise ValueError("Quest 41797 has conflicting preexisting classification")
-    raw=match[0]
-    updated=match[1]+'"A Good Friend"'+fields.rstrip()+', '+expected+' '+match[3]
-    return text.replace(raw,updated,1),True
+    return modify_quest(
+        text, 41797, "A Good Friend",
+        {"starter": 228, "ender": 62307}, "turtleArea = 5581",
+    )
+
+
+def apply_older(text, manifest=OLDER):
+    with manifest.open(newline="", encoding="utf-8") as source:
+        rows = list(csv.DictReader(source))
+    if len(rows) != 2 or {int(r["quest_id"]) for r in rows} != set(OLDER_SPECS):
+        raise ValueError("Unexpected item-origin classification roster")
+    changed = False
+    for row in rows:
+        qid = int(row["quest_id"])
+        title, source_area, kind, value, guard, actor = OLDER_SPECS[qid]
+        if (row["catalog_title"] != title or
+                int(row["source_area"]) != source_area or
+                row["classification"] != kind or int(row["value"]) != value or
+                row["guard_field"] != guard or int(row["guard_id"]) != actor or
+                not row["reference"].startswith("https://")):
+            raise ValueError(f"Item-origin source guard changed for {qid}")
+        value_text = (f"zones = {{{value}}}" if kind == "zones"
+                      else f"turtleArea = {value}")
+        text, updated = modify_quest(text, qid, title, {guard: actor}, value_text)
+        changed = changed or updated
+    return text, changed
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__)
-    opts=p.add_mutually_exclusive_group(required=True)
-    opts.add_argument("--apply",action="store_true")
-    opts.add_argument("--check",action="store_true")
-    p.add_argument("--catalog",type=Path,default=CATALOG)
-    p.add_argument("--approval",type=Path,default=APPROVED)
-    a=p.parse_args()
-    verify_record(a.approval)
-    old=a.catalog.read_text(encoding="utf-8")
-    result,changed=apply(old)
-    if a.check:
-        if changed:raise SystemExit("Quest 41797 is missing Northwind classification")
-        print("PASS: 41797 verified title-aliased Northwind classification")
+    parser = argparse.ArgumentParser(description=__doc__)
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--apply", action="store_true")
+    group.add_argument("--check", action="store_true")
+    parser.add_argument("--catalog", type=Path, default=CATALOG)
+    parser.add_argument("--approval", type=Path, default=APPROVED)
+    args = parser.parse_args()
+    verify_record(args.approval)
+    original = args.catalog.read_text(encoding="utf-8")
+    new, a = apply(original)
+    new, b = apply_older(new)
+    if args.check:
+        if a or b:
+            raise SystemExit("One or more approved quest classifications are missing")
+        print("PASS: Northwind, Badlands, and Wailing Caverns classifications")
     else:
-        if changed:a.catalog.write_text(result,encoding="utf-8")
-        print("Applied" if changed else "Preserved","41797 Northwind classification")
+        if a or b:
+            args.catalog.write_text(new, encoding="utf-8")
+        print("Applied" if a or b else "Preserved", "three approved classifications")
 
 
-if __name__=="__main__":main()
+if __name__ == "__main__":
+    main()
