@@ -112,7 +112,8 @@ local function AddRow(rows,node,depth,forceMatch)
     local found,total,completed=Count(node)
     if total==0 then return end
     table.insert(rows,{kind=node.kind,key=node.key,label=node.label,depth=depth,
-        leaf=false,open=openedNow, count=completed,total=total, found=found})
+        leaf=false,open=openedNow, count=completed,total=total, found=found,
+        instanceType=node.instanceType})
     if openedNow then
         local all=forceMatch or Match(node.label)
         for _,child in ipairs(node.children) do AddRow(rows,child,depth+1,all) end

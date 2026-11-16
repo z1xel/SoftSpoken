@@ -34,6 +34,10 @@ local NAME = "SSCCompendiumWindow"
 local WIDTH, VISIBLE_ROWS = 670, 42
 -- Same row metrics as original Spoken: branch 24px, leaf 20px, 14px per depth.
 local BRANCH_ROW, LEAF_ROW, DEPTH_STEP, SCROLL_STEP = 24, 20, 14, 60
+-- Blizzard's original 18x18 QuestTypeIcons cells (not the modern SetAtlas API).
+local INSTANCE_ICON = "Interface\\QuestFrame\\QuestTypeIcons"
+local DUNGEON_UV = { 0.421875, 0.5625, 0, 0.28125 }
+local RAID_UV = { 0.703125, 0.84375, 0, 0.28125 }
 local function RowHeight(item)
     return item.leaf and LEAF_ROW or BRANCH_ROW
 end
@@ -959,6 +963,10 @@ function List:AcquireRow(index)
     -- highlight font for leaves. SetWordWrap is optional on early clients.
     button.label=button:CreateFontString(nil,"ARTWORK","GameFontNormal")
     button.label:SetJustifyH("LEFT")
+    button.instanceIcon=button:CreateTexture(nil,"ARTWORK")
+    button.instanceIcon:SetTexture(INSTANCE_ICON)
+    button.instanceIcon:SetWidth(18);button.instanceIcon:SetHeight(18)
+    button.instanceIcon:Hide()
     if button.label.SetWordWrap then button.label:SetWordWrap(false) end
     button.state=button:CreateFontString(nil,"ARTWORK","GameFontDisableSmall")
     button.count=button.state  -- upstream field name
@@ -1040,6 +1048,8 @@ function List:DrawRows()
             b:SetPoint("TOPLEFT",self.child,"TOPLEFT",0,-self.rowStarts[index+i-1])
             b:SetPoint("TOPRIGHT",self.child,"TOPRIGHT",0,-self.rowStarts[index+i-1])
             b.label:ClearAllPoints()
+            b.instanceIcon:Hide()
+            b.instanceIcon:ClearAllPoints()
             b.toggle:ClearAllPoints()
             b.marker:ClearAllPoints()
             b.marker:SetText("")
@@ -1059,7 +1069,14 @@ function List:DrawRows()
                 end
             else
                 b.label:SetFontObject("GameFontNormal")
-                b.label:SetPoint("LEFT",b,"LEFT",28+indent,0)
+                if item.instanceType=="dungeon" or item.instanceType=="raid" then
+                    b.instanceIcon:SetPoint("LEFT",b,"LEFT",28+indent,0)
+                    b.instanceIcon:SetTexCoord(unpack(item.instanceType=="raid" and RAID_UV or DUNGEON_UV))
+                    b.instanceIcon:Show()
+                    b.label:SetPoint("LEFT",b,"LEFT",50+indent,0)
+                else
+                    b.label:SetPoint("LEFT",b,"LEFT",28+indent,0)
+                end
                 b.toggle:SetPoint("LEFT",b,"LEFT",8+indent,0)
                 local count=item.count or 0
                 local onlyFound=self.opts.onlyGet and self.opts.onlyGet()

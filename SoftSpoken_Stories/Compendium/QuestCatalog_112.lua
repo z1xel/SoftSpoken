@@ -237,6 +237,7 @@ function M:BuildTree()
         end
         for _,dungeon in ipairs(SortedKeys(byDungeon,function(id) return SSCCompendium.DungeonName(id) end)) do
             local dungeonNode=Attach(zoneNode,Node("dungeon:"..zone..":"..dungeon,SSCCompendium.DungeonName(dungeon),"dungeon"))
+            dungeonNode.instanceType=SSCCompendium.InstanceType(dungeon)
             MakeLeaves(dungeonNode,byDungeon[dungeon])
         end
         MakeLeaves(zoneNode,normal)

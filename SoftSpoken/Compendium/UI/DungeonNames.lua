@@ -29,6 +29,12 @@ local N={
     [531]="Ahn'Qiraj Temple",
     [533]="Naxxramas",
 }
+-- Raid maps share the instance-map namespace but use a different quest-category icon.
+local RAID_MAPS={ [249]=true,[309]=true,[409]=true,[469]=true,
+    [509]=true,[531]=true,[533]=true }
+function C.InstanceType(mapID)
+    return RAID_MAPS[mapID] and "raid" or "dungeon"
+end
 function C.DungeonName(mapID)
     return N[mapID] or ("Dungeon "..tostring(mapID))
 end
