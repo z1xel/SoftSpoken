@@ -1,0 +1,21 @@
+quest_id,catalog_title,field,entity_id,source_key
+41734,Damaged Relic Mechanism,ender,6868,pinned_tortoise_typed_relation_and_npc_spawn
+41908,Raw Draenethyst Formation,starter,62851,pinned_tortoise_typed_relation_and_npc_spawn
+41908,Raw Draenethyst Formation,ender,62851,pinned_tortoise_typed_relation_and_npc_spawn
+41909,Glowing Draenethyst Cluster,starter,62851,pinned_tortoise_typed_relation_and_npc_spawn
+41909,Glowing Draenethyst Cluster,ender,62851,pinned_tortoise_typed_relation_and_npc_spawn
+41912,An Ill Omen,starter,62986,pinned_tortoise_typed_relation_and_npc_spawn
+41912,An Ill Omen,ender,62920,pinned_tortoise_typed_relation_and_npc_spawn
+41913,Draenei Divination,starter,62920,pinned_tortoise_typed_relation_and_npc_spawn
+41913,Draenei Divination,ender,62920,pinned_tortoise_typed_relation_and_npc_spawn
+41914,"Hooves and Horns, Clad in Red",starter,62920,pinned_tortoise_typed_relation_and_npc_spawn
+41914,"Hooves and Horns, Clad in Red",ender,62986,pinned_tortoise_typed_relation_and_npc_spawn
+41915,Answers from Father,starter,62986,pinned_tortoise_typed_relation_and_npc_spawn
+41915,Answers from Father,ender,62850,pinned_tortoise_typed_relation_and_npc_spawn
+41916,The Elder's End,starter,62850,pinned_tortoise_typed_relation_and_npc_spawn
+41916,The Elder's End,ender,62850,pinned_tortoise_typed_relation_and_npc_spawn
+41917,A Student's Determination,starter,62850,pinned_tortoise_typed_relation_and_npc_spawn
+41917,A Student's Determination,ender,62986,pinned_tortoise_typed_relation_and_npc_spawn
+41922,Homecoming,starter,62863,pinned_tortoise_typed_relation_and_npc_spawn
+41922,Homecoming,ender,91781,pinned_tortoise_typed_relation_and_npc_spawn
+80381,Shellcoins,ender,80999,pinned_tortoise_typed_relation_and_npc_spawn
