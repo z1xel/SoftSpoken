@@ -25,6 +25,11 @@ OUT_META = ROOT / "SoftSpoken_Stories/Data/TurtleAreaMeta.lua"
 FIELDS = ["quest_id", "catalog_title", "source_title", "source_area_id", "source_area_name",
           "source_method", "source_category", "cohort", "status", "reason",
           "classification", "value", "resolved_name", "resolution", "continent"]
+# Reviewed AreaTable equivalents for EXISTING UiMap locations. Extend only
+# with source-supported identities; do not infer links from names alone.
+VERIFIED_UI_MAPS = {
+    2597: ("Alterac Valley", 1459),
+}
 
 
 def normal(value):
@@ -210,15 +215,24 @@ def build(args):
                    "note": "No new quest IDs; positive source AreaTable IDs are never used as uiMapIDs."},
                   handle, indent=2, ensure_ascii=False)
         handle.write("\n")
+    missing = sorted(set(VERIFIED_UI_MAPS) - set(meta))
+    if missing:
+        raise ValueError("Verified map equivalents missing source areas: " + str(missing))
     lua = [
         "-- Generated from the pinned Tortoise area hierarchy by",
-        "-- scripts/build_tortoise_zone_overlay.py. Names and continent metadata",
-        "-- for virtual Turtle regions. These IDs are NOT uiMapIDs.",
+        "-- scripts/build_tortoise_zone_overlay.py. Names, continent metadata and",
+        "-- reviewed UI map equivalents for AreaTable IDs (which are NOT uiMapIDs).",
         "SSCTurtleAreaMeta = {"
     ]
     for area_id, m in sorted(meta.items()):
         cont = f", continent = {m['continent']}" if m["continent"] else ""
-        lua.append(f"    [{area_id}] = {{ name = {lua_string(m['name'])}{cont} }},")
+        linked = ""
+        if area_id in VERIFIED_UI_MAPS:
+            expected, ui_map_id = VERIFIED_UI_MAPS[area_id]
+            if normal(m["name"]) != normal(expected):
+                raise ValueError(f"AreaTable {area_id}: expected {expected}, got {m['name']}")
+            linked = f", uiMapID = {ui_map_id}"
+        lua.append(f"    [{area_id}] = {{ name = {lua_string(m['name'])}{cont}{linked} }},")
     lua.append("}")
     args.meta.parent.mkdir(parents=True, exist_ok=True)
     args.meta.write_text("\n".join(lua)+"\n", encoding="utf-8")

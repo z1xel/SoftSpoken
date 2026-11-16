@@ -53,8 +53,16 @@ def sections(catalog):
 def clean(catalog, dialogue, denied):
     start, end, _, _ = sections(catalog)
     quest_section = catalog[start:end]
-    new_quests = CATALOG_ROW.sub(
-        lambda m: "" if int(m[1]) in denied else m[0], quest_section)
+    def keep_or_clean_row(match):
+        if int(match[1]) in denied:
+            return ""
+        # A kept Vanilla quest must not link to a removed Forever-only
+        # predecessor. Remove that one unsupported chain edge, not the quest.
+        return re.sub(r", prev = (\\d+)",
+                      lambda m: "" if int(m[1]) in denied else m[0],
+                      match[0])
+
+    new_quests = CATALOG_ROW.sub(keep_or_clean_row, quest_section)
     catalog = catalog[:start] + new_quests + catalog[end:]
 
     start, end, sort_start, sort_end = sections(catalog)

@@ -8,8 +8,13 @@ SSCCompendium = {
         return nil
     end
 }
+-- Confirm the generated table, not just the fixture, contains the reviewed link.
+dofile("SoftSpoken_Stories/Data/TurtleAreaMeta.lua")
+assert(SSCTurtleAreaMeta[2597] and SSCTurtleAreaMeta[2597].uiMapID==1459,
+    "Generated Turtle metadata must preserve Alterac Valley map equivalence")
 SSCTurtleAreaMeta = {
     [5179] = {name = "Gilneas",continent=1415},
+    [2597] = {name = "Alterac Valley",uiMapID=1459},
 }
 SSCQuestState = {
     SeenIDs = function() return {} end,
@@ -19,6 +24,9 @@ SSCQuestState = {
 SpokenQuestsCompendium = {
     quests = {
         [820] = {"What Do You Rely On?", zones={1411}, starter=3304},
+        [5892] = {"Irondeep Supplies", zones={1459}},
+        [40004] = {"Winterax Champion", turtleArea=2597},
+        [40005] = {"Gnome Stew", turtleArea=2597},
         [51790] = {"Example Turtle", turtleArea=5179},
         [51791] = {"Unnamed region", turtleArea=99999},
         [51792] = {"Native priority", zones={1411}, turtleArea=5179},
@@ -41,6 +49,15 @@ local native = assert(find(root,"zone:1411"),"Durotar group missing")
 assert(native.label=="Durotar")
 assert(native.mapID==1411)
 assert(find(native,"q:820"),"Quest 820 not located under Durotar")
+local alterac=assert(find(root,"zone:1459"),"Merged Alterac Valley group missing")
+assert(alterac.label=="Alterac Valley","Mapped UiMapID must show the AreaTable place name")
+assert(alterac.mapID==1459,"Merged group must keep its UiMapID")
+assert(find(alterac,"q:5892"),"Original native quest missing from merged group")
+assert(find(alterac,"q:40004") and find(alterac,"q:40005"),
+    "Mapped Turtle quests missing from native group")
+assert(alterac.total==3,"Merged zone count must include exactly its three unique quests")
+assert(not find(root,"turtle-area:2597"),
+    "AreaTable 2597 must not create a second Alterac Valley group")
 local turtle = assert(find(root,"turtle-area:5179"),"Turtle region group missing")
 assert(turtle.label=="Gilneas")
 assert(turtle.mapID==nil,"Never forge retail uiMapIDs for Turtle areas")
@@ -89,6 +106,10 @@ assert(subtitle(51791)=="Turtle Area 99999  ·  Previously encountered",
     "Unknown Turtle areas must match the tree's numeric fallback")
 assert(subtitle(820)=="Durotar  ·  Previously encountered",
     "Vanilla zone subtitle must not regress")
+assert(subtitle(5892)=="Alterac Valley  ·  Previously encountered",
+    "Original Alterac quest subtitle must use named map fallback")
+assert(subtitle(40004)=="Alterac Valley  ·  Previously encountered",
+    "Mapped Turtle quest subtitle must match its merged zone")
 assert(subtitle(51792)=="Durotar  ·  Previously encountered",
     "Native zone takes priority over Turtle area")
 assert(subtitle(51793)=="Gilneas  ·  Previously encountered",
@@ -97,4 +118,4 @@ assert(subtitle(71000)=="Children's Week  ·  Previously encountered",
     "Quest category subtitle must not regress")
 assert(subtitle(4321)=="Place unknown (Turtle/uncatalogued quest)  ·  Previously encountered",
     "Unclassified quest subtitle must retain its fallback")
-print("PASS: native zones, virtual Turtle regions, sort, unknown fallback and quest subtitles")
+print("PASS: native zones, merged AreaTable map links, virtual Turtle regions, sort, unknown fallback and quest subtitles")

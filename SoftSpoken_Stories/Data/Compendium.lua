@@ -954,6 +954,8 @@ SpokenQuestsCompendium = {
 	},
 
 	quests = {
+		[676] = { "The Hammer May Fall", zones = { 1424 }, ender = 2771, races = 8589934770 },
+		[666] = { "Sunken Treasure", zones = { 1417 }, prev = 665 },
 		[2] = { "Sharptalon's Claw", zones = { 1440 }, prev = 6383, ender = 12696, races = 8589934770 },
 		[5] = { "Jitters' Growling Gut", zones = { 1431 }, ender = 272, races = 4294967373 },
 		[6] = { "Bounty on Garrick Padfoot", zones = { 1429 }, prev = 18, races = 4294967373 },
@@ -1887,7 +1889,7 @@ SpokenQuestsCompendium = {
 		[979] = { "Find Ranshalla", zones = { 1438 }, prev = 978, ender = 10300, races = 4294967373 },
 		[980] = { "The New Springs", zones = { 1449 }, prev = 974, ender = 9298 },
 		[981] = { "The Tower of Althalaxx", zones = { 1439 }, prev = 1143, ender = 3663, races = 4294967373 },
-		[982] = { "Deep Ocean, Vast Sea", zones = { 1439 }, prev = 97894, races = 4294967373 },
+		[982] = { "Deep Ocean, Vast Sea", zones = { 1439 }, races = 4294967373 },
 		[983] = { "Buzzbox 827", zones = { 1439 }, enderObject = 17182, races = 4294967373 },
 		[984] = { "How Big a Threat?", zones = { 1439 }, races = 4294967373 },
 		[985] = { "How Big a Threat?", zones = { 1439 }, prev = 984, races = 4294967373 },
@@ -2544,7 +2546,7 @@ SpokenQuestsCompendium = {
 		[2500] = { "Badlands Reagent Run", zones = { 1432 }, races = 4294967373 },
 		[2501] = { "Badlands Reagent Run II", zones = { 1432 }, prev = 2500, races = 4294967373 },
 		[2518] = { "Tears of the Moon", zones = { 1457 }, prev = 2519, races = 4294967373 },
-		[2519] = { "The Temple of the Moon", zones = { 1457 }, prev = 98391, ender = 7313, races = 4294967373 },
+		[2519] = { "The Temple of the Moon", zones = { 1457 }, ender = 7313, races = 4294967373 },
 		[2520] = { "Sathrah's Sacrifice", zones = { 1457 }, prev = 2518, races = 4294967373 },
 		[2521] = { "To Serve Kum'isha", zones = { 1419 } },
 		[2522] = { "Kum'isha's Endeavors", zones = { 1419 }, prev = 2521 },

@@ -42,6 +42,26 @@ class ForeverCorpusCleanup(unittest.TestCase):
             cwd=ROOT, capture_output=True, text=True)
         self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
 
+    def test_keeps_original_vanilla_chain_and_rejects_forever_predecessors(self):
+        from scripts.clean_forever_quest_data import sections, CATALOG_ROW
+        catalog = (ROOT / "SoftSpoken_Stories/Data/Compendium.lua").read_text()
+        start, end, _, _ = sections(catalog)
+        records = {int(m[1]): m[0] for m in CATALOG_ROW.finditer(catalog[start:end])}
+        self.assertEqual(len(records), 6646)
+        self.assertIn(666, records)
+        self.assertIn(676, records)
+        self.assertIn("Sunken Treasure", records[666])
+        self.assertIn("The Hammer May Fall", records[676])
+        self.assertIn("prev = 666", records[668])
+        self.assertIn("prev = 676", records[677])
+        self.assertNotIn("prev = 97894", records[982])
+        self.assertNotIn("prev = 98391", records[2519])
+        vanilla = {int(line) for line in
+                   (ROOT / "docs/vanilla_pfquest_ids.txt").read_text().splitlines()
+                   if line}
+        self.assertEqual(len(set(records) & vanilla), 4265,
+                         "Originally retained Vanilla quest identities changed")
+
     def test_original_dialogue_preserved_for_all_retained_ids(self):
         # The cleaner never substitutes or rewrites text. It only deletes
         # whole dialogue records enumerated in the manifest.

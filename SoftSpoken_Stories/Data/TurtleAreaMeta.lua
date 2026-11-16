@@ -1,6 +1,6 @@
 -- Generated from the pinned Tortoise area hierarchy by
--- scripts/build_tortoise_zone_overlay.py. Names and continent metadata
--- for virtual Turtle regions. These IDs are NOT uiMapIDs.
+-- scripts/build_tortoise_zone_overlay.py. Names, continent metadata and
+-- reviewed UI map equivalents for AreaTable IDs (which are NOT uiMapIDs).
 SSCTurtleAreaMeta = {
     [25] = { name = "Blackrock Mountain", continent = 1415 },
     [209] = { name = "Shadowfang Keep" },
@@ -23,7 +23,7 @@ SSCTurtleAreaMeta = {
     [2040] = { name = "Alah'Thalas", continent = 1415 },
     [2100] = { name = "Maraudon" },
     [2557] = { name = "Dire Maul" },
-    [2597] = { name = "Alterac Valley" },
+    [2597] = { name = "Alterac Valley", uiMapID = 1459 },
     [2677] = { name = "Blackwing Lair" },
     [2717] = { name = "Molten Core" },
     [3457] = { name = "Tower of Karazhan" },
