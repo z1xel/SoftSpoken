@@ -19,6 +19,14 @@
 | Substantial difference (below 0.70 similarity) | 35 |
 | **Total** | **289** |
 
+The WoW directive audit also distinguishes **259 literal directive-spelling changes**:
+**155 change only the case of one-letter codes**, while **104 change the
+case-normalized directive sequence** (for example adding, removing or
+reordering a game placeholder). These numbers overlap the wording categories,
+rather than adding more quests. In particular, a difference in `$B` /
+`$b` spelling is not by itself evidence of new dialogue; changing a
+`$G` gender directive may be more consequential.
+
 **These are text-difference classifications, not proof that Turtle deliberately revised Vanilla prose.** Each stage also has evidence of a Turtle SQL migration affecting the corresponding dialogue column, but the pinned sources are community snapshots, not authenticated live-server exports.
 
 Among the 35 substantial cases, **20 have shorter Turtle dialogue** and **15 have longer Turtle dialogue**. Of the 20 reductions, **15 remove over 100 characters** relative to original Spoken. Replacing all 289 blindly would discard whole paragraphs in several quests.
