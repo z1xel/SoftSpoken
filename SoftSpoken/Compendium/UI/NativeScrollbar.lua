@@ -283,14 +283,13 @@ function Skin.AttachSettings(panel,scroll)
     local bar=getglobal(name.."ScrollBar")
     if not bar then return end
 
-    -- Keep the housing in the reserved right gutter but extend it beyond
-    -- the content viewport: from the lower edge of the search surround
-    -- (101 units below the window top) to the inner bottom window edge.
-    -- The viewport itself is unchanged and still owns the scroll range.
+    -- Housing is shifted up one unit overall, with one additional unit
+    -- extended at the top. The content viewport and its scroll range
+    -- are unchanged.
     local slot,reflow=Housing(panel,-9)
     slot:ClearAllPoints()
-    slot:SetPoint("TOPRIGHT",panel,"TOPRIGHT",-9,-101)
-    slot:SetPoint("BOTTOMRIGHT",panel,"BOTTOMRIGHT",-9,9)
+    slot:SetPoint("TOPRIGHT",panel,"TOPRIGHT",-9,-103)
+    slot:SetPoint("BOTTOMRIGHT",panel,"BOTTOMRIGHT",-9,10)
     slot:SetFrameLevel(panel:GetFrameLevel()+2)
 
     -- Reposition the native slider/arrow buttons over the shared artwork.
