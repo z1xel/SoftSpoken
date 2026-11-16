@@ -50,7 +50,8 @@ C_CreatureInfo = {
     end,
 }
 SpokenQuestsCompendium = {
-    npcNames = { [60516] = "Marrek Stromnur", [2020] = "Stale corpus label" },
+    npcNames = { [60516] = "Marrek Stromnur", [2020] = "Stale corpus label",
+        [6868] = "Jarkal Mossmeld", [62986] = "Ar'lia", [62850] = "Moro'gai K'la" },
     quests = {
         [101] = { ender = 2020 },
         [102] = { enderObject = 3030 },
@@ -311,6 +312,9 @@ sound({event=1,questID=42098,unitGUID="creature:63204"},8,63204,
 sound({event=3,questID=41768,unitGUID="creature:62682"},8,62682,
     "alternate Northwind ender GUID wins")
 
+equal(R:Name(8,6868,"Unknown"),"Jarkal Mossmeld","recovered Jarkal speaker name")
+equal(R:Name(8,62986,"Unknown"),"Ar'lia","recovered Ar'lia speaker name")
+equal(R:Name(8,62850,"Unknown"),"Moro'gai K'la","recovered Moro'gai speaker name")
 -- Both factions use the same quest IDs but different starter/ender NPCs.
 for _, id in ipairs({ 60030, 60031, 60032, 60033, 60034, 60035, 60036 }) do
     playerFaction = "Alliance"
