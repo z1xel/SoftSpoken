@@ -88,6 +88,31 @@ class MissingStageImportTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Other Turtle text exists"):
             missing.merge_batch(original, missing.BEGIN + "\n" + missing.END + "\n", {10001})
 
+    def test_other_stage_on_same_quest_survives_reimport(self):
+        # Quest 9057 has an approved Tier 3 completion alongside a
+        # previously imported missing progress stage. Both must survive.
+        original = ('SSCTurtleQuestText = SSCTurtleQuestText or {}\n'
+                    'SSCTurtleQuestText[9057] = SSCTurtleQuestText[9057] or {}\n'
+                    'SSCTurtleQuestText[9057].complete = "Reviewed Tier 3 line"\n')
+        generated = (missing.BEGIN + '\n'
+                     'SSCTurtleQuestText[9057] = SSCTurtleQuestText[9057] or {}\n'
+                     'SSCTurtleQuestText[9057].progress = "Missing progress"\n'
+                     + missing.END + '\n')
+        merged = missing.merge_batch(original, generated, {9057})
+        self.assertTrue(merged.startswith(original))
+        self.assertIn('SSCTurtleQuestText[9057].progress = "Missing progress"', merged)
+        self.assertIn('SSCTurtleQuestText[9057].complete = "Reviewed Tier 3 line"', merged)
+        self.assertEqual(merged, missing.merge_batch(merged, generated, {9057}))
+
+    def test_existing_same_stage_assignment_is_refused(self):
+        original = ('SSCTurtleQuestText = SSCTurtleQuestText or {}\n'
+                    'SSCTurtleQuestText[9057].progress = "Must remain"\n')
+        generated = (missing.BEGIN + '\n'
+                     'SSCTurtleQuestText[9057].progress = "Bad overwrite"\n'
+                     + missing.END + '\n')
+        with self.assertRaisesRegex(ValueError, "already occupies stages"):
+            missing.merge_batch(original, generated, {9057})
+
     def test_existing_spoken_text_is_ineligible(self):
         self.write_manifest(bad_stage=(10000, "progress"))
         with self.assertRaisesRegex(ValueError, "Unsafe source or existing dialogue"):
