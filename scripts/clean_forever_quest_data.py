@@ -22,7 +22,7 @@ TURTLE = ROOT / "docs/turtle_exclusive_import.csv"
 LEGACY = ROOT / "docs/turtle_restored_legacy_ids.csv"
 EXCLUSIONS = ROOT / "docs/forever_quest_exclusions.csv"
 
-CATALOG_ROW = re.compile(r"(?m)^\t\t\[(\d+)\] = \{[^\n]*\},\r?\n")
+CATALOG_ROW = re.compile(r"(?m)^\t\t\[(\d+)\] = \{[^\n]*\},(?:\r?\n|$)")
 TEXT_ROW = re.compile(r"(?m)^\t\[(\d+)\] = \{\r?\n[\s\S]*?^\t\},\r?\n")
 SORT_ROW = re.compile(r"(?m)^\t\t\[(\d+)\] = \{[^\n]*\},\r?\n")
 UNUSED_FOREVER_SORTS = {666, 676}
@@ -58,7 +58,7 @@ def clean(catalog, dialogue, denied):
             return ""
         # A kept Vanilla quest must not link to a removed Forever-only
         # predecessor. Remove that one unsupported chain edge, not the quest.
-        return re.sub(r", prev = (\\d+)",
+        return re.sub(r", prev = (\d+)",
                       lambda m: "" if int(m[1]) in denied else m[0],
                       match[0])
 
