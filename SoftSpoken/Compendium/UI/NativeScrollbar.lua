@@ -288,8 +288,8 @@ function Skin.AttachSettings(panel,scroll)
     -- are unchanged.
     local slot,reflow=Housing(panel,-9)
     slot:ClearAllPoints()
-    slot:SetPoint("TOPRIGHT",panel,"TOPRIGHT",-9,-103)
-    slot:SetPoint("BOTTOMRIGHT",panel,"BOTTOMRIGHT",-9,10)
+    slot:SetPoint("TOPRIGHT",panel,"TOPRIGHT",-9,-105)
+    slot:SetPoint("BOTTOMRIGHT",panel,"BOTTOMRIGHT",-9,12)
     slot:SetFrameLevel(panel:GetFrameLevel()+2)
 
     -- Reposition the native slider/arrow buttons over the shared artwork.
