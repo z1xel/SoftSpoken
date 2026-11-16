@@ -270,3 +270,51 @@ function Skin.AttachPage(pageInset,page)
     local rightOffset=geometry and geometry.pageSlotRightOffset or -3
     return Attach(pageInset,view,function(v) view:ScrollTo(v) end,rightOffset)
 end
+
+-- Decorate the existing Vanilla settings ScrollFrame, rather than creating a
+-- second slider. Its UIPanelScrollFrameTemplate must remain authoritative:
+-- it already owns scroll-wheel behavior, drag updates, arrow clicks, and range
+-- recalculation when Home/Stories/Places/Writings change their content.
+function Skin.AttachSettings(panel,scroll)
+    if not panel or not scroll or not scroll.GetName then return end
+    if scroll.sszNativeScrollChrome then return scroll.sszNativeScrollChrome end
+    local name=scroll:GetName()
+    if not name then return end
+    local bar=getglobal(name.."ScrollBar")
+    if not bar then return end
+
+    -- The settings viewport has reserved 42 units on the right for a bar.
+    -- Align the original 31-unit Compendium housing in that space, 9 units
+    -- inside the window edge, with a small gap before the text viewport.
+    local slot,reflow=Housing(panel,-9)
+    slot:ClearAllPoints()
+    slot:SetPoint("TOPRIGHT",scroll,"TOPRIGHT",33,0)
+    slot:SetPoint("BOTTOMRIGHT",scroll,"BOTTOMRIGHT",33,0)
+    slot:SetFrameLevel(panel:GetFrameLevel()+2)
+
+    -- Reposition the native slider/arrow buttons over the shared artwork.
+    -- Do not replace the template's OnValueChanged or scroll-range scripts.
+    bar:SetFrameLevel(slot:GetFrameLevel()+1)
+    bar:ClearAllPoints()
+    bar:SetPoint("TOP",slot,"TOP",0,-TRACK_TOP)
+    bar:SetPoint("BOTTOM",slot,"BOTTOM",0,TRACK_BOTTOM)
+    bar:SetWidth(16)
+    local up=getglobal(bar:GetName().."ScrollUpButton")
+    local down=getglobal(bar:GetName().."ScrollDownButton")
+    if up then
+        up:ClearAllPoints()
+        up:SetPoint("BOTTOM",slot,"TOP",0,-20)
+    end
+    if down then
+        down:ClearAllPoints()
+        down:SetPoint("TOP",slot,"BOTTOM",0,18)
+    end
+    PressedArrow(up)
+    PressedArrow(down)
+
+    -- Housing follows the existing scroll viewport on size changes; the
+    -- Blizzard slider automatically inherits those same endpoint anchors.
+    scroll.sszNativeScrollChrome={slot=slot,slider=bar,sync=reflow}
+    reflow()
+    return scroll.sszNativeScrollChrome
+end

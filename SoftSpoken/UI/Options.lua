@@ -1296,6 +1296,11 @@ function Options:Setup()
         panel:SetScript("OnDragStart", function() panel:StartMoving() end)
         panel:SetScript("OnDragStop", function() panel:StopMovingOrSizing() end)
         FitWindow()
+        -- Reuse the Compendium's native marble-and-metal scrollbar housing.
+        -- Keep the existing 1.12 scrollbar as the only scroll controller.
+        if SSCNativeScrollbar and SSCNativeScrollbar.AttachSettings then
+            SSCNativeScrollbar.AttachSettings(panel, scroller)
+        end
         -- Silver frame replaces the old gold divider under the tabs.
         DrawOrnateHeaderBand(panel)
         if Search and Search.BuildLegacy then Search:BuildLegacy(panel) end
