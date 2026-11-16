@@ -1,6 +1,6 @@
 quest_id,title,cohort,old_reason,resolution,action
 636,Legends of the Earth,older_shared_id,title_disagreement,hold_source_identity,Source title differs or has a retired/NYI marker
-708,The Black Box,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
+708,The Black Box,older_shared_id,shared_id_not_world_linked,approved_item_origin_zone,Item or loot initiated; category is source-backed without claiming a spawned NPC
 908,Amongst the Ruins,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
 909,Baron Aquanis,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
 1157,Alexstrasza,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
@@ -8,7 +8,7 @@ quest_id,title,cohort,old_reason,resolution,action
 1289,Vimes's Report,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
 1318,Unfinished Gordok Business,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
 1390,"Oops, We Killed Them Again.",older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
-3366,The Glowing Shard,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
+3366,The Glowing Shard,older_shared_id,shared_id_not_world_linked,approved_item_origin_zone,Item or loot initiated; category is source-backed without claiming a spawned NPC
 3482,The Pocked Black Box,older_shared_id,title_disagreement,hold_source_identity,Source title differs or has a retired/NYI marker
 5659,Touch of Weakness,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
 6000,Swearing to Gakin,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence

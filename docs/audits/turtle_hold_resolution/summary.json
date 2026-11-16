@@ -3,13 +3,14 @@
   "original_shared_text_holds": 49,
   "original_exclusive_text_holds": 8,
   "zone_dispositions": {
+    "approved_item_origin_zone": 2,
     "approved_title_alias": 1,
     "hold_disabled_method": 2,
     "hold_no_area": 2,
     "hold_restricted_area": 7,
     "hold_source_identity": 9,
     "hold_unmapped_area": 1,
-    "hold_unproven_availability": 15
+    "hold_unproven_availability": 13
   },
   "shared_dispositions": {
     "hold_method_unverified": 6,
@@ -44,6 +45,8 @@
     41797
   ],
   "direct_zone_classification_approved": [
+    708,
+    3366,
     41797
   ],
   "other_quest_text_imports_approved": [],
