@@ -18,7 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "docs/audits/turtle_touched_text_coverage"
 FIELDS = ("quest_id catalog_title stage similarity edit_category "
           "spoken_chars turtle_chars length_delta variable_tokens_changed "
-          "spoken_tokens turtle_tokens changed_word_count source_sha256").split()
+          "spoken_tokens turtle_tokens directive_sequence_changed directive_case_only "
+          "changed_word_count source_sha256").split()
 EXAMPLES = [(6071, "complete"), (194, "complete"), (3914, "complete"),
             (129, "accept"), (3801, "accept"), (3802, "accept"),
             (32, "complete"), (53, "complete"), (98, "complete"),
@@ -31,7 +32,13 @@ def words(s):
 
 
 def variables(s):
-    return sorted(re.findall(r"\$[A-Za-z][A-Za-z0-9]*", s, re.I))
+    # WoW directives are one letter even when immediately followed by text:
+    # $BHello means line break + "Hello", not a hypothetical $BHello token.
+    return re.findall(r"\$[A-Za-z]", s)
+
+
+def normalized_directives(s):
+    return [token.upper() for token in variables(s)]
 
 
 def words_without_punctuation(s):
@@ -52,6 +59,7 @@ def compare_text(spoken, turtle):
         kind = "moderate_wording"
     else:
         kind = "substantial_difference"
+    a_vars, b_vars = variables(a), variables(b)
     a_words, b_words = words(a), words(b)
     matcher = difflib.SequenceMatcher(None, a_words, b_words, autojunk=False)
     changed = sum(max(i2-i1, j2-j1) for op,i1,i2,j1,j2 in matcher.get_opcodes()
@@ -62,9 +70,12 @@ def compare_text(spoken, turtle):
         "spoken_chars": len(a),
         "turtle_chars": len(b),
         "length_delta": len(b) - len(a),
-        "variable_tokens_changed": int(variables(a) != variables(b)),
-        "spoken_tokens": ";".join(variables(a)),
-        "turtle_tokens": ";".join(variables(b)),
+        "variable_tokens_changed": int(a_vars != b_vars),
+        "spoken_tokens": ";".join(a_vars),
+        "turtle_tokens": ";".join(b_vars),
+        "directive_sequence_changed": int(normalized_directives(a) != normalized_directives(b)),
+        "directive_case_only": int(
+            a_vars != b_vars and normalized_directives(a) == normalized_directives(b)),
         "changed_word_count": changed,
     }
 
@@ -137,12 +148,16 @@ def main():
         writer.writerows(review)
     kinds = collections.Counter(x["edit_category"] for x in review)
     token_count = sum(x["variable_tokens_changed"] for x in review)
+    semantic_token_count = sum(x["directive_sequence_changed"] for x in review)
+    case_only_count = sum(x["directive_case_only"] for x in review)
     by_stage = collections.Counter(x["stage"] for x in review)
     summary = {
         "total_conflicts": len(review),
         "by_stage": dict(sorted(by_stage.items())),
         "edit_categories": dict(sorted(kinds.items())),
-        "changed_quest_placeholder_tokens": token_count,
+        "changed_literal_wow_directive_spelling": token_count,
+        "changed_directive_sequences_after_case_normalization": semantic_token_count,
+        "case_only_directive_changes": case_only_count,
         "comparison_source": "Pinned Tortoise SQLite versus original Spoken Lua corpus",
         "classification": "Character similarity and punctuation screening, not proof of Turtle authorship",
         "dialogue_overwritten": False,
@@ -166,7 +181,9 @@ def main():
         "| Measure | Count |", "| --- | ---: |",
         *[f"| {kind.replace('_', ' ').capitalize()} | {count} |"
           for kind, count in sorted(kinds.items())],
-        f"| Changed WoW placeholder token sequences | {token_count} |",
+        f"| WoW directive spelling changed | {token_count} |",
+        f"| WoW directive case-only changes | {case_only_count} |",
+        f"| Different directive sequences after case-normalization | {semantic_token_count} |",
         "",
         "Each pair below shows only the first changed passage with short surrounding context.",
         "It is deliberately not a complete-text import manifest.",
