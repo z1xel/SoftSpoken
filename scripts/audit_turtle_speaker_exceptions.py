@@ -28,6 +28,7 @@ FIELDS=["quest_id","quest_title","missing_in_manifest","missing_in_compendium",
         "starter_status","ender_status","next_action"]
 MULTI_FIELDS=["quest_id","quest_title","manifest_starters","manifest_enders",
               "compendium_accept_candidates","compendium_progress_complete_candidates",
+              "source_starters","source_enders","source_starter_comparison","source_ender_comparison",
               "starter_status","ender_status","faction_specific","fallback_npc_lookup",
               "voice_verification"]
 
@@ -154,6 +155,14 @@ def choose_action(s,e):
     return "Unresolved: inspect live interaction or more independent source records"
 
 
+def compare_source_to_manifest(source,manifest):
+    if not source:return "source_has_no_typed_relationship"
+    if source==manifest:return "matched"
+    if source<manifest:return "source_subset_of_manifest"
+    if manifest<source:return "source_additional_candidates"
+    return "different_candidate_sets"
+
+
 def fallback_metadata_ids(root):
     ids=set()
     for path in sorted(root.glob("*/generated/questlog_*_lookups.lua")):
@@ -230,7 +239,13 @@ def audit(db_path,manifest_path=MANIFEST,corpus_path=CORPUS,
         c={side:corpus_speaker_ids(line,side) for side in ("starter","ender")}
         faction=faction_specific(line)
         starter_ok=(m["starter"]==c["starter"])
-        ender_ok=(m["ender"]==c["ender"])
+        # Fashion Demands Sacrifices has a different NPC per faction,
+        # and its ender is intentionally inherited from that starter.
+        inherited_ender=(faction and not c["ender"] and m["ender"]==m["starter"])
+        effective_end=c["starter"] if inherited_ender else c["ender"]
+        ender_ok=(m["ender"]==effective_end)
+        source_start=src_ids(links,qid,"start")
+        source_end=src_ids(links,qid,"end")
         # A faction-specific pair has a unique NPC once player faction is known.
         accept_plural=plural(line,"starter")
         end_plural=plural(line,"ender")
@@ -239,9 +254,14 @@ def audit(db_path,manifest_path=MANIFEST,corpus_path=CORPUS,
             "manifest_starters":serialize(m["starter"]),
             "manifest_enders":serialize(m["ender"]),
             "compendium_accept_candidates":serialize(c["starter"]),
-            "compendium_progress_complete_candidates":serialize(c["ender"]),
+            "compendium_progress_complete_candidates":serialize(effective_end),
+            "source_starters":serialize(source_start),
+            "source_enders":serialize(source_end),
+            "source_starter_comparison":compare_source_to_manifest(source_start,m["starter"]),
+            "source_ender_comparison":compare_source_to_manifest(source_end,m["ender"]),
             "starter_status":"matched" if starter_ok else "candidate_set_differs",
-            "ender_status":"matched" if ender_ok else "candidate_set_differs",
+            "ender_status":("matched_inherited_faction" if inherited_ender
+                            else "matched" if ender_ok else "candidate_set_differs"),
             "faction_specific":int(faction),
             "fallback_npc_lookup":int(qid in fallback),
             "voice_verification":("Needs actual installed pack and/or live NPC; "
@@ -259,8 +279,12 @@ def audit(db_path,manifest_path=MANIFEST,corpus_path=CORPUS,
         "source_quest_rows_missing":source_count["quest_absent_from_source"],
         "multiple_speaker_manifest_quests":len(multi),
         "multiple_manifest_vs_compendium_differences":sum(
-            r["starter_status"]!="matched" or r["ender_status"]!="matched" for r in multi),
+            r["starter_status"]!="matched" or r["ender_status"] not in
+            ("matched","matched_inherited_faction") for r in multi),
         "faction_specific_multi_quests":sum(int(r["faction_specific"]) for r in multi),
+        "source_relationship_comparisons":{
+            "starter":dict(collections.Counter(r["source_starter_comparison"] for r in multi)),
+            "ender":dict(collections.Counter(r["source_ender_comparison"] for r in multi))},
         "multiple_manifest_quests_in_bundled_fallback_lookup":sum(
             int(r["fallback_npc_lookup"]) for r in multi),
         "voice_files_verified":0,
