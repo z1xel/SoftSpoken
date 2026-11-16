@@ -1231,17 +1231,16 @@ function Options:Setup()
         panel:SetMovable(true)
         panel:EnableMouse(true)
         panel:SetFrameStrata("DIALOG")
-        -- The former six Key Bindings panels and stretched rock texture left
-        -- transparent rectangles and visible seams across the settings.
-        -- Use one uniform, opaque dark backing behind the original dialogue
-        -- border instead. Keep the silver tab ornament and title separate.
+        -- Use Blizzard's original Vanilla Options menu background, which
+        -- carries its own translucent dark alpha. Keep the separate silver
+        -- window border, rock header and search ornaments unchanged.
         if panel.SetBackdrop then
             panel:SetBackdrop({
-                bgFile = [[Interface\Buttons\WHITE8X8]],
-                tile = true, tileSize = 16,
+                bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]],
+                tile = true, tileSize = 32,
                 insets = {left = 10, right = 10, top = 10, bottom = 10},
             })
-            panel:SetBackdropColor(0.075, 0.07, 0.085, 1)
+            panel:SetBackdropColor(1, 1, 1, 1)
         end
 
         -- Give only the upper title/tab section the same tiled rock backing
