@@ -10,6 +10,7 @@ on:
       - scripts/import_turtle_touched_text.py
       - scripts/import_turtle_missing_stages.py
       - scripts/analyze_turtle_conflicting_dialogue.py
+      - scripts/review_turtle_substantial_dialogue.py
       - scripts/import_tortoise_quest_dialogue.mjs
       - scripts/prepare_tortoise_quest_overlay.py
       - scripts/export_static_quest_text_for_audit.lua
@@ -336,6 +337,10 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_turtle_conflict_review.py'
           python3 scripts/analyze_turtle_conflicting_dialogue.py \
             --turtle .audit-viewer-data/data/tortoise.sqlite \
+            --lua-stages .audit-static-text-hex.tsv
+          python3 scripts/review_turtle_substantial_dialogue.py \
+            --turtle .audit-viewer-data/data/tortoise.sqlite \
+            --vanilla "$(cat .audit-vanilla-path)" \
             --lua-stages .audit-static-text-hex.tsv
           rm -f .audit-static-text-hex.tsv .audit-scoped-quest-ids \
             .audit-methods.csv .audit-migration-text-changes.csv \
