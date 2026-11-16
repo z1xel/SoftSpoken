@@ -144,6 +144,10 @@ local function PageEntry()
         local names={}
         for _,zone in ipairs(entry.zones) do table.insert(names,S:MapName(zone)) end
         place=table.concat(names,", ")
+    elseif entry and type(entry.turtleArea)=="number" and entry.turtleArea>0 then
+        -- Use the same Turtle AreaTable label as the quest browser tree.
+        local meta=_G.SSCTurtleAreaMeta and _G.SSCTurtleAreaMeta[entry.turtleArea]
+        place=meta and meta.name or ("Turtle Area "..entry.turtleArea)
     elseif entry and entry.sort then
         place=M:SortName(entry.sort)
     else
