@@ -6,7 +6,7 @@ This document records the **initial ClassicAPI-first playback backend** for
 [#56](https://github.com/z1xel/SoftSpoken/issues/56),
 [#57](https://github.com/z1xel/SoftSpoken/issues/57), and
 [#58](https://github.com/z1xel/SoftSpoken/issues/58).
-It is development guidance, **not** a change to the published v0.8.1-beta release.
+It describes the upcoming **SoftSpoken v0.9.0-beta** code on `dev`, not a change to the already published v0.8.1-beta release.
 
 ## Required client extension
 

@@ -1,13 +1,13 @@
 # SoftSpoken audio Phase 2 — in-game validation checklist
 
-**Status:** Pending user testing. **Branch:** `development/audio-api`, **not merged**.
+**Status:** In-game acceptance pending for **SoftSpoken v0.9.0-beta** on `dev`. Automated regressions are available, but the real-client checklist remains unverified.
 This checklist is the single running record of everything that cannot be
 validated in the GitHub Actions Lua mock harness. Do not mark any of these
 checkboxes complete based on CI alone.
 
 ## Environment (record once before testing)
 
-- [ ] Tested the latest development/audio-api checkout; note commit SHA.
+- [ ] Tested the latest `dev` checkout for `v0.9.0-beta`; note commit SHA.
 - [ ] ClassicAPI **v1.18.14 or newer** loaded and active (note version).
 - [ ] Client: original **WoW 1.12**, note server/client variation.
 - [ ] Note whether **SuperWoW** is installed/enabled and its released version.

@@ -1,6 +1,6 @@
 # Turtle Quest Catalog
 
-**Status:** Curated feature-branch snapshot; **not yet integrated into `dev`**.  
+**Status:** Curated catalog integrated into `dev` for **v0.9.0-beta**; in-game acceptance and text redistribution review remain pending.  
 **Catalog revision audited:** [`a44bb42dfafcbf1eb498e30e33b5148243cb4e84`](https://github.com/z1xel/SoftSpoken/commit/a44bb42dfafcbf1eb498e30e33b5148243cb4e84).  
 **Comparison baseline:** `dev` at `a8f3defcaf02c4f7358199c9da918a7e0a954990`.  
 **Last consolidated:** November 16, 2026.  
@@ -18,7 +18,7 @@ The shipping model has three independent dimensions:
 2. **Quest dialogue text**, selected independently for acceptance, progress and completion.
 3. **Narration/voice-pack availability**, resolved at playback; catalog presence does not imply an installed recording.
 
-All figures below describe the audited feature-branch snapshot, **not** the untested combination with `dev` and not an assertion about every quest currently playable on a live Turtle server.
+All figures below describe the curated static dataset carried into `dev`; automated checks are not an assertion that every quest is currently playable on a live Turtle server.
 
 ## 2. Shipped snapshot: authoritative counts
 
@@ -450,7 +450,7 @@ The three original review cohorts contained **37 geographic**, **49 shared-ID te
 
 The historical development branch contains scripts to replay approved roster, exclusions, area, names and speaker decisions and to verify the resulting curated dataset (notably `scripts/reapply_turtle_quest_catalog.py --check` and `scripts/clean_forever_quest_data.py --check`). Their outputs and pinned manifests were used as **development verification**, not required runtime dependencies. They may remain recoverable from feature/audit commit history once separate reports/scripts are removed from the production branch.
 
-The old `turtle-touched-text-audit.yml` workflow used a mutable cMaNGOS `latest` URL with a stale fixed SHA. **Do not describe its full regeneration step as a passing integration gate** until it is repinned to an immutable release or the historical release asset is recovered. Other catalog-source and Lua integrity checks passed in their respective audited branches; **the combined `dev` integration has not passed yet**.
+The old `turtle-touched-text-audit.yml` workflow used a mutable cMaNGOS `latest` URL with a stale fixed SHA. **Do not describe its full regeneration step as a passing integration gate** until it is repinned to an immutable release or the historical release asset is recovered. Other catalog-source and Lua integrity checks passed in their respective audited branches, and `dev` now has a passing combined [catalog integrity workflow](https://github.com/z1xel/SoftSpoken/actions/runs/43969702526). Actual Vanilla 1.12 client acceptance remains outstanding.
 
 Before accepting the new production catalog:
 
