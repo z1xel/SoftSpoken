@@ -1,0 +1,92 @@
+name: Turtle quest catalog integration
+
+on:
+  push:
+    branches:
+      - feature/turtle-quest-catalog
+    paths:
+      - 'SoftSpoken_Stories/**'
+      - 'scripts/reapply_turtle_quest_catalog.py'
+      - 'scripts/reapply_tortoise_zone_overlay.py'
+      - 'scripts/reapply_turtle_speaker_recovery.py'
+      - 'scripts/reapply_turtle_zone_exception.py'
+      - 'docs/tortoise_zone_overlay.csv'
+      - 'docs/turtle_speaker_recovery.csv'
+      - 'docs/turtle_older_zone_recoveries.csv'
+      - '.github/workflows/turtle-catalog-integration.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Vanilla Lua interpreter
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y lua5.1
+
+      - name: Verify original Spoken quest prose remains byte-identical
+        run: |
+          test "$(git hash-object SoftSpoken_Stories/Data/QuestText.lua)" = "543ebe66fd648e625699d6d8cd78d26359578d92"
+
+      - name: Check source syntax
+        run: |
+          for file in \
+            SoftSpoken_Stories/Data/Compendium.lua \
+            SoftSpoken_Stories/Data/QuestText.lua \
+            SoftSpoken_Stories/Data/TurtleQuestText.lua \
+            SoftSpoken_Stories/Data/TurtleAreaMeta.lua \
+            SoftSpoken_Stories/Compendium/QuestPage_112.lua \
+            SoftSpoken_Stories/Compendium/QuestCatalog_112.lua
+          do
+            luac5.1 -p "$file"
+          done
+
+      - name: Verify exact Turtle quest and dialogue boundaries
+        run: |
+          lua5.1 - <<'LUA'
+          dofile("SoftSpoken_Stories/Data/TurtleQuestText.lua")
+          local high, low = 0, 0
+          for id in pairs(SSCTurtleQuestText) do
+            if id >= 20000 then high = high + 1 else low = low + 1 end
+          end
+          assert(high == 2370, "Wrong retained Turtle-exclusive dialogue count: "..high)
+          assert(low == 223, "Unexpected shared-ID dialogue count: "..low)
+          local alias = assert(SSCTurtleQuestText[41797])
+          assert(alias.accept and alias.progress and alias.complete,
+                 "Verified title alias 41797 is missing dialogue stages")
+          for _, id in ipairs({40128,40129,40132,41098,41100,41103,41105}) do
+            assert(not SSCTurtleQuestText[id], "Deprecated source dialogue unexpectedly restored: "..id)
+          end
+          assert(SSCTurtleQuestText[820].accept and SSCTurtleQuestText[820].progress and
+                 SSCTurtleQuestText[820].complete, "Restored 820 dialogue incomplete")
+          for _, id in ipairs({9034,9043,9046,9057,9077,9095,9096,9097,9098,9099,9100,9101,9102}) do
+            assert(SSCTurtleQuestText[id] and SSCTurtleQuestText[id].complete,
+                   "Verified Tier 3 completion missing: "..id)
+          end
+          print("PASS: 2370 exclusive entries, 223 shared-ID entries, verified holds unchanged")
+          LUA
+
+      - name: Verify all curated data survives regeneration
+        run: |
+          python3 scripts/reapply_turtle_quest_catalog.py --check
+
+      - name: Validate Compendium and speaker behavior on Lua 5.1
+        run: |
+          lua5.1 tests/tortoise_zone_catalog.lua
+          lua5.1 tests/stories_speaker_resolution.lua
+          lua5.1 tests/stories_compendium_portrait_lifecycle.lua
+          lua5.1 tests/stories_portrait_preloading.lua
+
+      - name: Run catalog regression tests
+        run: |
+          python3 -m unittest discover -s tests -p 'test_turtle_exclusive_catalog_import.py'
+          python3 -m unittest discover -s tests -p 'test_prepare_tortoise_overlay.py'
+          python3 -m unittest discover -s tests -p 'test_turtle_held_quest_alias.py'
+          python3 tests/test_turtle_shared_id_coverage.py
+          python3 tests/test_ui_packaging.py
