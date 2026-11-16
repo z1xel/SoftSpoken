@@ -122,13 +122,27 @@ def merge_batch(original, generated, ids):
         if base[stop:stop + 1] == "\n":
             stop += 1
         base = base[:start] + base[stop:]
-    # Conservative: reject any existing assignment for these IDs outside
-    # the known generated block. An already-present stage must never be clobbered.
-    existing = {int(m.group(1)) for m in re.finditer(
-        r"(?m)^[ \t]*SSCTurtleQuestText\[\s*(\d+)\s*\]\s*(?:=|\.)", base)}
-    conflicts = existing & ids
-    if conflicts:
-        raise ValueError(f"Other Turtle text exists for pinned quest IDs: {sorted(conflicts)[:20]}")
+    # Collision protection is PER STAGE, not just per quest. Quest 9057,
+    # for example, legitimately has an imported progress stage and an
+    # independently approved Tier 3 completion override. Preserve both.
+    stage_pattern = (
+        r"(?m)^[ \t]*SSCTurtleQuestText\[\s*(\d+)\s*\]"
+        r"\.(accept|progress|complete)\s*="
+    )
+    generated_stages = {(int(m.group(1)), m.group(2))
+                        for m in re.finditer(stage_pattern, generated)}
+    existing_stages = {(int(m.group(1)), m.group(2))
+                       for m in re.finditer(stage_pattern, base)}
+    collisions = generated_stages & existing_stages
+    if collisions:
+        raise ValueError(f"Other Turtle text already occupies stages: {sorted(collisions)[:20]}")
+    # A hand-curated whole-table literal might contain any stage. Refuse to
+    # overwrite it unless we explicitly understand and merge its contents.
+    combined_ids = {int(m.group(1)) for m in re.finditer(
+        r"(?m)^[ \t]*SSCTurtleQuestText\[\s*(\d+)\s*\]\s*=\s*\{", base)}
+    collisions = combined_ids & ids
+    if collisions:
+        raise ValueError(f"Other Turtle text exists for pinned quest IDs: {sorted(collisions)[:20]}")
     if not base.strip():
         raise ValueError("Refusing to replace the existing Turtle quest corpus with a blank file")
     return base + ("" if base.endswith("\n") else "\n") + generated
