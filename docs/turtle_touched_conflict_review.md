@@ -1,7 +1,7 @@
 # Review of 289 conflicting shared-ID quest dialogue stages
 
 **Branch:** `audit/turtle-touched-text-coverage`  
-**Scope:** 289 source-migration-backed stages with nonempty original Spoken text, no Turtle override, and different pinned Tortoise source text. **No text was replaced by this review.**
+**Historical scope:** 289 source-migration-backed stages with nonempty original Spoken text, no Turtle override, and different pinned Tortoise source text at the time of the review. After separate corrections, 13 Tier 3 completions are now covered and 276 remain unresolved. This 289-stage analysis is preserved as the pre-import evidence snapshot.
 
 ## What the full comparison found
 
@@ -51,10 +51,10 @@ The source-SHA report contains **22 duplicate-text clusters covering 85 conflict
 
 ## Recommended next actions
 
-1. **Keep all 163 cosmetic/placeholder-case conflicts untouched.** Existing Spoken text remains perfectly usable unless a specific token or grammatical issue is established.
-2. **Review the 35 substantial cases first**, prioritizing apparent truncation and cross-quest/version mismatch. Preserve richer original content unless Turtle source and live interaction establish an intended correction.
-3. **Review the 15 moderate cases** and the 76 minor cases with attention to game variables (`$N`, `$C`, `$B`, `$G`); fixing variable substitutions can matter even where text similarity is high.
-4. Only add **stage-specific** Turtle overrides for independently justified differences. Never rewrite the original `SpokenQuestsText` corpus.
+1. **Completed:** the 35 substantial cases were adjudicated: 13 Tier 3 completions imported and 22 source truncation/misassignment cases kept on Spoken.
+2. **Completed:** the 254 cosmetic/minor/moderate cases were separately classified in [the 254-case review](audits/turtle_touched_text_coverage/remaining_254_review.md). No wholesale overrides were made.
+3. **Next:** examine 72 remaining minor/moderate cases with changed normalized game directives to distinguish harmless line breaks from consequential player-name, gender, class or race tokens.
+4. Continue writing only verified, stage-specific Turtle overrides. Never rewrite `SpokenQuestsText`.
 
 ## Reproducible review outputs
 
