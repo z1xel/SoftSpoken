@@ -287,7 +287,7 @@ function Skin.AttachSettings(panel,scroll)
     -- its bottom edge, content viewport, and scroll range unchanged.
     local slot,reflow=Housing(panel,-9)
     slot:ClearAllPoints()
-    slot:SetPoint("TOPRIGHT",panel,"TOPRIGHT",-9,-100)
+    slot:SetPoint("TOPRIGHT",panel,"TOPRIGHT",-9,-98)
     slot:SetPoint("BOTTOMRIGHT",panel,"BOTTOMRIGHT",-9,12)
     slot:SetFrameLevel(panel:GetFrameLevel()+2)
 
