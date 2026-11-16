@@ -5,6 +5,12 @@ on:
     paths:
       - .github/workflows/turtle-hold-resolution.yml
       - scripts/audit_turtle_hold_resolutions.py
+      - scripts/import_turtle_approved_alias.py
+      - scripts/reapply_turtle_zone_exception.py
+      - scripts/import_tortoise_quest_dialogue.mjs
+      - docs/audits/turtle_hold_resolution/approved_41797_identity.json
+      - tests/test_turtle_held_quest_alias.py
+      - tests/test_turtle_exclusive_catalog_import.py
       - docs/audits/tortoise_zone_overlay/holds.csv
       - docs/audits/turtle_touched_text_coverage/held_quests.csv
       - docs/audits/tortoise_quest_overlay/summary.json
@@ -65,13 +71,43 @@ jobs:
                   assert len(list(csv.DictReader(f)))==n
           print('All three held cohorts validated, 41797 identity corroborated')
           PY
-      - name: Commit source evidence, not speculative quest records
+      - name: Test and import ONLY the source-fingerprinted quest 41797 alias
+        run: |
+          python3 -m unittest discover -s tests -p 'test_turtle_held_quest_alias.py'
+          python3 -m unittest discover -s tests -p 'test_turtle_exclusive_catalog_import.py'
+          python3 scripts/reapply_turtle_zone_exception.py --check
+          python3 scripts/import_turtle_approved_alias.py \
+            --db .hold-source/data/tortoise.sqlite
+          python3 scripts/import_turtle_approved_alias.py \
+            --db .hold-source/data/tortoise.sqlite \
+            --write
+          sha256sum SoftSpoken_Stories/Data/TurtleQuestText.lua > /tmp/hold-alias-lua.sha
+          python3 scripts/import_turtle_approved_alias.py \
+            --db .hold-source/data/tortoise.sqlite \
+            --write
+          sha256sum -c /tmp/hold-alias-lua.sha
+          python3 - <<'PY'
+          import pathlib,re
+          p=pathlib.Path("SoftSpoken_Stories/Data/TurtleQuestText.lua")
+          s=p.read_text(encoding="utf-8")
+          assert s.count("-- BEGIN verified Turtle title alias quest 41797")==1
+          assert len(re.findall(r"(?m)^    (?:accept|progress|complete) = ",s.split("-- BEGIN verified Turtle title alias quest 41797")[-1]))==3
+          assert s.count("SSCTurtleQuestText[41797] = {")==1
+          assert "SSCTurtleQuestText[40128]" in s
+          assert "SSCTurtleQuestText[41105]" not in s
+          assert "SSCTurtleQuestText[9034].complete" in s
+          print("41797 imported without restoring seven deprecated title-conflict quests")
+          PY
+          git diff --exit-code -- SoftSpoken_Stories/Data/QuestText.lua
+
+      - name: Commit source evidence and the single approved quest dialogue
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add docs/audits/turtle_hold_resolution/
+          git add docs/audits/turtle_hold_resolution/ \
+            SoftSpoken_Stories/Data/TurtleQuestText.lua
           if ! git diff --cached --quiet; then
-            git commit -m 'Classify 37 zone, 49 shared text and eight exclusive Turtle holds'
+            git commit -m 'Resolve Turtle holds and add verified 41797 title-aliased dialogue'
             git fetch origin audit/turtle-touched-text-coverage
             git rebase origin/audit/turtle-touched-text-coverage
             git push origin HEAD:audit/turtle-touched-text-coverage
