@@ -8,16 +8,20 @@ No Spoken or earlier Turtle text is overwritten.
 """
 import argparse
 import csv
+import json
 import re
 from pathlib import Path
 
 from import_turtle_touched_text import (
     DEFAULT_DESTINATION, STAGE_COLUMNS, load_verified_source, write_atomically,
 )
+import audit_turtle_touched_text as audit
 from prepare_tortoise_quest_overlay import lua_quoted
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MANIFEST = ROOT / "docs/audits/turtle_touched_text_coverage/missing_207_verified_stages.csv"
+CURATED_CORRECTIONS = ROOT / "docs/audits/turtle_touched_text_coverage/verified_progress_corrections.json"
+CORRECTED_IDS = {6283, 8051, 8146}
 EXPECTED_STAGES = 207
 EXPECTED_QUESTS = 206
 BEGIN = "-- BEGIN Turtle-touched missing 207 dialogue stages"
@@ -62,10 +66,42 @@ def select_manifest(path):
     return selected
 
 
+def apply_curated_progress_corrections(texts, path=CURATED_CORRECTIONS):
+    """Replace three known *misassigned* source strings, never other stages.
+
+    Their original pinned source entries are still validated with the 207
+    source SHA-256 manifest before this function is called.
+    """
+    source = json.loads(path.read_text(encoding="utf-8"))
+    rows = source["corrections"]
+    ids = {int(r["quest_id"]) for r in rows}
+    if ids != CORRECTED_IDS or len(rows) != len(ids):
+        raise ValueError("Unexpected curated correction quest IDs")
+    touched = CORRECTED_IDS & set(texts)
+    if touched and touched != CORRECTED_IDS:
+        raise ValueError("Curated correction set is incomplete")
+    for row in rows:
+        qid = int(row["quest_id"])
+        if row["stage"] != "progress" or not row.get("evidence_url", "").startswith(
+                "https://www.wowhead.com/classic/quest="):
+            raise ValueError(f"Unverified correction for quest {qid}")
+        txt = row["text"]
+        if not isinstance(txt, str) or len(txt) < 50:
+            raise ValueError(f"Blank or suspicious corrected text for quest {qid}")
+        if touched:
+            old = texts[qid].get("progress")
+            if not isinstance(old, str) or not old.strip() or audit.content(old) == audit.content(txt):
+                raise ValueError(f"Quest {qid} does not have an incorrect pinned progress stage")
+            texts[qid]["progress"] = txt
+    return texts
+
+
 def render_batch(texts):
     lines = [
         BEGIN,
-        "-- Hash-verified against pinned Tortoise SQLite; no Spoken stages overwritten.",
+        "-- 204 stages from pinned Turtle hashes; 3 corrected using reviewed Classic quest progress text.",
+        "-- Original Tortoise hashes verified before corrected progress values were substituted.",
+        "-- No Spoken stages overwritten.",
     ]
     for qid in sorted(texts):
         lines.append(f"SSCTurtleQuestText[{qid}] = SSCTurtleQuestText[{qid}] or {{}}")
@@ -108,14 +144,14 @@ def main():
     if not args.db.is_file():
         ap.error("Pinned SQLite source not found")
     selected = select_manifest(args.manifest)
-    texts = load_verified_source(args.db, selected)
+    texts = apply_curated_progress_corrections(load_verified_source(args.db, selected))
     if args.write:
         if not args.destination.is_file():
             raise ValueError("Existing TurtleQuestText.lua is missing; refusing to create replacement")
         original = args.destination.read_text(encoding="utf-8")
         merged = merge_batch(original, render_batch(texts), set(texts))
         write_atomically(args.destination, merged)
-        print(f"Committed-file-ready Turtle text: {len(texts)} quest IDs, {len(selected)} new stages")
+        print(f"Committed-file-ready Turtle text: {len(texts)} quest IDs, {len(selected)} stages (3 reviewed progress corrections)")
     else:
         print(f"Verified {len(texts)} quest IDs / {len(selected)} missing stages against source hashes; no text written")
 
