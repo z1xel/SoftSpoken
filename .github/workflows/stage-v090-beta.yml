@@ -1,0 +1,59 @@
+name: Stage SoftSpoken v0.9.0-beta
+
+# Builds a private-to-Actions candidate ZIP; does NOT publish a GitHub release.
+on:
+  push:
+    branches: [dev]
+    paths:
+      - "VERSION"
+      - "README.md"
+      - "SoftSpoken/SoftSpoken.toc"
+      - "SoftSpoken_Stories/SoftSpoken_Stories.toc"
+      - "SoftSpoken_Places/SoftSpoken_Places.toc"
+      - "SoftSpoken_Writings/SoftSpoken_Writings.toc"
+      - "SoftSpoken/Environment.lua"
+      - "SoftSpoken_Stories/Environment.lua"
+      - "SoftSpoken_Writings/Core.lua"
+      - "tests/test_release_version.py"
+      - ".github/workflows/stage-v090-beta.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stage:
+    name: Validate and package v0.9.0-beta
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check version consistency and installable file structure
+        run: |
+          python3 tests/test_release_version.py
+          python3 tests/test_ui_packaging.py
+      - name: Build installable ZIP without development files
+        run: |
+          python3 - <<'PY'
+          import pathlib, zipfile
+          modules = ("SoftSpoken", "SoftSpoken_Stories", "SoftSpoken_Places", "SoftSpoken_Writings")
+          version = pathlib.Path("VERSION").read_text().strip()
+          package = pathlib.Path("dist") / ("SoftSpoken-" + version + ".zip")
+          package.parent.mkdir(exist_ok=True)
+          files = sorted(p for mod in modules for p in pathlib.Path(mod).rglob("*") if p.is_file())
+          assert files
+          with zipfile.ZipFile(package, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=6) as z:
+              for file in files:
+                  assert not file.is_symlink()
+                  z.write(file, file.as_posix())
+          with zipfile.ZipFile(package) as z:
+              assert z.testzip() is None
+              for mod in modules:
+                  toc = f"{mod}/{mod}.toc"
+                  assert f"## Version: {version}".encode() in z.read(toc)
+          print(f"Staged {package} ({len(files)} files, {package.stat().st_size:,} bytes)")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SoftSpoken-v0.9.0-beta-preview
+          path: dist/SoftSpoken-v0.9.0-beta.zip
+          compression-level: 0

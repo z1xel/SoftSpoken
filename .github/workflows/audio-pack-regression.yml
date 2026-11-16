@@ -3,6 +3,15 @@ name: Audio pack regression
 on:
   push:
     paths:
+      - "VERSION"
+      - "README.md"
+      - "tests/test_release_version.py"
+      - "SoftSpoken/Environment.lua"
+      - "SoftSpoken_Stories/Environment.lua"
+      - "SoftSpoken/SoftSpoken.toc"
+      - "SoftSpoken_Stories/SoftSpoken_Stories.toc"
+      - "SoftSpoken_Places/SoftSpoken_Places.toc"
+      - "SoftSpoken_Writings/SoftSpoken_Writings.toc"
       - "SoftSpoken/UI/Options.lua"
       - "SoftSpoken/UI/Diagnostics.lua"
       - "tests/diagnostics_viewer_112.lua"
@@ -50,6 +59,15 @@ on:
       - ".github/workflows/audio-pack-regression.yml"
   pull_request:
     paths:
+      - "VERSION"
+      - "README.md"
+      - "tests/test_release_version.py"
+      - "SoftSpoken/Environment.lua"
+      - "SoftSpoken_Stories/Environment.lua"
+      - "SoftSpoken/SoftSpoken.toc"
+      - "SoftSpoken_Stories/SoftSpoken_Stories.toc"
+      - "SoftSpoken_Places/SoftSpoken_Places.toc"
+      - "SoftSpoken_Writings/SoftSpoken_Writings.toc"
       - "SoftSpoken/UI/Options.lua"
       - "SoftSpoken/UI/Diagnostics.lua"
       - "tests/diagnostics_viewer_112.lua"
@@ -132,6 +150,8 @@ jobs:
         run: lua5.1 tests/greetingfirst_classification.lua
       - name: Check installable UI assets, manifests and legacy identifiers
         run: python3 tests/test_ui_packaging.py
+      - name: Check all SoftSpoken release version declarations
+        run: python3 tests/test_release_version.py
       - name: Check native player duration and UI progress
         run: lua5.1 tests/audio_progress_ui.lua
       - name: Check Writings discovery locations in narrator headings

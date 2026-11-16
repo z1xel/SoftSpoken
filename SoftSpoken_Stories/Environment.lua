@@ -32,8 +32,8 @@ VoiceOver = setmetatable({
     _G = _G,
     AddonFolder = "SoftSpoken_Stories",
     -- What /spq diagnostics prints. A literal because this file loads before the addon has any
-    -- metadata API; scripts/package.sh refuses to build when it disagrees with the .toc.
-    AddonVersion = "v0.8.0",
+    -- metadata API; tests/test_release_version.py verifies it matches the .toc.
+    AddonVersion = "v0.9.0-beta",
     PreviousEnvironment = previousEnvironment,
     -- A value the game hides from addons in some situations comes back as nil, not an error.
     NotSecret = Spoken and Spoken.NotSecret or function(value) return value end,
