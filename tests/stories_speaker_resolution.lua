@@ -94,6 +94,23 @@ SpokenQuestsCompendium = {
         [6074] = { starter = 895, ender = 1231 },
         [6075] = { starter = 5117, ender = 1231 },
         [8227] = { starterObject = 180366, ender = 12919 },
+        -- Verified Turtle-only quest links recovered from the pinned typed
+        -- source, using spawn-confirmed NPCs and preserving item starters.
+        [41734] = { starterItem = 41802, ender = 6868 },
+        [41908] = { starter = 62851, ender = 62851 },
+        [41909] = { starter = 62851, ender = 62851 },
+        [41912] = { starter = 62986, ender = 62920 },
+        [41913] = { starter = 62920, ender = 62920 },
+        [41914] = { starter = 62920, ender = 62986 },
+        [41915] = { starter = 62986, ender = 62850 },
+        [41916] = { starter = 62850, ender = 62850 },
+        [41917] = { starter = 62850, ender = 62986 },
+        [41922] = { starter = 62863, ender = 91781 },
+        [80381] = { ender = 80999 },
+        [41768] = { starter = 62165, enders = { 1749, 62682 } },
+        [41868] = { starter = 62422, enders = { 62395, 62422 } },
+        [42098] = { starters = { 63203, 63204, 63205 },
+                    enders = { 63203, 63204, 63205 } },
         [60030] = { starterAlliance = 51292, starterHorde = 51293 },
         [60031] = { starterAlliance = 51292, starterHorde = 51293 },
         [60032] = { starterAlliance = 51292, starterHorde = 51293 },
@@ -256,6 +273,44 @@ equal(R:Name(8, 2020, "Quest"), "Quest ender",
     "existing pack-provided NPC label overrides corpus fallback")
 equal(R:Name(8, 999999, "Quest"), "Quest",
     "unresolved NPC still uses caller fallback")
+-- Recoveries are stage-specific. A missing starter still stays unknown
+-- instead of becoming an invented copy of the explicitly known ender.
+quest(41734, "accept", 3, 41802)
+quest(41734, "progress", 8, 6868)
+for _, id in ipairs({41908,41909}) do
+    quest(id, "accept", 8, 62851)
+    quest(id, "complete", 8, 62851)
+end
+for _, fixture in ipairs({
+    {41912,62986,62920}, {41913,62920,62920},
+    {41914,62920,62986}, {41915,62986,62850},
+    {41916,62850,62850}, {41917,62850,62986},
+    {41922,62863,91781},
+}) do
+    quest(fixture[1], "accept", 8, fixture[2])
+    quest(fixture[1], "progress", 8, fixture[3])
+    quest(fixture[1], "complete", 8, fixture[3])
+end
+quest(80381, "accept", nil, nil)
+quest(80381, "progress", 8, 80999)
+quest(80381, "complete", 8, 80999)
+local northwindEnders=assert(R:MultipleSpeakers(41768,"complete"))
+equal(table.getn(northwindEnders),2,"two preserved Northwind enders")
+quest(41768, "complete", nil, nil)
+local shadowEnders=assert(R:MultipleSpeakers(41868,"complete"))
+equal(table.getn(shadowEnders),2,"two preserved Shadow Curse enders")
+quest(41868, "complete", nil, nil)
+equal(table.getn(assert(R:MultipleSpeakers(42098,"accept"))),3,
+    "three Thorn Gorge starters")
+equal(table.getn(assert(R:MultipleSpeakers(42098,"complete"))),3,
+    "three Thorn Gorge enders")
+quest(42098,"accept",nil,nil)
+quest(42098,"complete",nil,nil)
+sound({event=1,questID=42098,unitGUID="creature:63204"},8,63204,
+    "live speaker remains authoritative for plural starter")
+sound({event=3,questID=41768,unitGUID="creature:62682"},8,62682,
+    "alternate Northwind ender GUID wins")
+
 -- Both factions use the same quest IDs but different starter/ender NPCs.
 for _, id in ipairs({ 60030, 60031, 60032, 60033, 60034, 60035, 60036 }) do
     playerFaction = "Alliance"
