@@ -49,6 +49,9 @@ def combined_ids(row,kind):
 
 def catalog_rows(path):
     text=path.read_text(encoding="utf-8")
+    # Scope the parser to the quest body. Other Compendium sections such
+    # as sorting/category maps also use numeric Lua table keys.
+    text=text.split("\tquests = {",1)[1].split("\n\t},\n\n\tsorts = {",1)[0]
     rows={}
     # The generated Compendium stores exactly one quest per line. Do not
     # execute Lua or guess parser values from other nested tables.
