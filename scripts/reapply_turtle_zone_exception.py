@@ -45,7 +45,7 @@ def apply(text):
             return text,False
         raise ValueError("Quest 41797 has conflicting preexisting classification")
     raw=match[0]
-    updated=raw[:-1] if False else match[1]+'"A Good Friend"'+fields.rstrip()+', '+expected+' '+match[3]
+    updated=match[1]+'"A Good Friend"'+fields.rstrip()+', '+expected+' '+match[3]
     return text.replace(raw,updated,1),True
 
 
