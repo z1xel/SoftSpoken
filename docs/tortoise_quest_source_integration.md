@@ -87,3 +87,11 @@ The shared-ID audit workflow generates the complete Lua file, runs `luac5.1 -p`,
 6. Re-run tests and check Vanilla and Turtle client behavior before merging into `feature/turtle-quest-catalog`.
 
 No changes have been made to the production feature branch as part of this audit.
+
+## Later resolution of the eight exclusive dialogue holds (November 16, 2026)
+
+The original eight were reviewed against the frozen source and the current Compendium in [the hold-resolution report](turtle_hold_resolution_review.md). **Quest 41797** was independently corroborated as a title alias: `A Good Friend` in pfQuest versus `A Dear Friend` in the Tortoise source, same ID, quest objective, starting NPC 228, ending NPC 62307, and Northwind area 5581.
+
+Three SHA-256-pinned dialogue stages were added to the **existing** `SoftSpoken_Stories/Data/TurtleQuestText.lua` using `scripts/import_turtle_approved_alias.py`. Both atomic modes in `scripts/import_tortoise_quest_dialogue.mjs` now retain/rebuild the verified alias. That raises source-specific high-ID text coverage from **2,369 to 2,370 quests**.
+
+The other **seven `[DEPRECATED]` source quests remain held and have not been restored**. The original Spoken text and the existing 233 shared-ID stage overrides are unchanged. The original eight-held manifest remains a historical record rather than being rewritten after import.
