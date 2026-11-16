@@ -17,6 +17,7 @@ CATALOG = ROOT / "SoftSpoken_Stories" / "Data" / "Compendium.lua"
 MANIFEST = ROOT / "docs" / "turtle_exclusive_import.csv"
 NAMES = ROOT / "docs" / "turtle_exclusive_speaker_names.csv"
 ZONES = ROOT / "docs" / "tortoise_zone_overlay.csv"
+SPEAKERS = ROOT / "docs" / "turtle_speaker_recovery.csv"
 
 
 def records(path):
@@ -45,6 +46,9 @@ class TurtleExclusiveCatalogTest(unittest.TestCase):
         cls.zone_overlay = {
             int(r["quest_id"]): r for r in records(ZONES)
         }
+        cls.speaker_overlay = collections.defaultdict(list)
+        for r in records(SPEAKERS):
+            cls.speaker_overlay[int(r["quest_id"])].append(r)
 
     def test_whole_source_accounted_for(self):
         self.assertEqual(len(self.source), 2451)
@@ -74,6 +78,12 @@ class TurtleExclusiveCatalogTest(unittest.TestCase):
                         self.assertTrue(actual.endswith(suffix),
                                         "Quest overlay not at end of quest row")
                         actual = actual[:-len(suffix)] + " }"
+                    # Remove ONLY the exact reviewed NPC role overlay,
+                    # leaving the original pfQuest manifest row immutable.
+                    for record in self.speaker_overlay.get(quest_id, []):
+                        assignment = ", " + record["field"] + " = " + record["entity_id"]
+                        self.assertIn(assignment, actual)
+                        actual = actual.replace(assignment, "", 1)
                     self.assertEqual(actual + ",",
                                      row["compendium_row"].split(" = ", 1)[1])
                 elif row["status"] == "excluded_nonplayable":
@@ -100,6 +110,14 @@ class TurtleExclusiveCatalogTest(unittest.TestCase):
         self.assertIn("races = 4294967373", self.catalog[40545])
         self.assertIn("starterObject = 1000505", self.catalog[41947])
         self.assertIn("ender = 63047", self.catalog[41948])
+
+    def test_recovered_missing_speaker_roles(self):
+        approved = [r for rows in self.speaker_overlay.values() for r in rows]
+        self.assertEqual(len(approved), 20)
+        self.assertEqual(len(self.speaker_overlay), 11)
+        for row in approved:
+            qid = int(row["quest_id"])
+            self.assertIn(row["field"] + " = " + row["entity_id"], self.catalog[qid])
 
     def test_native_name_fallbacks_preserve_source(self):
         self.assertEqual(len(self.names), 884)
