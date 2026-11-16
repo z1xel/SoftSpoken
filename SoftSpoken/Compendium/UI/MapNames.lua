@@ -1,4 +1,5 @@
--- Basic vanilla Azeroth map names. Available even without the Zones module.
+-- Compendium UiMapID labels. Available even without the Zones module.
+-- Includes names for imported map IDs missing from the 1.12 client.
 local C=SSCCompendium
 local N={
     [947]="Azeroth",
@@ -50,6 +51,14 @@ local N={
     [1456]="Thunder Bluff",
     [1457]="Darnassus",
     [1458]="Undercity",
+    -- Battleground UiMapIDs from the upstream quest database.
+    [1459]="Alterac Valley",
+    [1460]="Warsong Gulch",
+    [1461]="Arathi Basin",
+    -- Forever-specific UiMapIDs retained in the upstream quest database.
+    [2521]="Zephras Isle",
+    [2524]="Darkspear Islands",
+    [2548]="Riverglades",
 }
 function C.MapName(mapID)
     return N[mapID] or tostring(mapID)

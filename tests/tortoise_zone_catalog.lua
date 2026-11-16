@@ -8,17 +8,27 @@ SSCCompendium = {
         return nil
     end
 }
--- Confirm the generated table, not just the fixture, contains the reviewed link.
+-- Native/Forever UiMap labels must come only from the dedicated name table.
+dofile("SoftSpoken/Compendium/UI/MapNames.lua")
+for id, name in pairs({
+    [1459]="Alterac Valley", [1460]="Warsong Gulch",
+    [1461]="Arathi Basin", [2521]="Zephras Isle",
+    [2524]="Darkspear Islands", [2548]="Riverglades",
+}) do
+    assert(SSCCompendium.MapName(id)==name,"Missing map-name entry for "..id)
+end
 dofile("SoftSpoken_Stories/Data/TurtleAreaMeta.lua")
 assert(SSCTurtleAreaMeta[2597] and SSCTurtleAreaMeta[2597].uiMapID==1459,
     "Generated Turtle metadata must preserve Alterac Valley map equivalence")
+assert(SSCTurtleAreaMeta[2597].name==nil,
+    "UiMap names must not be duplicated in Turtle AreaTable metadata")
 SSCTurtleAreaMeta = {
     [5179] = {name = "Gilneas",continent=1415},
-    [2597] = {name = "Alterac Valley",uiMapID=1459},
+    [2597] = {uiMapID=1459},
 }
 SSCQuestState = {
     SeenIDs = function() return {} end,
-    MapName = function(_,id) if id==1411 then return "Durotar" end;return tostring(id) end,
+    MapName = function(_,id) return SSCCompendium.MapName(id) end,
     Title = function(_,id,fallback) return fallback or tostring(id) end,
 }
 SpokenQuestsCompendium = {
@@ -50,7 +60,7 @@ assert(native.label=="Durotar")
 assert(native.mapID==1411)
 assert(find(native,"q:820"),"Quest 820 not located under Durotar")
 local alterac=assert(find(root,"zone:1459"),"Merged Alterac Valley group missing")
-assert(alterac.label=="Alterac Valley","Mapped UiMapID must show the AreaTable place name")
+assert(alterac.label=="Alterac Valley","Mapped UiMapID must use MapNames.lua")
 assert(alterac.mapID==1459,"Merged group must keep its UiMapID")
 assert(find(alterac,"q:5892"),"Original native quest missing from merged group")
 assert(find(alterac,"q:40004") and find(alterac,"q:40005"),
@@ -107,7 +117,7 @@ assert(subtitle(51791)=="Turtle Area 99999  ·  Previously encountered",
 assert(subtitle(820)=="Durotar  ·  Previously encountered",
     "Vanilla zone subtitle must not regress")
 assert(subtitle(5892)=="Alterac Valley  ·  Previously encountered",
-    "Original Alterac quest subtitle must use named map fallback")
+    "Original Alterac quest subtitle must use MapNames.lua")
 assert(subtitle(40004)=="Alterac Valley  ·  Previously encountered",
     "Mapped Turtle quest subtitle must match its merged zone")
 assert(subtitle(51792)=="Durotar  ·  Previously encountered",

@@ -6,6 +6,7 @@ on:
       - feature/turtle-quest-catalog
     paths:
       - 'SoftSpoken_Stories/**'
+      - 'SoftSpoken/Compendium/UI/MapNames.lua'
       - 'scripts/reapply_turtle_quest_catalog.py'
       - 'scripts/reapply_tortoise_zone_overlay.py'
       - 'scripts/reapply_turtle_speaker_recovery.py'
@@ -37,6 +38,7 @@ jobs:
       - name: Check source syntax
         run: |
           for file in \
+            SoftSpoken/Compendium/UI/MapNames.lua \
             SoftSpoken_Stories/Data/Compendium.lua \
             SoftSpoken_Stories/Data/QuestText.lua \
             SoftSpoken_Stories/Data/TurtleQuestText.lua \
@@ -79,6 +81,7 @@ jobs:
       - name: Validate Compendium and speaker behavior on Lua 5.1
         run: |
           lua5.1 tests/tortoise_zone_catalog.lua
+          python3 tests/test_compendium_map_names.py
           lua5.1 tests/stories_speaker_resolution.lua
           lua5.1 tests/stories_compendium_portrait_lifecycle.lua
           lua5.1 tests/stories_portrait_preloading.lua

@@ -25,10 +25,10 @@ OUT_META = ROOT / "SoftSpoken_Stories/Data/TurtleAreaMeta.lua"
 FIELDS = ["quest_id", "catalog_title", "source_title", "source_area_id", "source_area_name",
           "source_method", "source_category", "cohort", "status", "reason",
           "classification", "value", "resolved_name", "resolution", "continent"]
-# Reviewed AreaTable equivalents for EXISTING UiMap locations. Extend only
-# with source-supported identities; do not infer links from names alone.
+# Reviewed AreaTable equivalents for EXISTING UiMap locations. The names
+# belong exclusively to MapNames.lua, not to this relationship table.
 VERIFIED_UI_MAPS = {
-    2597: ("Alterac Valley", 1459),
+    2597: 1459,
 }
 
 
@@ -55,7 +55,10 @@ def read_map_names(path):
     names = {}
     for match in re.finditer(r'\[(\d+)\]\s*=\s*"([^"]+)"', text):
         key, name = int(match[1]), match[2]
-        if key in (947, 1414, 1415):
+        # Only actual Vanilla world zones/cities are eligible for direct
+        # geographic inference. Battleground and Forever UiMap labels are
+        # display names, not proof that their AreaTable IDs are equivalent.
+        if key in (947, 1414, 1415) or key >= 1459:
             continue
         simplified = normal(name)
         if simplified in names and names[simplified] != key:
@@ -64,6 +67,12 @@ def read_map_names(path):
     if names.get("durotar") != 1411 or names.get("mulgore") != 1412:
         raise ValueError("Unexpected native Vanilla map mapping")
     return names
+
+
+def read_map_labels(path):
+    text = path.read_text(encoding="utf-8")
+    return {int(m[1]): m[2]
+            for m in re.finditer(r'\[(\d+)\]\s*=\s*"([^"]+)"', text)}
 
 
 def find_area(db, area_id, names, source):
@@ -113,6 +122,7 @@ def build(args):
     existing_exclusive = {int(r["quest_id"]) for r in ex
                           if r["status"] in {"imported", "already_present"}}
     names = read_map_names(args.map_names)
+    map_labels = read_map_labels(args.map_names)
     db = sqlite3.connect("file:" + str(args.db.resolve()) + "?mode=ro", uri=True)
     try:
         cols = {r[1] for r in db.execute("PRAGMA table_info(areas)")}
@@ -220,19 +230,24 @@ def build(args):
         raise ValueError("Verified map equivalents missing source areas: " + str(missing))
     lua = [
         "-- Generated from the pinned Tortoise area hierarchy by",
-        "-- scripts/build_tortoise_zone_overlay.py. Names, continent metadata and",
-        "-- reviewed UI map equivalents for AreaTable IDs (which are NOT uiMapIDs).",
+        "-- scripts/build_tortoise_zone_overlay.py. Named custom AreaTable areas and",
+        "-- reviewed AreaTable-to-UiMap relationships. Mapped zone names live only in",
+        "-- SoftSpoken/Compendium/UI/MapNames.lua.",
         "SSCTurtleAreaMeta = {"
     ]
     for area_id, m in sorted(meta.items()):
         cont = f", continent = {m['continent']}" if m["continent"] else ""
-        linked = ""
         if area_id in VERIFIED_UI_MAPS:
-            expected, ui_map_id = VERIFIED_UI_MAPS[area_id]
-            if normal(m["name"]) != normal(expected):
-                raise ValueError(f"AreaTable {area_id}: expected {expected}, got {m['name']}")
-            linked = f", uiMapID = {ui_map_id}"
-        lua.append(f"    [{area_id}] = {{ name = {lua_string(m['name'])}{cont}{linked} }},")
+            ui_map_id = VERIFIED_UI_MAPS[area_id]
+            canonical_name = map_labels.get(ui_map_id)
+            if not canonical_name or normal(m["name"]) != normal(canonical_name):
+                raise ValueError(f"AreaTable {area_id}: missing or mismatched "
+                                 f"UiMap {ui_map_id} display name")
+            # Only the ID relationship: names must not be copied into aliases.
+            fields = f"uiMapID = {ui_map_id}" + cont
+        else:
+            fields = f"name = {lua_string(m['name'])}" + cont
+        lua.append(f"    [{area_id}] = {{ {fields} }},")
     lua.append("}")
     args.meta.parent.mkdir(parents=True, exist_ok=True)
     args.meta.write_text("\n".join(lua)+"\n", encoding="utf-8")
