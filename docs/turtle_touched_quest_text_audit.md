@@ -215,3 +215,9 @@ All 207 historical imported-stage source hashes are still checked before the thr
 The earlier 289-case comparison is retained as a **historical baseline**. The 35 substantial cases were reviewed in [the substantial adjudication](audits/turtle_touched_text_coverage/substantial_35_adjudication.md): 13 imported as above; 15 truncated source cases and 7 source-misassignment cases intentionally left on Spoken.
 
 All other 254 cosmetic/minor/moderate cases have a separate [quest-level triage](audits/turtle_touched_text_coverage/remaining_254_review.md). The recommended next step is to review only the **72 cases with changed normalized WoW directive sequences** for genuinely consequential placeholder behavior; no bulk override was made.
+
+## Later high-ID title-alias import (November 16, 2026)
+
+The separate [three-cohort hold review](turtle_hold_resolution_review.md) resolved the source-title mismatch for high-ID quest **41797**. It added the three acceptance/progress/completion stages from an independently identity-checked, SHA-256-pinned Tortoise quest into the existing Turtle-only text table, and classified the same quest under Northwind without changing its Compendium title.
+
+This adds **one exclusive quest / three stages** beyond the earlier 2,369 exclusive quest text rows. It does **not** change the 233 already imported shared-ID stage overrides, the 276 priority spoken-text conflicts, or any original `QuestText.lua` entries. Seven other held exclusive source records remain deliberately excluded.
