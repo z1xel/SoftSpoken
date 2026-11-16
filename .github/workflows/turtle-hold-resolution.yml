@@ -7,6 +7,7 @@ on:
       - scripts/audit_turtle_hold_resolutions.py
       - scripts/import_turtle_approved_alias.py
       - scripts/reapply_turtle_zone_exception.py
+      - docs/turtle_older_zone_recoveries.csv
       - scripts/import_tortoise_quest_dialogue.mjs
       - docs/audits/turtle_hold_resolution/approved_41797_identity.json
       - tests/test_turtle_held_quest_alias.py
@@ -64,12 +65,12 @@ jobs:
           assert summary['original_shared_text_holds']==49
           assert summary['original_exclusive_text_holds']==8
           assert summary['direct_text_import_approved']==[41797]
-          assert summary['direct_zone_classification_approved']==[41797]
+          assert summary['direct_zone_classification_approved']==[708,3366,41797]
           for name,n in [('zone_37_resolution.csv',37),('shared_49_resolution.csv',49),
                          ('exclusive_8_resolution.csv',8)]:
               with (root/name).open(newline='',encoding='utf-8') as f:
                   assert len(list(csv.DictReader(f)))==n
-          print('All three held cohorts validated, 41797 identity corroborated')
+          print('All held cohorts validated; Northwind, Badlands, Wailing Caverns classifications approved')
           PY
       - name: Test and import ONLY the source-fingerprinted quest 41797 alias
         run: |
