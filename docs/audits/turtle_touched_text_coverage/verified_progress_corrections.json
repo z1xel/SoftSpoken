@@ -1,0 +1,30 @@
+{
+  "scope": "Only these three quest progress stages were confirmed misassigned in the pinned Tortoise SQLite and imported in the 207 batch.",
+  "format": "WoW Vanilla 1.12: $N player name, $C player class, $B paragraph break",
+  "corrections": [
+    {
+      "quest_id": 6283,
+      "title": "Bloodfury Bloodline",
+      "stage": "progress",
+      "text": "Bloodfury Ripper is a nasty creature! You will have success finding her along the western hill line in the Charred Vale.$B$BThe bloodfuries will be helpless with out... surely we can vanquish them forever!",
+      "evidence_url": "https://www.wowhead.com/classic/quest=6283/bloodfury-bloodline",
+      "reason": "Pinned Tortoise progress field held the quest completion response."
+    },
+    {
+      "quest_id": 8051,
+      "title": "The Eye of Zuldazar",
+      "stage": "progress",
+      "text": "Tales of your battles against the Gurubashi are whispered in the winds, $C. Even royalty is beginning to talk of your deeds. It is rumored that King Rastakhan even mentioned you by name.$B$BThe time has come to imbue the Eye. Hand me the talisman and I shall perform the service.",
+      "evidence_url": "https://www.wowhead.com/classic/quest=8051/the-eye-of-zuldazar",
+      "reason": "Pinned Tortoise progress text belonged to a different step of the Zuldazar talisman quest chain."
+    },
+    {
+      "quest_id": 8146,
+      "title": "The Maelstrom's Tendril",
+      "stage": "progress",
+      "text": "Ah, $N, it is good to smell you again.$B$BYou'll have to excuse my sense of humor. It can be most foul at times.$B$BI sense that you have caused great anguish to our enemies. The forces of Hakkar cry out your name in anger. This is most excellent.$B$BYou have earned another weave on your talisman. Hand it to me.",
+      "evidence_url": "https://www.wowhead.com/classic/quest=8146/the-maelstroms-tendril",
+      "reason": "Pinned Tortoise progress text belonged to a later talisman step."
+    }
+  ]
+}
