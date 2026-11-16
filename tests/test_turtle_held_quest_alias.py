@@ -54,7 +54,7 @@ class TurtleHeldQuestAliasTests(unittest.TestCase):
     def test_wrong_npc_or_title_rejected(self):
         with sqlite3.connect(self.db) as conn:
             conn.execute("UPDATE creature_quest_end SET id=3 WHERE quest=41797")
-        with self.assertRaisesRegex(ValueError,"quest 41797 identity changed"):
+        with self.assertRaisesRegex(ValueError,"Quest 41797 identity changed"):
             importer.load_verified(self.db,self.manifest)
 
     def test_block_idempotent_and_preserves_existing_text(self):
