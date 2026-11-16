@@ -7630,6 +7630,5 @@ SpokenQuestsCompendium = {
 		[368] = { "Invasion", deDE = "Invasion der Geißel", esES = "Invasión", esMX = "Invasión", ptBR = "Invasão", ruRU = "Вторжение", koKR = "침공", zhCN = "天灾入侵", zhTW = "入侵", itIT = "Invasione" },
 		[369] = { "Midsummer", deDE = "Sonnenwendfest", esES = "Verano", esMX = "Verano", frFR = "Solstice d'été", ptBR = "Solstício", ruRU = "Огненный солнцеворот", koKR = "한여름 불꽃축제", zhCN = "仲夏", zhTW = "仲夏", itIT = "Mezza Estate" },
 		[676] = { "Night Elf", deDE = "Nachtelf", esES = "Elfo de la noche", esMX = "Elfo de la noche", frFR = "Elfe de la nuit", ptBR = "Elfo Noturno", ruRU = "Ночной эльф", koKR = "나이트 엘프", zhCN = "暗夜精灵", zhTW = "夜精靈" },
-
 	},
 }
