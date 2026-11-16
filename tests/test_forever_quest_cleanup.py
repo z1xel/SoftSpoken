@@ -48,7 +48,7 @@ class ForeverCorpusCleanup(unittest.TestCase):
         start, end, _, _ = sections(catalog)
         records = {int(m[1]): m[0] for m in CATALOG_ROW.finditer(catalog[start:end])}
         self.assertEqual(len(records), 6646)
-        catalog_sorts = catalog.split("\\n\\tsorts = {",1)[1]
+        catalog_sorts = catalog.split(chr(10) + chr(9) + "sorts = {", 1)[1]
         self.assertNotIn("[666] = {", catalog_sorts, "Forever Camping category restored")
         self.assertIn('[676] = { "Night Elf"', catalog_sorts,
                       "Original Night Elf category was removed")
