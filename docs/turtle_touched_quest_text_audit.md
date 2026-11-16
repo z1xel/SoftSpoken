@@ -2,7 +2,7 @@
 
 **Date:** November 15, 2026  
 **Branch:** `audit/turtle-touched-text-coverage`  
-**Status:** Read-only provenance audit completed; the first 13 verified stage overrides are now committed to the Turtle-only Lua table. `SpokenQuestsText` remains unchanged.
+**Status:** Source-provenance audit and the first two imports completed: **220 stages** (13 restored + 207 previously missing) committed to the existing Turtle-only text table. `SpokenQuestsText` remains unchanged.
 
 ## The question
 
@@ -48,17 +48,18 @@ text. These are **review candidates**, not automatically authorized edits.
 | Held because of disabled Method, absent starter, source/catalog conflict, or Vanilla baseline ambiguity | 49 |
 | Shared-ID quests selected for **review**, not automatic replacement | **711** |
 | Source dialogue stages compared for that group | 2,133 |
-| Possible incomplete/outdated stages under the *broader* review | 599 |
-| **Directly supported missing/outdated stage candidates** | **509** |
-| Distinct quest IDs among those 512 stages | **452** |
+| Possible incomplete/outdated stages under the *broader* review | 379 |
+| **Directly supported unresolved stage candidates** | **289** |
+| Distinct quest IDs among those 289 stages | **289** |
 | Uncorroborated cMaNGOS-versus-Tortoise variations excluded | 977 |
 
-Of the **509 directly supported stage candidates**, **289** currently have
-Spoken text differing from Tortoise and **220** have no static text.
-Stage breakdown: **16 acceptance**, **208 progress**, **285 completion**.
-These are still candidates, not a license to overwrite original Spoken.
+After the two verified imports, **all 220 directly-supported previously missing
+stages now have a Turtle overlay**. The **289 remaining priority candidates**
+already contain Spoken dialogue that differs from the pinned Tortoise source:
+**11 acceptance** and **278 completion** stages. None of those conflicting
+Spoken stages was overwritten by either import.
 
-The other **90** of the broader 599 possible gaps lack the same direct
+The other **90** of the broader 379 possible gaps lack the same direct
 stage-specific text-migration or independently supported restoration evidence;
 they remain in the broader review report, not the priority gap list.
 
@@ -66,14 +67,14 @@ they remain in the broader review report, not the priority gap list.
 
 - **820**, *What Do You Rely On?* — observed live in the user's screenshot.
   Present with a spawned Turtle starter and all three dialogue stages in
-  Tortoise; all three are absent from the two static SoftSpoken text tables.
+  Tortoise; all three are now present in the Turtle-only overlay.
 - **3578**, **3579**, **3580** — absent from both independent Vanilla baselines,
   matching non-disabled Turtle templates with world-spawned starters; all
-  three static dialogue stages are missing.
+  three source-supported dialogue stages are now in the Turtle overlay.
 - **3111**, *Glyphic Rune* — known-curated Turtle relationship and a migration
   modifying its acceptance text. All three static stages are missing, but **only
-  acceptance** is directly supported for Turtle-specific import because the
-  quest also exists in Vanilla pfQuest.
+  acceptance** was directly supported and imported because the quest also
+  exists in Vanilla pfQuest.
 - **7478**, **7479**, **7480**, **7487** — absent from the cMaNGOS SQLite
   snapshot but **present** in Vanilla pfQuest, so **held** rather than
   misclassified as new/restored Turtle quests.
@@ -86,12 +87,12 @@ needed**, not claiming it is nonplayable.
 
 All reports are text-free: IDs, existing catalog titles, source/method and
 evidence classifications, stage flags, character lengths, and SHA-256 hashes.
-No third-party quest dialogue bodies are committed by this audit.
+The audit reports do not include quest prose; the separately imported bodies live in the Turtle-only Lua file.
 
 - `docs/audits/turtle_touched_text_coverage/summary.json` — consolidated counts.
 - `review_scoped_quests.csv` — 711 candidate quests for manual review.
-- `directly_supported_text_gaps.csv` — **priority 509 stage candidates**.
-- `turtle_specific_text_gaps.csv` — broader 599 possible gaps.
+- `directly_supported_text_gaps.csv` — **289 unresolved source-supported text conflicts**.
+- `turtle_specific_text_gaps.csv` — broader 379 possible gaps.
 - `held_quests.csv` — 49 disabled/conflicted/unverified quests.
 - `uncorroborated_cross_database_variants.csv` — 977 rejected
   cMaNGOS-vs-Tortoise differences lacking a stronger Turtle edit signal.
@@ -101,7 +102,7 @@ No third-party quest dialogue bodies are committed by this audit.
 ### Safety / limitations
 
 - **No** original `SoftSpoken_Stories/Data/QuestText.lua` modifications.
-- Existing Turtle-exclusive entries in `SoftSpoken_Stories/Data/TurtleQuestText.lua` are preserved; the first 13 verified stages are appended.
+- Existing 2,369 Turtle-exclusive entries in `SoftSpoken_Stories/Data/TurtleQuestText.lua` are preserved; 13 restored-quest and 207 previously missing shared-ID stages are appended.
 - **No** `SoftSpoken_Stories/Data/Compendium.lua` modifications.
 - Live, per-character `SSCQuestJournal` capture is not available to a
   static source audit, so in-game appearance may differ.
@@ -138,7 +139,7 @@ hash failures, scope and idempotency. GitHub Actions checked all 13 hashes
 and committed these exact stages to the existing Turtle quest text file.
 
 For a **populated** Turtle text table, the safest one-command local operation
-is to append only the audited stage batch. It preserves every existing line
+is to append only the two audited stage batches. It preserves every existing line
 outside the generated first-batch region:
 
 ```sh
@@ -146,7 +147,7 @@ node scripts/import_tortoise_quest_dialogue.mjs --touched-only
 ```
 
 The default importer still supports rebuilding **2,369 eligible
-Turtle-exclusive quest rows plus 13 first-batch stages** into the same
+Turtle-exclusive quest rows plus 13 restored stages and 207 missing stages** into the same
 `SoftSpoken_Stories/Data/TurtleQuestText.lua` file when a full pinned-source
 regeneration is intentionally desired:
 
@@ -169,6 +170,35 @@ python3 scripts/import_turtle_touched_text.py --db /path/to/tortoise.sqlite --wr
 **Committed:** 13 stages for quest IDs 820, 3111, 3578, 3579 and 3580, into
 `SoftSpoken_Stories/Data/TurtleQuestText.lua` on the audit branch. The existing
 2,369 entries and original Spoken table remain unchanged. This completes the
-first batch; 496 other high-priority stages remain unimported. The Tortoise
+first batch; the follow-up 207-stage batch is also committed, leaving 289
+source-supported, existing-Spoken conflicts unimported. The Tortoise
 snapshot is a community reconstruction rather than an authenticated live
 Turtle server export, so in-game text may differ.
+
+## Second import: 207 missing stages (November 15, 2026)
+
+- **204 progress and 3 completion stages**, affecting **206 shared-ID quests**.
+- Exact quest/stage fingerprints pinned in `missing_207_verified_stages.csv`.
+- `scripts/import_turtle_missing_stages.py` validates all 207 titles, source
+  SHA-256 hashes, and raw text lengths against the pinned SQLite, requires
+  stage-specific Turtle migration support, and rejects any stage already
+  populated by Spoken or Turtle.
+- The importer adds a dedicated generated block *after* the preserved 2,369
+  exclusive quests and 13 restored stages; Lua 5.1 syntax and both append-only
+  and full-regeneration workflows pass GitHub Actions.
+- The post-import audit was regenerated from the new tracked Lua corpus and
+  now reports **289 directly supported conflicting stages, 0 missing
+  directly supported stages**, and **90 additional lower-confidence gaps**.
+  The distinct 289 conflicts are left untouched for a separate review.
+
+To reproduce both imports without overwriting the existing exclusive corpus:
+
+```sh
+node scripts/import_tortoise_quest_dialogue.mjs --touched-only
+```
+
+A public repository commit now contains these 207 bodies in
+`SoftSpoken_Stories/Data/TurtleQuestText.lua`, while
+`SoftSpoken_Stories/Data/QuestText.lua` and Compendium relationships remain
+unchanged. These are consistent with the pinned Tortoise community snapshot,
+not an authenticated dump of the live Turtle server.
