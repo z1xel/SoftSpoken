@@ -133,7 +133,7 @@ def status(original,actual,source,other,metadata):
     if original:
         return "present"
     if actual:
-        return "manifest_only_gap"
+        return "recovered_in_compendium"
     if source:
         return "recoverable_source_relationship"
     if metadata.get("script"):
@@ -146,8 +146,8 @@ def status(original,actual,source,other,metadata):
 def choose_action(s,e):
     if "recoverable_source_relationship" in (s,e):
         return "Verify the typed source ID, spawn and quest context; then add only that role"
-    if s=="manifest_only_gap" or e=="manifest_only_gap":
-        return "Correct the source manifest audit; Compendium already has an explicit role"
+    if s=="recovered_in_compendium" or e=="recovered_in_compendium":
+        return "Preserve the separate source-backed recovery manifest in future catalog regenerations"
     if s=="script_candidate_unverified" or e=="script_candidate_unverified":
         return "Inspect scripted interaction or live quest dialog; do not invent static speaker"
     if s=="chain_without_typed_relationship" or e=="chain_without_typed_relationship":
@@ -277,6 +277,8 @@ def audit(db_path,manifest_path=MANIFEST,corpus_path=CORPUS,
         "quests_with_at_least_one_missing_side":len(detailed),
         "status_counts":dict(sorted(statuses.items())),
         "source_quest_rows_missing":source_count["quest_absent_from_source"],
+        "recovered_missing_roles_in_compendium":sum(
+            v for key,v in statuses.items() if key.endswith("_recovered_in_compendium")),
         "multiple_speaker_manifest_quests":len(multi),
         "multiple_manifest_vs_compendium_differences":sum(
             r["starter_status"]!="matched" or r["ender_status"] not in
