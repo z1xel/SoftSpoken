@@ -1,0 +1,33 @@
+{
+  "quest_id": 41797,
+  "catalog_title": "A Good Friend",
+  "source_title": "A Dear Friend",
+  "source_zone": 5581,
+  "region": "Northwind",
+  "starter_kind": "NPC",
+  "starter_id": 228,
+  "ender_kind": "NPC",
+  "ender_id": 62307,
+  "objective_tokens_verified": [
+    "avette",
+    "barbara",
+    "letter"
+  ],
+  "stage_hashes": {
+    "accept": {
+      "chars": 990,
+      "sha256": "1ace74411a65a12bee329edbc234ec1501fe0c70261ad4ca4ba9b504c2600f97"
+    },
+    "progress": {
+      "chars": 47,
+      "sha256": "0b5da96784bc337d7f1dbe05e01b396afee70f1ef104a7c0f35f6aac15f3421f"
+    },
+    "complete": {
+      "chars": 598,
+      "sha256": "81dbbac91b1e526e36f1aeab668e94295e04099cbdccfe5421d88d5771eada7d"
+    }
+  },
+  "evidence_url": "https://octowow.st/db/?quest=41797",
+  "decision": "allow_exact_title_alias_without_renaming_catalog",
+  "source_version": "Xian55/tortoise-db-viewer 567ce23c73087e9b67fd2d4732c171d751e54bba"
+}

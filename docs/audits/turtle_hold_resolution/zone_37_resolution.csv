@@ -1,0 +1,38 @@
+quest_id,title,cohort,old_reason,resolution,action
+636,Legends of the Earth,older_shared_id,title_disagreement,hold_source_identity,Source title differs or has a retired/NYI marker
+708,The Black Box,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
+908,Amongst the Ruins,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
+909,Baron Aquanis,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
+1157,Alexstrasza,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
+1158,Malygos,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
+1289,Vimes's Report,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
+1318,Unfinished Gordok Business,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
+1390,"Oops, We Killed Them Again.",older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
+3366,The Glowing Shard,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
+3482,The Pocked Black Box,older_shared_id,title_disagreement,hold_source_identity,Source title differs or has a retired/NYI marker
+5659,Touch of Weakness,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
+6000,Swearing to Gakin,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
+6165,Archmage Timolain's Remains,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
+8289,Talismans of Merit,older_shared_id,method_not_enabled,hold_disabled_method,The frozen Method/status rejects normal availability
+8296,Mark of Honor,older_shared_id,method_not_enabled,hold_disabled_method,The frozen Method/status rejects normal availability
+8793,The Horde Needs Your Help!,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
+8794,The Horde Needs Your Help!,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
+9247,The Keeper's Call,older_shared_id,shared_id_not_world_linked,hold_unproven_availability,Shared-ID record exists; no confirmed spawned quest starter in pinned evidence
+40051,Mysterious Cow Scroll I,turtle_exclusive,reserved_world_area,hold_restricted_area,GM Island does not prove a public zone or playable quest
+40052,Mysterious Cow Scroll II,turtle_exclusive,reserved_world_area,hold_restricted_area,GM Island does not prove a public zone or playable quest
+40053,Mysterious Cow Scroll III,turtle_exclusive,reserved_world_area,hold_restricted_area,GM Island does not prove a public zone or playable quest
+40054,Mysterious Cow Scroll IV,turtle_exclusive,reserved_world_area,hold_restricted_area,GM Island does not prove a public zone or playable quest
+40055,Mysterious Cow Scroll V,turtle_exclusive,reserved_world_area,hold_restricted_area,GM Island does not prove a public zone or playable quest
+40056,The Scroll of Cow Portal,turtle_exclusive,reserved_world_area,hold_restricted_area,GM Island does not prove a public zone or playable quest
+40128,An Ancient Acquisition,turtle_exclusive,title_disagreement,hold_source_identity,Source title differs or has a retired/NYI marker
+40129,Stealing a Core,turtle_exclusive,title_disagreement,hold_source_identity,Source title differs or has a retired/NYI marker
+40132,The Activation,turtle_exclusive,title_disagreement,hold_source_identity,Source title differs or has a retired/NYI marker
+40747,A Programmer?,turtle_exclusive,reserved_world_area,hold_restricted_area,GM Island does not prove a public zone or playable quest
+41098,A Missive From Gadgetzan,turtle_exclusive,title_disagreement,hold_source_identity,Source title differs or has a retired/NYI marker
+41100,A Letter From Rayne,turtle_exclusive,title_disagreement,hold_source_identity,Source title differs or has a retired/NYI marker
+41103,A Call From Torble,turtle_exclusive,title_disagreement,hold_source_identity,Source title differs or has a retired/NYI marker
+41105,Sparksprocket's Guest of Honor,turtle_exclusive,title_disagreement,hold_source_identity,Source title differs or has a retired/NYI marker
+41633,Bonescythe Ring,turtle_exclusive,missing_area_template,hold_unmapped_area,No matching AreaTable entry; prior ring quests not an authenticated replacement
+41797,A Good Friend,turtle_exclusive,title_disagreement,approved_title_alias,Use existing named Northwind region 5581
+60013,Happy New Year!,turtle_exclusive,zero_area_or_sort,hold_no_area,An empty area value supplies no valid map or category
+70010,Dual Spec,turtle_exclusive,zero_area_or_sort,hold_no_area,An empty area value supplies no valid map or category

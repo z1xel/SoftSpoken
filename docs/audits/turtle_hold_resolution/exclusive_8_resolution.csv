@@ -1,0 +1,9 @@
+quest_id,resolution,action
+40128,hold_deprecated_source,Preserve current existing quest; do not export deprecated source dialogue
+40129,hold_deprecated_source,Preserve current existing quest; do not export deprecated source dialogue
+40132,hold_deprecated_source,Preserve current existing quest; do not export deprecated source dialogue
+41098,hold_deprecated_source,Preserve current existing quest; do not export deprecated source dialogue
+41100,hold_deprecated_source,Preserve current existing quest; do not export deprecated source dialogue
+41103,hold_deprecated_source,Preserve current existing quest; do not export deprecated source dialogue
+41105,hold_deprecated_source,Preserve current existing quest; do not export deprecated source dialogue
+41797,approved_title_alias,Import only source-fingerprinted dialogue and Northwind classification

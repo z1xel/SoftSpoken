@@ -1,0 +1,50 @@
+quest_id,title,source_title,reason,resolution,action
+236,Watcher Callahan,Watcher Callahan,method_disabled_or_unverified,hold_method_unverified,"Existing curated quest remains, but Method alone does not establish live availability"
+636,Legends of the Earth,Legends of the Earth <NYI>,source_retired_or_placeholder,hold_retired_or_nyi,Source contains retired or placeholder title marker
+810,Study to Survive,Study to Survive,legacy_id_missing_spawned_starter,hold_missing_spawn_evidence,Source quest exists; original unavailable cMaNGOS baseline and missing spawned starter are not conclusive
+811,Unity is Strength,Unity is Strength,legacy_id_missing_spawned_starter,hold_missing_spawn_evidence,Source quest exists; original unavailable cMaNGOS baseline and missing spawned starter are not conclusive
+814,Work for Food,Work for Food,absent_cmangos_but_present_vanilla_pfquest,resolved_baseline_omission,In Vanilla pfQuest; cMaNGOS omission is not evidence of new Turtle quest
+908,Amongst the Ruins,Amongst the Ruins,legacy_id_missing_spawned_starter,hold_missing_spawn_evidence,Source quest exists; original unavailable cMaNGOS baseline and missing spawned starter are not conclusive
+909,Baron Aquanis,Baron Aquanis,legacy_id_missing_spawned_starter,hold_missing_spawn_evidence,Source quest exists; original unavailable cMaNGOS baseline and missing spawned starter are not conclusive
+1157,Alexstrasza,Alexstrasza,legacy_id_missing_spawned_starter,hold_missing_spawn_evidence,Source quest exists; original unavailable cMaNGOS baseline and missing spawned starter are not conclusive
+1158,Malygos,Malygos,legacy_id_missing_spawned_starter,hold_missing_spawn_evidence,Source quest exists; original unavailable cMaNGOS baseline and missing spawned starter are not conclusive
+1288,Vimes's Report,Vimes's Report,method_disabled_or_unverified,hold_method_unverified,"Existing curated quest remains, but Method alone does not establish live availability"
+1289,Vimes's Report,Vimes's Report,legacy_id_missing_spawned_starter,hold_missing_spawn_evidence,Source quest exists; original unavailable cMaNGOS baseline and missing spawned starter are not conclusive
+1390,"Oops, We Killed Them Again.","Oops, We Killed Them Again.",legacy_id_missing_spawned_starter,hold_missing_spawn_evidence,Source quest exists; original unavailable cMaNGOS baseline and missing spawned starter are not conclusive
+3366,The Glowing Shard,The Glowing Shard,legacy_id_missing_spawned_starter,hold_missing_spawn_evidence,Source quest exists; original unavailable cMaNGOS baseline and missing spawned starter are not conclusive
+3381,A Meeting with the Master,A Meeting with the Master,method_disabled_or_unverified,hold_method_unverified,"Existing curated quest remains, but Method alone does not establish live availability"
+3482,The Pocked Black Box,<NYI> <TXT> The Pocked Black Box,source_retired_or_placeholder,hold_retired_or_nyi,Source contains retired or placeholder title marker
+3581,Plainsrunning,Plainsrunning,absent_cmangos_but_present_vanilla_pfquest,resolved_baseline_omission,In Vanilla pfQuest; cMaNGOS omission is not evidence of new Turtle quest
+5214,The Great Fras Siabi,Echoes of a Salesman,source_catalog_title_disagreement,hold_probable_id_repurpose,Source/title/objective differ; cannot map original spoken dialogue blindly
+5641,Chastise,Resillience of the Mountain,source_catalog_title_disagreement,hold_probable_id_repurpose,Source/title/objective differ; cannot map original spoken dialogue blindly
+5645,Chastise,Resillience of the Mountain,source_catalog_title_disagreement,hold_probable_id_repurpose,Source/title/objective differ; cannot map original spoken dialogue blindly
+5647,Chastise,Resillience of the Mountain,source_catalog_title_disagreement,hold_probable_id_repurpose,Source/title/objective differ; cannot map original spoken dialogue blindly
+5659,Touch of Weakness,Touch of Weakness,legacy_id_missing_spawned_starter,hold_missing_spawn_evidence,Source quest exists; original unavailable cMaNGOS baseline and missing spawned starter are not conclusive
+6000,Swearing to Gakin,Swearing to Gakin,legacy_id_missing_spawned_starter,hold_missing_spawn_evidence,Source quest exists; original unavailable cMaNGOS baseline and missing spawned starter are not conclusive
+6131,Timbermaw Ally,Timbermaw Ally,legacy_id_missing_spawned_starter,hold_missing_spawn_evidence,Source quest exists; original unavailable cMaNGOS baseline and missing spawned starter are not conclusive
+6165,Archmage Timolain's Remains,Archmage Timolain's Remains,legacy_id_missing_spawned_starter,hold_missing_spawn_evidence,Source quest exists; original unavailable cMaNGOS baseline and missing spawned starter are not conclusive
+7478,Libram of Rapidity,Libram of Rapidity,absent_cmangos_but_present_vanilla_pfquest,resolved_baseline_omission,In Vanilla pfQuest; cMaNGOS omission is not evidence of new Turtle quest
+7479,Libram of Focus,Libram of Focus,absent_cmangos_but_present_vanilla_pfquest,resolved_baseline_omission,In Vanilla pfQuest; cMaNGOS omission is not evidence of new Turtle quest
+7480,Libram of Protection,Libram of Protection,absent_cmangos_but_present_vanilla_pfquest,resolved_baseline_omission,In Vanilla pfQuest; cMaNGOS omission is not evidence of new Turtle quest
+7487,Attunement to the Core,Attunement to the Core,absent_cmangos_but_present_vanilla_pfquest,resolved_baseline_omission,In Vanilla pfQuest; cMaNGOS omission is not evidence of new Turtle quest
+7668,The Darkreaver Menace,The Darkreaver Menace,method_disabled_or_unverified,hold_method_unverified,"Existing curated quest remains, but Method alone does not establish live availability"
+7795,A Donation of Runecloth,A Donation of Runecloth: Stormwind,source_catalog_title_disagreement,title_variant_identified_text_held,Same-ID title qualifier/spelling; text stage still needs validation
+7800,A Donation of Runecloth,A Donation of Runecloth: Darnassus,source_catalog_title_disagreement,title_variant_identified_text_held,Same-ID title qualifier/spelling; text stage still needs validation
+7805,A Donation of Runecloth,A Donation of Runecloth: Ironforge,source_catalog_title_disagreement,title_variant_identified_text_held,Same-ID title qualifier/spelling; text stage still needs validation
+7811,A Donation of Runecloth,A Donation of Runecloth: Gnomeregan,source_catalog_title_disagreement,title_variant_identified_text_held,Same-ID title qualifier/spelling; text stage still needs validation
+7813,A Donation of Wool,A Donation of Wool: Undercity,source_catalog_title_disagreement,title_variant_identified_text_held,Same-ID title qualifier/spelling; text stage still needs validation
+7818,A Donation of Runecloth,A Donation of Runecloth: Undercity,source_catalog_title_disagreement,title_variant_identified_text_held,Same-ID title qualifier/spelling; text stage still needs validation
+7823,A Donation of Runecloth,A Donation of Runecloth: Thunder Bluff,source_catalog_title_disagreement,title_variant_identified_text_held,Same-ID title qualifier/spelling; text stage still needs validation
+7824,A Donation of Runecloth,A Donation of Runecloth: Orgrimmar,source_catalog_title_disagreement,title_variant_identified_text_held,Same-ID title qualifier/spelling; text stage still needs validation
+7833,A Donation of Wool,A Donation of Wool: Darkspear Tribe,source_catalog_title_disagreement,title_variant_identified_text_held,Same-ID title qualifier/spelling; text stage still needs validation
+7836,A Donation of Runecloth,A Donation of Runecloth: Darkspear Tribe,source_catalog_title_disagreement,title_variant_identified_text_held,Same-ID title qualifier/spelling; text stage still needs validation
+8044,The Rage of Mugamba,The Rage of Mount Mugamba,source_catalog_title_disagreement,title_variant_identified_text_held,Same-ID title qualifier/spelling; text stage still needs validation
+8141,Zandalarian Shadow Talisman,Zandalrian Shadow Talisman,source_catalog_title_disagreement,title_variant_identified_text_held,Same-ID title qualifier/spelling; text stage still needs validation
+8142,Zandalarian Shadow Talisman,Zandalrian Shadow Talisman,source_catalog_title_disagreement,title_variant_identified_text_held,Same-ID title qualifier/spelling; text stage still needs validation
+8143,Zandalarian Shadow Talisman,Zandalrian Shadow Talisman,source_catalog_title_disagreement,title_variant_identified_text_held,Same-ID title qualifier/spelling; text stage still needs validation
+8144,Zandalarian Shadow Mastery Talisman,Zandalrian Shadow Mastery Talisman,source_catalog_title_disagreement,title_variant_identified_text_held,Same-ID title qualifier/spelling; text stage still needs validation
+8148,Maelstrom's Wrath,The Maelstrom's Wrath,source_catalog_title_disagreement,title_variant_identified_text_held,Same-ID title qualifier/spelling; text stage still needs validation
+8249,Junkboxes Needed,Hard Lock School,source_catalog_title_disagreement,hold_probable_id_repurpose,Source/title/objective differ; cannot map original spoken dialogue blindly
+8289,Talismans of Merit,Talismans of Merit,method_disabled_or_unverified,hold_method_unverified,"Existing curated quest remains, but Method alone does not establish live availability"
+8293,Mark of Honor,Marks of Honor,source_catalog_title_disagreement,title_variant_identified_text_held,Same-ID title qualifier/spelling; text stage still needs validation
+8296,Mark of Honor,Mark of Honor,method_disabled_or_unverified,hold_method_unverified,"Existing curated quest remains, but Method alone does not establish live availability"
