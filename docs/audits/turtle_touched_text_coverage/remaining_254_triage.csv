@@ -1,0 +1,255 @@
+quest_id,catalog_title,stage,edit_category,similarity,spoken_chars,turtle_chars,length_delta,changed_word_count,directive_sequence_changed,directive_case_only,triage_action,source_sha256
+32,Rise of the Silithid,complete,punctuation_or_whitespace,0.9979,481,481,0,1,0,1,retain_spoken_cosmetic,f6488ce4849ce03322cb30fb8d14fc5edf0d9ab55a69e8eac3448f0b8d1e1eff
+53,Sweet Amber,complete,minor_wording,0.967,179,185,6,3,1,0,manual_review_minor_directives,b9a267b93b0e76714c8b1194018751fe6bac90e2cc9351d8d669b40e6e0f79ab
+64,The Forgotten Heirloom,complete,minor_wording,0.9497,165,153,-12,5,1,0,manual_review_minor_directives,a5022d6af4a833a2bffedc8ec1fec4ba02f079d8039093827b3c3acf566397ab
+98,The Legend of Stalvan,complete,punctuation_or_whitespace,0.9963,267,267,0,1,0,1,retain_spoken_cosmetic,b77e105ac5c7739cd81debff5518a959910df6ceb3ba5c09f6ac3381773380d8
+109,Report to Gryan Stoutmantle,complete,punctuation_or_whitespace,0.9904,262,261,-1,2,0,1,retain_spoken_cosmetic,eacf75b2d34638df84ded110c89c3c1a60ef0dba96d1492ab58a451d5af18878
+113,Insect Part Analysis,complete,punctuation_or_whitespace,0.9977,430,430,0,1,0,1,retain_spoken_cosmetic,d70807d6faf40d840b246afecb076b3174e7b24ff2f0f09c067a7a117d5e3d3b
+116,Dry Times,complete,punctuation_or_whitespace,0.9895,238,237,-1,2,0,1,retain_spoken_cosmetic,a6c3534c754b68e20d39db1899d8941d1c4975128051cd2c559d0700b5e179ba
+117,Thunderbrew,complete,minor_wording,0.9495,147,150,3,6,1,0,manual_review_minor_directives,19923c1ebceed7f8d46cdc6a5ec4bed66c80bb8f15336b32912c53e45d2b329a
+129,A Free Lunch,accept,minor_wording,0.9831,358,354,-4,6,0,0,manual_review_minor_prose,923efb6370d7b9d1d88ed6b156895567dd9589f7a7b2ccc4862ea72f4eb64b64
+146,Messenger to Darkshire,complete,punctuation_or_whitespace,0.9884,303,302,-1,3,0,1,retain_spoken_cosmetic,c945c0a8de59404ed23ad7c43e9edd74faf26a900cf1732eb1a46b50a0f1c418
+162,Rise of the Silithid,complete,punctuation_or_whitespace,0.998,494,494,0,1,0,1,retain_spoken_cosmetic,2ac574b9ce69798a3f654be59ab905c0d70e3f1321c5ae6715d1f71c79216528
+166,The Defias Brotherhood,complete,minor_wording,0.9701,306,296,-10,5,1,0,manual_review_minor_directives,d20d33b30fed5cf8c9f161600d54731ea73829ee03382412a1ca4bd097b5fa68
+172,Children's Week,complete,minor_wording,0.9827,383,370,-13,3,1,0,manual_review_minor_directives,aa1dfd1100f172c6a9220c58c9c53019ccfcb7d1e399a14bfc4bd3ab06cf02cd
+182,The Troll Cave,complete,punctuation_or_whitespace,0.9812,213,213,0,2,0,1,retain_spoken_cosmetic,3209012924c9da6243490b1a169f96b534d8051b4b46397da23088ccbd1b38f3
+185,Tiger Mastery,complete,punctuation_or_whitespace,0.9762,42,42,0,1,0,1,retain_spoken_cosmetic,d0545155e86fa8eb0e465e8702aa1d675c3dc1236b6f699877eca7ba1979a775
+186,Tiger Mastery,complete,punctuation_or_whitespace,0.9804,51,51,0,1,0,1,retain_spoken_cosmetic,465c49c74b7868454efb31a276b6a8095853111c8b2e0d58ccc8d466f06efb5a
+194,Raptor Mastery,complete,moderate_wording,0.7931,35,23,-12,3,1,0,manual_review_moderate,c3238aa0ced028a02f55769548899881b87145568c168f765f3caee68845045e
+270,The Doomed Fleet,complete,minor_wording,0.9826,292,282,-10,1,1,0,manual_review_minor_directives,a4e94b18afe3bc5121d9f6f5c392cd887f104ce0bfc7940999402ecddcfe164e
+283,A Dark Threat Looms,complete,moderate_wording,0.8633,291,221,-70,17,1,0,retain_spoken_possible_truncation,a6ec9da15cb3d268b5e6b6356b7d74597d3a898aea0cf055327499ce3ede27de
+384,Beer Basted Boar Ribs,complete,minor_wording,0.9627,158,164,6,3,1,0,manual_review_minor_directives,4ae538c3f778dbbc114bb312510385e377ec41d8bee19ba1756ee2ce05a40746
+388,The Color of Blood,complete,punctuation_or_whitespace,0.9896,240,239,-1,2,0,1,retain_spoken_cosmetic,30d9d0b0dec05bcc72cf973e2b8e652140571a3b68076f15f690d6ed95ca87dc
+459,The Woodland Protector,complete,punctuation_or_whitespace,0.9902,409,409,0,2,0,1,retain_spoken_cosmetic,41ba5913909de8be4c34fdff37475fb3a1bdf143ccccf203d05f21149bfae16d
+586,Speaking with Gan'zulah,complete,punctuation_or_whitespace,0.9981,265,264,-1,2,0,0,retain_spoken_cosmetic,3d4e683930f512a565df7d78457bf4e9a12516478c3d2ac7163532405f5a54c0
+646,Trol'kalar,complete,moderate_wording,0.7036,339,184,-155,26,1,0,retain_spoken_possible_truncation,df745e064330726aad52c174c688b69172b0ff766f552d4bd259f22a24236df7
+667,Death From Below,complete,punctuation_or_whitespace,0.9701,268,268,0,4,0,1,retain_spoken_cosmetic,3de41266ebf50e392c558f578cadca836b82b9bac6238dc61b880f3a6bc95fec
+747,The Hunt Begins,complete,punctuation_or_whitespace,0.9831,59,59,0,1,0,1,retain_spoken_cosmetic,5fb1ed786d2dc3f5a8d15aaea5722420451c118573bc69273cdac1f9b3af5dc7
+750,The Hunt Continues,complete,punctuation_or_whitespace,0.9933,150,150,0,1,0,1,retain_spoken_cosmetic,1ab2368e7beb595c577ee7a12040ddf5e14a2f7fd1257c45b29310645f8a439c
+767,Rite of Vision,complete,punctuation_or_whitespace,0.9915,118,118,0,1,0,1,retain_spoken_cosmetic,0451c2e157544b78e5d69da10dc9c7604c12b80e41c0a18a8c03e7516e3f0c24
+831,The Admiral's Orders,complete,punctuation_or_whitespace,0.9782,229,229,0,2,0,1,retain_spoken_cosmetic,ebb33a95c808a9a00b7d851c2115743da09359abff488b7f2d5dadbb5ee2552b
+838,Scholomance,complete,minor_wording,0.9961,386,387,1,2,0,1,manual_review_minor_prose,62565629f18e24907aefa0c84d30e5454ace9e3a0e9ddc8ed6824d05ab86a1f1
+842,Crossroads Conscription,complete,moderate_wording,0.8169,502,350,-152,32,1,0,retain_spoken_possible_truncation,2ce17f89eeb3bf5935548f4d5aed6e3653114f71aba30c24422bdaaaeabe37d6
+902,Samophlange,complete,moderate_wording,0.8793,260,204,-56,9,1,0,retain_spoken_possible_truncation,a21aac786512cbb13025e2e77ab899bfb5271285e255e96fa2c4fe39c17fad4f
+938,Mist,complete,punctuation_or_whitespace,0.9952,209,209,0,1,0,1,retain_spoken_cosmetic,c31c6798ae6850c2c61883d711e6d7f3a2ff2b11832543dfafb7102c96d0604c
+954,Bashal'Aran,complete,punctuation_or_whitespace,0.9926,408,408,0,2,0,1,retain_spoken_cosmetic,8a18fe0e3a77ec39e793529ece1d723fd0df4b9e31e2e674fdd01cee1725b0c1
+963,For Love Eternal,complete,punctuation_or_whitespace,0.9861,216,216,0,2,0,1,retain_spoken_cosmetic,112c480d0ac0f1642648caa81e35c11c0ed79231f04a64ddcefa59a2c081a0a9
+966,The Tower of Althalaxx,complete,punctuation_or_whitespace,0.9852,338,338,0,3,0,1,retain_spoken_cosmetic,952560b2c813fd01a9ba33b269604bab94f3daddc1e9f1334a47d96d791b4f48
+973,The Tower of Althalaxx,complete,punctuation_or_whitespace,0.9837,184,184,0,2,0,1,retain_spoken_cosmetic,8b636fa28ec79e4d9ea8bf11002b8e370e8aa812f77cf01fa1bc9e9ec2b858f6
+997,Denalan's Earth,complete,minor_wording,0.9702,187,182,-5,2,1,0,manual_review_minor_directives,6f296e7c7dcbac98fd477eff9926f5e4e014f14f071666d12d0f22a6718f19f4
+1048,Into The Scarlet Monastery,complete,punctuation_or_whitespace,0.9825,171,171,0,2,0,1,retain_spoken_cosmetic,07ca3641856e998d8ad5f3f345673031942c25bc0856bb28f8a0349199989079
+1049,Compendium of the Fallen,complete,punctuation_or_whitespace,0.9831,178,178,0,2,0,1,retain_spoken_cosmetic,73733a693006e059574bb63eb995fb0dca9766b80b41f53e69ec14f46a6d4551
+1166,Overlord Mok'Morokk's Concern,complete,punctuation_or_whitespace,0.9818,55,55,0,1,0,1,retain_spoken_cosmetic,760b95fcf52448bbf30373080edc204c975d9312a2a6476e57882805e1609dc5
+1168,Army of the Black Dragon,complete,punctuation_or_whitespace,0.9595,74,74,0,1,0,1,retain_spoken_cosmetic,2b338503aeb26691f53696e4755d98420691545849ec41ef9c0c799f8b335c72
+1172,The Brood of Onyxia,complete,punctuation_or_whitespace,0.9842,444,444,0,3,0,1,retain_spoken_cosmetic,816fabde1d0a97b64bd4fc59d6cd1e19a95b2a74a4e02f14c223b2a8f81f56ff
+1176,Load Lightening,complete,punctuation_or_whitespace,0.9846,65,65,0,1,0,1,retain_spoken_cosmetic,675e724253f27bee1c2a50465b64294766f692a2c2532d8ad8f0c92014fc0a08
+1184,Parts of the Swarm,complete,punctuation_or_whitespace,0.9975,397,397,0,1,0,1,retain_spoken_cosmetic,b4c5dea73158ea62b5efbbee85f240c257804280352188b52917c27a8a7bf8ac
+1238,The Lost Report,complete,punctuation_or_whitespace,0.9978,231,230,-1,2,0,0,retain_spoken_cosmetic,8e9cdafb9dc6ec297c16d6c914684695059236fba8a575cb84e7b738bda66ef2
+1276,The Black Shield,complete,punctuation_or_whitespace,0.9856,209,209,0,2,0,1,retain_spoken_cosmetic,af47ac149cd2533cad8173701958ae7a3edb6d88e16179848019405563376b70
+1284,Suspicious Hoofprints,complete,moderate_wording,0.8121,313,214,-99,19,1,0,retain_spoken_possible_truncation,bda19c8110decec08c547757a291a91b468c2da38d97f79bf9764f0a5c3f5708
+1321,The Black Shield,complete,punctuation_or_whitespace,0.9771,131,131,0,1,0,1,retain_spoken_cosmetic,bdf3be0f9a634051a990912f18215bd29da67b5d85968c45d4dc165aa817ae7b
+1322,The Black Shield,complete,punctuation_or_whitespace,0.981,158,158,0,2,0,1,retain_spoken_cosmetic,157e02b2304fbc760aa8e5bb500833775effbda07a59f8e9448cfc1999bf798e
+1393,Galen's Escape,complete,punctuation_or_whitespace,0.9979,243,242,-1,2,0,0,retain_spoken_cosmetic,bc44a89f30d1834cef3696388b780761e778c3875a7a54665ac44f561dd08955
+1431,Alliance Relations,complete,punctuation_or_whitespace,0.998,493,493,0,1,0,1,retain_spoken_cosmetic,ab299fadc85e5b0fa48025fb47313a4e620988fb84783137e8d60446bfb6c671
+1434,Befouled by Satyr,complete,punctuation_or_whitespace,0.9955,224,224,0,1,0,1,retain_spoken_cosmetic,41a322e60d8825e221429a1fc1173c02acea614a5b1f50a63b59001fc26a9687
+1468,Children's Week,complete,minor_wording,0.9631,351,326,-25,7,1,0,manual_review_minor_directives,bf53baad06c3cf66fc9513c702c7ed6c7db674dda5cdef4edeb43e8864e291db
+1472,Devourer of Souls,complete,minor_wording,0.9703,200,204,4,2,1,0,manual_review_minor_directives,a975ff96636bc5a0d3d48b03e68c6ada143aeef779ef21647035c572fba73b6e
+1474,The Binding,complete,minor_wording,0.9758,312,307,-5,3,1,0,manual_review_minor_directives,90dcccb3c8163aa7c53b4576261c92c14b5092f87364771e1cc7fa1a2b119839
+1481,The Corrupter,complete,punctuation_or_whitespace,0.997,338,338,0,1,0,1,retain_spoken_cosmetic,2f67687d443504f5660d894c92c1aa4edb04ae37713b3e69be266f800b5117e6
+1482,The Corrupter,complete,punctuation_or_whitespace,0.9964,278,278,0,1,0,1,retain_spoken_cosmetic,5771e115235b90e367679b1d0697d30fb08ce74d45815ba05c5306fe0f3334b5
+1499,Vile Familiars,complete,punctuation_or_whitespace,0.9829,175,175,0,1,0,1,retain_spoken_cosmetic,52b52dedc2a43300a8f5dda7ad87bd13fa2224aa52df6f5a95dc214ff897089e
+1599,Beginnings,complete,punctuation_or_whitespace,0.9904,416,416,0,2,0,1,retain_spoken_cosmetic,b42b592e4693946ec1a24c5247e2e24b80950c70d6d0f0bcf50515505a14c899
+1639,Bartleby the Drunk,complete,minor_wording,0.9675,127,119,-8,1,1,0,manual_review_minor_directives,896fc58478fe1e4acd2fdb145a8fd62d768683b8a6dc32f8659e89b826f660eb
+1649,The Tome of Valor,complete,minor_wording,0.9891,465,455,-10,2,1,0,manual_review_minor_directives,3771873f6de08d6b4c9645584087225ac17ab32302c53d319abacfce5ecbbcb2
+1678,Vejrek,complete,punctuation_or_whitespace,0.9925,265,265,0,1,0,1,retain_spoken_cosmetic,c0fc26b2c505d5428a176c11a4db9e4c3332f45170e0dcfd64cf71d62c958175
+1680,Tormus Deepforge,complete,punctuation_or_whitespace,0.9908,218,218,0,1,0,1,retain_spoken_cosmetic,5a404f5da128efc451c72becc863bdc9da46411606e23c965afe1ca657a53d07
+1717,Gakin's Summons,complete,punctuation_or_whitespace,0.9872,234,234,0,2,0,1,retain_spoken_cosmetic,aa440e61a35b1a2a7b4de9ecc9336c0e56e4bc4f0ea6c28471f362fb79ce9349
+1758,Tome of the Cabal,complete,minor_wording,0.9395,209,204,-5,10,0,1,manual_review_minor_prose,00c9962e5028f8ceb77ea0df18d341275ff01c36e68ef8386602c30920376968
+1782,Furen's Armor,complete,minor_wording,0.995,401,405,4,2,1,0,manual_review_minor_directives,3632fb714bfeb2edf2ba997d472ec8852a5497dc8f5c81e4a9acef1e6d02e2ee
+1783,The Tome of Divinity,complete,minor_wording,0.9884,480,469,-11,2,1,0,manual_review_minor_directives,03e0575deccd8925cd485889c49b1eaa96840c2a4704ac52a84f90dbbaf057dc
+1786,The Tome of Divinity,complete,minor_wording,0.9886,487,476,-11,2,1,0,manual_review_minor_directives,74682fff81eaba8ee095c5d83404bf56ef105c0cf560a0ef41a388ffb0eed180
+1794,The Tome of Valor,complete,punctuation_or_whitespace,0.9941,509,509,0,2,0,1,retain_spoken_cosmetic,0b181ec558223f34bc8860df4f30ab5b1abecd86a927166c53371b8c7c0211a4
+1798,Seeking Strahad,complete,minor_wording,0.9513,172,177,5,8,0,1,manual_review_minor_prose,c54ba57e62043ff35d9f8f0bd1f3a65b289bcffa8f58a4412e3abf3617e48d16
+1947,Journey to the Marsh,complete,moderate_wording,0.8741,76,59,-17,2,1,0,manual_review_moderate,55a8308f5ab687d2bf7b178130c97223239cfa71938d8d0beb16bf9c6c2ea3d8
+2381,Plundering the Plunderers,complete,minor_wording,0.9785,214,205,-9,1,1,0,manual_review_minor_directives,14563a2806ff557fcde874c7aa950298eb21d6bbe53f3e899ea7283c0db0b842
+2383,Simple Parchment,complete,punctuation_or_whitespace,0.9934,301,301,0,1,0,1,retain_spoken_cosmetic,f1b3685c43968dc10ccda5737be46d8b72acbcc0a17e306cf5017b3246f0d630
+2418,Power Stones,complete,punctuation_or_whitespace,0.9964,276,276,0,1,0,1,retain_spoken_cosmetic,375502a528fd70195958cbcecace0ff135b7f3d5e7acdc659ae7ab1f71966cd7
+2601,The Basilisk's Bite,accept,minor_wording,0.9929,492,493,1,1,0,0,manual_review_minor_prose,11eca544e7b2f789e4aba8a984e6e1a5cb961baaabd0137082bf2cbb82e21225
+2602,Infallible Mind,accept,minor_wording,0.985,233,234,1,1,0,0,manual_review_minor_prose,6692ad56aa6901baa8cc01c0a74a7e99997f46601322307313f6fb5a7b4c1b85
+2604,Spiritual Domination,accept,minor_wording,0.9871,271,272,1,1,0,0,manual_review_minor_prose,a09db12f25311c8e03d0574fc03e73948d1060c9351802cd25095efab08bbb8a
+2745,Infiltrating the Castle,complete,minor_wording,0.9955,442,438,-4,1,0,0,manual_review_minor_prose,8c1f570734b399c3adedc2ff5ec0b94773ff599f8020d31e661caff26f5057b9
+2867,Return to Feathermoon Stronghold,complete,moderate_wording,0.7263,455,261,-194,35,1,0,retain_spoken_possible_truncation,cd910e18b2a9862f9200dc69c281c3a0c35f4c44a6fe28ab1901217bdc63bf7b
+2877,Skulk Rock Clean-up,complete,punctuation_or_whitespace,0.9975,393,393,0,1,0,1,retain_spoken_cosmetic,9aac272fd28e56428276ac7d680410ead56abbc6177b81a52d20e588a6cfca15
+2903,The Battle Plans,complete,moderate_wording,0.8544,480,358,-122,24,1,0,retain_spoken_possible_truncation,4f2ecc83579d1f5c03ee75910c23c8f3d0552fd5a98ee1349233385e50985d26
+2942,The Morrow Stone,complete,moderate_wording,0.8158,389,268,-121,26,1,0,retain_spoken_possible_truncation,1c47fd05a798ba6bff7e8a36070eede3d6fc2a953d50b2a9b661342891389e53
+3082,Etched Tablet,complete,minor_wording,0.9833,482,474,-8,2,1,0,manual_review_minor_directives,9be3ef2a7fef84f6e31196d0def8bf7e60967b8949fb51202f09e67588fd1de0
+3090,Tainted Parchment,complete,punctuation_or_whitespace,0.996,495,495,0,1,0,1,retain_spoken_cosmetic,cf0a0ac30630dddb6e1f1f2d07393092963423643c526fbeb0e892759247a0c9
+3106,Simple Rune,complete,punctuation_or_whitespace,0.9955,443,443,0,1,0,1,retain_spoken_cosmetic,e7bb7a30f9186a4c34b4f8202d7f9b8ddb5890f3fccc1b127a0eb6735ac72ca2
+3115,Tainted Memorandum,complete,punctuation_or_whitespace,0.9953,428,428,0,1,0,1,retain_spoken_cosmetic,32155e736179b1e92e66b0039ef94a86ca65da3c22d7ed116b7ba19e5fd3fa53
+3116,Simple Sigil,complete,punctuation_or_whitespace,0.996,506,506,0,1,0,1,retain_spoken_cosmetic,b83fbd760f04eaedd55c05fc9cdeacee59a7584fc863c2b7dd95eacfbaf93adf
+3402,The Undermarket,complete,minor_wording,0.9847,264,260,-4,2,1,0,manual_review_minor_directives,0d17ec21941e308938380f9a216c51d95e4a35bab2148f70e12742b2988115d3
+3528,The God Hakkar,accept,minor_wording,0.998,502,504,2,2,0,0,manual_review_minor_prose,120eca2b51ed6b00c6fd9e8065eca4bbe5943c3224e19d569dd476617993fe4a
+3763,Assisting Arch Druid Staghelm,complete,punctuation_or_whitespace,0.996,249,249,0,1,0,1,retain_spoken_cosmetic,c200a5117a104f4a1f4e8e4bbc4a05e1a57f54ad8ae3d027134a98fa88bbf282
+3801,Dark Iron Legacy,accept,minor_wording,0.9554,482,527,45,7,1,0,manual_review_minor_directives,6a0eb27f3763fdaa51e6df43a0048ca28f9f03dcf76d0ff06a03116b9d505adb
+3802,Dark Iron Legacy,accept,minor_wording,0.9466,505,562,57,9,0,0,manual_review_minor_prose,42b7f9ee33661b061f3ffc5280b260b631db0550de0557b2526584872ac19dfb
+3907,Disharmony of Fire,complete,minor_wording,0.9833,480,476,-4,4,1,0,manual_review_minor_directives,b5f25337a853ccf8b4aa4c31973f233ab00ab7e8a453a122b936b6af4a8c58fe
+4061,The Rise of the Machines,complete,minor_wording,0.9725,220,216,-4,3,1,0,manual_review_minor_directives,db02be24e2bc9d62a27ad13b7dc8ce2575bb6a867152e4cbd6a81f0ffc716ab7
+4105,Salve via Gathering,complete,punctuation_or_whitespace,0.9911,225,225,0,2,0,1,retain_spoken_cosmetic,7cad2b58a0371c823d4233f6bf28451de923ddd20afa78f6fb0452036f5c661c
+4106,Salve via Skinning,complete,punctuation_or_whitespace,0.9926,135,135,0,1,0,1,retain_spoken_cosmetic,b49a7cee7f03fd140580894e4daaf6df3e150eb4a304bf8e25e799a1a376c960
+4107,Salve via Disenchanting,complete,punctuation_or_whitespace,0.9957,233,233,0,1,0,1,retain_spoken_cosmetic,5bbf96d398a4af9cda464548a65477c6fd2516c6a0270d365f275138cc85c80b
+4110,Salve via Gathering,complete,punctuation_or_whitespace,0.9911,225,225,0,2,0,1,retain_spoken_cosmetic,7cad2b58a0371c823d4233f6bf28451de923ddd20afa78f6fb0452036f5c661c
+4111,Salve via Skinning,complete,punctuation_or_whitespace,0.9926,135,135,0,1,0,1,retain_spoken_cosmetic,b49a7cee7f03fd140580894e4daaf6df3e150eb4a304bf8e25e799a1a376c960
+4112,Salve via Disenchanting,complete,punctuation_or_whitespace,0.9957,233,233,0,1,0,1,retain_spoken_cosmetic,5bbf96d398a4af9cda464548a65477c6fd2516c6a0270d365f275138cc85c80b
+4297,Food for Baby,complete,minor_wording,0.9754,229,218,-11,2,1,0,manual_review_minor_directives,ca7a8009b78304b27f646ce5a3220fba7ea5f83d510a83274d93c029599c2bcd
+4298,Becoming a Parent,complete,minor_wording,0.9645,146,136,-10,2,1,0,manual_review_minor_directives,b6d53ba1508d260bdf475dfd1ad227a93149aa5c38af0ac78e1147ddf380ca83
+4485,The Tome of Nobility,complete,punctuation_or_whitespace,0.9848,198,198,0,2,0,1,retain_spoken_cosmetic,bfd13115128f5129cc28c79f4365abbf59eac4181443017342b3aaa1ecbe4e91
+4486,The Tome of Nobility,complete,punctuation_or_whitespace,0.9848,198,198,0,2,0,1,retain_spoken_cosmetic,bfd13115128f5129cc28c79f4365abbf59eac4181443017342b3aaa1ecbe4e91
+4681,Washed Ashore,complete,punctuation_or_whitespace,0.9989,471,470,-1,1,0,0,retain_spoken_cosmetic,31aa760c6a8326e20c5c077ed108427d6c84ba1e83dc76242702bac72ef64240
+4730,Beached Sea Creature,complete,moderate_wording,0.8818,440,347,-93,16,1,0,retain_spoken_possible_truncation,989b4a5adb11b272d6c3b672279c6d47d198bdae3d05aab9a4848291d0c5ee14
+4732,Beached Sea Turtle,complete,moderate_wording,0.8235,450,315,-135,23,1,0,retain_spoken_possible_truncation,fb34cc61ba070d2149a3caa3f44b8b6612b47f57c014a4253794958f9a8b0b6c
+4761,Thundris Windweaver,complete,punctuation_or_whitespace,0.997,337,337,0,1,0,1,retain_spoken_cosmetic,a375dfd396313086009e7038a8545607e4254ab2d80eea7bb1f5ac49f74aafb8
+5049,The Jeremiah Blues,complete,minor_wording,0.9989,453,452,-1,2,0,0,manual_review_minor_prose,6c7764779785ccd0418a8e7a82350b87d1cdef571857652c9a0bb8bf461f7208
+5057,Past Endeavors,complete,minor_wording,0.9419,332,305,-27,7,0,1,manual_review_minor_prose,48ab8124b4da3db086296a50f5692a83b359e19c0f6c09d17fea408448f82eb9
+5063,Cap of the Scarlet Savant,complete,punctuation_or_whitespace,0.9766,128,128,0,2,0,1,retain_spoken_cosmetic,c1b2692dc703d3979351e0a9fa7f36eddc6880af00299b589f17e5128290e6a8
+5064,Grimtotem Spying,complete,punctuation_or_whitespace,0.9869,153,153,0,1,0,1,retain_spoken_cosmetic,cf6e3bcf5600a3c8e96a499a4ebc48e2b96ee5a048e6c8f969e78f60d2747dce
+5162,Wrath of the Blue Flight,complete,minor_wording,0.9796,100,96,-4,1,1,0,manual_review_minor_directives,a797c36eb0257c29ba6a010cdca6d5cf1f9c2d44e60982bb03adea06609155a0
+5215,The Scourge Cauldrons,complete,punctuation_or_whitespace,0.998,505,505,0,1,0,1,retain_spoken_cosmetic,7526c5c798408346071dcb5fd6e8ae0b6d66774c6d9ae18f70f4866bd5d5ee8a
+5237,Mission Accomplished!,complete,minor_wording,0.987,468,458,-10,4,1,0,manual_review_minor_directives,283a9ae3492a05df30941117d6f09d64739b5f6df3639ba25bb27e9c6a005cc4
+5243,Houses of the Holy,complete,punctuation_or_whitespace,0.9924,132,132,0,1,0,1,retain_spoken_cosmetic,9444e9a8e6305feee3cc4f1cf70a2193ecf4a47ccc24aafe7bfdfa4462cfa3d9
+5381,Hand of Iruxos,complete,punctuation_or_whitespace,0.99,100,100,0,1,0,1,retain_spoken_cosmetic,17a7f9158ae3c6f4b3b2a93b0ac9ad7e82965a12b21c3c9cc3799620e5ea3959
+5401,Argent Dawn Commission,complete,punctuation_or_whitespace,0.998,494,494,0,1,0,1,retain_spoken_cosmetic,3452ab149f87a661219f9dc2de54f6e3af0ac1ed5b192fa8ea68c085b094c825
+5404,Corruptor's Scourgestones,complete,minor_wording,0.982,368,355,-13,4,1,0,manual_review_minor_directives,0ddbc49e38de792e2b00e5196ec112686979a483fd493e8f0f3530ca75834e8c
+5406,Corruptor's Scourgestones,complete,minor_wording,0.9834,368,356,-12,3,1,0,manual_review_minor_directives,11158e28b64b9574cfb088a0096b81132843bbcee4db5743c392fb06afb563f0
+5441,Lazy Peons,complete,minor_wording,0.9711,85,88,3,2,1,0,manual_review_minor_directives,12e7785dd171c894e891c33e3f43a0f2ddb43b090b545d217f41db0d7e16c37c
+5508,Corruptor's Scourgestones,complete,minor_wording,0.982,368,355,-13,4,1,0,manual_review_minor_directives,0ddbc49e38de792e2b00e5196ec112686979a483fd493e8f0f3530ca75834e8c
+5640,Desperate Prayer,complete,punctuation_or_whitespace,0.9884,258,258,0,2,0,1,retain_spoken_cosmetic,35ec46f1c92c41c34354e677971282a4e93748e91ed091605b7c3a634d0e6569
+5658,Touch of Weakness,complete,punctuation_or_whitespace,0.992,125,125,0,1,0,1,retain_spoken_cosmetic,f2ea3d7f1414f7995320b61c9284dfc23e38851db4fd3e8102acd47802656601
+5674,Elune's Grace,accept,moderate_wording,0.9137,381,407,26,10,1,0,manual_review_moderate,715cf5e93cbd81d3a4dd498a68e4cbfe086b23c892edd38a7c1cfdbe5509ac19
+5677,Arcane Feedback,complete,punctuation_or_whitespace,0.9925,399,399,0,2,0,1,retain_spoken_cosmetic,67f440bcf962ba5bb21c88a6d7bc432509b7186b2c110a55e576fc45c364ff72
+5678,Arcane Feedback,complete,punctuation_or_whitespace,0.9925,399,399,0,2,0,1,retain_spoken_cosmetic,67f440bcf962ba5bb21c88a6d7bc432509b7186b2c110a55e576fc45c364ff72
+5741,Sceptre of Light,complete,punctuation_or_whitespace,0.9916,119,119,0,1,0,1,retain_spoken_cosmetic,e6dd4503f8cd9191bdc58893e61a5736d086fc7026ced86a6aba21a934a42c24
+5884,Salve via Gathering,complete,punctuation_or_whitespace,0.9911,225,225,0,2,0,1,retain_spoken_cosmetic,7cad2b58a0371c823d4233f6bf28451de923ddd20afa78f6fb0452036f5c661c
+5886,Salve via Disenchanting,complete,punctuation_or_whitespace,0.9957,233,233,0,1,0,1,retain_spoken_cosmetic,5bbf96d398a4af9cda464548a65477c6fd2516c6a0270d365f275138cc85c80b
+5889,Salve via Gathering,complete,punctuation_or_whitespace,0.9911,225,225,0,2,0,1,retain_spoken_cosmetic,7cad2b58a0371c823d4233f6bf28451de923ddd20afa78f6fb0452036f5c661c
+5891,Salve via Disenchanting,complete,punctuation_or_whitespace,0.9957,233,233,0,1,0,1,retain_spoken_cosmetic,5bbf96d398a4af9cda464548a65477c6fd2516c6a0270d365f275138cc85c80b
+6071,The Hunter's Path,complete,punctuation_or_whitespace,0.95,20,20,0,1,0,1,retain_spoken_cosmetic,8904e28bd0a8683209d59683d132314b69fab4ac111474a0fb9d45f672123d51
+6073,The Hunter's Path,complete,punctuation_or_whitespace,0.95,20,20,0,1,0,1,retain_spoken_cosmetic,8904e28bd0a8683209d59683d132314b69fab4ac111474a0fb9d45f672123d51
+6089,Training the Beast,complete,punctuation_or_whitespace,0.9912,341,341,0,2,0,1,retain_spoken_cosmetic,f2c0986a52feb752588bdf1379e9e0f50cbd6328584d8b025ac82b5038ecff3d
+6521,An Unholy Alliance,complete,minor_wording,0.9939,326,328,2,3,0,1,manual_review_minor_prose,f6a356f68bc9c7fc16f2a76fa291dc13aff99e25fd0dcc85b0caa9135a765245
+6824,Hands of the Enemy,accept,minor_wording,0.9909,501,492,-9,1,0,0,manual_review_minor_prose,221689d4e36fc37339200b338849a65063d5ae24163704561c3ef98e645261dd
+7061,The Feast of Winter Veil,complete,punctuation_or_whitespace,0.9977,426,426,0,1,0,1,retain_spoken_cosmetic,61392430f391d43d722b96acb67e8cbe9f9e132a91c4304a83f9f90512cb4714
+7063,The Feast of Winter Veil,complete,minor_wording,0.9966,444,443,-1,2,0,1,manual_review_minor_prose,b747467e2701b6a9962fa72b3dac6b06027f44c508adcc1de77b9f48cf5785a5
+7165,Earned Reverence,complete,punctuation_or_whitespace,0.9873,158,158,0,1,0,1,retain_spoken_cosmetic,809c6cd2abcba480d1e0e1e8ac1a5ef51f0aed9e747479cb040495892c5baf20
+7172,The Eye of Command,complete,minor_wording,0.991,166,169,3,2,1,0,manual_review_minor_directives,d2833508a942132516d1bf6d1bf7c5d0bb99a9ecffbc1f68824add3f245be1b3
+7341,A Fair Trade,complete,punctuation_or_whitespace,0.9839,62,62,0,1,0,1,retain_spoken_cosmetic,f7cddfbd3d2eed1df2d97b9e8cc426fe34bca4fecc3c98cc19525e334fc2d83f
+7382,Korrak the Everliving,complete,punctuation_or_whitespace,0.9925,134,134,0,1,0,1,retain_spoken_cosmetic,bd8a6e27be51b8135174d340111eb2cebf342c7d88bc7cb5e8692df9ce73cb3b
+7653,Imperial Plate Belt,complete,minor_wording,0.9884,87,85,-2,1,1,0,manual_review_minor_directives,48a4140addaa4217432b759fc2d46f2b8b72335279efcc7ca267d23a56aadf82
+7666,Again Into the Great Ossuary,complete,punctuation_or_whitespace,0.99,300,300,0,2,0,1,retain_spoken_cosmetic,11c7a61572b5604d30223956b8a5ae27050ac026f1e78e2510871d4679d7739d
+7703,Unfinished Gordok Business,complete,minor_wording,0.9739,508,490,-18,4,1,0,manual_review_minor_directives,e7cc490759ca8ef3eb4c13df0f8b6709b9dae087ac54d0d4919356769e974fc1
+7863,Sentinel Basic Care Package,complete,punctuation_or_whitespace,0.9987,400,399,-1,2,0,0,retain_spoken_cosmetic,fe00f2b0be51b45f83e12858ef8b92ff5f2749e80188be0d248f4ecd6c6878c3
+7864,Sentinel Standard Care Package,complete,punctuation_or_whitespace,0.9987,400,399,-1,2,0,0,retain_spoken_cosmetic,fe00f2b0be51b45f83e12858ef8b92ff5f2749e80188be0d248f4ecd6c6878c3
+7866,Outrider Basic Care Package,complete,punctuation_or_whitespace,0.9987,400,399,-1,2,0,0,retain_spoken_cosmetic,fe00f2b0be51b45f83e12858ef8b92ff5f2749e80188be0d248f4ecd6c6878c3
+7867,Outrider Standard Care Package,complete,punctuation_or_whitespace,0.9987,400,399,-1,2,0,0,retain_spoken_cosmetic,fe00f2b0be51b45f83e12858ef8b92ff5f2749e80188be0d248f4ecd6c6878c3
+7895,Whirring Bronze Gizmo,complete,minor_wording,0.9979,241,242,1,1,0,0,manual_review_minor_prose,e00a3afa39f13c102bfe103b16636271dc76cf65e0dcad1b7fade94e9546b599
+7930,5 Tickets - Darkmoon Flower,complete,minor_wording,0.9745,241,229,-12,4,1,0,manual_review_minor_directives,0397cc114108a6eda6776c38d88778373ffecef0a3eaf84b42b2b4ccc0ec7c3a
+7931,5 Tickets - Minor Darkmoon Prize,complete,minor_wording,0.9745,241,229,-12,4,1,0,manual_review_minor_directives,0397cc114108a6eda6776c38d88778373ffecef0a3eaf84b42b2b4ccc0ec7c3a
+7932,12 Tickets - Lesser Darkmoon Prize,complete,minor_wording,0.9745,241,229,-12,4,1,0,manual_review_minor_directives,0397cc114108a6eda6776c38d88778373ffecef0a3eaf84b42b2b4ccc0ec7c3a
+7933,40 Tickets - Greater Darkmoon Prize,complete,minor_wording,0.9745,241,229,-12,4,1,0,manual_review_minor_directives,0397cc114108a6eda6776c38d88778373ffecef0a3eaf84b42b2b4ccc0ec7c3a
+7934,50 Tickets - Darkmoon Storage Box,complete,minor_wording,0.9745,241,229,-12,4,1,0,manual_review_minor_directives,0397cc114108a6eda6776c38d88778373ffecef0a3eaf84b42b2b4ccc0ec7c3a
+7935,10 Tickets - Last Month's Mutton,complete,minor_wording,0.9745,241,229,-12,4,1,0,manual_review_minor_directives,0397cc114108a6eda6776c38d88778373ffecef0a3eaf84b42b2b4ccc0ec7c3a
+7936,50 Tickets - Last Year's Mutton,complete,minor_wording,0.9745,241,229,-12,4,1,0,manual_review_minor_directives,0397cc114108a6eda6776c38d88778373ffecef0a3eaf84b42b2b4ccc0ec7c3a
+7940,1200 Tickets - Orb of the Darkmoon,complete,minor_wording,0.9807,238,229,-9,1,1,0,manual_review_minor_directives,0397cc114108a6eda6776c38d88778373ffecef0a3eaf84b42b2b4ccc0ec7c3a
+7981,1200 Tickets - Amulet of the Darkmoon,complete,minor_wording,0.9807,238,229,-9,1,1,0,manual_review_minor_directives,0397cc114108a6eda6776c38d88778373ffecef0a3eaf84b42b2b4ccc0ec7c3a
+8041,Strength of Mount Mugamba,complete,punctuation_or_whitespace,0.9869,305,305,0,3,0,1,retain_spoken_cosmetic,2ae8d629f3563bbd77c83716b8d1c96b5c3478c6c84d731ef0224c430b393291
+8042,Strength of Mount Mugamba,complete,punctuation_or_whitespace,0.9677,31,31,0,1,0,1,retain_spoken_cosmetic,a2ca1cb1ec8d07b29d56ea70060e549d541622a7cd371da9b6ba4233dce7440d
+8046,The Heathen's Brand,complete,punctuation_or_whitespace,0.9906,106,106,0,1,0,1,retain_spoken_cosmetic,08ce3d9b32fff569ef7383b0a0caf6b3c30f128d038ac9ca2166f233bdc03680
+8047,The Heathen's Brand,complete,punctuation_or_whitespace,0.9872,78,78,0,1,0,1,retain_spoken_cosmetic,a798629a463dcb70e15f0a8fb6ff6ab7557847ebbce6f8e4eb07d751e8199718
+8049,The Eye of Zuldazar,complete,minor_wording,0.9679,225,211,-14,2,1,0,manual_review_minor_directives,631629e35f79357a8d397ccdc164814fc63cd36527690ffe92cf7c8ade28e054
+8105,The Battle for Arathi Basin!,complete,punctuation_or_whitespace,0.9942,171,171,0,1,0,1,retain_spoken_cosmetic,cf032ab929fb3be97b2837cea6acb117f935e90801f765c8cea522cac1806e93
+8106,Kezan's Taint,complete,punctuation_or_whitespace,0.9893,468,468,0,3,0,1,retain_spoken_cosmetic,419c390c0d3355fcf9495e6c849d73e75471d677be43079092e0a18044c0469e
+8107,Kezan's Taint,complete,punctuation_or_whitespace,0.9897,97,97,0,1,0,1,retain_spoken_cosmetic,2a2d3f2978f03fd9aea449a9f45cd8a08b650aabc2e44f9d31e8131b897dc51a
+8109,Kezan's Unstoppable Taint,complete,punctuation_or_whitespace,0.9932,148,148,0,1,0,1,retain_spoken_cosmetic,0f74c7ab3c667ac574c9366562f79d2115419a8f2e8b56ab3099e49105b5f795
+8110,Enchanted South Seas Kelp,complete,punctuation_or_whitespace,0.9897,291,291,0,2,0,1,retain_spoken_cosmetic,e90ae10be1d1fe638b443231b31d914ad616fe5ca39702aed5ad99768658c538
+8113,Pristine Enchanted South Seas Kelp,complete,punctuation_or_whitespace,0.9898,98,98,0,1,0,1,retain_spoken_cosmetic,44964497cb363fd277712e5c994d1cc2ed2f0bb43ff5bbbb1439d25d156be1b0
+8114,Control Four Bases,complete,punctuation_or_whitespace,0.9885,261,261,0,2,0,1,retain_spoken_cosmetic,9f8e71c7e7b6547c9f605806c0b545a51fab0c42fdf918d9543995bd7252110a
+8116,Vision of Voodress,complete,minor_wording,0.9881,337,333,-4,1,1,0,manual_review_minor_directives,292a5b52001b103629a855e77c5b1f31fa2b66341d8a83b4497ebb6a6b94bed8
+8118,Vision of Voodress,complete,punctuation_or_whitespace,0.9909,110,110,0,1,0,1,retain_spoken_cosmetic,d8f973526fc0ad7de8bff9267fededb969835122c539599f54d3b82618b2d96c
+8119,The Unmarred Vision of Voodress,complete,punctuation_or_whitespace,0.9952,207,207,0,1,0,1,retain_spoken_cosmetic,5b6c6c5e082a6c6a421364a271988e246252b18c8364a62e8efba67f8573c617
+8120,The Battle for Arathi Basin!,complete,punctuation_or_whitespace,0.9877,243,243,0,2,0,1,retain_spoken_cosmetic,fefaf4792d9896eef5ee0288f317a12b4a7645341fa41bdeb8e895888257a23c
+8123,Cut Arathor Supply Lines,complete,punctuation_or_whitespace,0.9827,173,173,0,2,0,1,retain_spoken_cosmetic,32f45e3c25125b0a03695d6ae0dad0dbaa45b298693cdad1f2743b857ccfad2f
+8145,The Maelstrom's Tendril,complete,minor_wording,0.9914,466,462,-4,1,1,0,manual_review_minor_directives,3fc3bceac01d3d96556e87e74d3c56a21450f41a24e19b3639de4527de30ad1a
+8160,Cut Arathor Supply Lines,complete,punctuation_or_whitespace,0.9827,173,173,0,2,0,1,retain_spoken_cosmetic,32f45e3c25125b0a03695d6ae0dad0dbaa45b298693cdad1f2743b857ccfad2f
+8161,Cut Arathor Supply Lines,complete,punctuation_or_whitespace,0.9827,173,173,0,2,0,1,retain_spoken_cosmetic,32f45e3c25125b0a03695d6ae0dad0dbaa45b298693cdad1f2743b857ccfad2f
+8162,Cut Arathor Supply Lines,complete,punctuation_or_whitespace,0.9827,173,173,0,2,0,1,retain_spoken_cosmetic,32f45e3c25125b0a03695d6ae0dad0dbaa45b298693cdad1f2743b857ccfad2f
+8166,The Battle for Arathi Basin!,complete,punctuation_or_whitespace,0.9942,171,171,0,1,0,1,retain_spoken_cosmetic,cf032ab929fb3be97b2837cea6acb117f935e90801f765c8cea522cac1806e93
+8167,The Battle for Arathi Basin!,complete,punctuation_or_whitespace,0.9942,171,171,0,1,0,1,retain_spoken_cosmetic,cf032ab929fb3be97b2837cea6acb117f935e90801f765c8cea522cac1806e93
+8168,The Battle for Arathi Basin!,complete,punctuation_or_whitespace,0.9942,171,171,0,1,0,1,retain_spoken_cosmetic,cf032ab929fb3be97b2837cea6acb117f935e90801f765c8cea522cac1806e93
+8169,The Battle for Arathi Basin!,complete,punctuation_or_whitespace,0.9877,243,243,0,2,0,1,retain_spoken_cosmetic,fefaf4792d9896eef5ee0288f317a12b4a7645341fa41bdeb8e895888257a23c
+8171,The Battle for Arathi Basin!,complete,punctuation_or_whitespace,0.9877,243,243,0,2,0,1,retain_spoken_cosmetic,fefaf4792d9896eef5ee0288f317a12b4a7645341fa41bdeb8e895888257a23c
+8221,Rare Fish - Keefer's Angelfish,complete,minor_wording,0.9744,120,114,-6,9,0,0,manual_review_minor_prose,d333ba185c8afd946c47ee971554e66b6f0732a13f46cf73a1a16d13b076db1a
+8224,Rare Fish - Dezian Queenfish,complete,minor_wording,0.9739,118,112,-6,9,0,0,manual_review_minor_prose,037a71f5b882795be0e48ea20a0093da26e0e91241617a3664122119d1e9a6d5
+8260,Arathor Basic Care Package,complete,punctuation_or_whitespace,0.9925,398,398,0,2,0,1,retain_spoken_cosmetic,bcbef518c92c45df9132bbe83213365b8a1af10ba7eab4229dddb8440a21452f
+8261,Arathor Standard Care Package,complete,punctuation_or_whitespace,0.9925,398,398,0,2,0,1,retain_spoken_cosmetic,bcbef518c92c45df9132bbe83213365b8a1af10ba7eab4229dddb8440a21452f
+8263,Defiler's Basic Care Package,complete,punctuation_or_whitespace,0.9925,398,398,0,2,0,1,retain_spoken_cosmetic,bcbef518c92c45df9132bbe83213365b8a1af10ba7eab4229dddb8440a21452f
+8264,Defiler's Standard Care Package,complete,punctuation_or_whitespace,0.9925,398,398,0,2,0,1,retain_spoken_cosmetic,bcbef518c92c45df9132bbe83213365b8a1af10ba7eab4229dddb8440a21452f
+8265,Defiler's Advanced Care Package,complete,minor_wording,0.9761,397,398,1,2,0,0,manual_review_minor_prose,bcbef518c92c45df9132bbe83213365b8a1af10ba7eab4229dddb8440a21452f
+8285,The Deserter,complete,punctuation_or_whitespace,0.9972,178,177,-1,2,0,0,retain_spoken_cosmetic,dd5b071c2d4e380b2c55af3ea1db5847987e24df117f740ef888c3deee42be61
+8299,Cut Arathor Supply Lines,complete,punctuation_or_whitespace,0.9827,173,173,0,2,0,1,retain_spoken_cosmetic,32f45e3c25125b0a03695d6ae0dad0dbaa45b298693cdad1f2743b857ccfad2f
+8392,Claiming Arathi Basin,complete,punctuation_or_whitespace,0.9891,92,92,0,1,0,1,retain_spoken_cosmetic,c2945b0b51a42237aea3da005be9595f339cdee909189aa565f2fec4ec3f4b30
+8397,Claiming Arathi Basin,complete,punctuation_or_whitespace,0.9891,92,92,0,1,0,1,retain_spoken_cosmetic,c2945b0b51a42237aea3da005be9595f339cdee909189aa565f2fec4ec3f4b30
+8398,Claiming Arathi Basin,complete,punctuation_or_whitespace,0.9891,92,92,0,1,0,1,retain_spoken_cosmetic,c2945b0b51a42237aea3da005be9595f339cdee909189aa565f2fec4ec3f4b30
+8432,Battle of Warsong Gulch,complete,punctuation_or_whitespace,0.987,77,77,0,1,0,1,retain_spoken_cosmetic,df208343f7675c8fc52ddd27fbf18425a1c38b3ffa0710ad16f57db2d529c2c1
+8492,The Alliance Needs Copper Bars!,complete,minor_wording,0.9847,331,321,-10,3,1,0,manual_review_minor_directives,f7598b1c666d865a4186bd825354f3d623b47f9bb16ea4727fe7baaf6dc93f46
+8505,The Alliance Needs Purple Lotus!,complete,punctuation_or_whitespace,0.9969,322,322,0,1,0,1,retain_spoken_cosmetic,cf2c9a96f361372a4d2971f4a9f6ef612e11446e386305a0d4ce1fdf1db1991c
+8514,The Alliance Needs More Medium Leather!,complete,minor_wording,0.9779,254,243,-11,3,1,0,manual_review_minor_directives,ee08cea1f16d5cdf20d3544850d5c78873e96f55c35704efb68b060122c08561
+8519,A Pawn on the Eternal Board,complete,moderate_wording,0.7171,492,275,-217,39,1,0,retain_spoken_possible_truncation,947454604019ef7b6f5226cde5cfd09a817eea897ac3fea6f68528e322aa1849
+8525,The Alliance Needs More Rainbow Fin Albacore!,complete,minor_wording,0.9855,350,340,-10,3,1,0,manual_review_minor_directives,8d6017ce752e134df8c99a609de0bdc6cf205cc15e1683c3d2dab0a1bf291090
+8572,Veteran's Battlegear,complete,punctuation_or_whitespace,0.9904,104,104,0,1,0,1,retain_spoken_cosmetic,013fc5a52f6c89d7c99a3eba1d3227654a53cb94323e75a87d7c89d421284fd3
+8574,Stalwart's Battlegear,complete,punctuation_or_whitespace,0.9904,104,104,0,1,0,1,retain_spoken_cosmetic,013fc5a52f6c89d7c99a3eba1d3227654a53cb94323e75a87d7c89d421284fd3
+8582,The Horde Needs Purple Lotus!,complete,punctuation_or_whitespace,0.997,328,328,0,1,0,1,retain_spoken_cosmetic,c4eff31647923f3866446cf0d1d99b4b21b86c69baa93a56beb2e90e54400816
+8588,The Horde Needs Heavy Leather!,complete,punctuation_or_whitespace,0.9965,289,289,0,1,0,1,retain_spoken_cosmetic,d7cfa62fc5545b18342222a3ea5f091fd42ad6ae72c447dec5dc90a53a0ad466
+8611,The Horde Needs Lean Wolf Steaks!,complete,punctuation_or_whitespace,0.9958,236,236,0,1,0,1,retain_spoken_cosmetic,b79f6718edd27bd34a833e3e17522c6e6d225dff942d65ee1de66f0bc7349583
+8621,Stormcaller's Footguards,complete,punctuation_or_whitespace,0.9796,147,147,0,2,0,1,retain_spoken_cosmetic,9101c0d9033ef07dc64a965596d4aae7db5658a81af99071aeeedb9ddb66a221
+8622,Stormcaller's Hauberk,complete,punctuation_or_whitespace,0.9796,442,442,0,4,0,1,retain_spoken_cosmetic,05cbbf59770f34a47408a343dd880d73d9ceb523645485882c1949845d8da3a0
+8623,Stormcaller's Diadem,complete,punctuation_or_whitespace,0.9917,240,240,0,1,0,1,retain_spoken_cosmetic,bbf22776f946b95dac60550374c4df311977495bdf09d24b0f6eacdc01eefa58
+8661,Doomcaller's Robes,complete,punctuation_or_whitespace,0.9795,439,439,0,4,0,1,retain_spoken_cosmetic,9dcb2364c34b8306cdf054dbbed9b052cf4ce1a805ea9bd35e02c55e4e7a70c6
+8677,Darkhorn the Elder,complete,punctuation_or_whitespace,0.9901,101,101,0,1,0,1,retain_spoken_cosmetic,1171c475e90aba032a1f81e6a69a575f53159cac0f5aa434b4d94f4fd3ef481e
+8731,Field Duty,complete,punctuation_or_whitespace,0.9963,271,271,0,1,0,1,retain_spoken_cosmetic,156bbf768099dc913ed3d907c2837a24c4f51626142b93b2263283a1ad27b532
+8736,The Nightmare Manifests,complete,punctuation_or_whitespace,0.9861,287,287,0,3,0,1,retain_spoken_cosmetic,13ae4c64ac361499dae50c5fcf6869cb4773d26998f8a898738162fd76fdf854
+8744,A Carefully Wrapped Present,complete,punctuation_or_whitespace,0.9579,95,95,0,2,0,1,retain_spoken_cosmetic,7fb96c48eff69c2fcf9351d8d8921d0391327441435fd862848a6fc457ffb457
+8764,The Changing of Paths - Protector No More,complete,punctuation_or_whitespace,0.9853,68,68,0,1,0,1,retain_spoken_cosmetic,7fbf7499f5b08bcd7922ffa8bf16697e57f8ae48b4b96a41eb7876346d1935b2
+8765,The Changing of Paths - Invoker No More,complete,punctuation_or_whitespace,0.9853,68,68,0,1,0,1,retain_spoken_cosmetic,7fbf7499f5b08bcd7922ffa8bf16697e57f8ae48b4b96a41eb7876346d1935b2
+8766,The Changing of Paths - Conqueror No More,complete,punctuation_or_whitespace,0.9853,68,68,0,1,0,1,retain_spoken_cosmetic,7fbf7499f5b08bcd7922ffa8bf16697e57f8ae48b4b96a41eb7876346d1935b2
+8768,A Gaily Wrapped Present,complete,punctuation_or_whitespace,0.9744,78,78,0,1,0,1,retain_spoken_cosmetic,34c8671b6ac854a19af354b1a43470d99006679db1f097ff6f208ed2c3cb91e7
+8788,A Gently Shaken Gift,complete,punctuation_or_whitespace,0.9615,104,104,0,3,0,1,retain_spoken_cosmetic,e296eb0aec05965d155afb4340e992addb08498caa73cc012054951147b81d8c
+8792,The Horde Needs Your Help!,complete,punctuation_or_whitespace,0.9977,436,436,0,1,0,1,retain_spoken_cosmetic,0de8383d94e5b4ad740f8cf0ce09cbf45a747ab0de5974ccddf4111fe69aab34
+8795,The Alliance Needs Your Help!,complete,minor_wording,0.989,459,449,-10,3,1,0,manual_review_minor_directives,303b1f8de30b499ebd759ac2f2a507076307e594d9612a4f5980f056ec822971
+8796,The Alliance Needs Your Help!,complete,minor_wording,0.989,459,449,-10,3,1,0,manual_review_minor_directives,303b1f8de30b499ebd759ac2f2a507076307e594d9612a4f5980f056ec822971
+8797,The Alliance Needs Your Help!,complete,minor_wording,0.989,459,449,-10,3,1,0,manual_review_minor_directives,303b1f8de30b499ebd759ac2f2a507076307e594d9612a4f5980f056ec822971
+8798,A Yeti of Your Own,complete,punctuation_or_whitespace,0.9987,389,388,-1,2,0,0,retain_spoken_cosmetic,3d03fc79ed270d8c7049f9986835ffbee5dc3e06b140e332255c74be1faf0c69
+8801,C'Thun's Legacy,complete,minor_wording,0.9753,166,158,-8,1,1,0,manual_review_minor_directives,4e1e50f2ad792e4700457e1daaf32d3d767d7209f1e79380444edacb4e61f030
+8803,A Festive Gift,complete,punctuation_or_whitespace,0.9554,157,157,0,3,0,1,retain_spoken_cosmetic,490772c732f9f21d53f9fd5cd5beffbf93a39ebdf93fbd60eb7d1a30b0edffeb
+8846,Five Signets for War Supplies,complete,punctuation_or_whitespace,0.9971,346,346,0,1,0,1,retain_spoken_cosmetic,ce766ab7f469d91fbdb66b5f2297f01201e019fcddb072bf4c7f674747404785
+8847,Ten Signets for War Supplies,complete,punctuation_or_whitespace,0.9971,346,346,0,1,0,1,retain_spoken_cosmetic,ce766ab7f469d91fbdb66b5f2297f01201e019fcddb072bf4c7f674747404785
+8848,Fifteen Signets for War Supplies,complete,punctuation_or_whitespace,0.9971,346,346,0,1,0,1,retain_spoken_cosmetic,ce766ab7f469d91fbdb66b5f2297f01201e019fcddb072bf4c7f674747404785
+8849,Twenty Signets for War Supplies,complete,punctuation_or_whitespace,0.9971,346,346,0,1,0,1,retain_spoken_cosmetic,ce766ab7f469d91fbdb66b5f2297f01201e019fcddb072bf4c7f674747404785
+8850,Thirty Signets for War Supplies,complete,punctuation_or_whitespace,0.9971,346,346,0,1,0,1,retain_spoken_cosmetic,ce766ab7f469d91fbdb66b5f2297f01201e019fcddb072bf4c7f674747404785
+8851,Five Signets for War Supplies,complete,punctuation_or_whitespace,0.9971,346,346,0,1,0,1,retain_spoken_cosmetic,ce766ab7f469d91fbdb66b5f2297f01201e019fcddb072bf4c7f674747404785
+8852,Ten Signets for War Supplies,complete,punctuation_or_whitespace,0.9971,346,346,0,1,0,1,retain_spoken_cosmetic,ce766ab7f469d91fbdb66b5f2297f01201e019fcddb072bf4c7f674747404785
+8853,Fifteen Signets for War Supplies,complete,punctuation_or_whitespace,0.9971,346,346,0,1,0,1,retain_spoken_cosmetic,ce766ab7f469d91fbdb66b5f2297f01201e019fcddb072bf4c7f674747404785
+8854,Twenty Signets for War Supplies,complete,punctuation_or_whitespace,0.9971,346,346,0,1,0,1,retain_spoken_cosmetic,ce766ab7f469d91fbdb66b5f2297f01201e019fcddb072bf4c7f674747404785
+8855,Thirty Signets for War Supplies,complete,punctuation_or_whitespace,0.9971,346,346,0,1,0,1,retain_spoken_cosmetic,ce766ab7f469d91fbdb66b5f2297f01201e019fcddb072bf4c7f674747404785
+8857,Secrets of the Colossus - Ashi,complete,minor_wording,0.9412,81,72,-9,2,1,0,manual_review_minor_directives,a40ee383f1127f402a6b96d62d015da1e8775934bb04e2ed94b346f749901d91
+8859,Secrets of the Colossus - Zora,complete,moderate_wording,0.8916,46,37,-9,2,1,0,manual_review_moderate,4bf919465b66c61abcf2f0153de686766cf1bb9c659ac0b072db9722c917b72d
+8883,Valadar Starsong,complete,punctuation_or_whitespace,0.9964,281,281,0,1,0,1,retain_spoken_cosmetic,7eb5331cb56492069e832426a2c06fe18e686bbe3d08ef69dc2f57f0f706da25
+9118,Bindings of Faith,complete,minor_wording,0.9891,91,93,2,1,1,0,manual_review_minor_directives,29edd6c854b073f67055cd027aba40ccd1511ceb4d2d44611c035b9456d00d6a
+9125,Crypt Fiend Parts,complete,punctuation_or_whitespace,0.9831,59,59,0,1,0,1,retain_spoken_cosmetic,7f20fbb16d6e7dc6d42db0da2bf87812e8d5166fde372adcc64be5512c4238aa
+9127,Bone Fragments,complete,punctuation_or_whitespace,0.9915,118,118,0,1,0,1,retain_spoken_cosmetic,0314b6b17edb438b93924c65eba8aa621aee72d2831c3c750bf2ac2f8c1b0267
+9129,Core of Elements,complete,punctuation_or_whitespace,0.98,50,50,0,1,0,1,retain_spoken_cosmetic,9fba99f6e56ef2c2e61317d74db11808f39ebf42ffef0afaedc6c997cb8e4e19
+9197,Craftsman's Writ - Gnomish Battle Chicken,complete,minor_wording,0.9893,424,415,-9,1,1,0,manual_review_minor_directives,8f2f52d24738d8cd7682376436f15d065a5c37f79c0c1760544078d624ef5fd8
+9257,"Atiesh, Greatstaff of the Guardian",complete,punctuation_or_whitespace,0.9944,179,177,-2,1,0,0,retain_spoken_cosmetic,d75192673a472de1b3febaf17cab6c253c222af48004812354dfb7cc93d190a7
+9267,Mending Old Wounds,complete,minor_wording,0.9706,140,132,-8,1,1,0,manual_review_minor_directives,6bedd18ec5ca3238b65553a9e5f387d0be40323cf75ee53d730ec7b9df058913
+9269,"Atiesh, Greatstaff of the Guardian",complete,punctuation_or_whitespace,0.9944,179,177,-2,1,0,0,retain_spoken_cosmetic,d75192673a472de1b3febaf17cab6c253c222af48004812354dfb7cc93d190a7
+9270,"Atiesh, Greatstaff of the Guardian",complete,punctuation_or_whitespace,0.9944,179,177,-2,1,0,0,retain_spoken_cosmetic,d75192673a472de1b3febaf17cab6c253c222af48004812354dfb7cc93d190a7
+9271,"Atiesh, Greatstaff of the Guardian",complete,punctuation_or_whitespace,0.9944,179,177,-2,1,0,0,retain_spoken_cosmetic,d75192673a472de1b3febaf17cab6c253c222af48004812354dfb7cc93d190a7
+9322,Wild Fires in Kalimdor,accept,minor_wording,0.9667,469,493,24,9,1,0,manual_review_minor_directives,ef0e706f2d11b547d5ff9dc5d6c2fb91ab37fc8ebfb81bfbbda23f6512ab1c6c
