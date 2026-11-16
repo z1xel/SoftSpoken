@@ -99,6 +99,36 @@ class MissingStageImportTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "source hash changed"):
             missing.load_verified_source(self.db, missing.select_manifest(self.csv))
 
+    def test_three_reviewed_progress_corrections(self):
+        corrections = __import__("json").loads(
+            missing.CURATED_CORRECTIONS.read_text(encoding="utf-8"))["corrections"]
+        originals = {int(r["quest_id"]): {"progress": "Wrong source text"}
+                     for r in corrections}
+        fixed = missing.apply_curated_progress_corrections(originals)
+        self.assertEqual(set(fixed), {6283,8051,8146})
+        for item in corrections:
+            qid = int(item["quest_id"])
+            self.assertEqual(fixed[qid]["progress"], item["text"])
+            self.assertNotIn("Wrong source text", fixed[qid]["progress"])
+        self.assertIn("Bloodfury Ripper", fixed[6283]["progress"])
+        self.assertIn("Gurubashi", fixed[8051]["progress"])
+        self.assertIn("smell you again", fixed[8146]["progress"])
+
+    def test_source_verification_still_precedes_reviewed_repair(self):
+        # Source hashes were not weakened to accommodate the three repairs.
+        originals = {6283: {"progress": "Known bad source"},
+                     8051: {"progress": "Known bad source"},
+                     8146: {"progress": "Known bad source"}}
+        originals[6283]["progress"] = "Different"
+        with self.assertRaisesRegex(ValueError, "incorrect pinned progress stage"):
+            # A corrected stage already present must not be silently rewritten.
+            import json
+            curated = json.loads(missing.CURATED_CORRECTIONS.read_text())["corrections"]
+            for row in curated:
+                if int(row["quest_id"]) == 6283:
+                    originals[6283]["progress"] = row["text"]
+            missing.apply_curated_progress_corrections(originals)
+
     def test_blank_destination_fails(self):
         with self.assertRaisesRegex(ValueError, "blank file"):
             missing.merge_batch("", missing.BEGIN + "\n" + missing.END + "\n", set())
