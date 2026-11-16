@@ -16,6 +16,8 @@ ROOT=Path(__file__).resolve().parents[1]
 CATALOG=ROOT/"SoftSpoken_Stories/Data/Compendium.lua"
 MANIFEST=ROOT/"docs/turtle_speaker_recovery.csv"
 EXCLUSIVE=ROOT/"docs/turtle_exclusive_import.csv"
+NAMES=ROOT/"docs/turtle_speaker_recovery_names.csv"
+APPROVED_NAMES={6868:"Jarkal Mossmeld",62986:"Ar'lia",62850:"Moro'gai K'la"}
 EXPECTED_IDS={41734,41908,41909,41912,41913,41914,41915,41916,41917,41922,80381}
 REGEX=re.compile(r'(?m)^(\s*\[(\d+)\]\s*=\s*\{)([^\r\n]*)(\},[ \t]*$)')
 TITLE=re.compile(r'^\s*("(?:\\.|[^"\\])*")')
@@ -89,6 +91,32 @@ def amend(line,rec,qid):
     return m[1]+updated+m[4]
 
 
+def apply_names(text,path=NAMES):
+    entries=records(path)
+    if len(entries)!=3 or {int(r["id"]) for r in entries}!=set(APPROVED_NAMES):
+        raise ValueError("Exact speaker name fallback approval set changed")
+    for entry in entries:
+        qid=int(entry["id"])
+        if (entry["kind"]!="U" or entry["name"]!=APPROVED_NAMES[qid] or
+                not entry["source_url"].startswith("https://")):
+            raise ValueError("Invalid approved speaker name: "+str(qid))
+    opening="\tnpcNames = {\n"
+    first=text.index(opening)+len(opening)
+    last=text.index("\n\t},",first)
+    body=text[first:last]
+    inserted=[]
+    for qid,name in sorted(APPROVED_NAMES.items()):
+        pattern=r"(?m)^\s*\["+str(qid)+r"\]\s*=\s*(\"(?:\\.|[^\"\\])*\")\s*,"
+        match=re.search(pattern,body)
+        if match:
+            if json.loads(match[1])!=name:
+                raise ValueError("Conflicting NPC name for "+str(qid))
+            continue
+        inserted.append(f"\t\t[{qid}] = {json.dumps(name,ensure_ascii=False)},\n")
+    if not inserted:return text,0
+    return text[:first]+"".join(inserted)+text[first:],len(inserted)
+
+
 def apply(text,rows):
     opening,closing="\n\tquests = {","\n\t},\n\n\tsorts = {"
     a=text.index(opening)+len(opening)
@@ -120,18 +148,20 @@ def main():
     choose.add_argument("--check",action="store_true")
     p.add_argument("--catalog",type=Path,default=CATALOG)
     p.add_argument("--manifest",type=Path,default=MANIFEST)
+    p.add_argument("--names",type=Path,default=NAMES)
     a=p.parse_args()
     selected=load_manifest(a.manifest)
     old=a.catalog.read_text(encoding="utf-8")
     new,changes=apply(old,selected)
+    new,name_changes=apply_names(new,a.names)
     if a.check:
-        if old!=new:raise SystemExit(f"{changes} source-backed NPC quest rows missing")
-        print("PASS: 20 source-backed Turtle NPC roles intact")
+        if old!=new:raise SystemExit(f"{changes} source-backed NPC quest rows and {name_changes} names missing")
+        print("PASS: 20 source-backed Turtle NPC roles and 3 verified NPC names intact")
     elif old!=new:
         a.catalog.write_text(new,encoding="utf-8")
-        print(f"Recovered NPC speaker fields in {changes} Turtle quest rows")
+        print(f"Recovered NPC speaker fields in {changes} Turtle quest rows and {name_changes} names")
     else:
-        print("No missing NPC speaker fields")
+        print("No missing NPC speaker fields or names")
 
 
 if __name__=="__main__":main()
