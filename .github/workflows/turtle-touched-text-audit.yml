@@ -11,6 +11,7 @@ on:
       - scripts/import_turtle_missing_stages.py
       - scripts/analyze_turtle_conflicting_dialogue.py
       - scripts/review_turtle_substantial_dialogue.py
+      - scripts/audit_imported_missing_stage_alignment.py
       - scripts/import_tortoise_quest_dialogue.mjs
       - scripts/prepare_tortoise_quest_overlay.py
       - scripts/export_static_quest_text_for_audit.lua
@@ -339,6 +340,10 @@ jobs:
             --turtle .audit-viewer-data/data/tortoise.sqlite \
             --lua-stages .audit-static-text-hex.tsv
           python3 scripts/review_turtle_substantial_dialogue.py \
+            --turtle .audit-viewer-data/data/tortoise.sqlite \
+            --vanilla "$(cat .audit-vanilla-path)" \
+            --lua-stages .audit-static-text-hex.tsv
+          python3 scripts/audit_imported_missing_stage_alignment.py \
             --turtle .audit-viewer-data/data/tortoise.sqlite \
             --vanilla "$(cat .audit-vanilla-path)" \
             --lua-stages .audit-static-text-hex.tsv
