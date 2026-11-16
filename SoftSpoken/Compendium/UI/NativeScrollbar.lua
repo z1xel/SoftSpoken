@@ -283,13 +283,14 @@ function Skin.AttachSettings(panel,scroll)
     local bar=getglobal(name.."ScrollBar")
     if not bar then return end
 
-    -- The settings viewport has reserved 42 units on the right for a bar.
-    -- Align the original 31-unit Compendium housing in that space, 9 units
-    -- inside the window edge, with a small gap before the text viewport.
+    -- Keep the housing in the reserved right gutter but extend it beyond
+    -- the content viewport: from the lower edge of the search surround
+    -- (101 units below the window top) to the inner bottom window edge.
+    -- The viewport itself is unchanged and still owns the scroll range.
     local slot,reflow=Housing(panel,-9)
     slot:ClearAllPoints()
-    slot:SetPoint("TOPRIGHT",scroll,"TOPRIGHT",33,0)
-    slot:SetPoint("BOTTOMRIGHT",scroll,"BOTTOMRIGHT",33,0)
+    slot:SetPoint("TOPRIGHT",panel,"TOPRIGHT",-9,-101)
+    slot:SetPoint("BOTTOMRIGHT",panel,"BOTTOMRIGHT",-9,9)
     slot:SetFrameLevel(panel:GetFrameLevel()+2)
 
     -- Reposition the native slider/arrow buttons over the shared artwork.
