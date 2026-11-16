@@ -35,9 +35,9 @@ local WIDTH, VISIBLE_ROWS = 670, 42
 -- Same row metrics as original Spoken: branch 24px, leaf 20px, 14px per depth.
 local BRANCH_ROW, LEAF_ROW, DEPTH_STEP, SCROLL_STEP = 24, 20, 14, 60
 -- Blizzard's original 18x18 QuestTypeIcons cells (not the modern SetAtlas API).
--- Bundled uncompressed 32-bit TGA: only the dungeon/raid 18px cells are populated,
--- at Blizzard's original 128x64 atlas coordinates; all other cells are transparent.
-local INSTANCE_ICON = "Interface\\AddOns\\SoftSpoken\\Textures\\QuestTypeIcons_Instances"
+-- Full, unaltered 128x64 Blizzard QuestTypeIcons sheet in a Vanilla-compatible
+-- uncompressed 32-bit TGA; SetTexCoord selects the original 18x18 cells.
+local INSTANCE_ICON = "Interface\\AddOns\\SoftSpoken\\Textures\\QuestTypeIcons"
 local DUNGEON_UV = { 0.421875, 0.5625, 0, 0.28125 }
 local RAID_UV = { 0.703125, 0.84375, 0, 0.28125 }
 local function RowHeight(item)
