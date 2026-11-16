@@ -88,3 +88,15 @@ still excluded.
 All modifications remain isolated on `audit/tortoise-unclassified-integrity`.
 The feature branch is unchanged. In-game confirmation of custom-zone navigation
 and any future ClassicAPI-vs-live quest text comparison are distinct tasks.
+
+## Later exception resolution (November 16, 2026)
+
+The **37 held** count above is the original historical audit result. A later [cross-cohort review](turtle_hold_resolution_review.md) adjudicated those 37 alongside 49 shared-ID dialogue holds and eight exclusive text holds. Three independently supported classifications have now been added:
+
+- Quest **708, The Black Box** — `zones = {1418}` (Badlands), existing item starter 4613 and hand-in NPC 2092 preserved.
+- Quest **3366, The Glowing Shard** — `turtleArea = 718` (Wailing Caverns), keeping its existing quest relations.
+- Quest **41797, A Good Friend** — `turtleArea = 5581` (Northwind), with independently verified source title alias `A Dear Friend`. Its current catalog title and NPC mapping are unchanged.
+
+The effective classification backlog is now **34 held quests**. The original 2,372 selected classifications remain untouched; the three exceptions are replayed separately by `scripts/reapply_turtle_zone_exception.py` from exact reviewed evidence. The [hold report](audits/turtle_hold_resolution/summary.json) distinguishes these from unverified starter/availability and reserved-area cases. Neither category placement nor source presence proves a quest's current live availability.
+
+All changes are on `audit/turtle-touched-text-coverage`, not `main`.
