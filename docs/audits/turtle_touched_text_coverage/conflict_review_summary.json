@@ -1,0 +1,17 @@
+{
+  "total_conflicts": 289,
+  "by_stage": {
+    "accept": 11,
+    "complete": 278
+  },
+  "edit_categories": {
+    "minor_wording": 76,
+    "moderate_wording": 15,
+    "punctuation_or_whitespace": 163,
+    "substantial_difference": 35
+  },
+  "changed_quest_placeholder_tokens": 263,
+  "comparison_source": "Pinned Tortoise SQLite versus original Spoken Lua corpus",
+  "classification": "Character similarity and punctuation screening, not proof of Turtle authorship",
+  "dialogue_overwritten": false
+}
