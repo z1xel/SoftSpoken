@@ -64,8 +64,8 @@ Remaining detail, including side, typed source IDs, spawn evidence and `prevques
 - **7 of the 27** are faction-specific `Fashion Demands Sacrifices`/`Make the Right Choice` variants (60030–60036). The effective completion speaker is derived from `starterAlliance=51292` or `starterHorde=51293`. This is not a missing ender.
 - **20** retain genuine alternate speakers. The current resolver deliberately does not choose one from a plural set in a static Compendium page, and a live interaction's speaker GUID takes precedence for active narration.
 - When the pinned Tortoise source is compared independently, **all 27 starter sets and 25 ender sets match**. Two ender sets contain an extra candidate in pfQuest/Compendium:
-  - **41768 — The Messenger Of Northwind:** two enders (NPCs **1749**, **62682**) in pfQuest/Compendium versus just 1749 in Tortoise. Independent OctoWow records **both** candidates, so **retain both**.
-  - **41868 — Shadow Curse:** enders **62395**, **62422** in pfQuest/Compendium versus just 62422 in Tortoise; OctoWow also shows 62422. **Leave 62395 pending evidence**, not silently remove it.
+  - **41768 — The Messenger Of Northwind:** two enders (NPCs **1749**, **62682**) in pfQuest/Compendium versus just 1749 in Tortoise. [OctoWow's quest record](https://octowow.st/db/?quest=41768) explicitly names **both** enders, so **retain both**.
+  - **41868 — Shadow Curse:** enders **62395**, **62422** in pfQuest/Compendium versus just 62422 in Tortoise; [OctoWow](https://octowow.st/db/?quest=41868) also records 62422. **Leave 62395 pending evidence**, not silently remove it.
 
 Machine-readable coverage: [multiple_speaker_review.csv](audits/turtle_speaker_exceptions/multiple_speaker_review.csv).
 
