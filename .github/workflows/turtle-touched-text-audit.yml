@@ -9,6 +9,9 @@ on:
       - docs/audits/turtle_touched_text_coverage/missing_207_verified_stages.csv
       - scripts/import_turtle_touched_text.py
       - scripts/import_turtle_missing_stages.py
+      - scripts/import_turtle_tier3_completions.py
+      - docs/audits/turtle_touched_text_coverage/tier3_13_completion_manifest.csv
+      - docs/audits/turtle_touched_text_coverage/verified_progress_corrections.json
       - scripts/analyze_turtle_conflicting_dialogue.py
       - scripts/review_turtle_substantial_dialogue.py
       - scripts/audit_imported_missing_stage_alignment.py
@@ -20,6 +23,7 @@ on:
       - tests/test_turtle_touched_text_audit.py
       - tests/test_import_turtle_touched_text.py
       - tests/test_import_turtle_missing_stages.py
+      - tests/test_import_turtle_tier3_completions.py
       - tests/test_turtle_conflict_review.py
       - docs/turtle_verified_live_shared_ids.csv
   workflow_dispatch:
@@ -194,12 +198,15 @@ jobs:
           python3 scripts/import_turtle_missing_stages.py \
             --db .audit-viewer-data/data/tortoise.sqlite
           python3 -m unittest discover -s tests -p 'test_import_turtle_missing_stages.py'
+          python3 scripts/import_turtle_tier3_completions.py \
+            --db .audit-viewer-data/data/tortoise.sqlite
+          python3 -m unittest discover -s tests -p 'test_import_turtle_tier3_completions.py'
           python3 - <<'PY'
           import csv,json
           p="docs/audits/turtle_touched_text_coverage/"
           with open(p+"directly_supported_text_gaps.csv",newline="",encoding="utf-8") as f:
               rows=list(csv.DictReader(f))
-          assert len(rows) in (509,496,289), f"Expected 509, 496 or 289 verified stage gaps, saw {len(rows)}"
+          assert len(rows) in (289,276), f"Expected 289 before Tier 3 import or 276 after, saw {len(rows)}"
           assert all(r["source_migration_modified_stage"]=="1" or (
               r["category"]=="legacy_id_absent_from_vanilla" and
               r["vanilla_pfquest_present"]=="0") for r in rows)
@@ -213,8 +220,9 @@ jobs:
         run: |
           set -euo pipefail
           trap 'git restore -- SoftSpoken_Stories/Data/TurtleQuestText.lua' EXIT
-          # Append-only mode must preserve the ORIGINAL tracked 2.17 MB corpus
-          # byte-for-byte, before adding the first audited stage batch.
+          # Preserve all existing exclusive and first-batch text. The 207
+          # generated region is intentionally repaired, then 13 Tier 3
+          # completion-only overrides are added as a separate block.
           node scripts/import_tortoise_quest_dialogue.mjs \
             --touched-only --source-sqlite .audit-viewer-data/data/tortoise.sqlite
           python3 - <<'PY'
@@ -223,10 +231,12 @@ jobs:
           path="SoftSpoken_Stories/Data/TurtleQuestText.lua"
           old=subprocess.check_output(["git","show","HEAD:"+path])
           new=Path(path).read_bytes()
-          assert new.startswith(old), "Existing Turtle corpus was modified"
+          marker=b"-- BEGIN Turtle-touched missing 207 dialogue stages"
+          assert old.split(marker,1)[0] == new.split(marker,1)[0], "Existing exclusive or restored text changed"
           assert new.count(b"-- BEGIN Turtle-touched first batch")==1
-          assert new.count(b"-- BEGIN Turtle-touched missing 207 dialogue stages")==1
-          print("Append-only mode preserved the original Turtle dialogue bytes")
+          assert new.count(marker)==1
+          assert new.count(b"-- BEGIN verified Tier 3 completion dialogue")==1
+          print("Existing exclusive and first restored quest stages preserved; 207 region and Tier 3 verified")
           PY
           luac5.1 -p SoftSpoken_Stories/Data/TurtleQuestText.lua
           lua5.1 - <<'LUA'
@@ -237,7 +247,7 @@ jobs:
               else touched = touched + 1 end
           end
           assert(exclusive == 2369, "exclusive rows changed: "..exclusive)
-          assert(touched == 211, "shared-ID quest count changed: "..touched)
+          assert(touched == 223, "shared-ID quest count changed: "..touched)
           assert(SSCTurtleQuestText[820].accept and SSCTurtleQuestText[820].progress and
                  SSCTurtleQuestText[820].complete)
           assert(SSCTurtleQuestText[3111].accept and not SSCTurtleQuestText[3111].progress and
@@ -247,7 +257,13 @@ jobs:
                      SSCTurtleQuestText[id].complete)
           end
           assert(SSCTurtleQuestText[38].progress and SSCTurtleQuestText[9422].progress)
-          print("Combined local Lua import validated: 2369 exclusive quests + 13 restored + 207 missing stages")
+          for _, id in ipairs({9034,9043,9046,9057,9077,9095,9096,9097,9098,9099,9100,9101,9102}) do
+              assert(SSCTurtleQuestText[id] and SSCTurtleQuestText[id].complete)
+          end
+          assert(string.find(SSCTurtleQuestText[6283].progress,"Bloodfury Ripper",1,true))
+          assert(string.find(SSCTurtleQuestText[8051].progress,"Gurubashi",1,true))
+          assert(string.find(SSCTurtleQuestText[8146].progress,"smell you again",1,true))
+          print("Combined local Lua import: 2369 exclusive, 13 restored, 207 repaired/missing, 13 Tier 3")
           LUA
           git restore -- SoftSpoken_Stories/Data/TurtleQuestText.lua
           # Full pinned regeneration is also still supported and produces
@@ -262,9 +278,11 @@ jobs:
               if id >= 20000 then high = high + 1
               else low = low + 1 end
           end
-          assert(high == 2369 and low == 211)
+          assert(high == 2369 and low == 223)
           assert(SSCTurtleQuestText[38].progress)
-          print("Full pinned regeneration: 2369 exclusive quests plus 211 shared-ID quests")
+          assert(SSCTurtleQuestText[9034].complete)
+          assert(string.find(SSCTurtleQuestText[6283].progress,"Bloodfury Ripper",1,true))
+          print("Full pinned regeneration: 2369 exclusive quests plus 223 shared-ID quests")
           LUA
           git restore -- SoftSpoken_Stories/Data/TurtleQuestText.lua
           git diff --exit-code -- SoftSpoken_Stories/Data/TurtleQuestText.lua \
@@ -297,15 +315,15 @@ jobs:
 
       - name: Commit verified Turtle dialogue into existing table
         run: |
-          # Source SHA checks passed: append the 207 missing stages to the
-          # populated tracked corpus, preserving both the high-ID and first batches.
+          # Source SHA checks passed: repair three imported progress stages
+          # and add only the 13 adjudicated Tier 3 completion overrides.
           node scripts/import_tortoise_quest_dialogue.mjs \
             --touched-only --source-sqlite .audit-viewer-data/data/tortoise.sqlite
           luac5.1 -p SoftSpoken_Stories/Data/TurtleQuestText.lua
           git diff --exit-code -- SoftSpoken_Stories/Data/QuestText.lua \
             SoftSpoken_Stories/Data/Compendium.lua
-          # Recalculate coverage AFTER importing. This ensures the report
-          # records the real backlog of 289 existing-Spoken conflicts.
+          # Recalculate coverage AFTER applying stage-specific repairs.
+          # The remaining 276 have existing Spoken dialogue and are not changed.
           python3 - <<'PY'
           import csv
           p="docs/audits/turtle_touched_text_coverage/review_scoped_quests.csv"
@@ -331,22 +349,16 @@ jobs:
           summary=json.load(open(p+"summary.json",encoding="utf-8"))
           with open(p+"directly_supported_text_gaps.csv",newline="",encoding="utf-8") as stream:
               rows=list(csv.DictReader(stream))
-          assert summary["directly_supported_text_gaps"]==289, summary["directly_supported_text_gaps"]
-          assert len(rows)==289 and all(r["coverage"]=="spoken_outdated_for_turtle" for r in rows)
-          print("Updated coverage: 0 source-supported missing stages; 289 conflicting Spoken stages remain")
+          assert summary["directly_supported_text_gaps"]==276, summary["directly_supported_text_gaps"]
+          assert summary["reviewed_progress_corrections"]==3
+          assert len(rows)==276 and all(r["coverage"]=="spoken_outdated_for_turtle" for r in rows)
+          print("Post-import: 3 stage repairs; 13 Tier 3 completions covered; 276 Spoken conflicts remain")
           PY
           python3 -m unittest discover -s tests -p 'test_turtle_conflict_review.py'
-          python3 scripts/analyze_turtle_conflicting_dialogue.py \
-            --turtle .audit-viewer-data/data/tortoise.sqlite \
-            --lua-stages .audit-static-text-hex.tsv
-          python3 scripts/review_turtle_substantial_dialogue.py \
-            --turtle .audit-viewer-data/data/tortoise.sqlite \
-            --vanilla "$(cat .audit-vanilla-path)" \
-            --lua-stages .audit-static-text-hex.tsv
-          python3 scripts/audit_imported_missing_stage_alignment.py \
-            --turtle .audit-viewer-data/data/tortoise.sqlite \
-            --vanilla "$(cat .audit-vanilla-path)" \
-            --lua-stages .audit-static-text-hex.tsv
+          # The original 289-case review is retained as a historical
+          # adjudication snapshot; resolved stages should not be reclassified
+          # or removed from that evidentiary review. Future dynamic audits
+          # start from the new 276-case gap report.
           rm -f .audit-static-text-hex.tsv .audit-scoped-quest-ids \
             .audit-methods.csv .audit-migration-text-changes.csv \
             .audit-pfquest-overrides.csv .audit-pfquest-vanilla-ids.csv
@@ -355,7 +367,7 @@ jobs:
           git add docs/audits/turtle_touched_text_coverage/ \
             SoftSpoken_Stories/Data/TurtleQuestText.lua
           if ! git diff --cached --quiet; then
-            git commit -m 'Import 207 previously missing Turtle quest dialogue stages; refresh coverage'
+            git commit -m 'Fix three Turtle progress stages and import 13 verified Tier 3 completions'
             # Rebase the validated import if the branch advanced during CI.
             # No force-push and no original Spoken text changes.
             git fetch origin audit/turtle-touched-text-coverage
