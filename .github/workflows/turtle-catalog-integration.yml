@@ -7,6 +7,8 @@ on:
       - cleanup/vanilla-turtle-quest-corpus
     paths:
       - 'SoftSpoken_Stories/**'
+      - 'tests/**'
+      - 'scripts/audit_turtle_hold_resolutions.py'
       - 'scripts/reapply_turtle_quest_catalog.py'
       - 'scripts/clean_forever_quest_data.py'
       - 'docs/forever_quest_exclusions.csv'
