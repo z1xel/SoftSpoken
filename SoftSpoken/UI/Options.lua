@@ -36,8 +36,8 @@ local HOME_TITLE = "SoftSpoken"
 
 -- Full-width ornamental surround for the search row using the same native
 -- chat-input artwork, cap sizes, and silver rails as main.
--- Draw directly on the panel's BORDER layer, behind its title and real buttons;
--- a child Frame here would sit above them and risk blocking the tabs.
+-- Draw on a mouse-transparent overlay above the outer window trim, so
+-- its silver corners and rails remain visible where the frames intersect.
 local function DrawOrnateHeaderBand(window)
     -- Both horizontal rails and all four corner caps surround the search.
     -- The original open-top U from main omitted its three top pieces.
@@ -1271,10 +1271,18 @@ function Options:Setup()
             insets = {left = 10, right = 10, top = 10, bottom = 10},
         })
 
-        -- The title plate must stay above the newly promoted window edge.
+        -- The search ornament needs its own draw level above the outer
+        -- silver window border. Keep this frame mouse-transparent; only its
+        -- narrow edge textures are drawn on it.
+        local searchTrim = CreateFrame("Frame", nil, panel)
+        searchTrim:SetAllPoints(panel)
+        searchTrim:SetFrameLevel(windowTrim:GetFrameLevel() + 1)
+        searchTrim:EnableMouse(false)
+
+        -- The title plaque stays above both ornamental frame layers.
         local titleLayer = CreateFrame("Frame", nil, panel)
         titleLayer:SetAllPoints(panel)
-        titleLayer:SetFrameLevel(windowTrim:GetFrameLevel() + 1)
+        titleLayer:SetFrameLevel(searchTrim:GetFrameLevel() + 1)
         titleLayer:EnableMouse(false)
 
         -- The native 400x64 UI-DialogBox-Header is centered on this window.
@@ -1301,8 +1309,8 @@ function Options:Setup()
         if SSCNativeScrollbar and SSCNativeScrollbar.AttachSettings then
             SSCNativeScrollbar.AttachSettings(panel, scroller)
         end
-        -- Silver frame replaces the old gold divider under the tabs.
-        DrawOrnateHeaderBand(panel)
+        -- Search-frame rails and diamond corners overdraw the outer trim.
+        DrawOrnateHeaderBand(searchTrim)
         if Search and Search.BuildLegacy then Search:BuildLegacy(panel) end
         panel:Hide()
         self:RefreshNavigation()
@@ -1314,7 +1322,7 @@ function Options:Setup()
         end
         local close = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
         close:SetPoint("TOPRIGHT", -6, -6)
-        close:SetFrameLevel(windowTrim:GetFrameLevel() + 2)
+        close:SetFrameLevel(titleLayer:GetFrameLevel() + 1)
         -- Keep the mirrored housing on the rock frame's BORDER layer:
         -- above that frame's rock backdrop, beneath its ARTWORK/OVERLAY
         -- decoration, and below the native close button.
