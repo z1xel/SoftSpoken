@@ -2,7 +2,7 @@
 
 **Date:** November 15, 2026  
 **Branch:** `audit/turtle-touched-text-coverage`  
-**Status:** Source-provenance audit and the first two imports completed: **220 stages** (13 restored + 207 previously missing) committed to the existing Turtle-only text table. `SpokenQuestsText` remains unchanged.
+**Status:** Three verified imports completed: **233 shared-ID stage overrides** (13 restored, 207 originally missing with 3 reviewed progress repairs, and 13 Tier 3 completions). The original `SpokenQuestsText` remains unchanged.
 
 ## The question
 
@@ -48,18 +48,14 @@ text. These are **review candidates**, not automatically authorized edits.
 | Held because of disabled Method, absent starter, source/catalog conflict, or Vanilla baseline ambiguity | 49 |
 | Shared-ID quests selected for **review**, not automatic replacement | **711** |
 | Source dialogue stages compared for that group | 2,133 |
-| Possible incomplete/outdated stages under the *broader* review | 379 |
-| **Directly supported unresolved stage candidates** | **289** |
-| Distinct quest IDs among those 289 stages | **289** |
+| Possible incomplete/outdated stages under the *broader* review | 366 |
+| **Directly supported unresolved stage candidates** | **276** |
+| Distinct quest IDs among those 276 stages | **276** |
 | Uncorroborated cMaNGOS-versus-Tortoise variations excluded | 977 |
 
-After the two verified imports, **all 220 directly-supported previously missing
-stages now have a Turtle overlay**. The **289 remaining priority candidates**
-already contain Spoken dialogue that differs from the pinned Tortoise source:
-**11 acceptance** and **278 completion** stages. None of those conflicting
-Spoken stages was overwritten by either import.
+All **220 originally missing stages** now have Turtle overlay text, including three corrected against independent Classic quest-stage references. Of the original **289 existing-Spoken conflicts**, **13 verified Tier 3 completion stages** received specific Turtle overrides. The **276 remaining priority candidates** consist of **11 acceptance** and **265 completion** stages. The original Spoken table and the other 276 stages were not overwritten.
 
-The other **90** of the broader 379 possible gaps lack the same direct
+The other **90** of the broader 366 possible gaps lack the same direct
 stage-specific text-migration or independently supported restoration evidence;
 they remain in the broader review report, not the priority gap list.
 
@@ -91,8 +87,8 @@ The audit reports do not include quest prose; the separately imported bodies liv
 
 - `docs/audits/turtle_touched_text_coverage/summary.json` — consolidated counts.
 - `review_scoped_quests.csv` — 711 candidate quests for manual review.
-- `directly_supported_text_gaps.csv` — **289 unresolved source-supported text conflicts**.
-- `turtle_specific_text_gaps.csv` — broader 379 possible gaps.
+- `directly_supported_text_gaps.csv` — **276 unresolved source-supported text conflicts**.
+- `turtle_specific_text_gaps.csv` — broader 366 possible gaps.
 - `held_quests.csv` — 49 disabled/conflicted/unverified quests.
 - `uncorroborated_cross_database_variants.csv` — 977 rejected
   cMaNGOS-vs-Tortoise differences lacking a stronger Turtle edit signal.
@@ -139,15 +135,14 @@ hash failures, scope and idempotency. GitHub Actions checked all 13 hashes
 and committed these exact stages to the existing Turtle quest text file.
 
 For a **populated** Turtle text table, the safest one-command local operation
-is to append only the two audited stage batches. It preserves every existing line
-outside the generated first-batch region:
+is to apply all three validated batches atomically, preserving exclusive quest text and existing unrelated stage data:
 
 ```sh
 node scripts/import_tortoise_quest_dialogue.mjs --touched-only
 ```
 
 The default importer still supports rebuilding **2,369 eligible
-Turtle-exclusive quest rows plus 13 restored stages and 207 missing stages** into the same
+Turtle-exclusive quest rows plus 13 restored stages, 207 originally missing stages (3 corrected), and 13 Tier 3 completion overrides** into the same
 `SoftSpoken_Stories/Data/TurtleQuestText.lua` file when a full pinned-source
 regeneration is intentionally desired:
 
@@ -170,8 +165,7 @@ python3 scripts/import_turtle_touched_text.py --db /path/to/tortoise.sqlite --wr
 **Committed:** 13 stages for quest IDs 820, 3111, 3578, 3579 and 3580, into
 `SoftSpoken_Stories/Data/TurtleQuestText.lua` on the audit branch. The existing
 2,369 entries and original Spoken table remain unchanged. This completes the
-first batch; the follow-up 207-stage batch is also committed, leaving 289
-source-supported, existing-Spoken conflicts unimported. The Tortoise
+first batch; the follow-up 207-stage batch and the Tier 3 stage-specific overrides are also committed, leaving 276 source-supported, existing-Spoken conflicts unresolved. The Tortoise
 snapshot is a community reconstruction rather than an authenticated live
 Turtle server export, so in-game text may differ.
 
@@ -202,3 +196,22 @@ A public repository commit now contains these 207 bodies in
 `SoftSpoken_Stories/Data/QuestText.lua` and Compendium relationships remain
 unchanged. These are consistent with the pinned Tortoise community snapshot,
 not an authenticated dump of the live Turtle server.
+
+## Third import: 3 corrected progress stages + 13 Tier 3 completion responses
+
+**Commit:** `dba72a0b306f5fd4abe9a022403b083b4cc31ba7`; CI validated the stage-specific differences and Lua 5.1 syntax.
+
+- **Quest 6283 (Bloodfury Bloodline):** progress now uses the Classic pre-turn-in dialogue, not the NPC's completion response.
+- **Quest 8051 (The Eye of Zuldazar):** progress now uses quest 8051's Classic dialogue, not the next-door quest step's dialogue.
+- **Quest 8146 (The Maelstrom's Tendril):** progress now uses the Classic 8146 conversation, not quest 8147's.
+- **Thirteen Naxxramas Tier 3 completions:** 9034, 9043, 9046, 9057, 9077 and all eight Frostfire quest IDs 9095–9102 now have Classic-corroborated completion-only overlays. Other stages for those quest IDs are preserved.
+
+All 207 historical imported-stage source hashes are still checked before the three corrections are applied in-memory. The corrected values and source URLs are stored in [the curated correction manifest](audits/turtle_touched_text_coverage/verified_progress_corrections.json); the Tier 3 source hashes are pinned separately in [the Tier 3 manifest](audits/turtle_touched_text_coverage/tier3_13_completion_manifest.csv). The code regenerates all three groups in the same existing Lua file, including in full-rebuild mode.
+
+**Verified:** 2,369 exclusive quest rows unchanged, 13 restored quest stages unchanged, 204 non-corrected earlier stage entries unchanged, exactly three progress values repaired, and exactly 13 completion values added. The original Spoken corpus remains unchanged.
+
+### Further conflict triage
+
+The earlier 289-case comparison is retained as a **historical baseline**. The 35 substantial cases were reviewed in [the substantial adjudication](audits/turtle_touched_text_coverage/substantial_35_adjudication.md): 13 imported as above; 15 truncated source cases and 7 source-misassignment cases intentionally left on Spoken.
+
+All other 254 cosmetic/minor/moderate cases have a separate [quest-level triage](audits/turtle_touched_text_coverage/remaining_254_review.md). The recommended next step is to review only the **72 cases with changed normalized WoW directive sequences** for genuinely consequential placeholder behavior; no bulk override was made.
