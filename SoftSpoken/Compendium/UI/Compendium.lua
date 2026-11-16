@@ -38,8 +38,11 @@ local BRANCH_ROW, LEAF_ROW, DEPTH_STEP, SCROLL_STEP = 24, 20, 14, 60
 -- Full, unaltered 128x64 Blizzard QuestTypeIcons sheet in a Vanilla-compatible
 -- uncompressed 32-bit TGA; SetTexCoord selects the original 18x18 cells.
 local INSTANCE_ICON = "Interface\\AddOns\\SoftSpoken\\Textures\\QuestTypeIcons"
+local CHAIN_ICON = "Interface\\AddOns\\SoftSpoken\\Textures\\QuestChainIcon"
 local DUNGEON_UV = { 0.421875, 0.5625, 0, 0.28125 }
 local RAID_UV = { 0.703125, 0.84375, 0, 0.28125 }
+-- Full 18x18 quest-chain artwork occupies the top-left of its 32x32 TGA.
+local CHAIN_UV = { 0, 0.5625, 0, 0.5625 }
 local function RowHeight(item)
     return item.leaf and LEAF_ROW or BRANCH_ROW
 end
@@ -965,10 +968,11 @@ function List:AcquireRow(index)
     -- highlight font for leaves. SetWordWrap is optional on early clients.
     button.label=button:CreateFontString(nil,"ARTWORK","GameFontNormal")
     button.label:SetJustifyH("LEFT")
-    button.instanceIcon=button:CreateTexture(nil,"ARTWORK")
-    button.instanceIcon:SetTexture(INSTANCE_ICON)
-    button.instanceIcon:SetWidth(18);button.instanceIcon:SetHeight(18)
-    button.instanceIcon:Hide()
+    button.categoryIcon=button:CreateTexture(nil,"ARTWORK")
+    button.categoryIcon:SetTexture(INSTANCE_ICON)
+    button.categoryTexture=INSTANCE_ICON
+    button.categoryIcon:SetWidth(18);button.categoryIcon:SetHeight(18)
+    button.categoryIcon:Hide()
     if button.label.SetWordWrap then button.label:SetWordWrap(false) end
     button.state=button:CreateFontString(nil,"ARTWORK","GameFontDisableSmall")
     button.count=button.state  -- upstream field name
@@ -1050,8 +1054,8 @@ function List:DrawRows()
             b:SetPoint("TOPLEFT",self.child,"TOPLEFT",0,-self.rowStarts[index+i-1])
             b:SetPoint("TOPRIGHT",self.child,"TOPRIGHT",0,-self.rowStarts[index+i-1])
             b.label:ClearAllPoints()
-            b.instanceIcon:Hide()
-            b.instanceIcon:ClearAllPoints()
+            b.categoryIcon:Hide()
+            b.categoryIcon:ClearAllPoints()
             b.toggle:ClearAllPoints()
             b.marker:ClearAllPoints()
             b.marker:SetText("")
@@ -1071,10 +1075,21 @@ function List:DrawRows()
                 end
             else
                 b.label:SetFontObject("GameFontNormal")
-                if item.instanceType=="dungeon" or item.instanceType=="raid" then
-                    b.instanceIcon:SetPoint("LEFT",b,"LEFT",28+indent,0)
-                    b.instanceIcon:SetTexCoord(unpack(item.instanceType=="raid" and RAID_UV or DUNGEON_UV))
-                    b.instanceIcon:Show()
+                local iconUV,iconTexture
+                if item.kind=="chain" then
+                    iconUV,iconTexture=CHAIN_UV,CHAIN_ICON
+                elseif item.instanceType=="dungeon" or item.instanceType=="raid" then
+                    iconUV=item.instanceType=="raid" and RAID_UV or DUNGEON_UV
+                    iconTexture=INSTANCE_ICON
+                end
+                if iconUV then
+                    if b.categoryTexture~=iconTexture then
+                        b.categoryIcon:SetTexture(iconTexture)
+                        b.categoryTexture=iconTexture
+                    end
+                    b.categoryIcon:SetPoint("LEFT",b,"LEFT",28+indent,0)
+                    b.categoryIcon:SetTexCoord(unpack(iconUV))
+                    b.categoryIcon:Show()
                     b.label:SetPoint("LEFT",b,"LEFT",50+indent,0)
                 else
                     b.label:SetPoint("LEFT",b,"LEFT",28+indent,0)
