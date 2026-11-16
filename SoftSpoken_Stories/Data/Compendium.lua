@@ -59,6 +59,9 @@ SpokenQuestsCompendium = {
 
 	-- NPC-name fallback only where installed voice packs lack speaker metadata.
 	npcNames = {
+		[6868] = "Jarkal Mossmeld",
+		[62986] = "Ar'lia",
+		[62850] = "Moro'gai K'la",
 		[60516] = "Marrek Stromnur",
 		[9660] = "Agnar Beasttamer",
 		[19000] = "Qiuyue",
