@@ -88,6 +88,19 @@ class TurtleHeldQuestAliasTests(unittest.TestCase):
         self.assertIn('"A Good Friend"',result)
         self.assertNotIn('"A Dear Friend"',result)
 
+    def test_recover_two_item_origin_zones_without_quest_invention(self):
+        original=('\tquests = {\n'
+                  '\t\t[708] = { "The Black Box", starterItem = 4613, ender = 2092, races = 4294967373 },\n'
+                  '\t\t[3366] = { "The Glowing Shard", ender = 8418 },\n'
+                  '\t\t[3482] = { "The Pocked Black Box", starterItem = 10590 },\n'
+                  '\t},\n\n\tsorts = {\n')
+        revised,changed=zone.apply_older(original)
+        self.assertTrue(changed)
+        self.assertIn('races = 4294967373, zones = {1418}',revised)
+        self.assertIn('ender = 8418, turtleArea = 718',revised)
+        self.assertIn('[3482] = { "The Pocked Black Box", starterItem = 10590 }',revised)
+        self.assertEqual(zone.apply_older(revised),(revised,False))
+
     def test_exact_approved_alias_manifest_in_repo(self):
         p=review.OUT/"approved_41797_identity.json"
         approved=zone.verify_record(p)
