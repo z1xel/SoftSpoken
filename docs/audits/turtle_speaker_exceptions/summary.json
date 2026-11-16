@@ -1,0 +1,24 @@
+{
+  "scope": "2,377 retained high-ID Turtle quests; both directions and typed entities",
+  "missing_starter_manifest": 31,
+  "missing_ender_manifest": 31,
+  "quests_with_at_least_one_missing_side": 36,
+  "status_counts": {
+    "ender_chain_without_typed_relationship": 3,
+    "ender_present": 5,
+    "ender_recoverable_source_relationship": 21,
+    "ender_unresolved_no_typed_source_link": 7,
+    "starter_chain_without_typed_relationship": 3,
+    "starter_present": 5,
+    "starter_recoverable_source_relationship": 16,
+    "starter_unresolved_no_typed_source_link": 12
+  },
+  "source_quest_rows_missing": 0,
+  "multiple_speaker_manifest_quests": 27,
+  "multiple_manifest_vs_compendium_differences": 7,
+  "faction_specific_multi_quests": 7,
+  "multiple_manifest_quests_in_bundled_fallback_lookup": 0,
+  "voice_files_verified": 0,
+  "voice_limitation": "Actual installed quest voice packs, file paths and live speaker GUIDs are not present. Metadata or a file named questID-stage is not proof it is spoken by the correct NPC.",
+  "read_only": true
+}
