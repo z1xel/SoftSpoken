@@ -66,7 +66,8 @@ Classic cross-checks: [2603](https://www.wowhead.com/classic/quest=2603), [4727]
 
 - **Do not import all 289 source-conflicting stages.** A stage-level SQL migration is evidence of a source change, not proof that the changed field contains the correct words.
 - **Candidate next import:** the 13 Classic-corroborated tier-3 completion texts, in the existing Turtle-only Lua data. Leave original Spoken untouched.
-- **Urgent check:** audit the previous 207-stage import for cross-stage contamination (notably quest 6283), and correct erroneous imported stages separately before promoting this branch.
+- **Urgent correction needed:** the separate 207-stage import has three confirmed problematic *progress* overrides: **6283, 8051 and 8146**. See [imported stage exception review](imported_207_exception_review.md). Correct these before promoting the branch; do not overwrite original Spoken.
+- **Independent baseline caveat:** the cMaNGOS snapshot disagrees with Classic stage assignments for some repeatables and quest chains. Its numerical similarity scores are not themselves evidence that a source migration is right or wrong.
 - Keep the other 22 substantial-conflict stages on original Spoken.
 - The remaining 254 cosmetic/minor/moderate cases are still pending review.
 
