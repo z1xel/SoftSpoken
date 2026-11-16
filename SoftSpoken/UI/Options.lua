@@ -1308,7 +1308,7 @@ function Options:Setup()
             table.insert(UISpecialFrames, "SpokenOptionsPanel")
         end
         local close = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
-        close:SetPoint("TOPRIGHT", -5, -5)
+        close:SetPoint("TOPRIGHT", -6, -6)
         close:SetFrameLevel(windowTrim:GetFrameLevel() + 2)
         -- Keep the mirrored housing on the rock frame's BORDER layer:
         -- above that frame's rock backdrop, beneath its ARTWORK/OVERLAY
