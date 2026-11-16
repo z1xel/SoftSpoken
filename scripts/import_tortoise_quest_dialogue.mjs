@@ -9,7 +9,7 @@
  */
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -25,8 +25,8 @@ const SOURCE_URL = "https://raw.githubusercontent.com/Xian55/tortoise-db-viewer/
 function parseArgs(args) {
     if (args.length === 1 && (args[0] === "--help" || args[0] === "-h")) {
         console.log("node scripts/import_tortoise_quest_dialogue.mjs [--touched-only] [--source-sqlite PATH]");
-        console.log("--touched-only appends both verified shared-ID batches (13 + 207 stages), preserving existing text");
-        console.log("Default regenerates 2369 exclusive quests plus both verified batches.");
+        console.log("--touched-only verifies 13 restored + 207 repaired/missing + 13 Tier 3 stages, preserving existing text");
+        console.log("Default regenerates 2369 exclusive quests plus all three verified batches.");
         return null;
     }
     const touchedCount = args.filter(x => x === "--touched-only").length;
@@ -85,23 +85,33 @@ async function main() {
     try {
         const db = await getDb(input, temp);
         if (input.touchedOnly) {
-            // Recommended for a populated install: preserve the existing
-            // exclusive dialogue bytes and append only stage-verified overrides.
+            // Stage all writes into a TEMPORARY copy. No partial local
+            // overwrite if any later SHA or collision guard fails.
+            if (!existsSync(OUTPUT)) throw new Error("Existing TurtleQuestText.lua is missing");
+            const staged = join(temp, "TurtleQuestText.lua");
+            copyFileSync(OUTPUT, staged);
             runPython([
                 join(ROOT, "scripts", "import_turtle_touched_text.py"),
                 "--db", db,
                 "--manifest", join(ROOT, "docs", "audits", "turtle_touched_text_coverage",
                                    "first_batch_verified_stages.csv"),
-                "--destination", OUTPUT,
+                "--destination", staged,
                 "--write", "--local-only"
             ]);
             runPython([
                 join(ROOT, "scripts", "import_turtle_missing_stages.py"),
                 "--db", db,
-                "--destination", OUTPUT,
+                "--destination", staged,
                 "--write"
             ]);
-            console.log("Added 13 restored and 207 missing stages without rebuilding the exclusive corpus.");
+            runPython([
+                join(ROOT, "scripts", "import_turtle_tier3_completions.py"),
+                "--db", db,
+                "--destination", staged,
+                "--write"
+            ]);
+            renameSync(staged, OUTPUT);
+            console.log("Applied 13 restored + 207 missing/repaired + 13 Tier 3 stages atomically.");
             return;
         }
         const staged = join(temp, "TurtleQuestText.lua");
@@ -138,6 +148,12 @@ async function main() {
             "--destination", staged,
             "--write"
         ]);
+        runPython([
+            join(ROOT, "scripts", "import_turtle_tier3_completions.py"),
+            "--db", db,
+            "--destination", staged,
+            "--write"
+        ]);
         const lua = readFileSync(staged, "utf8");
         if (!lua.includes("SSCTurtleQuestText[40001]"))
             throw new Error("Staged Lua is missing a known imported quest");
@@ -145,14 +161,15 @@ async function main() {
             !lua.includes("SSCTurtleQuestText[3111].accept =") ||
             !lua.includes("SSCTurtleQuestText[3580].complete =") ||
             !lua.includes("SSCTurtleQuestText[38].progress =") ||
-            !lua.includes("-- END Turtle-touched missing 207 dialogue stages"))
+            !lua.includes("-- END Turtle-touched missing 207 dialogue stages") ||
+            !lua.includes("-- END verified Tier 3 completion dialogue (13 quest stages)"))
             throw new Error("Staged Lua is missing the verified restored quest batch");
         // The target is overwritten only after a complete, checked export.
         renameSync(staged, OUTPUT);
         console.log("\nImported " + summary.generated.quest_rows_written + " quests directly into:");
         console.log(OUTPUT);
         console.log("Exclusive quest dialogue stages: " + JSON.stringify(summary.generated.stages_written));
-        console.log("Additional shared-ID dialogue: 13 restored stages + 207 missing stages, 211 quests.");
+        console.log("Additional shared-ID dialogue: 13 restored, 207 missing/repaired, 13 Tier 3; 223 unique quests.");
         console.log("Held for later source verification: " + summary.held.join(", "));
         console.log("No companion addon was created. Preserve this local file when updating the repo.");
     } finally {
