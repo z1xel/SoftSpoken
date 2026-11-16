@@ -123,6 +123,17 @@ def main():
             "--check" if args.check else "--apply",
             "--catalog", str(args.catalog)
         ], check=True)
+    # Preserve the 20 independently typed-and-spawned quest speaker roles
+    # after any future pfQuest corpus regeneration. Never infer a speaker
+    # from a neighbor in the chain.
+    speaker_manifest = ROOT / "docs/turtle_speaker_recovery.csv"
+    if speaker_manifest.exists():
+        subprocess.run([
+            sys.executable,
+            str(ROOT / "scripts/reapply_turtle_speaker_recovery.py"),
+            "--check" if args.check else "--apply",
+            "--catalog", str(args.catalog)
+        ], check=True)
 
 
 if __name__ == "__main__":
