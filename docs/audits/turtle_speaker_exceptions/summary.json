@@ -17,8 +17,17 @@
   },
   "source_quest_rows_missing": 0,
   "multiple_speaker_manifest_quests": 27,
-  "multiple_manifest_vs_compendium_differences": 7,
+  "multiple_manifest_vs_compendium_differences": 0,
   "faction_specific_multi_quests": 7,
+  "source_relationship_comparisons": {
+    "starter": {
+      "matched": 27
+    },
+    "ender": {
+      "matched": 25,
+      "source_subset_of_manifest": 2
+    }
+  },
   "multiple_manifest_quests_in_bundled_fallback_lookup": 0,
   "voice_files_verified": 0,
   "voice_limitation": "Actual installed quest voice packs, file paths and live speaker GUIDs are not present. Metadata or a file named questID-stage is not proof it is spoken by the correct NPC.",
