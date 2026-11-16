@@ -6975,7 +6975,7 @@ SpokenQuestsCompendium = {
 		[41794] = { "The Storms of Balor", races = 8589934770, starter = 2465, ender = 62570, turtleArea = 5561 },
 		[41795] = { "A Unknown Letter", races = 8589934770, starter = 4949, ender = 62590, turtleArea = 5561 },
 		[41796] = { "Far From Home", races = 4294967373, starter = 62719, ender = 62473, turtleArea = 5581 },
-		[41797] = { "A Good Friend", races = 4294967373, starter = 228, ender = 62307 },
+		[41797] = { "A Good Friend", races = 4294967373, starter = 228, ender = 62307, turtleArea = 5581 },
 		[41798] = { "My Darling Wife", races = 4294967373, starter = 62720, ender = 62455, turtleArea = 5561 },
 		[41799] = { "A Hydromancer's Curiosity", starter = 60936, ender = 62460, turtleArea = 5561 },
 		[41800] = { "The Grim Hollow", starter = 62422, turtleArea = 5602 },
