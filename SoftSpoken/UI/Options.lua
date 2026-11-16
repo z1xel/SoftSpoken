@@ -1238,8 +1238,7 @@ function Options:Setup()
         if panel.SetBackdrop then
             panel:SetBackdrop({
                 bgFile = [[Interface\Buttons\WHITE8X8]],
-                edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]],
-                tile = true, tileSize = 16, edgeSize = 32,
+                tile = true, tileSize = 16,
                 insets = {left = 10, right = 10, top = 10, bottom = 10},
             })
             panel:SetBackdropColor(0.075, 0.07, 0.085, 1)
@@ -1259,16 +1258,35 @@ function Options:Setup()
             insets = {left = 0, right = 0, top = 0, bottom = 0},
         })
 
+        -- A separate, mouse-transparent edge-only frame makes the native
+        -- silver window border render over the rock and cropped housing.
+        -- The underlying panel keeps only the flat dark background.
+        local windowTrim = CreateFrame("Frame", nil, panel)
+        windowTrim:SetAllPoints(panel)
+        windowTrim:SetFrameLevel(headerRock:GetFrameLevel() + 1)
+        windowTrim:EnableMouse(false)
+        windowTrim:SetBackdrop({
+            edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]],
+            edgeSize = 32,
+            insets = {left = 10, right = 10, top = 10, bottom = 10},
+        })
+
+        -- The title plate must stay above the newly promoted window edge.
+        local titleLayer = CreateFrame("Frame", nil, panel)
+        titleLayer:SetAllPoints(panel)
+        titleLayer:SetFrameLevel(windowTrim:GetFrameLevel() + 1)
+        titleLayer:EnableMouse(false)
+
         -- The native 400x64 UI-DialogBox-Header is centered on this window.
         -- Blizzard's Key Bindings uses a -30 horizontal offset for its own
         -- asymmetric frame; retaining that offset shifts SoftSpoken's plaque
         -- left of center. Keep the caption anchored to the plaque itself.
-        local titlePlate = panel:CreateTexture(nil, "ARTWORK")
+        local titlePlate = titleLayer:CreateTexture(nil, "ARTWORK")
         titlePlate:SetTexture([[Interface\DialogFrame\UI-DialogBox-Header]])
         titlePlate:SetWidth(400)
         titlePlate:SetHeight(64)
         titlePlate:SetPoint("TOP", panel, "TOP", 0, 12)
-        local heading = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        local heading = titleLayer:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         heading:SetWidth(210)
         heading:SetHeight(16)
         heading:SetJustifyH("CENTER")
@@ -1291,6 +1309,7 @@ function Options:Setup()
         end
         local close = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
         close:SetPoint("TOPRIGHT", -5, -5)
+        close:SetFrameLevel(windowTrim:GetFrameLevel() + 2)
         -- Keep the mirrored housing on the rock frame's BORDER layer:
         -- above that frame's rock backdrop, beneath its ARTWORK/OVERLAY
         -- decoration, and below the native close button.
