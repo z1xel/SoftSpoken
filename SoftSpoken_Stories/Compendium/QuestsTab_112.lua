@@ -144,6 +144,16 @@ local function PageEntry()
         local names={}
         for _,zone in ipairs(entry.zones) do table.insert(names,S:MapName(zone)) end
         place=table.concat(names,", ")
+    elseif entry and type(entry.turtleArea)=="number" and entry.turtleArea>0 then
+        -- Verified AreaTable links use the canonical UiMap name provider.
+        local meta=_G.SSCTurtleAreaMeta and _G.SSCTurtleAreaMeta[entry.turtleArea]
+        if meta and meta.uiMapID then
+            place=S:MapName(meta.uiMapID)
+        elseif meta and meta.dungeonMapID then
+            place=C.DungeonName(meta.dungeonMapID)
+        else
+            place=meta and meta.name or ("Turtle Area "..entry.turtleArea)
+        end
     elseif entry and entry.sort then
         place=M:SortName(entry.sort)
     else

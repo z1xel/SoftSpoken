@@ -5,11 +5,15 @@ local M=SSCQuestCatalog
 local S=SSCQuestState
 local sections={
     {key="classes",label="Classes",sorts={[61]=true,[81]=true,[82]=true,[141]=true,[161]=true,[162]=true,[261]=true,[262]=true,[263]=true}},
-    {key="professions",label="Professions",sorts={[24]=true,[101]=true,[121]=true,[181]=true,[182]=true,[201]=true,[264]=true,[304]=true,[324]=true,[666]=true}},
+    {key="professions",label="Professions",sorts={[24]=true,[101]=true,[121]=true,[181]=true,[182]=true,[201]=true,[264]=true,[304]=true,[324]=true,[371]=true}},
     {key="events",label="Holidays and Events",sorts={[22]=true,[284]=true,[364]=true,[365]=true,[366]=true,[368]=true,[369]=true,winterveil=true,hallowsend=true,loveisintheair=true,harvestfestival=true}},
     {key="other",label="Other"},
 }
-local specialNames={winterveil="Winter Veil",hallowsend="Hallow's End",loveisintheair="Love is in the Air",harvestfestival="Harvest Festival",argentdawn="Argent Dawn",library="Library",[284]="Children's Week",[367]="Commendations",[368]="Scourge Invasion"}
+local specialNames={winterveil="Winter Veil",hallowsend="Hallow's End",loveisintheair="Love is in the Air",harvestfestival="Harvest Festival",argentdawn="Argent Dawn",library="Library",[284]="Children's Week",[367]="Commendations",[368]="Scourge Invasion",
+    [22]="Seasonal",[371]="Jewelcrafting",
+    -- Turtle reuses retired sort IDs for unrelated quests; do NOT display
+    -- misleading old Vanilla dungeon labels for these nonmatching categories.
+    [21]="Legacy category 21",[241]="Legacy category 241",[374]="Turtle category 374"}
 local raceBits={[95]=32,[96]=33}
 -- Stock 1.12 UnitRace/UnitClass commonly return only localized/token names;
 -- modern ClassicAPI may provide numeric IDs. Handle either without guessing
@@ -165,12 +169,28 @@ local function SortedKeys(t, names)
     return keys
 end
 function M:BuildTree()
-    local all,zones,sorts,unknown={},{},{},{}
+    local all,zones,turtleAreas,nativeAreaDungeons,sorts,unknown={},{},{},{},{},{}
+    local areaMeta=_G.SSCTurtleAreaMeta or {}
     for id,entry in pairs(Raw().quests) do
         if Allowed(entry) then
             all[id]=true
             if type(entry.zones)=="table" and table.getn(entry.zones)>0 then
                 for _,zone in ipairs(entry.zones) do AddTo(zones,zone,id) end
+            elseif type(entry.turtleArea)=="number" and entry.turtleArea>0 then
+                local meta=areaMeta[entry.turtleArea]
+                if meta and type(meta.uiMapID)=="number" and meta.uiMapID>0 then
+                    -- Verified map identity, without rewriting the quest record.
+                    AddTo(zones,meta.uiMapID,id)
+                elseif meta and meta.dungeonMapID and meta.parentZone then
+                    -- AreaTable and instance Map IDs are different namespaces.
+                    -- File this Turtle quest with the existing dungeon group.
+                    local byZone=nativeAreaDungeons[meta.parentZone] or {}
+                    nativeAreaDungeons[meta.parentZone]=byZone
+                    AddTo(byZone,meta.dungeonMapID,id)
+                else
+                    -- Custom and unmapped 1.12 areas retain their own nodes.
+                    AddTo(turtleAreas,entry.turtleArea,id)
+                end
             elseif entry.sort then
                 AddTo(sorts,entry.sort,id)
             else
@@ -192,19 +212,31 @@ function M:BuildTree()
     local loose=Attach(root,Node("zones:other","Other Lands","section"))
     local cityIn=SSCCompendium and SSCCompendium.CITY_IN or {}
     local zoneNodes={}
-    local zoneIDs=SortedKeys(zones,function(id) return S:MapName(id) end)
+    -- Create enclosing zone nodes even if their only quests come from an
+    -- AreaTable-linked dungeon or a Turtle-exclusive instance.
+    local usedZones={}
+    for zone in pairs(zones) do usedZones[zone]=true end
+    for zone in pairs(nativeAreaDungeons) do usedZones[zone]=true end
+    for areaID in pairs(turtleAreas) do
+        local meta=areaMeta[areaID]
+        if meta and meta.parentZone then usedZones[meta.parentZone]=true end
+    end
+    local zoneIDs=SortedKeys(usedZones,function(id) return S:MapName(id) end)
     for _,zone in ipairs(zoneIDs) do
         local zoneNode=Node("zone:"..zone,S:MapName(zone),"zone")
         zoneNodes[zone]=zoneNode
         zoneNode.mapID=zone
         local byDungeon,normal={},{}
-        for _,id in ipairs(zones[zone]) do
+        for _,id in ipairs(zones[zone] or {}) do
             local entry=Raw().quests[id]
             if entry and entry.dungeon then AddTo(byDungeon,entry.dungeon,id)
             else table.insert(normal,id) end
         end
-        for _,dungeon in ipairs(SortedKeys(byDungeon,function(id) return "Dungeon "..tostring(id) end)) do
-            local dungeonNode=Attach(zoneNode,Node("dungeon:"..zone..":"..dungeon,"Dungeon "..dungeon,"dungeon"))
+        for dungeon,ids in pairs(nativeAreaDungeons[zone] or {}) do
+            for _,id in ipairs(ids) do AddTo(byDungeon,dungeon,id) end
+        end
+        for _,dungeon in ipairs(SortedKeys(byDungeon,function(id) return SSCCompendium.DungeonName(id) end)) do
+            local dungeonNode=Attach(zoneNode,Node("dungeon:"..zone..":"..dungeon,SSCCompendium.DungeonName(dungeon),"dungeon"))
             MakeLeaves(dungeonNode,byDungeon[dungeon])
         end
         MakeLeaves(zoneNode,normal)
@@ -216,6 +248,31 @@ function M:BuildTree()
         local cont=SSCCompendium and SSCCompendium.ContinentOf and SSCCompendium.ContinentOf(parentZone)
         local parent=(cityIn[zone] and zoneNodes[cityIn[zone]]) or continents[cont] or loose
         Attach(parent,zoneNodes[zone])
+    end
+    -- Custom instances remain identified by AreaTable ID (no fabricated
+    -- native instance Map ID). Attach them to a known entrance zone or a
+    -- parent Turtle area, without changing their quest records.
+    local areaNodes={}
+    local areaIDs=SortedKeys(turtleAreas,function(k)
+        local meta=areaMeta[k]
+        return meta and meta.name or tostring(k)
+    end)
+    for _,areaID in ipairs(areaIDs) do
+        local meta=areaMeta[areaID]
+        local name=(meta and meta.name) or ("Turtle Area "..areaID)
+        local instance=meta and (meta.instanceType=="dungeon" or meta.instanceType=="raid")
+        local areaNode=Node("turtle-area:"..areaID,name,instance and "dungeon" or "zone")
+        areaNode.areaID=areaID
+        areaNode.instanceType=meta and meta.instanceType
+        MakeLeaves(areaNode,turtleAreas[areaID])
+        areaNodes[areaID]=areaNode
+    end
+    for _,areaID in ipairs(areaIDs) do
+        local meta=areaMeta[areaID]
+        local parent=(meta and meta.parentArea and areaNodes[meta.parentArea])
+            or (meta and meta.parentZone and zoneNodes[meta.parentZone])
+            or (meta and continents[meta.continent]) or loose
+        Attach(parent,areaNodes[areaID])
     end
     for _,section in ipairs(sections) do
         local sec=Attach(root,Node("section:"..section.key,section.label,"section"))
