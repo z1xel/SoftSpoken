@@ -41,6 +41,7 @@ local INSTANCE_ICON = "Interface\\AddOns\\SoftSpoken\\Textures\\QuestTypeIcons"
 local CHAIN_ICON = "Interface\\AddOns\\SoftSpoken\\Textures\\QuestChainIcon"
 local DUNGEON_UV = { 0.421875, 0.5625, 0, 0.28125 }
 local RAID_UV = { 0.703125, 0.84375, 0, 0.28125 }
+local PVP_UV = { 0.28125, 0.421875, 0.28125, 0.5625 } -- Row 2, column 3
 -- Full 18x18 quest-chain artwork occupies the top-left of its 32x32 TGA.
 local CHAIN_UV = { 0, 0.5625, 0, 0.5625 }
 local function RowHeight(item)
@@ -1078,6 +1079,8 @@ function List:DrawRows()
                 local iconUV,iconTexture
                 if item.kind=="chain" then
                     iconUV,iconTexture=CHAIN_UV,CHAIN_ICON
+                elseif item.iconType=="pvp" then
+                    iconUV,iconTexture=PVP_UV,INSTANCE_ICON
                 elseif item.instanceType=="dungeon" or item.instanceType=="raid" then
                     iconUV=item.instanceType=="raid" and RAID_UV or DUNGEON_UV
                     iconTexture=INSTANCE_ICON

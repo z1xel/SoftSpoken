@@ -22,6 +22,9 @@ local raceIDs={Human=1,Orc=2,Dwarf=3,NightElf=4,Scourge=5,Undead=5,
     Tauren=6,Gnome=7,Troll=8}
 local classIDs={WARRIOR=1,PALADIN=2,HUNTER=3,ROGUE=4,PRIEST=5,
     SHAMAN=7,MAGE=8,WARLOCK=9,DRUID=11}
+-- Use stable map/AreaTable IDs, never name matching, to mark PvP categories.
+local pvpZones={ [1459]=true,[1460]=true,[1461]=true } -- AV, WSG, AB
+local pvpAreas={ [4014]=true } -- Turtle Blood Ring arena
 -- Upstream's arithmetic race/class-mask check (avoids 32-bit bitwise truncation).
 local function Has(mask,id,bits)
     if not id or id<1 then return true end
@@ -226,6 +229,7 @@ function M:BuildTree()
         local zoneNode=Node("zone:"..zone,S:MapName(zone),"zone")
         zoneNodes[zone]=zoneNode
         zoneNode.mapID=zone
+        if pvpZones[zone] then zoneNode.iconType="pvp" end
         local byDungeon,normal={},{}
         for _,id in ipairs(zones[zone] or {}) do
             local entry=Raw().quests[id]
@@ -265,6 +269,7 @@ function M:BuildTree()
         local areaNode=Node("turtle-area:"..areaID,name,instance and "dungeon" or "zone")
         areaNode.areaID=areaID
         areaNode.instanceType=meta and meta.instanceType
+        if pvpAreas[areaID] then areaNode.iconType="pvp" end
         MakeLeaves(areaNode,turtleAreas[areaID])
         areaNodes[areaID]=areaNode
     end
