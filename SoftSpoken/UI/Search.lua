@@ -149,6 +149,16 @@ function Search:Build(parent)
     else
         box = CreateFrame("EditBox", "SpokenSettingsSearchBox", row, "InputBoxTemplate")
     end
+    -- The ornate border has a transparent center. Add an opaque backing
+    -- behind its three texture pieces so the header rock cannot show through.
+    if ornate and box.SetBackdrop then
+        box:SetBackdrop({
+            bgFile = [[Interface\Buttons\WHITE8X8]],
+            tile = true, tileSize = 8,
+            insets = {left = 0, right = 0, top = 0, bottom = 0},
+        })
+        box:SetBackdropColor(0, 0, 0, 1)
+    end
     box:SetHeight(21)
     box:SetPoint("TOPLEFT", row, "TOPLEFT", 0, -2)
     box:SetPoint("TOPRIGHT", row, "TOPRIGHT", 0, -2)
