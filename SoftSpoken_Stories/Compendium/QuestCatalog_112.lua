@@ -24,7 +24,7 @@ local classIDs={WARRIOR=1,PALADIN=2,HUNTER=3,ROGUE=4,PRIEST=5,
     SHAMAN=7,MAGE=8,WARLOCK=9,DRUID=11}
 -- Use stable map/AreaTable IDs, never name matching, to mark PvP categories.
 local pvpZones={ [1459]=true,[1460]=true,[1461]=true } -- AV, WSG, AB
-local pvpAreas={ [4014]=true } -- Turtle Blood Ring arena
+local pvpAreas={ [4014]=true,[5023]=true } -- Blood Ring arena, Sunnyglade Valley battleground
 -- Upstream's arithmetic race/class-mask check (avoids 32-bit bitwise truncation).
 local function Has(mask,id,bits)
     if not id or id<1 then return true end

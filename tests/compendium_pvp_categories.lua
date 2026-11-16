@@ -22,6 +22,7 @@ GetLocale=function() return "enUS" end
 SSCTurtleAreaMeta={
     [4014]={name="Blood Ring"},
     [5023]={name="Sunnyglade Valley"},
+    [5024]={name="Icepoint Rock"},
 }
 SpokenQuestsCompendium={quests={
     [1]={"AV",zones={1459}},
@@ -29,7 +30,8 @@ SpokenQuestsCompendium={quests={
     [3]={"AB",zones={1461}},
     [4]={"Ordinary zone",zones={1434}},
     [5]={"Blood Ring",turtleArea=4014},
-    [6]={"Other Turtle area",turtleArea=5023},
+    [6]={"Sunnyglade Valley",turtleArea=5023},
+    [7]={"Other Turtle area",turtleArea=5024},
 },sorts={}}
 dofile("SoftSpoken_Stories/Compendium/QuestCatalog_112.lua")
 local tree=SSCQuestCatalog:BuildTree()
@@ -44,5 +46,6 @@ for _,zone in ipairs({1459,1460,1461}) do
 end
 eq(found["turtle-area:4014"].iconType,"pvp","Blood Ring")
 eq(found["zone:1434"].iconType,nil,"regular zone")
-eq(found["turtle-area:5023"].iconType,nil,"regular Turtle area")
+eq(found["turtle-area:5023"].iconType,"pvp","Sunnyglade Valley")
+eq(found["turtle-area:5024"].iconType,nil,"regular Turtle area")
 print("PASS: battleground and arena categories receive PvP icon metadata")
