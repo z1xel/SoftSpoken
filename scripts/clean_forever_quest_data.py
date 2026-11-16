@@ -25,7 +25,7 @@ EXCLUSIONS = ROOT / "docs/forever_quest_exclusions.csv"
 CATALOG_ROW = re.compile(r"(?m)^\t\t\[(\d+)\] = \{[^\n]*\},(?:\r?\n|$)")
 TEXT_ROW = re.compile(r"(?m)^\t\[(\d+)\] = \{\r?\n[\s\S]*?^\t\},\r?\n")
 SORT_ROW = re.compile(r"(?m)^\t\t\[(\d+)\] = \{[^\n]*\},\r?\n")
-UNUSED_FOREVER_SORTS = {666, 676}
+UNUSED_FOREVER_SORTS = {666}
 
 
 def csv_rows(path):
