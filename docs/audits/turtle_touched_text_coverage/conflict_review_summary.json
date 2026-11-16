@@ -10,7 +10,9 @@
     "punctuation_or_whitespace": 163,
     "substantial_difference": 35
   },
-  "changed_quest_placeholder_tokens": 263,
+  "changed_literal_wow_directive_spelling": 259,
+  "changed_directive_sequences_after_case_normalization": 104,
+  "case_only_directive_changes": 155,
   "comparison_source": "Pinned Tortoise SQLite versus original Spoken Lua corpus",
   "classification": "Character similarity and punctuation screening, not proof of Turtle authorship",
   "dialogue_overwritten": false

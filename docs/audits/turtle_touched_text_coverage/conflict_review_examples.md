@@ -8,7 +8,9 @@ Read-only snapshots of a pinned community source; these are not confirmed live e
 | Moderate wording | 15 |
 | Punctuation or whitespace | 163 |
 | Substantial difference | 35 |
-| Changed WoW placeholder token sequences | 263 |
+| WoW directive spelling changed | 259 |
+| WoW directive case-only changes | 155 |
+| Different directive sequences after case-normalization | 104 |
 
 Each pair below shows only the first changed passage with short surrounding context.
 It is deliberately not a complete-text import manifest.
