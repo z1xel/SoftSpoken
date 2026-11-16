@@ -5,7 +5,7 @@ local created, instances, templateCount = {}, {}, 0
 local function MockFrame(name)
     local frame = { name = name, shown = false }
     function frame:GetName() return self.name end
-    function frame:GetHeight() return self.height or 330 end
+    function frame:GetHeight() return rawget(self, "height") or 330 end
     function frame:SetHeight(height) self.height = height end
     function frame:SetText(value) self.text = value end
     function frame:GetText() return self.text end
