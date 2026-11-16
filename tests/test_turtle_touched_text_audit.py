@@ -56,6 +56,19 @@ class TurtleTouchedTextTest(unittest.TestCase):
             **base, "category": "dialogue_difference_candidate",
             "source_migration_modified_stage": 1}))
 
+    def test_reviewed_stage_repair_is_exact_and_three_quests_only(self):
+        expected = a.reviewed_progress_corrections()
+        self.assertEqual(set(expected), {(6283,"progress"),(8051,"progress"),
+                                         (8146,"progress")})
+        for (qid,stage), text in expected.items():
+            self.assertTrue(a.matches_reviewed_correction(qid,stage,text,expected))
+            self.assertFalse(a.matches_reviewed_correction(
+                qid,stage,text+" (unverified)",expected))
+            self.assertFalse(a.matches_reviewed_correction(
+                qid,"complete",text,expected))
+            self.assertFalse(a.matches_reviewed_correction(
+                qid+1,stage,text,expected))
+
     def test_source_hash_never_contains_raw_text(self):
         self.assertEqual(len(a.sha("A historical quest")),64)
         self.assertEqual(a.sha(""),"")
