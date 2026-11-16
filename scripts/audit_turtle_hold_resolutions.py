@@ -54,7 +54,7 @@ def catalog_rows(path):
         qid=int(m[1])
         if qid in out:raise ValueError("Duplicate quest row "+str(qid))
         out[qid]={"title":json.loads(m[2]),"line":m[0]}
-    if len(out)!=7246:
+    if len(out)!=6646:
         raise ValueError("Unexpected catalog total "+str(len(out)))
     return out
 
