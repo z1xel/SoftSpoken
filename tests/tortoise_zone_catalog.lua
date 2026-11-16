@@ -10,6 +10,11 @@ SSCCompendium = {
 }
 -- Native/Forever UiMap labels must come only from the dedicated name table.
 dofile("SoftSpoken/Compendium/UI/MapNames.lua")
+dofile("SoftSpoken/Compendium/UI/DungeonNames.lua")
+assert(SSCCompendium.DungeonName(36)=="Deadmines")
+assert(SSCCompendium.DungeonName(3065)=="The Hall of Thanes")
+assert(SSCCompendium.DungeonName(99999)=="Dungeon 99999",
+    "Unmapped instance IDs must retain a numeric fallback")
 for id, name in pairs({
     [1459]="Alterac Valley", [1460]="Warsong Gulch",
     [1461]="Arathi Basin", [2521]="Zephras Isle",
@@ -34,6 +39,8 @@ SSCQuestState = {
 SpokenQuestsCompendium = {
     quests = {
         [820] = {"What Do You Rely On?", zones={1411}, starter=3304},
+        [72000] = {"Test Deadmines", zones={1411}, dungeon=36},
+        [72001] = {"Test Uldaman", zones={1411}, dungeon=70},
         [5892] = {"Irondeep Supplies", zones={1459}},
         [40004] = {"Winterax Champion", turtleArea=2597},
         [40005] = {"Gnome Stew", turtleArea=2597},
@@ -59,6 +66,14 @@ local native = assert(find(root,"zone:1411"),"Durotar group missing")
 assert(native.label=="Durotar")
 assert(native.mapID==1411)
 assert(find(native,"q:820"),"Quest 820 not located under Durotar")
+local deadmines=assert(find(native,"dungeon:1411:36"),"Dungeon 36 group missing")
+assert(deadmines.label=="Deadmines","Dungeon 36 must show its actual name")
+assert(find(deadmines,"q:72000"),"Dungeon quest must remain grouped")
+local uldaman=assert(find(native,"dungeon:1411:70"),"Dungeon 70 group missing")
+assert(uldaman.label=="Uldaman","Dungeon 70 must show its actual name")
+assert(find(uldaman,"q:72001"),"Dungeon 70 quest must remain grouped")
+assert(native.children[1].key=="dungeon:1411:36",
+    "Dungeon subcategories must sort by their resolved names")
 local alterac=assert(find(root,"zone:1459"),"Merged Alterac Valley group missing")
 assert(alterac.label=="Alterac Valley","Mapped UiMapID must use MapNames.lua")
 assert(alterac.mapID==1459,"Merged group must keep its UiMapID")
