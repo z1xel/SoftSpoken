@@ -7629,5 +7629,6 @@ SpokenQuestsCompendium = {
 		[367] = { "Reputation", deDE = "Ruf", esES = "Reputación", esMX = "Reputación", frFR = "Réputation", ptBR = "Reputação", ruRU = "Репутация", koKR = "평판", zhCN = "声望", zhTW = "聲望", itIT = "Reputazione" },
 		[368] = { "Invasion", deDE = "Invasion der Geißel", esES = "Invasión", esMX = "Invasión", ptBR = "Invasão", ruRU = "Вторжение", koKR = "침공", zhCN = "天灾入侵", zhTW = "入侵", itIT = "Invasione" },
 		[369] = { "Midsummer", deDE = "Sonnenwendfest", esES = "Verano", esMX = "Verano", frFR = "Solstice d'été", ptBR = "Solstício", ruRU = "Огненный солнцеворот", koKR = "한여름 불꽃축제", zhCN = "仲夏", zhTW = "仲夏", itIT = "Mezza Estate" },
+
 	},
 }
