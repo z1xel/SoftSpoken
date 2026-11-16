@@ -35,6 +35,23 @@ def content(v):
     s=norm(v)
     return s if s else ""
 def sha(s):return hashlib.sha256(s.encode("utf-8")).hexdigest() if s else ""
+def reviewed_progress_corrections(path=None):
+    """Exactly three verified stage repairs, not a broad source-override bypass."""
+    path=path or ROOT/"docs/audits/turtle_touched_text_coverage/verified_progress_corrections.json"
+    rows=json.loads(path.read_text(encoding="utf-8"))["corrections"]
+    pairs={(int(r["quest_id"]),r["stage"]):content(r["text"]) for r in rows}
+    if set(pairs)!={(6283,"progress"),(8051,"progress"),(8146,"progress")} or len(rows)!=3:
+        raise ValueError("Reviewed stage correction registry must contain exactly three progress stages")
+    if not all(pairs.values()):
+        raise ValueError("Reviewed progress correction body was blank")
+    return pairs
+
+
+def matches_reviewed_correction(quest_id,stage,override,corrected):
+    expected=corrected.get((quest_id,stage))
+    return bool(expected and content(override)==expected)
+
+
 def records(p):
     with p.open(encoding="utf-8-sig",newline="") as f:return list(csv.DictReader(f))
 def catalog(p):
@@ -163,6 +180,7 @@ def main():
         world=world_starters(c,set(titles))
     with sqlite3.connect("file:"+str(args.vanilla.resolve())+"?mode=ro",uri=True) as c:
         vanilla=get_vanilla(c)
+    corrected=reviewed_progress_corrections()
     static=get_static(args.lua_stages)
     listed,chosen,stages,held,uncorroborated=[],[],[],[],[]
     count=collections.Counter()
@@ -286,6 +304,9 @@ def main():
             elif over and over==source:
                 coverage="turtle_override_exact"
                 resolution="Already matched by Turtle override"
+            elif over and matches_reviewed_correction(id,stage,over,corrected):
+                coverage="reviewed_progress_correction"
+                resolution="Independently corroborated stage repair; pinned Tortoise has misassigned dialogue"
             elif over:
                 coverage="turtle_override_conflict"
                 resolution="Review source version vs Turtle overlay"
@@ -339,6 +360,7 @@ def main():
         "baseline":"Independent cMaNGOS Classic 1.12; differences are candidates, not confirmed deliberate Turtle edits.",
         "counts":dict(sorted(count.items())),
         "directly_supported_text_gaps":len(directly_supported),
+        "reviewed_progress_corrections":count["stage_reviewed_progress_correction"],
         "uncorroborated_cross_database_variants":len(uncorroborated),
         "pfquest_quest_override_ids":len(pfquest),
         "vanilla_pfquest_quest_ids":len(vanilla_pfquest),
