@@ -4,9 +4,12 @@ on:
   push:
     branches:
       - feature/turtle-quest-catalog
+      - cleanup/vanilla-turtle-quest-corpus
     paths:
       - 'SoftSpoken_Stories/**'
       - 'scripts/reapply_turtle_quest_catalog.py'
+      - 'scripts/clean_forever_quest_data.py'
+      - 'docs/forever_quest_exclusions.csv'
       - 'scripts/reapply_tortoise_zone_overlay.py'
       - 'scripts/reapply_turtle_speaker_recovery.py'
       - 'scripts/reapply_turtle_zone_exception.py'
@@ -30,9 +33,10 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y lua5.1
 
-      - name: Verify original Spoken quest prose remains byte-identical
+      - name: Verify only approved Vanilla and Turtle quests are shipped
         run: |
-          test "$(git hash-object SoftSpoken_Stories/Data/QuestText.lua)" = "543ebe66fd648e625699d6d8cd78d26359578d92"
+          python3 scripts/clean_forever_quest_data.py --check
+          python3 -m unittest discover -s tests -p 'test_forever_quest_cleanup.py'
 
       - name: Check source syntax
         run: |

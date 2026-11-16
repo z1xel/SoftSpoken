@@ -147,5 +147,13 @@ def main():
         ], check=True)
 
 
+    # Keep the shipped corpus Vanilla + reviewed Turtle only. This is
+    # intentionally last, after all curated quest/region/speaker overlays.
+    subprocess.run([
+        sys.executable, str(ROOT / "scripts/clean_forever_quest_data.py"),
+        "--check" if args.check else "--apply",
+        "--catalog", str(args.catalog),
+    ], check=True)
+
 if __name__ == "__main__":
     main()

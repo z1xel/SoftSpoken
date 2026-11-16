@@ -1591,7 +1591,6 @@ SpokenQuestsCompendium = {
 		[663] = { "Land Ho!", zones = { 1417 }, ender = 2610 },
 		[664] = { "Drowned Sorrows", zones = { 1417 } },
 		[665] = { "Sunken Treasure", zones = { 1417 }, ender = 2774 },
-		[666] = { "Sunken Treasure", zones = { 1417 }, prev = 665 },
 		[667] = { "Death From Below", zones = { 1417 }, prev = 670 },
 		[668] = { "Sunken Treasure", zones = { 1417 }, prev = 666, ender = 2610 },
 		[669] = { "Sunken Treasure", zones = { 1417 }, prev = 668, ender = 2487 },
@@ -1601,7 +1600,6 @@ SpokenQuestsCompendium = {
 		[673] = { "Foul Magics", zones = { 1417 }, prev = 671, races = 8589934770 },
 		[674] = { "Raising Spirits", zones = { 1417 }, prev = 672, ender = 2792, races = 8589934770 },
 		[675] = { "Raising Spirits", zones = { 1417 }, prev = 674, ender = 2706, races = 8589934770 },
-		[676] = { "The Hammer May Fall", zones = { 1424 }, ender = 2771, races = 8589934770 },
 		[677] = { "Call to Arms", zones = { 1417 }, prev = 676, races = 8589934770 },
 		[678] = { "Call to Arms", zones = { 1417 }, prev = 677, races = 8589934770 },
 		[679] = { "Call to Arms", zones = { 1417 }, prev = 678, races = 8589934770 },
@@ -7629,7 +7627,5 @@ SpokenQuestsCompendium = {
 		[367] = { "Reputation", deDE = "Ruf", esES = "Reputación", esMX = "Reputación", frFR = "Réputation", ptBR = "Reputação", ruRU = "Репутация", koKR = "평판", zhCN = "声望", zhTW = "聲望", itIT = "Reputazione" },
 		[368] = { "Invasion", deDE = "Invasion der Geißel", esES = "Invasión", esMX = "Invasión", ptBR = "Invasão", ruRU = "Вторжение", koKR = "침공", zhCN = "天灾入侵", zhTW = "入侵", itIT = "Invasione" },
 		[369] = { "Midsummer", deDE = "Sonnenwendfest", esES = "Verano", esMX = "Verano", frFR = "Solstice d'été", ptBR = "Solstício", ruRU = "Огненный солнцеворот", koKR = "한여름 불꽃축제", zhCN = "仲夏", zhTW = "仲夏", itIT = "Mezza Estate" },
-		[666] = { "Camping", deDE = "Lager aufschlagen", esES = "Acampando", esMX = "Campamento", frFR = "Campement", ptBR = "Acampamento", ruRU = "Отдых в лагере", koKR = "야영", zhCN = "露营", zhTW = "紮營" },
-		[676] = { "Night Elf", deDE = "Nachtelf", esES = "Elfo de la noche", esMX = "Elfo de la noche", frFR = "Elfe de la nuit", ptBR = "Elfo Noturno", ruRU = "Ночной эльф", koKR = "나이트 엘프", zhCN = "暗夜精灵", zhTW = "夜精靈" },
 	},
 }

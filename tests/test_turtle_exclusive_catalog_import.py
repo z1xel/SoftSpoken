@@ -53,7 +53,7 @@ class TurtleExclusiveCatalogTest(unittest.TestCase):
 
     def test_whole_source_accounted_for(self):
         self.assertEqual(len(self.source), 2451)
-        self.assertEqual(len(self.catalog), 7246)
+        self.assertEqual(len(self.catalog), 6646)
         counts = collections.Counter(r["status"] for r in self.source)
         self.assertEqual(counts, {"imported": 2247,
                                   "already_present": 130,

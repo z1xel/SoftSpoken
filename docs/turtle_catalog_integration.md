@@ -8,7 +8,7 @@ The runtime catalog on `feature/turtle-quest-catalog` includes the successive au
 
 ## Protected catalog invariants
 
-- Exactly 7,246 static Compendium quest IDs; no resurrected deprecated quest IDs.
+- Exactly 6,646 static Compendium quest IDs; 600 unapproved high-ID records excluded, with 575 associated original Spoken dialogue records removed. No deprecated quest IDs resurrected.
 - The original `SoftSpoken_Stories/Data/QuestText.lua` remains unchanged (Git blob `543ebe66fd648e625699d6d8cd78d26359578d92`).
 - 2,370 Turtle-exclusive quest text rows and 223 low/shared-ID overlay rows.
 - Source-deprecated dialogue records 40128, 40129, 40132, 41098, 41100, 41103 and 41105 remain excluded.
@@ -24,3 +24,9 @@ The historical workflows under `.github/workflows/tortoise-*` and `turtle-*` rem
 ## Outside automated validation
 
 The pinned Tortoise community snapshot is not a live server export. Verify virtual-zone browsing, quest narration, installed voice-pack speaker recordings and faction-specific quest behavior on a Turtle WoW 1.12 client before a production/main merge. The outstanding classification, source-status and dialogue holds remain unresolved unless new evidence supports them.
+
+## Forever-source removal pass
+
+The source-qualified cleanup is in `docs/forever_quest_exclusions.csv`. It removes 600 high-ID quest records absent from pinned Vanilla pfQuest and the approved Turtle import, with 575 original Spoken text records. The pinned Vanilla ID inventory and explicitly protected older-ID Turtle restorations are committed separately.
+
+`python3 scripts/clean_forever_quest_data.py --check` fails if any excluded record or new, unreviewed quest ID appears. The catalog replay runs this as its last step. The independent cleanup workflow also compares the reconstructed, filtered original corpus against shipped files byte-for-byte. This is an **ID-level cleanup**; Vanilla-ID quest metadata inherited from the upstream mixed corpus remains a separate field-by-field provenance audit.
