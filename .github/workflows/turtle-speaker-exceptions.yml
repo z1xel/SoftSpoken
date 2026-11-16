@@ -5,6 +5,10 @@ on:
     paths:
       - .github/workflows/turtle-speaker-exceptions.yml
       - scripts/audit_turtle_speaker_exceptions.py
+      - scripts/reapply_turtle_speaker_recovery.py
+      - scripts/reapply_turtle_quest_catalog.py
+      - docs/turtle_speaker_recovery.csv
+      - tests/test_turtle_exclusive_catalog_import.py
       - docs/turtle_exclusive_import.csv
       - SoftSpoken_Stories/Data/Compendium.lua
       - SoftSpoken_Stories/SpeakerResolver.lua
@@ -51,6 +55,11 @@ jobs:
           fs.writeFileSync('.speaker-source/data/tortoise.sqlite', sqlite);
           JS
 
+      - name: Validate guarded speaker-overlay replay and original import invariants
+        run: |
+          python3 scripts/reapply_turtle_speaker_recovery.py --check
+          python3 -m unittest discover -s tests -p 'test_turtle_exclusive_catalog_import.py'
+
       - name: Audit missing starter/ender relationships and plural speakers
         run: |
           python3 scripts/audit_turtle_speaker_exceptions.py \
@@ -66,7 +75,9 @@ jobs:
           assert meta['missing_ender_manifest']==31
           assert meta['multiple_speaker_manifest_quests']==len(multi)
           assert meta['voice_files_verified']==0
-          print('36 missing-side quests and',len(multi),'multi-speaker rows validated')
+          assert meta['recovered_missing_roles_in_compendium']==20
+          assert meta['multiple_manifest_vs_compendium_differences']==0
+          print('36 missing-side quests, 20 recovered roles, and',len(multi),'multi-speaker rows validated')
           PY
 
       - name: Commit text-free source evidence reports
