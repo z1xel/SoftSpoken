@@ -67,10 +67,8 @@ def clean(catalog, dialogue, denied):
 
     start, end, sort_start, sort_end = sections(catalog)
     sort_section = catalog[sort_start:sort_end]
-    kept_sort_ids = set(int(m[1]) for m in SORT_ROW.finditer(sort_section))
-    if not UNUSED_FOREVER_SORTS.issubset(kept_sort_ids) and not (
-            UNUSED_FOREVER_SORTS.isdisjoint(kept_sort_ids)):
-        raise ValueError("Partial unused-sort cleanup")
+    # Older upstream snapshots contain one or both Forever-only sort labels.
+    # Deleting whichever is present is deterministic and idempotent.
     sort_section = SORT_ROW.sub(
         lambda m: "" if int(m[1]) in UNUSED_FOREVER_SORTS else m[0],
         sort_section)
