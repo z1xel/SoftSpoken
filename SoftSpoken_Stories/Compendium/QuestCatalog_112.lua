@@ -168,17 +168,34 @@ local function SortedKeys(t, names)
     end)
     return keys
 end
+-- Preserve the client's own names; use verified AreaTable metadata when an
+-- imported UiMapID is unknown to the 1.12 map-name table.
+function M:ZoneName(id)
+    local name=S:MapName(id)
+    if name~=tostring(id) then return name end
+    for _,meta in pairs(_G.SSCTurtleAreaMeta or {}) do
+        if meta.uiMapID==id then return meta.name end
+    end
+    return name
+end
 function M:BuildTree()
     local all,zones,turtleAreas,sorts,unknown={},{},{},{},{}
+    local areaMeta=_G.SSCTurtleAreaMeta or {}
     for id,entry in pairs(Raw().quests) do
         if Allowed(entry) then
             all[id]=true
             if type(entry.zones)=="table" and table.getn(entry.zones)>0 then
                 for _,zone in ipairs(entry.zones) do AddTo(zones,zone,id) end
             elseif type(entry.turtleArea)=="number" and entry.turtleArea>0 then
-                -- Turtle AreaTable IDs are not native uiMapIDs. Keep their named
-                -- region grouping separate so we never navigate to a false map.
-                AddTo(turtleAreas,entry.turtleArea,id)
+                local meta=areaMeta[entry.turtleArea]
+                if meta and type(meta.uiMapID)=="number" and meta.uiMapID>0 then
+                    -- Only reviewed AreaTable-to-UiMap equivalents join native
+                    -- zones. Original quest AreaTable IDs remain unchanged.
+                    AddTo(zones,meta.uiMapID,id)
+                else
+                    -- Custom and unmapped 1.12 areas retain their own nodes.
+                    AddTo(turtleAreas,entry.turtleArea,id)
+                end
             elseif entry.sort then
                 AddTo(sorts,entry.sort,id)
             else
@@ -200,9 +217,9 @@ function M:BuildTree()
     local loose=Attach(root,Node("zones:other","Other Lands","section"))
     local cityIn=SSCCompendium and SSCCompendium.CITY_IN or {}
     local zoneNodes={}
-    local zoneIDs=SortedKeys(zones,function(id) return S:MapName(id) end)
+    local zoneIDs=SortedKeys(zones,function(id) return M:ZoneName(id) end)
     for _,zone in ipairs(zoneIDs) do
-        local zoneNode=Node("zone:"..zone,S:MapName(zone),"zone")
+        local zoneNode=Node("zone:"..zone,M:ZoneName(zone),"zone")
         zoneNodes[zone]=zoneNode
         zoneNode.mapID=zone
         local byDungeon,normal={},{}
@@ -225,10 +242,8 @@ function M:BuildTree()
         local parent=(cityIn[zone] and zoneNodes[cityIn[zone]]) or continents[cont] or loose
         Attach(parent,zoneNodes[zone])
     end
-    -- Turtle-only regions and instanced areas have no equivalent 1.12 UI map
-    -- ID. Their verified AreaTable metadata supplies a readable place name and
-    -- continent, without assigning a fabricated native map ID.
-    local areaMeta=_G.SSCTurtleAreaMeta or {}
+    -- Unmapped AreaTable regions retain independent named nodes without
+    -- pretending their identifiers are native UiMapIDs.
     for _,areaID in ipairs(SortedKeys(turtleAreas,function(k)
         local meta=areaMeta[k]
         return meta and meta.name or tostring(k)

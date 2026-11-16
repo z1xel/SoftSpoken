@@ -142,12 +142,16 @@ local function PageEntry()
     local place=""
     if entry and type(entry.zones)=="table" and table.getn(entry.zones)>0 then
         local names={}
-        for _,zone in ipairs(entry.zones) do table.insert(names,S:MapName(zone)) end
+        for _,zone in ipairs(entry.zones) do table.insert(names,M:ZoneName(zone)) end
         place=table.concat(names,", ")
     elseif entry and type(entry.turtleArea)=="number" and entry.turtleArea>0 then
-        -- Use the same Turtle AreaTable label as the quest browser tree.
+        -- Match the quest browser's verified map equivalences.
         local meta=_G.SSCTurtleAreaMeta and _G.SSCTurtleAreaMeta[entry.turtleArea]
-        place=meta and meta.name or ("Turtle Area "..entry.turtleArea)
+        if meta and meta.uiMapID then
+            place=M:ZoneName(meta.uiMapID)
+        else
+            place=meta and meta.name or ("Turtle Area "..entry.turtleArea)
+        end
     elseif entry and entry.sort then
         place=M:SortName(entry.sort)
     else
