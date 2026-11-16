@@ -2,7 +2,7 @@ name: Vanilla and Turtle quest corpus cleanup
 
 on:
   push:
-    branches: [cleanup/vanilla-turtle-quest-corpus]
+    branches: [cleanup/vanilla-turtle-quest-corpus, feature/turtle-quest-catalog]
     paths:
       - 'SoftSpoken_Stories/**'
       - 'scripts/clean_forever_quest_data.py'

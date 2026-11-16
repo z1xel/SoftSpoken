@@ -168,16 +168,6 @@ local function SortedKeys(t, names)
     end)
     return keys
 end
--- Preserve the client's own names; use verified AreaTable metadata when an
--- imported UiMapID is unknown to the 1.12 map-name table.
-function M:ZoneName(id)
-    local name=S:MapName(id)
-    if name~=tostring(id) then return name end
-    for _,meta in pairs(_G.SSCTurtleAreaMeta or {}) do
-        if meta.uiMapID==id then return meta.name end
-    end
-    return name
-end
 function M:BuildTree()
     local all,zones,turtleAreas,sorts,unknown={},{},{},{},{}
     local areaMeta=_G.SSCTurtleAreaMeta or {}
@@ -217,9 +207,9 @@ function M:BuildTree()
     local loose=Attach(root,Node("zones:other","Other Lands","section"))
     local cityIn=SSCCompendium and SSCCompendium.CITY_IN or {}
     local zoneNodes={}
-    local zoneIDs=SortedKeys(zones,function(id) return M:ZoneName(id) end)
+    local zoneIDs=SortedKeys(zones,function(id) return S:MapName(id) end)
     for _,zone in ipairs(zoneIDs) do
-        local zoneNode=Node("zone:"..zone,M:ZoneName(zone),"zone")
+        local zoneNode=Node("zone:"..zone,S:MapName(zone),"zone")
         zoneNodes[zone]=zoneNode
         zoneNode.mapID=zone
         local byDungeon,normal={},{}
