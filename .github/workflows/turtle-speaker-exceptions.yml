@@ -1,0 +1,82 @@
+name: Turtle quest speaker and voice metadata exception audit
+on:
+  push:
+    branches: [audit/turtle-touched-text-coverage]
+    paths:
+      - .github/workflows/turtle-speaker-exceptions.yml
+      - scripts/audit_turtle_speaker_exceptions.py
+      - docs/turtle_exclusive_import.csv
+      - SoftSpoken_Stories/Data/Compendium.lua
+      - SoftSpoken_Stories/SpeakerResolver.lua
+      - SoftSpoken_Stories/DataModules.lua
+  workflow_dispatch:
+concurrency:
+  group: turtle-speaker-exceptions-audit
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  speaker-exceptions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout isolated audit branch
+        uses: actions/checkout@v4
+
+      - name: Checkout immutable Turtle SQLite snapshot
+        uses: actions/checkout@v4
+        with:
+          repository: Xian55/tortoise-db-viewer
+          ref: 567ce23c73087e9b67fd2d4732c171d751e54bba
+          path: .speaker-source
+          sparse-checkout: |
+            data/tortoise.sqlite.br
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Verify source blob and decompress
+        run: |
+          node - <<'JS'
+          const fs = require('fs'), zlib = require('zlib'), crypto = require('crypto');
+          const source = '.speaker-source/data/tortoise.sqlite.br';
+          const compressed = fs.readFileSync(source);
+          const sha = crypto.createHash('sha1')
+              .update(Buffer.from('blob ' + compressed.length + '\0'))
+              .update(compressed).digest('hex');
+          if (sha !== '7b126fce5260502fa40f9f6b67190f920e60a0f6')
+              throw Error('Immutable Turtle snapshot changed: ' + sha);
+          const sqlite = zlib.brotliDecompressSync(compressed);
+          if (sqlite.subarray(0, 16).toString('latin1') !== 'SQLite format 3\0')
+              throw Error('Invalid SQLite file');
+          fs.writeFileSync('.speaker-source/data/tortoise.sqlite', sqlite);
+          JS
+
+      - name: Audit missing starter/ender relationships and plural speakers
+        run: |
+          python3 scripts/audit_turtle_speaker_exceptions.py \
+            --db .speaker-source/data/tortoise.sqlite
+          python3 - <<'PY'
+          import csv,json,pathlib
+          d=pathlib.Path('docs/audits/turtle_speaker_exceptions')
+          meta=json.loads((d/'summary.json').read_text())
+          gaps=list(csv.DictReader((d/'missing_36_source_review.csv').open()))
+          multi=list(csv.DictReader((d/'multiple_speaker_review.csv').open()))
+          assert len(gaps)==36
+          assert meta['missing_starter_manifest']==31
+          assert meta['missing_ender_manifest']==31
+          assert meta['multiple_speaker_manifest_quests']==len(multi)
+          assert meta['voice_files_verified']==0
+          print('36 missing-side quests and',len(multi),'multi-speaker rows validated')
+          PY
+
+      - name: Commit text-free source evidence reports
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/audits/turtle_speaker_exceptions/
+          if ! git diff --cached --quiet; then
+            git commit -m 'Audit 36 Turtle speaker exceptions and multi-speaker metadata'
+            git fetch origin audit/turtle-touched-text-coverage
+            git rebase origin/audit/turtle-touched-text-coverage
+            git push origin HEAD:audit/turtle-touched-text-coverage
+          fi
