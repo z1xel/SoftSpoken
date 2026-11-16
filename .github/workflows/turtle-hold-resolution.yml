@@ -93,7 +93,8 @@ jobs:
           assert s.count("-- BEGIN verified Turtle title alias quest 41797")==1
           assert len(re.findall(r"(?m)^    (?:accept|progress|complete) = ",s.split("-- BEGIN verified Turtle title alias quest 41797")[-1]))==3
           assert s.count("SSCTurtleQuestText[41797] = {")==1
-          assert "SSCTurtleQuestText[40128]" in s
+          for qid in (40128,40129,40132,41098,41100,41103,41105):
+              assert "SSCTurtleQuestText["+str(qid)+"]" not in s
           assert "SSCTurtleQuestText[41105]" not in s
           assert "SSCTurtleQuestText[9034].complete" in s
           print("41797 imported without restoring seven deprecated title-conflict quests")
