@@ -954,8 +954,6 @@ SpokenQuestsCompendium = {
 	},
 
 	quests = {
-		[676] = { "The Hammer May Fall", zones = { 1424 }, ender = 2771, races = 8589934770 },
-		[666] = { "Sunken Treasure", zones = { 1417 }, prev = 665 },
 		[2] = { "Sharptalon's Claw", zones = { 1440 }, prev = 6383, ender = 12696, races = 8589934770 },
 		[5] = { "Jitters' Growling Gut", zones = { 1431 }, ender = 272, races = 4294967373 },
 		[6] = { "Bounty on Garrick Padfoot", zones = { 1429 }, prev = 18, races = 4294967373 },
@@ -1593,6 +1591,7 @@ SpokenQuestsCompendium = {
 		[663] = { "Land Ho!", zones = { 1417 }, ender = 2610 },
 		[664] = { "Drowned Sorrows", zones = { 1417 } },
 		[665] = { "Sunken Treasure", zones = { 1417 }, ender = 2774 },
+		[666] = { "Sunken Treasure", zones = { 1417 }, prev = 665 },
 		[667] = { "Death From Below", zones = { 1417 }, prev = 670 },
 		[668] = { "Sunken Treasure", zones = { 1417 }, prev = 666, ender = 2610 },
 		[669] = { "Sunken Treasure", zones = { 1417 }, prev = 668, ender = 2487 },
@@ -1602,6 +1601,7 @@ SpokenQuestsCompendium = {
 		[673] = { "Foul Magics", zones = { 1417 }, prev = 671, races = 8589934770 },
 		[674] = { "Raising Spirits", zones = { 1417 }, prev = 672, ender = 2792, races = 8589934770 },
 		[675] = { "Raising Spirits", zones = { 1417 }, prev = 674, ender = 2706, races = 8589934770 },
+		[676] = { "The Hammer May Fall", zones = { 1424 }, ender = 2771, races = 8589934770 },
 		[677] = { "Call to Arms", zones = { 1417 }, prev = 676, races = 8589934770 },
 		[678] = { "Call to Arms", zones = { 1417 }, prev = 677, races = 8589934770 },
 		[679] = { "Call to Arms", zones = { 1417 }, prev = 678, races = 8589934770 },
