@@ -52,10 +52,29 @@ end
 local function ModuleNumber(addon, suffix)
     return tonumber(ModuleMeta(addon, suffix) or "")
 end
---- Whether the player switched the addon off in the AddOns list for this character. Not
---- GetAddOnEnableState: given a name rather than a GUID, C_AddOns answers for all characters.
+-- Vanilla 1.12 GetAddOnInfo returns (name, title, notes, enabled, loadable, reason,
+-- security); later clients omit "enabled". Normalize before inspecting loadability.
+local function AddOnInfo(addon)
+    local name, title, notes, fourth, fifth, sixth = GetAddOnInfo(addon)
+    if type(fifth) == "boolean" or type(fifth) == "number" then
+        return name, title, notes, fifth, sixth, fourth
+    end
+    return name, title, notes, fourth, fifth, nil
+end
+
+-- Check the current character's enabled state, not whether the pack has already
+-- loaded. A disabled LoadOnDemand pack is still a candidate for deferred startup.
 local function SwitchedOff(addon)
-    local _, _, _, loadable, reason = GetAddOnInfo(addon)
+    if GetAddOnEnableState then
+        local ok, state = pcall(GetAddOnEnableState, nil, addon)
+        if ok and type(state) == "number" then
+            return state == 0
+        end
+    end
+    local _, _, _, loadable, reason, enabled = AddOnInfo(addon)
+    if enabled ~= nil then
+        return enabled == false or enabled == 0
+    end
     return not loadable and reason == "DISABLED"
 end
 local LOAD_ALL_MODULES = true
@@ -339,7 +358,7 @@ function DataModules:EnumerateAddons(loadModules)
 
     for i = 1, GetNumAddOns() do
         local moduleVersion = ModuleNumber(i, "Version")
-        if moduleVersion and not SwitchedOff(i) then
+        if moduleVersion then
             local name = GetAddOnInfo(i)
             local mapsString = ModuleMeta(i, "Maps")
             local maps = {}
@@ -465,6 +484,21 @@ function DataModules:LoadModule(module)
         return false, self.loadErrors[module.AddonName]
     end
 
+    -- A third-party addon manager may have disabled this pack. Re-enable it once
+    -- just before the deferred LoadAddOn; never disable it afterward or poll pfUI.
+    -- The already-registered Lua tables remain usable if its flag changes later.
+    if SwitchedOff(module.AddonName) then
+        if type(EnableAddOn) ~= "function" then
+            self.loadErrors[module.AddonName] = "ENABLE_UNAVAILABLE"
+            return false, self.loadErrors[module.AddonName]
+        end
+        local enabled, enableError = pcall(EnableAddOn, module.AddonName)
+        if not enabled then
+            self.loadErrors[module.AddonName] = "ENABLE_FAILED: " .. tostring(enableError)
+            return false, self.loadErrors[module.AddonName]
+        end
+    end
+
     EnableOutOfDate(module.AddonName)
     local callSucceeded, loaded, reason = pcall(LoadAddOn, module.AddonName)
     RestoreOutOfDate(module.AddonName)
@@ -495,8 +529,10 @@ end
 
 function DataModules:GetModuleAddOnInfo(module)
     EnableOutOfDate(module.AddonName)
-    local name, title, notes, loadable, reason = GetAddOnInfo(module.AddonName)
+    local name, title, notes, loadable, reason = AddOnInfo(module.AddonName)
     RestoreOutOfDate(module.AddonName)
+    -- Disabling an already-loaded pack does not unregister its data.
+    if self:GetModule(module.AddonName) then reason = nil end
     return name, title, notes, loadable, reason
 end
 
