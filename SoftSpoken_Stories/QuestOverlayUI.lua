@@ -1,6 +1,6 @@
 setfenv(1, VoiceOver)
 
-local TEXTURES = format([[Interface\AddOns\%s\Textures\]], AddonFolder)
+local TEXTURES = [[Interface\AddOns\SoftSpoken\Textures\]]
 
 ---@class QuestPlayButton : Button
 ---@field soundData SoundData

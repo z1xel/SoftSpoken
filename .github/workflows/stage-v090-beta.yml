@@ -17,6 +17,8 @@ on:
       - "tests/test_release_version.py"
       - "tests/test_ui_packaging.py"
       - "SoftSpoken_Places/Textures/**"
+      - "SoftSpoken_Stories/Textures/**"
+      - "SoftSpoken/Textures/**"
       - ".github/workflows/stage-v090-beta.yml"
   workflow_dispatch:
 

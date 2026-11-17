@@ -192,9 +192,9 @@ local PORTRAIT_IMAGE_SIZE = 54
 local function SourceUnits(v) return v * RING_UI_SIZE / RING_SOURCE_SIZE end
 -- Use the same 14-unit quest bullets as the narration player.
 local PORTRAIT_BADGES = {
-    accept = "Interface\\AddOns\\SoftSpoken_Stories\\Textures\\SoundQueueBulletAccept",
-    progress = "Interface\\AddOns\\SoftSpoken_Stories\\Textures\\SoundQueueBulletProgress",
-    complete = "Interface\\AddOns\\SoftSpoken_Stories\\Textures\\SoundQueueBulletComplete",
+    accept = "Interface\\AddOns\\SoftSpoken\\Textures\\SoundQueueBulletAccept",
+    progress = "Interface\\AddOns\\SoftSpoken\\Textures\\SoundQueueBulletProgress",
+    complete = "Interface\\AddOns\\SoftSpoken\\Textures\\SoundQueueBulletComplete",
 }
 -- Portraits are plain 2D Texture regions inside the scroll child: never
 -- create Model/PlayerModel frames here (they break 1.12 scroll clipping).

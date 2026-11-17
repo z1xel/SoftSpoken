@@ -262,9 +262,9 @@ for _,stage in ipairs({"accept","progress","complete"}) do
     near(f.icon.point[5],(38.5-36.5)*68/77,stage.." face aperture y offset")
     -- All three dialogue moments reuse their narration-player quest bullets.
     local expectedBadges = {
-        accept = [[Interface\AddOns\SoftSpoken_Stories\Textures\SoundQueueBulletAccept]],
-        progress = [[Interface\AddOns\SoftSpoken_Stories\Textures\SoundQueueBulletProgress]],
-        complete = [[Interface\AddOns\SoftSpoken_Stories\Textures\SoundQueueBulletComplete]],
+        accept = [[Interface\AddOns\SoftSpoken\Textures\SoundQueueBulletAccept]],
+        progress = [[Interface\AddOns\SoftSpoken\Textures\SoundQueueBulletProgress]],
+        complete = [[Interface\AddOns\SoftSpoken\Textures\SoundQueueBulletComplete]],
     }
     eq(f.badge.texture,expectedBadges[stage],stage.." quest bullet")
     eq(f.badge.parent,f.badgeLayer,stage.." bullet belongs to higher frame")

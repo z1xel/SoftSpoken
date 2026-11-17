@@ -12,7 +12,7 @@ setfenv(1, VoiceOver)
 -- below them is shared.
 Player = { source = nil, gossipSource = nil }
 
-local TEXTURES = format([[Interface\AddOns\%s\Textures\]], AddonFolder)
+local TEXTURES = [[Interface\AddOns\SoftSpoken\Textures\]]
 -- The packs that hold quests alone. Every other pack holds gossip too.
 local QUEST_ONLY = {
     SpokenQuestsAudioAlliance = true,

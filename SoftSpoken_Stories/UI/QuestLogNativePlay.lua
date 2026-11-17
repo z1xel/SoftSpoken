@@ -6,7 +6,7 @@ setfenv(1, VoiceOver)
 
 local originalMakePlayButton = QuestOverlayUI.MakePlayButton
 local originalSetPlayButtonState = QuestOverlayUI.SetPlayButtonState
-local ROOT = format([[Interface\AddOns\%s\Textures\]], AddonFolder)
+local ROOT = [[Interface\AddOns\SoftSpoken\Textures\]]
 local PLAY = ROOT .. "QuestLogPlayButtonNative"
 local PLAY_DOWN = ROOT .. "QuestLogPlayButtonNativeDown"
 local STOP = ROOT .. "QuestLogStopButtonNative"

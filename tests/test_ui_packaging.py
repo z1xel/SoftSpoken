@@ -35,6 +35,19 @@ REQUIRED_RUNTIME = (
     "SoftSpoken/Compendium/Textures/Skin/UI-Background-Rock-Classic.tga",
     "SoftSpoken/Compendium/Textures/Art/PortraitRing.tga",
     "SoftSpoken/Textures/TalkingHeads/PortraitNeutral.tga",
+    # Core owns every small UI icon; specialist add-ons only supply data/code.
+    "SoftSpoken/Textures/QuestLogPlayButton.blp",
+    "SoftSpoken/Textures/QuestLogStopButton.blp",
+    "SoftSpoken/Textures/QuestLogPlayButtonNative.tga",
+    "SoftSpoken/Textures/QuestLogPlayButtonNativeDown.tga",
+    "SoftSpoken/Textures/QuestLogStopButtonNative.tga",
+    "SoftSpoken/Textures/QuestLogStopButtonNativeDown.tga",
+    "SoftSpoken/Textures/StopGossip.blp",
+    "SoftSpoken/Textures/StopGossipMore.blp",
+    "SoftSpoken/Textures/SoundQueueBulletAccept.blp",
+    "SoftSpoken/Textures/SoundQueueBulletProgress.blp",
+    "SoftSpoken/Textures/SoundQueueBulletComplete.blp",
+    "SoftSpoken/Textures/SoundQueueBulletGossip.blp",
 )
 REQUIRED_SOURCES = (
     "docs/artwork/compendium/PortraitRing-source.png",
@@ -56,6 +69,31 @@ for name in REQUIRED_RUNTIME + REQUIRED_SOURCES:
 for obsolete_dir in ("Art", "ClassicFrames", "Controls"):
     obsolete_path = ROOT / "SoftSpoken_Places/Textures" / obsolete_dir
     assert not obsolete_path.exists(), f"Retired Places UI art reintroduced: {obsolete_path}"
+
+# Texture ownership policy: Stories and Writings have no local texture assets.
+# Places retains *only* its location pictures, which remain dynamically mapped.
+for module in ("SoftSpoken_Stories", "SoftSpoken_Writings"):
+    assert not (ROOT / module / "Textures").exists(), (
+        f"{module} must resolve small UI textures from SoftSpoken/Textures"
+    )
+places = ROOT / "SoftSpoken_Places/Textures"
+assert (places / "Pictures").is_dir(), "Places location illustrations must remain available"
+assert not any(p.is_file() for p in places.rglob("*") if "Pictures" not in p.relative_to(places).parts), (
+    "Only location pictures belong in SoftSpoken_Places/Textures"
+)
+
+# Check literal and constructed runtime texture roots, not just file existence.
+core_root = "Interface\\AddOns\\SoftSpoken\\Textures\\"
+for path in (
+    "SoftSpoken_Stories/Player.lua",
+    "SoftSpoken_Stories/QuestOverlayUI.lua",
+    "SoftSpoken_Stories/UI/QuestLogNativePlay.lua",
+    "SoftSpoken_Stories/Compendium/QuestPage_112.lua",
+):
+    code = (ROOT / path).read_text(encoding="utf-8").replace("\\\\", "\\")
+    assert core_root in code, f"{path}: Core's texture root is not in use"
+    assert "SoftSpoken_Stories\\Textures" not in code, f"{path}: stale Stories texture path"
+    assert "Interface\\AddOns\\%s\\Textures" not in code, f"{path}: dynamic addon-relative texture root remains"
 
 classic_skin = (ROOT / "SoftSpoken/Compendium/UI/ClassicFrameSkin.lua").read_text(encoding="utf-8")
 assert r"SoftSpoken\Compendium\Textures\ClassicFrames" in classic_skin.replace("\\\\", "\\"), (
