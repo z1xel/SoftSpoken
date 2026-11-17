@@ -159,6 +159,32 @@ These voice packs originate from [Spoken](https://github.com/rusty-key/spoken-wo
 
 **Installing voice packs:** Download the packs you want and extract them directly into `Interface\AddOns`, alongside the SoftSpoken modules. No separate compatibility patch is needed for the linked Places and Writings packs.
 
+**Important:** The `SpokenQuestsAudioAll` download contains four separate voicepack folders. Place those folders directly inside `Interface\AddOns`—**not** inside an extra `SpokenQuestsAudioAll` folder.
+
+For example, a complete installation with all the optional voice packs might look like this:
+
+```text
+Interface/
+└── AddOns/
+    ├── SoftSpoken/
+    ├── SoftSpoken_Stories/
+    ├── SoftSpoken_Places/
+    ├── SoftSpoken_Writings/
+    │
+    ├── SpokenQuestsAudioAlliance/
+    ├── SpokenQuestsAudioHorde/
+    ├── SpokenQuestsAudioShared/
+    ├── SpokenQuestsAudioGossip/
+    │
+    ├── SpokenZonesAudio/
+    ├── SpokenBooksAudio/
+    │
+    ├── AI_VoiceOverData_Turtle/
+    └── SSS_VOFallback/
+```
+
+You only need to install the voice packs you intend to use. Each installed pack should have its own folder directly under `AddOns`.
+
 After login, open `/softspoken` and check the **Voice Packs** section of each module to confirm it detected your installation.
 
 ### Additional Quest Audio
