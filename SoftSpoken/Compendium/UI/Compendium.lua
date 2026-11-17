@@ -1095,7 +1095,7 @@ function List:DrawRows()
                         b.categoryIcon:SetTexture(iconTexture)
                         b.categoryTexture=iconTexture
                     end
-                    b.categoryIcon:SetPoint("LEFT",b,"LEFT",28+indent-ROW_CONTENT_SHIFT,0)
+                    b.categoryIcon:SetPoint("LEFT",b,"LEFT",28+indent-ROW_CONTENT_SHIFT-ROW_TEXT_SHIFT,0)
                     b.categoryIcon:SetTexCoord(unpack(iconUV))
                     b.categoryIcon:Show()
                     b.label:SetPoint("LEFT",b,"LEFT",50+indent-ROW_CONTENT_SHIFT-ROW_TEXT_SHIFT,0)
