@@ -401,26 +401,6 @@ local function Build(canvas)
         Only(fade, InWindow)
         Requires(fade, Words, L.REASON_WORDS)
     end
-    -- The following options need the full modern transcript engine.
-    if not Transcript.unavailable then
-        Only(layout:Checkbox(L.TRANSCRIPT_SHOW, L.TRANSCRIPT_SHOW_TIP,
-            function() return transcript().Enabled end,
-            function(v) Transcript:SetEnabled(v) end, function() Options:UpdateRows() end), Shown)
-        local typewriter = layout:Checkbox(L.TRANSCRIPT_TYPEWRITER, L.TRANSCRIPT_TYPEWRITER_TIP,
-            function() return transcript().Typewriter end,
-            function(v) transcript().Typewriter = v end, refreshTranscript)
-        Only(typewriter, Shown)
-        Requires(typewriter, Words, L.REASON_WORDS)
-        -- How the subtitles type, under it: letter by letter, or whole words.
-        layout:Indent()
-        local by = layout:Dropdown(L.TRANSCRIPT_TYPEWRITER_BY, L.TRANSCRIPT_TYPEWRITER_BY_TIP, { "word", "letter" },
-            function() return transcript().TypewriterBy or "letter" end,
-            function(v) transcript().TypewriterBy = v end, refreshTranscript,
-            function(v) return v == "letter" and L.TRANSCRIPT_BY_LETTER or L.TRANSCRIPT_BY_WORD end)
-        layout:Outdent()
-        Only(by, Subtitles)
-        Requires(by, function() return Words() and transcript().Typewriter end, L.REASON_TYPEWRITER)
-    end
     -- Upstream's Show Progress Bar applies to every visible narrator;
     -- this 1.12 port currently supports Large Window and Voice Only.
     -- The meter is an estimate; only ClassicAPI determines audio completion.
@@ -485,50 +465,6 @@ local function Build(canvas)
     -- No "hide the window" switch: nothing on screen at all is Voice Only, a way of showing
     -- lines like the others, chosen with them above.
 
-    if not Transcript.unavailable then
-        layout:Section(L.OPT_TEXT_TITLE)
-        local function InWindowText(row)
-            Only(row, InWindow)
-            Requires(row, Words, L.REASON_WORDS)
-        end
-        InWindowText(layout:Slider(L.TRANSCRIPT_SIZE, 12, 26, 1,
-            function() return transcript().FontSize end,
-            function(v) transcript().FontSize = v end, refreshTranscript, Layout.Number, L.TRANSCRIPT_SIZE_TIP))
-        InWindowText(layout:Slider(L.TRANSCRIPT_LINES, 1, 2, 1,
-            function() return transcript().Lines end,
-            function(v) transcript().Lines = v end, refreshTranscript, Layout.Number, L.TRANSCRIPT_LINES_TIP))
-        local SCROLL_LABELS = { line = L.TRANSCRIPT_SCROLL_LINE, page = L.TRANSCRIPT_SCROLL_PAGE,
-            off = L.TRANSCRIPT_SCROLL_OFF }
-        InWindowText(layout:Dropdown(L.TRANSCRIPT_SCROLL, L.TRANSCRIPT_SCROLL_TIP, { "line", "page", "off" },
-            function() return Transcript:ScrollMode() end,
-            function(v) transcript().ScrollMode = v; Transcript.manualScroll = false end, refreshTranscript,
-            function(v) return SCROLL_LABELS[v] or v end))
-
-        layout:Section(L.OPT_SUBTITLE_TITLE)
-        local function ForSubtitles(row)
-            Only(row, Subtitles)
-            Requires(row, Words, L.REASON_WORDS)
-        end
-        -- These two are the subtitle's alone: redrawing it is enough, on every step of a drag,
-        -- without the captions' full refresh and every row's.
-        local refreshSubtitle = function() Subtitle:Update() end
-        ForSubtitles(layout:Slider(L.OPT_SUBTITLE_SIZE, 0.6, 1.6, 0.05,
-            function() return transcript().SubtitleScale end,
-            function(v) transcript().SubtitleScale = v end, refreshSubtitle, nil, L.OPT_SUBTITLE_SIZE_TIP))
-        ForSubtitles(layout:Slider(L.OPT_SUBTITLE_SENTENCES, 1, 4, 1,
-            function() return transcript().SubtitleSentences or 3 end,
-            function(v) transcript().SubtitleSentences = v end, refreshSubtitle, Layout.Number, L.OPT_SUBTITLE_SENTENCES_TIP))
-        ForSubtitles(layout:Slider(L.TRANSCRIPT_SHADOW, 0, 1, 0.05,
-            function() return transcript().SubtitleShadow end,
-            function(v) transcript().SubtitleShadow = v end, refreshSubtitle, nil, L.TRANSCRIPT_SHADOW_TIP))
-        ForSubtitles(layout:Checkbox(L.OPT_SUBTITLE_PROGRESS, L.OPT_SUBTITLE_PROGRESS_TIP,
-            function() return transcript().SubtitleProgress ~= false end,
-            function(v) transcript().SubtitleProgress = v end, refreshSubtitle))
-        panel.sampleButton = Only(layout:Button(L.SUBTITLE_SAMPLE_SHOW, 200, function()
-            Subtitle:ShowSample(not Subtitle:IsShowingSample())
-            Options:UpdateRows()
-        end, L.SUBTITLE_SAMPLE_TIP), Subtitles)
-    end
 
     -- The narrator style's settings end here; what follows is Spoken's whatever the style.
     layout:EndGroup()
