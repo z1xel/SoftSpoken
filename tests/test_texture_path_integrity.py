@@ -29,7 +29,9 @@ ROOT_ASSIGN = re.compile(r"""\b([A-Za-z_]\w*)\s*=\s*(?:\[\[|["'])""")
 
 def check(path, owner, line, kind):
     path = path.replace("\\", "/")
-    if path.endswith("/"):
+    if path.endswith("/") or path.endswith("-"):
+        # Some Blizzard atlas filenames are assembled from a shared prefix
+        # (e.g. UI-ChatIM-SizeGrabber- + Up/Down/Highlight).
         exists = any(p.startswith(path) for p in all_assets)
         matches = [path] if exists else []
     elif path.lower().endswith(ASSET_SUFFIXES):
