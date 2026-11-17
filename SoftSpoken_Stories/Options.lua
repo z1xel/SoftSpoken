@@ -152,9 +152,10 @@ function Options:AddDataModule(module, order)
     DataModulesTab.args[module.AddonName] = {
         name = function()
             local isLoaded = DataModules:GetModule(module.AddonName)
+            local loadFailed = DataModules:GetModuleLoadError(module.AddonName)
             return format("%d. %s%s%s|r",
                 order,
-                reason and RED_FONT_COLOR_CODE or isLoaded and HIGHLIGHT_FONT_COLOR_CODE or GRAY_FONT_COLOR_CODE,
+                (reason or loadFailed) and RED_FONT_COLOR_CODE or isLoaded and HIGHLIGHT_FONT_COLOR_CODE or GRAY_FONT_COLOR_CODE,
                 string.gsub(module.Title, "VoiceOver Data %- ", ""),
                 isLoaded and "" or L.OPT_NOT_LOADED_SUFFIX)
         end,
@@ -169,6 +170,17 @@ function Options:AddDataModule(module, order)
             ContentVersion = MakeDescription(L.OPT_ROW_CONTENT_VERSION, module.ContentVersion),
             LoadOnDemand = MakeDescription(L.OPT_ROW_LOAD_ON_DEMAND, module.LoadOnDemand and YES or NO),
             Loaded = MakeDescription(L.OPT_ROW_LOADED, function() return DataModules:GetModule(module.AddonName) and YES or NO end),
+            LoadFailure = {
+                type = "description",
+                order = GetNextOrder(),
+                name = function()
+                    local _, failure = DataModules:GetModuleLoadStatus(module.AddonName)
+                    return format("%sLoad failure: |r%s", RED_FONT_COLOR_CODE, tostring(failure or "UNKNOWN"))
+                end,
+                hidden = function()
+                    return DataModules:GetModuleLoadStatus(module.AddonName) ~= "failed"
+                end,
+            },
             NotLoadableReason = {
                 type = "description",
                 order = GetNextOrder(),
@@ -280,21 +292,22 @@ function Options:DiagnosticsLines()
                 AudioCVar("MasterVolume"), AudioCVar("MasterSoundEffects"),
                 AudioCVar("SoundVolume"), AudioCVar("MusicVolume"), AudioCVar("AmbienceVolume")))
 
-            local presentCount, registeredCount = 0, 0
+            local summary = DataModules:GetLoadSummary()
             for _, module in DataModules:GetPresentModules() do
-                presentCount = presentCount + 1
-                local registered = DataModules:GetModule(module.AddonName) ~= nil
-                if registered then
-                    registeredCount = registeredCount + 1
+                local status, failure = DataModules:GetModuleLoadStatus(module.AddonName)
+                if status == "not attempted" and Addon.dataModulesPending then
+                    status = "waiting for deferred load"
+                elseif status == "failed" then
+                    status = "failed: " .. tostring(failure)
                 end
-                local status = registered and "loaded" or (DataModules:GetModuleLoadError(module.AddonName) or "not loaded")
                 Add(format("Data: %s (%s) - %s", module.AddonName,
                     module.ContentVersion or "unknown version", status))
             end
-            if presentCount == 0 then
+            if summary.detected == 0 then
                 Add("Data: no sound packs were detected")
             else
-                Add(format("Data modules: %d detected, %d loaded", presentCount, registeredCount))
+                Add(format("Data modules: %d detected, %d loaded, %d failed, %d not attempted",
+                    summary.detected, summary.loaded, summary.failed, summary.notAttempted))
             end
             local stage, message = Debug:GetRuntimeStatus()
             Add(format("Last runtime stage: %s - %s", stage or "none", message or "no details"))

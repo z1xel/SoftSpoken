@@ -178,3 +178,5 @@ jobs:
         run: lua5.1 tests/audio_pack_priority_guardrails.lua
       - name: Check legacy and current voice pack registries
         run: lua5.1 tests/audio_pack_registry_compatibility.lua
+      - name: Check Stories partial loading failure diagnostics
+        run: lua5.1 tests/audio_pack_load_outcomes.lua

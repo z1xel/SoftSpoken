@@ -530,8 +530,15 @@ function Addon:OnInitialize()
         if not succeeded then
             self.dataModulesDeferredError = tostring(loadError)
             Debug:Record("data-load-error", self.dataModulesDeferredError)
-        elseif DataModules:HasRegisteredModules() then
-            Debug:Record("data-ready", "Deferred sound packs finished loading")
+        else
+            local summary = DataModules:GetLoadSummary()
+            if summary.failed > 0 then
+                Debug:Record("data-load-partial", format(
+                    "Voice packs: %d/%d loaded, %d failed; see Stories diagnostics",
+                    summary.loaded, summary.detected, summary.failed))
+            elseif summary.loaded > 0 then
+                Debug:Record("data-ready", "Deferred sound packs finished loading")
+            end
         end
         -- The settings pages were built before this, with every pack still to register.
         Spoken:NotifyVoicePacksChanged()

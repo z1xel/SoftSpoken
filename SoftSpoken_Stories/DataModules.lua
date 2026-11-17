@@ -123,6 +123,10 @@ DataModules =
     ---@type table<string, string>
     loadErrors = {},
 
+    -- Track whether a pack actually entered LoadModule. Successful registrations
+    -- and failure reasons remain authoritative in the existing tables.
+    loadAttempts = {},
+
     --- Stores modules known to exist to present the player with information on how to download or update them
     ---@type AvailableDataModule[]
     -- AddonName is the folder on disk, which is what EnumerateAddons keys presentModules by, so
@@ -238,6 +242,31 @@ end
 
 function DataModules:HasRegisteredModules()
     return next(self.registeredModules) ~= nil
+end
+
+-- Derive status rather than maintaining a second success/failure registry.
+-- A load interrupted by an unexpected error is distinguishable from one not attempted.
+function DataModules:GetModuleLoadStatus(name)
+    if self.registeredModules[name] then return "loaded" end
+    if self.loadErrors[name] then return "failed", tostring(self.loadErrors[name]) end
+    if self.loadAttempts[name] then return "failed", "LOAD_INTERRUPTED" end
+    return "not attempted"
+end
+
+function DataModules:GetLoadSummary()
+    local summary = { detected = 0, loaded = 0, failed = 0, notAttempted = 0 }
+    for _, module in self:GetPresentModules() do
+        summary.detected = summary.detected + 1
+        local status = self:GetModuleLoadStatus(module.AddonName)
+        if status == "loaded" then
+            summary.loaded = summary.loaded + 1
+        elseif status == "failed" then
+            summary.failed = summary.failed + 1
+        else
+            summary.notAttempted = summary.notAttempted + 1
+        end
+    end
+    return summary
 end
 
 function DataModules:GetModule(name)
@@ -422,6 +451,7 @@ end
 
 ---@param module DataModuleMetadata
 function DataModules:LoadModule(module)
+    self.loadAttempts[module.AddonName] = true
     if not module.LoadOnDemand then
         self.loadErrors[module.AddonName] = "NOT_LOAD_ON_DEMAND"
         return false, self.loadErrors[module.AddonName]
