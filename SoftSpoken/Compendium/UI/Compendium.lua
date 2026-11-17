@@ -1132,6 +1132,19 @@ function List:DrawRows()
                     b.label:SetTextColor(1,.82,0)
                 end
             end
+            -- Size each count column to its rendered text rather than reserving
+            -- 96 units for every row. Long totals keep the space they need;
+            -- short counts give chain and quest labels more room.
+            -- Leaf quests have no count, so they should not lose title width.
+            if item.leaf then
+                b.state:SetWidth(1)
+            elseif b.state.GetStringWidth then
+                local textWidth=b.state:GetStringWidth()
+                b.state:SetWidth(math.max(64,math.ceil((textWidth or 90)+6)))
+            else
+                -- Older clients without font measurement keep the prior layout.
+                b.state:SetWidth(96)
+            end
             -- Locked places display a lock in the count's position, as upstream.
             -- On 1.12 the legacy LockButton art serves as the atlas fallback.
             if item.locked then
