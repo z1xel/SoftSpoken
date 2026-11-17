@@ -1097,6 +1097,9 @@ function List:DrawRows()
                     end
                     b.categoryIcon:SetPoint("LEFT",b,"LEFT",28+indent-ROW_CONTENT_SHIFT-ROW_TEXT_SHIFT,0)
                     b.categoryIcon:SetTexCoord(unpack(iconUV))
+                    -- Keep chain gold subtly subdued; pooled rows must reset the tint.
+                    local brightness=iconTexture==CHAIN_ICON and .95 or 1
+                    b.categoryIcon:SetVertexColor(brightness,brightness,brightness)
                     b.categoryIcon:Show()
                     b.label:SetPoint("LEFT",b,"LEFT",50+indent-ROW_CONTENT_SHIFT-ROW_TEXT_SHIFT,0)
                 else
