@@ -24,6 +24,10 @@ REQUIRED_RUNTIME = (
     "SoftSpoken/Compendium/UI/FrameSkin.lua",
     "SoftSpoken/Compendium/UI/InteriorSkin.lua",
     "SoftSpoken/Compendium/UI/NativeScrollbar.lua",
+    "SoftSpoken/Compendium/Textures/ClassicFrames/UIFrameMetal.tga",
+    "SoftSpoken/Compendium/Textures/ClassicFrames/UIFrameMetalHorizontal.tga",
+    "SoftSpoken/Compendium/Textures/ClassicFrames/UIFrameMetalVertical.tga",
+    "SoftSpoken/Compendium/Textures/ClassicFrames/UI-Background-Marble.tga",
     "SoftSpoken/Compendium/Textures/Skin/UI-Frame.tga",
     "SoftSpoken/Compendium/Textures/Skin/InsetClassic/UI-Frame.tga",
     "SoftSpoken/Compendium/Textures/Skin/BookPortraitCircleMask.tga",
@@ -47,6 +51,17 @@ def require_file(name):
 for name in REQUIRED_RUNTIME + REQUIRED_SOURCES:
     require_file(name)
 
+# Shared Compendium classic-frame art is owned by Core, never by the retired
+# Places UI-artwork directory. Places/Pictures is independently retained.
+for obsolete_dir in ("Art", "ClassicFrames", "Controls"):
+    obsolete_path = ROOT / "SoftSpoken_Places/Textures" / obsolete_dir
+    assert not obsolete_path.exists(), f"Retired Places UI art reintroduced: {obsolete_path}"
+
+classic_skin = (ROOT / "SoftSpoken/Compendium/UI/ClassicFrameSkin.lua").read_text(encoding="utf-8")
+assert r"SoftSpoken\Compendium\Textures\ClassicFrames" in classic_skin.replace("\\\\", "\\"), (
+    "Shared classic frame skin must use Core's ClassicFrames texture directory"
+)
+
 for module in MODULES:
     base = ROOT / module
     assert base.is_dir(), f"Missing module: {module}"
@@ -62,6 +77,19 @@ for module in MODULES:
         code = path.read_text(encoding="utf-8", errors="replace")
         for obsolete in LEGACY_IDENTIFIERS:
             assert obsolete not in code, f"{path}: obsolete UI identifier {obsolete}"
+        # Catch direct and dynamically constructed references to legacy Places
+        # UI paths while allowing its actively used location picture collection.
+        normalized = code.replace("\\\\", "\\").replace("/", "\\").lower()
+        needle = "softspoken_places\\textures\\"
+        pos = 0
+        while True:
+            at = normalized.find(needle, pos)
+            if at == -1:
+                break
+            assert normalized.startswith("pictures\\", at + len(needle)), (
+                f"{path}: references retired Places UI texture directory"
+            )
+            pos = at + len(needle)
 
 # Read all included Lua/XML paths in the game's addon entrypoints.
 for module in MODULES:
