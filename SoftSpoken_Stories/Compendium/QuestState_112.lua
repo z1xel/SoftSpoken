@@ -78,9 +78,31 @@ end
 function S:MarkCompleted(id)
     id=ValidID(id)
     if not id then return end
-    self:MarkSeen(id)
-    Saved().completed[id]=true
+    local db=Saved()
+    if db.seen[id]~=true or db.completed[id]~=true then
+        self.revision=self.revision+1
+    end
+    db.seen[id]=true
+    db.completed[id]=true
     active[id]=nil
+end
+-- ClassicAPI receives Turtle's rewarded quest IDs from the server and caches
+-- them before firing QUEST_QUERY_COMPLETE. Never issue a second server query.
+function S:ImportCompletedQuests()
+    if type(GetQuestsCompleted)~="function" then return 0 end
+    local ok,completed=pcall(GetQuestsCompleted)
+    if not ok or type(completed)~="table" then return 0 end
+    local db=Saved()
+    local added=0
+    for rawID,done in pairs(completed) do
+        local id=ValidID(rawID)
+        if id and done==true and db.completed[id]~=true then
+            db.completed[id]=true
+            added=added+1
+        end
+    end
+    if added>0 then self.revision=self.revision+1 end
+    return added
 end
 -- The 1.12 log can omit quests under folded category headers. Do not delete
 -- older active entries solely because they weren't enumerated; IsOnQuest is
@@ -147,7 +169,7 @@ end
 -- Event bridge: ClassicAPI adds real IDs to the 1.12 lifecycle events. In
 -- actual 1.12 callbacks, event/arg1/arg2 may only exist as globals.
 local frame=CreateFrame("Frame")
-for _,evt in ipairs({"PLAYER_ENTERING_WORLD","QUEST_LOG_UPDATE","QUEST_ACCEPTED", "QUEST_TURNED_IN", "QUEST_REMOVED", "QUEST_DATA_LOAD_RESULT"}) do
+for _,evt in ipairs({"PLAYER_ENTERING_WORLD","QUEST_LOG_UPDATE","QUEST_ACCEPTED", "QUEST_TURNED_IN", "QUEST_REMOVED", "QUEST_DATA_LOAD_RESULT", "QUEST_QUERY_COMPLETE"}) do
     pcall(frame.RegisterEvent,frame,evt)
 end
 frame:SetScript("OnEvent",function(self,evt,a1,a2)
@@ -164,8 +186,15 @@ frame:SetScript("OnEvent",function(self,evt,a1,a2)
     elseif evt=="QUEST_REMOVED" then
         local id=ValidID(a1)
         if id then active[id]=nil end -- Not proof of completion.
-    elseif evt=="PLAYER_ENTERING_WORLD" or evt=="QUEST_LOG_UPDATE" then
+    elseif evt=="PLAYER_ENTERING_WORLD" then
         S:ReadLog()
+        -- Also import ClassicAPI's existing cache after /reload, when the
+        -- server does not send a new completion response.
+        S:ImportCompletedQuests()
+    elseif evt=="QUEST_LOG_UPDATE" then
+        S:ReadLog()
+    elseif evt=="QUEST_QUERY_COMPLETE" then
+        if S:ImportCompletedQuests()==0 then return end
     elseif evt=="QUEST_DATA_LOAD_RESULT" then
         -- A requested title may now be in ClassicAPI's cache.
         local id=ValidID(a1)
