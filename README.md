@@ -123,7 +123,7 @@ You can find the source code and releases in the [ClassicAPI repository](https:/
        ├── SoftSpoken_Places/
        └── SoftSpoken_Writings/
    ```
-4. Launch the game and enable SoftSpoken and its modules in the **AddOns** menu at character selection. Enable **Load out of date AddOns** if necessary.
+4. Launch the game and open the **AddOns** menu at character selection. **Required: enable “Load out of date AddOns”.** Then enable SoftSpoken and its modules. Keep **Load out of date AddOns** enabled when using SoftSpoken and its voice packs.
 
 Use `/softspoken` to open settings or `/compendium` to open Azeroth's Compendium. The Compendium also has a default keybinding of **J**, provided that key was not already assigned to another action.
 
