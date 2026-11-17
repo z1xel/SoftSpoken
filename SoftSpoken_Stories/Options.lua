@@ -146,7 +146,8 @@ function Options:AddDataModule(module, order)
     end
 
     local name, title, notes, loadable, reason = DataModules:GetModuleAddOnInfo(module)
-    if reason == "DEMAND_LOADED" or reason == "INTERFACE_VERSION" then
+    -- The deferred loader can recover DISABLED packs by enabling them first.
+    if reason == "DEMAND_LOADED" or reason == "INTERFACE_VERSION" or reason == "DISABLED" then
         reason = nil
     end
     DataModulesTab.args[module.AddonName] = {
