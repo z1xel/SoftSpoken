@@ -205,6 +205,20 @@ Open `/softspoken` and check the **Voice Packs** section of each module to confi
 
 Refer to the [Voice Packs](#voice-packs) section for installation instructions and compatible downloads.
 
+If a voice pack is missing, check that it's enabled in the character-selection AddOns menu and that **Load out of date AddOns** remains enabled.
+
+For Stories, the Voice Packs settings and diagnostics can report whether a pack loaded or failed, including available error details. Include the affected voice pack names and any displayed errors when [reporting an issue](https://github.com/z1xel/SoftSpoken/issues).
+
+### Voice Packs Not Loading With pfUI
+
+pfUI's addon manager may display enabled voice packs as unchecked because SoftSpoken loads them on demand.
+
+This becomes a problem when using pfUI's addon profiles. Saving a profile with those voice packs unchecked and later applying it can cause them to become disabled, preventing SoftSpoken from loading them.
+
+**If you use pfUI, make sure your voice packs are checked before saving an addon profile.** If you've already saved a profile, update it to include your voice packs as well.
+
+You can also verify that they're enabled from the game's AddOns menu at character selection.
+
 ### Still Having Trouble?
 
 Bug reports, compatibility issues, and suggestions are always welcome!
