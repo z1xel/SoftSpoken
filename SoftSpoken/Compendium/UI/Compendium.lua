@@ -36,7 +36,9 @@ local WIDTH, VISIBLE_ROWS = 670, 42
 local BRANCH_ROW, LEAF_ROW, DEPTH_STEP, SCROLL_STEP = 24, 20, 14, 60
 -- Pull row contents toward the Quest Log's native left edge without moving
 -- the inset border, scroll viewport, or spacing between icons and labels.
-local ROW_CONTENT_SHIFT = 6
+local ROW_CONTENT_SHIFT = 4
+-- Close the gap between row labels and their expand/collapse buttons by 2.
+local ROW_TEXT_SHIFT = 2
 -- Blizzard's original 18x18 QuestTypeIcons cells (not the modern SetAtlas API).
 -- Full, unaltered 128x64 Blizzard QuestTypeIcons sheet in a Vanilla-compatible
 -- uncompressed 32-bit TGA; SetTexCoord selects the original 18x18 cells.
@@ -1067,7 +1069,7 @@ function List:DrawRows()
             local indent=(item.depth or 0)*DEPTH_STEP
             if item.leaf then
                 b.label:SetFontObject("GameFontHighlightSmall")
-                b.label:SetPoint("LEFT",b,"LEFT",36+indent-ROW_CONTENT_SHIFT,0)
+                b.label:SetPoint("LEFT",b,"LEFT",36+indent-ROW_CONTENT_SHIFT-ROW_TEXT_SHIFT,0)
                 b.toggle:Hide()
                 b.state:SetText("")
                 if item.locked then
@@ -1096,9 +1098,9 @@ function List:DrawRows()
                     b.categoryIcon:SetPoint("LEFT",b,"LEFT",28+indent-ROW_CONTENT_SHIFT,0)
                     b.categoryIcon:SetTexCoord(unpack(iconUV))
                     b.categoryIcon:Show()
-                    b.label:SetPoint("LEFT",b,"LEFT",50+indent-ROW_CONTENT_SHIFT,0)
+                    b.label:SetPoint("LEFT",b,"LEFT",50+indent-ROW_CONTENT_SHIFT-ROW_TEXT_SHIFT,0)
                 else
-                    b.label:SetPoint("LEFT",b,"LEFT",28+indent-ROW_CONTENT_SHIFT,0)
+                    b.label:SetPoint("LEFT",b,"LEFT",28+indent-ROW_CONTENT_SHIFT-ROW_TEXT_SHIFT,0)
                 end
                 b.toggle:SetPoint("LEFT",b,"LEFT",8+indent-ROW_CONTENT_SHIFT,0)
                 local count=item.count or 0
