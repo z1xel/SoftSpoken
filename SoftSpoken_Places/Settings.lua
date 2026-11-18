@@ -1,8 +1,8 @@
 -- SoftSpoken Zones C2: Lua 5.0-compatible module.
 -- Extracted from the working Core.lua without changing its algorithms.
 
-local R = SSZZonesRuntime
-local Normalise = R.Normalise
+local PlacesRuntime = SSZZonesRuntime
+local Normalise = PlacesRuntime.Normalise
 local migratedHeard = false
 
 -- The .toc declares this as SavedVariablesPerCharacter.
@@ -94,7 +94,7 @@ local function ResetOptions()
     -- Keep the retired captions import and any unknown extensions intact.
 end
 
-R.ResetOptions = ResetOptions
+PlacesRuntime.ResetOptions = ResetOptions
 
-R.CharDB = CharDB
-R.WasHeard = WasHeard
+PlacesRuntime.CharDB = CharDB
+PlacesRuntime.WasHeard = WasHeard

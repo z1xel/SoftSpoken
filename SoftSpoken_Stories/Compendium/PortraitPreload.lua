@@ -2,8 +2,8 @@
 -- No creature models or native portrait textures are created by this module.
 -- Only discovered quests on the visible list (or a selected quest) are queried.
 SSCQuestPortraitPreload = SSCQuestPortraitPreload or {}
-local P = SSCQuestPortraitPreload
-local S = SSCQuestState
+local PortraitPreload = SSCQuestPortraitPreload
+local QuestState = SSCQuestState
 
 local MAX_SPECULATIVE = 2
 local MAX_VISIBLE_ROWS = 32
@@ -48,7 +48,7 @@ local function Enabled()
         type(Spoken.SubscribeCreatureAppearance) == "function" or false
 end
 
-function P:Remember(id)
+function PortraitPreload:Remember(id)
     self.recent = self.recent or {}
     self.recentOrder = self.recentOrder or {}
     if self.recent[id] then return end
@@ -61,7 +61,7 @@ end
 
 -- Native failures are not permanent negative-cache entries. A later viewport
 -- visit can retry; the queue's pacing still prevents a request flood.
-function P:Forget(id)
+function PortraitPreload:Forget(id)
     if not (self.recent and self.recent[id]) then return end
     self.recent[id]=nil
     local order=self.recentOrder or {}
@@ -70,7 +70,7 @@ function P:Forget(id)
     end
 end
 
-function P:Queue(id,front)
+function PortraitPreload:Queue(id,front)
     id=ID(id)
     if not id or not self.active or (self.selectedIDs and self.selectedIDs[id]) or
         (self.recent and self.recent[id]) or (self.inFlight and self.inFlight[id]) or Cached(id) then return end
@@ -96,14 +96,14 @@ local function SpeculativeCount(inFlight)
     return count
 end
 
-function P:UpdateTicker()
+function PortraitPreload:UpdateTicker()
     local busy=table.getn(self.queue or {})>0 or SpeculativeCount(self.inFlight)>0
     if busy and not self.frame then self.frame=CreateFrame("Frame",nil,UIParent) end
     if busy and not self.ticking and self.frame then
         self.ticking=true
         self.frame:SetScript("OnUpdate",function(_,elapsed)
-            P.clock=(P.clock or 0)+(tonumber(elapsed) or tonumber(_G.arg1) or 0)
-            P:Pump()
+            PortraitPreload.clock=(PortraitPreload.clock or 0)+(tonumber(elapsed) or tonumber(_G.arg1) or 0)
+            PortraitPreload:Pump()
         end)
     elseif not busy and self.ticking then
         self.ticking=false
@@ -111,7 +111,7 @@ function P:UpdateTicker()
     end
 end
 
-function P:Pump()
+function PortraitPreload:Pump()
     if not self.active then return end
     if not Enabled() then self:Stop(); return end
     self.clock=self.clock or 0
@@ -144,14 +144,14 @@ function P:Pump()
     self:UpdateTicker()
 end
 
-function P:OnAppearance(id,displayID,success)
+function PortraitPreload:OnAppearance(id,displayID,success)
     id=ID(id)
     if id and self.inFlight then self.inFlight[id]=nil end
     if id and (not success or not ID(displayID)) then self:Forget(id) end
     if self.active then self:Pump() end
 end
 
-function P:Start()
+function PortraitPreload:Start()
     if self.active then return true end
     if not Enabled() then return false end
     self.queue={};self.queued={};self.inFlight={};self.selectedIDs={}
@@ -160,7 +160,7 @@ function P:Start()
     self.clock=self.clock or 0
     self.nextAt=self.clock
     self.callback=self.callback or function(id,displayID,success)
-        P:OnAppearance(id,displayID,success)
+        PortraitPreload:OnAppearance(id,displayID,success)
     end
     local accepted=Call(Spoken.SubscribeCreatureAppearance,Spoken,self.callback)
     if not accepted then return false end
@@ -168,7 +168,7 @@ function P:Start()
     return true
 end
 
-function P:Stop()
+function PortraitPreload:Stop()
     if self.active and Spoken and type(Spoken.UnsubscribeCreatureAppearance)=="function" then
         Call(Spoken.UnsubscribeCreatureAppearance,Spoken,self.callback)
     end
@@ -186,7 +186,7 @@ end
 
 -- Highest priority. Selected quest data is requested before the list redraw
 -- can queue speculative work. Never prefetch undiscovered or locked quests.
-function P:Selected(questID)
+function PortraitPreload:Selected(questID)
     if not self.active then return end
     if not Enabled() then self:Stop(); return end
     questID=ID(questID)
@@ -194,7 +194,7 @@ function P:Selected(questID)
     self.selectedQuest=questID
     self.selectedIDs={}
     self.lastItems=nil
-    if not questID or not S:IsSeen(questID) then return end
+    if not questID or not QuestState:IsSeen(questID) then return end
     for _,stage in ipairs({"accept","progress"}) do
         local id=Speaker(questID,stage)
         if id and not self.selectedIDs[id] then
@@ -206,10 +206,10 @@ function P:Selected(questID)
     -- creature query is necessary (and the page controls locked stages).
 end
 
-function P:Hover(item)
+function PortraitPreload:Hover(item)
     if self.active and not Enabled() then self:Stop(); return end
     if not self.active or not item or not item.leaf or item.locked or
-       not S:IsSeen(item.id) then return end
+       not QuestState:IsSeen(item.id) then return end
     self:Queue(Speaker(item.id,"accept"),true)
     self:Pump()
 end
@@ -217,7 +217,7 @@ end
 -- The shared virtual list reports only the real scroll viewport, not every
 -- pooled row or every entry in the quest catalog. Replace the old backlog
 -- when scrolling so off-screen creatures are not preloaded needlessly.
-function P:Visible(items,first,last)
+function PortraitPreload:Visible(items,first,last)
     if not self.active then return end
     if not Enabled() then self:Stop(); return end
     if self.lastItems==items and self.lastFirst==first and self.lastLast==last then
@@ -230,7 +230,7 @@ function P:Visible(items,first,last)
     for i=from,through do
         if table.getn(self.queue)>=MAX_QUEUE then break end
         local item=items and items[i]
-        if item and item.leaf and not item.locked and S:IsSeen(item.id) then
+        if item and item.leaf and not item.locked and QuestState:IsSeen(item.id) then
             self:Queue(Speaker(item.id,"accept"),false)
         end
     end

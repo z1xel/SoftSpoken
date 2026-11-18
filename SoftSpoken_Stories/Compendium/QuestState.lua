@@ -1,9 +1,9 @@
 -- Quest-state facade for Turtle/ClassicAPI 1.12. This file intentionally does
 -- not enter VoiceOver's private environment: SSCQuestState is shared with the UI.
 SSCQuestState = SSCQuestState or {}
-local S = SSCQuestState
+local QuestState = SSCQuestState
 local active = {}
-S.revision = 0
+QuestState.revision = 0
 local ask = {}
 local function Saved()
     if type(SSCQuestJournal) ~= "table" then SSCQuestJournal = {} end
@@ -16,7 +16,7 @@ local function Saved()
     if db.settings.foundOnly == nil then db.settings.foundOnly = true end
     return db
 end
-S.Saved = Saved
+QuestState.Saved = Saved
 local function ValidID(id)
     id = tonumber(id)
     return id and id > 0 and math.floor(id) == id and id or nil
@@ -27,10 +27,10 @@ local function Call(api, method, value)
     if ok then return result end
     return nil
 end
-function S:QuestIDForLogIndex(index)
+function QuestState:QuestIDForLogIndex(index)
     return ValidID(Call(C_QuestLog, "GetQuestIDForLogIndex", index))
 end
-function S:Title(id, fallback, request)
+function QuestState:Title(id, fallback, request)
     id = ValidID(id)
     if not id then return fallback or "Unknown Quest" end
     local cached = Saved().titles[id]
@@ -45,21 +45,21 @@ function S:Title(id, fallback, request)
     end
     return cached or fallback or ("Quest " .. id)
 end
-function S:IsActive(id)
+function QuestState:IsActive(id)
     id = ValidID(id)
     if not id then return false end
     local fromAPI = Call(C_QuestLog, "IsOnQuest", id)
     if fromAPI~=nil then return fromAPI and fromAPI~=0 end
     return active[id] == true
 end
-function S:IsCompleted(id)
+function QuestState:IsCompleted(id)
     return Saved().completed[id] == true
 end
-function S:IsSeen(id)
+function QuestState:IsSeen(id)
     local db = Saved()
     return db.seen[id] == true or db.completed[id] == true or active[id] == true
 end
-function S:SeenIDs()
+function QuestState:SeenIDs()
     local ids = {}
     local db = Saved()
     for id in pairs(db.seen) do ids[id] = true end
@@ -67,15 +67,15 @@ function S:SeenIDs()
     for id in pairs(active) do ids[id] = true end
     return ids
 end
-function S:MarkSeen(id, title)
+function QuestState:MarkSeen(id, title)
     id=ValidID(id)
     if not id then return end
     local db=Saved()
-    if not db.seen[id] then S.revision=S.revision+1 end
+    if not db.seen[id] then QuestState.revision=QuestState.revision+1 end
     db.seen[id]=true
     if type(title)=="string" and title~="" then db.titles[id]=title end
 end
-function S:MarkCompleted(id)
+function QuestState:MarkCompleted(id)
     id=ValidID(id)
     if not id then return end
     local db=Saved()
@@ -88,7 +88,7 @@ function S:MarkCompleted(id)
 end
 -- ClassicAPI receives Turtle's rewarded quest IDs from the server and caches
 -- them before firing QUEST_QUERY_COMPLETE. Never issue a second server query.
-function S:ImportCompletedQuests()
+function QuestState:ImportCompletedQuests()
     if type(GetQuestsCompleted)~="function" then return 0 end
     local ok,completed=pcall(GetQuestsCompleted)
     if not ok or type(completed)~="table" then return 0 end
@@ -107,7 +107,7 @@ end
 -- The 1.12 log can omit quests under folded category headers. Do not delete
 -- older active entries solely because they weren't enumerated; IsOnQuest is
 -- the authoritative check when ClassicAPI provides it.
-function S:ReadLog()
+function QuestState:ReadLog()
     local nextActive={}
     local entries=0
     if type(GetNumQuestLogEntries)=="function" then
@@ -136,7 +136,7 @@ function S:ReadLog()
 end
 -- One-time check for quests hidden by collapsed log headers. ClassicAPI can
 -- identify them by ID even when Vanilla cannot enumerate their log rows.
-function S:SeedActive(indexedIDs)
+function QuestState:SeedActive(indexedIDs)
     if self.seeded then return end
     self.seeded=true
     if not C_QuestLog or type(C_QuestLog.IsOnQuest)~="function" then return end
@@ -148,7 +148,7 @@ function S:SeedActive(indexedIDs)
         end
     end
 end
-function S:MapName(id)
+function QuestState:MapName(id)
     if C_Map and type(C_Map.GetMapInfo)=="function" then
         local ok, info=pcall(C_Map.GetMapInfo,id)
         if ok and type(info)=="table" and type(info.name)=="string" and info.name~="" then
@@ -158,10 +158,10 @@ function S:MapName(id)
     if SSCCompendium and SSCCompendium.MapName then return SSCCompendium.MapName(id) end
     return tostring(id)
 end
-function S:CurrentMap()
+function QuestState:CurrentMap()
     return Call(C_Map,"GetBestMapForUnit","player")
 end
-function S:Setting(key, value)
+function QuestState:Setting(key, value)
     local settings=Saved().settings
     if value~=nil then settings[key]=value and true or false end
     return settings[key] == true
@@ -179,27 +179,27 @@ frame:SetScript("OnEvent",function(self,evt,a1,a2)
     if evt=="QUEST_ACCEPTED" then
         -- ClassicAPI: (questLogIndex, questID). Never mistake the index for ID.
         local id=ValidID(a2)
-        if id then S:MarkSeen(id); active[id]=true end
-        S:ReadLog()
+        if id then QuestState:MarkSeen(id); active[id]=true end
+        QuestState:ReadLog()
     elseif evt=="QUEST_TURNED_IN" then
-        S:MarkCompleted(a1)
+        QuestState:MarkCompleted(a1)
     elseif evt=="QUEST_REMOVED" then
         local id=ValidID(a1)
         if id then active[id]=nil end -- Not proof of completion.
     elseif evt=="PLAYER_ENTERING_WORLD" then
-        S:ReadLog()
+        QuestState:ReadLog()
         -- Also import ClassicAPI's existing cache after /reload, when the
         -- server does not send a new completion response.
-        S:ImportCompletedQuests()
+        QuestState:ImportCompletedQuests()
     elseif evt=="QUEST_LOG_UPDATE" then
-        S:ReadLog()
+        QuestState:ReadLog()
     elseif evt=="QUEST_QUERY_COMPLETE" then
-        if S:ImportCompletedQuests()==0 then return end
+        if QuestState:ImportCompletedQuests()==0 then return end
     elseif evt=="QUEST_DATA_LOAD_RESULT" then
         -- A requested title may now be in ClassicAPI's cache.
         local id=ValidID(a1)
         if id and ask[id] then
-            S.revision=S.revision+1
+            QuestState.revision=QuestState.revision+1
         end
     end
     if SSCCompendium and SSCCompendium.Active and SSCCompendium:Active()=="quests" then

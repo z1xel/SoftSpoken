@@ -2,7 +2,7 @@
 -- the Stories audio-player portrait when an NPC model cannot be shown.
 -- Keep one source of truth for the assets and for Turtle 1.12 faction lookup.
 SSCQuestFactionCrest = SSCQuestFactionCrest or {}
-local F = SSCQuestFactionCrest
+local FactionCrest = SSCQuestFactionCrest
 
 local ALLIANCE = "Interface\\AddOns\\SoftSpoken_Stories\\Assets\\AllianceCrest"
 local HORDE = "Interface\\AddOns\\SoftSpoken_Stories\\Assets\\HordeCrest"
@@ -16,7 +16,7 @@ local HORDE_RACES = {
     troll=true, goblin=true,
 }
 
-function F.PlayerFaction()
+function FactionCrest.PlayerFaction()
     if type(UnitFactionGroup) == "function" then
         local ok, faction = pcall(UnitFactionGroup, "player")
         if ok and (faction == "Alliance" or faction == "Horde") then return faction end
@@ -35,8 +35,8 @@ end
 
 -- Always return a normal full-UV texture (both crests are transparent 256x256).
 -- The second return value is the existing Compendium tooltip.
-function F.Resolve()
-    local faction = F.PlayerFaction()
+function FactionCrest.Resolve()
+    local faction = FactionCrest.PlayerFaction()
     if faction == "Alliance" then return ALLIANCE, "Alliance crest (your faction)" end
     if faction == "Horde" then return HORDE, "Horde crest (your faction)" end
     return UNKNOWN, "Your faction is unavailable"

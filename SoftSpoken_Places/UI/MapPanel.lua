@@ -1,10 +1,10 @@
 -- World-map lore panel for Turtle WoW 1.12.
 -- Map positioning is handled by ApplyAnchors, without moving WorldMapFrame.
 SSZMapPanel = SSZMapPanel or {}
-local M = SSZMapPanel
-local Compat = SSZMapCompat
-local L = SSZLoreWindow
-local P = SSZLorePage
+local MapPanel = SSZMapPanel
+local MapCompat = SSZMapCompat
+local LoreWindow = SSZLoreWindow
+local LorePage = SSZLorePage
 local WIDTH, GAP = 328, 2
 local READER_RIGHT_SHIFT = 2
 local SCROLLBAR_EXTRA_RIGHT_SHIFT = 1
@@ -112,7 +112,7 @@ local function MinimizedMapBorder(frame)
     end
     if close.SetHitRectInsets then close:SetHitRectInsets(4,4,4,4) end
     close:EnableMouse(true)
-    close:SetScript("OnClick",function() M.SetMapPanelCollapsed(true) end)
+    close:SetScript("OnClick",function() MapPanel.SetMapPanelCollapsed(true) end)
     frame.sszClose=close
 end
 
@@ -140,7 +140,7 @@ local function BuildPanel()
     -- Keep the parchment and scrollbar clear of the map's visible ornate
     -- footer without leaving a broad empty strip above it.
     pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
-        return P.CreateLorePage(holder,{openInCompendium=true,expandSubtitle=true})
+        return LorePage.CreateLorePage(holder,{openInCompendium=true,expandSubtitle=true})
     end,{left=0,right=4,top=23,bottom=24})
     -- Lore of the Land geometry: size the shared page visual, not its parchment
     -- holder. This keeps the silver inset (rim:SetAllPoints(pageVisual)) tied
@@ -233,7 +233,7 @@ local function BuildToggle()
     toggle:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square","ADD")
     -- Original UI remains full-screen on 1.12: put the reopen button within it.
     -- ApplyAnchors positions the toggle together with its panel.
-    toggle:SetScript("OnClick",function() M.SetMapPanelCollapsed(false) end)
+    toggle:SetScript("OnClick",function() MapPanel.SetMapPanelCollapsed(false) end)
     toggle:SetScript("OnEnter",function(self)
         if GameTooltip then
             GameTooltip:SetOwner(self,"ANCHOR_RIGHT")
@@ -312,12 +312,12 @@ local function PageEntry(mapID)
                 title = name, mapID = mapID, key = selectedAreaKey,
                 lore = {mapID, selectedAreaKey},
                 subtitle = "In " .. Compat.Name(mapID),
-                onSubtitle = function() M.ClearSubzone() end,
+                onSubtitle = function() MapPanel.ClearSubzone() end,
             }
-            if L.IsLocked and L.IsLocked(mapID, selectedAreaKey) then
+            if LoreWindow.IsLocked and LoreWindow.IsLocked(mapID, selectedAreaKey) then
                 result.text = "This place has not been discovered yet."
                 result.missing = true
-            elseif L.IsPending and L.IsPending(entry) then
+            elseif LoreWindow.IsPending and LoreWindow.IsPending(entry) then
                 result.text = "The story of "..name.." has not been written yet."
                 result.missing = true
                 result.pending = true
@@ -327,7 +327,7 @@ local function PageEntry(mapID)
                 if pictures and pictures.Get then
                     result.picture = pictures.Get(mapID, selectedAreaKey)
                 end
-                if L.HasVoice and L.HasVoice(mapID, selectedAreaKey) then
+                if LoreWindow.HasVoice and LoreWindow.HasVoice(mapID, selectedAreaKey) then
                     result.audio = {mapID, selectedAreaKey}
                 end
             end
@@ -335,14 +335,14 @@ local function PageEntry(mapID)
         end
     end
     local lore=SSZLore or { zones={} }
-    local name=Compat.Name(mapID)
+    local name=MapCompat.Name(mapID)
     local entry=lore.zones and lore.zones[mapID]
     local foundOn=mapID
     -- Preserve upstream's ancestor fallback for maps without their own story.
     local visited={}
     while not entry and foundOn and not visited[foundOn] do
         visited[foundOn]=true
-        foundOn=L.PlaceAbove(foundOn)
+        foundOn=LoreWindow.PlaceAbove(foundOn)
         if foundOn then entry=lore.zones and lore.zones[foundOn] end
     end
     if not entry then
@@ -353,32 +353,32 @@ local function PageEntry(mapID)
     if foundOn~=mapID then
         subtitle="Lore of "..Compat.Name(foundOn)
     else
-        subtitle,parent=L.PlaceLine(mapID)
+        subtitle,parent=LoreWindow.PlaceLine(mapID)
     end
     local item={ title=name, mapID=mapID, subtitle=subtitle,
-        onSubtitle=parent and function() Compat.SetDisplayedMap(parent) end or nil }
+        onSubtitle=parent and function() MapCompat.SetDisplayedMap(parent) end or nil }
     if citySelected then
         item.subtitle = "In " .. Compat.Name(selectedMapID)
-        item.onSubtitle = function() M.ClearSubzone() end
+        item.onSubtitle = function() MapPanel.ClearSubzone() end
     end
-    if L.IsLocked and L.IsLocked(foundOn,nil) then
+    if LoreWindow.IsLocked and LoreWindow.IsLocked(foundOn,nil) then
         item.text="This place has not been discovered yet."
         item.missing=true
-    elseif L.IsPending and L.IsPending(entry) then
+    elseif LoreWindow.IsPending and LoreWindow.IsPending(entry) then
         item.lore={foundOn,nil}
         item.text="The story of "..Compat.Name(foundOn).." has not been written yet."
         item.missing=true
     else
         item.lore={foundOn,nil}
         item.text=entry.full or entry.short or ""
-        if L.HasVoice and L.HasVoice(foundOn,nil) then item.audio={foundOn,nil} end
+        if LoreWindow.HasVoice and LoreWindow.HasVoice(foundOn,nil) then item.audio={foundOn,nil} end
         local pictures=SSZPicturesUI
         if pictures and pictures.Get then item.picture=pictures.Get(foundOn,nil) end
     end
     return item
 end
 
-function M.Refresh()
+function MapPanel.Refresh()
     if not ready then return end
     if not Available() then
         if SSZMapHighlight and SSZMapHighlight.Hide then
@@ -387,7 +387,7 @@ function M.Refresh()
         panel:Hide();toggle:Hide()
         return
     end
-    local mapID,name,continent,zone=Compat.GetDisplayedMapID()
+    local mapID,name,continent,zone=MapCompat.GetDisplayedMapID()
     -- Upstream clears selected-area interaction state when the displayed map
     -- changes. Old cursor highlights must not persist.
     if lastMapID ~= mapID or lastContinent ~= continent or lastZone ~= zone then
@@ -417,45 +417,45 @@ function M.Refresh()
     end
     page:Show(PageEntry(mapID))
 end
-function M.SelectSubzone(mapID, areaKey)
-    if not mapID or not areaKey or Compat.GetDisplayedMapID() ~= mapID then
+function MapPanel.SelectSubzone(mapID, areaKey)
+    if not mapID or not areaKey or MapCompat.GetDisplayedMapID() ~= mapID then
         return false
     end
     local subs = SSZLore and SSZLore.subzones
     if not (subs and subs[mapID] and subs[mapID][areaKey]) then return false end
     -- Reuse the Compendium's exact discovery/unlock rule; do not create a
     -- second map-only setting or reveal lore merely because it was clicked.
-    if not (L and L.IsLocked) or L.IsLocked(mapID, areaKey) then return false end
+    if not (LoreWindow and LoreWindow.IsLocked) or LoreWindow.IsLocked(mapID, areaKey) then return false end
     selectedMapID, selectedAreaKey, selectedCityID = mapID, areaKey, nil
     -- Upstream opens a collapsed panel when clicking a place.
     if Settings().showMapPanel then Settings().mapPanelCollapsed = false end
-    M.Refresh()
+    MapPanel.Refresh()
     return true
 end
 -- A city is a real lore zone with its own Compendium entry, even when
 -- the 1.12 map cannot zoom into it. Reading doesn't mark it discovered.
-function M.SelectCity(parentMapID, cityID)
-    if Compat.GetDisplayedMapID() ~= parentMapID then return false end
+function MapPanel.SelectCity(parentMapID, cityID)
+    if MapCompat.GetDisplayedMapID() ~= parentMapID then return false end
     if not (SSZCompendium and SSZCompendium.CITY_IN and
             SSZCompendium.CITY_IN[cityID] == parentMapID) then return false end
     if not (SSZLore and SSZLore.zones and
             SSZLore.zones[cityID]) then return false end
-    if not (L and L.IsLocked) or L.IsLocked(cityID, nil) then return false end
+    if not (LoreWindow and LoreWindow.IsLocked) or LoreWindow.IsLocked(cityID, nil) then return false end
     selectedMapID, selectedAreaKey, selectedCityID = parentMapID, nil, cityID
     if Settings().showMapPanel then Settings().mapPanelCollapsed = false end
-    M.Refresh()
+    MapPanel.Refresh()
     return true
 end
 
-function M.ClearSubzone()
+function MapPanel.ClearSubzone()
     selectedMapID, selectedAreaKey, selectedCityID = nil, nil, nil
-    M.Refresh()
+    MapPanel.Refresh()
 end
-function M.SetMapPanelCollapsed(collapsed)
+function MapPanel.SetMapPanelCollapsed(collapsed)
     Settings().mapPanelCollapsed=collapsed and true or false
-    M.Refresh()
+    MapPanel.Refresh()
 end
-function M.SetEnabled(enabled)
+function MapPanel.SetEnabled(enabled)
     Settings().showMapPanel=enabled and true or false
     if not enabled then
         if SSZMapHighlight and SSZMapHighlight.Hide then
@@ -464,10 +464,10 @@ function M.SetEnabled(enabled)
         if panel then panel:Hide() end
         if toggle then toggle:Hide() end
     end
-    M.Refresh()
+    MapPanel.Refresh()
 end
-function M.GetPanel() return panel end
-function M.GetDisplayedMapID() return Compat.GetDisplayedMapID() end
+function MapPanel.GetPanel() return panel end
+function MapPanel.GetDisplayedMapID() return MapCompat.GetDisplayedMapID() end
 
 local function HookScript(frame,event,callback)
     -- Frame:HookScript is absent on some original clients. Chain existing
@@ -482,25 +482,25 @@ local function HookScript(frame,event,callback)
     end
 end
 
-function M.SetupMapPanel()
+function MapPanel.SetupMapPanel()
     if ready or not WorldMapFrame then return false end
     BuildPanel()
     BuildToggle()
     ApplyAnchors()
     ready=true
     HookScript(WorldMapFrame,"OnShow",function()
-        if Compat.ClearOverlayCache then Compat.ClearOverlayCache() end
-        M.Refresh()
+        if MapCompat.ClearOverlayCache then MapCompat.ClearOverlayCache() end
+        MapPanel.Refresh()
     end)
     HookScript(WorldMapFrame,"OnHide",function()
         selectedMapID, selectedAreaKey, selectedCityID = nil, nil, nil
         if SSZMapHighlight and SSZMapHighlight.Hide then
             SSZMapHighlight.Hide()
         end
-        if Compat.ClearOverlayCache then Compat.ClearOverlayCache() end
+        if MapCompat.ClearOverlayCache then MapCompat.ClearOverlayCache() end
         panel:Hide();toggle:Hide()
     end)
-    M.Refresh()
+    MapPanel.Refresh()
     return true
 end
 
@@ -514,16 +514,16 @@ watch:SetScript("OnUpdate",function(self,dt)
     if elapsed<.25 then return end
     elapsed=0
     if not ready then
-        M.SetupMapPanel() -- Refreshes once when the panel is created.
+        MapPanel.SetupMapPanel() -- Refreshes once when the panel is created.
         return
     end
     if not WorldMapFrame:IsShown() then return end
     ApplyAnchors()
     -- The native World Map border uses opposing anchors for its edge
     -- textures, so changes to map height require no separate border reflow.
-    local mapID,_,continent,zone=Compat.GetDisplayedMapID()
+    local mapID,_,continent,zone=MapCompat.GetDisplayedMapID()
     if mapID~=lastMapID or continent~=lastContinent or zone~=lastZone then
-        if Compat.ClearOverlayCache then Compat.ClearOverlayCache() end
-        M.Refresh()
+        if MapCompat.ClearOverlayCache then MapCompat.ClearOverlayCache() end
+        MapPanel.Refresh()
     end
 end)

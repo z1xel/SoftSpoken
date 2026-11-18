@@ -1,17 +1,17 @@
 -- Zone-specific semantics for the Compendium's generic button.
 SSZAudioButton = SSZAudioButton or {}
-local A = SSZAudioButton
-local M = SSZLoreWindow
+local AudioButton = SSZAudioButton
+local LoreWindow = SSZLoreWindow
 local function Notice(s) DEFAULT_CHAT_FRAME:AddMessage("[Spoken Zones] " .. s) end
-function A.Bind(button)
+function AudioButton.Bind(button)
     if not button or button._sszBound then return button end
     button._sszBound=true
     function button:Refresh()
         -- Like upstream: no empty/locked/unvoiced Play button cluttering
         -- the parchment. SetTarget() refreshes whenever navigation changes.
         if not self.mapID or
-           (M.IsLocked and M.IsLocked(self.mapID,self.areaKey)) or
-           (M.HasVoice and not M.HasVoice(self.mapID,self.areaKey)) then
+           (LoreWindow.IsLocked and LoreWindow.IsLocked(self.mapID,self.areaKey)) or
+           (LoreWindow.HasVoice and not LoreWindow.HasVoice(self.mapID,self.areaKey)) then
             self:SetState("play")
             self:Disable()
             self:Hide()
@@ -33,7 +33,7 @@ function A.Bind(button)
     button:SetScript("OnClick",function(self)
         local b=this or self -- Vanilla 1.12 scripts use the global `this`.
         if not b or not b.mapID or
-           M.IsLocked(b.mapID,b.areaKey) or not M.HasVoice(b.mapID,b.areaKey) then return end
+           LoreWindow.IsLocked(b.mapID,b.areaKey) or not LoreWindow.HasVoice(b.mapID,b.areaKey) then return end
         local bridge=SSZBridge
         if not bridge or not bridge.PlayEntry then
             Notice("Playback bridge not ready.") return

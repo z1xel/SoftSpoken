@@ -1,7 +1,7 @@
 -- Shared parchment, border, and scrollbar housing for Compendium pages
 -- and the map's attached lore reader. This is deliberately independent of
 -- lore/discovery data and does not create duplicate scroll controllers.
-local C = SSCCompendium
+local Compendium = SSCCompendium
 
 -- Creates the same page hierarchy used by all three Compendium modules.
 -- The caller controls only the inset's position; the page's artwork and
@@ -27,7 +27,7 @@ local function BuildPage(inset, createPage)
 end
 
 -- Compendium's existing split view, with its approved offsets unchanged.
-function C.CreatePagePane(panel, list, createPage)
+function Compendium.CreatePagePane(panel, list, createPage)
     local inset = CreateFrame("Frame", nil, panel)
     inset:SetPoint("TOPLEFT", list.inset, "TOPRIGHT", 27, 0)
     inset:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", 0, 6)
@@ -42,7 +42,7 @@ end
 -- Standalone reader (World Map attachment). Same skins and real lore page,
 -- but its inset is anchored to the host panel rather than the left-hand list.
 -- Allows the map to keep its close/collapse header without copying any skin.
-function C.CreateStandalonePagePane(panel, createPage, margins)
+function Compendium.CreateStandalonePagePane(panel, createPage, margins)
     margins = margins or {}
     local inset = CreateFrame("Frame", nil, panel)
     inset:SetPoint("TOPLEFT", panel, "TOPLEFT",

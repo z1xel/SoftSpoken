@@ -1,13 +1,13 @@
 -- SoftSpoken Zones C2: Lua 5.0-compatible module.
 -- Extracted from the working Core.lua without changing its algorithms.
 
-local R = SSZZonesRuntime
-local Normalise = R.Normalise
-local AudioID = R.AudioID
-local HeardKey = R.HeardKey
-local WasHeard = R.WasHeard
-local CharDB = R.CharDB
-local Say = R.Say
+local PlacesRuntime = SSZZonesRuntime
+local Normalise = PlacesRuntime.Normalise
+local AudioID = PlacesRuntime.AudioID
+local HeardKey = PlacesRuntime.HeardKey
+local WasHeard = PlacesRuntime.WasHeard
+local CharDB = PlacesRuntime.CharDB
+local Say = PlacesRuntime.Say
 local pending = {} -- Queued but not started; deliberately not persisted.
 
 -- Records are declared in addon data packs, not typed by the player.
@@ -67,7 +67,7 @@ end
 
 -- Read-only pack records for settings. Preserve the same format/registry
 -- checks as playback, and do not alter registry entries while inspecting them.
-function R.AudioPackDetails()
+function PlacesRuntime.AudioPackDetails()
     local packs, seen = {}, {}
     local function Add(pack, fallbackAddon)
         if type(pack) ~= "table" or pack.version ~= 1 then return end
@@ -103,9 +103,9 @@ function R.AudioPackDetails()
 end
 
 -- Keep the original names-only API used by the player and Home counters.
-function R.AudioPackNames()
+function PlacesRuntime.AudioPackNames()
     local names = {}
-    for _, pack in ipairs(R.AudioPackDetails()) do
+    for _, pack in ipairs(PlacesRuntime.AudioPackDetails()) do
         table.insert(names, pack.title)
     end
     return names
@@ -262,7 +262,7 @@ end
 -- Return true only for an accepted request. The Spoken R.source handles audio,
 -- queue order, deduplication, trim, playback, and its on-screen controls.
 local function RequestNarration(zoneName, areaLabel, immediate, isZone, quietMissing, initialGreeting)
-    if not R.source then
+    if not PlacesRuntime.source then
         if not quietMissing then Say("Spoken player is not ready.") end
         return false
     end
@@ -289,9 +289,9 @@ local function RequestNarration(zoneName, areaLabel, immediate, isZone, quietMis
 
     local result, reason
     if immediate then
-        result, reason = R.source:PlayNow(clip)
+        result, reason = PlacesRuntime.source:PlayNow(clip)
     else
-        result, reason = R.source:Enqueue(clip)
+        result, reason = PlacesRuntime.source:Enqueue(clip)
     end
     if not result then
         if not quietMissing then
@@ -315,6 +315,6 @@ local function RequestNarration(zoneName, areaLabel, immediate, isZone, quietMis
     return true
 end
 
-R.FindRecording = FindRecording
-R.MakeClip = MakeClip
-R.RequestNarration = RequestNarration
+PlacesRuntime.FindRecording = FindRecording
+PlacesRuntime.MakeClip = MakeClip
+PlacesRuntime.RequestNarration = RequestNarration

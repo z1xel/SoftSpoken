@@ -2,9 +2,9 @@
 -- Spoken Quests 3.4.0 supplies the text and the quest/speaker/voice rules.
 -- NO narration engine or global Compendium layout changes are made here.
 SSCQuestPage = SSCQuestPage or {}
-local P=SSCQuestPage
-local S=SSCQuestState
-local M=SSCQuestCatalog
+local QuestPage=SSCQuestPage
+local QuestState=SSCQuestState
+local QuestCatalog=SSCQuestCatalog
 local EVENTS={accept=1,progress=2,complete=3}
 local MOMENTS={"accept","progress","complete"}
 local NAMES={accept="Description",progress="Progress",complete="Completion"}
@@ -59,12 +59,12 @@ local function SpeakerLabel(id,stage)
     if candidates then return MULTIPLE_LABEL,nil,nil,candidates end
     local kind,npc
     if resolver then kind,npc=resolver:ForQuest(id,stage) end
-    local title=M:Title(id)
+    local title=QuestCatalog:Title(id)
     return resolver and resolver:Name(kind,npc,title) or title,kind,npc
 end
 local function SoundData(id,stage)
     local v=VoiceOver
-    local title=M:Title(id,true)
+    local title=QuestCatalog:Title(id,true)
     local name,kind,npc,candidates=SpeakerLabel(id,stage)
     -- The placeholder is display-only. With no live NPC, let the sound pack
     -- try its shared quest-stage recording instead of inventing a speaker.
@@ -76,7 +76,7 @@ local function SoundData(id,stage)
     end
     return {event=EVENTS[stage],questID=id,title=title,name=name,
         unitGUID=guid,unitIsObjectOrItem=npc and kind and e and not e:IsCreature(kind) or false,
-        text=P:Text(id,stage),origin="Azeroth's Compendium"}
+        text=QuestPage:Text(id,stage),origin="Azeroth's Compendium"}
 end
 local function HasVoice(id,stage)
     local d=Data()
@@ -108,7 +108,7 @@ local function Play(id,stage)
 end
 -- Per-stage priority: a live Turtle interaction, a validated Turtle-only overlay,
 -- then the original Spoken text. Never overwrite the original corpus in-place.
-function P:Text(id,stage)
+function QuestPage:Text(id,stage)
     local captured=SavedText(id,stage)
     if type(captured)=="string" and string.find(captured,"%S") then
         return Fill(captured)
@@ -329,7 +329,7 @@ end
 
 -- Item portraits use the same masked 2D region, ring and quest-state badge
 -- as creature portraits. No model or new texture asset is necessary.
-function P:BindItemPortrait(part,questID,stage,itemID,speaker)
+function QuestPage:BindItemPortrait(part,questID,stage,itemID,speaker)
     local holder=part.face
     PaintItemIcon(holder,nil,speaker)
     itemID=Number(itemID)
@@ -345,7 +345,7 @@ function P:BindItemPortrait(part,questID,stage,itemID,speaker)
     end
 end
 
-function P:BindPortrait(part,questID,stage,kind,npc,speaker,candidates)
+function QuestPage:BindPortrait(part,questID,stage,kind,npc,speaker,candidates)
     local holder=part.face
     PaintCrest(holder)
     if candidates then
@@ -377,7 +377,7 @@ function P:BindPortrait(part,questID,stage,kind,npc,speaker,candidates)
     end
 end
 
-function P:OnCreatureAppearance(creatureID,displayID,success)
+function QuestPage:OnCreatureAppearance(creatureID,displayID,success)
     if not self.active or not self.id or not self.page.frame:IsVisible() then return end
     creatureID=Number(creatureID)
     if not creatureID then return end
@@ -398,7 +398,7 @@ end
 -- Refresh only the specific currently-visible item that finished loading.
 -- ClassicAPI reports implicit cache warms via GET_ITEM_INFO_RECEIVED and
 -- explicit requests made by other addons via ITEM_DATA_LOAD_RESULT.
-function P:OnItemInfoReceived(itemID,success)
+function QuestPage:OnItemInfoReceived(itemID,success)
     if success==false or success==0 or not self.active or not self.id or
        not self.page.frame:IsVisible() then return end
     itemID=Number(itemID)
@@ -419,13 +419,13 @@ function P:OnItemInfoReceived(itemID,success)
     end
 end
 
-function P:SubscribePortraits()
+function QuestPage:SubscribePortraits()
     if self.portraitSubscribed or not self.active or
        not (Spoken and type(Spoken.SubscribeCreatureAppearance)=="function") then return end
     self.portraitSubscribed=API(Spoken.SubscribeCreatureAppearance,Spoken,self.portraitCallback)==true
 end
 
-function P:UnsubscribePortraits()
+function QuestPage:UnsubscribePortraits()
     if not self.portraitSubscribed then return end
     self.portraitSubscribed=false
     if Spoken and type(Spoken.UnsubscribeCreatureAppearance)=="function" then
@@ -447,7 +447,7 @@ local function ShowSpeaker(self,part,speaker,candidates)
     end
 end
 
-function P:RebindPortraits()
+function QuestPage:RebindPortraits()
     if not self.active or not self.id then return end
     self.generation=self.generation+1
     for _,stage in ipairs(MOMENTS) do
@@ -519,7 +519,7 @@ local function NewPart(parent,stage)
 end
 -- Match the native quest log: QuestFont body and QuestTitleFont section headings.
 -- Reuse the shared reader's adjustable font size, so all three tabs still scale together.
-function P:ApplyTypography()
+function QuestPage:ApplyTypography()
     local reference=self.view and self.view.body
     local heading=self.page and self.page.title
     for _,stage in ipairs(MOMENTS) do
@@ -538,10 +538,10 @@ function P:ApplyTypography()
         MatchFont(part.title,heading,0,QuestTitleFont,true)
     end
 end
-function P.Create(page)
+function QuestPage.Create(page)
     local view=page.body
     local self={page=page,view=view,parts={},id=nil,active=false,generation=0,portraitSubscribed=false}
-    setmetatable(self,{__index=P})
+    setmetatable(self,{__index=QuestPage})
     for _,stage in ipairs(MOMENTS) do self.parts[stage]=NewPart(view.child,stage) end
 
     -- Register page-local extensions, without replacing shared TextView
@@ -606,7 +606,7 @@ function P.Create(page)
     for _,f in pairs(self.parts) do f:Hide() end
     return self
 end
-function P:RefreshButtons()
+function QuestPage:RefreshButtons()
     for _,stage in ipairs(MOMENTS) do
         local part=self.parts[stage]
         if part:IsShown() then
@@ -617,7 +617,7 @@ function P:RefreshButtons()
         end
     end
 end
-function P:Layout(reset,previous,width)
+function QuestPage:Layout(reset,previous,width)
     if not self.active then return end
     local view=self.view
     -- Use the shared reader's text margins on every quest section.
@@ -649,7 +649,7 @@ function P:Layout(reset,previous,width)
     view.range=maximum
     view:ScrollTo(reset and 0 or previous or SSCUI.ScrollOffset(view.scroll))
 end
-function P:Show(id)
+function QuestPage:Show(id)
     self.generation=self.generation+1
     if not id or not SSCQuestState:IsSeen(id) and not SSCQuestState:Setting("unlock") then
         self.active=false;self.id=nil
@@ -668,8 +668,8 @@ function P:Show(id)
     self.active=true
     if self.page.frame:IsVisible() then self:SubscribePortraits() end
     self.view.body:Hide()
-    local completed=S:IsCompleted(id)
-    local unlocked=S:Setting("unlock")
+    local completed=QuestState:IsCompleted(id)
+    local unlocked=QuestState:Setting("unlock")
     for _,stage in ipairs(MOMENTS) do
         local part=self.parts[stage]
         local allowed=stage~="complete" or completed or unlocked
@@ -728,7 +728,7 @@ capture:SetScript("OnEvent",function(frame,eventName)
     local db=Stored()
     db[id]=db[id] or {}
     db[id][stage]=text
-    if S:IsSeen(id) and SSCQuestsTab and SSCQuestsTab.Refresh then
+    if QuestState:IsSeen(id) and SSCQuestsTab and SSCQuestsTab.Refresh then
         local C=SSCCompendium
         if C and C.Active and C:Active()=="quests" then SSCQuestsTab:Refresh() end
     end

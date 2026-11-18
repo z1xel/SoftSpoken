@@ -3,7 +3,7 @@
 
 -- Shared identifiers and startup state for files loaded by the .toc.
 SSZZonesRuntime = {}
-local R = SSZZonesRuntime
+local PlacesRuntime = SSZZonesRuntime
 
 -- All Vanilla and Turtle zone names come from the lore catalog loaded
 -- before Core.lua in the .toc. Keep only genuine client-name aliases below,
@@ -55,14 +55,14 @@ local function HeardKey(mapID, areaKey)
     return "s:" .. mapID .. ":" .. Normalise(areaKey)
 end
 
-R.ZONE_NAMES = ZONE_NAMES
-R.Normalise = Normalise
-R.AudioID = AudioID
-R.CurrentLocation = CurrentLocation
-R.HeardKey = HeardKey
-R.Say = Say
-R.startupActive = true
-R.firstWorldReady = false
-R.startupStableKey = nil
-R.startupStableElapsed = 0
-R.source = nil
+PlacesRuntime.ZONE_NAMES = ZONE_NAMES
+PlacesRuntime.Normalise = Normalise
+PlacesRuntime.AudioID = AudioID
+PlacesRuntime.CurrentLocation = CurrentLocation
+PlacesRuntime.HeardKey = HeardKey
+PlacesRuntime.Say = Say
+PlacesRuntime.startupActive = true
+PlacesRuntime.firstWorldReady = false
+PlacesRuntime.startupStableKey = nil
+PlacesRuntime.startupStableElapsed = 0
+PlacesRuntime.source = nil

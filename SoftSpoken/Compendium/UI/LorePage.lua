@@ -1,13 +1,13 @@
 -- Shared SoftSpoken lore page: parchment reader and original art UVs.
 -- Page rendering is independent of discovery and narration state.
 SSCLorePage = SSCLorePage or {}
-local P = SSCLorePage
-local U = SSCUI
-local T = SSCTextView
-local A = SSCPlayButton
+local LorePage = SSCLorePage
+local CompendiumUI = SSCUI
+local TextView = SSCTextView
+local PlayButton = SSCPlayButton
 local Page = {}
 Page.__index = Page
-P.Page = Page
+LorePage.Page = Page
 
 -- Keep the original ornamental divider art and its source UV coordinates.
 local ORIGINAL_ART = SSCOriginalArt == true
@@ -220,7 +220,7 @@ function Page:Show(entry)
     self:Resize(false)
 end
 
-function P.CreateLorePage(parent,options)
+function LorePage.CreateLorePage(parent,options)
     local page=setmetatable({inset=INSET,
         expandSubtitle=options and options.expandSubtitle==true},Page)
     local frame=CreateFrame("Frame",nil,parent)
@@ -237,7 +237,7 @@ function P.CreateLorePage(parent,options)
 
     -- Every lore page uses the bundled QuestBG parchment. The opaque
     -- underlay remains available if that file cannot be drawn.
-    if not ORIGINAL_ART then U.AddBorder(frame,PARCHMENT) end
+    if not ORIGINAL_ART then CompendiumUI.AddBorder(frame,PARCHMENT) end
     local parchment=frame:CreateTexture(nil,"BORDER")
     parchment:SetAllPoints(frame)
     parchment:SetTexture(PARCHMENT)
@@ -314,7 +314,7 @@ function P.CreateLorePage(parent,options)
     end
     page.divider=divider
 
-    page.play=A.Create(frame)
+    page.play=PlayButton.Create(frame)
     if options and options.openInCompendium then
         -- The map reader offers a shortcut to the Places Compendium entry.
         local open=CreateFrame("Button",nil,frame)
@@ -348,7 +348,7 @@ function P.CreateLorePage(parent,options)
         open:SetScript("OnMouseUp",function() art:SetAlpha(.85) end)
         open:SetScript("OnClick",function()
             if open.mapID then
-                if P.OnOpenLore then P.OnOpenLore(open.mapID,open.areaKey) end
+                if LorePage.OnOpenLore then LorePage.OnOpenLore(open.mapID,open.areaKey) end
             end
         end)
         open:SetScript("OnEnter",function(self)
@@ -375,7 +375,7 @@ function P.CreateLorePage(parent,options)
             control:HookScript("OnHide",function() page:PlaceButtons() end)
         end
     end
-    page.body=T.New(frame,function()
+    page.body=TextView.New(frame,function()
         if page.body then page:Resize(false) end
     end)
     -- Anchor text immediately under the ornamental divider. Unlike the old
@@ -389,10 +389,10 @@ function P.CreateLorePage(parent,options)
     return page
 end
 
-function P.Build(window)
-    if P.page then return P.page end
-    local page=P.CreateLorePage(window)
-    P.page=page
+function LorePage.Build(window)
+    if LorePage.page then return LorePage.page end
+    local page=LorePage.CreateLorePage(window)
+    LorePage.page=page
     return page
 end
 
@@ -404,7 +404,7 @@ local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\UI-Ba
 -- This file is already included with SoftSpoken and is byte-identical to the
 -- texture used by the shared native skin, so the integrated reader can be portable.
 
-function P.ApplyPaneSkin(inset,holder,page)
+function LorePage.ApplyPaneSkin(inset,holder,page)
     if not inset or not holder or not page or not page.frame then return end
     if inset.sszPageVisual then return inset.sszPageVisual end
 

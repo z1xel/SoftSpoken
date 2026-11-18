@@ -2,18 +2,18 @@
 -- Upstream-shaped text API using Vanilla/Turtle scroll widgets.
 -- No modern ScrollBox, atlas, masking or C_Texture APIs required.
 SSCTextView = SSCTextView or {}
-local T = SSCTextView
-local U = SSCUI
+local TextView = SSCTextView
+local CompendiumUI = SSCUI
 local View = {}
 View.__index = View
-T.View = View
+TextView.View = View
 local PICTURE_MOST, PICTURE_GAP = 400, 10
 -- The viewport gradient handles fading without oversized text clearances.
 -- Keep the existing compact padding and original quest log line spacing.
 local TEXT_PAD_TOP, TEXT_PAD_BOTTOM = 8, 12
 -- Expose reader padding so specialized content (such as quest sections)
 -- uses the same viewport margins as the normal lore FontString.
-T.PAD_TOP, T.PAD_BOTTOM = TEXT_PAD_TOP, TEXT_PAD_BOTTOM
+TextView.PAD_TOP, TextView.PAD_BOTTOM = TEXT_PAD_TOP, TEXT_PAD_BOTTOM
 local LINE_SPACING = 0
 local function FontSize()
     if SSCCompendium and SSCCompendium.TextSize then
@@ -33,7 +33,7 @@ end
 -- GetStringHeight was added in WoW 2.3, so native 1.12 FontStrings
 -- must use their auto-sized region height instead. The lore body has
 -- an explicit width, but deliberately has no fixed height.
-function T.MeasureTextHeight(fontString)
+function TextView.MeasureTextHeight(fontString)
     if not fontString then return 0 end
     local height
     if fontString.GetStringHeight then
@@ -48,17 +48,17 @@ end
 -- Both the lore reader and the Compendium's virtualized left list now use
 -- the same ClassicAPI gradient controller; preserve the existing reader API.
 function View:RefreshEdgeFade()
-    U.RefreshScrollEdgeFade(self)
+    CompendiumUI.RefreshScrollEdgeFade(self)
 end
 
 function View:EnableEdgeFade()
-    U.EnableScrollEdgeFade(self)
+    CompendiumUI.EnableScrollEdgeFade(self)
 end
 
 -- Keep the current scroll offset across geometry-only changes. A new story,
 -- unlike a resize, starts at the top.
 function View:ScrollTo(value)
-    U.SetScrollOffset(self.scroll,self.child,value)
+    CompendiumUI.SetScrollOffset(self.scroll,self.child,value)
     self:RefreshEdgeFade()
     local native=self.sszNativeScrollChrome
     if native then native.sync() end
@@ -69,7 +69,7 @@ end
 function View:Reflow(resetScroll)
     local scroll,child,body=self.scroll,self.child,self.body
     if not (scroll and child and body) then return end
-    local previous=resetScroll and 0 or U.ScrollOffset(scroll)
+    local previous=resetScroll and 0 or CompendiumUI.ScrollOffset(scroll)
     local width=scroll:GetWidth() or 0
     if width<=100 then width=self.lastWidth or 450 end
     self.lastWidth=width
@@ -95,13 +95,13 @@ function View:Reflow(resetScroll)
     end
     body:ClearAllPoints()
     body:SetPoint("TOPLEFT",child,"TOPLEFT",0,-TEXT_PAD_TOP-pictureRoom)
-    local height=T.MeasureTextHeight(body)+pictureRoom+
+    local height=TextView.MeasureTextHeight(body)+pictureRoom+
         TEXT_PAD_TOP+TEXT_PAD_BOTTOM
     child:SetHeight(math.max(height,scroll:GetHeight() or 1))
     -- On 1.12 the scroll rectangle is not refreshed automatically after a
     -- child resize. Do this before restoring the clamped scroll offset.
     if scroll.UpdateScrollChildRect then scroll:UpdateScrollChildRect() end
-    local maximum=U.ScrollMax(scroll,child)
+    local maximum=CompendiumUI.ScrollMax(scroll,child)
     self.range=maximum
     self:ScrollTo(Clamp(previous,0,maximum))
 end
@@ -175,7 +175,7 @@ function View:Hide()
     if self.sszNativeScrollChrome then self.sszNativeScrollChrome.slot:Hide() end
 end
 
-function T.CreateTextView(parent,onResize)
+function TextView.CreateTextView(parent,onResize)
     local view=setmetatable({fontSize=FontSize()},View)
     local pageScroll=CreateFrame("ScrollFrame",nil,parent)
     pageScroll:SetPoint("TOPLEFT",parent,"TOPLEFT",24,-98)
@@ -214,8 +214,8 @@ function T.CreateTextView(parent,onResize)
         view:RefreshEdgeFade()
     end)
     pageScroll:SetScript("OnMouseWheel",function(first,second)
-        local delta=U.MouseWheelDelta(first,second)
-        view:ScrollTo(U.ScrollOffset(pageScroll)-delta*38)
+        local delta=CompendiumUI.MouseWheelDelta(first,second)
+        view:ScrollTo(CompendiumUI.ScrollOffset(pageScroll)-delta*38)
     end)
     -- The page-local callback is retained for the existing LorePage frame
     -- resize handler, and a stand-alone TextView also responds to direct
@@ -236,4 +236,4 @@ function T.CreateTextView(parent,onResize)
 end
 
 -- Keep the old constructor while exposing an upstream-shaped one.
-T.New=T.CreateTextView
+TextView.New=TextView.CreateTextView

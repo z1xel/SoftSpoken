@@ -1,8 +1,8 @@
 -- Index and chain algorithms adapted from Spoken Quests 3.4.0 QuestsTab.lua.
 -- No UI frames or audio code. Works on Lua 5.0 (WoW 1.12).
 SSCQuestCatalog = SSCQuestCatalog or {}
-local M=SSCQuestCatalog
-local S=SSCQuestState
+local QuestCatalog=SSCQuestCatalog
+local QuestState=SSCQuestState
 local sections={
     {key="classes",label="Classes",sorts={[61]=true,[81]=true,[82]=true,[141]=true,[161]=true,[162]=true,[261]=true,[262]=true,[263]=true}},
     {key="professions",label="Professions",sorts={[24]=true,[101]=true,[121]=true,[181]=true,[182]=true,[201]=true,[264]=true,[304]=true,[324]=true,[371]=true}},
@@ -58,14 +58,14 @@ local function SortName(sort)
     if raw then return raw[GetLocale and GetLocale() or "enUS"] or raw[1] end
     return tostring(sort)
 end
-function M:Entry(id)
+function QuestCatalog:Entry(id)
     return Raw().quests and Raw().quests[id] or nil
 end
-function M:Title(id,request)
+function QuestCatalog:Title(id,request)
     local entry=self:Entry(id)
-    return S:Title(id,entry and entry[1],request or (not entry and S:IsSeen(id)))
+    return QuestState:Title(id,entry and entry[1],request or (not entry and QuestState:IsSeen(id)))
 end
-function M:SortName(sort) return SortName(sort) end
+function QuestCatalog:SortName(sort) return SortName(sort) end
 local following,firstOf,stepsOf
 local function Prev(id)
     local quest=Raw().quests[id]
@@ -107,9 +107,9 @@ end
 local function ChainName(first)
     local entry=Raw().quests[first]
     local name=entry and entry.name
-    if type(name)=="number" and Raw().quests[name] then return M:Title(name) end
+    if type(name)=="number" and Raw().quests[name] then return QuestCatalog:Title(name) end
     if type(name)=="table" then return name[GetLocale and GetLocale() or "enUS"] or name[1] end
-    return M:Title(first)
+    return QuestCatalog:Title(first)
 end
 local function Node(key,label,kind)
     return {key=key,label=label,kind=kind,children={},ids={},leaf=false}
@@ -136,7 +136,7 @@ local function MakeLeaves(group,ids)
             local chain=Attach(group,Node(group.key..":chain:"..first,ChainName(first),"chain"))
             chain.ids=InOrder(members)
             for _,id in ipairs(chain.ids) do
-                local leaf=Attach(chain,Node("q:"..id,M:Title(id),"quest"))
+                local leaf=Attach(chain,Node("q:"..id,QuestCatalog:Title(id),"quest"))
                 leaf.id=id;leaf.leaf=true
             end
         else
@@ -148,12 +148,12 @@ local function MakeLeaves(group,ids)
         return a.label<b.label
     end)
     table.sort(singles,function(a,b)
-        local ta,tb=M:Title(a),M:Title(b)
+        local ta,tb=QuestCatalog:Title(a),QuestCatalog:Title(b)
         if ta==tb then return a<b end
         return ta<tb
     end)
     for _,id in ipairs(singles) do
-        local leaf=Attach(group,Node("q:"..id,M:Title(id),"quest"))
+        local leaf=Attach(group,Node("q:"..id,QuestCatalog:Title(id),"quest"))
         leaf.id=id;leaf.leaf=true
     end
 end
@@ -171,7 +171,7 @@ local function SortedKeys(t, names)
     end)
     return keys
 end
-function M:BuildTree()
+function QuestCatalog:BuildTree()
     local all,zones,turtleAreas,nativeAreaDungeons,sorts,unknown={},{},{},{},{},{}
     local areaMeta=_G.SSCTurtleAreaMeta or {}
     for id,entry in pairs(Raw().quests) do
@@ -203,7 +203,7 @@ function M:BuildTree()
     end
     -- Discovered Turtle-only quests MUST NOT disappear because they are absent
     -- from Spoken's upstream static quest corpus.
-    for id in pairs(S:SeenIDs()) do
+    for id in pairs(QuestState:SeenIDs()) do
         if not all[id] and not Raw().quests[id] then
             all[id]=true
             table.insert(unknown,id)
@@ -224,9 +224,9 @@ function M:BuildTree()
         local meta=areaMeta[areaID]
         if meta and meta.parentZone then usedZones[meta.parentZone]=true end
     end
-    local zoneIDs=SortedKeys(usedZones,function(id) return S:MapName(id) end)
+    local zoneIDs=SortedKeys(usedZones,function(id) return QuestState:MapName(id) end)
     for _,zone in ipairs(zoneIDs) do
-        local zoneNode=Node("zone:"..zone,S:MapName(zone),"zone")
+        local zoneNode=Node("zone:"..zone,QuestState:MapName(zone),"zone")
         zoneNodes[zone]=zoneNode
         zoneNode.mapID=zone
         if pvpZones[zone] then zoneNode.iconType="pvp" end

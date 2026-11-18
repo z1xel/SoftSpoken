@@ -4,7 +4,7 @@ setfenv(1, VoiceOver)
 -- Quest stages come from the quest corpus; live dialogue can supply a real GUID.
 -- This file does no rendering or network queries and does not depend on Compendium UI.
 SpeakerResolver = {}
-local R = SpeakerResolver
+local SpeakerResolver = SpeakerResolver
 
 local function PositiveID(value)
     local id = tonumber(value)
@@ -33,7 +33,7 @@ local function GUIDKind(guid)
     end
 end
 
-function R:StageForEvent(event)
+function SpeakerResolver:StageForEvent(event)
     local events = Enums and Enums.SoundEvent
     if not events then return nil end
     if event == events.QuestAccept then return "accept" end
@@ -44,7 +44,7 @@ end
 -- A quest stage may have several legitimate NPC speakers. A static quest ID
 -- cannot select among them; actual dialogue has a GUID, whereas the Compendium
 -- should display the entire set rather than pick an arbitrary pack fallback.
-function R:MultipleSpeakers(questID, stage)
+function SpeakerResolver:MultipleSpeakers(questID, stage)
     local id = PositiveID(questID)
     if not id or (stage ~= "accept" and stage ~= "progress" and stage ~= "complete") then return nil end
     local corpus = rawget(_G, "SpokenQuestsCompendium")
@@ -81,7 +81,7 @@ end
 
 -- Data/Compendium.lua is loaded after the narrator module. Read it lazily,
 -- without requiring the Compendium window or any of its page/list modules.
-function R:ForQuest(questID, stage)
+function SpeakerResolver:ForQuest(questID, stage)
     local id = PositiveID(questID)
     if not id or (stage ~= "accept" and stage ~= "progress" and stage ~= "complete") then return nil end
 
@@ -131,7 +131,7 @@ function R:ForQuest(questID, stage)
     if kind and speaker then return kind, speaker end
 end
 
-function R:Name(kind, id, fallback)
+function SpeakerResolver:Name(kind, id, fallback)
     local data = DataModules
     local name = kind and id and data and SafeCall(data.GetObjectName, data, kind, id)
     if type(name) == "string" and name ~= "" then return name end
@@ -157,7 +157,7 @@ end
 -- Resolve a clip with an actual speaker GUID before the quest's indexed speaker.
 -- An explicit object/item always remains faceless. The name-only fallback is
 -- limited to the interacting "npc" unit, never an unrelated "target".
-function R:ForSound(soundData)
+function SpeakerResolver:ForSound(soundData)
     if type(soundData) ~= "table" then return nil end
 
     local stage = self:StageForEvent(soundData.event)

@@ -2,10 +2,10 @@
 -- virtual list. Upstream's quest catalogue and its chain hierarchy are in
 -- QuestCatalog.lua; gameplay state is in QuestState.lua.
 SSCQuestsTab = SSCQuestsTab or {}
-local Q=SSCQuestsTab
-local C=SSCCompendium
-local S=SSCQuestState
-local M=SSCQuestCatalog
+local QuestsTab=SSCQuestsTab
+local Compendium=SSCCompendium
+local QuestState=SSCQuestState
+local QuestCatalog=SSCQuestCatalog
 local Preload=SSCQuestPortraitPreload
 local list,panel,page,details,tree
 local treeRevision=-1
@@ -17,41 +17,41 @@ local onlyVoiceCache={}
 
 -- Recomputed when voice packs or the preferred language change. Without this,
 -- a negative lookup made before deferred Quests data loaded remains stale.
-function Q:InvalidateVoiceCache()
+function QuestsTab:InvalidateVoiceCache()
     onlyVoiceCache={}
-    if C and C.IsOpen and C:IsOpen("quests") then
-        C:Refresh()
+    if Compendium and Compendium.IsOpen and Compendium:IsOpen("quests") then
+        Compendium:Refresh()
     end
 end
 if Spoken and Spoken.RegisterCallback then
-    Spoken:RegisterCallback("VOICE_PACKS_LOADED",function() Q:InvalidateVoiceCache() end)
-    Spoken:RegisterCallback("VOICE_LANGUAGE_CHANGED",function() Q:InvalidateVoiceCache() end)
+    Spoken:RegisterCallback("VOICE_PACKS_LOADED",function() QuestsTab:InvalidateVoiceCache() end)
+    Spoken:RegisterCallback("VOICE_LANGUAGE_CHANGED",function() QuestsTab:InvalidateVoiceCache() end)
 end
 local function Lower(text)
     return string.lower(tostring(text or ""))
 end
 local function Settings(key,value)
-    return S:Setting(key,value)
+    return QuestState:Setting(key,value)
 end
 local function EnsureCatalog()
     if not _G.SpokenQuestsCompendium then
-        Q.loadError="Quest catalog data is unavailable. Reinstall SoftSpoken_Stories."
+        QuestsTab.loadError="Quest catalog data is unavailable. Reinstall SoftSpoken_Stories."
         return nil
     end
-    Q.loadError=nil
-    if not tree or treeRevision~=S.revision then
-        tree=M:BuildTree()
-        S:SeedActive(tree.idSet)
+    QuestsTab.loadError=nil
+    if not tree or treeRevision~=QuestState.revision then
+        tree=QuestCatalog:BuildTree()
+        QuestState:SeedActive(tree.idSet)
         -- Newly seeded collapsed quests may extend the tree with custom IDs.
-        if treeRevision~=S.revision then tree=M:BuildTree() end
-        treeRevision=S.revision
+        if treeRevision~=QuestState.revision then tree=QuestCatalog:BuildTree() end
+        treeRevision=QuestState.revision
     end
     return tree
 end
 local function Status(id)
-    if S:IsCompleted(id) then return "Completed" end
-    if S:IsActive(id) then return "In progress" end
-    if S:IsSeen(id) then return "Previously encountered" end
+    if QuestState:IsCompleted(id) then return "Completed" end
+    if QuestState:IsActive(id) then return "In progress" end
+    if QuestState:IsSeen(id) then return "Previously encountered" end
     return "Not discovered"
 end
 local function HasVoice(id)
@@ -71,7 +71,7 @@ local function HasVoice(id)
     return result
 end
 local function IsVisible(id)
-    if Settings("foundOnly") and not S:IsSeen(id) then return false end
+    if Settings("foundOnly") and not QuestState:IsSeen(id) then return false end
     if Settings("voicedOnly") and not HasVoice(id) then return false end
     return true
 end
@@ -80,7 +80,7 @@ local function Match(str)
 end
 local function Matching(node,forced)
     if node.leaf then
-        return IsVisible(node.id) and (forced or Match(M:Title(node.id)))
+        return IsVisible(node.id) and (forced or Match(QuestCatalog:Title(node.id)))
     end
     local full=forced or Match(node.label)
     for _,child in ipairs(node.children) do
@@ -93,8 +93,8 @@ local function Count(node)
     for id in pairs(node.idSet or {}) do
         if IsVisible(id) then
             total=total+1
-            if S:IsSeen(id) then found=found+1 end
-            if S:IsCompleted(id) then completed=completed+1 end
+            if QuestState:IsSeen(id) then found=found+1 end
+            if QuestState:IsCompleted(id) then completed=completed+1 end
         end
     end
     return found,total,completed
@@ -103,8 +103,8 @@ local function AddRow(rows,node,depth,forceMatch)
     if not Matching(node,forceMatch) then return end
     if node.leaf then
         table.insert(rows,{kind="quest",leaf=true,id=node.id,depth=depth,
-            label=M:Title(node.id),locked=not S:IsSeen(node.id) and not Settings("unlock"),
-            missing=not S:IsSeen(node.id)})
+            label=QuestCatalog:Title(node.id),locked=not QuestState:IsSeen(node.id) and not Settings("unlock"),
+            missing=not QuestState:IsSeen(node.id)})
         return
     end
     local openedNow = (filter~="" and not searchClosed[node.key]) or
@@ -119,60 +119,60 @@ local function AddRow(rows,node,depth,forceMatch)
         for _,child in ipairs(node.children) do AddRow(rows,child,depth+1,all) end
     end
 end
-function Q:BuildRows()
+function QuestsTab:BuildRows()
     local roots=EnsureCatalog()
     if not roots then return {} end
     local rows={}
     for _,node in ipairs(roots.children) do AddRow(rows,node,0,false) end
     return rows
 end
-function Q:IsSelected(item)
+function QuestsTab:IsSelected(item)
     return item.leaf and item.id==selectedID or false
 end
 local function PageEntry()
-    if Q.loadError and not tree then
-        return {title="Stories",subtitle="Missing companion data",text=Q.loadError,empty=true}
+    if QuestsTab.loadError and not tree then
+        return {title="Stories",subtitle="Missing companion data",text=QuestsTab.loadError,empty=true}
     end
     if not selectedID then
         return {title="Stories",subtitle="Quest acceptance, progress and completion",
             text="Select a quest to read its dialogue and replay available recordings."}
     end
-    local entry=M:Entry(selectedID)
-    local title=M:Title(selectedID,true)
+    local entry=QuestCatalog:Entry(selectedID)
+    local title=QuestCatalog:Title(selectedID,true)
     local status=Status(selectedID)
     local place=""
     if entry and type(entry.zones)=="table" and table.getn(entry.zones)>0 then
         local names={}
-        for _,zone in ipairs(entry.zones) do table.insert(names,S:MapName(zone)) end
+        for _,zone in ipairs(entry.zones) do table.insert(names,QuestState:MapName(zone)) end
         place=table.concat(names,", ")
     elseif entry and type(entry.turtleArea)=="number" and entry.turtleArea>0 then
         -- Verified AreaTable links use the canonical UiMap name provider.
         local meta=_G.SSCTurtleAreaMeta and _G.SSCTurtleAreaMeta[entry.turtleArea]
         if meta and meta.uiMapID then
-            place=S:MapName(meta.uiMapID)
+            place=QuestState:MapName(meta.uiMapID)
         elseif meta and meta.dungeonMapID then
-            place=C.DungeonName(meta.dungeonMapID)
+            place=Compendium.DungeonName(meta.dungeonMapID)
         else
             place=meta and meta.name or ("Turtle Area "..entry.turtleArea)
         end
     elseif entry and entry.sort then
-        place=M:SortName(entry.sort)
+        place=QuestCatalog:SortName(entry.sort)
     else
         place="Place unknown (Turtle/uncatalogued quest)"
     end
     return {title=title,subtitle=place.."  ·  "..status,key="quest:"..selectedID,
         text=""}
 end
-function Q:Refresh()
+function QuestsTab:Refresh()
     if not list then return end
     -- Turning off the Settings unlock checkbox must also revoke any
     -- previously selected undiscovered quest's detail page.
-    if selectedID and not S:IsSeen(selectedID) and not Settings("unlock") then
+    if selectedID and not QuestState:IsSeen(selectedID) and not Settings("unlock") then
         selectedID=nil
     end
     -- Selected quest first; visible-row work starts only after the list redraw.
     if Preload then
-        if C and C.IsOpen and C:IsOpen("quests") then
+        if Compendium and Compendium.IsOpen and Compendium:IsOpen("quests") then
             Preload:Start()
             Preload:Selected(selectedID)
         else
@@ -186,7 +186,7 @@ function Q:Refresh()
         if details then details:Show(selectedID) end
     end
 end
-function Q:Select(item)
+function QuestsTab:Select(item)
     if item.leaf then
         if item.locked then return end
         selectedID=item.id
@@ -198,17 +198,17 @@ function Q:Select(item)
             opened[item.key]=not opened[item.key]
         end
     end
-    Q:Refresh()
+    QuestsTab:Refresh()
 end
 local function Build(panelFrame)
     panel=panelFrame
     EnsureCatalog()
-    list=C.NewList(panelFrame,{
+    list=Compendium.NewList(panelFrame,{
         search="Search",
         none="No matching quests.",
         noneDiscovered="No quests discovered yet.",
         discoveryOnly=function()
-            return not Q.loadError and Settings("foundOnly") and not Settings("voicedOnly")
+            return not QuestsTab.loadError and Settings("foundOnly") and not Settings("voicedOnly")
         end,
         only="Discovered Only",
         onlyGet=function() return Settings("foundOnly") end,
@@ -217,30 +217,30 @@ local function Build(panelFrame)
             {label="Voiced Only",get=function() return Settings("voicedOnly") end,
                 set=function(on) Settings("voicedOnly",on) end},
         },
-        build=function() return Q:BuildRows() end,
-        isSelected=function(item) return Q:IsSelected(item) end,
-        onClick=function(item) Q:Select(item) end,
+        build=function() return QuestsTab:BuildRows() end,
+        isSelected=function(item) return QuestsTab:IsSelected(item) end,
+        onClick=function(item) QuestsTab:Select(item) end,
         onHover=function(item)
-            if Preload and C and C.IsOpen and C:IsOpen("quests") then Preload:Hover(item) end
+            if Preload and Compendium and Compendium.IsOpen and Compendium:IsOpen("quests") then Preload:Hover(item) end
         end,
         onVisibleRows=function(items,first,last)
-            if Preload and C and C.IsOpen and C:IsOpen("quests") then
+            if Preload and Compendium and Compendium.IsOpen and Compendium:IsOpen("quests") then
                 Preload:Visible(items,first,last)
             end
         end,
         onSearch=function(text)
             filter=Lower(string.gsub(string.gsub(text or "","^%s+",""),"%s+$",""))
             searchClosed={}
-            Q:Refresh()
+            QuestsTab:Refresh()
         end,
     })
-    panelFrame.Refresh=function() Q:Refresh() end
+    panelFrame.Refresh=function() QuestsTab:Refresh() end
     panelFrame.listInset=list.inset
     -- Use the very same right-page construction as Places and Readables.
     -- The shared prototype skin owns parchment art, geometry and scroll
     -- chrome; Quests supplies only quest-specific content and actions.
     local pageInset
-    pageInset, page = C.CreatePagePane(panelFrame, list, function(holder)
+    pageInset, page = Compendium.CreatePagePane(panelFrame, list, function(holder)
         return SSCLorePage.CreateLorePage(holder)
     end)
     if SSCQuestPage and SSCQuestPage.Create then
@@ -252,15 +252,15 @@ local function Build(panelFrame)
 end
 -- Register before PLAYER_ENTERING_WORLD; zone tab can register before or
 -- after this one without requiring a window rewrite.
-if C and C.Register and not C:Tab("quests") then
-    C:Register("quests",{
+if Compendium and Compendium.Register and not Compendium:Tab("quests") then
+    Compendium:Register("quests",{
         label="Stories",order=0,title="Azeroth's Compendium",
         build=Build,
-        onShow=function() S:ReadLog() end,
+        onShow=function() QuestState:ReadLog() end,
         onHide=function() if Preload then Preload:Stop() end end,
         -- A second click on the currently selected tab returns to its landing
         -- page; switching away and back never clears the current quest.
-        onReselect=function() selectedID=nil;Q:Refresh() end,
+        onReselect=function() selectedID=nil;QuestsTab:Refresh() end,
         -- The Quests module switch governs both audio and its Compendium page.
         -- Gossip has its own independent narration switch.
         enabled=function() return Spoken and Spoken.IsPartOn and Spoken:IsPartOn("quests") end,
@@ -268,7 +268,7 @@ if C and C.Register and not C:Tab("quests") then
             get=function() return Settings("unlock") end,
             set=function(on)
                 Settings("unlock",on)
-                Q:Refresh()
+                QuestsTab:Refresh()
             end,
         },
     })

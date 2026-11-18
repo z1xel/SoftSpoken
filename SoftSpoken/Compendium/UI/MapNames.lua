@@ -1,7 +1,7 @@
 -- Compendium UiMapID labels. Available even without the Zones module.
 -- Includes names for imported map IDs missing from the 1.12 client.
-local C=SSCCompendium
-local N={
+local Compendium=SSCCompendium
+local MapNames={
     [947]="Azeroth",
     [1411]="Durotar",
     [1412]="Mulgore",
@@ -56,6 +56,6 @@ local N={
     [1460]="Warsong Gulch",
     [1461]="Arathi Basin",
 }
-function C.MapName(mapID)
-    return N[mapID] or tostring(mapID)
+function Compendium.MapName(mapID)
+    return MapNames[mapID] or tostring(mapID)
 end

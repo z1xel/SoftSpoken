@@ -2,8 +2,8 @@
 -- Original atlas UVs, fixed caps, marble recess and 16-unit thumb geometry.
 -- Sliders drive the list/reader offset directly; no duplicate scroll model.
 SSCNativeScrollbar = SSCNativeScrollbar or {}
-local Skin = SSCNativeScrollbar
-local U = SSCUI
+local Scrollbar = SSCNativeScrollbar
+local CompendiumUI = SSCUI
 local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\UI-Background-Marble"
 local SCROLL_ART = "Interface\\PaperDollInfoFrame\\UI-Character-ScrollBar"
 local SLOT_WIDTH = 31
@@ -207,8 +207,8 @@ local function Attach(host,owner,apply,slotOffset)
             inSync=false
             return
         end
-        local maximum=math.max(0,U.ScrollMax(owner.scroll,owner.child))
-        local raw=U.ScrollOffset(owner.scroll)
+        local maximum=math.max(0,CompendiumUI.ScrollMax(owner.scroll,owner.child))
+        local raw=CompendiumUI.ScrollOffset(owner.scroll)
         local value=math.max(0,math.min(maximum,raw))
         -- When a viewport grows, its old offset may exceed the NEW range.
         -- Clamp the actual scroll model as well as the visual slider.
@@ -255,14 +255,14 @@ local function Attach(host,owner,apply,slotOffset)
     return owner.sszNativeScrollChrome
 end
 
-function Skin.AttachList(list)
+function Scrollbar.AttachList(list)
     if not list or not list.inset or not list.scroll or not list.child then return end
     -- The native control now calls the list's scroll model directly.
     -- List inset x=4..307; native scrollbar slot x=303..334.
     return Attach(list.inset,list,function(v) list:ScrollTo(v) end,27)
 end
 
-function Skin.AttachPage(pageInset,page)
+function Scrollbar.AttachPage(pageInset,page)
     local view=page and page.body
     if not view or not view.scroll or not view.child then return end
     -- Shared page housing offset; list and page use one native controller.
@@ -275,7 +275,7 @@ end
 -- second slider. Its UIPanelScrollFrameTemplate must remain authoritative:
 -- it already owns scroll-wheel behavior, drag updates, arrow clicks, and range
 -- recalculation when Home/Stories/Places/Writings change their content.
-function Skin.AttachSettings(panel,scroll)
+function Scrollbar.AttachSettings(panel,scroll)
     if not panel or not scroll or not scroll.GetName then return end
     if scroll.sszNativeScrollChrome then return scroll.sszNativeScrollChrome end
     local name=scroll:GetName()

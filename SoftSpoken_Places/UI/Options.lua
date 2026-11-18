@@ -1,12 +1,12 @@
 -- The 1.12 Zones settings page. Presentation only: every option below is
 -- already read by Zones' narration or map code. No new settings storage.
-local R = SSZZonesRuntime
+local PlacesRuntime = SSZZonesRuntime
 local Layout = SpokenLayout
 local optionsPage
 local optionsLayout
 
 local function Settings()
-    return R.CharDB().settings
+    return PlacesRuntime.CharDB().settings
 end
 
 local function Refresh()
@@ -60,7 +60,7 @@ local function Build()
         function(on)
             Settings().holdCombat = on and true or false
             if not on then Settings().stopCombat = false end
-            if R.Recheck then R.Recheck() end
+            if PlacesRuntime.Recheck then PlacesRuntime.Recheck() end
             Refresh()
         end)
     layout:Requires(combat, function()
@@ -72,7 +72,7 @@ local function Build()
         function(on)
             Settings().stopCombat = on and true or false
             if on then Settings().holdCombat = true end
-            if R.Recheck then R.Recheck() end
+            if PlacesRuntime.Recheck then PlacesRuntime.Recheck() end
             Refresh()
         end)
     layout:Requires(stop, function()
@@ -105,7 +105,7 @@ local function Build()
     -- metadata. Coverage is counted only when a pack is expanded.
     layout:PackInventory(function()
         local result = {}
-        for _, pack in ipairs(R.AudioPackDetails()) do
+        for _, pack in ipairs(PlacesRuntime.AudioPackDetails()) do
             local entry = pack
             local addon = entry.addon
             local source = entry.source
@@ -166,13 +166,13 @@ local function Build()
     layout:Defaults(function()
         Layout.Confirm("Reset Places preferences? Discovered and heard areas are kept.",
             "Reset", "Cancel", function()
-                R.ResetOptions()
+                PlacesRuntime.ResetOptions()
                 -- Apply the restored map preference immediately, not only
                 -- after the next reload or map interaction.
                 if SSZMapPanel and SSZMapPanel.SetEnabled then
                     SSZMapPanel.SetEnabled(true)
                 end
-                if R.Recheck then R.Recheck() end
+                if PlacesRuntime.Recheck then PlacesRuntime.Recheck() end
                 Refresh()
             end)
     end)

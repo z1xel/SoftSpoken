@@ -1,11 +1,11 @@
 -- SoftSpoken Zones C2: Lua 5.0-compatible module.
 -- Extracted from the working Core.lua without changing its algorithms.
 
-local R = SSZZonesRuntime
-local Normalise = R.Normalise
-local AudioID = R.AudioID
-local CharDB = R.CharDB
-local ZONE_NAMES = R.ZONE_NAMES
+local PlacesRuntime = SSZZonesRuntime
+local Normalise = PlacesRuntime.Normalise
+local AudioID = PlacesRuntime.AudioID
+local CharDB = PlacesRuntime.CharDB
+local ZONE_NAMES = PlacesRuntime.ZONE_NAMES
 local exploredCache = {}
 local nativeChecked = {} -- Native explored overlays apply to displayed map only.
 local InvalidateExploration
@@ -243,7 +243,7 @@ local function WasFound(mapID, areaKey)
     return false
 end
 
-R.VisitKey = VisitKey
-R.RecordVisit = RecordVisit
-R.InvalidateExploration = InvalidateExploration
-R.WasFound = WasFound
+PlacesRuntime.VisitKey = VisitKey
+PlacesRuntime.RecordVisit = RecordVisit
+PlacesRuntime.InvalidateExploration = InvalidateExploration
+PlacesRuntime.WasFound = WasFound

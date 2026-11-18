@@ -2,20 +2,20 @@
 -- Upstream row metrics, fonts and count placement, virtualized for 1.12.
 -- Window and list are shared; the Places tab is registered in LoreWindow.lua.
 SSCCompendium = SSCCompendium or {}
-local C = SSCCompendium
-local U = SSCUI
-C.VERSION = 1
-C.tabs = C.tabs or {}
+local Compendium = SSCCompendium
+local CompendiumUI = SSCUI
+Compendium.VERSION = 1
+Compendium.tabs = Compendium.tabs or {}
 -- Exact APPROVED native Vanilla skin list INSET width, not its older
 -- 345-unit navigation footprint. At window width 670 the Compendium list
 -- spans x=4..307; the housing overlaps 4 units at x=303..334.
-C.LIST_WIDTH = 303
-C.ICON = "Interface\\Icons\\INV_Misc_Book_11"
+Compendium.LIST_WIDTH = 303
+Compendium.ICON = "Interface\\Icons\\INV_Misc_Book_11"
 -- Upstream's shared world/map definitions, copied with a static Classic fallback.
 -- The 1.12 client has no retail C_Map; these known IDs are sufficient here.
-C.WORLD = 947
-C.CONTINENTS = { 1414, 1415 }
-C.CITY_IN = { [1453]=1429, [1454]=1411, [1455]=1426,
+Compendium.WORLD = 947
+Compendium.CONTINENTS = { 1414, 1415 }
+Compendium.CITY_IN = { [1453]=1429, [1454]=1411, [1455]=1426,
               [1456]=1412, [1457]=1438, [1458]=1420 }
 local KNOWN_CONTINENT = {}
 for _,id in ipairs({1411,1412,1413,1438,1439,1440,1441,1442,1443,1444,
@@ -25,8 +25,8 @@ end
 for _,id in ipairs({1416,1417,1418,1419,1420,1421,1422,1423,1424,1425,
     1426,1427,1428,1429,1430,1431,1432,1433,1434,1435,1436,1437,
     1453,1455,1458}) do KNOWN_CONTINENT[id]=1415 end
-C.KNOWN_CONTINENT = KNOWN_CONTINENT
-function C.ContinentOf(mapID)
+Compendium.KNOWN_CONTINENT = KNOWN_CONTINENT
+function Compendium.ContinentOf(mapID)
     -- C_Map is optional; Turtle-specific map discovery remains in LoreBridge.
     return KNOWN_CONTINENT[mapID]
 end
@@ -60,7 +60,7 @@ local MIN_HEIGHT, PAGE_MIN_WIDTH = 430 - LOWER_SHELL_SHIFT, 278
 -- Compendium geometry, expressed in window-relative UI units.
 -- Keep the header artwork unchanged; the lower panel's top edge
 -- remains raised to follow the moved-up bottom without compression.
-C.VISUAL_GEOMETRY = {
+Compendium.VISUAL_GEOMETRY = {
     listLeft=4, listWidth=303, listTop=62 - LOWER_SHELL_SHIFT, bottom=6,
     listSlotRightOffset=27, pageRightInset=29, pageSlotRightOffset=-3,
     searchX=61, searchY=-35, searchWidth=130,
@@ -77,7 +77,7 @@ local minimized = false
 -- The upstream's tab model, adapted to vanilla (notably Lua 5.0 and 1.12 frame methods).
 local function Ordered()
     local out={}
-    for key,def in pairs(C.tabs) do
+    for key,def in pairs(Compendium.tabs) do
         def.key=key
         table.insert(out,def)
     end
@@ -103,7 +103,7 @@ local LEGACY_SIZE_TABS = {"places", "readables"}
 local function LegacySize(key)
     if key~="width" and key~="height" then return nil end
     for _,tabKey in ipairs(LEGACY_SIZE_TABS) do
-        local tab=C.tabs[tabKey]
+        local tab=Compendium.tabs[tabKey]
         local old=tab and tab.store
         if old and type(old.get)=="function" then
             local value=old.get(key)
@@ -140,19 +140,19 @@ local function Store()
 end
 -- Original Spoken's portrait-frame margins: search just beneath the portrait
 -- and the list 38 units lower; the parchment begins at the search line.
-function C.Margins()
+function Compendium.Margins()
     return 4,6,-24
 end
 local function CollapsedWidth()
-    local left,right=C.Margins()
+    local left,right=Compendium.Margins()
     -- The native scrollbar housing reaches past the list inset's right edge.
     -- Size compact mode to the *housing*, not just to the list. At the
     -- approved geometry: 4 + 303 + 27 + 6 = 340 UI units.
-    return left+C.LIST_WIDTH+C.VISUAL_GEOMETRY.listSlotRightOffset+right
+    return left+Compendium.LIST_WIDTH+Compendium.VISUAL_GEOMETRY.listSlotRightOffset+right
 end
 local function MinWidth()
-    local left,right=C.Margins()
-    return math.max(C.VISUAL_GEOMETRY.windowWidth,C.LIST_WIDTH+left+right+PAGE_MIN_WIDTH)
+    local left,right=Compendium.Margins()
+    return math.max(Compendium.VISUAL_GEOMETRY.windowWidth,Compendium.LIST_WIDTH+left+right+PAGE_MIN_WIDTH)
 end
 local function ScreenMaxWidth()
     return math.max(MinWidth(),math.floor((UIParent:GetWidth() or 1920)*0.95))
@@ -238,7 +238,7 @@ local function SetCollapseArrow()
     if minimizeGlyph then minimizeGlyph:SetText(minimized and "+" or "-") end
 end
 local function ShowPages()
-    for _,tab in pairs(C.tabs) do
+    for _,tab in pairs(Compendium.tabs) do
         if tab.panel and tab.panel.pageInset then
             if minimized then tab.panel.pageInset:Hide()
             else tab.panel.pageInset:Show() end
@@ -256,11 +256,11 @@ local function SetMinimized(want)
     window:SetWidth(minimized and CollapsedWidth() or ExpandedWidth())
     ShowPages()
     SetCollapseArrow()
-    if not minimized then C:Refresh() end
+    if not minimized then Compendium:Refresh() end
 end
-function C:Expand() SetMinimized(false) end
-function C:Collapse() SetMinimized(true) end
-function C:IsCollapsed() return minimized end
+function Compendium:Expand() SetMinimized(false) end
+function Compendium:Collapse() SetMinimized(true) end
+function Compendium:IsCollapsed() return minimized end
 
 -- Upstream-style compositional chrome for the Vanilla client. The Compendium
 -- remains its own resizable window: we use individual Blizzard controls and
@@ -298,7 +298,7 @@ local function NewTab(index,label)
     reselect:Hide()
     reselect:SetScript("OnClick",function()
         if tab.key==active then
-            local def=C.tabs[active]
+            local def=Compendium.tabs[active]
             if def and def.onReselect then def.onReselect() end
             if PlaySound then PlaySound("igCharacterInfoTab") end
         end
@@ -341,7 +341,7 @@ local function LayOutTabs()
         end
         button:SetScript("OnClick",function(self)
             local control=self or this
-            if control then C:Select(control.key) end
+            if control then Compendium:Select(control.key) end
             if PlaySound then PlaySound("igCharacterInfoTab") end
         end)
         button.sszTabEnabled=(table.getn(defs)>1)
@@ -425,7 +425,7 @@ end
 local function BuildWindow()
     if window then return end
     local first=Ordered()[1]
-    window=NewWindow((first and first.title) or "Azeroth's Compendium",C.ICON)
+    window=NewWindow((first and first.title) or "Azeroth's Compendium",Compendium.ICON)
     window:SetWidth(ExpandedWidth());window:SetHeight(SavedHeight())
     -- The frame skin keeps the original 920-wide window's LEFT EDGE fixed
     -- while reducing it to 670, rather than re-centering symmetrically.
@@ -509,17 +509,17 @@ local function BuildWindow()
     grip:SetScript("OnMouseUp",function()
         window:StopMovingOrSizing()
         SaveWindowSize()
-        C:Refresh()
+        Compendium:Refresh()
     end)
     window:SetScript("OnShow",function()
         ApplyResizeBounds()
-        local tab=active and C.tabs[active]
+        local tab=active and Compendium.tabs[active]
         if tab and tab.onShow then tab.onShow(tab.panel) end
-        C:Refresh()
+        Compendium:Refresh()
         if PlaySound then PlaySound("igSpellBookOpen") end
     end)
     window:SetScript("OnHide",function()
-        local tab=active and C.tabs[active]
+        local tab=active and Compendium.tabs[active]
         if tab and tab.panel and tab.panel.list and tab.panel.list.searchBox then
             tab.panel.list.searchBox:ClearFocus()
         end
@@ -528,10 +528,10 @@ local function BuildWindow()
     end)
     if UISpecialFrames then table.insert(UISpecialFrames,NAME) end
     window:Hide()
-    C.window=window
+    Compendium.window=window
 end
 local function Panel(key)
-    local tab=C.tabs[key]
+    local tab=Compendium.tabs[key]
     if not tab then return nil end
     if not tab.panel then
         local panel=CreateFrame("Frame",nil,window)
@@ -551,25 +551,25 @@ local function Panel(key)
 end
 
 -- Upstream's public tab interfaces retained, instead of bespoke zone-window calls.
-function C:Register(key,def)
-    C.tabs[key]=def
+function Compendium:Register(key,def)
+    Compendium.tabs[key]=def
     if window then self:Relayout() end
 end
-function C:Tab(key) return C.tabs[key] end
-function C:Window()
+function Compendium:Tab(key) return Compendium.tabs[key] end
+function Compendium:Window()
     if not window then BuildWindow() end
     return window
 end
-function C:Select(key)
-    if not C.tabs[key] or not Enabled(C.tabs[key]) then return nil end
+function Compendium:Select(key)
+    if not Compendium.tabs[key] or not Enabled(Compendium.tabs[key]) then return nil end
     self:Window()
     LayOutTabs()
     local previous=active
-    if previous and previous~=key and C.tabs[previous] and C.tabs[previous].onHide then
-        C.tabs[previous].onHide(C.tabs[previous].panel)
+    if previous and previous~=key and Compendium.tabs[previous] and Compendium.tabs[previous].onHide then
+        Compendium.tabs[previous].onHide(Compendium.tabs[previous].panel)
     end
     active=key
-    for k,def in pairs(C.tabs) do
+    for k,def in pairs(Compendium.tabs) do
         if def.panel then
             if k==key then def.panel:Show() else def.panel:Hide() end
         end
@@ -577,17 +577,17 @@ function C:Select(key)
     local panel=Panel(key)
     panel:Show()
     PaintTabs()
-    if previous~=key and window:IsShown() and C.tabs[key].onShow then
-        C.tabs[key].onShow(panel)
+    if previous~=key and window:IsShown() and Compendium.tabs[key].onShow then
+        Compendium.tabs[key].onShow(panel)
     end
     if panel.Refresh then panel:Refresh() end
     return panel
 end
-function C:Open(key,areaKey)
+function Compendium:Open(key,areaKey)
     -- Refuse direct opens of disabled tabs *before* expanding the window or
     -- modifying the current map/selection. This covers /ssz and module buttons.
     local requested=(type(key)=="number" or key==nil) and "places" or key
-    if not C.tabs[requested] or not Enabled(C.tabs[requested]) then return nil end
+    if not Compendium.tabs[requested] or not Enabled(Compendium.tabs[requested]) then return nil end
     -- Preserve the existing Turtle-specific callers C:Open(mapID, areaKey),
     -- while also exposing the upstream C:Open("places") API.
     if type(key)=="number" or key==nil then
@@ -601,23 +601,23 @@ function C:Open(key,areaKey)
     if panel and not window:IsShown() then window:Show() end
     return panel
 end
-function C:IsOpen(key)
+function Compendium:IsOpen(key)
     return window~=nil and window:IsShown() and (key==nil or active==key)
 end
-function C:Hide() if window then window:Hide() end end
-function C:Active() return active end
-function C:TextSize()
-    local tab=active and C.tabs[active]
+function Compendium:Hide() if window then window:Hide() end end
+function Compendium:Active() return active end
+function Compendium:TextSize()
+    local tab=active and Compendium.tabs[active]
     local size=tab and tab.fontSize and tab.fontSize()
     return (type(size)=="number" and size) or 14
 end
-function C:Available()
+function Compendium:Available()
     for _,def in ipairs(Ordered()) do if Enabled(def) then return true end end
     return false
 end
-function C:Relayout()
+function Compendium:Relayout()
     if not window then return end
-    local selected=active and C.tabs[active]
+    local selected=active and Compendium.tabs[active]
     if not (selected and Enabled(selected)) then
         -- When the active module is disabled, move to the next available
         -- Compendium page rather than closing the whole window.
@@ -630,11 +630,11 @@ function C:Relayout()
         else
             -- Every module is off: leave no page visible and close the
             -- Compendium. No saved history or per-tab state is altered.
-            if active and C.tabs[active] and C.tabs[active].onHide then
-                C.tabs[active].onHide(C.tabs[active].panel)
+            if active and Compendium.tabs[active] and Compendium.tabs[active].onHide then
+                Compendium.tabs[active].onHide(Compendium.tabs[active].panel)
             end
             active=nil
-            for _,def in pairs(C.tabs) do
+            for _,def in pairs(Compendium.tabs) do
                 if def.panel then def.panel:Hide() end
             end
             LayOutTabs()
@@ -647,9 +647,9 @@ function C:Relayout()
         PaintTabs()
     end
 end
-function C:Toggle()
+function Compendium:Toggle()
     if window and window:IsShown() then window:Hide();return end
-    local tab=active and C.tabs[active]
+    local tab=active and Compendium.tabs[active]
     if not (tab and Enabled(tab)) then
         tab=nil
         for _,def in ipairs(Ordered()) do
@@ -659,9 +659,9 @@ function C:Toggle()
     if not tab then return end
     if tab.open then tab.open() else self:Open(tab.key) end
 end
-function C:Refresh()
+function Compendium:Refresh()
     if not window then return end
-    local tab=active and C.tabs[active]
+    local tab=active and Compendium.tabs[active]
     if tab and tab.panel and tab.panel.Refresh then tab.panel:Refresh() end
 end
 
@@ -670,7 +670,7 @@ end
 if Spoken and Spoken.RegisterCallback then
     Spoken:RegisterCallback("PART_SWITCHED",function(key)
         if key=="quests" or key=="books" or key=="zones" then
-            C:Relayout()
+            Compendium:Relayout()
         end
     end)
 end
@@ -687,16 +687,16 @@ function List:ScrollTo(value)
     -- SetVerticalScroll can synchronously invoke OnVerticalScroll.
     -- The programmatic scroll path owns the one row repaint/sync here.
     self.applyingScrollOffset=true
-    U.SetScrollOffset(self.scroll,self.child,value)
+    CompendiumUI.SetScrollOffset(self.scroll,self.child,value)
     self.applyingScrollOffset=false
     self:DrawRows()
-    U.RefreshScrollEdgeFade(self)
+    CompendiumUI.RefreshScrollEdgeFade(self)
     local native=self.sszNativeScrollChrome
     if native then native.sync() end
 end
-function C.NewList(panel,opts)
+function Compendium.NewList(panel,opts)
     local list=setmetatable({panel=panel,opts=opts,rows={},items={},filter=""},List)
-    local leftMargin,_,topMargin=C.Margins()
+    local leftMargin,_,topMargin=Compendium.Margins()
     -- Keep the existing filter/search controller; use shared Vanilla artwork
     -- and the Turtle-style search/clear controls.
     local ornate=SSCCompendiumInteriorSkin and SSCCompendiumInteriorSkin.ApplySearch
@@ -706,13 +706,13 @@ function C.NewList(panel,opts)
     else
         search=CreateFrame("EditBox",nil,panel,"InputBoxTemplate")
     end
-    search:SetWidth(C.VISUAL_GEOMETRY.searchWidth);search:SetHeight(21)
+    search:SetWidth(Compendium.VISUAL_GEOMETRY.searchWidth);search:SetHeight(21)
     search:SetAutoFocus(false);search:SetMaxLetters(70)
     -- Leave a roughly 3-unit clearance beyond the native portrait ring's
     -- right edge (~58 units from the frame left in the compact layout).
     -- The filter arrow remains anchored 2 units to the search box's right.
-    search:SetPoint("TOPLEFT",panel,"TOPLEFT",C.VISUAL_GEOMETRY.searchX,
-        C.VISUAL_GEOMETRY.searchY)
+    search:SetPoint("TOPLEFT",panel,"TOPLEFT",Compendium.VISUAL_GEOMETRY.searchX,
+        Compendium.VISUAL_GEOMETRY.searchY)
     if ornate then
         search:SetFontObject(ChatFontNormal)
         SSCCompendiumInteriorSkin.ApplySearch(search)
@@ -855,7 +855,7 @@ function C.NewList(panel,opts)
     if SSCCompendiumInteriorSkin and SSCCompendiumInteriorSkin.ApplyList then
         SSCCompendiumInteriorSkin.ApplyList(left)
     else
-        U.AddInsetBorder(left)
+        CompendiumUI.AddInsetBorder(left)
     end
     -- The 1.12 tooltip backdrop is translucent; this solid backing stops
     -- the 3D world showing through the tree, like the Vanilla Quest Log.
@@ -878,10 +878,10 @@ function C.NewList(panel,opts)
         listBackground:Hide()
         listGrain:Hide()
     end
-    local marginLeft,marginRight,top=C.Margins()
-    left:SetPoint("TOPLEFT",panel,"TOPLEFT",C.VISUAL_GEOMETRY.listLeft,-C.VISUAL_GEOMETRY.listTop)
-    left:SetPoint("BOTTOMLEFT",panel,"BOTTOMLEFT",C.VISUAL_GEOMETRY.listLeft,C.VISUAL_GEOMETRY.bottom)
-    left:SetWidth(C.LIST_WIDTH)
+    local marginLeft,marginRight,top=Compendium.Margins()
+    left:SetPoint("TOPLEFT",panel,"TOPLEFT",Compendium.VISUAL_GEOMETRY.listLeft,-Compendium.VISUAL_GEOMETRY.listTop)
+    left:SetPoint("BOTTOMLEFT",panel,"BOTTOMLEFT",Compendium.VISUAL_GEOMETRY.listLeft,Compendium.VISUAL_GEOMETRY.bottom)
+    left:SetWidth(Compendium.LIST_WIDTH)
     list.inset=left
     local scroll=CreateFrame("ScrollFrame",nil,left)
     -- Keep the native frame's inset clear of the separate scrollbar housing.
@@ -892,7 +892,7 @@ function C.NewList(panel,opts)
     scroll:EnableMouseWheel(true)
     list.scroll=scroll
     local child=CreateFrame("Frame",nil,scroll)
-    child:SetWidth(C.LIST_WIDTH-14);child:SetHeight(1)
+    child:SetWidth(Compendium.LIST_WIDTH-14);child:SetHeight(1)
     scroll:SetScrollChild(child)
     list.child=child
     scroll:SetScript("OnVerticalScroll",function()
@@ -901,18 +901,18 @@ function C.NewList(panel,opts)
         -- Genuine scroll events still repaint and sync normally.
         if list.applyingScrollOffset then return end
         list:DrawRows()
-        U.RefreshScrollEdgeFade(list)
+        CompendiumUI.RefreshScrollEdgeFade(list)
         if list.sszNativeScrollChrome then list.sszNativeScrollChrome.sync() end
     end)
     scroll:SetScript("OnMouseWheel",function(first,second)
-        local value=U.ScrollOffset(scroll)-U.MouseWheelDelta(first,second)*SCROLL_STEP
-        value=math.max(0,math.min(value,U.ScrollMax(scroll,child)))
+        local value=CompendiumUI.ScrollOffset(scroll)-CompendiumUI.MouseWheelDelta(first,second)*SCROLL_STEP
+        value=math.max(0,math.min(value,CompendiumUI.ScrollMax(scroll,child)))
         list:ScrollTo(value)
     end)
     -- A resize changes the scroll range even if the offset stays unchanged.
     -- Keep the edge fade anchored to the new viewport bounds.
     scroll:SetScript("OnSizeChanged",function()
-        U.RefreshScrollEdgeFade(list)
+        CompendiumUI.RefreshScrollEdgeFade(list)
     end)
     for i=1,VISIBLE_ROWS do list:AcquireRow(i) end
     local noMatch=left:CreateFontString(nil,"OVERLAY","GameFontDisableSmall")
@@ -927,7 +927,7 @@ function C.NewList(panel,opts)
     end
     -- Fade only the virtualized row content. Search/filter controls, the
     -- inset artwork and native scrollbar are outside the scroll viewport.
-    U.EnableScrollEdgeFade(list)
+    CompendiumUI.EnableScrollEdgeFade(list)
     panel.list=list
     return list
 end
@@ -954,7 +954,7 @@ function List:AcquireRow(index)
     local button=self.rows[index]
     if button then return button end
     button=CreateFrame("Button",nil,self.child)
-    button:SetWidth(C.LIST_WIDTH-14);button:SetHeight(BRANCH_ROW)
+    button:SetWidth(Compendium.LIST_WIDTH-14);button:SetHeight(BRANCH_ROW)
     button.bg=button:CreateTexture(nil,"BACKGROUND")
     button.bg:SetAllPoints()
     -- The actual 1.12 Quest Log selection strip, not a modern atlas crop.
@@ -1040,7 +1040,7 @@ end
 
 function List:DrawRows()
     if not self.child then return end
-    local offset=U.ScrollOffset(self.scroll)
+    local offset=CompendiumUI.ScrollOffset(self.scroll)
     local index=self:FirstVisible(offset)
     -- On tall screens, make enough pooled rows for the viewport plus 2 extra.
     -- No per-item UI frames are allocated; the pool is reused while scrolling.
@@ -1216,7 +1216,7 @@ function List:Render()
     self.child:SetHeight(math.max(1,y))
     -- Clamps offsets after filtering or expanding the tree, and refreshes
     -- native slider range/value without keeping a second control in sync.
-    self:ScrollTo(U.ScrollOffset(self.scroll))
+    self:ScrollTo(CompendiumUI.ScrollOffset(self.scroll))
     return self.items
 end
 function List:ScrollToSelection(items)

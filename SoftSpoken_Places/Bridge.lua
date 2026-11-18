@@ -1,19 +1,19 @@
 -- SoftSpoken Zones C2: Lua 5.0-compatible module.
 -- Extracted from the working Core.lua without changing its algorithms.
 
-local R = SSZZonesRuntime
-local Normalise = R.Normalise
-local AudioID = R.AudioID
-local HeardKey = R.HeardKey
-local CurrentLocation = R.CurrentLocation
-local CharDB = R.CharDB
-local VisitKey = R.VisitKey
-local WasFound = R.WasFound
-local InvalidateExploration = R.InvalidateExploration
-local RecordVisit = R.RecordVisit
-local MakeClip = R.MakeClip
-local FindRecording = R.FindRecording
-local ZONE_NAMES = R.ZONE_NAMES
+local PlacesRuntime = SSZZonesRuntime
+local Normalise = PlacesRuntime.Normalise
+local AudioID = PlacesRuntime.AudioID
+local HeardKey = PlacesRuntime.HeardKey
+local CurrentLocation = PlacesRuntime.CurrentLocation
+local CharDB = PlacesRuntime.CharDB
+local VisitKey = PlacesRuntime.VisitKey
+local WasFound = PlacesRuntime.WasFound
+local InvalidateExploration = PlacesRuntime.InvalidateExploration
+local RecordVisit = PlacesRuntime.RecordVisit
+local MakeClip = PlacesRuntime.MakeClip
+local FindRecording = PlacesRuntime.FindRecording
+local ZONE_NAMES = PlacesRuntime.ZONE_NAMES
 
 function SSZBridge:IsFound(mapID,areaKey)
     return WasFound(mapID,areaKey)
@@ -56,8 +56,8 @@ function SSZBridge:NotifyAudioChanged()
     end
 end
 function SSZBridge:GetAudioState(mapID, areaKey)
-    if not mapID or not R.source or not R.source.GetClipState then return "play" end
-    local state = R.source:GetClipState(HeardKey(mapID, areaKey))
+    if not mapID or not PlacesRuntime.source or not PlacesRuntime.source.GetClipState then return "play" end
+    local state = PlacesRuntime.source:GetClipState(HeardKey(mapID, areaKey))
     -- A queued or gated location is not actively narrating. Preserve the old
     -- Compendium button meanings: only a playing/paused head can toggle pause.
     if state == "playing" then return "stop" end
@@ -91,7 +91,7 @@ end
 -- Compendium -> Spoken audio bridge. The Compendium passes the canonical data key
 -- rather than a display name so "The Den" and "den" resolve to the same clip.
 function SSZBridge:PlayEntry(mapID, areaKey)
-    if not R.source then return false, "player not ready" end
+    if not PlacesRuntime.source then return false, "player not ready" end
     local lore = SSZLore or {}
     local z = lore.zones and lore.zones[mapID]
     local zoneName = ZONE_NAMES[mapID] or (z and z.name) or tostring(mapID)
@@ -102,7 +102,7 @@ function SSZBridge:PlayEntry(mapID, areaKey)
     local clip = MakeClip(mapID, zoneName, areaKey or zoneName, isZone, false)
     if not clip then return false, "recording not installed" end
     clip.present.label = label
-    local ok, reason = R.source:PlayNow(clip)
+    local ok, reason = PlacesRuntime.source:PlayNow(clip)
     self:NotifyAudioChanged()
     return ok, reason
 end

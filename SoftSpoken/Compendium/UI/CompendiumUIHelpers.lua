@@ -1,6 +1,6 @@
 -- Shared 1.12 UI helpers for the Compendium and lore views.
 SSCUI = SSCUI or {}
-local U = SSCUI
+local CompendiumUI = SSCUI
 local function ScrollMax(sc,content)
     return math.max(0,(content:GetHeight() or 0)-(sc:GetHeight() or 0))
 end
@@ -38,17 +38,17 @@ local function AddBorder(frame,background)
     })
 end
 
-U.ScrollMax = ScrollMax
-U.ScrollOffset = ScrollOffset
-U.SetScrollOffset = SetScrollOffset
-U.MouseWheelDelta = MouseWheelDelta
-U.AddBorder = AddBorder
+CompendiumUI.ScrollMax = ScrollMax
+CompendiumUI.ScrollOffset = ScrollOffset
+CompendiumUI.SetScrollOffset = SetScrollOffset
+CompendiumUI.MouseWheelDelta = MouseWheelDelta
+CompendiumUI.AddBorder = AddBorder
 
 -- Shared ClassicAPI scroll-edge fade for both text readers and virtualized
 -- list viewports. The viewport owns the clipping; headers, backgrounds,
 -- borders and native scrollbar housings stay outside the gradient.
 local EDGE_FADE_LENGTH = 18
-function U.RefreshScrollEdgeFade(owner)
+function CompendiumUI.RefreshScrollEdgeFade(owner)
     if not (owner and owner.edgeFadeEnabled) then return end
     local scroll,child=owner.scroll,owner.child
     local maximum=ScrollMax(scroll,child)
@@ -77,7 +77,7 @@ function U.RefreshScrollEdgeFade(owner)
     owner.edgeFadeBottom=bottom
 end
 
-function U.EnableScrollEdgeFade(owner)
+function CompendiumUI.EnableScrollEdgeFade(owner)
     local scroll=owner and owner.scroll
     if not scroll or owner.edgeFadeEnabled or not
             (scroll.SetClipsChildren and scroll.SetAlphaGradient) then return end
@@ -86,12 +86,12 @@ function U.EnableScrollEdgeFade(owner)
     local ok=pcall(scroll.SetClipsChildren,scroll,true)
     if not ok then return end
     owner.edgeFadeEnabled=true
-    U.RefreshScrollEdgeFade(owner)
+    CompendiumUI.RefreshScrollEdgeFade(owner)
 end
 
 -- A subdued 1.12 inset: the original uses InsetFrameTemplate, absent in Vanilla.
 -- Use native 1.12 tooltip textures rather than a second ornate dialog border.
-function U.AddInsetBorder(frame)
+function CompendiumUI.AddInsetBorder(frame)
     frame:SetBackdrop({
         bgFile="Interface\\Tooltips\\UI-Tooltip-Background",
         edgeFile="Interface\\Tooltips\\UI-Tooltip-Border",
