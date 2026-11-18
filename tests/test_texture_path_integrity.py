@@ -86,6 +86,23 @@ required = (
 )
 for filename in required:
     check("SoftSpoken/Textures/" + filename, "Stories consolidation", 0, "required")
+# Writings' default book portrait is a power-of-two, 32-bit TGA, not a
+# client inventory texture. Check the binary header as well as the path.
+book_art = "SoftSpoken/Textures/WritingsBook.tga"
+check(book_art, "Writings narration portrait", 0, "required")
+book_path = ROOT / book_art
+if book_path.is_file():
+    header = book_path.read_bytes()[:18]
+    if len(header) != 18:
+        issues.append(f"{book_art}: truncated TGA header")
+    else:
+        width = int.from_bytes(header[12:14], "little")
+        height = int.from_bytes(header[14:16], "little")
+        if header[2] not in (2, 10) or header[16] != 32 or any(
+            size < 1 or size & (size - 1) for size in (width, height)
+        ):
+            issues.append(f"{book_art}: expected power-of-two 32-bit true-color TGA")
+
 for old in ("SoftSpoken_Stories/Textures", "SoftSpoken_Places/Textures/Art",
             "SoftSpoken_Places/Textures/ClassicFrames", "SoftSpoken_Places/Textures/Controls"):
     if (ROOT / old).exists():
