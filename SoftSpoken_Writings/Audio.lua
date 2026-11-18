@@ -107,7 +107,10 @@ SpokenBooks.TYPE_NAMES = {
 function SpokenBooks:KindOf(book)
 	local places = _G.SSBPlaces and SSBPlaces.books
 	local place = places and places[book]
-	return L[(self.TYPE_NAMES[place and place.type] or self.TYPE_NAMES.other).one]
+    local key = (self.TYPE_NAMES[place and place.type] or self.TYPE_NAMES.other).one
+    -- When metadata or a localization entry is absent, the narrator still
+    -- needs a readable gold context line (and must not concatenate nil).
+    return L[key] or L.READABLE_OTHER or "Readable"
 end
 
 --- Whether a book is one line in the queue (Read Book as One Line), rather than a line per page.
