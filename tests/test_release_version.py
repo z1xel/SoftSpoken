@@ -17,7 +17,7 @@ for module in modules:
 runtime = {
     "SoftSpoken/Environment.lua": r'AddonVersion\s*=\s*"([^"]+)"',
     "SoftSpoken_Stories/Environment.lua": r'AddonVersion\s*=\s*"([^"]+)"',
-    "SoftSpoken_Writings/Core.lua": r'B\.version\s*=\s*"([^"]+)"',
+    "SoftSpoken_Writings/Core.lua": r'Writings\.version\s*=\s*"([^"]+)"',
     "tests/audio_phase2_diagnostics.lua": r'AddonVersion\s*=\s*"([^"]+)"',
 }
 for path, pattern in runtime.items():
