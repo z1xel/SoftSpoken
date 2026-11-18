@@ -3,6 +3,7 @@
 -- NO narration engine or global Compendium layout changes are made here.
 SSCQuestPage = SSCQuestPage or {}
 local QuestPage=SSCQuestPage
+local QuestDialogue=VoiceOver.QuestDialogue
 local QuestState=SSCQuestState
 local QuestCatalog=SSCQuestCatalog
 local EVENTS={accept=1,progress=2,complete=3}
@@ -22,35 +23,6 @@ local function API(f,...)
 end
 local function Data()
     return VoiceOver and VoiceOver.DataModules
-end
-local function Database(id)
-    return _G.SpokenQuestsText and _G.SpokenQuestsText[id] or nil
-end
-local function Fill(text)
-    if type(text)~="string" then return nil end
-    local name=UnitName and UnitName("player") or ""
-    local class=UnitClass and UnitClass("player") or ""
-    local race=UnitRace and UnitRace("player") or ""
-    local female=UnitSex and UnitSex("player")==3
-    -- Spoken's original placeholder expansion, safe for the 1.12 Lua client.
-    text=string.gsub(text,"%$[Gg]([^:;]*):([^;]*);",function(male,her)
-        return (female and her or male):gsub("^%s+",""):gsub("%s+$","")
-    end)
-    text=string.gsub(text,"%$[Bb]","\n")
-    text=string.gsub(text,"%$[Nn]",function() return name end)
-    text=string.gsub(text,"%$[Cc]",function() return class end)
-    text=string.gsub(text,"%$[Rr]",function() return race end)
-    return text
-end
-local function Stored()
-    if type(SSCQuestJournal)~="table" then return nil end
-    SSCQuestJournal.dialogue=SSCQuestJournal.dialogue or {}
-    return SSCQuestJournal.dialogue
-end
-local function SavedText(id,stage)
-    local questTextDB=Stored()
-    local entry=questTextDB and questTextDB[id]
-    return entry and entry[stage]
 end
 local MULTIPLE_LABEL="Multiple speakers possible"
 local function SpeakerLabel(id,stage)
@@ -76,7 +48,7 @@ local function SoundData(id,stage)
     end
     return {event=EVENTS[stage],questID=id,title=title,name=name,
         unitGUID=guid,unitIsObjectOrItem=npc and kind and e and not e:IsCreature(kind) or false,
-        text=QuestPage:Text(id,stage),origin="Azeroth's Compendium"}
+        text=QuestDialogue:Text(id,stage),origin="Azeroth's Compendium"}
 end
 local function HasVoice(id,stage)
     local d=Data()
@@ -106,20 +78,10 @@ local function Play(id,stage)
     if table.getn(same)>0 then return end -- upstream's play/stop behavior
     v.Player:PlayNow(SoundData(id,stage))
 end
--- Per-stage priority: a live Turtle interaction, a validated Turtle-only overlay,
--- then the original Spoken text. Never overwrite the original corpus in-place.
+-- Compatibility for consumers of the original Compendium text entrypoint.
+-- This is a delegate only; the implementation now lives in QuestDialogue.
 function QuestPage:Text(id,stage)
-    local captured=SavedText(id,stage)
-    if type(captured)=="string" and string.find(captured,"%S") then
-        return Fill(captured)
-    end
-    local turtle=_G.SSCTurtleQuestText and _G.SSCTurtleQuestText[id]
-    local override=turtle and turtle[stage]
-    if type(override)=="string" and string.find(override,"%S") then
-        return Fill(override)
-    end
-    local english=Database(id)
-    return english and Fill(english[stage]) or nil
+    return VoiceOver.QuestDialogue:Text(id,stage)
 end
 -- Quest detail sections live inside SSCTextView's existing parchment reader.
 -- Mirror the actual shared reader font rather than maintaining a different
@@ -673,7 +635,7 @@ function QuestPage:Show(id)
     for _,stage in ipairs(MOMENTS) do
         local part=self.parts[stage]
         local allowed=stage~="complete" or completed or unlocked
-        local text=allowed and self:Text(id,stage) or nil
+        local text=allowed and QuestDialogue:Text(id,stage) or nil
         local voiced=allowed and HasVoice(id,stage)
         local visible=allowed and (stage~="progress" or text or voiced)
         if not visible then
@@ -697,39 +659,11 @@ function QuestPage:Show(id)
     self:Layout(changed)
     self:RefreshButtons()
 end
--- Capture previously unseen Turtle dialogue from actual on-screen quest
--- windows; store per character. No automatic playback or quest status changes.
-local capture=CreateFrame("Frame")
-for _,eventName in ipairs({"QUEST_DETAIL","QUEST_PROGRESS","QUEST_COMPLETE"}) do
-    pcall(capture.RegisterEvent,capture,eventName)
-end
-capture:SetScript("OnEvent",function(frame,eventName)
-    eventName=type(eventName)=="string" and eventName or _G.event
-    local stage=eventName=="QUEST_DETAIL" and "accept" or
-        eventName=="QUEST_PROGRESS" and "progress" or
-        eventName=="QUEST_COMPLETE" and "complete" or nil
-    if not stage then return end
-    local v=VoiceOver
-    local id=Number((v and v.GetQuestID and API(v.GetQuestID)) or
-        (_G.GetQuestID and API(_G.GetQuestID)))
-    local title=_G.GetTitleText and API(_G.GetTitleText)
-    local getText=stage=="accept" and _G.GetQuestText or
-        stage=="progress" and _G.GetProgressText or _G.GetRewardText
-    local text=getText and API(getText)
-    if not id then
-        local d=Data()
-        if d and d.GetQuestID then
-            local questStage=stage=="accept" and "accept" or stage=="progress" and "progress" or "complete"
-            local npc=v and v.Utils and v.Utils.GetNPCName and API(v.Utils.GetNPCName,v.Utils)
-            id=Number(API(d.GetQuestID,d,questStage,title or "",npc or "",text or ""))
-        end
-    end
-    if not id or type(text)~="string" or text=="" then return end
-    local questTextDB=Stored()
-    questTextDB[id]=questTextDB[id] or {}
-    questTextDB[id][stage]=text
+-- Only the Compendium owns presentation refreshes after live dialogue capture.
+-- The data service stays usable even when the Compendium is closed or absent.
+QuestDialogue.onCaptured=function(id,stage)
     if QuestState:IsSeen(id) and SSCQuestsTab and SSCQuestsTab.Refresh then
         local C=SSCCompendium
         if C and C.Active and C:Active()=="quests" then SSCQuestsTab:Refresh() end
     end
-end)
+end
