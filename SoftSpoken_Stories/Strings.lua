@@ -140,21 +140,6 @@ L.OPT_RESET_PROFILE_CONFIRM = "Reset every Stories and Gossip setting in the pro
 L.OPT_CANCEL = "Cancel"
 
 
-L.OPT_SECTION_DIALOGUEUI = "DialogueUI"
-L.OPT_DUI_CAPTIONS = "Mark Words in DialogueUI"
-L.OPT_DUI_CAPTIONS_TIP = "Types out or highlights DialogueUI's text, as set under Words."
-L.OPT_DUI_AUTOSCROLL = "Keep the Words in View"
-L.OPT_DUI_SHOW_PLAYER = "Show Spoken Over DialogueUI"
-L.OPT_DUI_PLAY_BUTTON = "Listen Button on DialogueUI"
-L.OPT_DUI_ON = "On"
-L.OPT_DUI_OFF = "Off"
-L.OPT_DUI_PLAY_RIGHT_CLICK = "Right-click to turn Read Automatically on or off."
-L.OPT_DUI_MISSING = "DialogueUI is not loaded."
-L.OPT_DUI_NO_PLAYER = "Needs the Spoken addon."
-L.OPT_DUI_OLD_PLAYER = "Needs a newer Spoken."
-L.OPT_DUI_UNKNOWN = "This version of DialogueUI is not recognised."
-L.REASON_DUI_CAPTIONS = "Turn on Mark Words in DialogueUI to use this."
-
 L.OPT_REPORT_LINE_TIP = "Get a link to report a wrong reading or a mispronounced name."
 L.OPT_REPORT_NO_LINE = "This client cannot tell which line that was, so there is no address to report."
 L.OPT_STOP_GOSSIP = "Stop Gossip"

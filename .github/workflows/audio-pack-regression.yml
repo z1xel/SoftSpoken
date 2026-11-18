@@ -55,6 +55,7 @@ on:
       - "tests/stories_faction_crest.lua"
       - "tests/stories_speaker_resolution.lua"
       - "tests/stories_quest_event_bridge.lua"
+      - "tests/test_dialogueui_cleanup.py"
       - "tests/places_zone_portrait_emblems.lua"
       - "tests/writings_narrator_discovery.lua"
       - "SoftSpoken/Textures/**"
@@ -114,6 +115,7 @@ on:
       - "tests/stories_faction_crest.lua"
       - "tests/stories_speaker_resolution.lua"
       - "tests/stories_quest_event_bridge.lua"
+      - "tests/test_dialogueui_cleanup.py"
       - "tests/places_zone_portrait_emblems.lua"
       - "tests/writings_narrator_discovery.lua"
       - "SoftSpoken/Textures/**"
@@ -161,6 +163,8 @@ jobs:
         run: lua5.1 tests/greetingfirst_classification.lua
       - name: Check installable UI assets, manifests and legacy identifiers
         run: python3 tests/test_ui_packaging.py
+      - name: Verify obsolete DialogueUI bridge and profile removal
+        run: python3 tests/test_dialogueui_cleanup.py
       - name: Verify all local texture paths and catalog mappings
         run: python3 tests/test_texture_path_integrity.py
       - name: Check all SoftSpoken release version declarations

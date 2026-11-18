@@ -49,11 +49,9 @@ local function IsFrameVisible(frame)
     return frame:IsShown()
 end
 
--- The last quest event the client fired, and the only way to tell an offer from a turn-in
--- when Blizzard's quest panels never appear. An addon that replaces the quest frame -
--- DialogueUI calls QuestFrame:UnregisterAllEvents() - leaves every panel hidden while the
--- player is in a dialog, so classifying by panel alone read every interaction as an offer.
--- The client still fires the events themselves; only Blizzard's frame stopped listening.
+-- Keep the last quest event when another UI replaces Blizzard's quest panels.
+-- A replacement can hide the panels without suppressing the underlying game events,
+-- so panel visibility alone cannot distinguish an offer from a turn-in.
 local lastQuestEvent
 
 -- Defined with the handlers below, and asked by functions above them.
@@ -163,26 +161,11 @@ function Addon:InvokeQuestHandler(event, source, manual)
             Debug:Record("greeting-wait-error", tostring(greetingError))
         end
     end
-    -- Read while DialogueUI's window is still appearing, the voice would run ahead of the words
-    -- it marks, so autoplay waits for the window.
-    local bridge = not manual and rawget(VoiceOver, "DialogueUIBridge")
-    if bridge and bridge.Defer and bridge:Defer(event, function()
-        self:InvokeQuestHandler(event, source, manual)
-    end) then
-        Debug:Record("dialogueui-wait", format("Waiting for DialogueUI's window to read %s", event))
-        return true
-    end
-
     Debug:Record("quest-dispatch", format("Dispatching %s through %s", event, source or "manual reader"))
     -- Where the lines this queues come from, for the debug log (Player:Enqueue keeps it on each).
     Player.origin = Player:Origin(event, source, manual)
     local succeeded, errorMessage = pcall(handler, self, event, manual)
     Player.origin = nil
-    -- The bridge keeps the page blank for this read's line; it shows the page at once if none came.
-    if bridge and bridge.Read then
-        local stage = Debug.runtime.stage
-        bridge:Read(event, succeeded and (stage == "queued" or stage == "queue-paused" or stage == "playing"))
-    end
     if not succeeded then
         Debug:Record("handler-error", format("%s failed: %s", event, tostring(errorMessage)))
         local errorHandler = geterrorhandler and geterrorhandler()
@@ -246,14 +229,13 @@ local SPEECH_EVENTS = {
 
 --- The line the open dialog would read, resolved against the packs, or nil when no dialog
 --- is open or no pack has its line. Asked without reading anything. The second value is
---- the client event it stands for. A caller that already knows the event passes it: under
---- DialogueUI the event is the only record of which panel is up, and DialogueUI hears it
---- before this addon's recorder does.
+--- the client event it stands for. Callers that know the event may pass it even
+--- when a replacement dialog UI does not expose Blizzard's visible quest panels.
 ---@param event string?
 ---@return SoundData?, string?
 function Addon:GetVisibleLine(event)
     event = event or GetVisibleDialogueEvent()
-    -- A part that is off reads nothing and offers nothing: no Listen button, no DialogueUI Play.
+    -- A disabled part exposes neither automatic narration nor a manual Listen action.
     if event and not self:IsPageOn(event) then
         return nil, event
     end
@@ -337,17 +319,6 @@ local defaults = {
             -- load-on-demand sound packs are skipped at startup.
             DisabledVoicePacks = {},
         },
-        -- These do nothing without the DialogueUI addon.
-        DialogueUI = {
-            -- Typed out, lit, or both, by Spoken's Type Words Out and Highlight Words.
-            Captions = true,
-            AutoScroll = true,
-            -- Off by default: DialogueUI hides the rest of the interface on purpose, and its marked text
-            -- already shows the words.
-            ShowPlayer = false,
-            -- Shown whether or not DialogueUI's Text To Speech is on.
-            PlayButton = true,
-        },
         DebugEnabled = false,
     },
     char = {
@@ -355,8 +326,6 @@ local defaults = {
         RecentQuestTitleToID = Version:IsBelowLegacyVersion(30300) and {},
     }
 }
-
-Addon.DialogueUIDefaults = defaults.profile.DialogueUI
 
 local lastGossipOptions
 local selectedGossipOption
@@ -452,17 +421,6 @@ function Addon:OnInitialize()
     end)
     if not dialogPlayButtonReady then
         Debug:Record("dialog-play-button-error", tostring(dialogPlayButtonError))
-    end
-
-    -- Guarded: DialogueUI is someone else's addon, and a change there must not take narration
-    -- down with it.
-    local dialogueUIReady, dialogueUIError = pcall(function()
-        if DialogueUIBridge and DialogueUIBridge.Setup then
-            DialogueUIBridge:Setup()
-        end
-    end)
-    if not dialogueUIReady then
-        Debug:Record("dialogueui-error", tostring(dialogueUIError))
     end
 
     -- The lines NPCs say after a quest. Guarded the same way: a failed hook here must not
@@ -847,7 +805,7 @@ function Addon:OnInitialize()
     end
 
     if C_GossipInfo and C_GossipInfo.SelectOption then
-        -- The game's window picks by id, DialogueUI by the option's index in the page.
+        -- Support both quest option IDs and index-based selection APIs.
         for name, field in pairs({ SelectOption = "gossipOptionID", SelectOptionByIndex = "orderIndex" }) do
             if C_GossipInfo[name] then
                 hooksecurefunc(C_GossipInfo, name, function(pick)

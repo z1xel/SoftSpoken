@@ -16,8 +16,8 @@ setfenv(1, VoiceOver)
 -- packs do not have, and this only for one they do. Contribute.xml is not loaded on the legacy clients, so the placement is
 -- copied here rather than borrowed from it.
 --
--- Not drawn under a replacement dialog addon: DialogueUI hides QuestFrame and GossipFrame, and
--- a button parented to UIParent would float over nothing. Players can use the native quest-log button.
+-- Only draw the button when Blizzard's quest or gossip panel is genuinely visible.
+-- A replacement dialog UI may hide those panels; never float a button over unrelated UI.
 
 local BUTTON_HEIGHT = 20
 local BUTTON_WIDTH = 60
@@ -127,8 +127,8 @@ function DialogPlayButton:Refresh()
     local line, event = Addon:GetVisibleLine()
     -- Nothing reads itself with Read Automatically off, and no NPC window does at Never.
     local held = not Addon:IsAutoplayOn() or (event and Addon:PartOfPage(event) == "gossip" and Addon:IsNever())
-    -- The panel itself, not merely the event: under DialogueUI the event arrives and the
-    -- panel never shows. Switched off, the window's part puts no button on it.
+    -- Require the actual panel as well as the event: replacement interfaces can
+    -- deliver quest events without displaying Blizzard's panel.
     if not held or not line or not IsFrameVisible(_G[PANELS[event]]) then
         button:Hide()
         return

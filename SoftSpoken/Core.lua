@@ -23,8 +23,8 @@ Defaults = {
             FrameScale = 0.7,
             FrameStrata = "HIGH",
             HidePortrait = false,
-            -- "subtitle", "minimal" (Small Window), "classic" (Large Window), "dialogueui" or
-            -- "none" (the voice alone). Legacy clients start in the window they always had.
+            -- Vanilla 1.12 offers "classic" and "none"; older saved style choices
+            -- fall back to the classic narrator window.
             Style = Version.IsAnyLegacy and "classic" or "subtitle",
             -- Forever only: the bronze its own frames wear, on the minimal player's metal.
             BronzeTint = true,
@@ -34,15 +34,6 @@ Defaults = {
             -- other optional actions remain visible unless explicitly hidden.
             -- AceDB supplies this default to existing profiles missing the key.
             HiddenActions = { report = true },
-            DialogueUI = {
-                -- Parchment or dark, as DialogueUI is set, changing when it does.
-                FollowTheme = true,
-                -- When not following: 1 parchment, 2 dark, DialogueUI's own numbers.
-                Theme = 1,
-                -- Size, text size, lines and expand state are the player's shared settings.
-                -- Only as tall as the line's words need, up to the panel's size.
-                FitText = true,
-            },
         },
         -- The voice language and its fallback, for every module at once (Spoken:GetLanguageChoice).
         -- Unset, each module keeps the choice it had before there was one setting for all.
@@ -226,10 +217,9 @@ function Addon:IsFrameLocked()
     return self:Profile("Frame").LockFrame
 end
 
---- Put a player frame on the host, or back on UIParent, since a host that hides UIParent
---- (DialogueUI) would hide the player too. The anchor stays on UIParent and the scale keeps
---- the effective scale, so the frame keeps its exact place on screen. spokenBaseScale /
---- spokenBaseStrata give a frame's own scale and strata (the subtitles).
+--- Put a player frame on a supplied host, or back on UIParent. Preserve effective
+--- scale and screen position while hosted; spokenBaseScale / spokenBaseStrata
+--- retain the frame's independent scale and strata when restoring its parent.
 function Addon:ApplyHost(frame)
     if not frame then return end
     local host, cfg = self.playerHost, self:Profile("Frame")

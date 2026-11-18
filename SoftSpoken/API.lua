@@ -115,7 +115,7 @@ end
 function Spoken:PrimePortrait(creatureID)
 end
 
---- How lines are shown: "subtitle", "none", "minimal", "classic" or "dialogueui".
+--- The supported 1.12 narrator styles are "classic" and "none".
 --- Additive: guard on the field.
 function Spoken:GetPlayerStyle()
     return Addon:PlayerStyle()
@@ -148,16 +148,11 @@ function Spoken:GetPlayerFrame()
     return PlayerFrame.frame
 end
 
---- Show the player over another frame, or back where it was with nil. For a host that hides
---- UIParent, as DialogueUI does: the windows and subtitles keep their place on screen and stay
---- draggable, and the subtitles pass clicks through to the host. Additive: guard on the field.
+--- Show the player over another frame, or restore UIParent hosting with nil.
+--- Preserve the hosted frame's effective scale, anchor and drag behavior. Additive:
+--- callers should guard on this generic host API.
 function Spoken:SetPlayerHost(frame)
     Addon:SetPlayerHost(frame)
-end
-
---- Legacy compatibility: DialogueUI is not available on Turtle WoW 1.12.
---- Keep this public method so other Spoken modules may call it safely.
-function Spoken:AddDialogueUISettings(build)
 end
 
 --- The Settings category, so a feature addon can nest its panel under it with
