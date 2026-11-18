@@ -3,7 +3,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIME = [
-    "SoftSpoken_Stories/VoiceOver.lua",
+    "SoftSpoken_Stories/QuestRuntime.lua",
     "SoftSpoken_Stories/UI/DialogPlayButton.lua",
     "SoftSpoken_Stories/Strings.lua",
     "SoftSpoken/Core.lua",

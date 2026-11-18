@@ -90,7 +90,7 @@ env = {
     DialogPlayButton = { Setup = function() end },
 }
 VoiceOver = setmetatable(env, { __index = _G })
-assert(loadfile("SoftSpoken_Stories/VoiceOver.lua"))()
+assert(loadfile("SoftSpoken_Stories/QuestRuntime.lua"))()
 local addon = VoiceOver.Addon
 function addon:NoteLegacyQuestEvent(source, words)
     stageSource, stageText = source, words
@@ -171,7 +171,7 @@ current = { id = 505, title = "Greeting Quest", npc = "Quest Giver" }
 fire("QUEST_DETAIL")
 assert(greetingStarts > 0, "greeting wait must still arm")
 
-local fp = assert(io.open("SoftSpoken_Stories/VoiceOver.lua", "r"))
+local fp = assert(io.open("SoftSpoken_Stories/QuestRuntime.lua", "r"))
 local code = fp:read("*a")
 fp:close()
 for _, dead in ipairs({ "PollAutomaticQuest", "AUTO_POLL_INTERVAL",

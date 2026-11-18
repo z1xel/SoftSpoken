@@ -78,7 +78,7 @@ Spoken={
     end,
 }
 dofile("SoftSpoken_Stories/SpeakerResolver.lua")
-dofile("SoftSpoken_Stories/Player.lua")
+dofile("SoftSpoken_Stories/NarrationSource.lua")
 local Player=VoiceOver.Player
 local function prep(id, faceless)
     return Player:Prepare({

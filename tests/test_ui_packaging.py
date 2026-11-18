@@ -64,6 +64,23 @@ def require_file(name):
 for name in REQUIRED_RUNTIME + REQUIRED_SOURCES:
     require_file(name)
 
+# Internal source-file renames must leave exactly one installable copy.
+# Exported globals, SavedVariables, folder names, and runtime include order remain stable.
+RENAMED_RUNTIME = {
+    "SoftSpoken/UI/PlayerFrame.lua": "SoftSpoken/UI/NarratorWindow.lua",
+    "SoftSpoken_Stories/Player.lua": "SoftSpoken_Stories/NarrationSource.lua",
+    "SoftSpoken_Stories/VoiceOver.lua": "SoftSpoken_Stories/QuestRuntime.lua",
+    "SoftSpoken_Stories/Options.lua": "SoftSpoken_Stories/AceConfigOptions.lua",
+    "SoftSpoken_Stories/UI/SettingsPanel.lua": "SoftSpoken_Stories/UI/SettingsPage.lua",
+    "SoftSpoken/UI/Layout.lua": "SoftSpoken/UI/SettingsLayout.lua",
+    "SoftSpoken/Compendium/UI/Layout.lua": "SoftSpoken/Compendium/UI/CompendiumUIHelpers.lua",
+    "SoftSpoken_Places/LoreBridge.lua": "SoftSpoken_Places/LoreDataRegistry.lua",
+    "SoftSpoken_Places/UI/CompendiumCompat.lua": "SoftSpoken_Places/UI/CompendiumAliases.lua",
+}
+for old_path, new_path in RENAMED_RUNTIME.items():
+    assert not (ROOT / old_path).exists(), f"Retired runtime path still exists: {old_path}"
+    require_file(new_path)
+
 # Shared Compendium classic-frame art is owned by Core, never by the retired
 # Places UI-artwork directory. Places/Pictures is independently retained.
 for obsolete_dir in ("Art", "ClassicFrames", "Controls"):
@@ -85,7 +102,7 @@ assert not any(p.is_file() for p in places.rglob("*") if "Pictures" not in p.rel
 # Check literal and constructed runtime texture roots, not just file existence.
 core_root = "Interface\\AddOns\\SoftSpoken\\Textures\\"
 for path in (
-    "SoftSpoken_Stories/Player.lua",
+    "SoftSpoken_Stories/NarrationSource.lua",
     "SoftSpoken_Stories/QuestOverlayUI.lua",
     "SoftSpoken_Stories/UI/QuestLogNativePlay.lua",
     "SoftSpoken_Stories/Compendium/QuestPage_112.lua",

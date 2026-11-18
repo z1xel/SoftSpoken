@@ -8,7 +8,7 @@ end
 local p = read("SoftSpoken/UI/Portrait.lua")
 local m = read("SoftSpoken/UI/MinimapButton.lua")
 local o = read("SoftSpoken/UI/Options.lua")
-local l = read("SoftSpoken/UI/Layout.lua")
+local l = read("SoftSpoken/UI/SettingsLayout.lua")
 local c = read("SoftSpoken/Core.lua")
 local function exists(s, t) assert(s:find(t, 1, true), "missing: " .. t) end
 local function absent(s, t) assert(not s:find(t, 1, true), "obsolete: " .. t) end

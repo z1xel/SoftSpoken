@@ -60,7 +60,7 @@ VoiceOver = setmetatable({
 }, {__index = _G})
 
 -- Only definitions execute; opening the AceGUI frame is not needed here.
-dofile("SoftSpoken_Stories/Options.lua")
+dofile("SoftSpoken_Stories/AceConfigOptions.lua")
 local options = VoiceOver.Options
 local shared = metadata("SpokenQuestsAudioShared")
 loadedPacks[shared.AddonName] = {}

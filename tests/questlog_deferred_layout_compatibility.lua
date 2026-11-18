@@ -105,7 +105,7 @@ local oldOffset = button.offset
 frames[2]()
 eq(button.offset, oldOffset, "closed log untouched")
 
-local voiceover = assert(io.open("SoftSpoken_Stories/VoiceOver.lua", "r")):read("*a")
+local voiceover = assert(io.open("SoftSpoken_Stories/QuestRuntime.lua", "r")):read("*a")
 assert(string.find(voiceover, "QuestOverlayUI:ScheduleLayoutRecheck()", 1, true),
     "QuestLog_Update must schedule the deferred check")
 print("PASS: vanilla padding, external title preservation and deferred row layout")

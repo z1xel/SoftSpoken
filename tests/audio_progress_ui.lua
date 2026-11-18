@@ -119,7 +119,7 @@ SpokenEnv = setmetatable({
     GameFontNormal = { GetFont = function() return "Fonts\\FRIZQT__.TTF" end }
 }, {__index = _G})
 
-dofile("SoftSpoken/UI/PlayerFrame.lua")
+dofile("SoftSpoken/UI/NarratorWindow.lua")
 eq(fonts.SpokenNameFont.path, "Fonts\\MORPHEUS.TTF")
 eq(fonts.SpokenNameFont.size, 22)
 eq(fonts.SpokenNameFont.flags, "")
@@ -299,7 +299,7 @@ eq(frameAlpha(72, 72), 0)  -- 3D model aperture
 assert(frameAlpha(72, 2) > 0) -- Frame artwork within crop
 eq(frameAlpha(143, 72), 0) -- Transparent padding, not neighboring atlas art
 eq(frameAlpha(72, 143), 0)
-local playerFile = assert(io.open("SoftSpoken/UI/PlayerFrame.lua", "r"))
+local playerFile = assert(io.open("SoftSpoken/UI/NarratorWindow.lua", "r"))
 local playerSource = playerFile:read("*a")
 playerFile:close()
 assert(playerSource:find([[TalkingHeads\\PortraitNeutral]], 1, true))

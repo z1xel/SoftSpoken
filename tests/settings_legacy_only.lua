@@ -7,7 +7,7 @@ local function read(path)
     return content
 end
 local opts = read("SoftSpoken/UI/Options.lua")
-local layoutSource = read("SoftSpoken/UI/Layout.lua")
+local layoutSource = read("SoftSpoken/UI/SettingsLayout.lua")
 local function contains(haystack, needle, label)
     assert(haystack:find(needle, 1, true), label or needle)
 end
