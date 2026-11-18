@@ -203,6 +203,7 @@ eq(enableCalls.SkippedPack,1,"previously disabled checkbox repaired")
 -- registration remains alive until then, and should not be mistaken for freed RAM.
 data:SetPackEnabled("WantedPack",false)
 eq(data:GetModuleLoadStatus("WantedPack"),"reload required")
+eq(data:NeedsLoadSelectionReload(),true,"profile change cannot silently retain selected-out pack")
 eq(data:GetModule("WantedPack")~=nil,true,"loaded data cannot unload itself")
 local result, refusal=data:LoadModule(data:GetPresentModule("WantedPack"))
 eq(result,false,"manual Load cannot override internal selection")
@@ -221,5 +222,8 @@ eq(s.detected,2);eq(s.disabled,2);eq(s.loaded,0);eq(s.failed,0);eq(s.notAttempte
 eq(next(loadCalls),nil,"reload does not load disabled packs")
 eq(next(enableCalls),nil,"reload does not touch disabled addons")
 eq(data:GetPresentModule("WantedPack")~=nil,true,"metadata still discoverable")
+eq(data:NeedsLoadSelectionReload(),false,"all-disabled profile matches empty registry")
+data:SetPackEnabled("WantedPack",true)
+eq(data:NeedsLoadSelectionReload(),true,"new profile enabling skipped pack requires reload")
 
 print("PASS: selective voicepack loading, checkbox recovery, Vanilla API, failure diagnostics")
