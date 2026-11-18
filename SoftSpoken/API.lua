@@ -145,7 +145,7 @@ end
 
 --- The classic player window, for addons that need an anchor.
 function Spoken:GetPlayerFrame()
-    return PlayerFrame.frame
+    return NarratorWindow.frame
 end
 
 --- Show the player over another frame, or restore UIParent hosting with nil.
@@ -168,7 +168,7 @@ end
 --- Re-read the speaking clip's presentation -- after a setting changed an action's
 --- label, say. Cheap; the frame rebuilds from the queue every time anyway.
 function Spoken:RefreshPlayer()
-    PlayerFrame:Update()
+    NarratorWindow:Update()
 end
 
 --- A feature addon's settings page, shown under Spoken's own in the game's settings as `name`,

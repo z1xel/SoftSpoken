@@ -164,10 +164,10 @@ local LANGUAGES = Spoken.Language.LOCALES
 --- Show `style` on screen with a sample line, or nil to stop.
 function Options:Preview(style)
     Addon.previewStyle = style
-    PlayerFrame:RefreshConfig()
+    NarratorWindow:RefreshConfig()
     Transcript:RefreshConfig()
     if Subtitle then Subtitle:ShowSample(style == "subtitle") end
-    PlayerFrame:ShowSample(style == "classic")
+    NarratorWindow:ShowSample(style == "classic")
 end
 
 --- Preview mode: on, the chosen style is on screen with a sample line, and choosing another swaps
@@ -233,7 +233,7 @@ local function Build()
         return style == "classic"
     end
     local function Words() return transcript().Enabled end
-    local refresh = function() PlayerFrame:RefreshConfig(); Options:UpdateRows() end
+    local refresh = function() NarratorWindow:RefreshConfig(); Options:UpdateRows() end
     local refreshTranscript = function() Transcript:RefreshConfig(); Options:UpdateRows() end
 
     local layout = Layout.New(host, INDENT, -TOP)
@@ -294,7 +294,7 @@ local function Build()
     Options:PreviewButton(layout)
     layout:Tiles(tiles, Style, function(v) Addon:SetPlayerStyle(v) end,
         function()
-            PlayerFrame:RefreshConfig(); refreshTranscript()
+            NarratorWindow:RefreshConfig(); refreshTranscript()
             Options:StyleChosen()
         end, { choose = L.STYLE_CHOOSE })
     layout:Group(L.OPT_NARRATOR_SETTINGS)
@@ -330,7 +330,7 @@ local function Build()
     Only(layout:Checkbox(L.OPT_LOCK_FRAME, L.OPT_LOCK_FRAME_TIP,
         function() return cfg().LockFrame end, function(v) cfg().LockFrame = v end, refresh), Shown)
     Only(layout:Button(L.OPT_RESET, 160, function()
-        PlayerFrame:Reset()
+        NarratorWindow:Reset()
         if Subtitle then Subtitle:Reset() end
     end, L.OPT_RESET_TIP), Shown)
 

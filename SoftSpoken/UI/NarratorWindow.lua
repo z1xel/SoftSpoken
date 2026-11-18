@@ -16,7 +16,9 @@ end
 --
 -- Refreshed through the player's AUDIO_CHANGED callback rather than by the queue
 -- calling this file, which is what keeps SoundQueue.lua free of any dependency on it.
-PlayerFrame = {}
+NarratorWindow = {}
+-- Retain the historical internal environment member for integrations.
+PlayerFrame = NarratorWindow
 
 local PORTRAIT_SIZE = 120
 local PORTRAIT_ATLAS_SIZE = 512
@@ -63,7 +65,7 @@ local function WidthOf(frame)
     return frame:GetWidth()
 end
 
-function PlayerFrame:Initialize()
+function NarratorWindow:Initialize()
     if self.frame then return end
     self:InitDisplay()
     self:InitProgress()
@@ -72,11 +74,11 @@ function PlayerFrame:Initialize()
     self:InitMover()
     Actions:Build(self.frame)
     self:RefreshConfig()
-    Callbacks:Register("AUDIO_CHANGED", function() PlayerFrame:Update() end)
-    Callbacks:Register("PROGRESS_STATE_CHANGED", function() PlayerFrame:UpdateProgress() end)
+    Callbacks:Register("AUDIO_CHANGED", function() NarratorWindow:Update() end)
+    Callbacks:Register("PROGRESS_STATE_CHANGED", function() NarratorWindow:UpdateProgress() end)
 end
 
-function PlayerFrame:InitDisplay()
+function NarratorWindow:InitDisplay()
     self.frame = CreateFrame("Frame", "SpokenPlayerFrame", UIParent, "BackdropTemplate")
     function self.frame:Reset()
         self:SetWidth(PORTRAIT_SIZE + FRAME_WIDTH_WITHOUT_PORTRAIT)
@@ -184,7 +186,7 @@ local function StaticProgress(progress, fraction)
     progress.mode = "static"
 end
 
-function PlayerFrame:InitProgress()
+function NarratorWindow:InitProgress()
     -- Keep the loading-screen border within the player's horizontal bounds.
     -- Endcaps and the active bar share fixed interior anchors on resize.
     local container = CreateFrame("Frame", nil, self.frame)
@@ -315,7 +317,7 @@ function PlayerFrame:InitProgress()
     self:LayoutProgress()
 end
 
-function PlayerFrame:LayoutProgress()
+function NarratorWindow:LayoutProgress()
     if not self.progress then return end
     local progress = self.progress
     local container = progress.container
@@ -425,7 +427,7 @@ function PlayerFrame:LayoutProgress()
     end
 end
 
-function PlayerFrame:UpdateProgress()
+function NarratorWindow:UpdateProgress()
     local progress = self.progress
     if not progress then return end
     local shown = Addon:DisplayStyle() == "classic"
@@ -503,7 +505,7 @@ end
 -- The vertical line and the small pause button that stand in for the portrait when the
 -- player has turned it off. Redux's; the zones fork dropped them, and that was an
 -- omission rather than a decision.
-function PlayerFrame:InitPortraitLine()
+function NarratorWindow:InitPortraitLine()
     self.frame.portraitLine = self.frame:CreateTexture(nil, "BORDER")
     self.frame.portraitLine:SetPoint("TOPLEFT", -PORTRAIT_LINE_WIDTH / 2 + 2, PORTRAIT_BORDER_OUTSET)
     self.frame.portraitLine:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMLEFT", PORTRAIT_LINE_WIDTH / 2 + 2, -PORTRAIT_BORDER_OUTSET)
@@ -540,7 +542,7 @@ function PlayerFrame:InitPortraitLine()
     end)
 end
 
-function PlayerFrame:InitPortrait()
+function NarratorWindow:InitPortrait()
     self.frame.portrait = CreateFrame("Frame", nil, self.frame)
     self.frame.portrait:SetPoint("TOPLEFT")
     self.frame.portrait:SetSize(PORTRAIT_SIZE, PORTRAIT_SIZE)
@@ -602,7 +604,7 @@ function PlayerFrame:InitPortrait()
     self.frame.portrait.border.texture:SetTexCoord(0, TALKING_HEAD_TEX_COORD, 0, TALKING_HEAD_TEX_COORD)
 end
 
-function PlayerFrame:InitMover()
+function NarratorWindow:InitMover()
     self.frame.mover = CreateFrame("Button", nil, self.frame.portrait.border)
     self.frame.mover:SetSize(26, 26)
     self.frame.mover:SetPoint("CENTER", self.frame.portrait.border, "BOTTOMLEFT", 5, 6)
@@ -640,7 +642,7 @@ function PlayerFrame:InitMover()
     end)
 end
 
-function PlayerFrame:RefreshConfig()
+function NarratorWindow:RefreshConfig()
     Actions.RefreshRings()
     Transcript:SetStyle(nil)
     local cfg = FrameConfig()
@@ -682,13 +684,13 @@ function PlayerFrame:RefreshConfig()
 end
 
 -- Size the 1.12 narrator frame through Transcript's compatibility helper.
-function PlayerFrame:SetResizeBounds(minWidth)
+function NarratorWindow:SetResizeBounds(minWidth)
     local height = Transcript:HeightForClip(SoundQueue:GetCurrentSound())
     self.captionExtra = height > 0 and height + 16 or 0
     Transcript:ResizePlayer(self.frame, PORTRAIT_SIZE + self.captionExtra, minWidth, 10000)
 end
 
-function PlayerFrame:LayoutCaptions()
+function NarratorWindow:LayoutCaptions()
     local hidePortrait = FrameConfig().HidePortrait
     local left = hidePortrait and 20 or PORTRAIT_SIZE + 15
     local height = Transcript:HeightForClip(SoundQueue:GetCurrentSound())
@@ -710,7 +712,7 @@ local function BulletFor(clip, hovered)
     return TEXTURES .. "SoundQueueBulletQueue", 22
 end
 
-function PlayerFrame:CreateRow(i)
+function NarratorWindow:CreateRow(i)
     local button = CreateFrame("Button", nil, self.frame.container)
     self.frame.container.buttons[i] = button
     button:SetID(i)
@@ -738,14 +740,14 @@ function PlayerFrame:CreateRow(i)
         if isHead then
             self:SetAlpha(1)
             self.textWidget:SetShadowColor(0, 0, 0, 1)
-            self:SetPoint("TOPLEFT", PlayerFrame.frame.container.name, "BOTTOMLEFT", 0, -2)
+            self:SetPoint("TOPLEFT", NarratorWindow.frame.container.name, "BOTTOMLEFT", 0, -2)
             self:EnableMouse(SoundQueue:CanBePaused())
         else
             local position = index - 1
             local alpha = math.max(0.1, math.min(1, 1 - (position - 1) / 3))
             self:SetAlpha(alpha)
             self.textWidget:SetShadowColor(0, 0, 0, 0.5 + 0.5 * alpha)
-            self:SetPoint("TOPLEFT", PlayerFrame.frame.container.buttons[index - 1] or PlayerFrame.frame.container.name,
+            self:SetPoint("TOPLEFT", NarratorWindow.frame.container.buttons[index - 1] or NarratorWindow.frame.container.name,
                 "BOTTOMLEFT", 0, position == 1 and -8 or -2)
             self:EnableMouse(true)
         end
@@ -823,7 +825,7 @@ end
 --- A line to show while none is playing, so a window chosen as the narrator style in the welcome
 --- window can be seen at once, as the subtitles show theirs. Either window draws it; the first
 --- real line puts it away.
-function PlayerFrame:ShowSample(shown)
+function NarratorWindow:ShowSample(shown)
     self.sample = shown and {
         key = "sample", length = 0,
         source = { key = "sample", gates = {}, interClipGap = 0 },
@@ -833,17 +835,17 @@ function PlayerFrame:ShowSample(shown)
     self:Update()
 end
 
-function PlayerFrame:IsShowingSample()
+function NarratorWindow:IsShowingSample()
     return self.sample ~= nil
 end
 
 --- The line the window stands for: the one playing, or the sample while nothing is.
-function PlayerFrame:Current()
+function NarratorWindow:Current()
     if not SoundQueue:IsEmpty() then self.sample = nil end
     return SoundQueue:GetCurrentSound() or self.sample
 end
 
-function PlayerFrame:Update()
+function NarratorWindow:Update()
     if not self.frame then return end
     -- Hidden in voice-only mode; returning to the classic window retains its position.
     local head = self:Current()
@@ -898,7 +900,7 @@ end
 --- What the frame is actually doing, for a bug report. A row that is present but drawn
 --- nowhere, or drawn under something, looks from the outside exactly like a row that was
 --- never built; this tells the two apart without a client to poke at.
-function PlayerFrame:Describe()
+function NarratorWindow:Describe()
     local lines = {}
     local function Say(text) table.insert(lines, text) end
     if not self.frame then
@@ -931,14 +933,14 @@ function PlayerFrame:Describe()
     return lines
 end
 
-function PlayerFrame:SaveLayout()
+function NarratorWindow:SaveLayout()
     local width = self.frame:GetWidth() + (FrameConfig().HidePortrait and PORTRAIT_SIZE or 0)
     Addon:SaveLayout("Player", self.frame, width)
 end
 
 --- Back to the default spot and width, forgetting the saved ones, for a frame dragged
 --- off-screen or sized past use.
-function PlayerFrame:Reset()
+function NarratorWindow:Reset()
     Addon:Layout().Player = nil
     if not self.frame then return end
     self.frame:Reset()

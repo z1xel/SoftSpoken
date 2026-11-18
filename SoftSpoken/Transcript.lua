@@ -259,7 +259,7 @@ end
 
 function Transcript:CreateDisplay()
     if self.frame then return end
-    local player = PlayerFrame and PlayerFrame.frame
+    local player = NarratorWindow and NarratorWindow.frame
     if not player then return end
     local frame = CreateFrame("Frame", nil, player)
     frame:SetWidth(240)
@@ -493,7 +493,7 @@ function Transcript:RefreshConfig()
         local clip = SoundQueue:GetCurrentSound()
         if clip and SoundQueue:IsPlaying(clip) then self:StartClip(clip) end
     end
-    if PlayerFrame and PlayerFrame.frame then PlayerFrame:Update() end
+    if NarratorWindow and NarratorWindow.frame then NarratorWindow:Update() end
 end
 
 function Transcript:Reset()

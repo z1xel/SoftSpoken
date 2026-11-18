@@ -102,7 +102,7 @@ local function SpokenLines(lines)
     for key, source in Sources:Iterate() do
         table.insert(lines, format("  source %s (%s)", key, source.addon or "?"))
     end
-    for _, line in ipairs(PlayerFrame:Describe()) do table.insert(lines, "  " .. line) end
+    for _, line in ipairs(NarratorWindow:Describe()) do table.insert(lines, "  " .. line) end
     table.insert(lines, "  " .. Transcript:Describe())
     for _, err in ipairs(Callbacks.errors) do
         table.insert(lines, "  callback error: " .. err)
@@ -119,7 +119,7 @@ function Developer:Context()
     local profile = Addon.db and Addon.db.profile
     local audio = profile and profile.Audio or {}
     table.insert(lines, format("narrator style %s, window %s", tostring(Addon:PlayerStyle()),
-        PlayerFrame.frame and (PlayerFrame.frame:IsShown() and "shown" or "hidden") or "not built"))
+        NarratorWindow.frame and (NarratorWindow.frame:IsShown() and "shown" or "hidden") or "not built"))
     local function AudioCVar(name)
         local ok, value = pcall(GetCVar, name)
         if ok and value ~= nil and tostring(value) ~= "" then

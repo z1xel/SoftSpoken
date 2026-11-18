@@ -156,7 +156,7 @@ end
 --- Each only where loaded, and only after Enable has built it.
 function Addon:ApplyProfile()
     if not self.enabled then return end
-    if PlayerFrame and PlayerFrame.RefreshConfig then PlayerFrame:RefreshConfig() end
+    if NarratorWindow and NarratorWindow.RefreshConfig then NarratorWindow:RefreshConfig() end
     if Transcript and Transcript.RefreshConfig then Transcript:RefreshConfig() end
     if Subtitle and Subtitle.Update then Subtitle:Update() end
     -- Hands LibDBIcon the new profile's table: it keeps the one it was given.
@@ -236,9 +236,9 @@ end
 function Addon:SetPlayerHost(host)
     if self.playerHost == host then return end
     self.playerHost = host
-    if PlayerFrame.frame then PlayerFrame:RefreshConfig() end
+    if NarratorWindow.frame then NarratorWindow:RefreshConfig() end
     -- RefreshConfig places only the window in use; the others must not stay on the host.
-    self:ApplyHost(PlayerFrame.frame)
+    self:ApplyHost(NarratorWindow.frame)
     -- The subtitles go over the host too, and pass its clicks through.
     if Subtitle and Subtitle.frame then
         self:ApplyHost(Subtitle.frame)
@@ -286,7 +286,7 @@ function Addon:Enable()
     -- baseline only when that category still matches our last write.
     if OtherSounds then OtherSounds:RestoreLeftovers() end
     self.enabled = true
-    PlayerFrame:Initialize()
+    NarratorWindow:Initialize()
     Transcript:Initialize()
     Minimap:Setup()
     Options:Setup()
