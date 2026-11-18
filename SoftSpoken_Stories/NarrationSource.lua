@@ -34,6 +34,14 @@ local BULLETS = {
     [Enums.SoundEvent.QuestFollowup] = "quest-complete",
 }
 
+-- Explicit stages keep missing progress or reward text from being replaced
+-- by the offer. Follow-up/gossip lines have no Compendium quest-text stage.
+local QUEST_STAGES = {
+    [Enums.SoundEvent.QuestAccept]   = "accept",
+    [Enums.SoundEvent.QuestProgress] = "progress",
+    [Enums.SoundEvent.QuestComplete] = "complete",
+}
+
 --------------------------------------------------------------------------------
 -- Reading the queue back
 --------------------------------------------------------------------------------
@@ -229,14 +237,14 @@ local ACTIONS = { REPORT, STOP_GOSSIP }
 function Player:Prepare(soundData)
     local event = soundData.event
     local gossip = Enums.SoundEvent:IsGossipEvent(event)
-    -- Preserve live NPC dialogue; missing quest-log acceptance text comes
-    -- from the same data service as the Compendium (captured -> Turtle ->
-    -- original Spoken). Never borrow an offer for progress/completion/gossip.
+    -- Preserve live NPC dialogue. A clip without a dialog snapshot resolves
+    -- the matching quest stage from the same service as the Compendium:
+    -- captured -> Turtle -> original Spoken. Gossip/follow-ups stay separate.
+    local stage = QUEST_STAGES[event]
     local dialogue = QuestDialogue
-    if event == Enums.SoundEvent.QuestAccept
-        and (type(soundData.text) ~= "string" or not string.find(soundData.text, "%S"))
+    if stage and (type(soundData.text) ~= "string" or not string.find(soundData.text, "%S"))
         and soundData.questID and dialogue and dialogue.Text then
-        local ok, text = pcall(dialogue.Text, dialogue, soundData.questID, "accept")
+        local ok, text = pcall(dialogue.Text, dialogue, soundData.questID, stage)
         if ok and type(text) == "string" and string.find(text, "%S") then
             soundData.text = text
         end
