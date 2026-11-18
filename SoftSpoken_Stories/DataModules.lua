@@ -272,7 +272,11 @@ function DataModules:SetPackEnabled(name, enabled)
     local audio = assert(Addon and Addon.db and Addon.db.profile and Addon.db.profile.Audio,
         "Stories audio preferences are not initialized")
     audio.DisabledVoicePacks = audio.DisabledVoicePacks or {}
-    audio.DisabledVoicePacks[name] = enabled and nil or true
+    if enabled then
+        audio.DisabledVoicePacks[name] = nil
+    else
+        audio.DisabledVoicePacks[name] = true
+    end
 end
 
 function DataModules:HasRegisteredModules()
