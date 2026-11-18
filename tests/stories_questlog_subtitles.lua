@@ -10,9 +10,9 @@ end
 
 local lookups, played = {}, {}
 local textByID = {
-    [101] = "Captured acceptance text.",
-    [102] = "Turtle acceptance override.",
-    [103] = "Original Spoken acceptance text.",
+    [101] = {accept="Captured acceptance text.",progress="Progress dialogue.",complete="Reward dialogue."},
+    [102] = {accept="Turtle acceptance override."},
+    [103] = {accept="Original Spoken acceptance text."},
 }
 -- The narrator must work without the Compendium UI.
 SSCQuestPage = nil
@@ -27,7 +27,7 @@ VoiceOver = setmetatable({
     QuestDialogue = {
         Text = function(self, questID, stage)
             table.insert(lookups, { questID=questID, stage=stage })
-            return textByID[questID]
+            return textByID[questID] and textByID[questID][stage]
         end,
     },
     Enums = { SoundEvent=event, GUID={IsCreature=function() return true end} },
@@ -61,7 +61,7 @@ end
 
 for _,id in ipairs({101,102,103}) do
     local clip=PlayQuestLog(id)
-    eq(clip.present.transcript,textByID[id],"shared service-resolved subtitle")
+    eq(clip.present.transcript,textByID[id].accept,"shared service-resolved subtitle")
     eq(clip.fileName,tostring(id).."-accept","audio file key unchanged")
     eq(clip.path,clip.filePath,"audio path unchanged")
     eq(lookups[#lookups].questID,id,"lookup uses requested quest ID")
@@ -74,12 +74,33 @@ player:Prepare(live)
 eq(live.present.transcript,"What this NPC said.","live NPC dialogue preserved")
 eq(#lookups,lookupsBefore,"live text never replaced by database")
 
-for _,kind in ipairs({event.QuestProgress,event.QuestComplete,event.Gossip}) do
+for _,entry in ipairs({
+    {event.QuestProgress,"progress"},
+    {event.QuestComplete,"complete"},
+}) do
+    local line={event=entry[1],questID=101}
+    player:Prepare(line)
+    eq(line.present.transcript,textByID[101][entry[2]],
+        "missing text resolved from matching quest stage")
+    eq(lookups[#lookups].stage,entry[2],
+        "progress and completion never borrow acceptance dialogue")
+end
+local lookupCount=#lookups
+for _,kind in ipairs({event.QuestGreeting,event.Gossip,event.QuestFollowup}) do
     local line={event=kind,questID=101}
     player:Prepare(line)
-    eq(line.present.transcript,nil,"other stages do not borrow acceptance text")
+    eq(line.present.transcript,nil,"non-quest lines never borrow quest dialogue")
 end
-eq(#lookups,lookupsBefore,"other stages never queried as acceptance")
+eq(#lookups,lookupCount,"gossip and followups never query quest dialogue")
+
+local liveProgress={event=event.QuestProgress,questID=101,text="Live progress."}
+player:Prepare(liveProgress)
+eq(liveProgress.present.transcript,"Live progress.","live progress dialogue is authoritative")
+eq(#lookups,lookupCount,"live progress skips static text")
+local liveComplete={event=event.QuestComplete,questID=101,text="Live completion."}
+player:Prepare(liveComplete)
+eq(liveComplete.present.transcript,"Live completion.","live completion dialogue is authoritative")
+eq(#lookups,lookupCount,"live completion skips static text")
 
 local missing=PlayQuestLog(404)
 eq(missing.present.transcript,nil,"missing corpus entry remains without captions")
