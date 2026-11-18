@@ -40,8 +40,7 @@ local function EstimatedLength(length)
     return nil
 end
 
--- Use the original Vanilla inventory book icon, not the bundled enlarged
--- VoiceOver-era Book.blp portrait. This is available in the 1.12 client.
+-- Default to the native Vanilla inventory book icon (available in 1.12).
 local BOOK_TEXTURE = [[Interface\Icons\INV_Misc_Book_09]]
 
 -- A page's picture: a bag item's own icon, else the material it is on, else the book.
