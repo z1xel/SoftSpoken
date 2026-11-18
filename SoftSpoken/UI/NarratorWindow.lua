@@ -752,7 +752,11 @@ function PlayerFrame:CreateRow(i)
 
         -- A held clip says why; otherwise narration waiting out a pull looks exactly like
         -- narration that failed.
-        local text = clip.present and clip.present.label or clip.key
+        -- An active Writings line shows its kind/discovery beneath the title.
+        -- In the waiting queue, keep the work's title instead; other modules
+        -- still use the original label when they supply no queueLabel.
+        local text = clip.present and
+            ((not isHead and clip.present.queueLabel) or clip.present.label) or clip.key
         -- A Hold-only combat gate blocks queued/future autoplay, not the
         -- recording already speaking. Preserve the queued clip's gate reason
         -- without falsely labeling a live recording as stopped.
