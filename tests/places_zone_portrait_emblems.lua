@@ -83,11 +83,11 @@ SSZZonesRuntime={
 local compFile=assert(io.open("SoftSpoken/Compendium/UI/Compendium.lua","r"))
 local compSource=compFile:read("*a")
 compFile:close()
-local hierarchy=compSource:match("(C%.WORLD = 947.-end)%s+local NAME =")
+local hierarchy=compSource:match("(Compendium%.WORLD = 947.-end)%s+local NAME =")
 assert(hierarchy,"Compendium hierarchy section was not found")
 local C={}
 local hierarchyChunk=assert(loadstring(hierarchy))
-setfenv(hierarchyChunk,setmetatable({C=C},{__index=_G}))
+setfenv(hierarchyChunk,setmetatable({Compendium=C},{__index=_G}))
 hierarchyChunk()
 function C:Tab() return true end
 SSZCompendium=C
