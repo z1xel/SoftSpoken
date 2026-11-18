@@ -2,7 +2,9 @@
 -- slash commands; this page reads and writes exactly the same preferences.
 setfenv(1, VoiceOver)
 
-SettingsPanel = {}
+StoriesSettingsPage = {}
+-- Preserve the previously exported Stories environment member.
+SettingsPanel = StoriesSettingsPage
 local frame, layout, page
 local UI = SpokenLayout
 
@@ -20,7 +22,7 @@ local function Refresh()
     if layout then layout:Refresh() end
 end
 
-function SettingsPanel:Build()
+function StoriesSettingsPage:Build()
     frame = CreateFrame("Frame", nil, UIParent)
     frame:SetWidth(470)
     frame:SetHeight(1)
@@ -205,7 +207,7 @@ function SettingsPanel:Build()
     page = Spoken:AddSettingsPage(frame, "Stories", 1, layout)
 end
 
-function SettingsPanel:Setup()
+function StoriesSettingsPage:Setup()
     if page then return true end
     if not Ready() then return false end
     if self.building then return false end
@@ -224,7 +226,7 @@ function SettingsPanel:Setup()
     return page ~= nil
 end
 
-function SettingsPanel:Open()
+function StoriesSettingsPage:Open()
     if not self:Setup() then return false end
     return page and page.Open and page.Open() or false
 end
@@ -234,7 +236,7 @@ end
 local loader = CreateFrame("Frame")
 loader:RegisterEvent("PLAYER_ENTERING_WORLD")
 loader:SetScript("OnEvent", function()
-    if SettingsPanel:Setup() then
+    if StoriesSettingsPage:Setup() then
         loader:UnregisterEvent("PLAYER_ENTERING_WORLD")
     end
 end)

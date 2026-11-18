@@ -446,7 +446,7 @@ function Options:Initialize()
     -- The deferred PLAYER_ENTERING_WORLD hook in SettingsPanel remains a
     -- fallback if the shared core has not finished setting up yet.
     RunOptionalStep("shared settings page", function()
-        if SettingsPanel and SettingsPanel.Setup then SettingsPanel:Setup() end
+        if StoriesSettingsPage and StoriesSettingsPage.Setup then StoriesSettingsPage:Setup() end
     end)
 end
 
@@ -455,10 +455,10 @@ end
 function Options:OpenSettings()
     -- Prefer the shared Vanilla Quests tab. If its optional UI cannot build,
     -- preserve the original AceGUI window as an independent working fallback.
-    if SettingsPanel and SettingsPanel.Open then
-        local ok, opened = pcall(SettingsPanel.Open, SettingsPanel)
+    if StoriesSettingsPage and StoriesSettingsPage.Open then
+        local ok, opened = pcall(StoriesSettingsPage.Open, StoriesSettingsPage)
         if ok and opened then return end
-        if not ok then SettingsPanel.lastError = tostring(opened) end
+        if not ok then StoriesSettingsPage.lastError = tostring(opened) end
     end
     self:OpenConfigWindow()
 end
@@ -472,7 +472,7 @@ end
 function Options:OpenConfigWindow()
     if not self.frame then
         print("|cFFFF4040SoftSpoken Stories: neither settings view could be opened.|r")
-        if SettingsPanel and SettingsPanel.lastError then
+        if StoriesSettingsPage and StoriesSettingsPage.lastError then
             print("Shared Stories settings: " .. SettingsPanel.lastError)
         end
         for _, warning in ipairs(self.initializationErrors or {}) do
