@@ -143,6 +143,7 @@ jobs:
           luac5.1 -p SoftSpoken_Writings/Audio.lua SoftSpoken_Writings/DiscoveryLocations.lua tests/writings_narrator_discovery.lua
           luac5.1 -p SoftSpoken_Places/UI/Options.lua SoftSpoken_Writings/UI/Options.lua
           luac5.1 -p SoftSpoken_Stories/Compendium/QuestsTab_112.lua SoftSpoken_Stories/Compendium/PortraitPreload_112.lua SoftSpoken_Stories/DataModules.lua SoftSpoken_Stories/VoiceOver.lua SoftSpoken_Stories/QuestOverlayUI.lua
+          luac5.1 -p SoftSpoken/UI/Layout.lua SoftSpoken_Stories/UI/SettingsPanel.lua SoftSpoken_Stories/Options.lua tests/audio_pack_settings_toggle.lua
           luac5.1 -p Data_Packs/SSS_VOFallback/Module.lua
       - name: Check Compendium book mask and runtime skin assets
         run: lua5.1 tests/compendium_book_mask.lua
@@ -186,3 +187,5 @@ jobs:
         run: lua5.1 tests/audio_pack_registry_compatibility.lua
       - name: Check Stories partial loading failure diagnostics
         run: lua5.1 tests/audio_pack_load_outcomes.lua
+      - name: Check per-pack settings, reload and enable behavior
+        run: lua5.1 tests/audio_pack_settings_toggle.lua

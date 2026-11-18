@@ -52,10 +52,29 @@ end
 local function ModuleNumber(addon, suffix)
     return tonumber(ModuleMeta(addon, suffix) or "")
 end
---- Whether the player switched the addon off in the AddOns list for this character. Not
---- GetAddOnEnableState: given a name rather than a GUID, C_AddOns answers for all characters.
+-- Vanilla 1.12 GetAddOnInfo returns (name, title, notes, enabled, loadable, reason,
+-- security); later clients omit "enabled". Normalize before inspecting loadability.
+local function AddOnInfo(addon)
+    local name, title, notes, fourth, fifth, sixth = GetAddOnInfo(addon)
+    if type(fifth) == "boolean" or type(fifth) == "number" then
+        return name, title, notes, fifth, sixth, fourth
+    end
+    return name, title, notes, fourth, fifth, nil
+end
+
+-- Check the current character's enabled state, not whether the pack has already
+-- loaded. A disabled LoadOnDemand pack is still a candidate for deferred startup.
 local function SwitchedOff(addon)
-    local _, _, _, loadable, reason = GetAddOnInfo(addon)
+    if GetAddOnEnableState then
+        local ok, state = pcall(GetAddOnEnableState, nil, addon)
+        if ok and type(state) == "number" then
+            return state == 0
+        end
+    end
+    local _, _, _, loadable, reason, enabled = AddOnInfo(addon)
+    if enabled ~= nil then
+        return enabled == false or enabled == 0
+    end
     return not loadable and reason == "DISABLED"
 end
 local LOAD_ALL_MODULES = true
@@ -240,6 +259,26 @@ function DataModules:Register(name, module)
     table.sort(self.registeredModulesOrdered, SortModules)
 end
 
+-- SoftSpoken's per-profile selection is authoritative for loading. A missing
+-- entry means enabled, including packs installed after the profile was saved.
+-- This is intentionally independent of the character-screen addon checkbox.
+function DataModules:IsPackEnabled(name)
+    local audio = Addon and Addon.db and Addon.db.profile and Addon.db.profile.Audio
+    local disabled = audio and audio.DisabledVoicePacks
+    return not (disabled and disabled[name] == true)
+end
+
+function DataModules:SetPackEnabled(name, enabled)
+    local audio = assert(Addon and Addon.db and Addon.db.profile and Addon.db.profile.Audio,
+        "Stories audio preferences are not initialized")
+    audio.DisabledVoicePacks = audio.DisabledVoicePacks or {}
+    if enabled then
+        audio.DisabledVoicePacks[name] = nil
+    else
+        audio.DisabledVoicePacks[name] = true
+    end
+end
+
 function DataModules:HasRegisteredModules()
     return next(self.registeredModules) ~= nil
 end
@@ -247,6 +286,10 @@ end
 -- Derive status rather than maintaining a second success/failure registry.
 -- A load interrupted by an unexpected error is distinguishable from one not attempted.
 function DataModules:GetModuleLoadStatus(name)
+    if not self:IsPackEnabled(name) then
+        if self.registeredModules[name] then return "reload required" end
+        return "disabled"
+    end
     if self.registeredModules[name] then return "loaded" end
     if self.loadErrors[name] then return "failed", tostring(self.loadErrors[name]) end
     if self.loadAttempts[name] then return "failed", "LOAD_INTERRUPTED" end
@@ -254,12 +297,14 @@ function DataModules:GetModuleLoadStatus(name)
 end
 
 function DataModules:GetLoadSummary()
-    local summary = { detected = 0, loaded = 0, failed = 0, notAttempted = 0 }
+    local summary = { detected = 0, loaded = 0, failed = 0, disabled = 0, notAttempted = 0 }
     for _, module in self:GetPresentModules() do
         summary.detected = summary.detected + 1
         local status = self:GetModuleLoadStatus(module.AddonName)
-        if status == "loaded" then
+        if status == "loaded" or status == "reload required" then
             summary.loaded = summary.loaded + 1
+        elseif status == "disabled" then
+            summary.disabled = summary.disabled + 1
         elseif status == "failed" then
             summary.failed = summary.failed + 1
         else
@@ -287,6 +332,22 @@ end
 
 function DataModules:GetAvailableModules()
     return ipairs(self.availableModules)
+end
+
+-- Profile changes can flip pack preferences without going through a specific
+-- pack's checkbox. Such a change must not silently leave the loaded registry
+-- out of sync with the selected profile.
+function DataModules:NeedsLoadSelectionReload()
+    for _, module in self:GetPresentModules() do
+        if module.LoadOnDemand then
+            local name = module.AddonName
+            local wanted = self:IsPackEnabled(name)
+            local registered = self:GetModule(name) ~= nil
+            if registered and not wanted then return true end
+            if wanted and not registered and not self.loadAttempts[name] then return true end
+        end
+    end
+    return false
 end
 
 -- Short display names for the known sound packs, shown on the download buttons.
@@ -324,7 +385,7 @@ function DataModules:GetPackLanguage()
     local order = Language:ResolutionOrder()
     for _, language in ipairs(order) do
         for _, module in self:GetPresentModules() do
-            if module.Language == language then
+            if self:IsPackEnabled(module.AddonName) and module.Language == language then
                 return language
             end
         end
@@ -339,7 +400,7 @@ function DataModules:EnumerateAddons(loadModules)
 
     for i = 1, GetNumAddOns() do
         local moduleVersion = ModuleNumber(i, "Version")
-        if moduleVersion and not SwitchedOff(i) then
+        if moduleVersion then
             local name = GetAddOnInfo(i)
             local mapsString = ModuleMeta(i, "Maps")
             local maps = {}
@@ -367,7 +428,8 @@ function DataModules:EnumerateAddons(loadModules)
             table.insert(self.presentModulesOrdered, module)
 
             -- Maybe in the future we can load modules based on the map the player is in (select(8, GetInstanceInfo())), but for now - just load everything
-            if loadModules ~= false and LOAD_ALL_MODULES and IsAddOnLoadOnDemand(name) then
+            if loadModules ~= false and LOAD_ALL_MODULES and IsAddOnLoadOnDemand(name)
+                and self:IsPackEnabled(name) then
                 DataModules:LoadModule(module)
             end
         end
@@ -424,7 +486,8 @@ end
 
 function DataModules:LoadPresentModules()
     for _, module in self:GetPresentModules() do
-        if LOAD_ALL_MODULES and module.LoadOnDemand and not self:GetModule(module.AddonName) then
+        if LOAD_ALL_MODULES and module.LoadOnDemand and self:IsPackEnabled(module.AddonName)
+            and not self:GetModule(module.AddonName) then
             self:LoadModule(module)
         end
     end
@@ -451,6 +514,11 @@ end
 
 ---@param module DataModuleMetadata
 function DataModules:LoadModule(module)
+    -- A disabled pack is never force-enabled or loaded, even via legacy Load.
+    -- Its records remain discoverable from its TOC for the settings inventory.
+    if not self:IsPackEnabled(module.AddonName) then
+        return false, "PACK_DISABLED"
+    end
     self.loadAttempts[module.AddonName] = true
     if not module.LoadOnDemand then
         self.loadErrors[module.AddonName] = "NOT_LOAD_ON_DEMAND"
@@ -463,6 +531,21 @@ function DataModules:LoadModule(module)
     if IsAddOnLoaded(module.AddonName) then
         self.loadErrors[module.AddonName] = "LOADED_BUT_NOT_REGISTERED"
         return false, self.loadErrors[module.AddonName]
+    end
+
+    -- A third-party addon manager may have disabled this pack. Re-enable it once
+    -- just before the deferred LoadAddOn; never disable it afterward or poll pfUI.
+    -- The already-registered Lua tables remain usable if its flag changes later.
+    if SwitchedOff(module.AddonName) then
+        if type(EnableAddOn) ~= "function" then
+            self.loadErrors[module.AddonName] = "ENABLE_UNAVAILABLE"
+            return false, self.loadErrors[module.AddonName]
+        end
+        local enabled, enableError = pcall(EnableAddOn, module.AddonName)
+        if not enabled then
+            self.loadErrors[module.AddonName] = "ENABLE_FAILED: " .. tostring(enableError)
+            return false, self.loadErrors[module.AddonName]
+        end
     end
 
     EnableOutOfDate(module.AddonName)
@@ -495,8 +578,10 @@ end
 
 function DataModules:GetModuleAddOnInfo(module)
     EnableOutOfDate(module.AddonName)
-    local name, title, notes, loadable, reason = GetAddOnInfo(module.AddonName)
+    local name, title, notes, loadable, reason = AddOnInfo(module.AddonName)
     RestoreOutOfDate(module.AddonName)
+    -- Disabling an already-loaded pack does not unregister its data.
+    if self:GetModule(module.AddonName) then reason = nil end
     return name, title, notes, loadable, reason
 end
 

@@ -2278,11 +2278,12 @@ function Layout:Download(label, read, buttonLabel, onClick, tooltip)
     return field
 end
 
---- A read-only inventory of registered voice packs, with optional inline details.
+--- An inventory of voice packs, with optional inline details and opt-in toggles.
 --- The reader returns strings, or records containing id, name, version, status,
---- details = {{label=..., value=...}}, and optionally extra() for expensive
---- recording counts. extra() is called only on expansion, once per source table.
---- Pack rows do not load addons or change narration settings.
+--- details = {{label=..., value=...}}, optionally extra() for expensive counts,
+--- and optionally enabled (boolean) plus onToggle(enabled) for one pack.
+--- extra() is called only on expansion, once per source table.
+--- Read-only inventories for Places and Writings are unchanged.
 function Layout:PackInventory(read, emptyText)
     self:Columns(nil)
     local parent = self.parent
@@ -2333,6 +2334,21 @@ function Layout:PackInventory(read, emptyText)
             button.label:SetTextColor(GOLD[1], GOLD[2], GOLD[3])
         end)
         Tooltip(button, "Installed Voice Pack", "Click to expand or collapse its details.")
+
+        -- An optional checkbox belongs to the pack row, not its expand button.
+        -- Keep their hit areas separate on 1.12 as well as current clients.
+        local toggle = NewCheck(holder, 26)
+        Above(toggle, holder)
+        Script(toggle, "OnClick", function(box)
+            if not box.packToggle then return end
+            Sound(box:GetChecked() and ON or OFF)
+            box.packToggle(box:GetChecked() and true or false)
+            self:Refresh()
+        end)
+        Tooltip(toggle, "Enable Voice Pack",
+            "Whether SoftSpoken loads this pack. Disabling an already-loaded pack requires a UI reload.")
+        toggle:Hide()
+        button.toggle = toggle
         headers[index] = button
         return button
     end
@@ -2387,6 +2403,14 @@ function Layout:PackInventory(read, emptyText)
             local name = count == 0 and (emptyText or "No compatible voice packs installed.")
                 or pack.name or pack.title or pack.addon or "Unknown pack"
             local button = Header(index)
+            local configurable = type(pack.enabled) == "boolean" and type(pack.onToggle) == "function"
+            button.toggle.packToggle = configurable and pack.onToggle or nil
+            if configurable then
+                button.toggle:SetChecked(pack.enabled)
+                button.toggle:Show()
+            else
+                button.toggle:Hide()
+            end
             button.packKey = expandable and key or nil
             button:EnableMouse(expandable and true or false)
             button.label:SetText((expandable and (opened and "- " or "+ ") or "") .. tostring(name))
@@ -2400,7 +2424,8 @@ function Layout:PackInventory(read, emptyText)
                 suffix = (suffix ~= "" and suffix .. "  |  " or "") .. tostring(pack.version)
             end
             button.value:SetText(suffix)
-            table.insert(shown, { button = button, start = cursor, rows = rows })
+            table.insert(shown, { button = button, start = cursor, rows = rows,
+                configurable = configurable })
             cursor = cursor + lineHeight
             if opened and Count(rows) > 0 then
                 cursor = cursor + 4 + Count(rows) * detailHeight + 6
@@ -2420,6 +2445,7 @@ function Layout:PackInventory(read, emptyText)
         end
         for index = math.max(1, count) + 1, Count(headers) do
             headers[index]:Hide()
+            headers[index].toggle:Hide()
             for _, fields in ipairs(details[index] or {}) do
                 fields[1]:Hide()
                 fields[2]:Hide()
@@ -2434,14 +2460,20 @@ function Layout:PackInventory(read, emptyText)
         holder:SetWidth(width)
         holder:SetHeight(height)
         Put(holder, parent, x, top)
-        local labelWidth = math.floor((width - inset * 2) * 0.69)
         for index, item in ipairs(shown) do
             local button = item.button
-            button:SetWidth(width - inset * 2)
+            local offset = item.configurable and 30 or 0
+            if item.configurable then
+                Put(button.toggle, holder, inset - 2,
+                    -item.start - math.floor((lineHeight - button.toggle:GetHeight()) / 2))
+            end
+            local buttonWidth = width - inset * 2 - offset
+            local labelWidth = math.floor(buttonWidth * 0.69)
+            button:SetWidth(buttonWidth)
             button:SetHeight(lineHeight)
-            Put(button, holder, inset, -item.start)
+            Put(button, holder, inset + offset, -item.start)
             button.label:SetWidth(labelWidth)
-            button.value:SetWidth(width - inset * 2 - labelWidth - 6)
+            button.value:SetWidth(buttonWidth - labelWidth - 6)
             local detailTop = item.start + lineHeight + 4
             for number, info in ipairs(item.rows) do
                 local label, value = Detail(index, number)

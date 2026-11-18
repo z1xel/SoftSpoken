@@ -99,20 +99,21 @@ function SettingsPanel:Build()
     end, "Enable Gossip and automatic narration to use this.")
 
     layout:Section("Voice Packs")
-    -- Include every detected enabled pack, not just the five download choices.
-    -- Its metadata comes from the same enumeration used by the original panel.
+    -- Include every installed compatible pack, even when SoftSpoken has skipped
+    -- loading it. The checkbox is independent of the WoW addon manager.
     layout:PackInventory(function()
         local packs = {}
         for _, module in DataModules:GetPresentModules() do
             local info = module
             local loaded = DataModules:GetModule(info.AddonName) ~= nil
-            local errorCode = DataModules:GetModuleLoadError(info.AddonName)
+            local enabled = DataModules:IsPackEnabled(info.AddonName)
+            local state = DataModules:GetModuleLoadStatus(info.AddonName)
+            local errorCode = enabled and DataModules:GetModuleLoadError(info.AddonName)
+            local _, _, _, _, failure = DataModules:GetModuleAddOnInfo(info)
             local reason
-            if GetAddOnInfo then
-                local _, _, _, _, failure = GetAddOnInfo(info.AddonName)
-                if failure ~= "DEMAND_LOADED" and failure ~= "INTERFACE_VERSION" then
-                    reason = failure
-                end
+            if failure ~= "DEMAND_LOADED" and failure ~= "INTERFACE_VERSION"
+                and failure ~= "DISABLED" then
+                reason = failure
             end
             local fields = {
                 { label = "Addon", value = info.AddonName },
@@ -134,7 +135,13 @@ function SettingsPanel:Build()
                 id = info.AddonName, source = info,
                 name = info.Title or info.AddonName,
                 version = info.ContentVersion,
-                status = loaded and "Loaded" or "Not loaded",
+                status = state == "disabled" and "Disabled"
+                    or state == "reload required" and "Reload required"
+                    or loaded and "Loaded" or "Not loaded",
+                enabled = enabled,
+                onToggle = info.LoadOnDemand and function(on)
+                    Options:SetDataModuleEnabled(info, on)
+                end or nil,
                 details = fields,
             })
         end

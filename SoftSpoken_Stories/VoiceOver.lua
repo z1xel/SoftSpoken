@@ -374,6 +374,9 @@ local defaults = {
             -- what they heard before this setting existed.
             VoiceLanguage = "auto",
             FallbackLanguage = "enUS",
+            -- Absent entries are enabled by default; only explicitly disabled
+            -- load-on-demand sound packs are skipped at startup.
+            DisabledVoicePacks = {},
         },
         -- These do nothing without the DialogueUI addon.
         DialogueUI = {
@@ -929,6 +932,16 @@ function Addon:RefreshConfig()
     -- Quest-local profile language fallbacks also affect the Voiced Only filter.
     if SSCQuestsTab and SSCQuestsTab.InvalidateVoiceCache then
         SSCQuestsTab:InvalidateVoiceCache()
+    end
+    -- AceDB profile changes/reset bypass individual pack switches. When the
+    -- selected packs differ from those already loaded, offer a full UI reload
+    -- rather than silently retaining data from the previous profile.
+    if not self.dataModulesPending and DataModules
+        and DataModules:NeedsLoadSelectionReload()
+        and SpokenLayout and SpokenLayout.AskReload then
+        SpokenLayout.AskReload(
+            "The selected Stories voice packs changed with this profile. Reload the UI to apply the voice pack selection?",
+            "Reload", "Later")
     end
 end
 

@@ -133,6 +133,46 @@ Options.table = {
 }
 ------------------------------------------------------------
 
+-- Control data loading, not WoW's addon checkbox. A loaded Lua module cannot
+-- be unloaded until /reload, so confirm that action before storing the choice.
+-- Re-enabling an unloaded LOD pack uses the existing manual loader immediately.
+function Options:SetDataModuleEnabled(module, enabled)
+    if not module or not module.LoadOnDemand then return false end
+    local name = module.AddonName
+    if enabled == DataModules:IsPackEnabled(name) then return true end
+
+    if not enabled and DataModules:GetModule(name) then
+        SpokenLayout.Confirm(
+            format('Disable voice pack "%s"? Its data is already loaded, so the UI must reload to release it.',
+                module.Title or name),
+            "Disable & Reload", "Cancel", function()
+                DataModules:SetPackEnabled(name, false)
+                ReloadUI()
+            end)
+        return false
+    end
+
+    DataModules:SetPackEnabled(name, enabled)
+    if enabled then
+        local loaded, reason = DataModules:LoadModule(module)
+        if not loaded then
+            local message = format('Failed to load voice pack "%s": %s', name, tostring(reason or "UNKNOWN"))
+            if StaticPopup_Show then
+                StaticPopup_Show("VOICEOVER_ERROR", message)
+            else
+                print(message)
+            end
+        end
+    end
+    if Spoken and Spoken.NotifyVoicePacksChanged then
+        Spoken:NotifyVoicePacksChanged()
+    end
+    if SSCQuestsTab and SSCQuestsTab.InvalidateVoiceCache then
+        SSCQuestsTab:InvalidateVoiceCache()
+    end
+    return true
+end
+
 ---@param module DataModuleMetadata
 ---@param order number
 function Options:AddDataModule(module, order)
@@ -146,7 +186,8 @@ function Options:AddDataModule(module, order)
     end
 
     local name, title, notes, loadable, reason = DataModules:GetModuleAddOnInfo(module)
-    if reason == "DEMAND_LOADED" or reason == "INTERFACE_VERSION" then
+    -- The deferred loader can recover DISABLED packs by enabling them first.
+    if reason == "DEMAND_LOADED" or reason == "INTERFACE_VERSION" or reason == "DISABLED" then
         reason = nil
     end
     DataModulesTab.args[module.AddonName] = {
@@ -162,6 +203,15 @@ function Options:AddDataModule(module, order)
         type = "group",
         order = order,
         args = {
+            Enabled = {
+                type = "toggle",
+                order = GetNextOrder(),
+                name = "Enable Voice Pack",
+                desc = "Choose whether SoftSpoken loads this sound pack. Disabling a loaded pack requires a UI reload.",
+                disabled = not module.LoadOnDemand,
+                get = function() return DataModules:IsPackEnabled(module.AddonName) end,
+                set = function(info, value) Options:SetDataModuleEnabled(module, value) end,
+            },
             AddonName = MakeDescription(L.OPT_ROW_ADDON_NAME, module.AddonName),
             Title = MakeDescription(L.OPT_ROW_TITLE, module.Title),
             ModuleVersion = MakeDescription(L.OPT_ROW_FORMAT_VERSION, module.ModuleVersion),
@@ -191,7 +241,11 @@ function Options:AddDataModule(module, order)
                 type = "execute",
                 order = GetNextOrder(),
                 name = L.OPT_LOAD_BUTTON,
-                hidden = function() return reason or not module.LoadOnDemand or DataModules:GetModule(module.AddonName) end,
+                hidden = function()
+                    return reason or not module.LoadOnDemand
+                        or not DataModules:IsPackEnabled(module.AddonName)
+                        or DataModules:GetModule(module.AddonName) ~= nil
+                end,
                 func = function()
                     local loaded, reason = DataModules:LoadModule(module)
                     if not loaded then
@@ -297,6 +351,10 @@ function Options:DiagnosticsLines()
                 local status, failure = DataModules:GetModuleLoadStatus(module.AddonName)
                 if status == "not attempted" and Addon.dataModulesPending then
                     status = "waiting for deferred load"
+                elseif status == "disabled" then
+                    status = "disabled in SoftSpoken (not loaded)"
+                elseif status == "reload required" then
+                    status = "disabled in SoftSpoken (reload required)"
                 elseif status == "failed" then
                     status = "failed: " .. tostring(failure)
                 end
@@ -306,8 +364,9 @@ function Options:DiagnosticsLines()
             if summary.detected == 0 then
                 Add("Data: no sound packs were detected")
             else
-                Add(format("Data modules: %d detected, %d loaded, %d failed, %d not attempted",
-                    summary.detected, summary.loaded, summary.failed, summary.notAttempted))
+                Add(format("Data modules: %d detected, %d loaded, %d disabled, %d failed, %d not attempted",
+                    summary.detected, summary.loaded, summary.disabled, summary.failed,
+                    summary.notAttempted))
             end
             local stage, message = Debug:GetRuntimeStatus()
             Add(format("Last runtime stage: %s - %s", stage or "none", message or "no details"))
