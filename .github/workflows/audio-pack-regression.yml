@@ -33,6 +33,7 @@ on:
       - "tests/test_ui_packaging.py"
       - "tests/test_texture_path_integrity.py"
       - "tests/audio_progress_ui.lua"
+      - "tests/narrator_queue_label.lua"
       - "SoftSpoken/Strings.lua"
       - "SoftSpoken_Stories/Compendium/QuestState.lua"
       - "SoftSpoken_Stories/Compendium/QuestCatalog.lua"
@@ -99,6 +100,7 @@ on:
       - "tests/test_ui_packaging.py"
       - "tests/test_texture_path_integrity.py"
       - "tests/audio_progress_ui.lua"
+      - "tests/narrator_queue_label.lua"
       - "SoftSpoken/Strings.lua"
       - "SoftSpoken_Stories/Compendium/QuestState.lua"
       - "SoftSpoken_Stories/Compendium/QuestCatalog.lua"
@@ -156,7 +158,7 @@ jobs:
           luac5.1 -p SoftSpoken_Stories/FactionCrest.lua SoftSpoken_Stories/SpeakerResolver.lua SoftSpoken_Stories/NarrationSource.lua SoftSpoken_Stories/Compendium/QuestPage.lua
           luac5.1 -p tests/stories_speaker_resolution.lua tests/stories_quest_event_bridge.lua tests/stories_portrait_preloading.lua tests/stories_questlog_portrait_prime.lua tests/questlog_deferred_layout_compatibility.lua
           luac5.1 -p SoftSpoken_Places/UI/LoreWindow.lua SoftSpoken_Writings/UI/Readables.lua
-          luac5.1 -p SoftSpoken_Writings/Audio.lua SoftSpoken_Writings/DiscoveryLocations.lua tests/writings_narrator_discovery.lua
+          luac5.1 -p SoftSpoken_Writings/Audio.lua SoftSpoken_Writings/DiscoveryLocations.lua tests/writings_narrator_discovery.lua tests/narrator_queue_label.lua
           luac5.1 -p SoftSpoken_Places/UI/Options.lua SoftSpoken_Writings/UI/Options.lua
           luac5.1 -p SoftSpoken_Stories/Compendium/QuestState.lua SoftSpoken_Stories/Compendium/QuestCatalog.lua SoftSpoken_Stories/Compendium/QuestsTab.lua SoftSpoken_Stories/Compendium/PortraitPreload.lua SoftSpoken_Stories/DataModules.lua SoftSpoken_Stories/QuestRuntime.lua SoftSpoken_Stories/QuestOverlayUI.lua
           luac5.1 -p SoftSpoken/UI/SettingsLayout.lua SoftSpoken_Stories/UI/SettingsPage.lua SoftSpoken_Stories/AceConfigOptions.lua tests/audio_pack_settings_toggle.lua
@@ -183,8 +185,10 @@ jobs:
         run: python3 tests/test_release_version.py
       - name: Check native player duration and UI progress
         run: lua5.1 tests/audio_progress_ui.lua
-      - name: Check Writings discovery locations in narrator headings
+      - name: Check Writings title and discovery context in the narrator
         run: lua5.1 tests/writings_narrator_discovery.lua
+      - name: Check queued Writings titles and unchanged Stories/Places rows
+        run: lua5.1 tests/narrator_queue_label.lua
       - name: Check Places narrator emblems and all upstream artwork
         run: lua5.1 tests/places_zone_portrait_emblems.lua
       - name: Check Stories faction crests and portrait fallbacks
