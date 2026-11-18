@@ -32,6 +32,8 @@
     <Include file="Data\TurtleAreaMeta.lua"/>
     <!-- Phase 1: ClassicAPI quest state and upstream quest hierarchy. -->
     <Include file="Compendium\QuestState.lua"/>
+    <!-- Dialogue lookup and live capture are independent of Compendium presentation. -->
+    <Include file="QuestDialogue.lua"/>
     <Include file="Compendium\QuestCatalog.lua"/>
     <Include file="Compendium\PortraitPreload.lua"/>
     <Include file="Compendium\QuestsTab.lua"/>
