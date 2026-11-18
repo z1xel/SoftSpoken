@@ -88,35 +88,47 @@ SpokenBooksAudioPacks={TestPack={
 }}
 dofile("SoftSpoken_Writings/Audio.lua")
 local clip=assert(SSB:ClipFor(101))
-eq(clip.present.header,"Book " .. DOT .. " Discovered in Darnassus",
-    "one-line book narrator overtitle")
-eq(clip.present.label,"The World Tree and the Emerald Dream",
-    "book title unchanged")
+eq(clip.present.header,"The World Tree and the Emerald Dream",
+    "book title promoted to white heading")
+eq(clip.present.label,"Book " .. DOT .. " Discovered in Darnassus",
+    "kind and discovery on gold active line")
+eq(clip.present.queueLabel,"The World Tree and the Emerald Dream",
+    "queued book remains identifiable by title")
 eq(clip.present.transcript,"First","book transcript unchanged")
 eq(clip.group,nil,"one-line group unchanged")
 
 local carried=assert(SSB:ClipFor(301))
-eq(carried.present.header,"Scroll " .. DOT .. " Discovered in Orgrimmar",
-    "carried readable names acquisition location, not its reading place")
-eq(carried.present.label,"A Carried Scroll","other type title unchanged")
+eq(carried.present.header,"A Carried Scroll","other type title promoted")
+eq(carried.present.label,"Scroll " .. DOT .. " Discovered in Orgrimmar",
+    "carried readable context names acquired location, not reading place")
+eq(carried.present.queueLabel,"A Carried Scroll","queued scroll title")
 
 local unknown=assert(SSB:ClipFor(201))
-eq(unknown.present.header,"Letter","no false discovery heading")
+eq(unknown.present.header,"An Unlocated Letter","letter title in heading")
+eq(unknown.present.label,"Letter","no false discovery location")
+eq(unknown.present.queueLabel,"An Unlocated Letter","queued letter named")
 local legacy=assert(SSB:ClipFor(401))
-eq(legacy.present.header,"Book","legacy save with unknown origin")
+eq(legacy.present.header,"A Legacy Book","legacy book title in heading")
+eq(legacy.present.label,"Book","legacy save with unknown origin")
 
 SSBSettings.bookAsOneLine=false
 local page1=assert(SSB:ClipFor(101))
 local page2=assert(SSB:ClipFor(102))
-eq(page1.present.header,
-    "The World Tree and the Emerald Dream " .. DOT .. " Discovered in Darnassus",
-    "per-page mode keeps title and shows location")
-eq(page1.present.label,"Page 1 of 2","page label intact")
-eq(page2.present.label,"Page 2 of 2","later page label intact")
-eq(page2.present.header,page1.present.header,"later page carries origin")
+eq(page1.present.header,"The World Tree and the Emerald Dream",
+    "per-page mode keeps only the title in the white heading")
+eq(page1.present.label,"Book " .. DOT .. " Discovered in Darnassus " .. DOT .. " Page 1 of 2",
+    "page number follows gold discovery context")
+eq(page2.present.label,"Book " .. DOT .. " Discovered in Darnassus " .. DOT .. " Page 2 of 2",
+    "later page number updates without changing context")
+eq(page2.present.header,page1.present.header,"later page keeps same title")
+eq(page1.present.queueLabel,"The World Tree and the Emerald Dream " .. DOT .. " Page 1 of 2",
+    "queued per-page book retains title and page number")
+eq(page2.present.queueLabel,"The World Tree and the Emerald Dream " .. DOT .. " Page 2 of 2",
+    "queued later page remains distinguishable")
 
 local oldPage=assert(SSB:ClipFor(401))
-eq(oldPage.present.header,"A Legacy Book","per-page unknown unchanged")
+eq(oldPage.present.header,"A Legacy Book","per-page unknown title unchanged")
+eq(oldPage.present.label,"Book","single-page work has no redundant page number")
 
 -- The Compendium is wired to the same persisted summary, not a duplicate
 -- local implementation that may diverge from what the narrator reports.
@@ -126,4 +138,4 @@ f:close()
 assert(string.find(ui,"B:DiscoverySummary(id)",1,true),
     "Compendium and audio must share discovery formatting")
 
-print("PASS: book narrator location from recorded origin, fallback and per-page modes")
+print("PASS: Writings title/context hierarchy, recorded origins, queue titles and per-page modes")
