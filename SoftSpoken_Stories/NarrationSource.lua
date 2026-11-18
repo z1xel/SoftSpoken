@@ -229,12 +229,17 @@ local ACTIONS = { REPORT, STOP_GOSSIP }
 function Player:Prepare(soundData)
     local event = soundData.event
     local gossip = Enums.SoundEvent:IsGossipEvent(event)
-    -- Log replay clips have no dialog snapshot. Resolve only their acceptance text;
-    -- the log's description must never stand in for a reward or progress speech.
-    if event == Enums.SoundEvent.QuestAccept and (not soundData.text or soundData.text == "")
-        and Contribute and Contribute.QuestLogDescription and soundData.questID then
-        local ok, text = pcall(Contribute.QuestLogDescription, Contribute, soundData.questID)
-        if ok and type(text) == "string" then soundData.text = text end
+    -- Quest-log buttons have no NPC dialog snapshot. Reuse the Compendium's
+    -- authoritative acceptance text (captured -> Turtle -> original Spoken)
+    -- until that resolver is moved out of its UI module. Never replace a live
+    -- dialog's text or borrow acceptance text for progress/completion/gossip.
+    if event == Enums.SoundEvent.QuestAccept
+        and (type(soundData.text) ~= "string" or not string.find(soundData.text, "%S"))
+        and soundData.questID and SSCQuestPage and SSCQuestPage.Text then
+        local ok, text = pcall(SSCQuestPage.Text, SSCQuestPage, soundData.questID, "accept")
+        if ok and type(text) == "string" and string.find(text, "%S") then
+            soundData.text = text
+        end
     end
     soundData.key = soundData.fileName
     soundData.path = soundData.filePath
