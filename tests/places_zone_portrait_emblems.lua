@@ -130,7 +130,7 @@ expect(durotar.present.portrait.fit,nil,"no landscape cover crop")
 
 local mystery=r.MakeClip(88888,"Unknown","Unknown",true,false)
 expect(mystery.present.portrait.texture,
-    "Interface\\AddOns\\SoftSpoken\\Textures\\Book","unmapped zone book fallback")
+    "Interface\\Icons\\INV_Misc_Book_09","unmapped zone native Vanilla book fallback")
 expect(mystery.present.header,"Unknown","unmapped parent does not interrupt narration")
 
 -- Missing, early or broken Compendium UI must never block audio playback.
@@ -163,7 +163,7 @@ assert(picture~=valley.present.portrait.texture,
 Spoken.ZoneIcon=nil
 local without=r.MakeClip(1411,"Durotar","Durotar",true,false)
 expect(without.present.portrait.texture,
-    "Interface\\AddOns\\SoftSpoken\\Textures\\Book",
-    "legacy player without ZoneIcon fallback")
+    "Interface\\Icons\\INV_Misc_Book_09",
+    "legacy player without ZoneIcon uses native Vanilla fallback")
 
 print("PASS: parent headings, world root, zone badges, 57 assets, Compendium art")
