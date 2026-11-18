@@ -99,12 +99,9 @@ local function DrawOrnateHeaderBand(window)
     Vertical("Right", 244/256, 248/256, true)
 end
 
--- The ways of showing a line, by the name Addon:PlayerStyle gives each.
+-- Only the two narrator styles supported on Vanilla 1.12.
 local STYLE_LABELS = {
-    minimal = L.OPT_STYLE_MINIMAL,
     classic = L.OPT_STYLE_CLASSIC,
-    dialogueui = L.OPT_STYLE_DIALOGUEUI,
-    subtitle = L.OPT_STYLE_SUBTITLE,
     none = L.OPT_STYLE_NONE,
 }
 
@@ -132,19 +129,8 @@ local PARTS = {
         icon = [[Interface\Icons\INV_Misc_Book_09]], order = 3 },
 }
 
--- Sketches of the ways of showing a line, in flat colour, for their tiles: a portrait in
--- gold, words as pale bars, a window as a darker box. Sized for four tiles to a row, and
--- narrow enough for a fifth.
+-- Sketches for the two supported narrator cards: the classic window and voice only.
 local SKETCHES = {
-    minimal = function(art)
-        local R, w = Layout.Rect, art.width
-        local x = (w - 78) / 2
-        R(art, x, 16, 78, 26, 0.2, 0.18, 0.15, 1)
-        R(art, x + 3, 19, 20, 20, 0.75, 0.6, 0.3, 1)
-        R(art, x + 27, 22, 44, 3, 1, 0.82, 0, 0.9)
-        R(art, x + 27, 30, 40, 2, 0.9, 0.9, 0.9, 0.7)
-        R(art, x + 27, 35, 32, 2, 0.9, 0.9, 0.9, 0.7)
-    end,
     classic = function(art)
         local R, w = Layout.Rect, art.width
         local x = (w - 96) / 2
@@ -158,27 +144,6 @@ local SKETCHES = {
         R(art, x + 41, 36, 40, 2, 0.48, 0.58, 0.65, 0.8)
         R(art, x + 41, 42, 34, 2, 0.48, 0.58, 0.65, 0.6)
     end,
-    -- Parchment, a header strip with the face at its left and the title past it, the words
-    -- in dark ink, a slim scrollbar beside them.
-    dialogueui = function(art)
-        local R, w = Layout.Rect, art.width
-        local x = (w - 60) / 2
-        R(art, x, 6, 60, 48, 0.78, 0.68, 0.5, 1)
-        R(art, x + 3, 9, 54, 12, 0.45, 0.36, 0.24, 1)
-        R(art, x + 5, 10, 10, 10, 0.75, 0.6, 0.3, 1)
-        R(art, x + 18, 14, 26, 3, 0.95, 0.88, 0.7, 0.9)
-        R(art, x + 6, 26, 44, 2, 0.19, 0.17, 0.13, 0.85)
-        R(art, x + 6, 32, 40, 2, 0.19, 0.17, 0.13, 0.85)
-        R(art, x + 6, 38, 30, 2, 0.19, 0.17, 0.13, 0.85)
-        R(art, x + 53, 26, 2, 14, 0.5, 0.36, 0.24, 0.8)
-        R(art, x + 6, 47, 48, 1, 0.5, 0.36, 0.24, 0.8)
-    end,
-    subtitle = function(art)
-        local R, w = Layout.Rect, art.width
-        R(art, (w - 32) / 2, 30, 32, 3, 1, 0.82, 0, 0.9)
-        R(art, (w - 84) / 2, 38, 84, 2, 0.95, 0.95, 0.95, 0.85)
-        R(art, (w - 64) / 2, 44, 64, 2, 0.95, 0.95, 0.95, 0.85)
-    end,
     -- Nothing on screen: the bars of a sound rising and falling, in the middle of the box.
     none = function(art)
         local R, w = Layout.Rect, art.width
@@ -190,17 +155,11 @@ local SKETCHES = {
     end,
 }
 local STYLE_TEXTS = {
-    minimal = L.OPT_STYLE_MINIMAL_TEXT,
     classic = L.OPT_STYLE_CLASSIC_TEXT,
-    dialogueui = L.OPT_STYLE_DIALOGUEUI_TEXT,
-    subtitle = L.OPT_STYLE_SUBTITLE_TEXT,
     none = L.OPT_STYLE_NONE_TEXT,
 }
 local STYLE_TIPS = {
-    minimal = L.WELCOME_STYLE_MINIMAL_TIP,
     classic = L.WELCOME_STYLE_CLASSIC_TIP,
-    dialogueui = L.WELCOME_STYLE_DIALOGUEUI_TIP,
-    subtitle = L.WELCOME_STYLE_SUBTITLE_TIP,
     none = L.WELCOME_STYLE_NONE_TIP,
 }
 -- Locale metadata and auto/fallback policy have one owner in core.
@@ -251,8 +210,8 @@ Options.PARTS, Options.SKETCHES = PARTS, SKETCHES
 Options.STYLE_LABELS, Options.STYLE_TEXTS, Options.STYLE_TIPS = STYLE_LABELS, STYLE_TEXTS, STYLE_TIPS
 
 --- The ways of showing lines this client can offer, in the order they are listed: the narrator
---- cards, and the legacy window's list. Subtitles Only first, the default; Voice Only last, its
---- card a sound's bars rising and falling, since there is nothing on screen to picture.
+--- cards, and the legacy window's list. Classic Window first; Voice Only last,
+--- illustrated by the bars of a sound rising and falling.
 function Options:Styles()
     return { "classic", "none" }
 end
@@ -296,8 +255,6 @@ local function Build(canvas)
         local style = Style()
         return style == "classic"
     end
-    local function Small() return Style() == "minimal" end
-    local function Subtitles() return Style() == "subtitle" end
     local function Words() return transcript().Enabled end
     local refresh = function() PlayerFrame:RefreshConfig(); Options:UpdateRows() end
     local refreshTranscript = function() Transcript:RefreshConfig(); Options:UpdateRows() end
@@ -427,9 +384,7 @@ local function Build(canvas)
         layout:Checkbox(L.OPT_BRONZE_TINT, L.OPT_BRONZE_TINT_TIP,
             function() return cfg().BronzeTint end, function(v) cfg().BronzeTint = v end, refresh)
     end
-    -- One row per action an addon declared optional, named by that addon. The player is
-    -- not told what any of them do. The subtitle shows the corner icon too, so the row is
-    -- there with subtitles as well as with a window.
+    -- One row per optional action, shown only for the supported classic window.
     for _, optional in ipairs(Actions.optional) do
         -- Lua 5.0 shares generic-for variables between iterations; callbacks need their own key.
         local actionID = optional.id
@@ -448,8 +403,7 @@ local function Build(canvas)
                 refresh()
                 if Subtitle then Subtitle:Update() end
             end)
-        local function StyleShowsActions() return InWindow() or Subtitles() end
-        Only(row, StyleShowsActions)
+        Only(row, InWindow)
         if isReport then
             -- Requires supplies the disabled look; BlockInteraction prevents
             -- the row's hover, tooltip and checkbox clicks on Vanilla 1.12.
@@ -459,7 +413,7 @@ local function Build(canvas)
             notice:SetTextColor(1, 0.24, 0.24)
             notice:SetAlpha(1)
             notice.layoutBaseAlpha = 1
-            Only(notice, StyleShowsActions)
+            Only(notice, InWindow)
         end
     end
     -- No "hide the window" switch: nothing on screen at all is Voice Only, a way of showing

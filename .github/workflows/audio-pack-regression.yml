@@ -147,6 +147,8 @@ jobs:
           luac5.1 -p SoftSpoken_Stories/Compendium/QuestsTab_112.lua SoftSpoken_Stories/Compendium/PortraitPreload_112.lua SoftSpoken_Stories/DataModules.lua SoftSpoken_Stories/VoiceOver.lua SoftSpoken_Stories/QuestOverlayUI.lua
           luac5.1 -p SoftSpoken/UI/Layout.lua SoftSpoken_Stories/UI/SettingsPanel.lua SoftSpoken_Stories/Options.lua tests/audio_pack_settings_toggle.lua
           luac5.1 -p Data_Packs/SSS_VOFallback/Module.lua
+      - name: Check supported Vanilla narrator styles and saved-profile fallback
+        run: lua5.1 tests/narrator_styles_112.lua
       - name: Check Compendium book mask and runtime skin assets
         run: lua5.1 tests/compendium_book_mask.lua
       - name: Check bounded Vanilla UI fallback polling
