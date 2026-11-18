@@ -98,10 +98,10 @@ if book_path.is_file():
     else:
         width = int.from_bytes(header[12:14], "little")
         height = int.from_bytes(header[14:16], "little")
-        if header[2] not in (2, 10) or header[16] != 32 or any(
+        if header[2] != 2 or header[16] != 32 or any(
             size < 1 or size & (size - 1) for size in (width, height)
         ):
-            issues.append(f"{book_art}: expected power-of-two 32-bit true-color TGA")
+            issues.append(f"{book_art}: expected uncompressed power-of-two 32-bit true-color TGA")
 
 for old in ("SoftSpoken_Stories/Textures", "SoftSpoken_Places/Textures/Art",
             "SoftSpoken_Places/Textures/ClassicFrames", "SoftSpoken_Places/Textures/Controls"):
