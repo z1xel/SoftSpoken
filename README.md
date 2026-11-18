@@ -143,7 +143,7 @@ If chat commands work and the addon functions normally, the launcher's dependenc
 
 ### Voice Packs
 
-SoftSpoken does not generate speech itself. Audio is provided through separately installed voice packs, which the corresponding modules recognize and use for playback.
+SoftSpoken's narration is provided through separately installed voice packs, which its modules automatically recognize and play.
 
 This allows different voice packs to be installed, combined, or updated independently of SoftSpoken itself.
 
