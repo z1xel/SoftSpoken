@@ -167,8 +167,8 @@ local function PlacePortrait(mapID)
         if ok then icon, crop = texture, coords end
     end
     if icon then return { kind = "texture", texture = icon, texCoord = crop } end
-    -- Match upstream's fallback when a map has no icon or a lookup fails.
-    return { kind = "texture", texture = [[Interface\AddOns\SoftSpoken\Textures\Book]] }
+    -- A native Vanilla book icon keeps the fallback independent of bundled art.
+    return { kind = "texture", texture = [[Interface\Icons\INV_Misc_Book_09]] }
 end
 
 -- In the narrator, the white heading names the *parent* of the yellow
