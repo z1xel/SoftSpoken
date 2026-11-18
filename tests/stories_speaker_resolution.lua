@@ -476,7 +476,7 @@ for id, expected in pairs(restoredEntries) do
 end
 assert(string.find(compendium, '[60516] = "Marrek Stromnur"', 1, true),
     "corpus NPC name for Marrek Stromnur must be preserved")
-local page = assert(io.open("SoftSpoken_Stories/Compendium/QuestPage_112.lua", "r")):read("*a")
+local page = assert(io.open("SoftSpoken_Stories/Compendium/QuestPage.lua", "r")):read("*a")
 assert(string.find(page,'local MULTIPLE_LABEL="Multiple speakers possible"',1,true),
     "Compendium should label ambiguous stages without pretending to know the speaker")
 assert(string.find(page,'local MULTIPLE_SPEAKERS_ICON = "Interface\\\\Icons\\\\INV_Misc_QuestionMark"',1,true),

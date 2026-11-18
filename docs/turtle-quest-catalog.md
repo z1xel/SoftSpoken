@@ -55,9 +55,9 @@ The runtime adapters are:
 
 | File | Responsibility |
 | --- | --- |
-| `SoftSpoken_Stories/Compendium/QuestCatalog_112.lua` | Indexing, chains, eligibility, grouping, zones and instances |
-| `SoftSpoken_Stories/Compendium/QuestsTab_112.lua` | Discovery/voice filters, subtitles, Compendium list presentation |
-| `SoftSpoken_Stories/Compendium/QuestPage_112.lua` | Stage text priority, speaker labels, portraits and playback |
+| `SoftSpoken_Stories/Compendium/QuestCatalog.lua` | Indexing, chains, eligibility, grouping, zones and instances |
+| `SoftSpoken_Stories/Compendium/QuestsTab.lua` | Discovery/voice filters, subtitles, Compendium list presentation |
+| `SoftSpoken_Stories/Compendium/QuestPage.lua` | Stage text priority, speaker labels, portraits and playback |
 | `SoftSpoken_Stories/SpeakerResolver.lua` | Typed giver/ender resolution; live GUID and plural-speaker behavior |
 | `SoftSpoken/addon.xml` | Loads the shared map/instance name lookups |
 | `SoftSpoken_Stories/addon.xml` | Loads static data before the quest Compendium adapters |
@@ -84,7 +84,7 @@ No audit Python/Node scripts are needed by the game client. The addon remains co
 
 A missing starter or ender is **unknown**, not evidence of an invisible/scripted quest; an absent explicit ender can be deliberate when the starter also receives completion. Never replace a set of possible speakers with an arbitrary single speaker merely to display one portrait. A quest can be statically listed even if its current live-server availability has not been established.
 
-`QuestCatalog_112.lua` builds a Vanilla-friendly hierarchy: Kalimdor, Eastern Kingdoms, Other Lands, class/profession/event/other categories, native zone/dungeon groups and custom Turtle-area groups. Chain links remain data relationships. The UI defaults to discovery filtering; observed quests outside the static catalog can still be shown as encountered/unknown rather than silently disappearing.
+`QuestCatalog.lua` builds a Vanilla-friendly hierarchy: Kalimdor, Eastern Kingdoms, Other Lands, class/profession/event/other categories, native zone/dungeon groups and custom Turtle-area groups. Chain links remain data relationships. The UI defaults to discovery filtering; observed quests outside the static catalog can still be shown as encountered/unknown rather than silently disappearing.
 
 ## 5. Stage text and narration contract
 

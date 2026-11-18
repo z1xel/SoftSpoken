@@ -1,6 +1,6 @@
 -- Spoken Quests Phase 1 browser. UI adapter for the existing SSCCompendium
 -- virtual list. Upstream's quest catalogue and its chain hierarchy are in
--- QuestCatalog_112.lua; gameplay state is in QuestState_112.lua.
+-- QuestCatalog.lua; gameplay state is in QuestState.lua.
 SSCQuestsTab = SSCQuestsTab or {}
 local Q=SSCQuestsTab
 local C=SSCCompendium

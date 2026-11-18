@@ -76,6 +76,11 @@ RENAMED_RUNTIME = {
     "SoftSpoken/Compendium/UI/Layout.lua": "SoftSpoken/Compendium/UI/CompendiumUIHelpers.lua",
     "SoftSpoken_Places/LoreBridge.lua": "SoftSpoken_Places/LoreDataRegistry.lua",
     "SoftSpoken_Places/UI/CompendiumCompat.lua": "SoftSpoken_Places/UI/CompendiumAliases.lua",
+    "SoftSpoken_Stories/Compendium/QuestState_112.lua": "SoftSpoken_Stories/Compendium/QuestState.lua",
+    "SoftSpoken_Stories/Compendium/QuestCatalog_112.lua": "SoftSpoken_Stories/Compendium/QuestCatalog.lua",
+    "SoftSpoken_Stories/Compendium/PortraitPreload_112.lua": "SoftSpoken_Stories/Compendium/PortraitPreload.lua",
+    "SoftSpoken_Stories/Compendium/QuestsTab_112.lua": "SoftSpoken_Stories/Compendium/QuestsTab.lua",
+    "SoftSpoken_Stories/Compendium/QuestPage_112.lua": "SoftSpoken_Stories/Compendium/QuestPage.lua",
 }
 for old_path, new_path in RENAMED_RUNTIME.items():
     assert not (ROOT / old_path).exists(), f"Retired runtime path still exists: {old_path}"
@@ -105,7 +110,7 @@ for path in (
     "SoftSpoken_Stories/NarrationSource.lua",
     "SoftSpoken_Stories/QuestOverlayUI.lua",
     "SoftSpoken_Stories/UI/QuestLogNativePlay.lua",
-    "SoftSpoken_Stories/Compendium/QuestPage_112.lua",
+    "SoftSpoken_Stories/Compendium/QuestPage.lua",
 ):
     code = (ROOT / path).read_text(encoding="utf-8").replace("\\\\", "\\")
     assert core_root in code, f"{path}: Core's texture root is not in use"

@@ -33,7 +33,7 @@ SpokenQuestsCompendium={quests={
     [6]={"Sunnyglade Valley",turtleArea=5023},
     [7]={"Other Turtle area",turtleArea=5024},
 },sorts={}}
-dofile("SoftSpoken_Stories/Compendium/QuestCatalog_112.lua")
+dofile("SoftSpoken_Stories/Compendium/QuestCatalog.lua")
 local tree=SSCQuestCatalog:BuildTree()
 local found={}
 local function visit(node)

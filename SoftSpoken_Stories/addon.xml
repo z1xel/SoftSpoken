@@ -31,11 +31,11 @@
     <Include file="Data\TurtleQuestText.lua"/>
     <Include file="Data\TurtleAreaMeta.lua"/>
     <!-- Phase 1: ClassicAPI quest state and upstream quest hierarchy. -->
-    <Include file="Compendium\QuestState_112.lua"/>
-    <Include file="Compendium\QuestCatalog_112.lua"/>
-    <Include file="Compendium\PortraitPreload_112.lua"/>
-    <Include file="Compendium\QuestsTab_112.lua"/>
-    <Include file="Compendium\QuestPage_112.lua"/>
+    <Include file="Compendium\QuestState.lua"/>
+    <Include file="Compendium\QuestCatalog.lua"/>
+    <Include file="Compendium\PortraitPreload.lua"/>
+    <Include file="Compendium\QuestsTab.lua"/>
+    <Include file="Compendium\QuestPage.lua"/>
     <!-- Optional shared settings page: built after the quest runtime and compatibility layer. -->
     <Include file="UI\SettingsPage.lua"/>
 

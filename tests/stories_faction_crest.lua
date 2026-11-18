@@ -131,7 +131,7 @@ expect(second.fallback.texture,HORDE,"portrait resolves faction for each clip")
 
 -- Guard against future duplicate faction logic in the Compendium. Both
 -- displays must call the same resolver rather than independently choose art.
-local file=assert(io.open("SoftSpoken_Stories/Compendium/QuestPage_112.lua","r"))
+local file=assert(io.open("SoftSpoken_Stories/Compendium/QuestPage.lua","r"))
 local source=file:read("*a")
 file:close()
 assert(string.find(source,"FactionCrest.Resolve()",1,true),

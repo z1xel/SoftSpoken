@@ -8,8 +8,8 @@
 
 - `SoftSpoken_Stories/SpeakerResolver.lua` resolves giver, ender, item/object and live dialogue identity.
 - `SoftSpoken/CreatureAppearance.lua` owns one ClassicAPI creature-data request registry and completion listener; native/WDB portrait caches remain the client's responsibility.
-- `SoftSpoken_Stories/Compendium/QuestPage_112.lua` renders static 2D native textures and binds each holder to quest/stage/creature/generation. The page does not create 3D models.
-- `SoftSpoken_Stories/Compendium/PortraitPreload_112.lua` prefetches **data only** for selected and discovered visible/hovered quests. Selection bypasses the speculative queue. Speculative work has at most two in-flight IDs, 400 ms spacing, eight queued IDs, and stops on tab hide.
+- `SoftSpoken_Stories/Compendium/QuestPage.lua` renders static 2D native textures and binds each holder to quest/stage/creature/generation. The page does not create 3D models.
+- `SoftSpoken_Stories/Compendium/PortraitPreload.lua` prefetches **data only** for selected and discovered visible/hovered quests. Selection bypasses the speculative queue. Speculative work has at most two in-flight IDs, 400 ms spacing, eight queued IDs, and stops on tab hide.
 - `SoftSpoken/UI/Portrait.lua` keeps the narrator's existing 3D rendering and listens to the same creature-data service.
 
 No new TGA art, decorative portrait rings, gameplay markers, new quest objectives, or additional gameplay information are introduced.
