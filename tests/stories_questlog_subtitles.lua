@@ -1,0 +1,93 @@
+-- Run from repository root: lua5.1 tests/stories_questlog_subtitles.lua
+-- The quest log supplies an acceptance quest ID but no live dialogue snapshot.
+-- Verify its real Stories player resolves subtitles using the Compendium text
+-- service without changing audio selection or overwriting live NPC dialogue.
+
+local function eq(actual, expected, label)
+    assert(actual == expected, (label or "value") .. ": expected " ..
+        tostring(expected) .. ", got " .. tostring(actual))
+end
+
+local lookups, played = {}, {}
+local textByID = {
+    [101] = "Captured acceptance text.",
+    [102] = "Turtle acceptance override.",
+    [103] = "Original Spoken acceptance text.",
+}
+SSCQuestPage = {
+    Text = function(self, questID, stage)
+        table.insert(lookups, { questID=questID, stage=stage })
+        return textByID[questID]
+    end,
+}
+SSCQuestFactionCrest = { Resolve=function() return "Crest" end }
+local legacyCalls = 0
+local event = {
+    QuestAccept=1, QuestProgress=2, QuestComplete=3,
+    QuestGreeting=4, Gossip=5, QuestFollowup=6,
+    IsGossipEvent=function(self,id) return id==4 or id==5 end,
+}
+VoiceOver = setmetatable({
+    Enums = { SoundEvent=event, GUID={IsCreature=function() return true end} },
+    SpeakerResolver = {ForSound=function() return nil,nil end},
+    Contribute = {QuestLogDescription=function()
+        legacyCalls=legacyCalls+1
+        return "Obsolete text."
+    end},
+    L = { OPT_REPORT_PROBLEM="Report" },
+    DataModules = {
+        PrepareSound=function(self, clip)
+            clip.fileName = tostring(clip.questID) .. "-accept"
+            clip.filePath = "Interface\\AddOns\\TestAudio\\Sound.mp3"
+            clip.length = 5
+            return true
+        end,
+    },
+}, {__index = _G})
+dofile("SoftSpoken_Stories/NarrationSource.lua")
+local player = VoiceOver.Player
+player.source = {PlayNow=function(self,clip) table.insert(played,clip); return true end}
+
+local function PlayQuestLog(id)
+    -- The quest-log button's SoundData shape: no text field.
+    local clip = { event=event.QuestAccept, questID=id, title="Test Quest",
+        name="Quest Giver", origin="the quest log's Play button" }
+    eq(player:PlayNow(clip),true,"audio starts for quest-log button")
+    eq(played[#played],clip,"same clip delivered to shared queue")
+    return clip
+end
+
+for _,id in ipairs({101,102,103}) do
+    local clip=PlayQuestLog(id)
+    eq(clip.present.transcript,textByID[id],"Compendium-resolved subtitle")
+    eq(clip.fileName,tostring(id).."-accept","audio file key unchanged")
+    eq(clip.path,clip.filePath,"audio path unchanged")
+    eq(lookups[#lookups].questID,id,"lookup uses requested quest ID")
+    eq(lookups[#lookups].stage,"accept","lookup uses acceptance only")
+end
+
+local lookupsBefore=#lookups
+local live = {event=event.QuestAccept, questID=101, text="What this NPC said."}
+player:Prepare(live)
+eq(live.present.transcript,"What this NPC said.","live NPC dialogue preserved")
+eq(#lookups,lookupsBefore,"live text never replaced by database")
+
+for _,kind in ipairs({event.QuestProgress,event.QuestComplete,event.Gossip}) do
+    local line={event=kind,questID=101}
+    player:Prepare(line)
+    eq(line.present.transcript,nil,"other stages do not borrow acceptance text")
+end
+eq(#lookups,lookupsBefore,"other stages never queried as acceptance")
+
+local missing=PlayQuestLog(404)
+eq(missing.present.transcript,nil,"missing corpus entry remains without captions")
+SSCQuestPage.Text=function() error("Broken text source") end
+local errorClip=PlayQuestLog(101)
+eq(errorClip.present.transcript,nil,"resolver failure cannot interrupt narration")
+
+-- No Compendium UI module: audio still plays and does not invent text.
+SSCQuestPage=nil
+local unavailable=PlayQuestLog(101)
+eq(unavailable.present.transcript,nil,"unavailable lookup does not block audio")
+eq(legacyCalls,0,"obsolete Contribute helper never used")
+print("PASS: quest-log acceptance subtitles reuse Compendium text without audio regression")
