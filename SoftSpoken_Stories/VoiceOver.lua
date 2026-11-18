@@ -1086,6 +1086,16 @@ function Addon:RefreshConfig()
     if SSCQuestsTab and SSCQuestsTab.InvalidateVoiceCache then
         SSCQuestsTab:InvalidateVoiceCache()
     end
+    -- AceDB profile changes/reset bypass individual pack switches. When the
+    -- selected packs differ from those already loaded, offer a full UI reload
+    -- rather than silently retaining data from the previous profile.
+    if not self.dataModulesPending and DataModules
+        and DataModules:NeedsLoadSelectionReload()
+        and SpokenLayout and SpokenLayout.AskReload then
+        SpokenLayout.AskReload(
+            "The selected Stories voice packs changed with this profile. Reload the UI to apply the voice pack selection?",
+            "Reload", "Later")
+    end
 end
 
 function Addon:ADDON_LOADED(event, addon)
