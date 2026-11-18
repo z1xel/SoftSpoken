@@ -15,6 +15,7 @@ on:
       - "SoftSpoken_Stories/Environment.lua"
       - "SoftSpoken_Writings/Core.lua"
       - "tests/test_release_version.py"
+      - "tests/test_public_contracts.py"
       - "tests/test_ui_packaging.py"
       - "tests/test_texture_path_integrity.py"
       - "SoftSpoken_Places/Textures/**"
@@ -35,6 +36,7 @@ jobs:
       - name: Check version consistency and installable file structure
         run: |
           python3 tests/test_release_version.py
+          python3 tests/test_public_contracts.py
           python3 tests/test_ui_packaging.py
           python3 tests/test_texture_path_integrity.py
       - name: Build installable ZIP without development files

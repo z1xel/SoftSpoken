@@ -6,6 +6,8 @@ on:
       - "VERSION"
       - "README.md"
       - "tests/test_release_version.py"
+      - "tests/test_public_contracts.py"
+      - "tests/refactor_compatibility.lua"
       - "SoftSpoken/Environment.lua"
       - "SoftSpoken_Stories/Environment.lua"
       - "SoftSpoken/SoftSpoken.toc"
@@ -74,6 +76,8 @@ on:
       - "VERSION"
       - "README.md"
       - "tests/test_release_version.py"
+      - "tests/test_public_contracts.py"
+      - "tests/refactor_compatibility.lua"
       - "SoftSpoken/Environment.lua"
       - "SoftSpoken_Stories/Environment.lua"
       - "SoftSpoken/SoftSpoken.toc"
@@ -165,6 +169,7 @@ jobs:
           luac5.1 -p SoftSpoken_Stories/Compendium/QuestState.lua SoftSpoken_Stories/Compendium/QuestCatalog.lua SoftSpoken_Stories/Compendium/QuestsTab.lua SoftSpoken_Stories/Compendium/PortraitPreload.lua SoftSpoken_Stories/DataModules.lua SoftSpoken_Stories/QuestRuntime.lua SoftSpoken_Stories/QuestOverlayUI.lua
           luac5.1 -p SoftSpoken/UI/SettingsLayout.lua SoftSpoken_Stories/UI/SettingsPage.lua SoftSpoken_Stories/AceConfigOptions.lua tests/audio_pack_settings_toggle.lua
           luac5.1 -p Data_Packs/SSS_VOFallback/Module.lua
+          luac5.1 -p tests/refactor_compatibility.lua
       - name: Check supported Vanilla narrator styles and saved-profile fallback
         run: lua5.1 tests/narrator_styles_112.lua
       - name: Check Vanilla-only shared settings and module navigation
@@ -185,6 +190,10 @@ jobs:
         run: python3 tests/test_texture_path_integrity.py
       - name: Check all SoftSpoken release version declarations
         run: python3 tests/test_release_version.py
+      - name: Guard public APIs, SavedVariables and legacy pack contracts
+        run: |
+          python3 tests/test_public_contracts.py
+          lua5.1 tests/refactor_compatibility.lua
       - name: Check native player duration and UI progress
         run: lua5.1 tests/audio_progress_ui.lua
       - name: Check Writings title and discovery context in the narrator
