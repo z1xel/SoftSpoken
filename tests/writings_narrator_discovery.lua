@@ -89,8 +89,12 @@ SpokenBooksAudioPacks={TestPack={
 dofile("SoftSpoken_Writings/Audio.lua")
 local clip=assert(SSB:ClipFor(101))
 eq(clip.present.portrait.kind,"texture","Writings book portrait is a texture")
-eq(clip.present.portrait.texture,[[Interface\Icons\INV_Misc_Book_09]],
-    "default Writings portrait uses native Vanilla inventory icon")
+eq(clip.present.portrait.texture,[[Interface\AddOns\SoftSpoken\Textures\WritingsBook]],
+    "books use the bundled book cover when no item or material icon exists")
+eq(clip.present.portrait.fallback.texture,[[Interface\Icons\INV_Misc_Book_09]],
+    "Vanilla book icon remains the renderer fallback")
+eq(clip.present.portrait.texCoord[1],0,"book cover is not cropped as an inventory icon")
+eq(clip.present.portrait.texCoord[2],1,"book cover retains its full width")
 eq(clip.present.header,"The World Tree and the Emerald Dream",
     "book title promoted to white heading")
 eq(clip.present.label,"Book " .. DOT .. " Discovered in Darnassus",
@@ -99,6 +103,32 @@ eq(clip.present.queueLabel,"The World Tree and the Emerald Dream",
     "queued book remains identifiable by title")
 eq(clip.present.transcript,"First","book transcript unchanged")
 eq(clip.group,nil,"one-line group unchanged")
+
+-- Non-book readables must not inherit the book cover. Their existing
+-- material and item icon priority remains unchanged.
+local letter=assert(SSB:ClipFor(201))
+eq(letter.present.portrait.texture,[[Interface\Icons\INV_Misc_Book_09]],
+    "letters retain the native default without book artwork")
+local scroll=assert(SSB:ClipFor(301))
+eq(scroll.present.portrait.texture,[[Interface\Icons\INV_Misc_Book_09]],
+    "scrolls retain the native default without book artwork")
+SSB.lastPage=true
+ItemTextGetItem=function() return "item" end
+ItemTextGetMaterial=function() return "Stone" end
+Spoken={BagItemIcon=function() return "Interface\\Icons\\CustomItem", {0.1,0.9,0.1,0.9} end}
+local itemPicture=SSB:PagePicture(11)
+eq(itemPicture.texture,"Interface\\Icons\\CustomItem","item icon wins over custom book artwork")
+eq(itemPicture.texCoord[1],0.1,"item-specific icon crop preserved")
+Spoken.BagItemIcon=function() return nil end
+local stonePicture=SSB:PagePicture(11)
+eq(stonePicture.texture,SSB.MATERIALS.Stone,"material icon wins over custom book artwork")
+ItemTextGetMaterial=function() return "Parchment" end
+eq(SSB:PagePicture(11).texture,[[Interface\AddOns\SoftSpoken\Textures\WritingsBook]],
+    "unknown material falls back to bundled book cover")
+SSB.lastPage=nil
+Spoken=nil
+ItemTextGetItem=nil
+ItemTextGetMaterial=nil
 
 local carried=assert(SSB:ClipFor(301))
 eq(carried.present.header,"A Carried Scroll","other type title promoted")
