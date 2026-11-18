@@ -85,7 +85,12 @@ local function Scenario(version)
         function t:SetAllPoints() end
         function t:Show() self.shown=true end
         function t:Hide() self.shown=false end
-        function t:SetTexture(v) self.texture=v end
+        function t:SetTexture(v)
+            self.texture=v
+            if v=="missing.tga" then return false end
+            if v=="missing-returnless.tga" then self.texture=nil end
+        end
+        function t:GetTexture() return self.texture end
         function t:SetTexCoord() end
         return t
     end
@@ -160,6 +165,18 @@ local function Scenario(version)
         Configure(Clip(101,330))
         expect(portrait.active,"texture","no model API texture fallback")
         expect(portrait.creatureModel,nil,"no unsupported model selected")
+    end
+
+    -- Texture failures must reach the supplied Vanilla icon fallback without
+    -- altering the narrator's current clip or audio state.
+    for _,missing in ipairs({"missing.tga","missing-returnless.tga"}) do
+        Configure({present={portrait={
+            kind="texture",texture=missing,
+            fallback={kind="texture",texture="Interface\\Icons\\INV_Misc_Book_09"},
+        }}})
+        expect(portrait.active,"texture","missing custom art uses texture fallback")
+        expect(portrait.texture.texture,"Interface\\Icons\\INV_Misc_Book_09",
+            "Vanilla icon shown after custom texture assignment fails")
     end
 
     -- Simulate two asynchronous responses before one OnUpdate. Both IDs must
