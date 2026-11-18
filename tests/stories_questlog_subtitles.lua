@@ -1,7 +1,7 @@
 -- Run from repository root: lua5.1 tests/stories_questlog_subtitles.lua
 -- The quest log supplies an acceptance quest ID but no live dialogue snapshot.
--- Verify its real Stories player resolves subtitles using the Compendium text
--- service without changing audio selection or overwriting live NPC dialogue.
+-- Verify its real Stories player resolves subtitles through the independent
+-- quest-dialogue service without changing audio selection or live NPC dialogue.
 
 local function eq(actual, expected, label)
     assert(actual == expected, (label or "value") .. ": expected " ..
@@ -14,12 +14,8 @@ local textByID = {
     [102] = "Turtle acceptance override.",
     [103] = "Original Spoken acceptance text.",
 }
-SSCQuestPage = {
-    Text = function(self, questID, stage)
-        table.insert(lookups, { questID=questID, stage=stage })
-        return textByID[questID]
-    end,
-}
+-- The narrator must work without the Compendium UI.
+SSCQuestPage = nil
 SSCQuestFactionCrest = { Resolve=function() return "Crest" end }
 local legacyCalls = 0
 local event = {
@@ -28,6 +24,12 @@ local event = {
     IsGossipEvent=function(self,id) return id==4 or id==5 end,
 }
 VoiceOver = setmetatable({
+    QuestDialogue = {
+        Text = function(self, questID, stage)
+            table.insert(lookups, { questID=questID, stage=stage })
+            return textByID[questID]
+        end,
+    },
     Enums = { SoundEvent=event, GUID={IsCreature=function() return true end} },
     SpeakerResolver = {ForSound=function() return nil,nil end},
     Contribute = {QuestLogDescription=function()
@@ -59,7 +61,7 @@ end
 
 for _,id in ipairs({101,102,103}) do
     local clip=PlayQuestLog(id)
-    eq(clip.present.transcript,textByID[id],"Compendium-resolved subtitle")
+    eq(clip.present.transcript,textByID[id],"shared service-resolved subtitle")
     eq(clip.fileName,tostring(id).."-accept","audio file key unchanged")
     eq(clip.path,clip.filePath,"audio path unchanged")
     eq(lookups[#lookups].questID,id,"lookup uses requested quest ID")
@@ -81,13 +83,13 @@ eq(#lookups,lookupsBefore,"other stages never queried as acceptance")
 
 local missing=PlayQuestLog(404)
 eq(missing.present.transcript,nil,"missing corpus entry remains without captions")
-SSCQuestPage.Text=function() error("Broken text source") end
+VoiceOver.QuestDialogue.Text=function() error("Broken text source") end
 local errorClip=PlayQuestLog(101)
 eq(errorClip.present.transcript,nil,"resolver failure cannot interrupt narration")
 
--- No Compendium UI module: audio still plays and does not invent text.
-SSCQuestPage=nil
+-- No dialogue service: audio still plays and does not invent text.
+VoiceOver.QuestDialogue=nil
 local unavailable=PlayQuestLog(101)
-eq(unavailable.present.transcript,nil,"unavailable lookup does not block audio")
+eq(unavailable.present.transcript,nil,"unavailable dialogue service does not block audio")
 eq(legacyCalls,0,"obsolete Contribute helper never used")
-print("PASS: quest-log acceptance subtitles reuse Compendium text without audio regression")
+print("PASS: quest-log subtitles use independent dialogue service without audio regression")
