@@ -163,9 +163,9 @@ function Addon:InvokeQuestHandler(event, dispatchOrigin, manual)
     end
     Debug:Record("quest-dispatch", format("Dispatching %s through %s", event, dispatchOrigin or "manual reader"))
     -- Where the lines this queues come from, for the debug log (Player:Enqueue keeps it on each).
-    Player.origin = Player:Origin(event, dispatchOrigin, manual)
+    StoriesNarrator.origin = StoriesNarrator:Origin(event, dispatchOrigin, manual)
     local succeeded, errorMessage = pcall(handler, self, event, manual)
-    Player.origin = nil
+    StoriesNarrator.origin = nil
     if not succeeded then
         Debug:Record("handler-error", format("%s failed: %s", event, tostring(errorMessage)))
         local errorHandler = geterrorhandler and geterrorhandler()
@@ -385,7 +385,7 @@ function Addon:OnInitialize()
         whileDead = 1,
     }
 
-    Player:Setup()
+    StoriesNarrator:Setup()
     -- Optional NPC greeting setup must never prevent voice-pack discovery.
     local greetingReady, greetingError = pcall(GreetingFirst.Setup, GreetingFirst)
     if not greetingReady then
@@ -719,7 +719,7 @@ function Addon:OnInitialize()
         if type(questID) ~= "number" or questID <= 0 then questID = nil end
         if (not questID) and (type(title) ~= "string" or title == "") then return end
         local toRemove = {}
-        for _, clip in ipairs(Player:Queued()) do
+        for _, clip in ipairs(StoriesNarrator:Queued()) do
             if Enums.SoundEvent:IsQuestEvent(clip.event) and
                (not keepReward or clip.event ~= Enums.SoundEvent.QuestComplete) and
                ((questID and clip.questID == questID) or
@@ -728,7 +728,7 @@ function Addon:OnInitialize()
             end
         end
         for i = getn(toRemove), 1, -1 do
-            Player:Remove(toRemove[i])
+            StoriesNarrator:Remove(toRemove[i])
         end
         if getn(toRemove) > 0 then
             Debug:Record("quest-removed-audio", format("Removed %d clip(s) for quest %s",
@@ -835,7 +835,7 @@ function Addon:OnInitialize()
 end
 
 function Addon:RefreshConfig()
-    Player:RefreshConfig()
+    StoriesNarrator:RefreshConfig()
     -- Quest-local profile language fallbacks also affect the Voiced Only filter.
     if SSCQuestsTab and SSCQuestsTab.InvalidateVoiceCache then
         SSCQuestsTab:InvalidateVoiceCache()
@@ -904,7 +904,7 @@ local function QueueRead(soundData, manual)
         pendingRead = soundData
         return
     end
-    Player:Enqueue(soundData, manual)
+    StoriesNarrator:Enqueue(soundData, manual)
 end
 
 function Addon:QUEST_DETAIL(_, manual)
@@ -1053,7 +1053,7 @@ end
 function Addon:BeginGreetingWait(event)
     if not GreetingFirst:IsOn() or not self:IsPageOn(event)
         or not self:IsAutoplayOn() or self.dataModulesPending
-        or not Player.source then
+        or not StoriesNarrator.source then
         return
     end
     if not (SPEECH_EVENTS[event] or QUEST_EVENTS[event]) then
@@ -1096,7 +1096,7 @@ function Addon:QUEST_GREETING(event, manual)
             self.db.char.hasSeenGossipForNPC[npcKey] = true
         end
     }
-    Player:Enqueue(soundData, manual)
+    StoriesNarrator:Enqueue(soundData, manual)
 end
 
 -- The option the player picked to reach the gossip on screen, as its clip's label. Kept past
@@ -1158,17 +1158,17 @@ function Addon:GOSSIP_SHOW(event, manual)
             self.db.char.hasSeenGossipForNPC[npcKey] = true
         end
     }
-    Player:Enqueue(soundData, manual)
+    StoriesNarrator:Enqueue(soundData, manual)
 end
 
 function Addon:QUEST_FINISHED()
     if Addon.db.profile.Audio.StopAudioOnDisengage then
         if currentQuestSoundData then
-            Player:Remove(currentQuestSoundData)
+            StoriesNarrator:Remove(currentQuestSoundData)
         end
         -- A quest giver's greeting is read in the quest frame, so it ends with the frame.
         if currentGossipSoundData and currentGossipSoundData.event == Enums.SoundEvent.QuestGreeting then
-            Player:Remove(currentGossipSoundData)
+            StoriesNarrator:Remove(currentGossipSoundData)
             currentGossipSoundData = nil
         end
     end
@@ -1178,13 +1178,13 @@ function Addon:QUEST_FINISHED()
     if pending then
         -- Its window has closed, so it is no window's line: the next close leaves it playing.
         pending.addedCallback = nil
-        Player:Enqueue(pending)
+        StoriesNarrator:Enqueue(pending)
     end
 end
 
 function Addon:GOSSIP_CLOSED()
     if Addon.db.profile.Audio.StopAudioOnDisengage and currentGossipSoundData then
-        Player:Remove(currentGossipSoundData)
+        StoriesNarrator:Remove(currentGossipSoundData)
     end
     currentGossipSoundData = nil
 

@@ -59,7 +59,7 @@ local GeneralTab =
                     get = function(info) return Addon.db.profile.Audio.GossipFrequency end,
                     set = function(info, value)
                         Addon.db.profile.Audio.GossipFrequency = value
-                        Player:RefreshConfig()
+                        StoriesNarrator:RefreshConfig()
                     end,
                 },
                 LineBreak2 = { type = "description", name = "", order = 5 },
@@ -311,8 +311,8 @@ function Options:RunSelfTest()
             -- Through the player, the route every real line takes: on 2.4.3 and 3.3.5
             -- that means the music channel, and a self-test that went another way would
             -- answer a question nobody asked.
-            local channel = Player.source and Player.source:GetChannel() or "unknown"
-            if Player:Enqueue(soundData, true) then
+            local channel = StoriesNarrator.source and StoriesNarrator.source:GetChannel() or "unknown"
+            if StoriesNarrator:Enqueue(soundData, true) then
                 Debug:Record("self-test-playing", format("Self-test queued on %s: %s", channel, soundData.filePath))
                 print(format("|cFF40FF40SoftSpoken Stories test started on %s.|r You should hear a short voice line.", channel))
             else
@@ -333,7 +333,7 @@ function Options:DiagnosticsLines()
                 AddonVersion, Version.Client or "unknown", Version.Interface or 0))
             Add("AddOn API: " .. (C_AddOns and "C_AddOns compatibility layer" or "legacy globals"))
 
-            local channel = Player.source and Player.source:GetChannel() or "unknown"
+            local channel = StoriesNarrator.source and StoriesNarrator.source:GetChannel() or "unknown"
             Add(format("Playback: channel=%s, paused=%s, queue=%d, player=%s", channel,
                 tostring(Spoken and Spoken:IsPaused()), Spoken and Spoken:GetQueueSize() or 0,
                 Spoken and Spoken.ADDON_VERSION or "missing"))

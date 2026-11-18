@@ -147,6 +147,7 @@ VoiceOver={
     end},
     Player={Queued=function() return {} end},
 }
+VoiceOver.StoriesNarrator = VoiceOver.Player
 SpokenQuestsText={
     [101]={accept="Accept A",progress="Progress A",complete="Finish A"},
     [102]={accept="Accept B",progress="Progress B",complete="Finish B"},

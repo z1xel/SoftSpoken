@@ -14,7 +14,7 @@ local UI = SpokenLayout
 local function Ready()
     return Spoken and Spoken.AddSettingsPage and UI and
         Addon and Addon.db and Addon.db.profile and
-        Addon.db.profile.Audio and DataModules and Player
+        Addon.db.profile.Audio and DataModules and StoriesNarrator
 end
 
 local function Audio() return Addon.db.profile.Audio end
@@ -94,7 +94,7 @@ function StoriesSettingsPage:Build()
         function() return Audio().GossipFrequency end,
         function(value)
             Audio().GossipFrequency = value
-            Player:RefreshConfig()
+            StoriesNarrator:RefreshConfig()
         end, nil, function(value) return names[value] or tostring(value) end)
     layout:Requires(frequency, function()
         return Spoken:IsPartOn("gossip") and Addon:IsAutoplayOn()

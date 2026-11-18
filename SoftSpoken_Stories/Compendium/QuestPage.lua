@@ -59,8 +59,8 @@ end
 local function Clips(id,stage)
     local v=VoiceOver
     local out={}
-    if not v or not v.Player or not v.Player.Queued then return out end
-    local entries=v.Player:Queued()
+    if not v or not v.StoriesNarrator or not v.StoriesNarrator.Queued then return out end
+    local entries=v.StoriesNarrator:Queued()
     for _,clip in ipairs(entries or {}) do
         if clip.questID==id and (clip.event==1 or clip.event==2 or clip.event==3)
            and (not stage or clip.event==EVENTS[stage]) then
@@ -71,12 +71,12 @@ local function Clips(id,stage)
 end
 local function Play(id,stage)
     local v=VoiceOver
-    if not (v and v.Player and v.Player.PlayNow) then return end
+    if not (v and v.StoriesNarrator and v.StoriesNarrator.PlayNow) then return end
     local same=Clips(id,stage)
     local all=Clips(id)
-    for _,clip in ipairs(all) do v.Player:Remove(clip) end
+    for _,clip in ipairs(all) do v.StoriesNarrator:Remove(clip) end
     if table.getn(same)>0 then return end -- upstream's play/stop behavior
-    v.Player:PlayNow(SoundData(id,stage))
+    v.StoriesNarrator:PlayNow(SoundData(id,stage))
 end
 -- Compatibility for consumers of the original Compendium text entrypoint.
 -- This is a delegate only; the implementation now lives in QuestDialogue.

@@ -42,8 +42,8 @@ function GreetingFirst:IsWaiting()
 end
 
 local function Retry()
-    if Player.source and Player.source.Retry then
-        Player.source:Retry() -- shared queue, so this also releases held gossip lines
+    if StoriesNarrator.source and StoriesNarrator.source.Retry then
+        StoriesNarrator.source:Retry() -- shared queue, so this also releases held gossip lines
     end
 end
 
@@ -309,9 +309,9 @@ function GreetingFirst:DescribeTiming()
 end
 
 function GreetingFirst:Setup()
-    if self.ready or not Player.source then return end
+    if self.ready or not StoriesNarrator.source then return end
     self.ready = true
-    for _, source in ipairs({ Player.source, Player.gossipSource }) do
+    for _, source in ipairs({ StoriesNarrator.source, StoriesNarrator.gossipSource }) do
         source:AddGate(function()
             if GreetingFirst:IsWaiting() then
                 return L.QUEUE_HELD_GREETING

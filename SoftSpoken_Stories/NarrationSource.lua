@@ -10,7 +10,9 @@ setfenv(1, VoiceOver)
 -- Two sources, one per part of Spoken's page: quests, and gossip (what NPCs say in their gossip
 -- and greeting windows). Spoken switches each on and off and shows each on its own; the queue
 -- below them is shared.
-Player = { source = nil, gossipSource = nil }
+StoriesNarrator = { source = nil, gossipSource = nil }
+-- Legacy pack/tooling access still resolves the same Stories narrator table.
+Player = StoriesNarrator
 
 local TEXTURES = [[Interface\AddOns\SoftSpoken\Textures\]]
 -- The packs that hold quests alone. Every other pack holds gossip too.
@@ -21,7 +23,7 @@ local QUEST_ONLY = {
 }
 
 --- Whether a pack holds gossip.
-function Player:HoldsGossip(module)
+function StoriesNarrator:HoldsGossip(module)
     return not QUEST_ONLY[module.AddonName]
 end
 
@@ -47,12 +49,12 @@ local QUEST_STAGES = {
 --------------------------------------------------------------------------------
 
 --- Whether a clip is this addon's, quests' or gossip's.
-function Player:Owns(clip)
+function StoriesNarrator:Owns(clip)
     return clip.source ~= nil and (clip.source == self.source or clip.source == self.gossipSource)
 end
 
 --- The source that plays a line: gossip's for what NPCs say, quests' for the rest.
-function Player:SourceOf(soundData)
+function StoriesNarrator:SourceOf(soundData)
     if self.gossipSource and Enums.SoundEvent:IsGossipEvent(soundData.event) then
         return self.gossipSource
     end
@@ -60,7 +62,7 @@ function Player:SourceOf(soundData)
 end
 
 --- This addon's clips, in queue order.
-function Player:Queued()
+function StoriesNarrator:Queued()
     local list = {}
     if not self.source or not Spoken then
         return list
@@ -73,7 +75,7 @@ function Player:Queued()
     return list
 end
 
-function Player:Contains(soundData)
+function StoriesNarrator:Contains(soundData)
     for _, clip in ipairs(self:Queued()) do
         if clip == soundData then
             return true
@@ -83,7 +85,7 @@ function Player:Contains(soundData)
 end
 
 --- The head, if it is one of ours.
-function Player:Current()
+function StoriesNarrator:Current()
     local head = Spoken and Spoken:GetCurrent()
     if head and self:Owns(head) then
         return head
@@ -93,7 +95,7 @@ end
 
 local function GossipClips()
     local list = {}
-    for _, clip in ipairs(Player:Queued()) do
+    for _, clip in ipairs(StoriesNarrator:Queued()) do
         if Enums.SoundEvent:IsGossipEvent(clip.event) then
             table.insert(list, clip)
         end
@@ -186,12 +188,12 @@ local STOP_GOSSIP = {
         button:HookScript("OnLeave", GameTooltip_Hide)
         button:HookScript("OnClick", function()
             PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON)
-            local head = Player:Current()
+            local head = StoriesNarrator:Current()
             if head and Enums.SoundEvent:IsGossipEvent(head.event) then
-                Player:Remove(head)
+                StoriesNarrator:Remove(head)
             else
                 for _, clip in ipairs(GossipClips()) do
-                    Player:Remove(clip)
+                    StoriesNarrator:Remove(clip)
                 end
             end
         end)
@@ -234,7 +236,7 @@ local REPORT = {
 local ACTIONS = { REPORT, STOP_GOSSIP }
 
 --- Turn a prepared SoundData into a clip, in place.
-function Player:Prepare(soundData)
+function StoriesNarrator:Prepare(soundData)
     local event = soundData.event
     local gossip = Enums.SoundEvent:IsGossipEvent(event)
     -- Preserve live NPC dialogue. A clip without a dialog snapshot resolves
@@ -279,7 +281,7 @@ local WINDOWS = {
 
 --- Where a line comes from, as the debug log says it: the window an event stands for, and
 --- whether it was read automatically or asked for (`dispatchOrigin`: the Play button, /spq read, ...).
-function Player:Origin(event, dispatchOrigin, manual)
+function StoriesNarrator:Origin(event, dispatchOrigin, manual)
     local window = WINDOWS[event] or tostring(event)
     if manual then
         return window .. ", asked for with " .. tostring(dispatchOrigin or "a reader")
@@ -299,7 +301,7 @@ end
 ---@param soundData SoundData
 ---@param asked boolean? the player asked for it, so it is read in a battleground too
 ---@return boolean queued
-function Player:Enqueue(soundData, asked)
+function StoriesNarrator:Enqueue(soundData, asked)
     if not soundData.origin then soundData.origin = self.origin end
     if not self.source then
         Debug:Record("player-missing", "The Spoken player addon is not installed")
@@ -325,7 +327,7 @@ end
 --- speaking.
 ---@param soundData SoundData
 ---@return boolean queued
-function Player:PlayNow(soundData)
+function StoriesNarrator:PlayNow(soundData)
     if not soundData.origin then soundData.origin = self.origin end
     if not self.source then
         Debug:Record("player-missing", "The Spoken player addon is not installed")
@@ -347,7 +349,7 @@ end
 ---@param soundData SoundData
 ---@param asked boolean? as Enqueue's
 ---@return boolean queued
-function Player:EnqueuePrepared(soundData, asked)
+function StoriesNarrator:EnqueuePrepared(soundData, asked)
     if not self.source then
         Debug:Record("player-missing", "The Spoken player addon is not installed")
         return false
@@ -383,7 +385,7 @@ end
 --- was speaking rather than replaying it. Callers set `Player.playNow` around the read.
 ---@param soundData SoundData
 ---@return boolean playing
-function Player:PlayPreparedNow(soundData)
+function StoriesNarrator:PlayPreparedNow(soundData)
     local interrupted = Spoken.GetCurrent and Spoken:GetCurrent()
     if interrupted and interrupted.key == soundData.key then
         interrupted = nil
@@ -412,7 +414,7 @@ end
 
 --- The queued clip reading the dialog's line, or nil. Matched by file rather than by the
 --- SoundData the handler built, so a line started from the quest log counts too.
-function Player:QueuedClipFor(line)
+function StoriesNarrator:QueuedClipFor(line)
     for _, clip in ipairs(self:Queued()) do
         if clip.fileName == line.fileName then
             return clip
@@ -420,7 +422,7 @@ function Player:QueuedClipFor(line)
     end
 end
 
-function Player:Remove(soundData)
+function StoriesNarrator:Remove(soundData)
     if not self.source then
         return false
     end
@@ -428,7 +430,7 @@ function Player:Remove(soundData)
 end
 
 --- After a setting changed something the player draws from.
-function Player:RefreshConfig()
+function StoriesNarrator:RefreshConfig()
     if Spoken and Spoken.RefreshPlayer then
         Spoken:RefreshPlayer()
     end
@@ -438,7 +440,7 @@ end
 -- Registration
 --------------------------------------------------------------------------------
 
-function Player:Setup()
+function StoriesNarrator:Setup()
     if self.source then
         return true
     end
@@ -484,7 +486,7 @@ function Player:Setup()
         packs = function()
             local names = {}
             for _, module in DataModules:GetPresentModules() do
-                if Player:HoldsGossip(module) then table.insert(names, module.Title) end
+                if StoriesNarrator:HoldsGossip(module) then table.insert(names, module.Title) end
             end
             return names
         end,
@@ -492,13 +494,13 @@ function Player:Setup()
 
     -- Queue admission is reported for event deduplication and diagnostics.
     Spoken:RegisterCallback("CLIP_QUEUED", function(clip)
-        if Player:Owns(clip) then
+        if StoriesNarrator:Owns(clip) then
             Debug:Record("queued", format("Queued %s (%s)%s", clip.title or clip.name or clip.fileName, clip.path,
                 From(clip)))
         end
     end)
     Spoken:RegisterCallback("CLIP_STARTED", function(clip)
-        if not Player:Owns(clip) then
+        if not StoriesNarrator:Owns(clip) then
             return
         end
         Debug:Record("playing", format("Playing %s", clip.path or clip.fileName or "voiceover"))

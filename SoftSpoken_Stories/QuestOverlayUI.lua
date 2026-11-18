@@ -177,7 +177,7 @@ end
 --- the details view has a button that belongs to no quest in particular. A button drawn its
 --- own way (the details view's round one) carries its own `setPlayState`.
 function QuestOverlayUI:SetPlayButtonState(playButton)
-    local isPlaying = playButton.soundData and Player:Contains(playButton.soundData) or false
+    local isPlaying = playButton.soundData and StoriesNarrator:Contains(playButton.soundData) or false
     if playButton.setPlayState then
         playButton.setPlayState(playButton, isPlaying)
         return
@@ -249,10 +249,10 @@ function QuestOverlayUI:BindPlayButton(playButton, questID, soundTitle, origin)
         end
 
         local soundData = self.soundData
-        local isPlaying = Player:Contains(soundData)
+        local isPlaying = StoriesNarrator:Contains(soundData)
 
         if not isPlaying then
-            Player:PlayNow(soundData)
+            StoriesNarrator:PlayNow(soundData)
             QuestOverlayUI:SetPlayButtonState(self)
 
             soundData.stopCallback = function()
@@ -261,7 +261,7 @@ function QuestOverlayUI:BindPlayButton(playButton, questID, soundTitle, origin)
                 QuestOverlayUI:SetPlayButtonState(self)
             end
         else
-            Player:Remove(soundData)
+            StoriesNarrator:Remove(soundData)
         end
     end)
     if playButton.setPlayState then self:AddStopReplay(playButton, questID) end
@@ -271,7 +271,7 @@ end
 --- Found again each time, since a rebind or a reopened panel starts afresh.
 function QuestOverlayUI:QueuedLine(questID)
     if not questID then return nil end
-    for _, clip in ipairs(Player:Queued()) do
+    for _, clip in ipairs(StoriesNarrator:Queued()) do
         if clip.questID == questID and clip.event == Enums.SoundEvent.QuestAccept then return clip end
     end
 end
@@ -332,10 +332,10 @@ function QuestOverlayUI:AddStopReplay(playButton, questID)
         if state == "stop" or state == "replay" then
             SpokenLayout.Sound("U_CHAT_SCROLL_BUTTON")
             Spoken:TogglePause()
-        elseif clip and Spoken:IsPaused() and Player.source then
+        elseif clip and Spoken:IsPaused() and StoriesNarrator.source then
             -- Waiting behind a stopped line: Play on it plays it, and takes the queue out of its stop.
             SpokenLayout.Sound("U_CHAT_SCROLL_BUTTON")
-            Player.source:PlayNow(clip)
+            StoriesNarrator.source:PlayNow(clip)
         elseif not clip and bound then
             -- The bound handler queues the line it holds, so it starts from a fresh one.
             button.soundData = nil

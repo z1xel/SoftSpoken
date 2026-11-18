@@ -321,7 +321,7 @@ function Followup:Play(entry, message, sender, guid, npcID, asked)
         fallbacks = clip.fallbacks,
     }
     -- Appended like any other line, so it waits for the turn-in's own voiceover to finish.
-    return Player:EnqueuePrepared(soundData, asked)
+    return StoriesNarrator:EnqueuePrepared(soundData, asked)
 end
 
 --------------------------------------------------------------------------------

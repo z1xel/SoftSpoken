@@ -89,6 +89,7 @@ env = {
     ContributeButton = { Setup = function() end },
     DialogPlayButton = { Setup = function() end },
 }
+env.StoriesNarrator = env.Player
 VoiceOver = setmetatable(env, { __index = _G })
 assert(loadfile("SoftSpoken_Stories/QuestRuntime.lua"))()
 local addon = VoiceOver.Addon

@@ -30,6 +30,7 @@ local function reset()
         GetNPCGUID = function() return nil end,
     }
     env.Player = { source = {}, gossipSource = {} }
+    env.StoriesNarrator = env.Player
     for _, source in pairs({ env.Player.source, env.Player.gossipSource }) do
         source.AddGate = function(self, callback) self.gate = callback end
         source.Retry = function(self) self.retries = (self.retries or 0) + 1 end
