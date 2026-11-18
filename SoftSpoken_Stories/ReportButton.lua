@@ -17,7 +17,7 @@ ReportButton =
     ---@type Button[]
 }
 
--- A copy of VoiceOver.lua's helper of the same name, which is a local there and so not
+-- A copy of QuestRuntime.lua's helper of the same name, which is a local there and so not
 -- reachable from this file. IsVisible is absent on the oldest clients, where IsShown is the
 -- closest equivalent.
 local function IsFrameVisible(frame)
@@ -193,7 +193,7 @@ function ReportButton:Initialize()
         end,
     }
 
-    -- The button itself is created on demand by Player.lua as an action on the Spoken
+    -- The button itself is created on demand by NarrationSource.lua as an action on the Spoken
     -- player's frame, which is present for gossip, for progress and completion text, and
     -- while audio is playing -- which is when the complaint occurs to someone.
 end

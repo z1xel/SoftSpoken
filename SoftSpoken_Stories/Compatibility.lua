@@ -9,7 +9,7 @@ if not GetQuestID then
     local selectedQuest -- ClassicAPI gossip selection, valid only for this quest conversation.
     local GetTitleText = GetTitleText -- Store original function before EQL3 overrides it
 
-    -- VoiceOver.lua captures the selected quest while the gossip list and its
+    -- QuestRuntime.lua captures the selected quest while the gossip list and its
     -- authoritative ClassicAPI quest IDs are still available.
     function Addon:NoteClassicQuestSelection(id, title, npcName, kind)
         if not Version.IsLegacyVanilla or type(id) ~= "number" or id <= 0 or
@@ -23,7 +23,7 @@ if not GetQuestID then
         selectedQuest = nil
     end
 
-    -- Told by VoiceOver.lua's QuestIDFor just before it asks which quest this is.
+    -- Told by QuestRuntime.lua's QuestIDFor just before it asks which quest this is.
     function Addon:NoteLegacyQuestEvent(eventSource, eventText)
         source = eventSource
         text = eventText

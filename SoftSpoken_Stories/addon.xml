@@ -7,7 +7,7 @@
     <Include file="Debug.lua"/>
     <Include file="Strings.lua"/>
     <Include file="Locale\Names\Names.xml"/>
-    <Include file="Options.lua"/>
+    <Include file="AceConfigOptions.lua"/>
     <Include file="FuzzySearch.lua"/>
     <Include file="QuestOverlayUI.lua"/>
     <Include file="UI\QuestLogNativePlay.lua"/>
@@ -17,10 +17,10 @@
     <Include file="DataModules.lua"/>
     <Include file="FactionCrest.lua"/>
     <Include file="SpeakerResolver.lua"/>
-    <Include file="Player.lua"/>
+    <Include file="NarrationSource.lua"/>
     <Include file="Data\VanillaGreetingLengths.lua"/>
     <Include file="GreetingFirst.lua"/>
-    <Include file="VoiceOver.lua"/>
+    <Include file="QuestRuntime.lua"/>
     <Include file="FollowupLines.lua"/>
     <Include file="Followup.lua"/>
 
@@ -37,6 +37,6 @@
     <Include file="Compendium\QuestsTab_112.lua"/>
     <Include file="Compendium\QuestPage_112.lua"/>
     <!-- Optional shared settings page: built after the quest runtime and compatibility layer. -->
-    <Include file="UI\SettingsPanel.lua"/>
+    <Include file="UI\SettingsPage.lua"/>
 
 </Ui>

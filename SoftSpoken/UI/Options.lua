@@ -24,7 +24,7 @@ local legacyNavButtons = {}
 local legacyMaxHeight
 local FitWindow
 
--- Rows, headings and the spacing between them come from UI/Layout.lua, the file every
+-- Rows, headings and the spacing between them come from UI/SettingsLayout.lua, the file every
 -- Spoken addon carries a copy of, so the three panels read alike.
 local Layout = SpokenLayout
 -- Product name stays consistent across locales, unlike descriptive settings text.

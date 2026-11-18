@@ -181,7 +181,7 @@ Only deliberately reviewed static data belongs in the shipping addon. Do not add
 This document is produced **before** the integration branch. The recommended procedure is:
 
 1. Branch from the **current** `dev`, not from the feature head; keep current UI, search, greeting and audio behavior authoritative.
-2. Transfer **only** the 12 runtime file changes in `3` and this unified document. For both `addon.xml` files, integrate includes manually: specifically preserve `SoftSpoken/addon.xml`'s newer `UI/Search.lua` and `SoftSpoken_Stories/addon.xml`'s `Data/VanillaGreetingLengths.lua`, as well as the existing `GreetingFirst.lua` and `VoiceOver.lua` behavior.
+2. Transfer **only** the 12 runtime file changes in `3` and this unified document. For both `addon.xml` files, integrate includes manually: specifically preserve `SoftSpoken/addon.xml`'s newer `UI/Search.lua` and `SoftSpoken_Stories/addon.xml`'s `Data/VanillaGreetingLengths.lua`, as well as the existing `GreetingFirst.lua` and `QuestRuntime.lua` behavior.
 3. Review the **25 modified shared/Vanilla quest records** separately, including starters/enders, faction fields and links, before accepting their metadata changes.
 4. Keep development/import scripts, 71 separately stored historical report files, eight new audit workflows, raw snapshots, and bulk import/audit tests **off `dev`**; the substantive findings from the reports are consolidated in Sections 11–18 below. Add only small, justified runtime regression checks if needed.
 5. Verify the merged runtime has exactly the approved catalog/text roster, correctly typed areas/instances, valid voice fallbacks and no regression in unrelated UI, greeting or search behavior.
@@ -459,7 +459,7 @@ Before accepting the new production catalog:
 3. Perform a **field-by-field diff on all 25 modified shared records**, especially old Vanilla starter/ender, faction and chain metadata.
 4. Verify `zones`/`turtleArea`/`dungeon` are never confused; check known crosswalks, 34 unresolved locations, and proper city/continent and dungeon grouping.
 5. Verify accepted stage overrides, blank-stage fallback, WoW substitution directives, dialogue/voice-pack separation, typed items/objects, alternate speaker sets, live-GUID priority and faction-specific speakers.
-6. Preserve `dev`'s newer search and greeting includes, `GreetingFirst.lua`, `VoiceOver.lua`, and related presentation/audio behavior.
+6. Preserve `dev`'s newer search and greeting includes, `GreetingFirst.lua`, `QuestRuntime.lua`, and related presentation/audio behavior.
 7. Smoke-test in the intended Turtle/Vanilla 1.12 client: a native Vanilla quest, a Turtle-exclusive quest, an old-ID restoration, a named Vanilla dungeon, a custom Turtle instance, plural speakers, faction differences and at least one stage per `accept`/`progress`/`complete`.
 8. Validate against actual installed voice packs; static mappings alone do not certify that the played recording fits the interacting NPC.
 9. Separately resolve redistribution/attribution issues for bulk quest text before any public release.

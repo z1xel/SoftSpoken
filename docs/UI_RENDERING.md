@@ -23,7 +23,7 @@ installed as part of SoftSpoken; no prototype addon is needed.
 
 ## Player progress border
 
-`SoftSpoken/UI/PlayerFrame.lua` uses the native Blizzard loading-bar artwork:
+`SoftSpoken/UI/NarratorWindow.lua` uses the native Blizzard loading-bar artwork:
 two fixed ornate 40-unit endcaps and 32-unit center tiles. Tiles are anchored
 **directly to the border frame**, never chained through one another. The silver
 treatment uses three masks (two caps, one center) rather than one per tile.

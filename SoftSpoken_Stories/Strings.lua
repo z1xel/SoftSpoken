@@ -7,14 +7,14 @@ setfenv(1, VoiceOver)
 -- hold English literals. Chat and diagnostics prints are deliberately not among
 -- them: those answer bug reports, where one language beats nine translations.
 --
---   Options.lua            legacy AceGUI General and sound-pack fallback (Phase 3)
---   UI/SettingsPanel.lua   the same settings on the interface-settings canvas
+--   AceConfigOptions.lua   legacy AceGUI General and sound-pack fallback (Phase 3)
+--   UI/SettingsPage.lua   the same settings in the shared Vanilla window
 --   UI/DialogPlayButton.lua  Play/Stop button on quest and gossip windows
 --   Compatibility.lua      Play/Stop button on the quest-log details panel
 --   UI/ContributeButton.lua  Contribute button on quest and gossip windows
 --   Contribute.lua         Contribute button tooltip
 --   ReportButton.lua       the copy-link dialog for reporting a line
---   Player.lua             queue integration and voice-pack metadata
+--   NarrationSource.lua    queue integration and voice-pack metadata
 --   UI/QuestsTab.lua       the Quests tab of Azeroth's Compendium
 --
 -- FORMAT ARGUMENTS ARE POSITIONAL (%1$s, %2$d), even where there is only one and

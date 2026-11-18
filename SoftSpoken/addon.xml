@@ -18,11 +18,11 @@
     <Include file="Locale\koKR.lua"/>
     <Include file="Locale\zhCN.lua"/>
     <Include file="Locale\zhTW.lua"/>
-    <Include file="UI\Layout.lua"/>
+    <Include file="UI\SettingsLayout.lua"/>
     <Include file="CreatureAppearance.lua"/>
     <Include file="UI\Portrait.lua"/>
     <Include file="UI\Actions.lua"/>
-    <Include file="UI\PlayerFrame.lua"/>
+    <Include file="UI\NarratorWindow.lua"/>
     <Include file="UI\MinimapButton.lua"/>
     <Include file="UI\MinimapIconFit.lua"/>
     <Include file="UI\Search.lua"/>
@@ -30,7 +30,7 @@
     <Include file="UI\Diagnostics.lua"/>
     <Include file="API.lua"/>
     <!-- Shared Compendium: available to Zones, Books, and future modules. -->
-    <Include file="Compendium\UI\Layout.lua"/>
+    <Include file="Compendium\UI\CompendiumUIHelpers.lua"/>
     <Include file="Compendium\UI\ClassicFrameSkin.lua"/>
     <Include file="Compendium\UI\FrameSkin.lua"/>
     <Include file="Compendium\UI\InteriorSkin.lua"/>

@@ -138,7 +138,7 @@ local function FindRecording(mapID, areaKey)
     return first and first.pack, first and first.recording, matches
 end
 
--- The English transcripts are loaded through LoreBridge.lua and keyed exactly
+-- The English transcripts are loaded through LoreDataRegistry.lua and keyed exactly
 -- like the audio: zones[mapID] or subzones[mapID][normalized area].
 local function FindTranscript(mapID, areaKey)
     local lore = SSZLore

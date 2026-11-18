@@ -40,7 +40,7 @@ local CLIP_EVENTS = { "CLIP_QUEUED", "CLIP_STARTED", "CLIP_STOPPED", "CLIP_DROPP
 
 DialogPlayButton = {}
 
--- The Blizzard panel each event is drawn on. VoiceOver.lua's GetVisibleQuestEvent also answers
+-- The Blizzard panel each event is drawn on. QuestRuntime.lua's GetVisibleQuestEvent also answers
 -- from the quest log or the last event when no panel is up, and there is no window to put a
 -- button on then.
 local PANELS = {
@@ -67,7 +67,7 @@ end
 local function Refresh() DialogPlayButton:Refresh() end
 local function Relabel() DialogPlayButton:Relabel() end
 
--- A copy of VoiceOver.lua's helper of the same name, which is a local there.
+-- A copy of QuestRuntime.lua's helper of the same name, which is a local there.
 local function IsFrameVisible(frame)
     if not frame then
         return false
@@ -207,7 +207,7 @@ function DialogPlayButton:Setup()
     watcher:SetScript("OnEvent", function()
         DialogPlayButton:Refresh()
         -- Again a moment later: a Classic quest event can arrive before GetQuestID and the
-        -- text globals change (VoiceOver.lua's directEvents comment), and the first look
+        -- text globals change (QuestRuntime.lua's directEvents comment), and the first look
         -- would label the previous quest. Not with autoplay on, when there is no button.
         if Addon.ScheduleTimer and not Addon:IsAutoplayOn() then
             Addon:ScheduleTimer(Refresh, 0.2)
