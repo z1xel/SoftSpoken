@@ -18,6 +18,7 @@ _G.GetQuestID = function() return current.id end
 _G.UnitName = function(unit) return unit == "npc" and current.npc end
 _G.UnitGUID = function(unit) return unit == "npc" and "creature:777" end
 _G.StaticPopupDialogs, _G.OKAY = {}, "OK"
+_G.format = string.format -- WoW exposes this global alias; stock Lua 5.1 does not.
 
 local function frame()
     local f = { registered = {}, scripts = {} }
