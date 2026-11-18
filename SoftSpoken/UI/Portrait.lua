@@ -195,7 +195,13 @@ Renderers["texture"] = {
     end,
     Update = function(texture, clip, spec)
         if not spec.texture then return false end
-        texture:SetTexture(spec.texture)
+        -- A failed custom texture must not suppress the caller's fallback
+        -- (e.g. Writings' native Vanilla book icon). Client versions differ:
+        -- some report failure from SetTexture, others clear GetTexture.
+        local assigned = texture:SetTexture(spec.texture)
+        if assigned == false or (texture.GetTexture and not texture:GetTexture()) then
+            return false
+        end
         local c = spec.texCoord
         if not c and spec.fit == "cover" then
             c = Portrait:CoverTexCoord(spec.aspectRatio)
