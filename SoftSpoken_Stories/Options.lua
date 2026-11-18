@@ -244,7 +244,7 @@ function Options:AddDataModule(module, order)
                 hidden = function()
                     return reason or not module.LoadOnDemand
                         or not DataModules:IsPackEnabled(module.AddonName)
-                        or DataModules:GetModule(module.AddonName)
+                        or DataModules:GetModule(module.AddonName) ~= nil
                 end,
                 func = function()
                     local loaded, reason = DataModules:LoadModule(module)
