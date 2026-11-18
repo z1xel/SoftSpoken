@@ -259,6 +259,22 @@ function DataModules:Register(name, module)
     table.sort(self.registeredModulesOrdered, SortModules)
 end
 
+-- SoftSpoken's per-profile selection is authoritative for loading. A missing
+-- entry means enabled, including packs installed after the profile was saved.
+-- This is intentionally independent of the character-screen addon checkbox.
+function DataModules:IsPackEnabled(name)
+    local audio = Addon and Addon.db and Addon.db.profile and Addon.db.profile.Audio
+    local disabled = audio and audio.DisabledVoicePacks
+    return not (disabled and disabled[name] == true)
+end
+
+function DataModules:SetPackEnabled(name, enabled)
+    local audio = assert(Addon and Addon.db and Addon.db.profile and Addon.db.profile.Audio,
+        "Stories audio preferences are not initialized")
+    audio.DisabledVoicePacks = audio.DisabledVoicePacks or {}
+    audio.DisabledVoicePacks[name] = enabled and nil or true
+end
+
 function DataModules:HasRegisteredModules()
     return next(self.registeredModules) ~= nil
 end
@@ -266,6 +282,10 @@ end
 -- Derive status rather than maintaining a second success/failure registry.
 -- A load interrupted by an unexpected error is distinguishable from one not attempted.
 function DataModules:GetModuleLoadStatus(name)
+    if not self:IsPackEnabled(name) then
+        if self.registeredModules[name] then return "reload required" end
+        return "disabled"
+    end
     if self.registeredModules[name] then return "loaded" end
     if self.loadErrors[name] then return "failed", tostring(self.loadErrors[name]) end
     if self.loadAttempts[name] then return "failed", "LOAD_INTERRUPTED" end
@@ -273,12 +293,14 @@ function DataModules:GetModuleLoadStatus(name)
 end
 
 function DataModules:GetLoadSummary()
-    local summary = { detected = 0, loaded = 0, failed = 0, notAttempted = 0 }
+    local summary = { detected = 0, loaded = 0, failed = 0, disabled = 0, notAttempted = 0 }
     for _, module in self:GetPresentModules() do
         summary.detected = summary.detected + 1
         local status = self:GetModuleLoadStatus(module.AddonName)
-        if status == "loaded" then
+        if status == "loaded" or status == "reload required" then
             summary.loaded = summary.loaded + 1
+        elseif status == "disabled" then
+            summary.disabled = summary.disabled + 1
         elseif status == "failed" then
             summary.failed = summary.failed + 1
         else
@@ -343,7 +365,7 @@ function DataModules:GetPackLanguage()
     local order = Language:ResolutionOrder()
     for _, language in ipairs(order) do
         for _, module in self:GetPresentModules() do
-            if module.Language == language then
+            if self:IsPackEnabled(module.AddonName) and module.Language == language then
                 return language
             end
         end
@@ -386,7 +408,8 @@ function DataModules:EnumerateAddons(loadModules)
             table.insert(self.presentModulesOrdered, module)
 
             -- Maybe in the future we can load modules based on the map the player is in (select(8, GetInstanceInfo())), but for now - just load everything
-            if loadModules ~= false and LOAD_ALL_MODULES and IsAddOnLoadOnDemand(name) then
+            if loadModules ~= false and LOAD_ALL_MODULES and IsAddOnLoadOnDemand(name)
+                and self:IsPackEnabled(name) then
                 DataModules:LoadModule(module)
             end
         end
@@ -443,7 +466,8 @@ end
 
 function DataModules:LoadPresentModules()
     for _, module in self:GetPresentModules() do
-        if LOAD_ALL_MODULES and module.LoadOnDemand and not self:GetModule(module.AddonName) then
+        if LOAD_ALL_MODULES and module.LoadOnDemand and self:IsPackEnabled(module.AddonName)
+            and not self:GetModule(module.AddonName) then
             self:LoadModule(module)
         end
     end
@@ -470,6 +494,11 @@ end
 
 ---@param module DataModuleMetadata
 function DataModules:LoadModule(module)
+    -- A disabled pack is never force-enabled or loaded, even via legacy Load.
+    -- Its records remain discoverable from its TOC for the settings inventory.
+    if not self:IsPackEnabled(module.AddonName) then
+        return false, "PACK_DISABLED"
+    end
     self.loadAttempts[module.AddonName] = true
     if not module.LoadOnDemand then
         self.loadErrors[module.AddonName] = "NOT_LOAD_ON_DEMAND"
