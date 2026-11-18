@@ -1,4 +1,4 @@
--- SPOKEN_PASS2_REPAIR: Classic-only PlayerFrame; no MinimalPlayer dependency.
+-- Vanilla 1.12 narrator window; voice-only mode does not create a second player frame.
 setfenv(1, SpokenEnv)
 
 -- The frame's settings, or their defaults once AceDB has stripped them (Addon:Profile).
@@ -681,7 +681,7 @@ function PlayerFrame:RefreshConfig()
     self:Update()
 end
 
--- SetResizeBounds replaced SetMinResize/SetMaxResize; both exist across these clients.
+-- Size the 1.12 narrator frame through Transcript's compatibility helper.
 function PlayerFrame:SetResizeBounds(minWidth)
     local height = Transcript:HeightForClip(SoundQueue:GetCurrentSound())
     self.captionExtra = height > 0 and height + 16 or 0
@@ -888,7 +888,7 @@ function PlayerFrame:Update()
     self:UpdateProgress()
 
     -- Again once the layout has settled: truncation and hover state both depend on where
-    -- the rows ended up. Same frame on current clients, next frame on old ones.
+    -- the rows ended up. The zero-delay timer lets the 1.12 layout settle.
     Addon:ScheduleTimer(function()
         self.frame.container.buttons:Update()
         self.frame.container.name:Update()

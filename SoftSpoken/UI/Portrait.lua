@@ -15,9 +15,9 @@ setfenv(1, SpokenEnv)
 --
 -- A renderer's Update returns false when it has nothing to draw -- a model with no
 -- creature, a creature the client has not cached -- and the portrait then draws the
--- spec's `fallback` instead, once. That is VoiceOverRedux's ShouldShowBookFor turned
--- inside out: the book for Items, GameObjects, missing GUIDs, 2.4.3 and unloaded models
--- is now the quests addon's fallback rather than the player's knowledge.
+-- spec's `fallback` instead, once. Unlike upstream VoiceOverRedux's
+-- ShouldShowBookFor, placeholder artwork for items, objects, missing GUIDs
+-- or unloaded models is selected by Stories rather than hard-coded in Core.
 Portrait = {}
 
 local WAIT_FOR_ANIMATION_FINISH_BEFORE_IDLE = true
@@ -77,11 +77,9 @@ end
 ---@return number|nil seconds  0 if the model is known to lack the animation
 --- Whether a model frame has something to draw.
 ---
---- Model:GetModel returned a path and was removed from the current clients, which answer
---- GetModelFileID instead; Compat.lua supplies GetModelFileID on the legacy ones
---- from their GetModel. Asking for the method this client does not have is an error, not
---- a nil, and one raised here abandons the whole frame update -- the portrait is drawn
---- before the rows, so the queue reads as empty.
+--- Use whichever model-ID accessor the 1.12 compatibility layer provides.
+--- Guard the optional methods: an unsupported call would abort the portrait
+--- update before the queue rows are refreshed.
 function Portrait:ModelLoaded(model)
     if model.GetModelFileID then
         return model:GetModelFileID() ~= nil
@@ -101,8 +99,8 @@ function Portrait:GetModelAnimationDuration(model, animation)
 end
 
 --------------------------------------------------------------------------------
--- The model frame. One per portrait on current clients; 1.12 and 2.4.3 cannot show an
--- arbitrary creature in a DressUpModel and get one from a pool instead (Compat.lua).
+-- Default model-frame implementation. The 1.12 compatibility layer can
+-- supply a pooled renderer when native DressUpModel support is insufficient.
 --------------------------------------------------------------------------------
 
 function Portrait:AcquireModelFrame(portrait, clip)

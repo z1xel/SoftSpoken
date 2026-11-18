@@ -1,5 +1,5 @@
--- The 1.12 Zones settings page. Presentation only: every option below is
--- already read by Zones' narration or map code. No new settings storage.
+-- The 1.12 Places settings page. Presentation only: narration and map
+-- behavior remain owned by Places runtime; no new settings storage.
 local PlacesRuntime = SSZZonesRuntime
 local Layout = SpokenLayout
 local optionsPage

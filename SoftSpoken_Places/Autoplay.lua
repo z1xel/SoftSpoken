@@ -1,5 +1,5 @@
--- SoftSpoken Zones C2: Lua 5.0-compatible module.
--- Extracted from the working Core.lua without changing its algorithms.
+-- SoftSpoken Places (Vanilla 1.12 / Lua 5.0).
+-- Places location events and automatic narration.
 
 local PlacesRuntime = SSZZonesRuntime
 local Normalise = PlacesRuntime.Normalise
@@ -130,10 +130,8 @@ local function GetDiscoveryPatterns()
         local pat = DiscoveryPattern(fmt)
         if pat then table.insert(discoveryPatterns, pat) end
     end
-    -- English fallback for older/custom clients lacking the localized globals.
-    -- Turtle and other legacy clients can deliver messages that differ
-    -- from the client global strings. Keep the conservative English fallbacks
-    -- even when a localized discovery format exists.
+    -- Retain English discovery-message fallbacks when Turtle 1.12 differs
+    -- from a localized client global or does not provide the format string.
     table.insert(discoveryPatterns, "^Discovered (.+): %d+ experience gained%.?$")
     table.insert(discoveryPatterns, "^Discovered: (.+)%.?$")
     table.insert(discoveryPatterns, "^Discovered (.+)%.$")

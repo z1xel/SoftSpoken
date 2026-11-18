@@ -1,6 +1,6 @@
--- Spoken Quests Phase 1 browser. UI adapter for the existing SSCCompendium
--- virtual list. Upstream's quest catalogue and its chain hierarchy are in
--- QuestCatalog.lua; gameplay state is in QuestState.lua.
+-- Stories quest browser: adapter for Core's shared Compendium virtual list.
+-- QuestCatalog.lua owns the quest index and chain grouping;
+-- QuestState.lua owns gameplay and persistent discovery state.
 SSCQuestsTab = SSCQuestsTab or {}
 local QuestsTab=SSCQuestsTab
 local Compendium=SSCCompendium
@@ -237,7 +237,7 @@ local function Build(panelFrame)
     panelFrame.Refresh=function() QuestsTab:Refresh() end
     panelFrame.listInset=list.inset
     -- Use the very same right-page construction as Places and Readables.
-    -- The shared prototype skin owns parchment art, geometry and scroll
+    -- The shared Compendium skin owns parchment art, geometry and scroll
     -- chrome; Quests supplies only quest-specific content and actions.
     local pageInset
     pageInset, page = Compendium.CreatePagePane(panelFrame, list, function(holder)

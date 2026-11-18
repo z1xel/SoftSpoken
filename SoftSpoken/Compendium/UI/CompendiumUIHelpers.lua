@@ -7,7 +7,8 @@ end
 -- The Turtle 1.12 client may expose GetVerticalScroll while lacking
 -- SetVerticalScroll on dynamically created scroll frames. Use native scrolling
 -- when it exists; otherwise move the ScrollChild inside the clipped frame.
--- Keep the offset ourselves so list virtualization works on both clients.
+-- Track the offset ourselves so virtualization works with native scrolling
+-- or the compatibility fallback on 1.12.
 local function ScrollOffset(sc)
     return sc and (sc.sz112ScrollOffset or 0) or 0
 end

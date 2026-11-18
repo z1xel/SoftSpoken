@@ -108,7 +108,7 @@ end
 
 -- The address the popup is currently showing. Held here rather than passed to
 -- StaticPopup_Show, whose `data` argument and the dialog/data handler signature both postdate
--- the legacy clients: there the popup would open with an empty box.
+-- the 1.12 popup API: passing callback data there would leave the box empty.
 local shownLink
 
 --- The report address for `target`, filed under `language` -- the language of the clip being
@@ -120,8 +120,8 @@ function ReportButton:Link(target, language)
     return Spoken:ReportURL("quests", target, language)
 end
 
---- DialogueUI hides UIParent and the game's popups with it, so under its window the address
---- goes to Spoken's copy box, which shows over that window.
+--- Optional compatibility route for an external dialogue UI hiding UIParent:
+--- use Core's copy box if it is available instead of a hidden popup.
 local function ShowCopy(url)
     if Utils:DialogueUIPage() and Spoken and Spoken.ShowContribution then
         Spoken:ShowContribution(url, nil, true)
@@ -140,7 +140,7 @@ function ReportButton:ShowLink(target, language, clip)
         ShowCopy(url)
         return
     end
-    -- Absent on the legacy clients, whose toc never loads Contribute.xml.
+    -- This 1.12 build does not load Contribute.xml.
     local contribute = rawget(VoiceOver, "Contribute")
     Spoken:ShowReport(url, function()
         return contribute and contribute:ReportContext(clip)

@@ -1,4 +1,4 @@
--- Spoken Zones 1.12 -- the ONLY new map API adapter for the upstream map panel.
+-- SoftSpoken Places: 1.12 map API adapter for the lore/map panel.
 -- GetCurrentMapZone is a DISPLAYED-zone index, not an Azeroth lore mapID.
 -- Never change the map zoom merely to resolve it: doing so breaks browsing.
 SSZMapCompat = SSZMapCompat or {}

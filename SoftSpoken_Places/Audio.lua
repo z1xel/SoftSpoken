@@ -1,5 +1,5 @@
--- SoftSpoken Zones C2: Lua 5.0-compatible module.
--- Extracted from the working Core.lua without changing its algorithms.
+-- SoftSpoken Places (Vanilla 1.12 / Lua 5.0).
+-- Places voice-pack discovery and narration clip construction.
 
 local PlacesRuntime = SSZZonesRuntime
 local Normalise = PlacesRuntime.Normalise
@@ -159,7 +159,7 @@ end
 -- Follow upstream Spoken Places: the narrator's circular portrait shows
 -- the zone emblem, even when speaking about one of its subzones. The scenic
 -- Places illustrations remain available to the Compendium's parchment.
--- All client generations use the packaged badges in SoftSpoken/Textures/Zones.
+-- Zone badges come from Core's bundled SoftSpoken/Textures/Zones assets.
 local function PlacePortrait(mapID)
     local icon, crop
     if Spoken and type(Spoken.ZoneIcon) == "function" then

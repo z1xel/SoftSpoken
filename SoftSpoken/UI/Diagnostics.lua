@@ -99,7 +99,7 @@ function DiagnosticsViewer:Show(title, lines)
     edit:SetText(text)
     edit.settingText = nil
     -- Approximate wrapped height for long reports (1.12 has no automatic
-    -- multiline scroll-child measurement that works on all clients).
+    -- multiline scroll-child measurement that also works on Vanilla 1.12).
     local count = 0
     local find = string.gfind or string.gmatch
     for line in find(text .. "\n", "(.-)\n") do

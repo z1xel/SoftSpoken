@@ -206,8 +206,8 @@ local REPORT = {
     id = "report",
     -- An icon in the corner rather than a word beside the line: the label never changed,
     -- and the strip it used to sit in pushed the queue up to make room for it. The bug
-    -- icon postdates the three legacy clients, where the texture is missing and
-    -- the button would be a blank square; `text` is what they draw instead.
+    -- icon is not guaranteed in Vanilla 1.12. The `text` fallback prevents
+    -- an empty button when that texture is unavailable.
     icon = [[Interface\HelpFrame\HelpIcon-Bug]],
     label = L.OPT_REPORT_PROBLEM,
     text = "R",

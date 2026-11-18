@@ -401,8 +401,8 @@ end
 -- and the original 1.12 reflow order.
 local INTERIOR = SSCCompendiumInteriorSkin
 local MARBLE = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Skin\\UI-Background-Marble"
--- This file is already included with SoftSpoken and is byte-identical to the
--- texture used by the shared native skin, so the integrated reader can be portable.
+-- MARBLE points to Core's shared skin texture; both the Compendium and
+-- the integrated lore reader reuse the same asset, not separate copies.
 
 function LorePage.ApplyPaneSkin(inset,holder,page)
     if not inset or not holder or not page or not page.frame then return end

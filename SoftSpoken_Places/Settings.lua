@@ -1,5 +1,5 @@
--- SoftSpoken Zones C2: Lua 5.0-compatible module.
--- Extracted from the working Core.lua without changing its algorithms.
+-- SoftSpoken Places (Vanilla 1.12 / Lua 5.0).
+-- Places character settings and discovery-state access.
 
 local PlacesRuntime = SSZZonesRuntime
 local Normalise = PlacesRuntime.Normalise

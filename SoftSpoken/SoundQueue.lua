@@ -36,7 +36,7 @@ setfenv(1, SpokenEnv)
 ---@field key string          Caller-unique. The dedup key.
 ---@field path string         Full path handed to PlaySoundFile.
 ---@field length? number      Metadata seconds; not authoritative for playback completion.
----@field delay? number       Silence before the clip. Only the 2.4.3/3.3.5 path sets it.
+---@field delay? number       Optional pre-clip silence; not used by the native 1.12 path.
 ---@field priority? string    "normal" (default) or "low".
 ---@field group? string       Clips of one item, e.g. a book's pages. No pause or cue between them.
 ---@field present table       See API.lua.

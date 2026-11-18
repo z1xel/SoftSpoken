@@ -1,4 +1,4 @@
--- Books settings page: shares SoftSpoken's native 1.12 frame and layout.
+-- Writings settings page: shares Core's native 1.12 frame and layout.
 -- The reader and SavedVariables retain ownership of every behavior.
 local Writings = SSB
 local L = Writings.L or {}
@@ -142,7 +142,7 @@ function Writings:ShowOptions()
     if page and page.Open then page.Open() end
 end
 
--- Create the shared Books page at login, not only when opened.
+-- Register the shared Writings settings page at login, not only when opened.
 local loader = CreateFrame("Frame")
 loader:RegisterEvent("PLAYER_LOGIN")
 loader:SetScript("OnEvent", function()

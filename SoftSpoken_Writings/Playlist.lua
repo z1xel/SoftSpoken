@@ -3,7 +3,7 @@
 --   In-world book: narrate ONLY the page shown by ITEM_TEXT_READY. Wait for the
 --   player to turn the physical book page before starting the next recording.
 -- Never use the narration player's global Pause button for page boundaries:
--- it pauses ALL sources, not one book. An empty Books queue is the page pause.
+-- it pauses ALL sources, not one book. An empty Writings source queue is the page pause.
 
 local SpokenBooks = SSB
 

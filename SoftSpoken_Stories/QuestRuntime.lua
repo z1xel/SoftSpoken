@@ -34,8 +34,8 @@ Addon.OnAddonLoad = {}
 -- Store original function before EQL3 (Extended Quest Log 3) overrides it and starts prepending quest level
 local GetTitleText = GetTitleText
 
--- The open quest's title, or "" where there is none or the game hides it from addons (in
--- instances on the Forever client): it keys tables, which take no nil.
+-- The open quest's title, or "" if none is available from the 1.12
+-- client: lookup keys cannot be nil.
 local function QuestTitle()
     return GetTitleText and NotSecret(GetTitleText()) or ""
 end
@@ -659,9 +659,8 @@ function Addon:OnInitialize()
     -- Hook the exact Blizzard dispatcher that updates the visible quest
     -- panels. This runs after Blizzard has populated GetQuestID/GetTitleText.
     --
-    -- Blizzard's own function is what is hooked here, so the frame overrides that normalize
-    -- handler arguments on the older clients do not apply: before 3.0.2 it takes no arguments
-    -- and reads the global `event` instead.
+    -- This hooks Blizzard's own dispatcher rather than a wrapped frame script.
+    -- On Vanilla 1.12 it can read the event from the global `event` variable.
     if QuestFrame_OnEvent and hooksecurefunc then
         local hooked, hookError = pcall(hooksecurefunc, "QuestFrame_OnEvent", function(frame, event)
                 event = event or _G.event
@@ -685,9 +684,9 @@ function Addon:OnInitialize()
     -- file. Disabling one takes effect on the next login only. Nothing is read from their
     -- saved variables: every player starts this release with settings of its own.
     --
-    -- Through pcall in case a client refuses DisableAddOn to an addon (Forever accepts it,
-    -- checked 2026-10-04): every quest hook below this still has to be installed. The
-    -- duplicate is stopped for the session either way.
+    -- Guard DisableAddOn with pcall: failure to disable a superseded folder
+    -- must not prevent quest hooks from installing. The duplicate was already
+    -- stopped for the current session.
     local disabled = {}
     for _, folder in ipairs(supersededFolders) do
         pcall(DisableAddOn, folder)

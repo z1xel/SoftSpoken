@@ -135,7 +135,7 @@ function SourceMethods:Enqueue(clip)
     return Noted(clip, "queue", SoundQueue:Add(clip, self, false))
 end
 
--- Used by Spoken Books to continue a multi-page reading ahead of other waiting
+-- Used by Writings to continue a multi-page reading ahead of other waiting
 -- clips, after the preceding page has finished. Unlike PlayNow, this never
 -- interrupts a clip that is currently speaking.
 function SourceMethods:Continue(clip)

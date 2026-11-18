@@ -1,4 +1,4 @@
--- Spoken Books 1.12: Azeroth's Compendium, Readables tab.
+-- SoftSpoken Writings: Azeroth's Compendium Readables tab (Vanilla 1.12).
 -- Adapted from rusty-key/spoken-wow/addons/Spoken_Books/UI/Readables.lua (MIT).
 -- Uses SoftSpoken's built-in shared Compendium window, list, parchment and artwork.
 -- Written for WoW 1.12 / Lua 5.0; no C_Map, atlas, or modern frame methods.
@@ -6,7 +6,7 @@ local Writings = SSB
 local Compendium = SSCCompendium
 local LorePage = SSCLorePage
 if not (Writings and Compendium and Compendium.Register and Compendium.NewList and Compendium.CreatePagePane and LorePage and LorePage.CreateLorePage) then
-    -- Books recognition and playback remain available with Zones disabled.
+    -- Writings recognition and playback remain available with Places disabled.
     return
 end
 

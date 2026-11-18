@@ -2,19 +2,18 @@ setfenv(1, VoiceOver)
 
 -- The Listen/Stop button on the Blizzard quest and gossip frames, for a player who turned
 -- autoplay off. "Do not start by yourself" must not mean "give me no way to start it"; the Play button is
--- not a way most players will find -- the reason SpokenBooks/UI/PlayButton.lua exists too.
+-- not a way most players will find -- Writings has its own book-frame play button too.
 --
 -- Shown only while autoplay is off. With it on the line is already playing by the time the
 -- dialog has settled, and the Spoken player frame is where it is stopped.
 --
 -- A TEXT button, not an icon, for PlayButton.lua's reason: an icon path cannot be verified
--- without launching the client, and a texture missing on a legacy client draws
--- nothing at all.
+-- without launching the client; a missing texture on 1.12 draws nothing.
 --
 -- IN THE CORNER UI/ContributeButton.lua uses, under the close button, on whichever of the two
 -- frames is up. The two buttons never want it at once: Contribute is shown only for a line the
--- packs do not have, and this only for one they do. Contribute.xml is not loaded on the legacy clients, so the placement is
--- copied here rather than borrowed from it.
+-- packs do not have, and this only for one they do. This 1.12 package does not
+-- load Contribute.xml, so the button's placement is maintained here.
 --
 -- Only draw the button when Blizzard's quest or gossip panel is genuinely visible.
 -- A replacement dialog UI may hide those panels; never float a button over unrelated UI.

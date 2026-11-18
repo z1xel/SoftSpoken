@@ -1,7 +1,7 @@
 setfenv(1, SpokenEnv)
 
--- The one minimap button. Feature addons contribute menu entries rather than buttons of
--- their own, so a player with two Spoken addons installed gets one icon, not two.
+-- The one Core minimap button. Stories, Places and Writings register menu
+-- entries rather than installing separate icons.
 --
 -- Left-click opens settings, middle-click opens the Compendium, and right-click
 -- opens the grouped action menu by default. All three are configurable using
@@ -87,16 +87,10 @@ function Minimap:FindEntry(id)
     end
 end
 
--- Two menus, because there are two kinds of client.
---
--- Where the client has UIDropDownMenu, that is what opens: it is the menu every other
--- addon uses, and it brings its own background, its highlight under the cursor, its
--- closing on a click elsewhere and its toggling, none of which is worth reimplementing.
---
--- The three legacy clients do not have it in a shape worth using -- EasyMenu does
--- not exist on 1.12 at all, and the initializer differs on the other two -- so there the
--- player draws its own list of buttons and supplies those four behaviours by hand. That
--- code exists for those clients only, and is below.
+-- Use Blizzard's dropdown where the required menu APIs are available.
+-- Vanilla 1.12 lacks EasyMenu, so the built-in action-button menu provides
+-- highlighting, dismissal and toggle behavior without modern UI dependencies.
+-- The feature check is defensive, not support for additional client versions.
 local dropDown
 local menuCatcher
 local iconTooltip

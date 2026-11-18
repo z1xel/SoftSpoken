@@ -215,7 +215,8 @@ local function ContextLines(lines)
         local text = container and container.TitleText or QuestFrameTitleText or QuestFrameNpcNameText
         return text and text:GetText() or nil
     end)
-    -- The quest log: the map's details on the modern clients, QuestLogFrame on the classic ones.
+    -- Check Vanilla's QuestLogFrame and optional replacement-frame globals
+    -- without assuming a newer client is a supported target.
     local logShown = Safe(function()
         local details = QuestMapFrame and QuestMapFrame.DetailsFrame
         if details and details:IsVisible() then return "details" end

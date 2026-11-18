@@ -1,5 +1,5 @@
--- SoftSpoken Zones C2: Lua 5.0-compatible module.
--- Extracted from the working Core.lua without changing its algorithms.
+-- SoftSpoken Places (Vanilla 1.12 / Lua 5.0).
+-- Shared Places runtime state, zone-name lookup, and key helpers.
 
 -- Shared identifiers and startup state for files loaded by the .toc.
 SSZZonesRuntime = {}

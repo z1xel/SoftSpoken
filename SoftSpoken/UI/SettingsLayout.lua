@@ -1,16 +1,9 @@
--- The settings layout every Spoken addon builds its panel with.
---
--- BYTE-IDENTICAL IN EVERY SPOKEN ADDON. A copy lives in Spoken, SpokenQuests,
--- SpokenZones and SpokenBooks, and the packaging tests assert the copies are the same file.
--- The addons cannot share a file at runtime -- each is installed on its own, and the player is
--- only an optional dependency of the others -- so they share it by carrying it, the way
--- vendored libraries do. Edit one copy and copy it over the others; do not edit in place.
---
--- Deliberately idiom-free: no setfenv, no addon table, no localisation. Every label and
--- every accessor is passed in, so the same file suits an addon that runs in a private
--- environment and one that does not.
---
--- Lua 5.0 rules, because this loads on 1.12: no `#`, no literal-string method calls.
+-- Shared settings layout provided by SoftSpoken Core.
+-- Stories, Places and Writings depend on Core and use its SpokenLayout global;
+-- there are no independently maintained copies in those feature modules.
+-- The layout accepts labels, callbacks and accessors from each module instead
+-- of reaching into a feature's private environment.
+-- Keep WoW 1.12 / Lua 5.0 syntax: no `#` or literal-string method calls.
 --
 -- A page is a list of items -- its header, its sections, and the rows in them -- recorded as
 -- they are built and placed by Reflow, top to bottom. Placing them all in one pass is what lets
@@ -18,8 +11,8 @@
 
 local VERSION = 69
 
--- LibStub's contract, for LibStub's reason: several addons load this file and the newest
--- copy must win, whichever of them the client happens to load last.
+-- Retain the version guard against an already installed SpokenLayout.
+-- In this repository Core loads the shared implementation once.
 if SpokenLayout and SpokenLayout.VERSION and SpokenLayout.VERSION >= VERSION then
     return
 end
@@ -130,12 +123,10 @@ local function HideTip(frame)
     GameTooltip:Hide()
 end
 
--- 1.12 and 2.4.3 hand a script handler nothing: the frame is in `this` and its arguments in
--- `arg1` and `arg2`. This file has no environment, so its frames come from the client's own
--- CreateFrame and not a wrapper that would pass them on: every handler here is set through
--- Script or Hook, which do it themselves. Asked each time rather than once as the file loads,
--- so a test that switches clients after loading it gets the client it switched to. 1.12's
--- GetBuildInfo has no interface number at all.
+-- On the supported 1.12 client, script handlers use global `this`, `arg1`, and
+-- `arg2` rather than receiving frame/event arguments. This file does not run
+-- inside Core's private environment, so Script/Hook adapt callbacks explicitly.
+-- Evaluate at call time so test harnesses may substitute client APIs.
 local function Legacy()
     if WOW_PROJECT_ID ~= nil or not GetBuildInfo then return false end
     local _, _, _, interface = GetBuildInfo()
@@ -190,9 +181,8 @@ end
 -- The game's own art
 --------------------------------------------------------------------------------
 --
--- Every control is the game's own, as its settings draw them: the minimal checkbox, the slider
--- with steppers, the dropdown with steppers, the red panel button. A client without one of them
--- -- the legacy clients this file also loads on -- gets the classic template in its place.
+-- Prefer Blizzard's native settings controls when available. The supported
+-- 1.12 client lacks the newer templates, so classic controls are the fallback.
 
 local function HasAtlas(name)
     return C_Texture and C_Texture.GetAtlasInfo and C_Texture.GetAtlasInfo(name) ~= nil or false
@@ -1032,9 +1022,8 @@ function Layout:Highlight(row)
     glow:Show()
 end
 
--- One popup each for every panel that loads this file, so the names are the file's own.
--- The callback lives here rather than on the dialog: how a dialog hands its data back to
--- OnAccept differs across the clients this file loads on.
+-- Use one shared confirmation popup and keep its pending callback here,
+-- without relying on client-specific OnAccept argument conventions.
 local pendingAccept
 
 --- Ask before doing something that cannot be undone. `accept` runs on the first button.
@@ -1153,8 +1142,8 @@ function Layout:Slider(label, minValue, maxValue, step, read, write, apply, show
         frame = CreateFrame("Frame", nil, parent)
         frame:SetWidth(SLIDER_WIDTH)
         frame:SetHeight(20)
-        -- OptionsSliderTemplate is the legacy clients' name for it; WOW_PROJECT_ID exists on
-        -- every client that calls it UISliderTemplate.
+        -- Vanilla 1.12 uses OptionsSliderTemplate. Keep the guarded alternate
+        -- template path without treating newer clients as supported release targets.
         local template = WOW_PROJECT_ID == nil and "OptionsSliderTemplate" or "UISliderTemplate"
         slider = CreateFrame("Slider", nil, frame, template)
         -- Both load-bearing: a slider given neither draws nothing at all.
@@ -1175,9 +1164,8 @@ function Layout:Slider(label, minValue, maxValue, step, read, write, apply, show
             value:SetText(show(read()))
         end
         Script(frame, "OnShow", sync)
-        -- A slider has no SetEnabled on 2.4.3 and 3.3.5, and Refresh calls this for every slider
-        -- with a Requires: Enable and Disable where it has those, and where it has neither, it
-        -- at least stops taking the mouse.
+        -- Slider templates may lack SetEnabled; fall back to Enable/Disable,
+        -- then mouse gating, so Refresh can still honor Requires.
         setEnabled = function(on)
             if slider.SetEnabled then
                 slider:SetEnabled(on)
@@ -2282,7 +2270,7 @@ function Layout:PackInventory(read, emptyText)
         Tooltip(button, "Installed Voice Pack", "Click to expand or collapse its details.")
 
         -- An optional checkbox belongs to the pack row, not its expand button.
-        -- Keep their hit areas separate on 1.12 as well as current clients.
+        -- Keep their hit areas separate in the 1.12 settings page.
         local toggle = NewCheck(holder, 26)
         Above(toggle, holder)
         Script(toggle, "OnClick", function(box)

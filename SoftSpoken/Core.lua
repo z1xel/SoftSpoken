@@ -1,10 +1,8 @@
 setfenv(1, SpokenEnv)
 
--- The object the ported queue code reaches timers and settings through, under the name
--- upstream gave it. A plain table with AceTimer embedded, not an AceAddon: the player has
--- no options table to register, no console commands of its own, and every client from
--- 1.12 up can embed AceTimer into anything. Reproducing the name is what keeps the
--- ported bodies diffable against upstream.
+-- Core's timer/settings controller is a plain AceTimer-embedded table, not an
+-- AceAddon. Keep the upstream Addon name inside SpokenEnv so the ported queue
+-- code stays consistent without exposing another global on the 1.12 client.
 Addon = LibStub("AceTimer-3.0"):Embed({})
 
 -- What feature addons register through API.lua and the UI reads back.
@@ -180,12 +178,10 @@ function Addon:Profile(section)
 end
 
 --- Where each player window sits, how wide it is, and whether the captions are expanded.
---- Account-wide, in global rather than the profile: AceDB names the profile after
---- UnitName("player") when its file loads, and the Forever client answers "Unknown" (in
---- the client's language) there on some logins and the name on others, so a window
---- placed on one login came back on the default spot the next. The client's own
---- SetUserPlaced cache fared no better, since the frames are built at PLAYER_LOGIN and
---- anchored to their defaults straight after.
+--- Account-wide in AceDB's global scope instead of a character-named profile:
+--- profile identity can be unavailable while loading, and the narrator frame
+--- is constructed and anchored at PLAYER_LOGIN. The saved window position
+--- must not depend on an early UnitName result or SetUserPlaced cache.
 function Addon:Layout()
     local global = self.db.global
     if type(global.Layout) ~= "table" then global.Layout = {} end

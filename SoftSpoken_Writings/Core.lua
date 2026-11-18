@@ -1,6 +1,7 @@
--- Spoken Books for Turtle WoW 1.12 (Lua 5.0).
--- Independent module: does not modify Spoken or SoftSpoken_Places.
--- Book recognition/playlist adapted from rusty-key/spoken-wow (MIT).
+-- SoftSpoken Writings for Turtle WoW 1.12 (Lua 5.0).
+-- Separate feature module that registers with required SoftSpoken Core;
+-- does not modify Core or Places. Book recognition/playlist code was
+-- adapted from rusty-key/spoken-wow (MIT).
 SSB = SSB or {}
 local Writings = SSB
 Writings.version = "v0.9.0-beta"

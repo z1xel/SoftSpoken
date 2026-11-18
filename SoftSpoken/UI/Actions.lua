@@ -20,9 +20,9 @@ local ACTION_HEIGHT = 18
 local ICON_SIZE = 24
 local named = 0
 
---- Whether an action's icon can be drawn. The art these use lives in folders that postdate
---- the three legacy clients, where the texture is simply missing and the button
---- would be a blank square; an action carrying a `text` says what to put there instead.
+--- Whether an action icon is available on the 1.12 client. Some newer
+--- interface textures are absent, so actions may supply `text` instead of
+--- showing an empty button.
 local function CanDrawIcon()
     return not Version.IsAnyLegacy
 end

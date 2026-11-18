@@ -24,8 +24,8 @@ local legacyNavButtons = {}
 local legacyMaxHeight
 local FitWindow
 
--- Rows, headings and the spacing between them come from UI/SettingsLayout.lua, the file every
--- Spoken addon carries a copy of, so the three panels read alike.
+-- Rows, headings and spacing come from Core's single SettingsLayout.lua,
+-- shared by Home and each feature module's settings page.
 local Layout = SpokenLayout
 -- Product name stays consistent across locales, unlike descriptive settings text.
 local HOME_TITLE = "SoftSpoken"

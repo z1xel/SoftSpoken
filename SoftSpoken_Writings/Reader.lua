@@ -1,7 +1,7 @@
 -- Which page the client is showing, if any.
 --
--- ItemTextFrame is the whole of the book UI on all three targets, and it serves MAIL as
--- well: the same frame, the same events, the same getters. So the first question here is
+-- Vanilla 1.12's ItemTextFrame displays world readables and also serves MAIL:
+-- the same frame and getters. The first question is therefore
 -- never "which page is this" but "is this a book at all" -- a reader who opens a letter
 -- from another player and hears it read aloud has been given somebody else's post by a
 -- narrator, which is worse than hearing nothing.

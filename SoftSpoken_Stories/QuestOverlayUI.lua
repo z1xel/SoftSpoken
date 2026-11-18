@@ -44,9 +44,8 @@ function QuestOverlayUI:CreatePlayButton(questID)
     self.questPlayButtons[questID] = self:MakePlayButton()
 end
 
---- Contribute.lua, or nil where it is not loaded: the legacy clients leave it out
---- (Contribute.xml), and this file runs on them too. rawget, so a global of the same name from
---- some other addon is never mistaken for it.
+--- Optional Contribute module, absent from the current 1.12 load manifest.
+--- Use rawget so another addon's global cannot be mistaken for ours.
 local function ContributeModule()
     return rawget(VoiceOver, "Contribute")
 end
@@ -160,8 +159,8 @@ end
 local layoutRecheckPending
 function QuestOverlayUI:ScheduleLayoutRecheck()
     if layoutRecheckPending then return end
-    -- ClassicAPI supplies RunNextFrame; other clients keep the immediate hook
-    -- unchanged if neither supported one-shot scheduler is available.
+    -- Prefer ClassicAPI's RunNextFrame when available; if no supported
+    -- one-shot scheduler exists on this 1.12 client, keep the immediate hook.
     local schedule = RunNextFrame
     if type(schedule) ~= "function" and C_Timer and type(C_Timer.After) == "function" then
         schedule = function(callback) C_Timer.After(0, callback) end

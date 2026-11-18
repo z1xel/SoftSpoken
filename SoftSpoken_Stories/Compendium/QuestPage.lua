@@ -1,6 +1,6 @@
--- Quest Compendium detail pages for the shared 1.12 parchment. Upstream
--- Spoken Quests 3.4.0 supplies the text and the quest/speaker/voice rules.
--- NO narration engine or global Compendium layout changes are made here.
+-- Stories quest detail pages use Core's shared 1.12 parchment.
+-- QuestDialogue resolves text; SpeakerResolver resolves speaker identities,
+-- while the page handles presentation without owning narration or window layout.
 SSCQuestPage = SSCQuestPage or {}
 local QuestPage=SSCQuestPage
 local QuestDialogue=VoiceOver.QuestDialogue
