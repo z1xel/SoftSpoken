@@ -375,6 +375,9 @@ local defaults = {
             -- what they heard before this setting existed.
             VoiceLanguage = "auto",
             FallbackLanguage = "enUS",
+            -- Absent entries are enabled by default; only explicitly disabled
+            -- load-on-demand sound packs are skipped at startup.
+            DisabledVoicePacks = {},
         },
         -- These do nothing without the DialogueUI addon.
         DialogueUI = {
