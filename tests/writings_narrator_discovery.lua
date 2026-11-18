@@ -88,6 +88,9 @@ SpokenBooksAudioPacks={TestPack={
 }}
 dofile("SoftSpoken_Writings/Audio.lua")
 local clip=assert(SSB:ClipFor(101))
+eq(clip.present.portrait.kind,"texture","Writings book portrait is a texture")
+eq(clip.present.portrait.texture,[[Interface\Icons\INV_Misc_Book_09]],
+    "default Writings portrait uses native Vanilla inventory icon")
 eq(clip.present.header,"The World Tree and the Emerald Dream",
     "book title promoted to white heading")
 eq(clip.present.label,"Book " .. DOT .. " Discovered in Darnassus",
