@@ -183,6 +183,8 @@ SetPortraitTextureFromCreatureDisplayID=function(texture,displayID)
     texture:SetTexture("portrait:"..displayID)
 end
 dofile("SoftSpoken_Stories/Data/TurtleQuestText.lua")
+-- Match the actual addon.xml load order after dialogue extraction.
+dofile("SoftSpoken_Stories/QuestDialogue.lua")
 dofile("SoftSpoken_Stories/Compendium/QuestPage.lua")
 -- A Turtle overlay is additive and resolved separately for each quest stage.
 -- The production table is deliberately empty until source distribution is reviewed.
