@@ -78,11 +78,10 @@ function SpokenBooks:PageMaterial()
 	return ItemTextGetMaterial and ItemTextGetMaterial() or nil
 end
 
--- Add recorded origin to the narrator's white heading, keeping the readable
--- kind (one-line mode) or book title (per-page mode) as before. If the
--- character's discovery has no location, never substitute possible catalogue
--- locations or the place where the player happens to be reading.
-local function NarratorHeading(bookID, base)
+-- The context beneath a work's title: its kind and the character's recorded
+-- discovery location. Never substitute catalogue possibilities or the player's
+-- current reading location when the origin was not recorded.
+local function NarratorContext(bookID, base)
     local location = SpokenBooks.KnownDiscoverySummary and
         SpokenBooks:KnownDiscoverySummary(bookID)
     if location then return base .. " \194\183 " .. location end
@@ -185,6 +184,19 @@ function SpokenBooks:ClipFor(pageId)
 				-- corpus's own is English.
 				local title = self.bookTitle and self.bookTitle[language] and self.bookTitle[language][place.book]
 					or (book and book.title) or ""
+                -- Writings deliberately reverses the Stories/Places hierarchy:
+                -- the work is the white Morpheus heading and its kind/origin
+                -- appears in the gold active row. Keep the title in queued rows,
+                -- where the context alone would make different books indistinguishable.
+                local kind = self:KindOf(place.book)
+                local displayTitle = title ~= "" and title or kind
+                local context = NarratorContext(place.book, kind)
+                local queueLabel = displayTitle
+                if not oneLine and book and book.pages and table.getn(book.pages) > 1 then
+                    local page = "Page " .. tostring(place.number) .. " of " .. tostring(table.getn(book.pages))
+                    context = context .. " \194\183 " .. page
+                    queueLabel = queueLabel .. " \194\183 " .. page
+                end
 				local candidate = {
 					key = "b:" .. pageId,
 					path = [[Interface\AddOns\]] .. pack.addon .. [[\Sounds\]] .. entry.file .. ".mp3",
@@ -200,16 +212,10 @@ function SpokenBooks:ClipFor(pageId)
 					-- under a German selection, and its report is about that.
 					language = language,
 					present = {
-						-- One line: what it is over its name, as a speaker over a quest's title,
-						-- whatever page of it this is. A line per page: the book over its page,
-						-- counted only where there is more than one ("page 1 of 1" is noise on
-						-- a letter, which is most of this corpus).
-						header = NarratorHeading(place.book,
-                            oneLine and self:KindOf(place.book) or title),
-						transcript = text,
-						label = oneLine and (title ~= "" and title or nil)
-							or ((book and table.getn(book.pages) > 1)
-								and ("Page " .. tostring(place.number) .. " of " .. tostring(table.getn(book.pages))) or nil),
+                        header = displayTitle,
+                        transcript = text,
+                        label = context,
+                        queueLabel = queueLabel,
 						bullet = "book",
 						material = self:PageMaterial(),
 						portrait = self:PagePicture(),
