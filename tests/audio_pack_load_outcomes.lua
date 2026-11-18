@@ -167,4 +167,59 @@ assert(string.find(failure,"ENABLE_FAILED:",1,true),"enable error preserved")
 eq(loadCalls.EnableError,nil,"cannot load after enable error")
 EnableAddOn=realEnable
 
-print("PASS: disabled pack recovery, Vanilla API, failure diagnostics, no redundant enabling")
+-- Internal SoftSpoken preferences must override WoW's enabled state:
+-- a skipped pack is neither enabled nor loaded, but remains discoverable in UI.
+installed,byName,loadCalls,outcomes,loaded,writes,enableCalls={},{},{},{},{},{},{}
+install("SkippedPack","success",true,true)
+install("WantedPack","success",true,true)
+VoiceOver.Addon={db={profile={Audio={DisabledVoicePacks={SkippedPack=true}}}}}
+data.presentModules,data.presentModulesOrdered={},{}
+data.registeredModules,data.registeredModulesOrdered={},{}
+data.loadErrors,data.loadAttempts={},{}
+data:EnumerateAddons(false)
+s=data:GetLoadSummary()
+eq(s.detected,2,"disabled pack remains visible")
+eq(s.disabled,1,"disabled pack counted separately")
+eq(s.notAttempted,1,"wanted pack is pending")
+eq(data:GetModuleLoadStatus("SkippedPack"),"disabled","disabled state is explicit")
+eq(data:LoadPresentModules(),true,"wanted pack still loads")
+eq(loadCalls.SkippedPack,nil,"unwanted pack not loaded")
+eq(enableCalls.SkippedPack,nil,"unwanted pack not forcibly enabled")
+eq(loadCalls.WantedPack,1,"wanted pack loaded")
+eq(enableCalls.WantedPack,1,"wanted pack re-enabled despite WoW checkbox")
+s=data:GetLoadSummary()
+eq(s.detected,2);eq(s.loaded,1);eq(s.disabled,1);eq(s.failed,0);eq(s.notAttempted,0)
+
+-- Enabling a skipped pack uses the existing loader, with no UI reload.
+data:SetPackEnabled("SkippedPack",true)
+eq(VoiceOver.Addon.db.profile.Audio.DisabledVoicePacks.SkippedPack,nil,
+    "enabled preference clears the disabled entry")
+eq(data:IsPackEnabled("SkippedPack"),true)
+eq(data:LoadModule(data:GetPresentModule("SkippedPack")),true,"immediate on-demand loading")
+eq(loadCalls.SkippedPack,1,"previously skipped pack now loaded")
+eq(enableCalls.SkippedPack,1,"previously disabled checkbox repaired")
+
+-- Disabling a pack which is already loaded requires a UI reload: its
+-- registration remains alive until then, and should not be mistaken for freed RAM.
+data:SetPackEnabled("WantedPack",false)
+eq(data:GetModuleLoadStatus("WantedPack"),"reload required")
+eq(data:GetModule("WantedPack")~=nil,true,"loaded data cannot unload itself")
+local result, refusal=data:LoadModule(data:GetPresentModule("WantedPack"))
+eq(result,false,"manual Load cannot override internal selection")
+eq(refusal,"PACK_DISABLED","internal disabled state enforced")
+
+-- Simulate the next UI reload with all installed packs internally disabled.
+data:SetPackEnabled("SkippedPack",false)
+loaded,loadCalls,enableCalls,writes={},{},{},{}
+data.presentModules,data.presentModulesOrdered={},{}
+data.registeredModules,data.registeredModulesOrdered={},{}
+data.loadErrors,data.loadAttempts={},{}
+data:EnumerateAddons(false)
+eq(data:LoadPresentModules(),false,"all-disabled is a valid empty registry")
+s=data:GetLoadSummary()
+eq(s.detected,2);eq(s.disabled,2);eq(s.loaded,0);eq(s.failed,0);eq(s.notAttempted,0)
+eq(next(loadCalls),nil,"reload does not load disabled packs")
+eq(next(enableCalls),nil,"reload does not touch disabled addons")
+eq(data:GetPresentModule("WantedPack")~=nil,true,"metadata still discoverable")
+
+print("PASS: selective voicepack loading, checkbox recovery, Vanilla API, failure diagnostics")
