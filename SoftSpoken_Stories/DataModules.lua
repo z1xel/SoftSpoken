@@ -334,6 +334,22 @@ function DataModules:GetAvailableModules()
     return ipairs(self.availableModules)
 end
 
+-- Profile changes can flip pack preferences without going through a specific
+-- pack's checkbox. Such a change must not silently leave the loaded registry
+-- out of sync with the selected profile.
+function DataModules:NeedsLoadSelectionReload()
+    for _, module in self:GetPresentModules() do
+        if module.LoadOnDemand then
+            local name = module.AddonName
+            local wanted = self:IsPackEnabled(name)
+            local registered = self:GetModule(name) ~= nil
+            if registered and not wanted then return true end
+            if wanted and not registered and not self.loadAttempts[name] then return true end
+        end
+    end
+    return false
+end
+
 -- Short display names for the known sound packs, shown on the download buttons.
 -- Keyed by folder name, which is the stable identifier; the titles themselves come
 -- from the packs and cannot be translated. Anything unknown falls back to the
