@@ -62,6 +62,7 @@ on:
       - "tests/stories_faction_crest.lua"
       - "tests/stories_speaker_resolution.lua"
       - "tests/stories_quest_event_bridge.lua"
+      - "tests/stories_questlog_subtitles.lua"
       - "tests/test_dialogueui_cleanup.py"
       - "tests/places_zone_portrait_emblems.lua"
       - "tests/writings_narrator_discovery.lua"
@@ -129,6 +130,7 @@ on:
       - "tests/stories_faction_crest.lua"
       - "tests/stories_speaker_resolution.lua"
       - "tests/stories_quest_event_bridge.lua"
+      - "tests/stories_questlog_subtitles.lua"
       - "tests/test_dialogueui_cleanup.py"
       - "tests/places_zone_portrait_emblems.lua"
       - "tests/writings_narrator_discovery.lua"
@@ -156,7 +158,7 @@ jobs:
           luac5.1 -p SoftSpoken_Places/Audio.lua tests/places_zone_portrait_emblems.lua
           luac5.1 -p tests/classicapi_portrait_compatibility.lua tests/creature_appearance_service.lua tests/stories_faction_crest.lua tests/stories_compendium_portrait_lifecycle.lua
           luac5.1 -p SoftSpoken_Stories/FactionCrest.lua SoftSpoken_Stories/SpeakerResolver.lua SoftSpoken_Stories/NarrationSource.lua SoftSpoken_Stories/Compendium/QuestPage.lua
-          luac5.1 -p tests/stories_speaker_resolution.lua tests/stories_quest_event_bridge.lua tests/stories_portrait_preloading.lua tests/stories_questlog_portrait_prime.lua tests/questlog_deferred_layout_compatibility.lua
+          luac5.1 -p tests/stories_speaker_resolution.lua tests/stories_quest_event_bridge.lua tests/stories_questlog_subtitles.lua tests/stories_portrait_preloading.lua tests/stories_questlog_portrait_prime.lua tests/questlog_deferred_layout_compatibility.lua
           luac5.1 -p SoftSpoken_Places/UI/LoreWindow.lua SoftSpoken_Writings/UI/Readables.lua
           luac5.1 -p SoftSpoken_Writings/Audio.lua SoftSpoken_Writings/DiscoveryLocations.lua tests/writings_narrator_discovery.lua tests/narrator_queue_label.lua
           luac5.1 -p SoftSpoken_Places/UI/Options.lua SoftSpoken_Writings/UI/Options.lua
@@ -197,6 +199,8 @@ jobs:
         run: lua5.1 tests/stories_speaker_resolution.lua
       - name: Exercise live 1.12 quest event dispatch without the watcher
         run: lua5.1 tests/stories_quest_event_bridge.lua
+      - name: Check quest-log subtitles from existing Compendium text
+        run: lua5.1 tests/stories_questlog_subtitles.lua
       - name: Check Compendium portrait lifecycle
         run: lua5.1 tests/stories_compendium_portrait_lifecycle.lua
       - name: Check bounded Stories portrait preloading
