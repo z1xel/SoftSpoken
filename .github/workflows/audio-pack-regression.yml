@@ -149,6 +149,8 @@ jobs:
           luac5.1 -p Data_Packs/SSS_VOFallback/Module.lua
       - name: Check supported Vanilla narrator styles and saved-profile fallback
         run: lua5.1 tests/narrator_styles_112.lua
+      - name: Check Vanilla-only shared settings and module navigation
+        run: lua5.1 tests/settings_legacy_only.lua
       - name: Check Compendium book mask and runtime skin assets
         run: lua5.1 tests/compendium_book_mask.lua
       - name: Check bounded Vanilla UI fallback polling

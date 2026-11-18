@@ -1,14 +1,10 @@
 setfenv(1, SpokenEnv)
 
--- The player's settings: player-wide things only. Each feature addon keeps its own panel
--- and, where the Settings API exists, nests it under this one.
---
--- Settings.RegisterCanvasLayoutCategory is the modern path and exists on every current
--- client. The three legacy clients have no Settings API at all; there the same
--- panel is a movable window opened with /spoken. One builder, two hosts.
+-- Shared Vanilla 1.12 settings window. Feature addons contribute pages displayed
+-- as tabs in the same bounded Blizzard scroll frame, opened with /spoken.
 Options = {}
 
--- The game's settings list sets its rows 25 in from the canvas's left.
+-- Keep the existing native-window row alignment.
 local INDENT = 25
 local TOP = 16    -- where the page's title starts
 local BOTTOM = 16 -- the margin under the last row
@@ -202,9 +198,6 @@ function Options:PreviewButton(layout)
     return button
 end
 
--- Feature addons' pages asked for before this panel was registered; see Options:AddPage.
-local pendingPages = {}
-
 -- The same parts and ways of showing lines, drawn the same way, in the welcome window.
 Options.PARTS, Options.SKETCHES = PARTS, SKETCHES
 Options.STYLE_LABELS, Options.STYLE_TEXTS, Options.STYLE_TIPS = STYLE_LABELS, STYLE_TEXTS, STYLE_TIPS
@@ -216,36 +209,20 @@ function Options:Styles()
     return { "classic", "none" }
 end
 
-local function Build(canvas)
+local function Build()
     panel = CreateFrame("Frame", "SpokenOptionsPanel", UIParent)
-    -- The family's one entry in the game's settings. This page is its Home; each feature
-    -- addon's page is nested under it (Options:AddPage).
     panel.name = HOME_TITLE
-    -- On the settings canvas the rows are laid out in a scroller, as the books and zones
-    -- panels are: the canvas neither scrolls nor clips, and the contributions rows pushed
-    -- this panel past its bottom edge, drawing the minimap section over the game world. The
-    -- legacy window grows to fit its rows instead (FitWindow), so it keeps laying out on
-    -- the panel itself and never meets a ScrollFrame on a client that has not been tried.
-    local host = panel
-    if canvas then
-        scroller = Layout.Scroll(panel)
-        host = scroller.child
-        panel.content = host
-    else
-        -- Vanilla 1.12 needs a *bounded* viewport: dozens of rows cannot fit in a
-        -- standalone window that simply grows forever. Use the original Blizzard
-        -- scroll template, not the modern custom Layout.Scroll implementation.
-        scroller = CreateFrame("ScrollFrame", "SpokenOptionsLegacyScroll", panel, "UIPanelScrollFrameTemplate")
-        scroller:EnableMouseWheel(true)
-        scroller:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, LEGACY_SCROLL_TOP)
-        scroller:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -42, 20)
-        host = CreateFrame("Frame", nil, scroller)
-        host:SetWidth(LEGACY_CONTENT_WIDTH)
-        host:SetHeight(1)
-        scroller:SetScrollChild(host)
-        legacyScrollChild = host
-        panel.content = host
-    end
+    -- The only supported host is the bounded native Vanilla 1.12 ScrollFrame.
+    scroller = CreateFrame("ScrollFrame", "SpokenOptionsLegacyScroll", panel, "UIPanelScrollFrameTemplate")
+    scroller:EnableMouseWheel(true)
+    scroller:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, LEGACY_SCROLL_TOP)
+    scroller:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -42, 20)
+    local host = CreateFrame("Frame", nil, scroller)
+    host:SetWidth(LEGACY_CONTENT_WIDTH)
+    host:SetHeight(1)
+    scroller:SetScrollChild(host)
+    legacyScrollChild = host
+    panel.content = host
     local cfg = function() return Addon.db.profile.Frame end
     local audio = function() return Addon.db.profile.Audio end
     local transcript = function() return Addon.db.profile.Transcript end
@@ -262,12 +239,6 @@ local function Build(canvas)
     local layout = Layout.New(host, INDENT, -TOP)
     panel.layout = layout
     layout:Header(HOME_TITLE, L.OPT_HOME_NOTE, nil, [[Interface\AddOns\SoftSpoken\icon.tga]], 56)
-    -- On the canvas the page is headed as the game's pages are: its name and its Defaults, and
-    -- no paragraph under them, as the game's own pages have none.
-    if canvas then
-        layout:HideHeader()
-        layout:Intro([[Interface\AddOns\SoftSpoken\icon.tga]], HOME_TITLE)
-    end
     -- Two kinds of row that does nothing right now. One that belongs to another way of
     -- showing lines is hidden, and the page closes up round it: a player who chose subtitles
     -- has no use for the window's size. One waiting on a switch beside it is greyed out
@@ -276,11 +247,6 @@ local function Build(canvas)
     local function Only(row, applies) return layout:ShowWhen(row, applies) end
     local function Shown() return Style() ~= "none" end
 
-    -- Every Spoken page is searchable from here; the game's own settings search cannot see
-    -- inside an addon's canvas.
-    if canvas and Search then
-        layout:Custom(Search:Build(host), Search.height, function(width) Search:Fit(width) end)
-    end
 
     -- Show the three main modules; Gossip belongs to Quests and is still
     -- configured on its page. Keep it marked as known so the optional-source
@@ -302,11 +268,7 @@ local function Build(canvas)
             button = L.OPT_PART_SETTINGS, onButton = function() Options:OpenPage(order) end,
             buttonEnabled = function() return Sources:Get(key) ~= nil end })
     end
-    if canvas then
-        layout:Cards(cards)
-    else
-        layout:ModuleList(cards)
-    end
+    layout:ModuleList(cards)
     -- Optional third-party sources keep their existing switches. Bind the
     -- callbacks through a function scope: 1.12's Lua 5.0 generic-for
     -- variables must not be captured directly by a deferred UI handler.
@@ -666,11 +628,6 @@ local function Build(canvas)
             Bind(name, key)
         end, L.OPT_KEY_SET_TIP, { press = L.OPT_KEY_PRESS })
     end
-    if canvas and Settings and Settings.KEYBINDINGS_CATEGORY_ID then
-        layout:Button(L.OPT_KEYS_SET, 160, function()
-            pcall(Settings.OpenToCategory, Settings.KEYBINDINGS_CATEGORY_ID)
-        end, L.OPT_KEYS_SET_TIP)
-    end
 
     -- Profiles, for all of Spoken at once: the player's own settings and every part that keeps
     -- its settings in profiles switch, copy and delete together.
@@ -909,20 +866,8 @@ end
 --- Open Spoken's page on a tab: Home's is 0, a feature addon's the order it was listed in.
 function Options:OpenPage(order)
     if not panel then return false end
-    if not self.category then
-        if not self:SelectLegacyPage(order) then return false end
-        panel:Show()
-        return true
-    end
-    -- Clients with a Settings canvas use the category registered for this page.
-    local category = order == 0 and self.category or nil
-    if order ~= 0 then
-        for _, page in ipairs(self.pages or {}) do
-            if page.order == order then category = page.category; break end
-        end
-    end
-    if not category then return false end
-    Layout.OpenCategory(category, L.OPT_OPEN_COMBAT)
+    if not self:SelectLegacyPage(order) then return false end
+    panel:Show()
     return true
 end
 
@@ -930,13 +875,10 @@ end
 function Options:Pages()
     local pages = {}
     if panel then
-        table.insert(pages, { name = L.OPT_HOME_TITLE, category = self.category,
-            layout = panel.layout, scroller = self.category and scroller or nil, order = 0 })
+        table.insert(pages, { name = L.OPT_HOME_TITLE, layout = panel.layout, order = 0 })
     end
     for _, page in ipairs(self.pages or {}) do
-        if page.layout and (not self.category or page.category) then
-            table.insert(pages, page)
-        end
+        if page.layout then table.insert(pages, page) end
     end
     return pages
 end
@@ -945,33 +887,20 @@ end
 --- `page` is one of Pages(), each of which OpenPage finds by its order.
 function Options:ShowRow(page, row)
     if not self:OpenPage(page.order) then return end
-    local function Land()
-        page.layout:Refresh()
-        local offset = math.max(0, -(row.layoutY or 0) - 60)
-        if page.scroller then
-            page.scroller:Recalculate()
-            page.scroller:ScrollTo(offset)
-        elseif scroller and not self.category then
-            -- Original Vanilla scroll frame, shared by all module pages.
-            local maximum = scroller.GetVerticalScrollRange and
-                scroller:GetVerticalScrollRange() or offset
-            if offset > maximum then offset = maximum end
-            scroller:SetVerticalScroll(offset)
-        end
-        page.layout:Highlight(row)
+    page.layout:Refresh()
+    local offset = math.max(0, -(row.layoutY or 0) - 60)
+    -- Search navigation uses the same shared native scrollbar as tab navigation.
+    if scroller then
+        local maximum = scroller.GetVerticalScrollRange and
+            scroller:GetVerticalScrollRange() or offset
+        if offset > maximum then offset = maximum end
+        scroller:SetVerticalScroll(offset)
     end
-    -- Retail's canvas measures its content after the category opens; 1.12
-    -- updates the shared ScrollFrame synchronously and needs no timer.
-    if self.category and C_Timer and C_Timer.After then
-        C_Timer.After(0.05, Land)
-    else
-        Land()
-    end
+    page.layout:Highlight(row)
 end
 
--- On the original 1.12 client there is no Blizzard Settings category tree.
--- Keep upstream's page model, but display each module inside the same bounded
--- Blizzard scroll frame. A page's layout still belongs entirely to that module.
+-- All module pages use one bounded Blizzard 1.12 scroll frame.
+-- Each page keeps its own independent layout.
 function Options:RefreshNavigation()
     if not (panel and panel.isWindow) then return end
     local pages = { { order = 0, name = L.OPT_HOME_TITLE } }
@@ -1046,7 +975,7 @@ function Options:SelectLegacyPage(order)
 end
 
 -- Keep the scroll child tall enough for the active page without growing the
--- bounded Vanilla window. Modern clients size the canvas content instead.
+-- bounded Vanilla window.
 FitWindow = function()
     if not panel then return end
     local activeLayout = Options.activePage and Options.activePage.layout or panel.layout
@@ -1070,9 +999,7 @@ FitWindow = function()
         end
         local child = Options.activePage and Options.activePage.frame or legacyScrollChild
         child:SetHeight(needed)
-        -- Native UIPanelScrollFrameTemplate does not run the modern custom
-        -- scroller's Recalculate() when a row is hidden or a tab is swapped.
-        -- Refresh its scroll rectangle and native slider after every reflow.
+        -- Refresh the native scroll rectangle and slider after every reflow.
         if scroller then
             if scroller.UpdateScrollChildRect then scroller:UpdateScrollChildRect() end
             local maximum = math.max(0, needed - (scroller:GetHeight() or 0))
@@ -1086,184 +1013,151 @@ FitWindow = function()
             if scroller.SetVerticalScroll then scroller:SetVerticalScroll(offset) end
             if scrollbar and scrollbar.SetValue then scrollbar:SetValue(offset) end
         end
-    elseif scroller and scroller.SetContentHeight then
-        scroller:SetContentHeight(needed)
-    elseif panel.isWindow and needed > (panel:GetHeight() or 0) then
-        panel:SetHeight(needed)
     end
 end
 
 function Options:Setup()
     if panel then return end
-    local canvas = Settings and Settings.RegisterCanvasLayoutCategory and Settings.RegisterAddOnCategory
-    Build(canvas)
-    -- Rows come and go with the way lines are shown; the window or scroller follows what is left.
+    Build()
     panel.layout.onResize = function() FitWindow() end
     self:UpdateRows()
-    -- Built with this page; registered last, after every part's.
-    if canvas then
-        -- Spoken's entry in the game's settings, and each feature addon's page an entry nested
-        -- under it (Options:RegisterPage).
-        FitWindow()
-        self.category = Settings.RegisterCanvasLayoutCategory(panel, HOME_TITLE)
-        Settings.RegisterAddOnCategory(self.category)
-        table.sort(pendingPages, function(a, b) return a.order < b.order end)
-        for _, page in ipairs(pendingPages) do self:RegisterPage(page) end
-        pendingPages = {}
-    else
-        -- No Settings API: our unified window, opened by /spoken. Sized to its
-        -- rows, which vary by client, rather than a fixed height the rows can outgrow.
-        panel.isWindow = true
-        local screenHeight = (UIParent and UIParent.GetHeight and UIParent:GetHeight()) or 768
-        legacyMaxHeight = math.min(620, math.max(300, screenHeight - 80))
-        panel:SetSize(LEGACY_WIDTH, legacyMaxHeight)
-        panel:SetPoint("CENTER")
-        panel:SetMovable(true)
-        panel:EnableMouse(true)
-        panel:SetFrameStrata("DIALOG")
-        -- Use Blizzard's original Vanilla Options menu background, which
-        -- carries its own translucent dark alpha. Keep the separate silver
-        -- window border, rock header and search ornaments unchanged.
-        if panel.SetBackdrop then
-            panel:SetBackdrop({
-                bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]],
-                tile = true, tileSize = 32,
-                insets = {left = 10, right = 10, top = 10, bottom = 10},
-            })
-            panel:SetBackdropColor(1, 1, 1, 1)
-        end
-
-        -- Give only the upper title/tab section the same tiled rock backing
-        -- used by the Compendium. Keep the search surround and scroll content
-        -- on the existing dark window backdrop.
-        local headerRock = CreateFrame("Frame", nil, panel)
-        headerRock:SetPoint("TOPLEFT", panel, "TOPLEFT", 10, -11)
-        headerRock:SetPoint("BOTTOMRIGHT", panel, "TOPRIGHT", -10, -93)
-        headerRock:SetFrameLevel(panel:GetFrameLevel())
-        headerRock:EnableMouse(false)
-        headerRock:SetBackdrop({
-            bgFile = [[Interface\AddOns\SoftSpoken\Compendium\Textures\Skin\UI-Background-Rock-Classic]],
-            tile = true, tileSize = 256,
-            insets = {left = 0, right = 0, top = 0, bottom = 0},
-        })
-
-        -- A separate, mouse-transparent edge-only frame makes the native
-        -- silver window border render over the rock and cropped housing.
-        -- The underlying panel keeps only the flat dark background.
-        local windowTrim = CreateFrame("Frame", nil, panel)
-        windowTrim:SetAllPoints(panel)
-        windowTrim:SetFrameLevel(headerRock:GetFrameLevel() + 1)
-        windowTrim:EnableMouse(false)
-        windowTrim:SetBackdrop({
-            edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]],
-            edgeSize = 32,
+    panel.isWindow = true
+    -- Unified Vanilla settings window, bounded to the visible screen.
+    panel.isWindow = true
+    local screenHeight = (UIParent and UIParent.GetHeight and UIParent:GetHeight()) or 768
+    legacyMaxHeight = math.min(620, math.max(300, screenHeight - 80))
+    panel:SetSize(LEGACY_WIDTH, legacyMaxHeight)
+    panel:SetPoint("CENTER")
+    panel:SetMovable(true)
+    panel:EnableMouse(true)
+    panel:SetFrameStrata("DIALOG")
+    -- Use Blizzard's original Vanilla Options menu background, which
+    -- carries its own translucent dark alpha. Keep the separate silver
+    -- window border, rock header and search ornaments unchanged.
+    if panel.SetBackdrop then
+        panel:SetBackdrop({
+            bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]],
+            tile = true, tileSize = 32,
             insets = {left = 10, right = 10, top = 10, bottom = 10},
         })
-
-        -- The search ornament needs its own draw level above the outer
-        -- silver window border. Keep this frame mouse-transparent; only its
-        -- narrow edge textures are drawn on it.
-        local searchTrim = CreateFrame("Frame", nil, panel)
-        searchTrim:SetAllPoints(panel)
-        searchTrim:SetFrameLevel(windowTrim:GetFrameLevel() + 1)
-        searchTrim:EnableMouse(false)
-
-        -- The title plaque stays above both ornamental frame layers.
-        local titleLayer = CreateFrame("Frame", nil, panel)
-        titleLayer:SetAllPoints(panel)
-        titleLayer:SetFrameLevel(searchTrim:GetFrameLevel() + 1)
-        titleLayer:EnableMouse(false)
-
-        -- The native 400x64 UI-DialogBox-Header is centered on this window.
-        -- Blizzard's Key Bindings uses a -30 horizontal offset for its own
-        -- asymmetric frame; retaining that offset shifts SoftSpoken's plaque
-        -- left of center. Keep the caption anchored to the plaque itself.
-        local titlePlate = titleLayer:CreateTexture(nil, "ARTWORK")
-        titlePlate:SetTexture([[Interface\DialogFrame\UI-DialogBox-Header]])
-        titlePlate:SetWidth(400)
-        titlePlate:SetHeight(64)
-        titlePlate:SetPoint("TOP", panel, "TOP", 0, 12)
-        local heading = titleLayer:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        heading:SetWidth(210)
-        heading:SetHeight(16)
-        heading:SetJustifyH("CENTER")
-        heading:SetPoint("TOP", titlePlate, "TOP", 0, -13)
-        heading:SetText(HOME_TITLE)
-        panel:RegisterForDrag("LeftButton")
-        panel:SetScript("OnDragStart", function() panel:StartMoving() end)
-        panel:SetScript("OnDragStop", function() panel:StopMovingOrSizing() end)
-        FitWindow()
-        -- Reuse the Compendium's native marble-and-metal scrollbar housing.
-        -- Keep the existing 1.12 scrollbar as the only scroll controller.
-        if SSCNativeScrollbar and SSCNativeScrollbar.AttachSettings then
-            SSCNativeScrollbar.AttachSettings(panel, scroller)
-        end
-        -- Search-frame rails and diamond corners overdraw the outer trim.
-        DrawOrnateHeaderBand(searchTrim)
-        if Search and Search.BuildLegacy then Search:BuildLegacy(panel) end
-        panel:Hide()
-        self:RefreshNavigation()
-        self:SelectLegacyPage(0)
-        -- Native escape handling. The panel has a stable global name, and
-        -- its OnHide hook also clears any open search results or preview.
-        if UISpecialFrames then
-            table.insert(UISpecialFrames, "SpokenOptionsPanel")
-        end
-        local close = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
-        close:SetPoint("TOPRIGHT", -6, -6)
-        close:SetFrameLevel(titleLayer:GetFrameLevel() + 1)
-        -- Keep the mirrored housing on the rock frame's BORDER layer:
-        -- above that frame's rock backdrop, beneath its ARTWORK/OVERLAY
-        -- decoration, and below the native close button.
-        local closeHousing = headerRock:CreateTexture(nil, "BORDER")
-        closeHousing:SetTexture([[Interface\AddOns\SoftSpoken\Compendium\Textures\Skin\UI-Frame]])
-        closeHousing:SetTexCoord(114/128, 90/128, 26/128, 2/128)
-        closeHousing:SetWidth(24)
-        closeHousing:SetHeight(24)
-        closeHousing:SetPoint("CENTER", close, "CENTER", 0, 0)
-        close:SetScript("OnClick", function() panel:Hide() end)
+        panel:SetBackdropColor(1, 1, 1, 1)
     end
+
+    -- Give only the upper title/tab section the same tiled rock backing
+    -- used by the Compendium. Keep the search surround and scroll content
+    -- on the existing dark window backdrop.
+    local headerRock = CreateFrame("Frame", nil, panel)
+    headerRock:SetPoint("TOPLEFT", panel, "TOPLEFT", 10, -11)
+    headerRock:SetPoint("BOTTOMRIGHT", panel, "TOPRIGHT", -10, -93)
+    headerRock:SetFrameLevel(panel:GetFrameLevel())
+    headerRock:EnableMouse(false)
+    headerRock:SetBackdrop({
+        bgFile = [[Interface\AddOns\SoftSpoken\Compendium\Textures\Skin\UI-Background-Rock-Classic]],
+        tile = true, tileSize = 256,
+        insets = {left = 0, right = 0, top = 0, bottom = 0},
+    })
+
+    -- A separate, mouse-transparent edge-only frame makes the native
+    -- silver window border render over the rock and cropped housing.
+    -- The underlying panel keeps only the flat dark background.
+    local windowTrim = CreateFrame("Frame", nil, panel)
+    windowTrim:SetAllPoints(panel)
+    windowTrim:SetFrameLevel(headerRock:GetFrameLevel() + 1)
+    windowTrim:EnableMouse(false)
+    windowTrim:SetBackdrop({
+        edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]],
+        edgeSize = 32,
+        insets = {left = 10, right = 10, top = 10, bottom = 10},
+    })
+
+    -- The search ornament needs its own draw level above the outer
+    -- silver window border. Keep this frame mouse-transparent; only its
+    -- narrow edge textures are drawn on it.
+    local searchTrim = CreateFrame("Frame", nil, panel)
+    searchTrim:SetAllPoints(panel)
+    searchTrim:SetFrameLevel(windowTrim:GetFrameLevel() + 1)
+    searchTrim:EnableMouse(false)
+
+    -- The title plaque stays above both ornamental frame layers.
+    local titleLayer = CreateFrame("Frame", nil, panel)
+    titleLayer:SetAllPoints(panel)
+    titleLayer:SetFrameLevel(searchTrim:GetFrameLevel() + 1)
+    titleLayer:EnableMouse(false)
+
+    -- The native 400x64 UI-DialogBox-Header is centered on this window.
+    -- Blizzard's Key Bindings uses a -30 horizontal offset for its own
+    -- asymmetric frame; retaining that offset shifts SoftSpoken's plaque
+    -- left of center. Keep the caption anchored to the plaque itself.
+    local titlePlate = titleLayer:CreateTexture(nil, "ARTWORK")
+    titlePlate:SetTexture([[Interface\DialogFrame\UI-DialogBox-Header]])
+    titlePlate:SetWidth(400)
+    titlePlate:SetHeight(64)
+    titlePlate:SetPoint("TOP", panel, "TOP", 0, 12)
+    local heading = titleLayer:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    heading:SetWidth(210)
+    heading:SetHeight(16)
+    heading:SetJustifyH("CENTER")
+    heading:SetPoint("TOP", titlePlate, "TOP", 0, -13)
+    heading:SetText(HOME_TITLE)
+    panel:RegisterForDrag("LeftButton")
+    panel:SetScript("OnDragStart", function() panel:StartMoving() end)
+    panel:SetScript("OnDragStop", function() panel:StopMovingOrSizing() end)
+    FitWindow()
+    -- Reuse the Compendium's native marble-and-metal scrollbar housing.
+    -- Keep the existing 1.12 scrollbar as the only scroll controller.
+    if SSCNativeScrollbar and SSCNativeScrollbar.AttachSettings then
+        SSCNativeScrollbar.AttachSettings(panel, scroller)
+    end
+    -- Search-frame rails and diamond corners overdraw the outer trim.
+    DrawOrnateHeaderBand(searchTrim)
+    if Search and Search.BuildLegacy then Search:BuildLegacy(panel) end
+    panel:Hide()
+    self:RefreshNavigation()
+    self:SelectLegacyPage(0)
+    -- Native escape handling. The panel has a stable global name, and
+    -- its OnHide hook also clears any open search results or preview.
+    if UISpecialFrames then
+        table.insert(UISpecialFrames, "SpokenOptionsPanel")
+    end
+    local close = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
+    close:SetPoint("TOPRIGHT", -6, -6)
+    close:SetFrameLevel(titleLayer:GetFrameLevel() + 1)
+    -- Keep the mirrored housing on the rock frame's BORDER layer:
+    -- above that frame's rock backdrop, beneath its ARTWORK/OVERLAY
+    -- decoration, and below the native close button.
+    local closeHousing = headerRock:CreateTexture(nil, "BORDER")
+    closeHousing:SetTexture([[Interface\AddOns\SoftSpoken\Compendium\Textures\Skin\UI-Frame]])
+    closeHousing:SetTexCoord(114/128, 90/128, 26/128, 2/128)
+    closeHousing:SetWidth(24)
+    closeHousing:SetHeight(24)
+    closeHousing:SetPoint("CENTER", close, "CENTER", 0, 0)
+    close:SetScript("OnClick", function() panel:Hide() end)
 end
 
 --- A feature addon's page, as a tab on Spoken's. A feature addon may build its panel before
 --- this one exists, at its own load, so the page waits until it does. `page.Open` opens Spoken
 --- on its tab; legacy clients share one bounded window instead of separate pages.
-function Options:AddPage(frame, name, order, layout, pageScroller)
+function Options:AddPage(frame, name, order, layout)
     if not frame or not layout then return nil end
-    -- The layout and its scroller come along so the search on Home can reach this page's rows.
-    local page = { frame = frame, name = name, order = order or 100, layout = layout, scroller = pageScroller }
+    local page = { frame = frame, name = name, order = order or 100, layout = layout }
     page.Open = function() return Options:OpenPage(page.order) end
     self.pages = self.pages or {}
     table.insert(self.pages, page)
     table.sort(self.pages, function(a, b) return a.order < b.order end)
-    if Settings and Settings.RegisterCanvasLayoutCategory then
-        if self.category then
-            self:RegisterPage(page)
-        else
-            table.insert(pendingPages, page)
-        end
-    else
-        -- A Vanilla page is a scroll child, not a separate settings window.
-        frame:SetWidth(LEGACY_CONTENT_WIDTH)
-        frame:Hide()
-        local priorResize = layout.onResize
-        layout.onResize = function(height)
-            frame:SetHeight(TOP + layout:Height() + BOTTOM)
-            if priorResize then priorResize(height) end
-        end
-        if panel and panel.isWindow then self:RefreshNavigation() end
+    -- A Vanilla page is a scroll child, not a separate settings window.
+    frame:SetWidth(LEGACY_CONTENT_WIDTH)
+    frame:Hide()
+    local priorResize = layout.onResize
+    layout.onResize = function(height)
+        frame:SetHeight(TOP + layout:Height() + BOTTOM)
+        if priorResize then priorResize(height) end
     end
+    if panel and panel.isWindow then self:RefreshNavigation() end
     return page
 end
 
-function Options:RegisterPage(page)
-    page.category = Settings.RegisterCanvasLayoutSubcategory(self.category, page.frame, page.name)
-end
-
 function Options:Open()
-    if self.category and Settings and Settings.OpenToCategory then
-        Layout.OpenCategory(self.category, L.OPT_OPEN_COMBAT)
-    elseif panel then
+    if panel then
         if panel:IsShown() then
             if Search and Search.Close then Search:Close() end
             panel:Hide()

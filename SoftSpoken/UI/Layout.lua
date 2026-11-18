@@ -409,9 +409,8 @@ function Layout:Reflow()
         if item.kind == "intro" then
             for _, region in ipairs(item.regions) do region:Show() end
             item.place(y)
-            -- The game's header is its own frame at the canvas's top, the list 10 under it. Fixed
-            -- over a scrolling page, the list's own top is already 2 under the divider.
-            y = self.intro.fixed and -(HEADER_PAD - 2) or -(HEADER_HEIGHT + HEADER_PAD)
+            -- The module header and its rows scroll together in the native Vanilla frame.
+            y = -(HEADER_HEIGHT + HEADER_PAD)
             if item.body then y = item.body(y) end
             started = false
         elseif item.kind == "header" then
@@ -1062,25 +1061,6 @@ end
 --- A change that takes effect only after a reload: say so, and offer to do it now.
 function Layout.AskReload(message, reloadLabel, laterLabel)
     Layout.Confirm(message, reloadLabel, laterLabel, function() ReloadUI() end)
-end
-
---- Open the settings window at a page. OpenToCategory takes the category's ID in some builds
---- and the category object in others, so try the ID first and fall back rather than erroring.
---- `combatMessage` is what the player reads when combat keeps it shut; the client's own words
---- when there is none. True when the window opened or the player was told why not, so a caller
---- can tell the player the way there when neither happened.
-function Layout.OpenCategory(category, combatMessage)
-    if not (category and Settings and Settings.OpenToCategory) then return false end
-    -- The client will not open it for an addon in combat, and a click that does nothing reads as
-    -- a broken button.
-    if InCombatLockdown and InCombatLockdown() then
-        local message = combatMessage or ERR_NOT_IN_COMBAT
-        if UIErrorsFrame and message then UIErrorsFrame:AddMessage(message, 1, 0.1, 0.1) end
-        return true
-    end
-    local id = category.GetID and category:GetID() or nil
-    if id and pcall(Settings.OpenToCategory, id) then return true end
-    return pcall(Settings.OpenToCategory, category) and true or false
 end
 
 --- Prose, not a setting: wraps to `width`, and occupies a row like anything else.
@@ -2578,13 +2558,8 @@ end
 --- middle. `icon` is taken and not drawn, for the pages that pass it. `text`, where given, is a
 --- paragraph under the divider, above the first section: the welcome window's, which says what
 --- it is for. The game's settings pages have none, and neither do Spoken's: they pass nil.
---- On a page that scrolls (Layout.Scroll) the header stays put, as the game's does: it is drawn
---- on the canvas over the scroll view, which starts under the divider, so the rows scroll up
---- and go out of sight under it.
 function Layout:Intro(icon, title, text)
-    local scroller = self.parent.layoutScroller
-    local parent = scroller and scroller.outer or self.parent
-    if scroller then scroller:SetTop(HEADER_HEIGHT + 2) end
+    local parent = self.parent
     local name = parent:CreateFontString(nil, "ARTWORK", Font("GameFontHighlightHuge", "GameFontHighlightLarge"))
     name:SetJustifyH("LEFT")
     name:SetText(title)
@@ -2645,7 +2620,7 @@ function Layout:Intro(icon, title, text)
         end
     end
     table.insert(self.items, item)
-    self.intro = { name = name, rule = rule, text = body, holder = parent, fixed = scroller and true or false }
+    self.intro = { name = name, rule = rule, text = body, holder = parent }
     self.empty = false
     self.dirty = true
     return name
@@ -2712,266 +2687,6 @@ function Layout.Grey(art, grey)
         end
     end
     art.layoutGrey = grey and true or false
-end
-
---------------------------------------------------------------------------------
--- Scrolling
---------------------------------------------------------------------------------
---
--- Settings.RegisterCanvasLayoutCategory hands the addon a fixed-size canvas and does
--- nothing else: a canvas taller than the settings window does not scroll, and does not
--- even clip, so the overflow draws over the game world. Any panel that can outgrow one
--- screen has to bring its own viewport, and a panel of sections always can.
---
--- The scrollbar is hand-rolled: ScrollFrameTemplate needs XML KeyValues naming a
--- scrollBarTemplate, none of which can be verified without launching the client, while a
--- track and a thumb are deterministic.
-
-local SCROLL_STEP = 32
-local BAR_WIDTH = 6
-local MIN_THUMB = 20
-
-local Scroller = {}
-Scroller.__index = Scroller
-
-local function Clamp(value, low, high)
-    if value < low then
-        return low
-    elseif value > high then
-        return high
-    end
-    return value
-end
-
---------------------------------------------------------------------------------
--- Scrollbar
---------------------------------------------------------------------------------
-
--- Measures and redraws the bar, and NOTHING ELSE. In particular it must never
--- scroll: OnVerticalScroll calls it, so a SetVerticalScroll in here is an infinite
--- recursion and a dead settings panel. Moving the scroll position is ScrollTo's
--- job, and Recalculate below is what calls it when the range changes.
-function Scroller:UpdateScrollBar()
-    local viewHeight = self.frame:GetHeight() or 0
-    local contentHeight = self.contentHeight or 0
-    local range = contentHeight - viewHeight
-
-    -- Nothing to scroll: keep the bar out of the way entirely.
-    if range <= 1 or viewHeight <= 0 then
-        self.range = 0
-        self.bar:Hide()
-        return
-    end
-
-    self.range = range
-    self.bar:Show()
-
-    local barHeight = self.bar:GetHeight() or 0
-    local thumbHeight = Clamp((viewHeight / contentHeight) * barHeight, MIN_THUMB, barHeight)
-    self.thumb:SetHeight(thumbHeight)
-
-    local travel = barHeight - thumbHeight
-    local fraction = range > 0 and (self.frame:GetVerticalScroll() / range) or 0
-    self.thumb:ClearAllPoints()
-    self.thumb:SetPoint("TOP", self.bar, "TOP", 0, -Clamp(fraction * travel, 0, travel))
-end
-
-function Scroller:ScrollTo(value)
-    self.frame:SetVerticalScroll(Clamp(value, 0, self.range or 0))
-end
-
--- Start the view `offset` under the canvas's top, leaving that much to a fixed header.
-function Scroller:SetTop(offset)
-    self.top = offset
-    self.frame:ClearAllPoints()
-    self.frame:SetPoint("TOPLEFT", self.outer, "TOPLEFT", 0, -offset)
-    self.frame:SetPoint("BOTTOMRIGHT", self.outer, "BOTTOMRIGHT", 0, 0)
-    self:Recalculate()
-end
-
--- Re-measure, then pull the scroll position back inside whatever range is left.
--- Without the second half, shrinking the viewport's content leaves the view parked
--- past the end of it, showing empty space under the last control.
-function Scroller:Recalculate()
-    self:UpdateScrollBar()
-    self:ScrollTo(self.frame:GetVerticalScroll())
-end
-
--- How tall the content actually is. The caller knows, because it laid the widgets
--- out; nothing here can measure a frame whose children are absolutely positioned.
-function Scroller:SetContentHeight(height)
-    self.contentHeight = height
-    self.child:SetHeight(height)
-    self:Recalculate()
-end
-
--- The game's minimal scroll bar (MinimalScrollBar): its track and its small thumb, each drawn
--- in three pieces, where the client has them; a plain bar where it does not.
-local function ThreePiece(frame, layer, top, middle, bottom)
-    local first = AtlasTexture(frame, layer, top, true)
-    local last = AtlasTexture(frame, layer, bottom, true)
-    local mid = AtlasTexture(frame, layer, middle, false)
-    if not (first and last and mid) then return nil end
-    first:SetPoint("TOP", frame, "TOP", 0, 0)
-    last:SetPoint("BOTTOM", frame, "BOTTOM", 0, 0)
-    mid:SetPoint("TOPLEFT", first, "BOTTOMLEFT", 0, 0)
-    mid:SetPoint("BOTTOMRIGHT", last, "TOPRIGHT", 0, 0)
-    return { first, mid, last }
-end
-
-local function BuildScrollBar(view, parent)
-    local minimal = HasAtlas("minimal-scrollbar-track-top")
-    local barWidth = minimal and 8 or BAR_WIDTH
-    view.barWidth = barWidth
-    local bar = CreateFrame("Frame", nil, parent)
-    bar:SetWidth(barWidth)
-    bar:SetPoint("TOPRIGHT", view.frame, "TOPRIGHT", 0, minimal and -4 or 0)
-    bar:SetPoint("BOTTOMRIGHT", view.frame, "BOTTOMRIGHT", 0, minimal and 7 or 0)
-    bar:Hide()
-
-    if not (minimal and ThreePiece(bar, "BACKGROUND", "minimal-scrollbar-track-top",
-        "!minimal-scrollbar-track-middle", "minimal-scrollbar-track-bottom")) then
-        local track = bar:CreateTexture(nil, "BACKGROUND")
-        track:SetAllPoints()
-        track:SetColorTexture(1, 1, 1, 0.06)
-    end
-
-    local thumb = CreateFrame("Button", nil, bar)
-    thumb:SetWidth(barWidth)
-    thumb:SetHeight(MIN_THUMB)
-    thumb:SetPoint("TOP", bar, "TOP", 0, 0)
-
-    local pieces = minimal and ThreePiece(thumb, "ARTWORK", "minimal-scrollbar-small-thumb-top",
-        "minimal-scrollbar-small-thumb-middle", "minimal-scrollbar-small-thumb-bottom")
-    local thumbTex
-    if not pieces then
-        thumbTex = thumb:CreateTexture(nil, "ARTWORK")
-        thumbTex:SetAllPoints()
-    end
-    local over = false
-    -- Brighter under the pointer and while held, as the game's thumb is.
-    local function Look()
-        local alpha = (view.dragging or over) and 1 or 0.8
-        if pieces then
-            for _, piece in ipairs(pieces) do piece:SetAlpha(alpha) end
-        else
-            thumbTex:SetColorTexture(1, 0.82, 0, (view.dragging or over) and 0.75 or 0.45)
-        end
-    end
-    Look()
-
-    Script(thumb, "OnEnter", function() over = true; Look() end)
-    Script(thumb, "OnLeave", function() over = false; Look() end)
-
-    -- The cursor's height in the bar's own units: the settings window has a scale of its own,
-    -- so UIParent's would move the thumb faster or slower than the pointer.
-    local function CursorY()
-        local _, y = GetCursorPosition()
-        local scale = (bar.GetEffectiveScale and bar:GetEffectiveScale())
-            or (UIParent and UIParent:GetEffectiveScale()) or 1
-        return y / scale
-    end
-    -- Held from the press, as the game's is, not from a drag the client starts a few pixels
-    -- later; and held where it was taken, so the thumb moves with the pointer rather than
-    -- jumping to centre on it.
-    local function Release()
-        if not view.dragging then return end
-        view.dragging = false
-        Look()
-        Sound(TICK)
-    end
-    Script(thumb, "OnMouseDown", function(_, button)
-        if button and button ~= "LeftButton" then return end
-        view.grab = (thumb:GetTop() or 0) - CursorY()
-        view.dragging = true
-        Look()
-    end)
-    Script(thumb, "OnMouseUp", Release)
-    Script(thumb, "OnHide", Release)
-
-    -- Map the cursor's Y position onto the scroll range while dragging.
-    Script(bar, "OnUpdate", function()
-        if not view.dragging then
-            return
-        end
-        -- Let go outside the client's window, the thumb never hears it.
-        if IsMouseButtonDown and not IsMouseButtonDown("LeftButton") then
-            Release()
-            return
-        end
-
-        local barHeight = bar:GetHeight() or 0
-        local thumbHeight = thumb:GetHeight() or 0
-        local travel = barHeight - thumbHeight
-        if travel <= 0 then
-            return
-        end
-
-        local offset = (bar:GetTop() or 0) - (CursorY() + (view.grab or thumbHeight / 2))
-        view:ScrollTo((Clamp(offset, 0, travel) / travel) * (view.range or 0))
-    end)
-
-    view.bar = bar
-    view.thumb = thumb
-end
-
---------------------------------------------------------------------------------
--- Construction
---------------------------------------------------------------------------------
-
--- Fills `parent`. Anchor widgets inside the returned `child`, then call
--- SetContentHeight with how far down they reach.
-function Layout.Scroll(parent)
-    local view = setmetatable({}, Scroller)
-    view.range = 0
-    view.contentHeight = 0
-
-    local scroll = CreateFrame("ScrollFrame", nil, parent)
-    scroll:SetAllPoints(parent)
-    if scroll.SetClipsChildren then
-        scroll:SetClipsChildren(true)
-    end
-    scroll:EnableMouseWheel(true)
-    Script(scroll, "OnMouseWheel", function(_, delta)
-        view:ScrollTo(scroll:GetVerticalScroll() - (delta * SCROLL_STEP))
-    end)
-    Script(scroll, "OnVerticalScroll", function()
-        view:UpdateScrollBar()
-    end)
-
-    local child = CreateFrame("Frame", nil, scroll)
-    child:SetSize(1, 1)
-    scroll:SetScrollChild(child)
-
-    view.frame = scroll
-    view.child = child
-    view.outer = parent
-    -- Found by Layout:Intro, which puts a page's header on the canvas over the view.
-    child.layoutScroller = view
-
-    BuildScrollBar(view, parent)
-
-    -- A canvas has no resolved size until the settings window lays it out, so the
-    -- viewport height -- and with it whether there is anything to scroll at all --
-    -- is not known at construction time. Setting the child's width does not resize
-    -- the ScrollFrame, so this cannot recurse.
-    -- Belt and braces: the settings window can size its canvas before this is ever
-    -- shown, in which case OnSizeChanged has already fired and there is nothing to
-    -- recompute -- but a bar left hidden because the height was still 0 at that
-    -- moment is invisible until something else resizes.
-    Script(scroll, "OnShow", function()
-        view:Recalculate()
-    end)
-
-    Script(scroll, "OnSizeChanged", function(self)
-        local width = self:GetWidth() or 0
-        if width > 0 then
-            child:SetWidth(width - (view.barWidth or BAR_WIDTH) - 2)
-        end
-        view:Recalculate()
-    end)
-
-    return view
 end
 
 SpokenLayout = Layout
