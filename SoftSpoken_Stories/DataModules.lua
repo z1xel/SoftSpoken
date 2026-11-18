@@ -754,14 +754,14 @@ end
 
 ---@alias QuestIDLookupSource "accept"|"progress"|"complete"
 
----@param source QuestIDLookupSource
+---@param questStage QuestIDLookupSource
 ---@param title string
 ---@param npcName string
 ---@param text string
 ---@return number questID
-function DataModules:GetQuestID(source, title, npcName, text)
+function DataModules:GetQuestID(questStage, title, npcName, text)
     -- A missing or still-loading quest page has no safe quest ID to resolve.
-    if type(source) ~= "string" or type(title) ~= "string" or title == "" then
+    if type(questStage) ~= "string" or type(title) ~= "string" or title == "" then
         return nil
     end
     -- NPC identity and dialogue text may be absent during 1.12 frame transitions.
@@ -776,7 +776,7 @@ function DataModules:GetQuestID(source, title, npcName, text)
     for _, module in self:GetModules() do
         local data = module.QuestIDLookup
         if data then
-            local titleLookup = data[source] and data[source][cleanedTitle]
+            local titleLookup = data[questStage] and data[questStage][cleanedTitle]
             if titleLookup then
                 if type(titleLookup) == "number" then
                     return titleLookup

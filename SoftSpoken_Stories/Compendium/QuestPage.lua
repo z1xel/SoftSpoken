@@ -48,9 +48,9 @@ local function Stored()
     return SSCQuestJournal.dialogue
 end
 local function SavedText(id,stage)
-    local db=Stored()
-    local r=db and db[id]
-    return r and r[stage]
+    local questTextDB=Stored()
+    local entry=questTextDB and questTextDB[id]
+    return entry and entry[stage]
 end
 local MULTIPLE_LABEL="Multiple speakers possible"
 local function SpeakerLabel(id,stage)
@@ -719,15 +719,15 @@ capture:SetScript("OnEvent",function(frame,eventName)
     if not id then
         local d=Data()
         if d and d.GetQuestID then
-            local source=stage=="accept" and "accept" or stage=="progress" and "progress" or "complete"
+            local questStage=stage=="accept" and "accept" or stage=="progress" and "progress" or "complete"
             local npc=v and v.Utils and v.Utils.GetNPCName and API(v.Utils.GetNPCName,v.Utils)
-            id=Number(API(d.GetQuestID,d,source,title or "",npc or "",text or ""))
+            id=Number(API(d.GetQuestID,d,questStage,title or "",npc or "",text or ""))
         end
     end
     if not id or type(text)~="string" or text=="" then return end
-    local db=Stored()
-    db[id]=db[id] or {}
-    db[id][stage]=text
+    local questTextDB=Stored()
+    questTextDB[id]=questTextDB[id] or {}
+    questTextDB[id][stage]=text
     if QuestState:IsSeen(id) and SSCQuestsTab and SSCQuestsTab.Refresh then
         local C=SSCCompendium
         if C and C.Active and C:Active()=="quests" then SSCQuestsTab:Refresh() end

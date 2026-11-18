@@ -7,14 +7,14 @@ QuestState.revision = 0
 local ask = {}
 local function Saved()
     if type(SSCQuestJournal) ~= "table" then SSCQuestJournal = {} end
-    local db = SSCQuestJournal
-    if type(db.seen) ~= "table" then db.seen = {} end
-    if type(db.completed) ~= "table" then db.completed = {} end
-    if type(db.titles) ~= "table" then db.titles = {} end
-    if type(db.settings) ~= "table" then db.settings = {} end
+    local questJournal = SSCQuestJournal
+    if type(questJournal.seen) ~= "table" then questJournal.seen = {} end
+    if type(questJournal.completed) ~= "table" then questJournal.completed = {} end
+    if type(questJournal.titles) ~= "table" then questJournal.titles = {} end
+    if type(questJournal.settings) ~= "table" then questJournal.settings = {} end
     -- First-use Compendium filter; preserve an explicitly saved false.
-    if db.settings.foundOnly == nil then db.settings.foundOnly = true end
-    return db
+    if questJournal.settings.foundOnly == nil then questJournal.settings.foundOnly = true end
+    return questJournal
 end
 QuestState.Saved = Saved
 local function ValidID(id)
@@ -56,34 +56,34 @@ function QuestState:IsCompleted(id)
     return Saved().completed[id] == true
 end
 function QuestState:IsSeen(id)
-    local db = Saved()
-    return db.seen[id] == true or db.completed[id] == true or active[id] == true
+    local questJournal = Saved()
+    return questJournal.seen[id] == true or questJournal.completed[id] == true or active[id] == true
 end
 function QuestState:SeenIDs()
     local ids = {}
-    local db = Saved()
-    for id in pairs(db.seen) do ids[id] = true end
-    for id in pairs(db.completed) do ids[id] = true end
+    local questJournal = Saved()
+    for id in pairs(questJournal.seen) do ids[id] = true end
+    for id in pairs(questJournal.completed) do ids[id] = true end
     for id in pairs(active) do ids[id] = true end
     return ids
 end
 function QuestState:MarkSeen(id, title)
     id=ValidID(id)
     if not id then return end
-    local db=Saved()
-    if not db.seen[id] then QuestState.revision=QuestState.revision+1 end
-    db.seen[id]=true
-    if type(title)=="string" and title~="" then db.titles[id]=title end
+    local questJournal=Saved()
+    if not questJournal.seen[id] then QuestState.revision=QuestState.revision+1 end
+    questJournal.seen[id]=true
+    if type(title)=="string" and title~="" then questJournal.titles[id]=title end
 end
 function QuestState:MarkCompleted(id)
     id=ValidID(id)
     if not id then return end
-    local db=Saved()
-    if db.seen[id]~=true or db.completed[id]~=true then
+    local questJournal=Saved()
+    if questJournal.seen[id]~=true or questJournal.completed[id]~=true then
         self.revision=self.revision+1
     end
-    db.seen[id]=true
-    db.completed[id]=true
+    questJournal.seen[id]=true
+    questJournal.completed[id]=true
     active[id]=nil
 end
 -- ClassicAPI receives Turtle's rewarded quest IDs from the server and caches
@@ -92,12 +92,12 @@ function QuestState:ImportCompletedQuests()
     if type(GetQuestsCompleted)~="function" then return 0 end
     local ok,completed=pcall(GetQuestsCompleted)
     if not ok or type(completed)~="table" then return 0 end
-    local db=Saved()
+    local questJournal=Saved()
     local added=0
     for rawID,done in pairs(completed) do
         local id=ValidID(rawID)
-        if id and done==true and db.completed[id]~=true then
-            db.completed[id]=true
+        if id and done==true and questJournal.completed[id]~=true then
+            questJournal.completed[id]=true
             added=added+1
         end
     end

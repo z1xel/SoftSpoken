@@ -16,12 +16,12 @@ local anchoredOutside -- nil until the first map geometry check
 
 local function Settings()
     if type(SSZCharacter) ~= "table" then SSZCharacter = {} end
-    local char = SSZCharacter
-    if type(char.settings) ~= "table" then char.settings = {} end
-    local s = char.settings
-    if s.mapPanelCollapsed == nil then s.mapPanelCollapsed = false end
-    if s.showMapPanel == nil then s.showMapPanel = true end
-    return s
+    local characterDB = SSZCharacter
+    if type(characterDB.settings) ~= "table" then characterDB.settings = {} end
+    local settings = characterDB.settings
+    if settings.mapPanelCollapsed == nil then settings.mapPanelCollapsed = false end
+    if settings.showMapPanel == nil then settings.showMapPanel = true end
+    return settings
 end
 
 -- Turtle WoW's actual minimized World Map border, sourced directly from

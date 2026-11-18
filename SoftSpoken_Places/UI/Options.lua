@@ -108,7 +108,7 @@ local function Build()
         for _, pack in ipairs(PlacesRuntime.AudioPackDetails()) do
             local entry = pack
             local addon = entry.addon
-            local source = entry.source
+            local voicePack = entry.source
             local version = GetAddOnMetadata and GetAddOnMetadata(addon, "Version")
             local loaded = IsAddOnLoaded and IsAddOnLoaded(addon)
             local demand = IsAddOnLoadOnDemand and IsAddOnLoadOnDemand(addon)
@@ -132,16 +132,16 @@ local function Build()
                 table.insert(fields, { label = "Load on Demand", value = demand and YES or NO })
             end
             table.insert(result, {
-                id = addon, source = source, name = entry.title,
+                id = addon, source = voicePack, name = entry.title,
                 version = version, status = "Registered", details = fields,
                 extra = function()
                     local zones, subzones = 0, 0
-                    for _, recording in pairs(source.zones or {}) do
+                    for _, recording in pairs(voicePack.zones or {}) do
                         if type(recording) == "table" and recording.file and recording.len then
                             zones = zones + 1
                         end
                     end
-                    for _, byZone in pairs(source.subzones or {}) do
+                    for _, byZone in pairs(voicePack.subzones or {}) do
                         if type(byZone) == "table" then
                             for _, recording in pairs(byZone) do
                                 if type(recording) == "table" and recording.file and recording.len then

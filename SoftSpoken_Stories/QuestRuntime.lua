@@ -60,11 +60,11 @@ local ResolveQuestID, NoteGossipPage
 -- Each quest event's line: the sound it is keyed by, the data module's name for the
 -- interaction, and the global its text is read from.
 local QUEST_EVENTS = {
-    QUEST_DETAIL = { sound = Enums.SoundEvent.QuestAccept, source = "accept",
+    QUEST_DETAIL = { sound = Enums.SoundEvent.QuestAccept, questStage = "accept",
         text = function() return GetQuestText and NotSecret(GetQuestText()) or "" end },
-    QUEST_PROGRESS = { sound = Enums.SoundEvent.QuestProgress, source = "progress",
+    QUEST_PROGRESS = { sound = Enums.SoundEvent.QuestProgress, questStage = "progress",
         text = function() return GetProgressText and NotSecret(GetProgressText()) or "" end },
-    QUEST_COMPLETE = { sound = Enums.SoundEvent.QuestComplete, source = "complete",
+    QUEST_COMPLETE = { sound = Enums.SoundEvent.QuestComplete, questStage = "complete",
         text = function() return GetRewardText and NotSecret(GetRewardText()) or "" end },
 }
 
@@ -74,7 +74,7 @@ local QUEST_EVENTS = {
 local function QuestIDFor(event)
     local quest = QUEST_EVENTS[event]
     if quest and Addon.NoteLegacyQuestEvent then
-        Addon:NoteLegacyQuestEvent(quest.source, quest.text())
+        Addon:NoteLegacyQuestEvent(quest.questStage, quest.text())
     end
     return GetQuestID and NotSecret(GetQuestID()) or 0
 end
@@ -84,7 +84,7 @@ end
 --- hooks on the legacy client.
 function Addon:DialogQuestID(event)
     local quest = QUEST_EVENTS[event]
-    return ResolveQuestID(quest.source, QuestIDFor(event), QuestTitle(),
+    return ResolveQuestID(quest.questStage, QuestIDFor(event), QuestTitle(),
         Utils:GetNPCName() or "", quest.text(), true) or 0
 end
 
@@ -141,7 +141,7 @@ end
 --- Every read goes through here, automatic or not. `manual` is a player asking for this
 --- line - the Play button, /spq read - rather than the client reporting a dialog, so it reads
 --- whatever autoplay and the greeting frequency say.
-function Addon:InvokeQuestHandler(event, source, manual)
+function Addon:InvokeQuestHandler(event, dispatchOrigin, manual)
     local handler = self[event]
     if not handler then
         Debug:Record("handler-missing", format("No handler exists for %s", tostring(event)))
@@ -161,9 +161,9 @@ function Addon:InvokeQuestHandler(event, source, manual)
             Debug:Record("greeting-wait-error", tostring(greetingError))
         end
     end
-    Debug:Record("quest-dispatch", format("Dispatching %s through %s", event, source or "manual reader"))
+    Debug:Record("quest-dispatch", format("Dispatching %s through %s", event, dispatchOrigin or "manual reader"))
     -- Where the lines this queues come from, for the debug log (Player:Enqueue keeps it on each).
-    Player.origin = Player:Origin(event, source, manual)
+    Player.origin = Player:Origin(event, dispatchOrigin, manual)
     local succeeded, errorMessage = pcall(handler, self, event, manual)
     Player.origin = nil
     if not succeeded then
@@ -243,7 +243,7 @@ function Addon:GetVisibleLine(event)
     local speech = event and SPEECH_EVENTS[event]
     local probe
     if quest then
-        local questID = ResolveQuestID(quest.source, QuestIDFor(event),
+        local questID = ResolveQuestID(quest.questStage, QuestIDFor(event),
             QuestTitle(), Utils:GetNPCName() or "", quest.text(), true)
         if not questID then
             return nil
@@ -271,13 +271,13 @@ function Addon:GetVisibleLine(event)
 end
 
 --- Read the dialog on screen because the player asked to.
-function Addon:ReadVisibleQuest(source)
+function Addon:ReadVisibleQuest(dispatchOrigin)
     local event = GetVisibleDialogueEvent()
     if not event then
         Debug:Record("visible-panel-missing", "GetQuestID returned 0 and no Blizzard quest or gossip panel is visible")
         return false
     end
-    return self:InvokeQuestHandler(event, source or "visible quest reader", true)
+    return self:InvokeQuestHandler(event, dispatchOrigin or "visible quest reader", true)
 end
 
 ---@class VoiceOverConfig
@@ -548,7 +548,7 @@ function Addon:OnInitialize()
         end
     end
 
-    local function DispatchDirectEvent(event, source)
+    local function DispatchDirectEvent(event, dispatchOrigin)
         local now = GetTime()
         local questID = DispatchQuestID(event)
         local previous = lastDispatch[event]
@@ -570,7 +570,7 @@ function Addon:OnInitialize()
         end
 
         dispatching[event] = true
-        local succeeded = self:InvokeQuestHandler(event, source, false)
+        local succeeded = self:InvokeQuestHandler(event, dispatchOrigin, false)
         dispatching[event] = nil
         if not succeeded then
             return
@@ -586,8 +586,8 @@ function Addon:OnInitialize()
             lastDispatch[event] = nil
         end
     end
-    self.DispatchDirectEvent = function(addon, event, source)
-        return DispatchDirectEvent(event, source or "manual dispatch")
+    self.DispatchDirectEvent = function(addon, event, dispatchOrigin)
+        return DispatchDirectEvent(event, dispatchOrigin or "manual dispatch")
     end
 
     -- Greeting globals can have the same synchronous-event race. Coalesce the
@@ -598,7 +598,7 @@ function Addon:OnInitialize()
         GOSSIP_SHOW = true,
     }
     local deferredEventGeneration = {}
-    local function SignalDirectEvent(event, source)
+    local function SignalDirectEvent(event, dispatchOrigin)
         -- Also reached by the panel OnShow / QuestFrame hooks, not only the
         -- direct-event frame. Arm the gate before the 0.1-second speech deferral.
         if QUEST_EVENTS[event] or SPEECH_EVENTS[event] then
@@ -613,14 +613,14 @@ function Addon:OnInitialize()
             deferredEventGeneration.GOSSIP_SHOW = (deferredEventGeneration.GOSSIP_SHOW or 0) + 1
         end
         if not deferredSpeechEvents[event] then
-            DispatchDirectEvent(event, source)
+            DispatchDirectEvent(event, dispatchOrigin)
             return
         end
         local generation = (deferredEventGeneration[event] or 0) + 1
         deferredEventGeneration[event] = generation
         self:ScheduleTimer(function()
             if deferredEventGeneration[event] == generation then
-                DispatchDirectEvent(event, source .. " (deferred)")
+                DispatchDirectEvent(event, dispatchOrigin .. " (deferred)")
             end
         end, 0.1)
     end
@@ -871,7 +871,7 @@ local function QuestSoundDataAdded(soundData)
     currentQuestSoundData = soundData
 end
 
-function ResolveQuestID(source, questID, questTitle, targetName, questText, quiet)
+function ResolveQuestID(questStage, questID, questTitle, targetName, questText, quiet)
     if questID and questID ~= 0 then
         return questID
     end
@@ -880,7 +880,7 @@ function ResolveQuestID(source, questID, questTitle, targetName, questText, quie
     -- QUEST_DETAIL frame is already populated. Resolve it through the loaded
     -- data module's title/NPC/text index instead of silently abandoning the
     -- event. This also handles ambiguous repeated quest titles.
-    local fallbackID = DataModules:GetQuestID(source, questTitle or "", targetName or "", questText or "")
+    local fallbackID = DataModules:GetQuestID(questStage, questTitle or "", targetName or "", questText or "")
     if fallbackID then
         if quiet then
             return fallbackID

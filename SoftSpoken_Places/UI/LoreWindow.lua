@@ -7,7 +7,7 @@ local CONTINENTS = { [1414]="Kalimdor", [1415]="Eastern Kingdoms" }
 local CONTINENT_OF = Compendium.KNOWN_CONTINENT
 
 local rows = {}
-local selectedID, selectedKey
+local selectedMapID, selectedAreaKey
 local expandedZone, expandedCity
 local openWorld = true
 local openContinent = { [1414]=true, [1415]=true }
@@ -21,10 +21,10 @@ local function Lore()
 end
 local function Settings()
     if type(SSZCharacter) ~= "table" then SSZCharacter={} end
-    local db=SSZCharacter
-    if type(db.settings)~="table" then db.settings={} end
-    if type(db.heard)~="table" then db.heard={} end
-    return db.settings, db.heard
+    local characterDB=SSZCharacter
+    if type(characterDB.settings)~="table" then characterDB.settings={} end
+    if type(characterDB.heard)~="table" then characterDB.heard={} end
+    return characterDB.settings, characterDB.heard
 end
 local function ZoneName(id)
     local entry=Lore().zones[id]
@@ -353,11 +353,11 @@ end
 -- the page widgets, supply the same structured entry used by upstream's
 -- ShowEntry(). LorePage can render this without changing its 1.12 appearance.
 local function ShowEntry()
-    if not selectedID then
+    if not selectedMapID then
         return {title="Places",subtitle="Zones, cities and subzones",
             text="Select a place to read its history and replay available recordings."}
     end
-    local id,key=selectedID,selectedKey
+    local id,key=selectedMapID,selectedAreaKey
     local zone=Lore().zones[id]
     local sub=key and Lore().subzones[id]
     local entry
@@ -391,7 +391,7 @@ end
 
 local function Select(item)
     if not item or item.locked then return end
-    selectedID,selectedKey=item.id,item.key
+    selectedMapID,selectedAreaKey=item.id,item.key
     if searching=="" then
         if item.kind=="world" then openWorld=not openWorld
         elseif item.kind=="continent" then openContinent[item.id]=not openContinent[item.id]
@@ -410,7 +410,7 @@ end
 
 function LoreWindow.RebuildRows() RebuildRows(); return rows end
 function LoreWindow.ProgressText(item) return ProgressText(item) end
-function LoreWindow.IsSelected(item) return selectedID==item.id and selectedKey==item.key end
+function LoreWindow.IsSelected(item) return selectedMapID==item.id and selectedAreaKey==item.key end
 function LoreWindow.Lore() return Lore() end
 function LoreWindow.ZoneName(id) return ZoneName(id) end
 function LoreWindow.HasVoice(id,key) return HasVoice(id,key) end
@@ -426,7 +426,7 @@ function LoreWindow.Reveal(mapID,key) Reveal(mapID,key) end
 -- It clears search so the revealed parent is visible in the left tree.
 function LoreWindow.Navigate(mapID,key)
     if not mapID then return end
-    selectedID,selectedKey=mapID,key
+    selectedMapID,selectedAreaKey=mapID,key
     Reveal(mapID,key)
     searching=""
     if list and list.ClearSearch then list:ClearSearch() end
@@ -437,7 +437,7 @@ function LoreWindow.SetSearch(text)
 end
 function LoreWindow.OpenSelection(mapID,areaKey)
     if mapID then
-        selectedID,selectedKey=mapID,areaKey
+        selectedMapID,selectedAreaKey=mapID,areaKey
         Reveal(mapID,areaKey)
     end
     searching=""
@@ -526,7 +526,7 @@ function LoreWindow.SetupLoreWindow()
         label="Places",order=1,title="Azeroth's Compendium",
         build=BuildPanel,
         onReselect=function()
-            selectedID,selectedKey=nil,nil
+            selectedMapID,selectedAreaKey=nil,nil
             LoreWindow.Refresh()
         end,
         onShow=function()

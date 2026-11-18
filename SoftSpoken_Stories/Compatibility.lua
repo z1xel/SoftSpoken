@@ -5,7 +5,7 @@ setfenv(1, VoiceOver)
 -- files load, so top-level frames also receive the Core wrappers.
 
 if not GetQuestID then
-    local source, text
+    local questStage, text
     local selectedQuest -- ClassicAPI gossip selection, valid only for this quest conversation.
     local GetTitleText = GetTitleText -- Store original function before EQL3 overrides it
 
@@ -24,13 +24,13 @@ if not GetQuestID then
     end
 
     -- Told by QuestRuntime.lua's QuestIDFor just before it asks which quest this is.
-    function Addon:NoteLegacyQuestEvent(eventSource, eventText)
-        source = eventSource
+    function Addon:NoteLegacyQuestEvent(eventStage, eventText)
+        questStage = eventStage
         text = eventText
     end
 
     function GetQuestID()
-        if not source then return 0 end
+        if not questStage then return 0 end
         local title = GetTitleText()
         if type(title) ~= "string" or title == "" then return 0 end
         local npcName = Utils:GetNPCName() or ""
@@ -39,15 +39,15 @@ if not GetQuestID then
         -- gossip list. Verify title, NPC, and accept-vs-turn-in context.
         if selectedQuest and selectedQuest.title == title and
            (selectedQuest.npcName == "" or selectedQuest.npcName == npcName) and
-           ((source == "accept" and selectedQuest.kind == "available") or
-            (source ~= "accept" and selectedQuest.kind == "active")) then
+           ((questStage == "accept" and selectedQuest.kind == "available") or
+            (questStage ~= "accept" and selectedQuest.kind == "active")) then
             return selectedQuest.id
         end
 
         -- A progress/turn-in quest is already in the log. Only trust a title
         -- when exactly one distinct positive real ID matches; duplicated
         -- titles fall back to Spoken's existing NPC/text-aware resolver.
-        if source ~= "accept" and C_QuestLog and
+        if questStage ~= "accept" and C_QuestLog and
            type(C_QuestLog.GetQuestIDForLogIndex) == "function" and GetNumQuestLogEntries then
             local matchedID
             local entries = GetNumQuestLogEntries() or 0
@@ -71,7 +71,7 @@ if not GetQuestID then
             -- Shared quest: keep upstream's original handling.
             return 0
         end
-        return DataModules:GetQuestID(source, title, npcName, text or "") or 0
+        return DataModules:GetQuestID(questStage, title, npcName, text or "") or 0
     end
 end
 

@@ -9,7 +9,7 @@ local QuestCatalog=SSCQuestCatalog
 local Preload=SSCQuestPortraitPreload
 local list,panel,page,details,tree
 local treeRevision=-1
-local selectedID
+local selectedQuestID
 local opened={ ["continent:1414"]=true,["continent:1415"]=true,["section:other"]=true }
 local filter=""
 local searchClosed={}
@@ -127,19 +127,19 @@ function QuestsTab:BuildRows()
     return rows
 end
 function QuestsTab:IsSelected(item)
-    return item.leaf and item.id==selectedID or false
+    return item.leaf and item.id==selectedQuestID or false
 end
 local function PageEntry()
     if QuestsTab.loadError and not tree then
         return {title="Stories",subtitle="Missing companion data",text=QuestsTab.loadError,empty=true}
     end
-    if not selectedID then
+    if not selectedQuestID then
         return {title="Stories",subtitle="Quest acceptance, progress and completion",
             text="Select a quest to read its dialogue and replay available recordings."}
     end
-    local entry=QuestCatalog:Entry(selectedID)
-    local title=QuestCatalog:Title(selectedID,true)
-    local status=Status(selectedID)
+    local entry=QuestCatalog:Entry(selectedQuestID)
+    local title=QuestCatalog:Title(selectedQuestID,true)
+    local status=Status(selectedQuestID)
     local place=""
     if entry and type(entry.zones)=="table" and table.getn(entry.zones)>0 then
         local names={}
@@ -160,21 +160,21 @@ local function PageEntry()
     else
         place="Place unknown (Turtle/uncatalogued quest)"
     end
-    return {title=title,subtitle=place.."  ·  "..status,key="quest:"..selectedID,
+    return {title=title,subtitle=place.."  ·  "..status,key="quest:"..selectedQuestID,
         text=""}
 end
 function QuestsTab:Refresh()
     if not list then return end
     -- Turning off the Settings unlock checkbox must also revoke any
     -- previously selected undiscovered quest's detail page.
-    if selectedID and not QuestState:IsSeen(selectedID) and not Settings("unlock") then
-        selectedID=nil
+    if selectedQuestID and not QuestState:IsSeen(selectedQuestID) and not Settings("unlock") then
+        selectedQuestID=nil
     end
     -- Selected quest first; visible-row work starts only after the list redraw.
     if Preload then
         if Compendium and Compendium.IsOpen and Compendium:IsOpen("quests") then
             Preload:Start()
-            Preload:Selected(selectedID)
+            Preload:Selected(selectedQuestID)
         else
             Preload:Stop()
         end
@@ -183,13 +183,13 @@ function QuestsTab:Refresh()
     if page then
         local entry=PageEntry()
         page:Show(entry)
-        if details then details:Show(selectedID) end
+        if details then details:Show(selectedQuestID) end
     end
 end
 function QuestsTab:Select(item)
     if item.leaf then
         if item.locked then return end
-        selectedID=item.id
+        selectedQuestID=item.id
     else
         if filter~="" then
             -- Upstream allows closing a branch even when search opens it.
@@ -260,7 +260,7 @@ if Compendium and Compendium.Register and not Compendium:Tab("quests") then
         onHide=function() if Preload then Preload:Stop() end end,
         -- A second click on the currently selected tab returns to its landing
         -- page; switching away and back never clears the current quest.
-        onReselect=function() selectedID=nil;QuestsTab:Refresh() end,
+        onReselect=function() selectedQuestID=nil;QuestsTab:Refresh() end,
         -- The Quests module switch governs both audio and its Compendium page.
         -- Gossip has its own independent narration switch.
         enabled=function() return Spoken and Spoken.IsPartOn and Spoken:IsPartOn("quests") end,

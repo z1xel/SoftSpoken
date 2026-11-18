@@ -77,9 +77,9 @@ function Writings:DiscoverySummary(book)
 end
 function Writings:RecordBookLocation(book, mapID, how)
     if not book or not mapID or not (Compendium and Compendium.MapName) then return false end
-    local db=Character()
-    local locations=db.locations[book]
-    if type(locations)~="table" then locations={}; db.locations[book]=locations end
+    local characterDB=Character()
+    local locations=characterDB.locations[book]
+    if type(locations)~="table" then locations={}; characterDB.locations[book]=locations end
     if locations[mapID] then return false end
     locations[mapID]=how or "encounter"
     if self.ReadablesLocationChanged then self:ReadablesLocationChanged() end
@@ -227,9 +227,9 @@ function Writings:MarkBookFound(book)
         if dirty then bags:Hide();dirty=false;elapsed=0;Reconcile() end
         local title=ItemTextGetItem and ItemTextGetItem()
         local itemID=UniqueInventoryItem(title)
-        local source=itemID and Character().acquisitions[itemID]
-        if type(source)=="table" then
-            for zone,count in pairs(source) do
+        local acquisitionZones=itemID and Character().acquisitions[itemID]
+        if type(acquisitionZones)=="table" then
+            for zone,count in pairs(acquisitionZones) do
                 if count>0 then self:RecordBookLocation(book,zone,"acquired") end
             end
         end

@@ -270,13 +270,13 @@ local WINDOWS = {
 }
 
 --- Where a line comes from, as the debug log says it: the window an event stands for, and
---- whether it was read automatically or asked for (`source`: the Play button, /spq read, ...).
-function Player:Origin(event, source, manual)
+--- whether it was read automatically or asked for (`dispatchOrigin`: the Play button, /spq read, ...).
+function Player:Origin(event, dispatchOrigin, manual)
     local window = WINDOWS[event] or tostring(event)
     if manual then
-        return window .. ", asked for with " .. tostring(source or "a reader")
+        return window .. ", asked for with " .. tostring(dispatchOrigin or "a reader")
     end
-    return window .. ", read automatically (" .. tostring(source or "event") .. ")"
+    return window .. ", read automatically (" .. tostring(dispatchOrigin or "event") .. ")"
 end
 
 --- What a line says of where it came from, on the `queued` stage: the debug log's reader asks

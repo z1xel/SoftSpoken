@@ -66,17 +66,16 @@ function Writings:SetupOptions()
     layout:PackInventory(function()
         local result = {}
         for _, pack in ipairs(Writings:GetAudioPacks()) do
-            local source = pack
-            local addon = source.addon
+            local addon = pack.addon
             local version = addon and GetAddOnMetadata and GetAddOnMetadata(addon, "Version")
             local loaded = addon and IsAddOnLoaded and IsAddOnLoaded(addon)
             local demand = addon and IsAddOnLoadOnDemand and IsAddOnLoadOnDemand(addon)
             local fields = {
                 { label = "Addon", value = addon },
-                { label = "Pack Title", value = source.title or addon },
+                { label = "Pack Title", value = pack.title or addon },
                 { label = "Content Version", value = version },
-                { label = "Data Format", value = source.version },
-                { label = "Language", value = Writings:GetLanguageName(Writings:PackLanguage(source)) },
+                { label = "Data Format", value = pack.version },
+                { label = "Language", value = Writings:GetLanguageName(Writings:PackLanguage(pack)) },
                 { label = "Registered", value = YES },
                 { label = "Loaded", value = loaded and YES or NO },
             }
@@ -84,11 +83,11 @@ function Writings:SetupOptions()
                 table.insert(fields, { label = "Load on Demand", value = demand and YES or NO })
             end
             table.insert(result, {
-                id = addon, source = source, name = source.title or addon,
+                id = addon, source = pack, name = pack.title or addon,
                 version = version, status = "Registered", details = fields,
                 extra = function()
                     local count = 0
-                    for _, entry in pairs(source.pages or {}) do
+                    for _, entry in pairs(pack.pages or {}) do
                         if type(entry) == "table" and entry.file then
                             count = count + 1
                         end
