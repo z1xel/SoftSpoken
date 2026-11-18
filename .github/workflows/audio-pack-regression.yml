@@ -193,6 +193,8 @@ jobs:
         run: lua5.1 tests/creature_appearance_service.lua
       - name: Check ClassicAPI portrait version compatibility
         run: lua5.1 tests/classicapi_portrait_compatibility.lua
+      - name: Check Vanilla-only minimap and modern portrait cleanup
+        run: lua5.1 tests/modern_client_vestiges_112.lua
       - name: Check official pack priority and fallback
         run: lua5.1 tests/audio_pack_priority_guardrails.lua
       - name: Check legacy and current voice pack registries

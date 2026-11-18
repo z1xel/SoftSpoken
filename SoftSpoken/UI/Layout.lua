@@ -51,7 +51,6 @@ local HEADER_PAD = 10         -- the list's verticalPad under it
 local LABEL_X = 37            -- SettingsListElementMixin: Text at indent + 37...
 local INDENT_STEP = 15        -- indentSize, and a child option's label is GameFontNormalSmall
 local CONTROL_X = -80         -- a checkbox or a slider starts 80 left of the middle
-local DROPDOWN_X = -48        -- a dropdown with its steppers, 48
 local CHECKBOX_W, CHECKBOX_H = 30, 29   -- SettingsCheckboxTemplate
 local SLIDER_WIDTH = 250      -- SettingsSliderControlMixin
 local DROPDOWN_WIDTH = 220    -- SettingsDropdownControlMixin
@@ -1279,15 +1278,11 @@ end
 
 local dropdowns = 0
 
---- A dropdown: the game's settings dropdown, with steppers either side (SettingsDropdownWithButtons
---- Template, the dropdown 220 wide, 48 left of the row's middle), its list the game's own menu.
---- The plain dropdown where the steppers are missing, the classic one where the menu is, and a
---- cycle button where there is no dropdown at all. The list may be a function, for a choice
---- whose options depend on what is installed.
+--- Vanilla UIDropDownMenu, with a cycle-button fallback when the API is unavailable.
+--- The list may be a function when available options vary.
 function Layout:Dropdown(label, tooltip, values, read, write, apply, describe)
     describe = describe or tostring
-    local modern = CreateFrame and MenuUtil ~= nil
-    if not modern and not (UIDropDownMenu_Initialize and UIDropDownMenu_AddButton and CreateFrame) then
+    if not (UIDropDownMenu_Initialize and UIDropDownMenu_AddButton and CreateFrame) then
         return self:Cycle(label .. ": %s", tooltip, values, read, write, apply, describe)
     end
     self:Columns(nil)
@@ -1295,43 +1290,17 @@ function Layout:Dropdown(label, tooltip, values, read, write, apply, describe)
     local hit = Band(parent, ROW_HEIGHT)
     local caption = Caption(parent, label)
 
-    local control, dropdown, Sync, setEnabled, offset
+    local control, Sync, offset
     local function Choose(value)
         write(value)
         if apply then apply() end
         Sync()
     end
-    if modern then
-        local ok, made = pcall(CreateFrame, "Frame", nil, parent, "SettingsDropdownWithButtonsTemplate")
-        if ok and made and made.Dropdown and made.Dropdown.SetupMenu then
-            control, dropdown, offset = made, made.Dropdown, DROPDOWN_X
-        else
-            ok, made = pcall(CreateFrame, "DropdownButton", nil, parent, "WowStyle1DropdownTemplate")
-            if ok and made and made.SetupMenu then control, dropdown, offset = made, made, CONTROL_X end
-        end
-    end
-    if dropdown then
-        dropdown:SetWidth(DROPDOWN_WIDTH)
-        -- Compared by what it says: a list built afresh each time hands back an equal entry, not
-        -- the same table.
-        dropdown:SetupMenu(function(_, root)
-            for _, value in ipairs(Resolve(values)) do
-                local selected = value
-                root:CreateRadio(describe(selected),
-                    function() return describe(read()) == describe(selected) end,
-                    function() Choose(selected) end, selected)
-            end
-        end)
-        Sync = function() if dropdown.GenerateMenu then dropdown:GenerateMenu() end end
-        setEnabled = function(on)
-            if control.SetEnabled then control:SetEnabled(on) else dropdown:SetEnabled(on) end
-        end
-    else
-        dropdowns = dropdowns + 1
-        control = CreateFrame("Frame", "SpokenLayoutDropdown" .. dropdowns, parent, "UIDropDownMenuTemplate")
-        offset = CONTROL_X - 16
-        Sync = function() UIDropDownMenu_SetText(describe(read()), control) end
-        UIDropDownMenu_Initialize(control, function(_, level)
+    dropdowns = dropdowns + 1
+    control = CreateFrame("Frame", "SpokenLayoutDropdown" .. dropdowns, parent, "UIDropDownMenuTemplate")
+    offset = CONTROL_X - 16
+    Sync = function() UIDropDownMenu_SetText(describe(read()), control) end
+    UIDropDownMenu_Initialize(control, function(_, level)
             local current = read()
             for _, value in ipairs(Resolve(values)) do
                 -- Vanilla Lua 5.0 callbacks must capture a fresh local.
@@ -1345,17 +1314,14 @@ function Layout:Dropdown(label, tooltip, values, read, write, apply, describe)
                 end
                 UIDropDownMenu_AddButton(info, level)
             end
-        end)
-        if UIDropDownMenu_SetWidth then UIDropDownMenu_SetWidth(DROPDOWN_WIDTH - 40, control) end
-        control.layoutDropdown = true
-    end
+    end)
+    if UIDropDownMenu_SetWidth then UIDropDownMenu_SetWidth(DROPDOWN_WIDTH - 40, control) end
+    control.layoutDropdown = true
     Above(control, parent)
-    -- The game's dropdowns have an OnShow of their own to keep; the classic one has none.
-    if dropdown then Hook(control, "OnShow", function() Sync() end) else Script(control, "OnShow", Sync) end
+    Script(control, "OnShow", Sync)
     -- What a choice in its list does, and what it offers, for a test to drive it as a player would.
     control.layoutChoose, control.layoutValues, control.layoutRead = Choose, values, read
     control.layoutSync = Sync
-    control.layoutSetEnabled = setEnabled
     control.layoutLabel = caption
     hit.layoutControl, control.layoutHit = control, hit
     Tooltip(hit, label, tooltip)

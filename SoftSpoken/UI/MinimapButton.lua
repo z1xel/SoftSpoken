@@ -9,7 +9,7 @@ setfenv(1, SpokenEnv)
 Minimap = { entries = {} }
 
 local ICON = [[Interface\AddOns\SoftSpoken\icon.tga]]
-local ldbObject, menuFrame, minimapButton
+local ldbObject, menuFrame
 
 -- The player's own entries.
 local PLAYER_ENTRIES = {
@@ -279,9 +279,7 @@ local function ToggleMenu(anchor)
     ShowMenu(anchor)
 end
 
---- One click on the button, wherever it is: on the minimap or in Blizzard's addon
---- compartment. `button` is the frame a menu opens on and the one feature addons get;
---- the lib's own button, not the frame the compartment clicked with (see OnClick).
+--- One click on the LibDBIcon button; feature addons share its menu.
 function Minimap:HandleClick(button, mouseButton)
     local command = self:GetClickCommand(mouseButton)
     if command == "Menu" then
@@ -315,20 +313,6 @@ function Minimap:Setup()
         text = "SoftSpoken",
         icon = ICON,
         OnClick = function(button, mouseButton)
-            -- Blizzard's compartment calls the registered entry with its own menu frame,
-            -- which is closing as the click is handled: a menu opened on it is lost with
-            -- that frame (the first click shows nothing, and the leftover surfaces on
-            -- the next compartment open). From the compartment, wait for the close to
-            -- finish and open on our own button, which neither moves nor closes.
-            if minimapButton and button ~= minimapButton then
-                if C_Timer and C_Timer.After then
-                    C_Timer.After(0.05, function()
-                        Minimap:HandleClick(minimapButton, mouseButton)
-                    end)
-                    return
-                end
-                button = minimapButton
-            end
             Minimap:HandleClick(button, mouseButton)
         end,
         OnTooltipShow = function(tooltip)
@@ -360,9 +344,6 @@ function Minimap:Setup()
         end,
     })
     LibDBIcon:Register("Spoken", ldbObject, db)
-    -- The frame the lib built for this addon. The compartment hands the OnClick a
-    -- different, short-lived frame (see OnClick), so the real button is kept here.
-    minimapButton = LibDBIcon:GetMinimapButton("Spoken")
 end
 
 function Minimap:Refresh()
@@ -372,18 +353,3 @@ function Minimap:Refresh()
     end
 end
 
---- Whether the Spoken button also shows in Blizzard's addon compartment, on the
---- modern clients that have one. The flag is the settings panel's; the lib's add and
---- remove keep the compartment's entry in step. The flag is written last: removing the
---- entry clears it to nil, which AceDB reads back as the default, on.
-function Minimap:ToggleCompartment(shouldShow)
-    local LibDBIcon = LibStub("LibDBIcon-1.0", true)
-    if LibDBIcon then
-        if shouldShow then
-            LibDBIcon:AddButtonToCompartment("Spoken")
-        else
-            LibDBIcon:RemoveButtonFromCompartment("Spoken")
-        end
-    end
-    Addon.db.profile.Minimap.LibDBIcon.showInCompartment = shouldShow
-end

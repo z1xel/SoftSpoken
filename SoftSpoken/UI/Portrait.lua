@@ -20,9 +20,7 @@ setfenv(1, SpokenEnv)
 -- is now the quests addon's fallback rather than the player's knowledge.
 Portrait = {}
 
-local TEXTURES = [[Interface\AddOns\Spoken\Textures\]]
 local WAIT_FOR_ANIMATION_FINISH_BEFORE_IDLE = true
-local CAN_MODEL_LOAD_CACHE = Version:IsRetailOrAboveLegacyVersion(60000)
 
 --------------------------------------------------------------------------------
 -- Animation durations, by model FileDataID. Lifted whole from the quests addon's
@@ -63,24 +61,10 @@ local animationDurations = {
         [122738]  = { [60] = 3000 }, -- tuskarr
         [122815]  = { [60] = 3600 }, -- vrykul
     },
-    -- HD overrides for model files which did not get a separate HD version
-    ["HD"] = {
-        [119369] = { [60] = 4667 },
-        [119376] = { [60] = 4667 },
-    },
 }
-if Version.IsLegacyVanilla or Version.IsRetailVanilla then
-    -- Goblin models on vanilla (both 1.12 and 1.15) lack the talk animation; 0 makes
-    -- them fall back to idle.
-    animationDurations["Original"][119369][60] = 0
-    animationDurations["Original"][119376][60] = 0
-end
-
---- Which model set durations are looked up in. Compat.lua overrides this for the
---- clients with HD model patches and for Mainline.
-function Portrait:GetCurrentModelSet()
-    return "Original"
-end
+-- Original 1.12 Goblin models lack the talk animation; use idle.
+animationDurations["Original"][119369][60] = 0
+animationDurations["Original"][119376][60] = 0
 
 --- Frame a loaded model on its head. Every client this addon has run on embeds a
 --- portrait camera at index 0 in the creature's M2, and selecting it is what makes the
@@ -111,8 +95,7 @@ end
 
 function Portrait:GetModelAnimationDuration(model, animation)
     if not model or model == 123 then return end
-    local models = animationDurations[self:GetCurrentModelSet()] or animationDurations["Original"]
-    local animations = models[model] or animationDurations["Original"][model]
+    local animations = animationDurations["Original"][model]
     local duration = animations and animations[animation]
     return duration and duration / 1000
 end
@@ -145,11 +128,6 @@ local function InitModelFrame(model)
         self.animtimer = nil
     end)
     model:HookScript("OnUpdate", function(self, elapsed)
-        -- If the creature was not cached, keep retrying until it is.
-        if CAN_MODEL_LOAD_CACHE and self.oldCreatureID and not self:GetModelFileID() then
-            self:SetCreature(self.oldCreatureID)
-            if not self:GetModelFileID() then return end
-        end
         Portrait:FrameHead(self)
         if self.animation and not self.animDuration then
             self.animDuration = Portrait:GetModelAnimationDuration(self:GetModelFileID(), self.animation)
@@ -242,7 +220,6 @@ Renderers["model"] = {
         local creatureID = spec.creatureID
         if not creatureID then return false end
         if creatureID ~= model.oldCreatureID then
-            if CAN_MODEL_LOAD_CACHE then model:ClearModel() end
             model:SetCreature(creatureID)
             Portrait:FrameHead(model)
             model:SetModelScale(2)

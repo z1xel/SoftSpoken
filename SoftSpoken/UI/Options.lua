@@ -579,13 +579,6 @@ local function Build()
             function(command) Addon.db.profile.Minimap.Commands[mouseButton] = command end,
             nil, function(command) return commandLabels[command] or command end)
     end
-    -- Blizzard's addon compartment exists on the modern clients only; the player's
-    -- button shows there too, opening the same menu, and this row switches it.
-    if AddonCompartmentFrame then
-        layout:Checkbox(L.OPT_MINIMAP_COMPARTMENT, L.OPT_MINIMAP_COMPARTMENT_TIP,
-            function() return mm().showInCompartment end,
-            function(v) Minimap:ToggleCompartment(v) end)
-    end
 
     -- Keys for the queue, said here as well as in the game's key bindings: with subtitles only
     -- or voice only there is no window to click, and a player needs to know these exist.

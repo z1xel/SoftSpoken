@@ -75,6 +75,8 @@ local function Scenario(version)
     SoftSpokenClassicPortraits = nil
     dofile("SoftSpoken/CreatureAppearance.lua")
     dofile("SoftSpoken/UI/Portrait.lua")
+    expect(env.Portrait:GetModelAnimationDuration(119369,60),0,"1.12 Goblin idle fallback")
+    expect(env.Portrait:GetModelAnimationDuration(119563,60),2.667,"Original human animation duration")
 
     local portrait = {shown=true}
     function portrait:IsShown() return self.shown end

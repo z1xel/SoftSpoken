@@ -81,10 +81,9 @@ Defaults = {
             SubtitleSentences = 3,
         },
         Minimap = {
-            -- LibDBIcon's own: minimapPos, lock, hide, and -- on the modern clients that
-            -- have one -- the addon compartment flag. On by default, as it is for the
-            -- minimap button; AceDB fills the new key into profiles that predate it.
-            LibDBIcon = { showInCompartment = true },
+            -- LibDBIcon's position, lock and hide preferences. Keep the
+            -- established 204-degree default and a nonempty AceDB table.
+            LibDBIcon = { minimapPos = 204 },
             -- What each mouse button does. "Menu" opens the list; any other value is a
             -- menu entry id, the player's or a source's.
             -- A click on the icon opens the settings, the way most addons' do; the menu is a
