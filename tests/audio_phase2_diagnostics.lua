@@ -48,6 +48,8 @@ SpokenEnv=setmetatable({
     Callbacks={errors={}},
     Transcript={Describe=function() return "off" end},
 },{__index=_G})
+-- The fixture supplies the historical field; the implementation uses the new name.
+SpokenEnv.NarratorWindow = SpokenEnv.PlayerFrame
 dofile("SoftSpoken/Developer.lua")
 local dev=SpokenEnv.Developer
 

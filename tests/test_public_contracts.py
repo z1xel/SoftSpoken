@@ -121,4 +121,12 @@ for path in (
 ):
     require(path, r"\bsource\s*=", "public pack inventory source field")
 
+# Keep the historical environment members as aliases, not replacements or copies.
+for path, assertion in (
+    ("SoftSpoken/UI/NarratorWindow.lua", r"^PlayerFrame\s*=\s*NarratorWindow\b"),
+    ("SoftSpoken_Stories/NarrationSource.lua", r"^Player\s*=\s*StoriesNarrator\b"),
+    ("SoftSpoken_Stories/UI/SettingsPage.lua", r"^SettingsPanel\s*=\s*StoriesSettingsPage\b"),
+):
+    require(path, assertion, "historical controller alias identity")
+
 print("PASS: serialized names, public globals/API, voice-pack metadata and registries")

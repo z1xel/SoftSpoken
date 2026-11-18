@@ -61,6 +61,7 @@ SpokenEnv = setmetatable({
     GameFontNormal = {GetFont=function() return "Fonts\\FRIZQT__.TTF" end},
 }, {__index=_G})
 dofile("SoftSpoken/UI/NarratorWindow.lua")
+assert(SpokenEnv.NarratorWindow == SpokenEnv.PlayerFrame, "legacy PlayerFrame alias changed identity")
 local player = SpokenEnv.PlayerFrame
 local container = Widget()
 container.buttons = {}
