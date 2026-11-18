@@ -7,9 +7,9 @@
 -- substituting unrelated audio is worse than silence, because silence is honest about what
 -- is missing and a borrowed clip is not.
 
-local SpokenBooks = SSB
+local Writings = SSB
 
-local L = SpokenBooks.L
+local L = Writings.L
 
 -- The pack table shape this version knows how to read. A pack declaring anything else is
 -- ignored with a warning: refusing to read it is recoverable, guessing at an unknown layout
@@ -55,11 +55,11 @@ local MATERIALS = {
 	Silver = [[Interface\Icons\INV_Misc_StoneTablet_11]],
 	Valentine = [[Interface\Icons\INV_Letter_15]],
 }
-SpokenBooks.MATERIALS = MATERIALS
+Writings.MATERIALS = MATERIALS
 
 --- Open is what the item text events say, not the game's frame, which DialogueUI hides. A page
 --- queued with nothing open takes the book.
-function SpokenBooks:PagePicture(bookID)
+function Writings:PagePicture(bookID)
 	if self.lastPage then
 		local item = ItemTextGetItem and ItemTextGetItem()
 		local icon, crop
@@ -86,7 +86,7 @@ end
 
 --- What the open page is written on (ItemTextGetMaterial: Parchment, Stone, Marble...), or nil
 --- with nothing open.
-function SpokenBooks:PageMaterial()
+function Writings:PageMaterial()
 	if not self.lastPage then return nil end
 	return ItemTextGetMaterial and ItemTextGetMaterial() or nil
 end
@@ -95,16 +95,16 @@ end
 -- discovery location. Never substitute catalogue possibilities or the player's
 -- current reading location when the origin was not recorded.
 local function NarratorContext(bookID, base)
-    local location = SpokenBooks.KnownDiscoverySummary and
-        SpokenBooks:KnownDiscoverySummary(bookID)
+    local location = Writings.KnownDiscoverySummary and
+        Writings:KnownDiscoverySummary(bookID)
     if location then return base .. " \194\183 " .. location end
     return base
 end
 
 -- What a readable can be (Data/Places.lua's `type`), in the order the Compendium lists them,
 -- and the keys of its names: `one` of it, over its line in the queue, and `all`, the Compendium's.
-SpokenBooks.TYPES = { "book", "letter", "note", "scroll", "tablet", "plaque", "grave", "exhibit", "other" }
-SpokenBooks.TYPE_NAMES = {
+Writings.TYPES = { "book", "letter", "note", "scroll", "tablet", "plaque", "grave", "exhibit", "other" }
+Writings.TYPE_NAMES = {
 	book = { one = "READABLE_BOOK", all = "TYPE_BOOK" },
 	letter = { one = "READABLE_LETTER", all = "TYPE_LETTER" },
 	note = { one = "READABLE_NOTE", all = "TYPE_NOTE" },
@@ -117,7 +117,7 @@ SpokenBooks.TYPE_NAMES = {
 }
 
 --- What `book` is (a book, a letter, a gravestone...), as the Compendium sorts it.
-function SpokenBooks:KindOf(book)
+function Writings:KindOf(book)
 	local places = _G.SSBPlaces and SSBPlaces.books
 	local place = places and places[book]
     local key = (self.TYPE_NAMES[place and place.type] or self.TYPE_NAMES.other).one
@@ -127,12 +127,12 @@ function SpokenBooks:KindOf(book)
 end
 
 --- Whether a book is one line in the queue (Read Book as One Line), rather than a line per page.
-function SpokenBooks:OneLine()
+function Writings:OneLine()
 	return not (SSBSettings and SSBSettings.bookAsOneLine == false)
 end
 
 --- Every installed pack this version can read, newest format first.
-function SpokenBooks:GetAudioPacks()
+function Writings:GetAudioPacks()
 	local packs, seen = {}, {}
 	local function AddRegistry(registry)
 		if type(registry) ~= "table" then return end
@@ -168,7 +168,7 @@ end
 
 local function PageStopped(clip, finished)
 	if finished then
-		SpokenBooks:OnPageFinished(clip)
+		Writings:OnPageFinished(clip)
 	end
 end
 
@@ -177,7 +177,7 @@ end
 --- Language before pack order: a pack in the voice language answers before any other, and a
 --- page it lacks falls back to the fallback language's packs -- page by page, so a partial
 --- translation still reads what it has.
-function SpokenBooks:ClipFor(pageId)
+function Writings:ClipFor(pageId)
 	local place = self:Data() and self:Data().pages[pageId]
 	if not place then
 		return nil
@@ -253,7 +253,7 @@ end
 
 --- A page's length in seconds, from the pack ClipFor would read it from; nil where that pack
 --- recorded none.
-function SpokenBooks:PageLength(pageId)
+function Writings:PageLength(pageId)
 	local packs = self:GetAudioPacks()
 	for _, language in ipairs(self:LanguageOrder()) do
 		for _, pack in ipairs(packs) do
@@ -269,7 +269,7 @@ end
 --- Why there is no clip, phrased for the player. Distinguishes "you have no sound pack"
 --- from "your pack does not cover this page": the first is a download and the second is
 --- nothing they can do, and telling them apart is the point of saying anything at all.
-function SpokenBooks:DescribeMissingAudio()
+function Writings:DescribeMissingAudio()
 	if table.getn(self:GetAudioPacks()) == 0 then
 		return L.OPT_NO_PACK_INSTALLED
 	end
@@ -277,7 +277,7 @@ function SpokenBooks:DescribeMissingAudio()
 end
 
 --- Whether ClipFor would find a clip, without building one.
-function SpokenBooks:HasAudio(pageId)
+function Writings:HasAudio(pageId)
 	local data = self:Data()
 	if not (data and data.pages[pageId]) then
 		return false
