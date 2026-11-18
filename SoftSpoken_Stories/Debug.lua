@@ -57,8 +57,8 @@ function Debug:Record(stage, message)
     Log("%s: %s", tostring(stage), tostring(message))
 end
 
--- What each topic last said, so a decision asked about ten times a second (the quest watcher, a
--- window polling for its Play button) is written once, and again only when the answer changes.
+-- Cache the last diagnostic note per topic, so repeated checks (such as a
+-- window refreshing its Play button) are logged only when the answer changes.
 local lastNoted = {}
 
 --- One line in the log about `topic`, unless the last one about it had the same `key`.

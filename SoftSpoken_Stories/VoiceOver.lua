@@ -59,18 +59,6 @@ local lastQuestEvent
 -- Defined with the handlers below, and asked by functions above them.
 local ResolveQuestID, NoteGossipPage
 
--- The quest globals as they stood when the client fired a quest event. An addon that
--- accepts or turns in the quest from its own handler - Leatrix Plus, and the auto-turn-in
--- addons beside it - closes the dialog in the same frame the event arrived in, so GetQuestID
--- is back to 0 by the time the 10 Hz watcher first polls and the interaction would never be
--- read at all. The watcher still owns dispatch: it replays this record only once the dialog
--- has closed with nothing dispatched for it.
-local questSnapshot
-
--- Set while a handler is being replayed from a snapshot, so it reads that instead of globals
--- the client has already cleared.
-local questSnapshotInUse
-
 -- Each quest event's line: the sound it is keyed by, the data module's name for the
 -- interaction, and the global its text is read from.
 local QUEST_EVENTS = {
@@ -94,8 +82,8 @@ local function QuestIDFor(event)
 end
 
 --- The quest on the open dialog `event` names, falling back on its title, NPC and text where
---- the client has no ID for it. For callers outside the dialog events, which have no snapshot:
---- Followup.lua's accept and turn-in hooks on the legacy clients.
+--- the client has no ID for it. Also used by Followup.lua's accept and turn-in
+--- hooks on the legacy client.
 function Addon:DialogQuestID(event)
     local quest = QUEST_EVENTS[event]
     return ResolveQuestID(quest.source, QuestIDFor(event), QuestTitle(),
@@ -114,38 +102,9 @@ local function PortraitSpeakerGUID(name)
     if okGUID and type(guid) == "string" and guid ~= "" then return guid end
 end
 
-local function CaptureQuestSnapshot(event)
-    local quest = QUEST_EVENTS[event]
-    if not quest then
-        return
-    end
-    local readText = quest.text
-    local questID = QuestIDFor(event)
-    local questTitle = QuestTitle()
-    local speakerName = Utils:GetNPCName()
-    -- Nothing to replay, and nothing to identify a quest by either.
-    if (not questID or questID == 0) and questTitle == "" then
-        return
-    end
-    questSnapshot = {
-        event = event,
-        questID = questID,
-        title = questTitle,
-        text = readText(),
-        guid = Utils:GetNPCGUID(),
-        targetName = speakerName,
-        isObjectOrItem = Utils:IsNPCObjectOrItem(),
-        portraitGUID = PortraitSpeakerGUID(speakerName),
-    }
-end
-
--- Where a quest handler's fields come from: the live globals, or the snapshot being replayed.
+-- Read the live quest stage through the Vanilla quest-ID adapter. Also preserve a
+-- verified live NPC GUID for the portrait without changing sound identity.
 local function ReadQuestFields(event)
-    local snapshot = questSnapshotInUse
-    if snapshot then
-        return snapshot.questID, snapshot.title, snapshot.text, snapshot.guid, snapshot.targetName,
-            snapshot.isObjectOrItem, snapshot.portraitGUID
-    end
     local speakerName = Utils:GetNPCName()
     return QuestIDFor(event), QuestTitle(), QUEST_EVENTS[event].text(), Utils:GetNPCGUID(),
         speakerName, Utils:IsNPCObjectOrItem(), PortraitSpeakerGUID(speakerName)
@@ -580,14 +539,8 @@ function Addon:OnInitialize()
         table.insert(self.eventBridgeErrors, "AceEvent ADDON_LOADED: " .. tostring(aceError))
     end
 
-    -- Quest detail/progress/completion are intentionally absent here on Blizzard's clients. On
-    -- Classic Era those synchronous events can fire before GetQuestID and the text globals
-    -- change, replaying the previous quest. The stabilized 10 Hz watcher above is their single
-    -- automatic dispatcher.
-    --
-    -- On a legacy client the race does not exist, the watcher does not run, and these
-    -- events are the only route to quest audio - they are also what sets the text
-    -- Compatibility.lua's GetQuestID substitute reads, so nothing resolves until one fires.
+    -- On Vanilla, quest-detail/progress/completion events dispatch directly.
+    -- The event recorder separately preserves quest identity context and last-event hints.
     local directEvents = {
         "QUEST_GREETING",
         "QUEST_FINISHED",
@@ -599,11 +552,8 @@ function Addon:OnInitialize()
         table.insert(directEvents, "QUEST_PROGRESS")
         table.insert(directEvents, "QUEST_COMPLETE")
     end
-    -- Recording a quest event is not the same as dispatching it: on Blizzard's clients an
-    -- event can fire before the quest globals change, which is why the watcher owns
-    -- dispatch, but the event name itself is trustworthy the moment it arrives.
-    -- QUEST_FINISHED is here to clear the record, so that a quest ID the client keeps
-    -- reporting after the dialog closed cannot be read as a fresh interaction.
+    -- The recorder preserves context for the 1.12 GetQuestID adapter and manual
+    -- dialog reads. QUEST_FINISHED clears stale event and quest-selection hints.
     self.questEventRecorderFrame = CreateFrame("Frame")
     for _, event in ipairs({ "QUEST_DETAIL", "QUEST_PROGRESS", "QUEST_COMPLETE", "QUEST_FINISHED" }) do
         pcall(self.questEventRecorderFrame.RegisterEvent, self.questEventRecorderFrame, event)
@@ -614,9 +564,9 @@ function Addon:OnInitialize()
             if self.ClearClassicQuestSelection then self:ClearClassicQuestSelection() end
         else
             lastQuestEvent = event
-            -- Through pcall because a snapshot is a fallback, and a client that refuses one
-            -- of these globals must not stop the event from being recorded.
-            pcall(CaptureQuestSnapshot, event)
+            -- QuestIDFor updates Compatibility.lua's event-stage/text context;
+            -- an unavailable native API must not interrupt event recording.
+            pcall(QuestIDFor, event)
             pcall(self.BeginGreetingWait, self, event)
         end
     end)
@@ -668,7 +618,7 @@ function Addon:OnInitialize()
             return
         end
 
-        -- Only suppress the panel/watcher fallback when this route
+        -- Only suppress additional event/frame signals when this route
         -- actually reached the queue or playback stage. An early event
         -- with unpopulated quest globals must be allowed to retry.
         local stage = Debug.runtime and Debug.runtime.stage
@@ -730,8 +680,8 @@ function Addon:OnInitialize()
         SignalDirectEvent(event, "direct frame")
     end)
 
-    -- Keep UI fallbacks only for NPC greetings. Quest narration is exclusively
-    -- handled by the stabilized watcher.
+    -- Quest narration uses direct events; panel-show fallbacks are retained for
+    -- greetings and gossip.
     local panelEvents = {
         { frame = QuestFrameGreetingPanel, event = "QUEST_GREETING" },
         { frame = GossipFrame, event = "GOSSIP_SHOW" },
@@ -767,10 +717,10 @@ function Addon:OnInitialize()
     end
 
     if next(self.eventBridgeErrors) then
-        Debug:Record("event-bridge-partial", format("Quest watcher is active; %d optional bridge component(s) failed",
+        Debug:Record("event-bridge-partial", format("Quest event bridge is active; %d optional component(s) failed",
             #self.eventBridgeErrors))
     else
-        Debug:Record("event-bridge-ready", "Stabilized quest watcher and deferred greeting bridge are registered")
+        Debug:Record("event-bridge-ready", "Direct quest event and deferred greeting bridges are registered")
     end
 
     -- The folders of the players that registered this session, stopped at the top of this
@@ -993,11 +943,8 @@ end
 local pendingRead
 
 local function QueueRead(soundData, manual)
-    -- A read from the snapshot of a window that has already closed has nothing left to wait for.
-    if not manual and Addon.db.profile.Audio.ReadAfterClose and not questSnapshotInUse then
+    if not manual and Addon.db.profile.Audio.ReadAfterClose then
         pendingRead = soundData
-        -- Held counts as handled for the watcher, or it would read the quest again once the window closes.
-        if questSnapshot then questSnapshot.dispatched = true end
         return
     end
     Player:Enqueue(soundData, manual)

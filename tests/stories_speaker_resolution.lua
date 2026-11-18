@@ -493,7 +493,7 @@ assert(not string.find(page, "local function Speaker(id,stage)", 1, true),
     "Compendium must not duplicate quest speaker selection")
 local voiceSource = assert(io.open("SoftSpoken_Stories/VoiceOver.lua", "r")):read("*a")
 assert(string.find(voiceSource, "portraitGUID = PortraitSpeakerGUID(speakerName)", 1, true),
-    "quest-dialog snapshot should preserve an actual portrait GUID")
+    "live quest-dialog fields should preserve an actual portrait GUID")
 local xml = assert(io.open("SoftSpoken_Stories/addon.xml", "r")):read("*a")
 local resolverPos = assert(string.find(xml, 'file="SpeakerResolver.lua"', 1, true))
 local playerPos = assert(string.find(xml, 'file="Player.lua"', 1, true))

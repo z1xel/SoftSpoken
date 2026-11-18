@@ -282,7 +282,7 @@ local function From(soundData)
 end
 
 --- Resolve a line through the packs and hand it to the player. Records the stage the
---- 10 Hz watcher keys on, as the queue used to.
+--- the event bridge and diagnostics use.
 ---@param soundData SoundData
 ---@param asked boolean? the player asked for it, so it is read in a battleground too
 ---@return boolean queued
@@ -347,7 +347,7 @@ function Player:EnqueuePrepared(soundData, asked)
     local added, reason = self:SourceOf(soundData):Enqueue(soundData, asked)
     if not added then
         if reason == "duplicate" then
-            -- Already in the queue is, for the watcher's purposes, queued.
+            -- Already queued counts as queued for diagnostics and event deduplication.
             Debug:Record("queued", format("Already queued: %s%s", soundData.fileName, From(soundData)))
         elseif reason == "missing" then
             Debug:Record("file-playback-failed", format([[The data entry exists, but PlaySoundFile rejected "%s" from module "%s"]],
@@ -477,7 +477,7 @@ function Player:Setup()
         end,
     })
 
-    -- What the watcher reads to know whether an event reached the speaker.
+    -- Queue admission is reported for event deduplication and diagnostics.
     Spoken:RegisterCallback("CLIP_QUEUED", function(clip)
         if Player:Owns(clip) then
             Debug:Record("queued", format("Queued %s (%s)%s", clip.title or clip.name or clip.fileName, clip.path,
