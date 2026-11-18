@@ -51,18 +51,19 @@ The selective production payload comprises **12 runtime file changes** (three ne
 | `SoftSpoken/Compendium/UI/MapNames.lua` | Native UiMap name lookup, including Vanilla battleground IDs 1459–1461 |
 | `SoftSpoken/Compendium/UI/DungeonNames.lua` | **Single authority for names** of the 26 known instance Map IDs |
 
-The runtime adapters are:
+The runtime adapters are (with the subsequent dialogue-service refactor noted below):
 
 | File | Responsibility |
 | --- | --- |
+| `SoftSpoken_Stories/QuestDialogue.lua` | Authoritative quest-stage text lookup, placeholder expansion and live-dialogue capture; independent of the Compendium UI |
 | `SoftSpoken_Stories/Compendium/QuestCatalog.lua` | Indexing, chains, eligibility, grouping, zones and instances |
 | `SoftSpoken_Stories/Compendium/QuestsTab.lua` | Discovery/voice filters, subtitles, Compendium list presentation |
-| `SoftSpoken_Stories/Compendium/QuestPage.lua` | Stage text priority, speaker labels, portraits and playback |
+| `SoftSpoken_Stories/Compendium/QuestPage.lua` | Speaker labels, portraits, stage playback and display; its legacy `Text()` method delegates to `QuestDialogue` |
 | `SoftSpoken_Stories/SpeakerResolver.lua` | Typed giver/ender resolution; live GUID and plural-speaker behavior |
 | `SoftSpoken/addon.xml` | Loads the shared map/instance name lookups |
 | `SoftSpoken_Stories/addon.xml` | Loads static data before the quest Compendium adapters |
 
-**Load-order invariant:** the shared Compendium and its name lookups must exist before quest UI grouping uses them; `Compendium.lua`, `QuestText.lua`, `TurtleQuestText.lua` and `TurtleAreaMeta.lua` must load before the quest adapters. `SpeakerResolver.lua` reads the catalog lazily, since its module can load before the data files. Both manifests must be merged with the *current* `dev` versions, never replaced wholesale.
+**Load-order invariant:** the shared Compendium and its name lookups must exist before quest UI grouping uses them; `Compendium.lua`, `QuestText.lua`, `TurtleQuestText.lua` and `TurtleAreaMeta.lua` load before `QuestDialogue.lua`, which in turn loads before the quest Compendium UI. `SpeakerResolver.lua` reads the catalog lazily, since its module can load before the data files. Both manifests must be merged with the *current* `dev` versions, never replaced wholesale.
 
 No audit Python/Node scripts are needed by the game client. The addon remains compatible with its intended WoW 1.12/Lua 5.0 environment; testing with Lua 5.1 alone does not replace an in-client smoke test.
 
@@ -88,7 +89,7 @@ A missing starter or ender is **unknown**, not evidence of an invisible/scripted
 
 ## 5. Stage text and narration contract
 
-For **each** `accept`, `progress` and `complete` stage independently, `SSCQuestPage:Text(questID, stage)` uses this precedence:
+For **each** `accept`, `progress` and `complete` stage independently, `VoiceOver.QuestDialogue:Text(questID, stage)` uses this precedence. The older `SSCQuestPage:Text()` remains as a compatibility delegate:
 
 1. Nonblank per-character **live-captured** dialogue (`SSCQuestJournal.dialogue`).
 2. Nonblank curated **Turtle overlay** (`SSCTurtleQuestText`).
@@ -96,6 +97,8 @@ For **each** `accept`, `progress` and `complete` stage independently, `SSCQuestP
 4. No text, if every source lacks that stage.
 
 Missing and whitespace-only overlay stages **do not mask the fallback**. Display expansion supports normal WoW placeholders such as `$N`, `$C`, `$R`, `$B` and `$Gmale:female;`. Preserve placeholder meaning when auditing possible source changes. Some quests legitimately omit stages; no stage should be invented merely to improve a coverage metric.
+
+`QuestDialogue.lua` also owns the `QUEST_DETAIL`, `QUEST_PROGRESS` and `QUEST_COMPLETE` live-capture listener, storing text in the unchanged character journal format. `QuestPage.lua` registers only an optional UI-refresh callback. The narrator uses the same resolver for a quest stage when no live dialogue text is supplied; text from the actual NPC interaction is never overwritten. Gossip and follow-up audio do not use quest-stage text.
 
 **Text is not audio.** `DataModules:PrepareSound` uses the installed packs and can select a giver-specific recording or fall back to a generic `questID-accept` / `-progress` / `-complete` recording. The presence of dialogue or a resolved NPC **does not prove** an NPC-matched recording exists.
 
