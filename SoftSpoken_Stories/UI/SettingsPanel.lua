@@ -138,7 +138,7 @@ function SettingsPanel:Build()
                 status = state == "disabled" and "Disabled"
                     or state == "reload required" and "Reload required"
                     or loaded and "Loaded" or "Not loaded",
-                enabled = info.LoadOnDemand and enabled or nil,
+                enabled = enabled,
                 onToggle = info.LoadOnDemand and function(on)
                     Options:SetDataModuleEnabled(info, on)
                 end or nil,
