@@ -180,7 +180,7 @@ local core=assert(io.open("SoftSpoken/Compendium/UI/Compendium.lua","r")):read("
 assert(string.find(core,"self.opts.onVisibleRows(self.items,index,last)",1,true),
     "virtual list should report visible row bounds")
 local quests=assert(io.open("SoftSpoken_Stories/Compendium/QuestsTab.lua","r")):read("*a")
-assert(string.find(quests,"Preload:Selected(selectedID)",1,true),
+assert(string.find(quests,"Preload:Selected(selectedQuestID)",1,true),
     "selected speaker request must precede speculative list redraw")
 assert(string.find(quests,"Preload:Visible(items,first,last)",1,true),
     "Stories must consume virtual viewport callbacks")
