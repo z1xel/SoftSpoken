@@ -135,7 +135,7 @@ eq(oldPage.present.label,"Book","single-page work has no redundant page number")
 local f=assert(io.open("SoftSpoken_Writings/UI/Readables.lua","r"))
 local ui=f:read("*a")
 f:close()
-assert(string.find(ui,"B:DiscoverySummary(id)",1,true),
+assert(string.find(ui,"Writings:DiscoverySummary(id)",1,true),
     "Compendium and audio must share discovery formatting")
 
 print("PASS: Writings title/context hierarchy, recorded origins, queue titles and per-page modes")
