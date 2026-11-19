@@ -79,7 +79,7 @@ Spoken={
 }
 dofile("SoftSpoken_Stories/SpeakerResolver.lua")
 dofile("SoftSpoken_Stories/NarrationSource.lua")
-local Player=VoiceOver.Player
+local Player=VoiceOver.StoriesNarrator
 local function prep(id, faceless)
     return Player:Prepare({
         event=VoiceOver.Enums.SoundEvent.QuestAccept, questID=id,

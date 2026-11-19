@@ -121,13 +121,13 @@ for path in (
 ):
     require(path, r"\bsource\s*=", "public pack inventory source field")
 
-# Keep the historical environment members as aliases, not replacements or copies.
+# The controller implementation names are canonical; old aliases are not exported.
 for path, assertion in (
     ("SoftSpoken/UI/NarratorWindow.lua", r"^NarratorWindow\s*=\s*\{"),
     ("SoftSpoken/Core.lua", r"^CoreController\s*="),
-    ("SoftSpoken_Stories/NarrationSource.lua", r"^Player\s*=\s*StoriesNarrator\b"),
-    ("SoftSpoken_Stories/UI/SettingsPage.lua", r"^SettingsPanel\s*=\s*StoriesSettingsPage\b"),
+    ("SoftSpoken_Stories/NarrationSource.lua", r"^StoriesNarrator\s*=\s*\{\b"),
+    ("SoftSpoken_Stories/UI/SettingsPage.lua", r"^StoriesSettingsPage\s*=\s*\{\b"),
 ):
-    require(path, assertion, "historical controller alias identity")
+    require(path, assertion, "canonical controller declared")
 
 print("PASS: serialized names, public globals/API, voice-pack metadata and registries")

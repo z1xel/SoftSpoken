@@ -66,7 +66,7 @@ env = {
     Debug = { runtime = {}, Record = function(self, name, msg)
         self.runtime.stage, self.runtime.message = name, msg
     end, Note = function() end },
-    Player = { source = {}, Setup = function() end, Origin = function() return "test" end,
+    StoriesNarrator = { source = {}, Setup = function() end, Origin = function() return "test" end,
         Enqueue = function(self, data, manual)
             clips[total() + 1] = { data = data, manual = manual }
             env.Debug:Record("queued", "queued by test player")
@@ -89,7 +89,6 @@ env = {
     ContributeButton = { Setup = function() end },
     DialogPlayButton = { Setup = function() end },
 }
-env.StoriesNarrator = env.Player
 VoiceOver = setmetatable(env, { __index = _G })
 assert(loadfile("SoftSpoken_Stories/QuestRuntime.lua"))()
 local addon = VoiceOver.Addon

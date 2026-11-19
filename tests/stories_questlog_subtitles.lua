@@ -47,8 +47,7 @@ VoiceOver = setmetatable({
     },
 }, {__index = _G})
 dofile("SoftSpoken_Stories/NarrationSource.lua")
-assert(VoiceOver.StoriesNarrator == VoiceOver.Player, "legacy Stories Player alias changed identity")
-local player = VoiceOver.Player
+local player = VoiceOver.StoriesNarrator
 player.source = {PlayNow=function(self,clip) table.insert(played,clip); return true end}
 
 local function PlayQuestLog(id)

@@ -3,8 +3,6 @@
 setfenv(1, VoiceOver)
 
 StoriesSettingsPage = {}
--- Preserve the previously exported Stories environment member.
-SettingsPanel = StoriesSettingsPage
 local frame, layout, page
 local UI = SpokenLayout
 

@@ -11,8 +11,6 @@ setfenv(1, VoiceOver)
 -- and greeting windows). Spoken switches each on and off and shows each on its own; the queue
 -- below them is shared.
 StoriesNarrator = { source = nil, gossipSource = nil }
--- Legacy pack/tooling access still resolves the same Stories narrator table.
-Player = StoriesNarrator
 
 local TEXTURES = [[Interface\AddOns\SoftSpoken\Textures\]]
 -- The packs that hold quests alone. Every other pack holds gossip too.
