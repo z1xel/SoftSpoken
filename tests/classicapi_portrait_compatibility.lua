@@ -60,6 +60,9 @@ local function Scenario(version)
             IsRetailOrAboveLegacyVersion=function() return false end,
         },
         Spoken=speaker, UIParent={}, CreateFrame=Create,
+        -- WoW 1.12 exposes GetTime; the request coordinator now uses it
+        -- to expire missing completions. Keep this test's clock stationary.
+        GetTime=function() return 0 end,
         SoundQueue={IsPlaying=function() return true end,IsPaused=function() return false end},
         C_CreatureInfo={
             GetCreatureInfoByID=function(id)
