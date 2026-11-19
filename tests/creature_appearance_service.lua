@@ -5,6 +5,7 @@ local function equal(actual, expected, label)
         ", got "..tostring(actual))
 end
 local known, requests, frames = {}, {}, {}
+local now = 0
 local behavior
 local function Create()
     local frame={scripts={}}
@@ -23,7 +24,8 @@ local api={
         return true
     end,
 }
-SpokenEnv=setmetatable({CreateFrame=Create,UIParent={},C_CreatureInfo=api},{__index=_G})
+SpokenEnv=setmetatable({CreateFrame=Create,UIParent={},C_CreatureInfo=api,
+    GetTime=function() return now end},{__index=_G})
 dofile("SoftSpoken/CreatureAppearance.lua")
 local A=SpokenEnv.CreatureAppearance
 local function Event(id,success)
@@ -115,10 +117,35 @@ equal(second[#second][2],507,"failure in one listener doesn't block others")
 A:Unsubscribe(broken)
 A:Unsubscribe(cb2)
 
+-- The service does not poll, notify or retry merely because time passes.
+-- Existing demand deduplicates until the timeout, then one fresh native
+-- request can be made. A late successful event still uses the cached display.
+local beforeTimeout = #requests
+local timeoutNotifications = 0
+local timeoutListener = function() timeoutNotifications=timeoutNotifications+1 end
+A:Subscribe(timeoutListener)
+equal(A:Request(111),true,"request with missing completion")
+now=7.9
+equal(A:Request(111),true,"still pending below deadline")
+equal(#requests,beforeTimeout+1,"no duplicate before deadline")
+equal(timeoutNotifications,0,"elapsed time creates no synthetic notification")
+now=8.1
+equal(A:Request(111),true,"stale pending request retried on demand")
+equal(#requests,beforeTimeout+2,"one retry after deadline")
+equal(timeoutNotifications,0,"retry does not notify before native event")
+known[111]=611
+Event(111,true)
+Flush()
+equal(timeoutNotifications,1,"one native completion after retry")
+equal(A:Request(111),true,"cached display requires no further retries")
+equal(#requests,beforeTimeout+2,"cache hit avoids another native call")
+A:Unsubscribe(timeoutListener)
+
+local beforeMissingAPI = #requests
 SpokenEnv.C_CreatureInfo=nil
 equal(A:GetDisplayID(108),nil,"no API cache")
 equal(A:Request(108),false,"no API requests")
-equal(#requests,11,"no extra request without API")
+equal(#requests,beforeMissingAPI,"no extra request without API")
 Event(101,true)
 equal(frames[1].scripts.OnUpdate,nil,"unsolicited completion ignored")
 -- Explicitly false event registration must not claim that a native request
@@ -133,6 +160,6 @@ end
 dofile("SoftSpoken/CreatureAppearance.lua")
 equal(SpokenEnv.CreatureAppearance:Request(110),false,
     "unavailable custom event does not start a request")
-equal(#requests,11,"no request without a registered completion event")
+equal(#requests,beforeMissingAPI,"no request without a registered completion event")
 
-print("PASS: shared appearance service, deduplication, sync/async, failure and subscribers")
+print("PASS: shared appearance service, timeout recovery, sync/async, failure and subscribers")

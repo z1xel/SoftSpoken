@@ -6,6 +6,10 @@ CreatureAppearance = {}
 local A = CreatureAppearance
 local pending, listeners, completed = {}, {}, {}
 local eventFrame
+-- An accepted native query must not suppress all later requests if no
+-- completion event arrives. Expiry is checked only on the next demand:
+-- no background polling, auto-retries or user-visible timeout callback.
+local REQUEST_TIMEOUT = 8
 
 local function PositiveID(value)
     local id = tonumber(value)
@@ -78,9 +82,10 @@ function A:Request(creatureID)
     local api = C_CreatureInfo
     if not api or type(api.GetCreatureInfoByID) ~= "function" or
        type(api.RequestLoadCreatureByID) ~= "function" then return false end
-    if pending[id] then return true end
+    local now = GetTime()
+    if pending[id] and now - pending[id] < REQUEST_TIMEOUT then return true end
     if not EnsureEventFrame() then return false end
-    pending[id] = true
+    pending[id] = now
     local ok, accepted = pcall(api.RequestLoadCreatureByID, id)
     -- ClassicAPI explicitly returns a boolean. Nil from a broken or older
     -- compatibility function is not proof of an accepted query.
