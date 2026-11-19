@@ -111,14 +111,14 @@ function ReportButton:Link(target, language)
 end
 
 -- Vanilla 1.12 uses the same selectable copy-link popup for reporting and
--- settings URLs. Retired DialogueUI routing is not part of this client.
+-- settings URLs. No alternative UI route is loaded on this client.
 local function ShowCopy(url)
     shownLink = url
     StaticPopup_Show(COPY_DIALOG)
 end
 
 --- Show the native copyable report URL for a quest stage or NPC/object.
---- The retired Contribute-based report context is not available on 1.12.
+--- Report context is represented by the quest stage or NPC/object URL.
 function ReportButton:ShowLink(target, language)
     ShowCopy(self:Link(target, language))
 end
