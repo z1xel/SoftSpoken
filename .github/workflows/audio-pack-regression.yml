@@ -62,6 +62,7 @@ on:
       - "tests/creature_appearance_service.lua"
       - "tests/stories_compendium_portrait_lifecycle.lua"
       - "tests/stories_portrait_preloading.lua"
+      - "tests/quest_title_request_recovery.lua"
       - "tests/stories_questlog_portrait_prime.lua"
       - "tests/questlog_deferred_layout_compatibility.lua"
       - "tests/stories_faction_crest.lua"
@@ -137,6 +138,7 @@ on:
       - "tests/creature_appearance_service.lua"
       - "tests/stories_compendium_portrait_lifecycle.lua"
       - "tests/stories_portrait_preloading.lua"
+      - "tests/quest_title_request_recovery.lua"
       - "tests/stories_questlog_portrait_prime.lua"
       - "tests/questlog_deferred_layout_compatibility.lua"
       - "tests/stories_faction_crest.lua"
@@ -183,6 +185,7 @@ jobs:
           luac5.1 -p SoftSpoken_Writings/Audio.lua SoftSpoken_Writings/DiscoveryLocations.lua tests/writings_narrator_discovery.lua tests/narrator_queue_label.lua
           luac5.1 -p SoftSpoken_Places/UI/Options.lua SoftSpoken_Writings/UI/Options.lua
           luac5.1 -p SoftSpoken_Stories/Compendium/QuestState.lua SoftSpoken_Stories/Compendium/QuestCatalog.lua SoftSpoken_Stories/Compendium/QuestsTab.lua SoftSpoken_Stories/Compendium/PortraitPreload.lua SoftSpoken_Stories/DataModules.lua SoftSpoken_Stories/QuestRuntime.lua SoftSpoken_Stories/QuestOverlayUI.lua
+          luac5.1 -p tests/quest_title_request_recovery.lua
           luac5.1 -p SoftSpoken/UI/SettingsLayout.lua SoftSpoken_Stories/UI/SettingsPage.lua SoftSpoken_Stories/AceConfigOptions.lua tests/audio_pack_settings_toggle.lua
           luac5.1 -p Data_Packs/SSS_VOFallback/Module.lua
           luac5.1 -p tests/refactor_compatibility.lua
@@ -238,6 +241,8 @@ jobs:
         run: lua5.1 tests/stories_questlog_portrait_prime.lua
       - name: Check content-aware deferred quest-log compatibility
         run: lua5.1 tests/questlog_deferred_layout_compatibility.lua
+      - name: Check native quest title request cooldown and recovery
+        run: lua5.1 tests/quest_title_request_recovery.lua
       - name: Check shared creature appearance service
         run: lua5.1 tests/creature_appearance_service.lua
       - name: Check ClassicAPI portrait version compatibility

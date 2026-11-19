@@ -4,6 +4,9 @@ SSCQuestState = SSCQuestState or {}
 local QuestState = SSCQuestState
 local active = {}
 QuestState.revision = 0
+-- In-memory cooldown for missing native quest titles. A failed or dropped
+-- query must not permanently block a later request. No background timer.
+local TITLE_RETRY_INTERVAL = 15
 local ask = {}
 local function Saved()
     if type(SSCQuestJournal) ~= "table" then SSCQuestJournal = {} end
@@ -36,12 +39,25 @@ function QuestState:Title(id, fallback, request)
     local cached = Saved().titles[id]
     local title = Call(C_QuestLog, "GetTitleForQuestID", id)
     if type(title) == "string" and title ~= "" then
+        local previous = ask[id]
+        ask[id] = nil
         Saved().titles[id] = title
+        -- The native title can become available before its completion event.
+        -- Invalidate an old tree label once, not on every successful lookup.
+        if previous and title ~= previous.displayed then
+            self.revision = self.revision + 1
+        end
         return title
     end
-    if request and not ask[id] and C_QuestLog and type(C_QuestLog.RequestLoadQuestByID)=="function" then
-        ask[id]=true
-        pcall(C_QuestLog.RequestLoadQuestByID,id)
+    if request and C_QuestLog and type(C_QuestLog.RequestLoadQuestByID)=="function" then
+        local now = GetTime()
+        local previous = ask[id]
+        if not previous or now - previous.at >= TITLE_RETRY_INTERVAL then
+            -- Even an API error observes the cooldown: repeated UI refreshes
+            -- must not spin on an unavailable native query function.
+            ask[id] = {at = now, displayed = cached or fallback or ("Quest " .. id)}
+            pcall(C_QuestLog.RequestLoadQuestByID, id)
+        end
     end
     return cached or fallback or ("Quest " .. id)
 end
@@ -196,11 +212,17 @@ frame:SetScript("OnEvent",function(self,evt,a1,a2)
     elseif evt=="QUEST_QUERY_COMPLETE" then
         if QuestState:ImportCompletedQuests()==0 then return end
     elseif evt=="QUEST_DATA_LOAD_RESULT" then
-        -- A requested title may now be in ClassicAPI's cache.
+        -- Only a previously requested, usable new title changes the tree.
+        -- Unsuccessful and duplicate events do not trigger repeated rebuilds.
         local id=ValidID(a1)
-        if id and ask[id] then
-            QuestState.revision=QuestState.revision+1
-        end
+        local previous=id and ask[id]
+        if not previous then return end
+        local title=Call(C_QuestLog,"GetTitleForQuestID",id)
+        if type(title)~="string" or title=="" then return end
+        ask[id]=nil
+        Saved().titles[id]=title
+        if title==previous.displayed then return end
+        QuestState.revision=QuestState.revision+1
     end
     if SpokenCompendium and SpokenCompendium.Active and SpokenCompendium:Active()=="quests" then
         SpokenCompendium:Refresh()
