@@ -52,7 +52,9 @@ function PortraitPreload:Remember(id)
     self.recent = self.recent or {}
     self.recentOrder = self.recentOrder or {}
     if self.recent[id] then return end
-    self.recent[id] = true
+    -- Store wall-clock time, not the preloader's active-only elapsed clock.
+    -- Closing the Compendium must not freeze an unanswered request forever.
+    self.recent[id] = GetTime()
     table.insert(self.recentOrder,id)
     if table.getn(self.recentOrder) > RECENT_LIMIT then
         self.recent[table.remove(self.recentOrder,1)] = nil
@@ -70,10 +72,22 @@ function PortraitPreload:Forget(id)
     end
 end
 
+-- A recently accepted speculative request is only a temporary deduplication
+-- entry, not a permanent negative cache when ClassicAPI never responds.
+function PortraitPreload:IsRecent(id)
+    local started=self.recent and self.recent[id]
+    if started == nil then return false end
+    if GetTime()-started >= REQUEST_TIMEOUT and not Cached(id) then
+        self:Forget(id)
+        return false
+    end
+    return true
+end
+
 function PortraitPreload:Queue(id,front)
     id=ID(id)
     if not id or not self.active or (self.selectedIDs and self.selectedIDs[id]) or
-        (self.recent and self.recent[id]) or (self.inFlight and self.inFlight[id]) or Cached(id) then return end
+        self:IsRecent(id) or (self.inFlight and self.inFlight[id]) or Cached(id) then return end
     self.queue=self.queue or {}
     self.queued=self.queued or {}
     if self.queued[id] then
@@ -119,7 +133,12 @@ function PortraitPreload:Pump()
     self.queue=self.queue or {}
     self.queued=self.queued or {}
     for id,started in pairs(self.inFlight) do
-        if self.clock-started >= REQUEST_TIMEOUT then self.inFlight[id]=nil end
+        if self.clock-started >= REQUEST_TIMEOUT then
+            self.inFlight[id]=nil
+            -- No native completion arrived. This is a local expiry only:
+            -- do not notify the narrator or start any automatic retry.
+            if not Cached(id) then self:Forget(id) end
+        end
     end
     while table.getn(self.queue)>0 and
           SpeculativeCount(self.inFlight)<MAX_SPECULATIVE and
@@ -127,7 +146,7 @@ function PortraitPreload:Pump()
         local id=table.remove(self.queue,1)
         self.queued[id]=nil
         if not (self.selectedIDs and self.selectedIDs[id]) and not Cached(id) and
-           not (self.recent and self.recent[id]) then
+           not self:IsRecent(id) then
             self.inFlight[id]=self.clock
             local accepted=Call(Spoken.RequestCreatureAppearance,Spoken,id)
             if accepted then

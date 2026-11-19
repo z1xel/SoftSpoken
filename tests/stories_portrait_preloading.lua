@@ -5,6 +5,8 @@ local function eq(a,b,message)
 end
 local frames,requested,callbacks={},{},{}
 local cached={}
+local now=0
+GetTime=function() return now end
 local function Frame()
     local f={scripts={}}
     function f:SetScript(kind,fn) self.scripts[kind]=fn end
@@ -47,6 +49,7 @@ end
 dofile("SoftSpoken_Stories/Compendium/PortraitPreload.lua")
 local P=SSCQuestPortraitPreload
 local function Tick(seconds)
+    now=now+seconds
     for _,f in ipairs(frames) do
         if f.scripts.OnUpdate then f.scripts.OnUpdate(f,seconds) end
     end
@@ -165,6 +168,35 @@ eq(P.recent[rejectID],nil,"native rejection is not negatively cached")
 P:Stop()
 Spoken.RequestCreatureAppearance=previousRequest
 
+-- An unresolved speculative request expires without a synthetic callback or
+-- automatic new load. Revisiting its viewport after expiry may request again.
+eq(P:Start(),true,"start for in-session timeout recovery")
+P:Visible({{leaf=true,id=10}},1,1)
+eq(requested[#requested],1010,"speculative creature requested")
+eq(P.recent[1010]~=nil,true,"recent record holds accepted request")
+Tick(8.1)
+eq(P.inFlight[1010],nil,"expired speculative slot released")
+eq(P.recent[1010],nil,"stale speculative deduplication cleared")
+local afterTimeout=table.getn(requested)
+eq(table.getn(requested),afterTimeout,"timeout itself does not auto-retry")
+P:Visible({{leaf=true,id=10}},1,1)
+eq(table.getn(requested),afterTimeout+1,"next viewport revisit retries expired request")
+P:Stop()
+
+-- The preloader's active clock freezes while hidden. Recent entries must use
+-- GetTime so closing/reopening cannot indefinitely suppress an unresolved ID.
+eq(P:Start(),true,"start for hidden-tab expiry")
+P:Visible({{leaf=true,id=11}},1,1)
+eq(requested[#requested],1011,"preload before closing tab")
+local beforeReopen=table.getn(requested)
+P:Stop()
+now=now+9
+eq(P:Start(),true,"reopen after hidden timeout")
+P:Visible({{leaf=true,id=11}},1,1)
+eq(table.getn(requested),beforeReopen+1,"reopen can retry stale recent request")
+eq(requested[#requested],1011,"same creature requested after reopening")
+P:Stop()
+
 -- A running preloader must stop when native support disappears.
 eq(P:Start(),true,"restart with native support")
 P:Visible({{leaf=true,id=7}},1,1)
@@ -184,4 +216,4 @@ assert(string.find(quests,"Preload:Selected(selectedQuestID)",1,true),
     "selected speaker request must precede speculative list redraw")
 assert(string.find(quests,"Preload:Visible(items,first,last)",1,true),
     "Stories must consume virtual viewport callbacks")
-print("PASS: selected/hover/visible priorities, rate limit, concurrency, dedup, hide")
+print("PASS: selected/hover/visible priorities, timeout recovery, dedup, hide")
