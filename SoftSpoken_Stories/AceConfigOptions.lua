@@ -377,12 +377,12 @@ function Options:DiagnosticsLines()
             end
 
             if StoriesAddon.optionsInitializationError then
-                Add("Options startup warning: " .. Addon.optionsInitializationError)
+                Add("Options startup warning: " .. StoriesAddon.optionsInitializationError)
             end
             if StoriesAddon.dataModulesPending then
                 Add("Data startup: loading is deferred until one second after entering the world")
             elseif StoriesAddon.dataModulesDeferredError then
-                Add("Data startup warning: " .. Addon.dataModulesDeferredError)
+                Add("Data startup warning: " .. StoriesAddon.dataModulesDeferredError)
             end
             if Options.initializationErrors then
                 for _, warning in ipairs(Options.initializationErrors) do
