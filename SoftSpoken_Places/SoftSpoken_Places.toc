@@ -16,7 +16,7 @@ Discovery.lua
 Bridge.lua
 Autoplay.lua
 Core.lua
-UI\CompendiumAliases.lua
+UI\CompendiumHooks.lua
 UI\Pictures.lua
 UI\LoreWindow.lua
 UI\AudioButton.lua

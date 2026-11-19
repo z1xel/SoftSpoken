@@ -663,7 +663,7 @@ end
 -- The data service stays usable even when the Compendium is closed or absent.
 QuestDialogue.onCaptured=function(id,stage)
     if QuestState:IsSeen(id) and SSCQuestsTab and SSCQuestsTab.Refresh then
-        local C=SSCCompendium
+        local C=SpokenCompendium
         if C and C.Active and C:Active()=="quests" then SSCQuestsTab:Refresh() end
     end
 end

@@ -3,7 +3,7 @@
 -- Never change the map zoom merely to resolve it: doing so breaks browsing.
 SSZMapCompat = SSZMapCompat or {}
 local MapCompat = SSZMapCompat
-local Compendium = SSZCompendium
+local Compendium = SpokenCompendium
 local LoreWindow = SSZLoreWindow
 local CITY_IN = Compendium and Compendium.CITY_IN or {}
 

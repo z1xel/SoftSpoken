@@ -3,7 +3,7 @@
 -- Uses SoftSpoken's built-in shared Compendium window, list, parchment and artwork.
 -- Written for WoW 1.12 / Lua 5.0; no C_Map, atlas, or modern frame methods.
 local Writings = SpokenWritings
-local Compendium = SSCCompendium
+local Compendium = SpokenCompendium
 local LorePage = SSCLorePage
 if not (Writings and Compendium and Compendium.Register and Compendium.NewList and Compendium.CreatePagePane and LorePage and LorePage.CreateLorePage) then
     -- Writings recognition and playback remain available with Places disabled.

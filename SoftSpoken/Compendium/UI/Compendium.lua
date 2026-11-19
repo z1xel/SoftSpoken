@@ -1,8 +1,8 @@
 -- Azeroth's Compendium -- Turtle WoW 1.12 shared window/list framework.
 -- Upstream row metrics, fonts and count placement, virtualized for 1.12.
 -- Window and list are shared; the Places tab is registered in LoreWindow.lua.
-SSCCompendium = SSCCompendium or {}
-local Compendium = SSCCompendium
+SpokenCompendium = SpokenCompendium or {}
+local Compendium = SpokenCompendium
 local CompendiumUI = SSCUI
 Compendium.VERSION = 1
 Compendium.tabs = Compendium.tabs or {}

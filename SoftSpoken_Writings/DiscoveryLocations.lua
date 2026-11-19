@@ -2,7 +2,7 @@
 -- No persistent OnUpdate loop: bag scans run only after BAG_UPDATE settles.
 -- Static SSBPlaces locations remain reference information, not personal discoveries.
 local Writings = SpokenWritings
-local Compendium = SSCCompendium
+local Compendium = SpokenCompendium
 
 local function Character()
     if not SSBCharacter then Writings:InitDB() end

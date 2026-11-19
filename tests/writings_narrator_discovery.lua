@@ -7,7 +7,7 @@ local function eq(actual, expected, label)
 end
 local DOT = string.char(194, 183)
 
-SSCCompendium = {}
+SpokenCompendium = {}
 dofile("SoftSpoken/Compendium/UI/MapNames.lua")
 
 -- DiscoveryLocations installs dormant event handlers. The test only needs the

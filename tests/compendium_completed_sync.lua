@@ -13,7 +13,7 @@ local function Setup(journal,query)
     GetQuestsCompleted=query
     local requests,refreshes=0,0
     QueryQuestsCompleted=function() requests=requests+1 end
-    SSCCompendium={
+    SpokenCompendium={
         Active=function() return "quests" end,
         Refresh=function() refreshes=refreshes+1 end,
     }

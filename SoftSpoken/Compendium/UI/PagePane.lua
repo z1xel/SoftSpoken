@@ -1,7 +1,7 @@
 -- Shared parchment, border, and scrollbar housing for Compendium pages
 -- and the map's attached lore reader. This is deliberately independent of
 -- lore/discovery data and does not create duplicate scroll controllers.
-local Compendium = SSCCompendium
+local Compendium = SpokenCompendium
 
 -- Creates the same page hierarchy used by all three Compendium modules.
 -- The caller controls only the inset's position; the page's artwork and

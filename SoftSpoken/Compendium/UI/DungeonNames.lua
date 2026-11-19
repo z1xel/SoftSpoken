@@ -1,6 +1,6 @@
 -- Instance-map ID names for the quest Compendium (not UiMapIDs).
 -- English names from upstream Spoken's pinned dungeon metadata.
-local Compendium=SSCCompendium
+local Compendium=SpokenCompendium
 local DungeonNames={
     [33]="Shadowfang Keep",
     [34]="Stormwind Stockade",

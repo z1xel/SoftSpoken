@@ -266,7 +266,7 @@ function Scrollbar.AttachPage(pageInset,page)
     local view=page and page.body
     if not view or not view.scroll or not view.child then return end
     -- Shared page housing offset; list and page use one native controller.
-    local geometry=SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
+    local geometry=SpokenCompendium and SpokenCompendium.VISUAL_GEOMETRY
     local rightOffset=geometry and geometry.pageSlotRightOffset or -3
     return Attach(pageInset,view,function(v) view:ScrollTo(v) end,rightOffset)
 end

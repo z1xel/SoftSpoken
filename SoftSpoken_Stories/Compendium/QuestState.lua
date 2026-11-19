@@ -155,7 +155,7 @@ function QuestState:MapName(id)
             return info.name
         end
     end
-    if SSCCompendium and SSCCompendium.MapName then return SSCCompendium.MapName(id) end
+    if SpokenCompendium and SpokenCompendium.MapName then return SpokenCompendium.MapName(id) end
     return tostring(id)
 end
 function QuestState:CurrentMap()
@@ -202,8 +202,8 @@ frame:SetScript("OnEvent",function(self,evt,a1,a2)
             QuestState.revision=QuestState.revision+1
         end
     end
-    if SSCCompendium and SSCCompendium.Active and SSCCompendium:Active()=="quests" then
-        SSCCompendium:Refresh()
+    if SpokenCompendium and SpokenCompendium.Active and SpokenCompendium:Active()=="quests" then
+        SpokenCompendium:Refresh()
     end
 end)
 Saved()

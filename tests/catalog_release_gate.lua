@@ -28,11 +28,11 @@ for id in pairs(SpokenQuestsText) do
         "orphaned Spoken dialogue quest " .. tostring(id))
 end
 
-SSCCompendium = {}
+SpokenCompendium = {}
 dofile("SoftSpoken/Compendium/UI/DungeonNames.lua")
-assert(SSCCompendium.DungeonName(36)=="Deadmines")
-assert(SSCCompendium.DungeonName(3065)=="Dungeon 3065",
+assert(SpokenCompendium.DungeonName(36)=="Deadmines")
+assert(SpokenCompendium.DungeonName(3065)=="Dungeon 3065",
     "Forever-only dungeon label restored")
-assert(SSCCompendium.InstanceType(469)=="raid")
-assert(SSCCompendium.InstanceType(36)=="dungeon")
+assert(SpokenCompendium.InstanceType(469)=="raid")
+assert(SpokenCompendium.InstanceType(36)=="dungeon")
 print("PASS: 6646 quests, 4228 Spoken texts, 2593 Turtle texts, 45 areas; instances and joins")

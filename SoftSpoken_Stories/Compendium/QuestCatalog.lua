@@ -119,7 +119,7 @@ local function Attach(parent,node)
     return node
 end
 -- Preserve upstream grouping and 'prev' chain relationships. Nodes remain
--- data-only; SSCCompendium's virtualized row pool renders them later.
+-- data-only; SpokenCompendium's virtualized row pool renders them later.
 local function MakeLeaves(group,ids)
     local chains,singles={},{}
     for _,id in ipairs(ids) do
@@ -213,7 +213,7 @@ function QuestCatalog:BuildTree()
     local continents={ [1414]=Attach(root,Node("continent:1414","Kalimdor","continent")),
                        [1415]=Attach(root,Node("continent:1415","Eastern Kingdoms","continent")) }
     local loose=Attach(root,Node("zones:other","Other Lands","section"))
-    local cityIn=SSCCompendium and SSCCompendium.CITY_IN or {}
+    local cityIn=SpokenCompendium and SpokenCompendium.CITY_IN or {}
     local zoneNodes={}
     -- Create enclosing zone nodes even if their only quests come from an
     -- AreaTable-linked dungeon or a Turtle-exclusive instance.
@@ -239,9 +239,9 @@ function QuestCatalog:BuildTree()
         for dungeon,ids in pairs(nativeAreaDungeons[zone] or {}) do
             for _,id in ipairs(ids) do AddTo(byDungeon,dungeon,id) end
         end
-        for _,dungeon in ipairs(SortedKeys(byDungeon,function(id) return SSCCompendium.DungeonName(id) end)) do
-            local dungeonNode=Attach(zoneNode,Node("dungeon:"..zone..":"..dungeon,SSCCompendium.DungeonName(dungeon),"dungeon"))
-            dungeonNode.instanceType=SSCCompendium.InstanceType(dungeon)
+        for _,dungeon in ipairs(SortedKeys(byDungeon,function(id) return SpokenCompendium.DungeonName(id) end)) do
+            local dungeonNode=Attach(zoneNode,Node("dungeon:"..zone..":"..dungeon,SpokenCompendium.DungeonName(dungeon),"dungeon"))
+            dungeonNode.instanceType=SpokenCompendium.InstanceType(dungeon)
             MakeLeaves(dungeonNode,byDungeon[dungeon])
         end
         MakeLeaves(zoneNode,normal)
@@ -250,7 +250,7 @@ function QuestCatalog:BuildTree()
     -- A city whose surrounding zone is absent remains on its continent.
     for _,zone in ipairs(zoneIDs) do
         local parentZone=cityIn[zone] or zone
-        local cont=SSCCompendium and SSCCompendium.ContinentOf and SSCCompendium.ContinentOf(parentZone)
+        local cont=SpokenCompendium and SpokenCompendium.ContinentOf and SpokenCompendium.ContinentOf(parentZone)
         local parent=(cityIn[zone] and zoneNodes[cityIn[zone]]) or continents[cont] or loose
         Attach(parent,zoneNodes[zone])
     end

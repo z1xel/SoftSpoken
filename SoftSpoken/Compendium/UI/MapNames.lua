@@ -1,6 +1,6 @@
 -- Compendium UiMapID labels. Available even without the Zones module.
 -- Includes names for imported map IDs missing from the 1.12 client.
-local Compendium=SSCCompendium
+local Compendium=SpokenCompendium
 local MapNames={
     [947]="Azeroth",
     [1411]="Durotar",

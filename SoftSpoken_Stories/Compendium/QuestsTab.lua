@@ -3,7 +3,7 @@
 -- QuestState.lua owns gameplay and persistent discovery state.
 SSCQuestsTab = SSCQuestsTab or {}
 local QuestsTab=SSCQuestsTab
-local Compendium=SSCCompendium
+local Compendium=SpokenCompendium
 local QuestState=SSCQuestState
 local QuestCatalog=SSCQuestCatalog
 local Preload=SSCQuestPortraitPreload

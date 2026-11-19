@@ -388,7 +388,7 @@ local function Build()
     -- Azeroth's Compendium: Places, Writings and Stories each supply their
     -- own persisted unlock preference via the registered tab. The rows query
     -- the tab on refresh because feature modules register after this page.
-    local function Compendium() return _G.SSCCompendium or _G.SpokenZones112Compendium or _G.SpokenCompendium end
+    local function Compendium() return _G.SpokenCompendium end
     local function Tab(key)
         local compendium = Compendium()
         return compendium and compendium.Tab and compendium:Tab(key)

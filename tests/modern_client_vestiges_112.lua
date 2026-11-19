@@ -78,7 +78,7 @@ minimap:Setup()
 assert(registered == 1, "minimap registration no longer idempotent")
 launcher.OnClick({}, "LeftButton")
 assert(opened == 1, "left click must open Settings")
-_G.SSCCompendium = { Available = function() return true end }
+_G.SpokenCompendium = { Available = function() return true end }
 launcher.OnClick({}, "MiddleButton")
 assert(compendium == 1, "middle click must open Compendium")
 minimap:Refresh()
@@ -87,5 +87,5 @@ local menu = minimap:BuildMenu()
 assert(#menu >= 4 and menu[1].id == "PlayPause"
     and menu[2].id == "Stop" and menu[3].id == "Compendium"
     and menu[4].id == "Settings", "native minimap menu items changed")
-_G.SSCCompendium = nil
+_G.SpokenCompendium = nil
 print("PASS: ClassicAPI portrait and native minimap/menu behavior retained")

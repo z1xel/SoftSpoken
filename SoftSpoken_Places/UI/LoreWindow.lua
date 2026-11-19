@@ -1,7 +1,7 @@
 -- Zone-specific Compendium tree and exploration state for Vanilla 1.12.
 SSZLoreWindow = SSZLoreWindow or {}
 local LoreWindow = SSZLoreWindow
-local Compendium = SSZCompendium
+local Compendium = SpokenCompendium
 local CITY_IN = Compendium.CITY_IN
 local CONTINENTS = { [1414]="Kalimdor", [1415]="Eastern Kingdoms" }
 local CONTINENT_OF = Compendium.KNOWN_CONTINENT
@@ -483,7 +483,7 @@ local function BuildPanel(p)
     -- header while the tree begins below its search field.
     local pageInset
     pageInset, page = Compendium.CreatePagePane(p, list, function(holder)
-        return SSZLorePage.Build(holder)
+        return SSCLorePage.Build(holder)
     end)
     if SSZAudioButton and SSZAudioButton.Bind then SSZAudioButton.Bind(page.play) end
     p.lorePage=page

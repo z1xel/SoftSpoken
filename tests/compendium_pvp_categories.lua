@@ -4,7 +4,7 @@ local function eq(actual,expected,label)
     assert(actual==expected,(label or "value")..": expected "..tostring(expected)..
         ", got "..tostring(actual))
 end
-SSCCompendium={
+SpokenCompendium={
     CITY_IN={},
     ContinentOf=function() return nil end,
     DungeonName=function(id) return tostring(id) end,

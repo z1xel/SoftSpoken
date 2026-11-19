@@ -16,8 +16,8 @@ local TEXT_PAD_TOP, TEXT_PAD_BOTTOM = 8, 12
 TextView.PAD_TOP, TextView.PAD_BOTTOM = TEXT_PAD_TOP, TEXT_PAD_BOTTOM
 local LINE_SPACING = 0
 local function FontSize()
-    if SSCCompendium and SSCCompendium.TextSize then
-        return SSCCompendium:TextSize()
+    if SpokenCompendium and SpokenCompendium.TextSize then
+        return SpokenCompendium:TextSize()
     end
     return 14
 end

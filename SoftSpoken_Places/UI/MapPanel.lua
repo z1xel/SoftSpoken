@@ -4,7 +4,7 @@ SSZMapPanel = SSZMapPanel or {}
 local MapPanel = SSZMapPanel
 local MapCompat = SSZMapCompat
 local LoreWindow = SSZLoreWindow
-local LorePage = SSZLorePage
+local LorePage = SSCLorePage
 local WIDTH, GAP = 328, 2
 local READER_RIGHT_SHIFT = 2
 local SCROLLBAR_EXTRA_RIGHT_SHIFT = 1
@@ -139,7 +139,7 @@ local function BuildPanel()
     -- scrollbar inset directly beneath the compact silver title bar.
     -- Keep the parchment and scrollbar clear of the map's visible ornate
     -- footer without leaving a broad empty strip above it.
-    pageInset,page=SSCCompendium.CreateStandalonePagePane(panel,function(holder)
+    pageInset,page=SpokenCompendium.CreateStandalonePagePane(panel,function(holder)
         return LorePage.CreateLorePage(holder,{openInCompendium=true,expandSubtitle=true})
     end,{left=0,right=4,top=23,bottom=24})
     -- Lore of the Land geometry: size the shared page visual, not its parchment
@@ -179,7 +179,7 @@ local function BuildPanel()
             -- parchment's height and shared Compendium unchanged.
             -- Keep the parchment's 2-unit right-edge adjustment, but shift
             -- only Lore of the Land's scrollbar an additional unit to the right.
-            local geometry=SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
+            local geometry=SpokenCompendium and SpokenCompendium.VISUAL_GEOMETRY
             local rightOffset=(geometry and geometry.pageSlotRightOffset or -3)
                 + READER_RIGHT_SHIFT + SCROLLBAR_EXTRA_RIGHT_SHIFT
             slot:ClearAllPoints()
@@ -436,8 +436,8 @@ end
 -- the 1.12 map cannot zoom into it. Reading doesn't mark it discovered.
 function MapPanel.SelectCity(parentMapID, cityID)
     if MapCompat.GetDisplayedMapID() ~= parentMapID then return false end
-    if not (SSZCompendium and SSZCompendium.CITY_IN and
-            SSZCompendium.CITY_IN[cityID] == parentMapID) then return false end
+    if not (SpokenCompendium and SpokenCompendium.CITY_IN and
+            SpokenCompendium.CITY_IN[cityID] == parentMapID) then return false end
     if not (SSZLore and SSZLore.zones and
             SSZLore.zones[cityID]) then return false end
     if not (LoreWindow and LoreWindow.IsLocked) or LoreWindow.IsLocked(cityID, nil) then return false end

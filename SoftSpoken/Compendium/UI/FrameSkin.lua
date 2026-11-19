@@ -96,7 +96,7 @@ local function AttachQuestLogHeaderMask(frame)
     local left, right = frame.sszQuestLogHeaderLeft, frame.sszQuestLogHeaderRight
     if not (frame.CreateMaskTexture and left and right and
             left.AddMaskTexture and right.AddMaskTexture) then return end
-    local g = SSCCompendium and SSCCompendium.VISUAL_GEOMETRY
+    local g = SpokenCompendium and SpokenCompendium.VISUAL_GEOMETRY
     if not g then return end
 
     local firstPanelEnd = g.listLeft + g.listWidth
