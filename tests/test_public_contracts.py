@@ -185,27 +185,27 @@ for module in ("SoftSpoken", "SoftSpoken_Stories", "SoftSpoken_Writings"):
         for number, line in enumerate(file.read_text(encoding="utf-8").splitlines(), 1):
             code = line.split("--", 1)[0]
             if module == "SoftSpoken_Writings":
-                assert not re.search(r"\\bSSB\\b", code), (
+                assert not re.search(r"\bSSB\b", code), (
                     f"{file.relative_to(ROOT)}:{number}: retired Writings module global SSB"
                 )
             elif module == "SoftSpoken":
-                assert not re.search(r"\\bAddon\\s*[.:(\\[]", code), (
+                assert not re.search(r"\bAddon\s*[.:(\[]", code), (
                     f"{file.relative_to(ROOT)}:{number}: retired Core controller Addon"
                 )
             else:
                 # Stories deliberately retains the assignment Addon = StoriesAddon
                 # for older pack integrations. Its own code uses StoriesAddon.
-                assert not re.search(r"\\bAddon\\s*[.:(\\[]", code), (
+                assert not re.search(r"\bAddon\s*[.:(\[]", code), (
                     f"{file.relative_to(ROOT)}:{number}: legacy Stories controller alias in internal code"
                 )
 
 # Coverage is not just source spelling: refactor_compatibility.lua actually
 # executes Core.lua followed by Locale/enUS.lua and checks the resulting L keys.
 require("SoftSpoken_Writings/Locale/enUS.lua",
-        r"^local Writings\\s*=\\s*SpokenWritings\\s*$",
+        r"^local Writings\s*=\s*SpokenWritings\s*$",
         "Writings locale bound to canonical controller")
 require("SoftSpoken_Writings/Locale/enUS.lua",
-        r"^Writings\\.L\\s*=\\s*Writings\\.L\\s+or\\s+\\{\\}",
+        r"^Writings\.L\s*=\s*Writings\.L\s+or\s+\{\}",
         "Writings locale table initialized before the UI")
 
 # The exception is deliberate: packaged/generated lore still calls SSZBridge.
