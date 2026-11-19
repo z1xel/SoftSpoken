@@ -11,7 +11,7 @@ if not GetQuestID then
 
     -- QuestRuntime.lua captures the selected quest while the gossip list and its
     -- authoritative ClassicAPI quest IDs are still available.
-    function Addon:NoteClassicQuestSelection(id, title, npcName, kind)
+    function StoriesAddon:NoteClassicQuestSelection(id, title, npcName, kind)
         if not Version.IsLegacyVanilla or type(id) ~= "number" or id <= 0 or
            type(title) ~= "string" or title == "" then
             return
@@ -19,12 +19,12 @@ if not GetQuestID then
         selectedQuest = { id = id, title = title, npcName = npcName or "", kind = kind }
     end
 
-    function Addon:ClearClassicQuestSelection()
+    function StoriesAddon:ClearClassicQuestSelection()
         selectedQuest = nil
     end
 
     -- Told by QuestRuntime.lua's QuestIDFor just before it asks which quest this is.
-    function Addon:NoteLegacyQuestEvent(eventStage, eventText)
+    function StoriesAddon:NoteLegacyQuestEvent(eventStage, eventText)
         questStage = eventStage
         text = eventText
     end
@@ -130,8 +130,8 @@ function GetQuestLogTitle(questIndex)
     if type(questID)~="number" or questID<=0 then
         questID=DataModules:GetQuestID("accept",title,"","")
     end
-    if not questID and Addon.db and Addon.db.char then
-        questID=Addon.db.char.RecentQuestTitleToID[title]
+    if not questID and StoriesAddon.db and StoriesAddon.db.char then
+        questID=StoriesAddon.db.char.RecentQuestTitleToID[title]
     end
     if not questID then
         questID=dummyQuestIDMap[title]
@@ -145,7 +145,7 @@ function GetQuestLogTitle(questIndex)
 end
 
 -- Quest-specific 1.12 behavior is deliberately local to this module.
-LibStub("AceConfig-3.0"):Embed(Addon)
+LibStub("AceConfig-3.0"):Embed(StoriesAddon)
 
 local function getargn(...)
     return arg.n
@@ -171,7 +171,7 @@ function Utils:IsNPCPlayer()
 end
 
 -- Extended Quest Log 3 changes quest-log frames, not shared FrameXML methods.
-function Addon.OnAddonLoad.EQL3() -- Extended Quest Log 3
+function StoriesAddon.OnAddonLoad.EQL3() -- Extended Quest Log 3
     QUESTS_DISPLAYED = EQL3_QUESTS_DISPLAYED
 
     QuestLogFrame = EQL3_QuestLogFrame

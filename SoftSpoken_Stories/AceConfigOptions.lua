@@ -38,8 +38,8 @@ local GeneralTab =
                     order = 1,
                     width = 2,
                     name = L.OPT_PANEL_AUTOPLAY,
-                    get = function(info) return Addon:IsAutoplayOn() end,
-                    set = function(info, value) Addon:SetAutoplay(value) end,
+                    get = function(info) return StoriesAddon:IsAutoplayOn() end,
+                    set = function(info, value) StoriesAddon:SetAutoplay(value) end,
                 },
                 LineBreak1 = { type = "description", name = "", order = 2 },
                 GossipFrequency = {
@@ -48,7 +48,7 @@ local GeneralTab =
                     order = 3,
                     -- It decides which greetings autoplay reads, so with autoplay off it has
                     -- nothing to decide.
-                    disabled = function(info) return not Addon:IsAutoplayOn() end,
+                    disabled = function(info) return not StoriesAddon:IsAutoplayOn() end,
                     name = L.OPT_PANEL_GREETINGS,
                     values = {
                         [Enums.GossipFrequency.Always] = L.OPT_GREETING_LABEL_ALWAYS,
@@ -56,9 +56,9 @@ local GeneralTab =
                         [Enums.GossipFrequency.OncePerNPC] = L.OPT_GREETING_LABEL_ONCE_NPC,
                         [Enums.GossipFrequency.Never] = L.OPT_GREETING_LABEL_NEVER,
                     },
-                    get = function(info) return Addon.db.profile.Audio.GossipFrequency end,
+                    get = function(info) return StoriesAddon.db.profile.Audio.GossipFrequency end,
                     set = function(info, value)
-                        Addon.db.profile.Audio.GossipFrequency = value
+                        StoriesAddon.db.profile.Audio.GossipFrequency = value
                         StoriesNarrator:RefreshConfig()
                     end,
                 },
@@ -68,9 +68,9 @@ local GeneralTab =
                     order = 6,
                     width = 2,
                     name = L.OPT_PANEL_STOP_ON_CLOSE,
-                    get = function(info) return Addon.db.profile.Audio.StopAudioOnDisengage end,
+                    get = function(info) return StoriesAddon.db.profile.Audio.StopAudioOnDisengage end,
                     set = function(info, value)
-                        Addon.db.profile.Audio.StopAudioOnDisengage = value
+                        StoriesAddon.db.profile.Audio.StopAudioOnDisengage = value
                     end,
                 },
                 ToggleFollowupLines = {
@@ -79,10 +79,10 @@ local GeneralTab =
                     width = 2,
                     name = L.OPT_PANEL_FOLLOWUP,
                     -- Follow-up lines read themselves, so autoplay off leaves this nothing to do.
-                    disabled = function(info) return not Addon:IsAutoplayOn() end,
-                    get = function(info) return Addon.db.profile.Audio.FollowupLines ~= false end,
+                    disabled = function(info) return not StoriesAddon:IsAutoplayOn() end,
+                    get = function(info) return StoriesAddon.db.profile.Audio.FollowupLines ~= false end,
                     set = function(info, value)
-                        Addon.db.profile.Audio.FollowupLines = value
+                        StoriesAddon.db.profile.Audio.FollowupLines = value
                     end,
                 },
                 OGThrall = {
@@ -91,9 +91,9 @@ local GeneralTab =
                     width = 2,
                     name = L.OPT_OG_THRALL,
                     desc = L.OPT_OG_THRALL_TIP,
-                    get = function(info) return Addon.db.profile.Audio.OGThrall end,
+                    get = function(info) return StoriesAddon.db.profile.Audio.OGThrall end,
                     set = function(info, value)
-                        Addon.db.profile.Audio.OGThrall = value
+                        StoriesAddon.db.profile.Audio.OGThrall = value
                     end,
                 },
             }
@@ -338,7 +338,7 @@ function Options:DiagnosticsLines()
                 tostring(Spoken and Spoken:IsPaused()), Spoken and Spoken:GetQueueSize() or 0,
                 Spoken and Spoken.ADDON_VERSION or "missing"))
             Add("NPC greetings: " ..
-                (Enums.GossipFrequency:GetName(Addon.db.profile.Audio.GossipFrequency) or "unknown"))
+                (Enums.GossipFrequency:GetName(StoriesAddon.db.profile.Audio.GossipFrequency) or "unknown"))
             if GreetingFirst and GreetingFirst.DescribeTiming then
                 Add("NPC greeting timing: " .. GreetingFirst:DescribeTiming())
             end
@@ -349,7 +349,7 @@ function Options:DiagnosticsLines()
             local summary = DataModules:GetLoadSummary()
             for _, module in DataModules:GetPresentModules() do
                 local status, failure = DataModules:GetModuleLoadStatus(module.AddonName)
-                if status == "not attempted" and Addon.dataModulesPending then
+                if status == "not attempted" and StoriesAddon.dataModulesPending then
                     status = "waiting for deferred load"
                 elseif status == "disabled" then
                     status = "disabled in SoftSpoken (not loaded)"
@@ -370,18 +370,18 @@ function Options:DiagnosticsLines()
             end
             local stage, message = Debug:GetRuntimeStatus()
             Add(format("Last runtime stage: %s - %s", stage or "none", message or "no details"))
-            if Addon.eventBridgeErrors then
-                for _, warning in ipairs(Addon.eventBridgeErrors) do
+            if StoriesAddon.eventBridgeErrors then
+                for _, warning in ipairs(StoriesAddon.eventBridgeErrors) do
                     Add("Bridge warning: " .. warning)
                 end
             end
 
-            if Addon.optionsInitializationError then
+            if StoriesAddon.optionsInitializationError then
                 Add("Options startup warning: " .. Addon.optionsInitializationError)
             end
-            if Addon.dataModulesPending then
+            if StoriesAddon.dataModulesPending then
                 Add("Data startup: loading is deferred until one second after entering the world")
-            elseif Addon.dataModulesDeferredError then
+            elseif StoriesAddon.dataModulesDeferredError then
                 Add("Data startup warning: " .. Addon.dataModulesDeferredError)
             end
             if Options.initializationErrors then
@@ -411,15 +411,15 @@ function Options:Initialize()
     end
 
     RunOptionalStep("profile options", function()
-        self.table.args.Profiles = AceDBOptions:GetOptionsTable(Addon.db)
+        self.table.args.Profiles = AceDBOptions:GetOptionsTable(StoriesAddon.db)
     end)
 
     -- Create options table
     Debug:Print("Registering options table...", "Options")
     local AceConfig = LibStub("AceConfig-3.0")
-    if Addon.RegisterOptionsTable then
+    if StoriesAddon.RegisterOptionsTable then
         -- Embedded version for 1.12
-        AceConfig = Addon
+        AceConfig = StoriesAddon
     end
     RunOptionalStep("AceConfig table registration (no chat commands)", function()
         -- Keep the table for the old AceGUI emergency fallback, not for slash routing.

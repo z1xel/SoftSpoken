@@ -34,7 +34,7 @@ local function reset()
         source.AddGate = function(self, callback) self.gate = callback end
         source.Retry = function(self) self.retries = (self.retries or 0) + 1 end
     end
-    env.Addon = {
+    env.StoriesAddon = {
         db = { profile = { Audio = { GreetingFirst = true } } },
         ScheduleTimer = function(self, fn, delay)
             assert(type(fn) == "function" and type(delay) == "number" and delay >= 0)
@@ -161,7 +161,7 @@ check("object resolved during classification releases", not greeting:IsWaiting()
 
 greeting = reset()
 greeting:Open()
-env.Addon.db.profile.Audio.GreetingFirst = false
+env.StoriesAddon.db.profile.Audio.GreetingFirst = false
 check("disabling the option deactivates the gate", not greeting:IsWaiting())
 
 greeting = reset()

@@ -128,8 +128,16 @@ for path, assertion in (
     ("SoftSpoken/Core.lua", r"^CoreController\s*="),
     ("SoftSpoken_Stories/NarrationSource.lua", r"^StoriesNarrator\s*=\s*\{"),
     ("SoftSpoken_Stories/UI/SettingsPage.lua", r"^StoriesSettingsPage\s*=\s*\{"),
+    ("SoftSpoken_Stories/QuestRuntime.lua", r'^StoriesAddon\s*=\s*AceAddon:NewAddon\("SpokenQuests"'),
 ):
     require(path, assertion, "canonical controller declared")
+
+# The registered AceAddon identity and historical VoiceOver.Addon access remain intact.
+require(
+    "SoftSpoken_Stories/QuestRuntime.lua",
+    r"^Addon\s*=\s*StoriesAddon\b",
+    "legacy VoiceOver.Addon shares the canonical StoriesAddon controller",
+)
 
 # Retired *implementation* identifiers must not quietly return.
 # Scan first-party Lua, excluding generated data, locale strings and libraries.

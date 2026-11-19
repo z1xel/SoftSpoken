@@ -172,7 +172,7 @@ EnableAddOn=realEnable
 installed,byName,loadCalls,outcomes,loaded,writes,enableCalls={},{},{},{},{},{},{}
 install("SkippedPack","success",true,true)
 install("WantedPack","success",true,true)
-VoiceOver.Addon={db={profile={Audio={DisabledVoicePacks={SkippedPack=true}}}}}
+VoiceOver.StoriesAddon={db={profile={Audio={DisabledVoicePacks={SkippedPack=true}}}}}
 data.presentModules,data.presentModulesOrdered={},{}
 data.registeredModules,data.registeredModulesOrdered={},{}
 data.loadErrors,data.loadAttempts={},{}
@@ -192,7 +192,7 @@ eq(s.detected,2);eq(s.loaded,1);eq(s.disabled,1);eq(s.failed,0);eq(s.notAttempte
 
 -- Enabling a skipped pack uses the existing loader, with no UI reload.
 data:SetPackEnabled("SkippedPack",true)
-eq(VoiceOver.Addon.db.profile.Audio.DisabledVoicePacks.SkippedPack,nil,
+eq(VoiceOver.StoriesAddon.db.profile.Audio.DisabledVoicePacks.SkippedPack,nil,
     "enabled preference clears the disabled entry")
 eq(data:IsPackEnabled("SkippedPack"),true)
 eq(data:LoadModule(data:GetPresentModule("SkippedPack")),true,"immediate on-demand loading")

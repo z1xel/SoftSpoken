@@ -11,11 +11,11 @@ local UI = SpokenLayout
 -- or the existing AceGUI settings window.
 local function Ready()
     return Spoken and Spoken.AddSettingsPage and UI and
-        Addon and Addon.db and Addon.db.profile and
-        Addon.db.profile.Audio and DataModules and StoriesNarrator
+        StoriesAddon and StoriesAddon.db and StoriesAddon.db.profile and
+        StoriesAddon.db.profile.Audio and DataModules and StoriesNarrator
 end
 
-local function Audio() return Addon.db.profile.Audio end
+local function Audio() return StoriesAddon.db.profile.Audio end
 local function Refresh()
     if layout then layout:Refresh() end
 end
@@ -37,8 +37,8 @@ function StoriesSettingsPage:Build()
 
     layout:Section("Quest Narration")
     local autoplay = layout:Checkbox(L.OPT_PANEL_AUTOPLAY or "Read Automatically", nil,
-        function() return Addon:IsAutoplayOn() end,
-        function(on) Addon:SetAutoplay(on) end, Refresh)
+        function() return StoriesAddon:IsAutoplayOn() end,
+        function(on) StoriesAddon:SetAutoplay(on) end, Refresh)
     layout:Requires(autoplay, function()
         return Spoken:IsPartOn("quests") or Spoken:IsPartOn("gossip")
     end, "Enable Stories or Gossip to use this.")
@@ -48,7 +48,7 @@ function StoriesSettingsPage:Build()
         function(on) Audio().FollowupLines = on end)
     layout:Outdent()
     layout:Requires(followup, function()
-        return Spoken:IsPartOn("quests") and Addon:IsAutoplayOn()
+        return Spoken:IsPartOn("quests") and StoriesAddon:IsAutoplayOn()
     end, "Enable Stories and automatic narration to use this.")
     local stopOnClose = layout:Checkbox(L.OPT_PANEL_STOP_ON_CLOSE or "Stop When Window Closes", nil,
         function() return Audio().StopAudioOnDisengage end,
@@ -60,7 +60,7 @@ function StoriesSettingsPage:Build()
         function() return Audio().ReadAfterClose end,
         function(on) Audio().ReadAfterClose = on end)
     layout:Requires(afterClose, function()
-        return Spoken:IsPartOn("quests") and Addon:IsAutoplayOn()
+        return Spoken:IsPartOn("quests") and StoriesAddon:IsAutoplayOn()
     end, "Enable Stories and automatic narration to use this.")
     local gameFirst = layout:Checkbox(L.OPT_PANEL_GAME_GREETING_FIRST or "Game Greeting First",
         L.OPT_PANEL_GAME_GREETING_FIRST_TIP,
@@ -68,7 +68,7 @@ function StoriesSettingsPage:Build()
         function(on) Audio().GreetingFirst = on end)
     layout:Requires(gameFirst, function()
         return (Spoken:IsPartOn("quests") or Spoken:IsPartOn("gossip"))
-            and Addon:IsAutoplayOn()
+            and StoriesAddon:IsAutoplayOn()
     end, "Enable Stories or Gossip and automatic narration to use this.")
     local originalThrall = layout:Checkbox(L.OPT_OG_THRALL or "Original Thrall Voice", L.OPT_OG_THRALL_TIP,
         function() return Audio().OGThrall end,
@@ -95,7 +95,7 @@ function StoriesSettingsPage:Build()
             StoriesNarrator:RefreshConfig()
         end, nil, function(value) return names[value] or tostring(value) end)
     layout:Requires(frequency, function()
-        return Spoken:IsPartOn("gossip") and Addon:IsAutoplayOn()
+        return Spoken:IsPartOn("gossip") and StoriesAddon:IsAutoplayOn()
     end, "Enable Gossip and automatic narration to use this.")
 
     layout:Section("Voice Packs")
@@ -194,7 +194,7 @@ function StoriesSettingsPage:Build()
     layout:Defaults(function()
         UI.Confirm("Reset Stories and Gossip preferences? Their profiles are reset; reading history is kept.",
             "Reset", "Cancel", function()
-                Addon.db:ResetProfile()
+                StoriesAddon.db:ResetProfile()
                 Refresh()
             end)
     end)

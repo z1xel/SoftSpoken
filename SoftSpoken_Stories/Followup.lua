@@ -29,8 +29,8 @@ local EXPIRY_SLACK = 10
 local GetTitleText = GetTitleText
 
 function Followup:IsEnabled()
-    local audio = Addon and Addon.db and Addon.db.profile.Audio
-    return audio and audio.FollowupLines ~= false and Addon:IsAutoplayOn() or false
+    local audio = StoriesAddon and StoriesAddon.db and StoriesAddon.db.profile.Audio
+    return audio and audio.FollowupLines ~= false and StoriesAddon:IsAutoplayOn() or false
 end
 
 --------------------------------------------------------------------------------
@@ -387,13 +387,13 @@ function Followup:Setup()
         -- IsEnabled first: resolving the quest can mean a fuzzy search of every loaded pack.
         pcall(hooksecurefunc, "GetQuestReward", function()
             if Followup:IsEnabled() then
-                local questID = Addon:DialogQuestID("QUEST_COMPLETE")
+                local questID = StoriesAddon:DialogQuestID("QUEST_COMPLETE")
                 Followup:Arm("end", questID, TitleFor(questID))
             end
         end)
         pcall(hooksecurefunc, "AcceptQuest", function()
             if Followup:IsEnabled() then
-                local questID = Addon:DialogQuestID("QUEST_DETAIL")
+                local questID = StoriesAddon:DialogQuestID("QUEST_DETAIL")
                 Followup:Arm("start", questID, TitleFor(questID))
             end
         end)

@@ -1,6 +1,6 @@
 setfenv(1, VoiceOver)
 
----@class Addon : AceAddon, AceAddon-3.0, AceEvent-3.0, AceTimer-3.0
+---@class StoriesAddon : AceAddon, AceAddon-3.0, AceEvent-3.0, AceTimer-3.0
 ---@field db VoiceOverConfig|AceDBObject-3.0
 local AceAddon = LibStub("AceAddon-3.0")
 
@@ -27,9 +27,12 @@ for _, player in ipairs(SUPERSEDED_PLAYERS) do
         table.insert(supersededFolders, player.folder)
     end
 end
-Addon = AceAddon:NewAddon("SpokenQuests", "AceEvent-3.0", "AceTimer-3.0")
+StoriesAddon = AceAddon:NewAddon("SpokenQuests", "AceEvent-3.0", "AceTimer-3.0")
+-- Legacy namespace for integrations that reference VoiceOver.Addon.
+-- Both names refer to the same AceAddon; "SpokenQuests" remains its registered ID.
+Addon = StoriesAddon
 
-Addon.OnAddonLoad = {}
+StoriesAddon.OnAddonLoad = {}
 
 -- Store original function before EQL3 (Extended Quest Log 3) overrides it and starts prepending quest level
 local GetTitleText = GetTitleText
@@ -73,8 +76,8 @@ local QUEST_EVENTS = {
 --- is told about; telling it here, just before asking, means no event order is relied on.
 local function QuestIDFor(event)
     local quest = QUEST_EVENTS[event]
-    if quest and Addon.NoteLegacyQuestEvent then
-        Addon:NoteLegacyQuestEvent(quest.questStage, quest.text())
+    if quest and StoriesAddon.NoteLegacyQuestEvent then
+        StoriesAddon:NoteLegacyQuestEvent(quest.questStage, quest.text())
     end
     return GetQuestID and NotSecret(GetQuestID()) or 0
 end
@@ -82,7 +85,7 @@ end
 --- The quest on the open dialog `event` names, falling back on its title, NPC and text where
 --- the client has no ID for it. Also used by Followup.lua's accept and turn-in
 --- hooks on the legacy client.
-function Addon:DialogQuestID(event)
+function StoriesAddon:DialogQuestID(event)
     local quest = QUEST_EVENTS[event]
     return ResolveQuestID(quest.questStage, QuestIDFor(event), QuestTitle(),
         Utils:GetNPCName() or "", quest.text(), true) or 0
@@ -141,7 +144,7 @@ end
 --- Every read goes through here, automatic or not. `manual` is a player asking for this
 --- line - the Play button, /spq read - rather than the client reporting a dialog, so it reads
 --- whatever autoplay and the greeting frequency say.
-function Addon:InvokeQuestHandler(event, dispatchOrigin, manual)
+function StoriesAddon:InvokeQuestHandler(event, dispatchOrigin, manual)
     local handler = self[event]
     if not handler then
         Debug:Record("handler-missing", format("No handler exists for %s", tostring(event)))
@@ -179,31 +182,31 @@ end
 
 --- Whether the player has a part of Spoken switched on (Spoken's settings): "quests", or
 --- "gossip" for what NPCs say. Off, none of its buttons show on the game's frames.
-function Addon:IsPartOn(part)
+function StoriesAddon:IsPartOn(part)
     return not (Spoken and Spoken.IsPartOn) or Spoken:IsPartOn(part or "quests")
 end
 
 --- The part a window belongs to, told by the game event that opens it: greeting and gossip
 --- windows are Gossip's, every quest window Quests'.
-function Addon:PartOfPage(event)
+function StoriesAddon:PartOfPage(event)
     return (event == "GOSSIP_SHOW" or event == "QUEST_GREETING") and "gossip" or "quests"
 end
 
 --- Whether the part the window `event` opens belongs to is switched on.
-function Addon:IsPageOn(event)
+function StoriesAddon:IsPageOn(event)
     return self:IsPartOn(self:PartOfPage(event))
 end
 
-function Addon:IsAutoplayOn()
+function StoriesAddon:IsAutoplayOn()
     return self.db.profile.Audio.Autoplay ~= false
 end
 
 --- Read Greetings is at Never: no NPC window reads itself, whatever Read Automatically says.
-function Addon:IsNever()
+function StoriesAddon:IsNever()
     return self.db.profile.Audio.GossipFrequency == Enums.GossipFrequency.Never
 end
 
-function Addon:SetAutoplay(on)
+function StoriesAddon:SetAutoplay(on)
     self.db.profile.Audio.Autoplay = on and true or false
     -- The Play button stands in for autoplay, so it appears or goes with the setting even
     -- while a dialog is already open.
@@ -233,7 +236,7 @@ local SPEECH_EVENTS = {
 --- when a replacement dialog UI does not expose Blizzard's visible quest panels.
 ---@param event string?
 ---@return SoundData?, string?
-function Addon:GetVisibleLine(event)
+function StoriesAddon:GetVisibleLine(event)
     event = event or GetVisibleDialogueEvent()
     -- A disabled part exposes neither automatic narration nor a manual Listen action.
     if event and not self:IsPageOn(event) then
@@ -271,7 +274,7 @@ function Addon:GetVisibleLine(event)
 end
 
 --- Read the dialog on screen because the player asked to.
-function Addon:ReadVisibleQuest(dispatchOrigin)
+function StoriesAddon:ReadVisibleQuest(dispatchOrigin)
     local event = GetVisibleDialogueEvent()
     if not event then
         Debug:Record("visible-panel-missing", "GetQuestID returned 0 and no Blizzard quest or gossip panel is visible")
@@ -356,7 +359,7 @@ local function CacheClassicGossipQuestLists()
 end
 
 local function NoteClassicQuestSelection(kind, selection, isQuestID)
-    if not Version.IsLegacyVanilla or not Addon.NoteClassicQuestSelection then return end
+    if not Version.IsLegacyVanilla or not StoriesAddon.NoteClassicQuestSelection then return end
     local list = classicGossipQuestLists and classicGossipQuestLists[kind]
     if not list then return end
     local picked
@@ -368,11 +371,11 @@ local function NoteClassicQuestSelection(kind, selection, isQuestID)
         picked = list[selection]
     end
     if picked and type(picked.questID) == "number" and picked.questID > 0 then
-        Addon:NoteClassicQuestSelection(picked.questID, picked.title, classicGossipNPC, kind)
+        StoriesAddon:NoteClassicQuestSelection(picked.questID, picked.title, classicGossipNPC, kind)
     end
 end
 
-function Addon:OnInitialize()
+function StoriesAddon:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("SpokenQuestsSettings", defaults)
     self.db.RegisterCallback(self, "OnProfileChanged", "RefreshConfig")
     self.db.RegisterCallback(self, "OnProfileReset", "RefreshConfig")
@@ -834,7 +837,7 @@ function Addon:OnInitialize()
     end
 end
 
-function Addon:RefreshConfig()
+function StoriesAddon:RefreshConfig()
     StoriesNarrator:RefreshConfig()
     -- Quest-local profile language fallbacks also affect the Voiced Only filter.
     if SSCQuestsTab and SSCQuestsTab.InvalidateVoiceCache then
@@ -852,7 +855,7 @@ function Addon:RefreshConfig()
     end
 end
 
-function Addon:ADDON_LOADED(event, addon)
+function StoriesAddon:ADDON_LOADED(event, addon)
     addon = addon or arg1 -- Thanks, Ace3v...
     local hook = self.OnAddonLoad[addon]
     if hook then
@@ -900,14 +903,14 @@ end
 local pendingRead
 
 local function QueueRead(soundData, manual)
-    if not manual and Addon.db.profile.Audio.ReadAfterClose then
+    if not manual and StoriesAddon.db.profile.Audio.ReadAfterClose then
         pendingRead = soundData
         return
     end
     StoriesNarrator:Enqueue(soundData, manual)
 end
 
-function Addon:QUEST_DETAIL(_, manual)
+function StoriesAddon:QUEST_DETAIL(_, manual)
     local questID, questTitle, questText, guid, targetName, isObjectOrItem, portraitGUID = ReadQuestFields("QUEST_DETAIL")
 
     Debug:Record("quest-detail", format("QUEST_DETAIL: raw ID %s, title %q, NPC %q",
@@ -917,8 +920,8 @@ function Addon:QUEST_DETAIL(_, manual)
         return
     end
 
-    if Addon.db.char.RecentQuestTitleToID and questID ~= 0 then
-        Addon.db.char.RecentQuestTitleToID[questTitle] = questID
+    if StoriesAddon.db.char.RecentQuestTitleToID and questID ~= 0 then
+        StoriesAddon.db.char.RecentQuestTitleToID[questTitle] = questID
     end
 
     local type = guid and Utils:GetGUIDType(guid)
@@ -948,7 +951,7 @@ function Addon:QUEST_DETAIL(_, manual)
     QueueRead(soundData, manual)
 end
 
-function Addon:QUEST_PROGRESS(_, manual)
+function StoriesAddon:QUEST_PROGRESS(_, manual)
     local questID, questTitle, questText, guid, targetName, isObjectOrItem, portraitGUID = ReadQuestFields("QUEST_PROGRESS")
 
     Debug:Record("quest-progress", format("QUEST_PROGRESS: raw ID %s, title %q, NPC %q",
@@ -958,8 +961,8 @@ function Addon:QUEST_PROGRESS(_, manual)
         return
     end
 
-    if Addon.db.char.RecentQuestTitleToID then
-        Addon.db.char.RecentQuestTitleToID[questTitle] = questID
+    if StoriesAddon.db.char.RecentQuestTitleToID then
+        StoriesAddon.db.char.RecentQuestTitleToID[questTitle] = questID
     end
 
     ---@type SoundData
@@ -977,7 +980,7 @@ function Addon:QUEST_PROGRESS(_, manual)
     QueueRead(soundData, manual)
 end
 
-function Addon:QUEST_COMPLETE(_, manual)
+function StoriesAddon:QUEST_COMPLETE(_, manual)
     local questID, questTitle, questText, guid, targetName, isObjectOrItem, portraitGUID = ReadQuestFields("QUEST_COMPLETE")
 
     Debug:Record("quest-complete", format("QUEST_COMPLETE: raw ID %s, title %q, NPC %q",
@@ -987,8 +990,8 @@ function Addon:QUEST_COMPLETE(_, manual)
         return
     end
 
-    if Addon.db.char.RecentQuestTitleToID and questID ~= 0 then
-        Addon.db.char.RecentQuestTitleToID[questTitle] = questID
+    if StoriesAddon.db.char.RecentQuestTitleToID and questID ~= 0 then
+        StoriesAddon.db.char.RecentQuestTitleToID[questTitle] = questID
     end
 
     -- print("QUEST_COMPLETE", questID, questTitle);
@@ -1008,7 +1011,7 @@ function Addon:QUEST_COMPLETE(_, manual)
 end
 
 ---@param followsOption boolean? the page was reached by picking one of the NPC's options
-function Addon:ShouldPlayGossip(guid, text, manual, followsOption)
+function StoriesAddon:ShouldPlayGossip(guid, text, manual, followsOption)
     local npcKey = guid or "unknown"
 
     -- Asked for by name, so having heard it before does not stand in the way.
@@ -1050,7 +1053,7 @@ end
 --- the native greeting time to play before auto-reading an NPC window. Direct
 --- game events arm this early; InvokeQuestHandler also arms it for UI fallbacks
 --- that bypass those events.
-function Addon:BeginGreetingWait(event)
+function StoriesAddon:BeginGreetingWait(event)
     if not GreetingFirst:IsOn() or not self:IsPageOn(event)
         or not self:IsAutoplayOn() or self.dataModulesPending
         or not StoriesNarrator.source then
@@ -1064,7 +1067,7 @@ function Addon:BeginGreetingWait(event)
     GreetingFirst:Open()
 end
 
-function Addon:QUEST_GREETING(event, manual)
+function StoriesAddon:QUEST_GREETING(event, manual)
     local guid = Utils:GetNPCGUID()
     local targetName = Utils:GetNPCName()
     local greetingText = NotSecret(GetGreetingText())
@@ -1125,7 +1128,7 @@ function NoteGossipPage()
     end
 end
 
-function Addon:GOSSIP_SHOW(event, manual)
+function StoriesAddon:GOSSIP_SHOW(event, manual)
     local guid = Utils:GetNPCGUID()
     local targetName = Utils:GetNPCName()
     local gossipText = NotSecret(GetGossipText())
@@ -1161,8 +1164,8 @@ function Addon:GOSSIP_SHOW(event, manual)
     StoriesNarrator:Enqueue(soundData, manual)
 end
 
-function Addon:QUEST_FINISHED()
-    if Addon.db.profile.Audio.StopAudioOnDisengage then
+function StoriesAddon:QUEST_FINISHED()
+    if StoriesAddon.db.profile.Audio.StopAudioOnDisengage then
         if currentQuestSoundData then
             StoriesNarrator:Remove(currentQuestSoundData)
         end
@@ -1182,8 +1185,8 @@ function Addon:QUEST_FINISHED()
     end
 end
 
-function Addon:GOSSIP_CLOSED()
-    if Addon.db.profile.Audio.StopAudioOnDisengage and currentGossipSoundData then
+function StoriesAddon:GOSSIP_CLOSED()
+    if StoriesAddon.db.profile.Audio.StopAudioOnDisengage and currentGossipSoundData then
         StoriesNarrator:Remove(currentGossipSoundData)
     end
     currentGossipSoundData = nil

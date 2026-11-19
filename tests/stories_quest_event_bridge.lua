@@ -91,7 +91,8 @@ env = {
 }
 VoiceOver = setmetatable(env, { __index = _G })
 assert(loadfile("SoftSpoken_Stories/QuestRuntime.lua"))()
-local addon = VoiceOver.Addon
+local addon = VoiceOver.StoriesAddon
+eq(VoiceOver.Addon, addon, "legacy Stories controller alias")
 function addon:NoteLegacyQuestEvent(source, words)
     stageSource, stageText = source, words
 end

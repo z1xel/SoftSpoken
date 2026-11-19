@@ -27,7 +27,7 @@ local generation = 0 -- invalidate probes belonging to an earlier NPC
 local wakeSerial = 0 -- invalidate outdated wake timers after a new duration is chosen
 
 function GreetingFirst:IsOn()
-    return Addon.db and Addon.db.profile.Audio.GreetingFirst == true
+    return StoriesAddon.db and StoriesAddon.db.profile.Audio.GreetingFirst == true
 end
 
 function GreetingFirst:IsWaiting()
@@ -50,7 +50,7 @@ end
 local function ScheduleWake()
     wakeSerial = wakeSerial + 1
     local serial = wakeSerial
-    Addon:ScheduleTimer(function()
+    StoriesAddon:ScheduleTimer(function()
         if serial == wakeSerial and not GreetingFirst:IsWaiting() then
             Retry()
         end
@@ -111,7 +111,7 @@ local function Probe(openedAt, token, previousHoldUntil, attempt)
         return
     end
     if attempt <= table.getn(PROBE_GAPS) then
-        Addon:ScheduleTimer(function()
+        StoriesAddon:ScheduleTimer(function()
             Probe(openedAt, token, previousHoldUntil, attempt + 1)
         end, PROBE_GAPS[attempt])
     end
@@ -220,7 +220,7 @@ local function CheckPending(state)
         FinishUnresolved(state, "unresolved: no greeting wait")
     else
         local remaining = state.startedAt + CLASSIFY_TIMEOUT - GetTime()
-        Addon:ScheduleTimer(function() CheckPending(state) end,
+        StoriesAddon:ScheduleTimer(function() CheckPending(state) end,
             math.min(CLASSIFY_INTERVAL, remaining))
     end
 end
@@ -262,7 +262,7 @@ function GreetingFirst:Open()
     holdUntil = math.max(holdUntil, startedAt + CLASSIFY_TIMEOUT)
     self.lastTiming = { method = "checking NPC identity", seconds = CLASSIFY_TIMEOUT }
     ScheduleWake()
-    Addon:ScheduleTimer(function() CheckPending(state) end, CLASSIFY_INTERVAL)
+    StoriesAddon:ScheduleTimer(function() CheckPending(state) end, CLASSIFY_INTERVAL)
 end
 
 --- A window closed. A gossip-to-quest transition does not constitute a new visit.
@@ -280,7 +280,7 @@ function GreetingFirst:Closed()
         return
     end
     local before = opened
-    Addon:ScheduleTimer(function()
+    StoriesAddon:ScheduleTimer(function()
         if opened ~= before then return end
         for _, name in ipairs(WINDOWS) do
             local frame = _G[name]

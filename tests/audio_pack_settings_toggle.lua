@@ -47,7 +47,7 @@ VoiceOver = setmetatable({
     format = string.format,
     L = setmetatable({}, {__index = function(t, k) return k end}),
     DataModules = data,
-    Addon = {db = {profile = {Audio = {DisabledVoicePacks = disabled}}}},
+    StoriesAddon = {db = {profile = {Audio = {DisabledVoicePacks = disabled}}}},
     Enums = {GossipFrequency = {
         Always = 1, OncePerQuestNPC = 2, OncePerNPC = 3, Never = 4,
     }},

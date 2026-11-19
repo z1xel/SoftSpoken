@@ -24,8 +24,8 @@ core = (ROOT / "SoftSpoken/Core.lua").read_text(encoding="utf-8")
 
 # These are active interfaces, not part of the removed optional bridge.
 for expected in (
-    "function Addon:InvokeQuestHandler(event, dispatchOrigin, manual)",
-    "function Addon:GetVisibleLine(event)",
+    "function StoriesAddon:InvokeQuestHandler(event, dispatchOrigin, manual)",
+    "function StoriesAddon:GetVisibleLine(event)",
     "local lastQuestEvent",
     "pcall(QuestIDFor, event)",
     "CacheClassicGossipQuestLists()",

@@ -133,7 +133,7 @@ end
 -- titles on its own scheduler after QuestLog_Update; repeating Update() here
 -- would also rebuild audio bindings and overwrite its title again.
 function QuestOverlayUI:RecheckVisibleRowLayouts()
-    if not (QuestLogFrame and QuestLogFrame:IsShown() and Addon:IsPartOn()) then return end
+    if not (QuestLogFrame and QuestLogFrame:IsShown() and StoriesAddon:IsPartOn()) then return end
     local numEntries = GetNumQuestLogEntries()
     for i = 1, QUESTS_DISPLAYED do
         local questIndex = i + Utils:GetQuestLogScrollOffset()
@@ -369,7 +369,7 @@ function QuestOverlayUI:Update()
         button:Hide()
     end
     -- Switched off, the part puts nothing on the log.
-    if not Addon:IsPartOn() then
+    if not StoriesAddon:IsPartOn() then
         table.wipe(self.displayedButtons)
         return
     end

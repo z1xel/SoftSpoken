@@ -44,7 +44,7 @@ RunNextFrame = function(callback) table.insert(frames, callback) end
 VoiceOver = setmetatable({
     AddonFolder = "SoftSpoken_Stories",
     format = string.format,
-    Addon = { IsPartOn = function() return true end },
+    StoriesAddon = { IsPartOn = function() return true end },
     Utils = {
         GetQuestLogScrollOffset = function() return 0 end,
         GetQuestLogTitleFrame = function() return row end,

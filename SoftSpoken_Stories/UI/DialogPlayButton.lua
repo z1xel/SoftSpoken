@@ -123,9 +123,9 @@ function DialogPlayButton:Refresh()
     end
     self.line = nil
 
-    local line, event = Addon:GetVisibleLine()
+    local line, event = StoriesAddon:GetVisibleLine()
     -- Nothing reads itself with Read Automatically off, and no NPC window does at Never.
-    local held = not Addon:IsAutoplayOn() or (event and Addon:PartOfPage(event) == "gossip" and Addon:IsNever())
+    local held = not StoriesAddon:IsAutoplayOn() or (event and StoriesAddon:PartOfPage(event) == "gossip" and StoriesAddon:IsNever())
     -- Require the actual panel as well as the event: replacement interfaces can
     -- deliver quest events without displaying Blizzard's panel.
     if not held or not line or not IsFrameVisible(_G[PANELS[event]]) then
@@ -156,7 +156,7 @@ function DialogPlayButton:OnClick()
     if clip then
         StoriesNarrator:Remove(clip)
     else
-        Addon:ReadVisibleQuest("dialog Play button")
+        StoriesAddon:ReadVisibleQuest("dialog Play button")
     end
 end
 
@@ -188,7 +188,7 @@ function DialogPlayButton:Setup()
             GameTooltip:SetText(L.OPT_DIALOG_STOP_TIP)
         else
             GameTooltip:SetText(L.OPT_READ_TIP)
-            GameTooltip:AddLine(Addon:IsAutoplayOn() and L.OPT_NEVER_TIP or L.OPT_AUTOPLAY_OFF_TIP, 1, 0.8, 0.2, true)
+            GameTooltip:AddLine(StoriesAddon:IsAutoplayOn() and L.OPT_NEVER_TIP or L.OPT_AUTOPLAY_OFF_TIP, 1, 0.8, 0.2, true)
         end
         GameTooltip:Show()
     end)
@@ -208,8 +208,8 @@ function DialogPlayButton:Setup()
         -- Again a moment later: a Classic quest event can arrive before GetQuestID and the
         -- text globals change (QuestRuntime.lua's directEvents comment), and the first look
         -- would label the previous quest. Not with autoplay on, when there is no button.
-        if Addon.ScheduleTimer and not Addon:IsAutoplayOn() then
-            Addon:ScheduleTimer(Refresh, 0.2)
+        if StoriesAddon.ScheduleTimer and not StoriesAddon:IsAutoplayOn() then
+            StoriesAddon:ScheduleTimer(Refresh, 0.2)
         end
     end)
 

@@ -456,14 +456,14 @@ function StoriesNarrator:Setup()
         interClipGap = 0.55,
         -- Play-and-stop the file before admitting it, as the queue always did here.
         -- Its settings follow the profile chosen in Spoken's own settings.
-        profiles = function() return Addon.db end,
+        profiles = function() return StoriesAddon.db end,
         -- Printed after Spoken's own by its Show Diagnostics.
         diagnostics = function() Options:PrintDiagnostics() end,
         -- Quests' installed-pack inventory can include load-on-demand addons
         -- whose recordings failed to register. The core's startup warning
         -- must use the registered data, not the merely installed list.
         hasUsablePacks = function() return DataModules:HasRegisteredModules() end,
-        voicePacksPending = function() return Addon.dataModulesPending end,
+        voicePacksPending = function() return StoriesAddon.dataModulesPending end,
         -- What Spoken's settings show on this part's card: which voice packs are installed.
         packs = function()
             local names = {}
@@ -479,7 +479,7 @@ function StoriesNarrator:Setup()
         addon = AddonFolder,
         order = 2,
         interClipGap = 0.55,
-        profiles = function() return Addon.db end,
+        profiles = function() return StoriesAddon.db end,
         -- The voice packs that hold gossip.
         packs = function()
             local names = {}

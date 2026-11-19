@@ -263,13 +263,13 @@ end
 -- entry means enabled, including packs installed after the profile was saved.
 -- This is intentionally independent of the character-screen addon checkbox.
 function DataModules:IsPackEnabled(name)
-    local audio = Addon and Addon.db and Addon.db.profile and Addon.db.profile.Audio
+    local audio = StoriesAddon and StoriesAddon.db and StoriesAddon.db.profile and StoriesAddon.db.profile.Audio
     local disabled = audio and audio.DisabledVoicePacks
     return not (disabled and disabled[name] == true)
 end
 
 function DataModules:SetPackEnabled(name, enabled)
-    local audio = assert(Addon and Addon.db and Addon.db.profile and Addon.db.profile.Audio,
+    local audio = assert(StoriesAddon and StoriesAddon.db and StoriesAddon.db.profile and StoriesAddon.db.profile.Audio,
         "Stories audio preferences are not initialized")
     audio.DisabledVoicePacks = audio.DisabledVoicePacks or {}
     if enabled then

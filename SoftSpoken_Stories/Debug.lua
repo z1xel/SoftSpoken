@@ -18,7 +18,7 @@ function Debug:GetRuntimeStatus()
 end
 
 function Debug:Print(msg, header)
-    if Addon and Addon.db and Addon.db.profile.DebugEnabled then
+    if StoriesAddon and StoriesAddon.db and StoriesAddon.db.profile.DebugEnabled then
         if header then
             print(Utils:ColorizeText("SoftSpoken Stories", NORMAL_FONT_COLOR_CODE) ..
                 Utils:ColorizeText(" (" .. header .. ")", GRAY_FONT_COLOR_CODE) ..
@@ -73,7 +73,7 @@ end
 --------------------------------------------------------------------------------
 
 local function DeveloperSettings()
-    local profile = Addon and Addon.db and Addon.db.profile
+    local profile = StoriesAddon and StoriesAddon.db and StoriesAddon.db.profile
     if not profile then return nil end
     if type(profile.Developer) ~= "table" then profile.Developer = {} end
     return profile.Developer
@@ -90,9 +90,9 @@ end
 --- back what puts it back to its default.
 function Debug:ChatRows(layout)
     layout:Checkbox(L.OPT_DEBUG, nil,
-        function() return Addon.db.profile.DebugEnabled end,
-        function(value) Addon.db.profile.DebugEnabled = value end)
-    return function() Addon.db.profile.DebugEnabled = false end
+        function() return StoriesAddon.db.profile.DebugEnabled end,
+        function(value) StoriesAddon.db.profile.DebugEnabled = value end)
+    return function() StoriesAddon.db.profile.DebugEnabled = false end
 end
 
 --- This addon's testing tools on the Developer page. Hands back what puts them back to their
@@ -157,9 +157,9 @@ end
 --- What an agent needs besides: the settings that decide whether a line plays, the window open
 --- and what it would read, how long ago the last stage was.
 local function ContextLines(lines)
-    local audio = Addon.db and Addon.db.profile.Audio or {}
+    local audio = StoriesAddon.db and StoriesAddon.db.profile.Audio or {}
     table.insert(lines, format("read automatically %s, NPC greetings %s, mock missing voice-over %s",
-        Addon:IsAutoplayOn() and "on" or "off",
+        StoriesAddon:IsAutoplayOn() and "on" or "off",
         tostring(Enums.GossipFrequency:GetName(audio.GossipFrequency)),
         Debug:IsMockingMissingVoice() and "ON" or "off"))
     local questID = Safe(function() return GetQuestID and NotSecret(GetQuestID()) end)
@@ -168,12 +168,12 @@ local function ContextLines(lines)
     local guid = Safe(function() return Utils:GetNPCGUID() end)
     table.insert(lines, format("now: quest ID %s, title %q, NPC %q, GUID %s", tostring(questID), tostring(title or ""),
         tostring(npc or ""), tostring(guid)))
-    local heard = guid and Addon.db and Addon.db.char.hasSeenGossipForNPC
-        and Addon.db.char.hasSeenGossipForNPC[guid]
+    local heard = guid and StoriesAddon.db and StoriesAddon.db.char.hasSeenGossipForNPC
+        and StoriesAddon.db.char.hasSeenGossipForNPC[guid]
     if guid then
         table.insert(lines, "this NPC's greeting heard before: " .. (heard and "yes" or "no"))
     end
-    local found, probe, event = pcall(function() return Addon:GetVisibleLine() end)
+    local found, probe, event = pcall(function() return StoriesAddon:GetVisibleLine() end)
     if found and probe then
         table.insert(lines, format("open window %s: would read %s from %s (%s), %s s", tostring(event),
             tostring(probe.fileName), tostring(probe.module and probe.module.METADATA and probe.module.METADATA.AddonName),
