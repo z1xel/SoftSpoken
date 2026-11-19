@@ -360,7 +360,7 @@ function QuestOverlayUI:Update()
                 playButton:Enable()
             else
                 -- Unrecorded quests keep their disabled Play button in the
-                -- same row; the retired Contribute UI is not installed.
+                -- same row so the quest-log layout remains unchanged.
                 playButton:Disable()
                 self:UpdateQuestTitle(questLogTitleFrame, playButton, normalText, questCheck, title)
             end
