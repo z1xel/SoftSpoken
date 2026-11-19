@@ -126,9 +126,50 @@ for path in (
 for path, assertion in (
     ("SoftSpoken/UI/NarratorWindow.lua", r"^NarratorWindow\s*=\s*\{"),
     ("SoftSpoken/Core.lua", r"^CoreController\s*="),
-    ("SoftSpoken_Stories/NarrationSource.lua", r"^StoriesNarrator\s*=\s*\{\b"),
-    ("SoftSpoken_Stories/UI/SettingsPage.lua", r"^StoriesSettingsPage\s*=\s*\{\b"),
+    ("SoftSpoken_Stories/NarrationSource.lua", r"^StoriesNarrator\s*=\s*\{"),
+    ("SoftSpoken_Stories/UI/SettingsPage.lua", r"^StoriesSettingsPage\s*=\s*\{"),
 ):
     require(path, assertion, "canonical controller declared")
 
-print("PASS: serialized names, public globals/API, voice-pack metadata and registries")
+# Retired *implementation* identifiers must not quietly return.
+# Scan first-party Lua, excluding generated data, locale strings and libraries.
+retired = {
+    "SoftSpoken": (
+        r"\bAddon\b", r"\bPlayerFrame\b", r"\bSSCCompendium\b",
+        r"\bSSZCompendium\b", r"\bSpokenZones112Compendium\b",
+    ),
+    "SoftSpoken_Stories": (
+        r"\bSettingsPanel\b", r"\bSSCCompendium\b",
+        r"\bVoiceOver\.Player\b", r"\bPlayer\s*=",
+    ),
+    "SoftSpoken_Places": (
+        r"\bSSZZonesRuntime\b", r"\bSSCCompendium\b",
+        r"\bSSZCompendium\b", r"\bSSZUI\b", r"\bSSZLorePage\b",
+        r"\bSSZTextView\b", r"\bSSZClassicFrameSkin\b",
+        r"\bSSZOriginalArt\b",
+    ),
+    "SoftSpoken_Writings": (
+        r"\bSSB\b", r"\bSSCCompendium\b",
+    ),
+}
+for module, patterns in retired.items():
+    for file in (ROOT / module).rglob("*.lua"):
+        if any(part in ("Libs", "Data", "Locale") for part in file.parts):
+            continue
+        # Comments and runtime text are not controller identities.
+        source = "\n".join(
+            line.split("--", 1)[0] for line in file.read_text(encoding="utf-8").splitlines()
+        )
+        for pattern in patterns:
+            assert not re.search(pattern, source), (
+                f"{file.relative_to(ROOT)}: retired internal identifier {pattern}"
+            )
+
+# The exception is deliberate: packaged/generated lore still calls SSZBridge.
+require(
+    "SoftSpoken_Places/LoreDataRegistry.lua",
+    r"^SSZBridge\s*=\s*SpokenPlacesBridge\b",
+    "existing lore packs retain SSZBridge registration",
+)
+
+print("PASS: serialized contracts, canonical controllers, and retired-name guardrails")

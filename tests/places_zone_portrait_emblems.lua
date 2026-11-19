@@ -90,7 +90,7 @@ local hierarchyChunk=assert(loadstring(hierarchy))
 setfenv(hierarchyChunk,setmetatable({Compendium=C},{__index=_G}))
 hierarchyChunk()
 function C:Tab() return true end
-SSZCompendium=C
+SpokenCompendium=C
 SSZLore={zones={
     [947]={name="Azeroth"},
     [1414]={name="Kalimdor"},
