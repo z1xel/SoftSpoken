@@ -49,7 +49,7 @@ CreateFrame=function()
 end
 local playing=nil
 SpokenEnv=setmetatable({
-    Addon=addon,Version={IsLegacyVanilla=true},
+    CoreController=addon,Version={IsLegacyVanilla=true},
     SoundQueue={
         GetCurrentSound=function() return playing end,
         IsPlaying=function(self,clip) return playing and playing.playState=="playing" and (clip==nil or clip==playing) end,

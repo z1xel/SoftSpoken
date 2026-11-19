@@ -118,7 +118,7 @@ end
 --- The supported 1.12 narrator styles are "classic" and "none".
 --- Additive: guard on the field.
 function Spoken:GetPlayerStyle()
-    return Addon:PlayerStyle()
+    return CoreController:PlayerStyle()
 end
 
 --------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ end
 --- Whether the player turned every Contribute button off in the Spoken settings.
 --- A feature addon asks this in its gap check, and re-asks on CONTRIBUTE_SETTINGS_CHANGED.
 function Spoken:AreContributeButtonsHidden()
-    return Addon.db and Addon.db.profile.Contribute.HideButtons and true or false
+    return CoreController.db and CoreController.db.profile.Contribute.HideButtons and true or false
 end
 
 --------------------------------------------------------------------------------
@@ -152,7 +152,7 @@ end
 --- Preserve the hosted frame's effective scale, anchor and drag behavior. Additive:
 --- callers should guard on this generic host API.
 function Spoken:SetPlayerHost(frame)
-    Addon:SetPlayerHost(frame)
+    CoreController:SetPlayerHost(frame)
 end
 
 --- The Settings category, so a feature addon can nest its panel under it with
@@ -331,7 +331,7 @@ end
 --- or a language code, and a language code or "none". Either is nil while the player has not
 --- chosen it here, and the module then keeps its own.
 function Spoken:GetLanguageChoice()
-    local language = Addon.db and Addon.db.profile.Language
+    local language = CoreController.db and CoreController.db.profile.Language
     if not language then return nil, nil end
     return language.Voice, language.Fallback
 end
@@ -339,7 +339,7 @@ end
 -- The core owns both the preference and the change notification. Feature
 -- modules still supply their legacy defaults when a field is unset here.
 function Spoken:SetLanguageChoice(which, value)
-    if not Addon.db or not self.Language then return false end
+    if not CoreController.db or not self.Language then return false end
     local key
     if which == "voice" then
         if value ~= "auto" and not self.Language:IsSupported(value) then return false end
@@ -350,7 +350,7 @@ function Spoken:SetLanguageChoice(which, value)
     else
         return false
     end
-    local language = Addon.db.profile.Language
+    local language = CoreController.db.profile.Language
     if language[key] == value then return true end
     language[key] = value
     Callbacks:Fire("VOICE_LANGUAGE_CHANGED")
@@ -573,11 +573,11 @@ end
 -- profile setting; further characters and reloaded modules cannot override it.
 -- A previously saved shared setting takes precedence over the imported value.
 function Spoken:ImportLegacyCaptionPreference(value)
-    if not Addon.db then return false end
-    local global = Addon.db.global
+    if not CoreController.db then return false end
+    local global = CoreController.db.global
     if global.LegacyCaptionPreferenceImported then return true end
     global.LegacyCaptionPreferenceImported = true
-    local profile = Addon.db.profile.Transcript
+    local profile = CoreController.db.profile.Transcript
     if type(value) == "boolean" and rawget(profile, "Enabled") == nil then
         -- True is already the shared default. Write only the non-default false.
         if not value then profile.Enabled = false end

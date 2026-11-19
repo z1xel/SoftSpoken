@@ -19,7 +19,7 @@ SOUNDKIT={IG_QUEST_LOG_CLOSE=1}
 local profile={Audio={NarrationChannel="Master"},Parts={}}
 SpokenEnv=setmetatable({
     format=string.format,
-    Addon={
+    CoreController={
         db={profile=profile},
         Profile=function(self,section) return self.db.profile[section] end
     },

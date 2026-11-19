@@ -78,7 +78,7 @@ SpokenEnv = setmetatable({
     Version = {IsLegacyVanilla=true},
 }, {__index = _G})
 local env = SpokenEnv
-env.Addon = {
+env.CoreController = {
     db = {char={IsPaused=false}, profile={Audio={
         AutoToggleDialog=false, LineGap=0, CueBetweenLines=false}}},
     ScheduleTimer = function(self, fn, delay) return timer(fn, delay) end,
@@ -98,9 +98,9 @@ local function reset()
     playing, stopped, started, failedStarts, failQueries = {}, {}, {}, {}, {}
     busLimit, fadeEnds = nil, {}
     events, listeners = {}, {}
-    env.Addon.db.char.IsPaused = false
-    env.Addon.db.profile.Audio.LineGap = 0
-    env.Addon.db.profile.Audio.CueBetweenLines = false
+    env.CoreController.db.char.IsPaused = false
+    env.CoreController.db.profile.Audio.LineGap = 0
+    env.CoreController.db.profile.Audio.CueBetweenLines = false
     dofile("SoftSpoken/SoundQueue.lua")
     return env.SoundQueue
 end

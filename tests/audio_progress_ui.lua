@@ -79,7 +79,7 @@ local function Font()
 end
 
 SpokenEnv = setmetatable({
-    Addon = {
+    CoreController = {
         Profile = function(self, name) return config[name] end,
         DisplayStyle = function() return style end,
         ScheduleTimer = function(self, fn, delay)
@@ -124,7 +124,7 @@ eq(fonts.SpokenNameFont.path, "Fonts\\MORPHEUS.TTF")
 eq(fonts.SpokenNameFont.size, 22)
 eq(fonts.SpokenNameFont.flags, "")
 eq(fonts.SpokenRowFont.path, "Fonts\\FRIZQT__.TTF")
-local p = SpokenEnv.PlayerFrame
+local p = SpokenEnv.NarratorWindow
 p.frame = frame
 p.Current = function() return current end
 p:InitProgress()

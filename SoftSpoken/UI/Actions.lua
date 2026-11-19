@@ -56,7 +56,7 @@ local BRONZE = Version.IsCamelot and { .95, .68, .35 } or nil
 local rings = setmetatable({}, { __mode = "k" })
 
 local function TintRing(ring)
-    local frame = Addon.db and Addon.db.profile and Addon.db.profile.Frame
+    local frame = CoreController.db and CoreController.db.profile and CoreController.db.profile.Frame
     if BRONZE and frame and frame.BronzeTint then
         ring:SetVertexColor(BRONZE[1], BRONZE[2], BRONZE[3])
     else
@@ -290,7 +290,7 @@ end
 --- -- the subtitle. Nil when the clip has none, or the player hid it.
 function Actions:CornerAction(clip)
     local list = clip and clip.present and clip.present.actions or {}
-    local hidden = Addon:Profile("Frame").HiddenActions or {}
+    local hidden = CoreController:Profile("Frame").HiddenActions or {}
     for _, action in ipairs(list) do
         if action.anchor == "topright" and action.icon and not hidden[action.id]
             and (not action.visible or action.visible()) then
@@ -314,7 +314,7 @@ function Actions:Configure(frame, clip)
     -- A button an addon built keeps its own click handler, so that is not a label problem.
     local owner = clip and clip.source and clip.source.key or "?"
 
-    local hidden = Addon:Profile("Frame").HiddenActions or {}
+    local hidden = CoreController:Profile("Frame").HiddenActions or {}
     for _, action in ipairs(list) do
         if not hidden[action.id] and (not action.visible or action.visible()) then
             local id = owner .. ":" .. action.id

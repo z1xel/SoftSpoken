@@ -14,12 +14,12 @@ local FALLBACK_SECONDS = 4 -- preserves the pre-4.1 behavior for clips with no k
 local UTF8_CHAR = "[%z\1-\127\194-\244][\128-\191]*"
 
 local function FontSize()
-    local n = tonumber(Addon:Profile("Transcript").FontSize) or 15
+    local n = tonumber(CoreController:Profile("Transcript").FontSize) or 15
     return math.max(12, math.min(26, n))
 end
 
 local function Config()
-    return Addon:Profile("Transcript")
+    return CoreController:Profile("Transcript")
 end
 
 local function SmoothPages()
@@ -45,7 +45,7 @@ local function TextWidth(label, text)
 end
 
 local function Enabled()
-    return Addon:Profile("Transcript").Enabled ~= false
+    return CoreController:Profile("Transcript").Enabled ~= false
 end
 
 -- Adapted from upstream Spoken's transcript tokenizer, without 5.1-only syntax/APIs.
@@ -480,7 +480,7 @@ function Transcript:Initialize()
 end
 
 function Transcript:SetEnabled(enabled)
-    Addon:Profile("Transcript").Enabled = enabled and true or false
+    CoreController:Profile("Transcript").Enabled = enabled and true or false
     self:RefreshConfig()
 end
 

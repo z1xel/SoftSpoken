@@ -78,7 +78,7 @@ SpokenEnv = setmetatable({
     Version = {IsLegacyVanilla=true},
 }, {__index = _G})
 local env = SpokenEnv
-env.Addon = {
+env.CoreController = {
     db = {char={IsPaused=false}, profile={Audio={
         AutoToggleDialog=false, LineGap=0, CueBetweenLines=false}}},
     ScheduleTimer = function(self, fn, delay) return timer(fn, delay) end,
@@ -98,9 +98,9 @@ local function reset()
     playing, stopped, started, failedStarts, failQueries = {}, {}, {}, {}, {}
     busLimit, fadeEnds = nil, {}
     events, listeners = {}, {}
-    env.Addon.db.char.IsPaused = false
-    env.Addon.db.profile.Audio.LineGap = 0
-    env.Addon.db.profile.Audio.CueBetweenLines = false
+    env.CoreController.db.char.IsPaused = false
+    env.CoreController.db.profile.Audio.LineGap = 0
+    env.CoreController.db.profile.Audio.CueBetweenLines = false
     dofile("SoftSpoken/SoundQueue.lua")
     return env.SoundQueue
 end
@@ -578,8 +578,8 @@ do
     local a,b=clip("gap-previous.mp3",0.01),clip("gap-next.mp3",10)
     local cues=0
     PlaySound=function() cues=cues+1 end
-    env.Addon.db.profile.Audio.LineGap=0.5
-    env.Addon.db.profile.Audio.CueBetweenLines=true
+    env.CoreController.db.profile.Audio.LineGap=0.5
+    env.CoreController.db.profile.Audio.CueBetweenLines=true
     q:Add(a,A);q:Add(b,A)
     endSound(a)
     eq(a.playState,"gap")
@@ -772,7 +772,7 @@ end
 do
     local q=reset()
     local A=source("writings")
-    env.Addon.db.char.IsPaused=true
+    env.CoreController.db.char.IsPaused=true
     local fresh=clip("persisted-stale-pause.mp3",30)
     q:Add(fresh,A)
     eq(q:IsPaused(),false)

@@ -79,7 +79,7 @@ end
 local function InvalidatePlayback(clip)
     clip.playbackAttempt = (clip.playbackAttempt or 0) + 1
     if clip.nextSoundTimer then
-        Addon:CancelTimer(clip.nextSoundTimer)
+        CoreController:CancelTimer(clip.nextSoundTimer)
         clip.nextSoundTimer = nil
     end
 end
@@ -174,12 +174,12 @@ function SoundQueue:IsPlaying(clip)
 end
 
 function SoundQueue:IsPaused()
-    return Addon.db and Addon.db.char.IsPaused or false
+    return CoreController.db and CoreController.db.char.IsPaused or false
 end
 
 function SoundQueue:SetPaused(value)
-    if Addon.db then
-        Addon.db.char.IsPaused = value
+    if CoreController.db then
+        CoreController.db.char.IsPaused = value
     end
 end
 
@@ -236,7 +236,7 @@ end
 
 local function StopRetryTicker()
     if retryTicker then
-        Addon:CancelTimer(retryTicker)
+        CoreController:CancelTimer(retryTicker)
         retryTicker = nil
     end
 end
@@ -247,7 +247,7 @@ local function StartRetryTicker()
     if retryTicker then
         return
     end
-    retryTicker = Addon:ScheduleRepeatingTimer(function()
+    retryTicker = CoreController:ScheduleRepeatingTimer(function()
         SoundQueue:Advance()
     end, RETRY_INTERVAL)
 end
@@ -463,7 +463,7 @@ local function AfterSpoken(clip, attempt)
     end
     local function ScheduleFinish(seconds)
         if seconds <= 0 then Finish(); return end
-        clip.nextSoundTimer = Addon:ScheduleTimer(Finish, seconds)
+        clip.nextSoundTimer = CoreController:ScheduleTimer(Finish, seconds)
     end
 
     -- Writings queues its next page from the stop callback once this page
@@ -474,13 +474,13 @@ local function AfterSpoken(clip, attempt)
     end
     local _, nextClip = FirstPlayable(2)
     if not nextClip then Finish(); return end
-    local audio = Addon.db.profile.Audio
+    local audio = CoreController.db.profile.Audio
     local sameItem = SameItem(clip, nextClip)
     local gap = (clip.source.interClipGap or 0) + (sameItem and 0 or audio.LineGap or 0)
     if gap <= 0 or sameItem or not audio.CueBetweenLines then
         ScheduleFinish(gap)
     else
-        clip.nextSoundTimer = Addon:ScheduleTimer(function()
+        clip.nextSoundTimer = CoreController:ScheduleTimer(function()
             if SoundQueue.sounds[1] ~= clip or clip.playbackAttempt ~= gapAttempt
                 or clip.playState ~= "gap" then return end
             local _, waiting = FirstPlayable(2)
@@ -529,7 +529,7 @@ local function PollPlayback(clip, attempt)
 
     if SoundQueue.sounds[1] == clip and clip.playbackAttempt == attempt
         and IsSpeaking(clip) then
-        clip.nextSoundTimer = Addon:ScheduleTimer(function()
+        clip.nextSoundTimer = CoreController:ScheduleTimer(function()
             PollPlayback(clip, attempt)
         end, POLL_INTERVAL)
     end
@@ -586,7 +586,7 @@ function SoundQueue:PlaySound(clip)
     -- progress policy. Completion below depends exclusively on IsPlaying.
     local reportedLength = tonumber(clip.length) or 0
     clip.spokenAt = GetTime() + (tonumber(clip.delay) or 0) + math.max(0, reportedLength)
-    clip.nextSoundTimer = Addon:ScheduleTimer(function()
+    clip.nextSoundTimer = CoreController:ScheduleTimer(function()
         PollPlayback(clip, attempt)
     end, POLL_INTERVAL)
 
@@ -675,7 +675,7 @@ function SoundQueue:Advance()
     -- re-enqueues a rejected file in its own stop callback.
     if advanceRequested then
         advanceRequested = false
-        Addon:ScheduleTimer(function() SoundQueue:Advance() end, 0.01)
+        CoreController:ScheduleTimer(function() SoundQueue:Advance() end, 0.01)
     end
 end
 

@@ -24,11 +24,11 @@ SpokenEnv=setmetatable({
     AddonVersion="v0.9.0-beta",
     Version={IsLegacyVanilla=true},
     OtherSounds={lowered=false},
-    Addon={
+    CoreController={
         db={profile={Audio={LineGap=0.2,LowerOthers={Enabled=true,Music=0.3,Ambience=0.4,SFX=0.6}}}},
         PlayerStyle=function() return "classic" end,
     },
-    PlayerFrame={frame={IsShown=function() return true end}},
+    NarratorWindow={frame={IsShown=function() return true end}},
     Sources={
         Iterate=function() return next,sources,nil end,
         IsTurnedOff=function() return false end,
@@ -49,7 +49,6 @@ SpokenEnv=setmetatable({
     Transcript={Describe=function() return "off" end},
 },{__index=_G})
 -- The fixture supplies the historical field; the implementation uses the new name.
-SpokenEnv.NarratorWindow = SpokenEnv.PlayerFrame
 dofile("SoftSpoken/Developer.lua")
 local dev=SpokenEnv.Developer
 

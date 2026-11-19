@@ -123,7 +123,8 @@ for path in (
 
 # Keep the historical environment members as aliases, not replacements or copies.
 for path, assertion in (
-    ("SoftSpoken/UI/NarratorWindow.lua", r"^PlayerFrame\s*=\s*NarratorWindow\b"),
+    ("SoftSpoken/UI/NarratorWindow.lua", r"^NarratorWindow\s*=\s*\{"),
+    ("SoftSpoken/Core.lua", r"^CoreController\s*="),
     ("SoftSpoken_Stories/NarrationSource.lua", r"^Player\s*=\s*StoriesNarrator\b"),
     ("SoftSpoken_Stories/UI/SettingsPage.lua", r"^SettingsPanel\s*=\s*StoriesSettingsPage\b"),
 ):

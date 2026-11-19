@@ -1,9 +1,9 @@
 setfenv(1, SpokenEnv)
 
 -- Core's timer/settings controller is a plain AceTimer-embedded table, not an
--- AceAddon. Keep the upstream Addon name inside SpokenEnv so the ported queue
--- code stays consistent without exposing another global on the 1.12 client.
-Addon = LibStub("AceTimer-3.0"):Embed({})
+-- AceAddon. The implementation controller is private to SpokenEnv and
+-- exposes no additional public global on the 1.12 client.
+CoreController = LibStub("AceTimer-3.0"):Embed({})
 
 -- What feature addons register through API.lua and the UI reads back.
 Bullets = {}
@@ -102,7 +102,7 @@ Defaults = {
 }
 
 --- Idempotent, so the test harness and ADDON_LOADED can both call it.
-function Addon:InitDB()
+function CoreController:InitDB()
     if self.db then
         return
     end
@@ -145,7 +145,7 @@ function Addon:InitDB()
     -- Another profile chosen, copied over this one or reset, from Spoken's page or anywhere
     -- else: its settings apply now rather than at the next reload.
     if self.db.RegisterCallback then
-        local function Apply() Addon:ApplyProfile() end
+        local function Apply() CoreController:ApplyProfile() end
         self.db.RegisterCallback(self, "OnProfileChanged", Apply)
         self.db.RegisterCallback(self, "OnProfileCopied", Apply)
         self.db.RegisterCallback(self, "OnProfileReset", Apply)
@@ -154,7 +154,7 @@ end
 
 --- Apply profile changes to the narrator, captions, minimap and settings page.
 --- Each only where loaded, and only after Enable has built it.
-function Addon:ApplyProfile()
+function CoreController:ApplyProfile()
     if not self.enabled then return end
     if NarratorWindow and NarratorWindow.RefreshConfig then NarratorWindow:RefreshConfig() end
     if Transcript and Transcript.RefreshConfig then Transcript:RefreshConfig() end
@@ -173,7 +173,7 @@ end
 --- One of the profile's settings tables ("Frame", "Transcript"), or its defaults where there is
 --- none. AceDB strips a subtable holding only defaults at PLAYER_LOGOUT, and the frames go on
 --- updating while the UI is torn down after that; before InitDB there is no profile at all.
-function Addon:Profile(section)
+function CoreController:Profile(section)
     return self.db and self.db.profile[section] or Defaults.profile[section]
 end
 
@@ -182,7 +182,7 @@ end
 --- profile identity can be unavailable while loading, and the narrator frame
 --- is constructed and anchored at PLAYER_LOGIN. The saved window position
 --- must not depend on an early UnitName result or SetUserPlaced cache.
-function Addon:Layout()
+function CoreController:Layout()
     local global = self.db.global
     if type(global.Layout) ~= "table" then global.Layout = {} end
     return global.Layout
@@ -191,14 +191,14 @@ end
 --- Record a frame's place and width under key. The top-left corner, not the anchor the
 --- client left after a drag: both players grow downwards as captions and the queue come
 --- and go, and a saved BOTTOM anchor would put the frame back at the height it had then.
-function Addon:SaveLayout(key, frame, width)
+function CoreController:SaveLayout(key, frame, width)
     local left, top = frame:GetLeft(), frame:GetTop()
     if not left or not top then return end
     self:Layout()[key] = { left = left, top = top, width = width or frame:GetWidth() }
 end
 
 --- Put a frame back where SaveLayout left it. False when nothing was saved.
-function Addon:RestoreLayout(key, frame)
+function CoreController:RestoreLayout(key, frame)
     local saved = self:Layout()[key]
     if type(saved) ~= "table" or not saved.left or not saved.top then return false end
     frame:ClearAllPoints()
@@ -208,14 +208,14 @@ end
 
 --- Hosted windows still move: ApplyHost keeps their effective scale and their anchor on
 --- UIParent, so a place saved while hosted is the same place without the host.
-function Addon:IsFrameLocked()
+function CoreController:IsFrameLocked()
     return self:Profile("Frame").LockFrame
 end
 
 --- Put a player frame on a supplied host, or back on UIParent. Preserve effective
 --- scale and screen position while hosted; spokenBaseScale / spokenBaseStrata
 --- retain the frame's independent scale and strata when restoring its parent.
-function Addon:ApplyHost(frame)
+function CoreController:ApplyHost(frame)
     if not frame then return end
     local host, cfg = self.playerHost, self:Profile("Frame")
     local base = frame.spokenBaseScale or cfg.FrameScale
@@ -233,7 +233,7 @@ function Addon:ApplyHost(frame)
     end
 end
 
-function Addon:SetPlayerHost(host)
+function CoreController:SetPlayerHost(host)
     if self.playerHost == host then return end
     self.playerHost = host
     if NarratorWindow.frame then NarratorWindow:RefreshConfig() end
@@ -248,24 +248,24 @@ end
 
 --- What is on screen: the chosen style, or one previewed from the welcome window or the settings
 --- (Options:Preview). The windows and the subtitles ask this; the settings ask PlayerStyle.
-function Addon:DisplayStyle()
+function CoreController:DisplayStyle()
     return self.previewStyle or self:PlayerStyle()
 end
 
 --- Turtle WoW supports the original narrator window or voice only.
 --- Old saved choices for unavailable styles safely fall back to the classic window.
-function Addon:PlayerStyle()
+function CoreController:PlayerStyle()
     return self:Profile("Frame").Style == "none" and "none" or "classic"
 end
 
-function Addon:SetPlayerStyle(style)
+function CoreController:SetPlayerStyle(style)
     self.db.profile.Frame.Style = style == "none" and "none" or "classic"
 end
 
 --- Bind J once as the default Compendium shortcut, without overriding any
 --- existing game/addon binding or a player's choice to remove it later.
 --- The key belongs to WoW's binding set; the one-time marker is account-wide.
-function Addon:SeedCompendiumBinding()
+function CoreController:SeedCompendiumBinding()
     if not (self.db and self.db.global) or self.db.global.CompendiumKeySeeded then return end
     if not (GetBindingKey and GetBindingAction and SetBinding) then return end
     local existing = GetBindingAction("J")
@@ -279,7 +279,7 @@ end
 
 --- Initialize the player's UI and its two public commands. Idempotent, so
 --- the harness and PLAYER_LOGIN can both call it.
-function Addon:Enable()
+function CoreController:Enable()
     if self.enabled then return end
     self:InitDB()
     -- If the previous session crashed mid-duck, restore each saved
@@ -298,7 +298,7 @@ function Addon:Enable()
     local function CheckVoicePacksAfterLogin()
         voicePackCheckAttempts = voicePackCheckAttempts + 1
         if Spoken:CheckMissingVoicePacks() == false and voicePackCheckAttempts < 6 then
-            Addon:ScheduleTimer(CheckVoicePacksAfterLogin, 2)
+            CoreController:ScheduleTimer(CheckVoicePacksAfterLogin, 2)
         end
     end
     self:ScheduleTimer(CheckVoicePacksAfterLogin, 3)
@@ -324,8 +324,8 @@ end
 local function WatchPausedQueue()
     Callbacks:Register("CLIP_QUEUED", function()
         if pauseReminded or not SoundQueue:IsPaused() then return end
-        local style = Addon:PlayerStyle()
-        if style == "none" or style == "subtitle" and not Addon.db.profile.Transcript.Enabled then
+        local style = CoreController:PlayerStyle()
+        if style == "none" or style == "subtitle" and not CoreController.db.profile.Transcript.Enabled then
             pauseReminded = true
             RemindPaused()
         end
@@ -343,7 +343,7 @@ loader:SetScript("OnEvent", function(_, ev, name)
     if ev == "ADDON_LOADED" and (name or arg1) == AddonFolder then
         -- Database initialization happens at PLAYER_LOGIN.
     elseif ev == "PLAYER_LOGIN" then
-        Addon:Enable()
+        CoreController:Enable()
         WatchPausedQueue()
         -- A stop belongs to the line it stopped, which a reload drops, so a session never starts stopped.
         SoundQueue:SetPaused(false)

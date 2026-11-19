@@ -90,7 +90,7 @@ end
 -- Build the same diagnostic summary directly from the runtime. Diagnostics
 -- must never depend on public slash commands or temporarily hijack chat print.
 local function SpokenLines(lines)
-    if not (Addon and Addon.db and Spoken and SoundQueue) then
+    if not (CoreController and CoreController.db and Spoken and SoundQueue) then
         table.insert(lines, "Spoken " .. tostring(AddonVersion) .. ": not enabled yet")
         return
     end
@@ -116,9 +116,9 @@ function Developer:Context()
     local version, build = GetBuildInfo()
     table.insert(lines, format("client %s build %s, locale %s", tostring(version), tostring(build),
         GetLocale and GetLocale() or "?"))
-    local profile = Addon.db and Addon.db.profile
+    local profile = CoreController.db and CoreController.db.profile
     local audio = profile and profile.Audio or {}
-    table.insert(lines, format("narrator style %s, window %s", tostring(Addon:PlayerStyle()),
+    table.insert(lines, format("narrator style %s, window %s", tostring(CoreController:PlayerStyle()),
         NarratorWindow.frame and (NarratorWindow.frame:IsShown() and "shown" or "hidden") or "not built"))
     local function AudioCVar(name)
         local ok, value = pcall(GetCVar, name)

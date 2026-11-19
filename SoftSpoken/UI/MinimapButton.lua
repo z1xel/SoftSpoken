@@ -35,8 +35,8 @@ local SAFE_CLICK_DEFAULTS = {
     RightButton = "Menu",
 }
 function Minimap:GetClickCommand(button)
-    local commands = Addon.db and Addon.db.profile
-        and Addon.db.profile.Minimap and Addon.db.profile.Minimap.Commands
+    local commands = CoreController.db and CoreController.db.profile
+        and CoreController.db.profile.Minimap and CoreController.db.profile.Minimap.Commands
     if not commands then return SAFE_CLICK_DEFAULTS[button] end
     local command = commands[button]
     if command == nil or command == "" or command == "PlayPause" or command == "Stop" then
@@ -298,7 +298,7 @@ function Minimap:Setup()
     local LibDBIcon = LibStub("LibDBIcon-1.0", true)
     if not LibDataBroker or not LibDBIcon then return end
 
-    local db = Addon.db.profile.Minimap.LibDBIcon
+    local db = CoreController.db.profile.Minimap.LibDBIcon
     -- Seeded once, so the button does not start at angle 0 under other addons' buttons.
     if db.minimapPos == nil then db.minimapPos = 204 end
 
@@ -343,7 +343,7 @@ end
 function Minimap:Refresh()
     local LibDBIcon = LibStub("LibDBIcon-1.0", true)
     if LibDBIcon and ldbObject then
-        LibDBIcon:Refresh("Spoken", Addon.db.profile.Minimap.LibDBIcon)
+        LibDBIcon:Refresh("Spoken", CoreController.db.profile.Minimap.LibDBIcon)
     end
 end
 

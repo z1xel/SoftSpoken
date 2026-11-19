@@ -72,13 +72,13 @@ end
 --- part by key whether or not it is installed.
 function Sources:IsTurnedOff(part)
     local key = type(part) == "table" and part.key or part
-    local parts = Addon.db and Addon.db.profile.Parts
+    local parts = CoreController.db and CoreController.db.profile.Parts
     return parts ~= nil and key ~= nil and parts[key] == false
 end
 
 function Sources:SetTurnedOff(key, off)
     -- Not `off and false or nil`, which is nil either way.
-    if off then Addon.db.profile.Parts[key] = false else Addon.db.profile.Parts[key] = nil end
+    if off then CoreController.db.profile.Parts[key] = false else CoreController.db.profile.Parts[key] = nil end
     self:Apply(key)
 end
 
@@ -112,7 +112,7 @@ function SourceMethods:GetChannel()
     if self.channel then
         return self.channel()
     end
-    local profile = Addon:Profile("Audio")
+    local profile = CoreController:Profile("Audio")
     local choice = profile and profile.NarrationChannel or "Master"
     if choice == "Master" or choice == "SFX" or choice == "Music"
         or choice == "Ambience" then

@@ -21,7 +21,7 @@ local SETTLE_SECONDS = 1.2
 local EPSILON = .005
 
 local function Config()
-    local audio = Addon.db and Addon.db.profile and Addon.db.profile.Audio
+    local audio = CoreController.db and CoreController.db.profile and CoreController.db.profile.Audio
     return audio and audio.LowerOthers
 end
 local function CVar(channel) return CVARS[channel] end
@@ -52,7 +52,7 @@ OtherSounds.manualClip = {} -- do not reacquire a channel the player just adjust
 OtherSounds.writing = false
 
 local function Persist()
-    local db = Addon.db and Addon.db.global
+    local db = CoreController.db and CoreController.db.global
     if not db then return end
     local copy
     for channel, value in pairs(OtherSounds.original) do
@@ -108,7 +108,7 @@ end
 
 local function CancelTimer(owner, field)
     if owner[field] then
-        Addon:CancelTimer(owner[field])
+        CoreController:CancelTimer(owner[field])
         owner[field] = nil
     end
 end
@@ -146,7 +146,7 @@ function OtherSounds:FadeTo(targets, done)
             if done then done() end
         end
     end
-    self.fadeTimer = Addon:ScheduleRepeatingTimer(Step, STEP)
+    self.fadeTimer = CoreController:ScheduleRepeatingTimer(Step, STEP)
     Step()
 end
 
@@ -220,7 +220,7 @@ function OtherSounds:Sync()
     elseif self.lowered and not self.restoring and not self.settleTimer then
         -- Switched off mid-line: back at once, rather than after the line that is ending.
         if not cfg.Enabled then self:Restore(); return end
-        self.settleTimer = Addon:ScheduleTimer(function()
+        self.settleTimer = CoreController:ScheduleTimer(function()
             self.settleTimer = nil
             self:Restore()
         end, SETTLE_SECONDS)
@@ -238,8 +238,8 @@ end
 
 --- Volumes a previous session lowered and never put back: it ended without a logout.
 function OtherSounds:RestoreLeftovers()
-    if not (Addon.db and Addon.db.global) then return end
-    local leftover = Addon.db.global.LoweredVolumes
+    if not (CoreController.db and CoreController.db.global) then return end
+    local leftover = CoreController.db.global.LoweredVolumes
     if self.lowered then return end
     for channel, entry in pairs(type(leftover) == "table" and leftover or {}) do
         local baseline = type(entry) == "table" and tonumber(entry.original) or nil
@@ -251,7 +251,7 @@ function OtherSounds:RestoreLeftovers()
         end
     end
     -- Convert existing single-effects prototype recovery snapshots too.
-    local old = Addon.db.global.SFXDuckingRecovery
+    local old = CoreController.db.global.SFXDuckingRecovery
     if type(old) == "table" and not (type(leftover) == "table" and leftover.SFX) then
         local current = Read("SFX")
         local baseline = tonumber(old.original)
@@ -260,8 +260,8 @@ function OtherSounds:RestoreLeftovers()
             pcall(SetCVar, CVar("SFX"), Fraction(baseline))
         end
     end
-    Addon.db.global.SFXDuckingRecovery = nil
-    Addon.db.global.LoweredVolumes = nil
+    CoreController.db.global.SFXDuckingRecovery = nil
+    CoreController.db.global.LoweredVolumes = nil
 end
 
 Callbacks:Register("AUDIO_CHANGED", function() OtherSounds:Sync() end)
@@ -282,7 +282,7 @@ events:SetScript("OnEvent", function(_, emitted, name)
     if e == "PLAYER_LOGOUT" then
         OtherSounds:Restore(true)
     elseif e == "PLAYER_LOGIN" then
-        if Addon.db then OtherSounds:RestoreLeftovers() end
+        if CoreController.db then OtherSounds:RestoreLeftovers() end
     elseif e == "CVAR_UPDATE" and not OtherSounds.writing then
         local changed = name or arg1
         if type(changed) == "string" then

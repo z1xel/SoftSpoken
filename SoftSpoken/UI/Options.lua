@@ -163,7 +163,7 @@ local LANGUAGES = Spoken.Language.LOCALES
 
 --- Show `style` on screen with a sample line, or nil to stop.
 function Options:Preview(style)
-    Addon.previewStyle = style
+    CoreController.previewStyle = style
     NarratorWindow:RefreshConfig()
     Transcript:RefreshConfig()
     if Subtitle then Subtitle:ShowSample(style == "subtitle") end
@@ -174,12 +174,12 @@ end
 --- to it (StyleChosen); off, or when the page that turned it on closes, it all goes.
 function Options:SetPreviewing(on)
     self.previewing = on and true or false
-    self:Preview(on and Addon:PlayerStyle() or nil)
+    self:Preview(on and CoreController:PlayerStyle() or nil)
 end
 
 --- A style was chosen: in preview mode, it is the one shown now.
 function Options:StyleChosen()
-    if self.previewing then self:Preview(Addon:PlayerStyle()) end
+    if self.previewing then self:Preview(CoreController:PlayerStyle()) end
 end
 
 --- The one Preview button over the narrator styles, on Spoken's page and in the welcome window,
@@ -193,7 +193,7 @@ function Options:PreviewButton(layout)
     layout:OnRefresh(function()
         button:SetText(Options.previewing and L.STYLE_PREVIEW_HIDE or L.STYLE_PREVIEW)
         Layout.FitButton(button)
-        if Addon:PlayerStyle() == "none" and not Options.previewing then button:Disable() else button:Enable() end
+        if CoreController:PlayerStyle() == "none" and not Options.previewing then button:Disable() else button:Enable() end
     end)
     return button
 end
@@ -223,11 +223,11 @@ local function Build()
     scroller:SetScrollChild(host)
     legacyScrollChild = host
     panel.content = host
-    local cfg = function() return Addon.db.profile.Frame end
-    local audio = function() return Addon.db.profile.Audio end
-    local transcript = function() return Addon.db.profile.Transcript end
-    local mm = function() return Addon.db.profile.Minimap.LibDBIcon end
-    local function Style() return Addon:PlayerStyle() end
+    local cfg = function() return CoreController.db.profile.Frame end
+    local audio = function() return CoreController.db.profile.Audio end
+    local transcript = function() return CoreController.db.profile.Transcript end
+    local mm = function() return CoreController.db.profile.Minimap.LibDBIcon end
+    local function Style() return CoreController:PlayerStyle() end
     local function InWindow()
         local style = Style()
         return style == "classic"
@@ -292,7 +292,7 @@ local function Build()
             tooltip = STYLE_TIPS[style], art = SKETCHES[style] })
     end
     Options:PreviewButton(layout)
-    layout:Tiles(tiles, Style, function(v) Addon:SetPlayerStyle(v) end,
+    layout:Tiles(tiles, Style, function(v) CoreController:SetPlayerStyle(v) end,
         function()
             NarratorWindow:RefreshConfig(); refreshTranscript()
             Options:StyleChosen()
@@ -430,7 +430,7 @@ local function Build()
     local languageUnavailable = L.OPT_LANGUAGE_UNAVAILABLE
         or "* Multiple languages are not currently supported. Language selection is disabled."
     local function LanguageAvailable() return languageSelectionAvailable end
-    local language = function() return Addon.db.profile.Language end
+    local language = function() return CoreController.db.profile.Language end
     local voices, fallbacks = { "auto" }, { "none" }
     for _, locale in ipairs(LANGUAGES) do
         table.insert(voices, locale.code)
@@ -531,8 +531,8 @@ local function Build()
             end, L.OPT_GATHER_TIP, true)
         end
         layout:Checkbox(L.OPT_HIDE_CONTRIBUTE, L.OPT_HIDE_CONTRIBUTE_TIP,
-            function() return Addon.db.profile.Contribute.HideButtons end,
-            function(v) Addon.db.profile.Contribute.HideButtons = v end,
+            function() return CoreController.db.profile.Contribute.HideButtons end,
+            function(v) CoreController.db.profile.Contribute.HideButtons = v end,
             function() Callbacks:Fire("CONTRIBUTE_SETTINGS_CHANGED") end)
         -- The opt-out the first Contribute click promises. Independent of hiding the buttons:
         -- a player who gathers has no use for them, and hiding them must not stop it.
@@ -576,7 +576,7 @@ local function Build()
         local mouseButton, label = entry.key, entry.label
         layout:Dropdown(label, "Choose an existing minimap button action.", commands,
             function() return Minimap:GetClickCommand(mouseButton) end,
-            function(command) Addon.db.profile.Minimap.Commands[mouseButton] = command end,
+            function(command) CoreController.db.profile.Minimap.Commands[mouseButton] = command end,
             nil, function(command) return commandLabels[command] or command end)
     end
 
@@ -635,8 +635,8 @@ local function Build()
                 local tab = Tab(key)
                 if tab and tab.unlock then tab.unlock.set(false) end
             end
-            Addon.db:ResetProfile()
-            Addon.db.global.Layout = nil
+            CoreController.db:ResetProfile()
+            CoreController.db.global.Layout = nil
             ReloadUI()
         end)
     end, L.OPT_RESET_ALL_TIP)
@@ -649,7 +649,7 @@ local function Build()
             -- the minimap button, or a module's own entry point.
             if Search and Search.Close then Search:Close() end
             if Subtitle and Subtitle:IsShowingSample() then Subtitle:ShowSample(false) end
-            if Options.previewing or Addon.previewStyle then Options:SetPreviewing(false) end
+            if Options.previewing or CoreController.previewStyle then Options:SetPreviewing(false) end
         end)
     end
     return panel
@@ -708,9 +708,9 @@ end
 -- Check for a callable GetProfiles method, rather than just a truthy field.
 function Options:ProfileDBs()
     local dbs, seen = {}, {}
-    if Addon.db and type(Addon.db.GetProfiles) == "function" then
-        table.insert(dbs, Addon.db)
-        seen[Addon.db] = true
+    if CoreController.db and type(CoreController.db.GetProfiles) == "function" then
+        table.insert(dbs, CoreController.db)
+        seen[CoreController.db] = true
     end
     for _, source in Sources:Iterate() do
         if type(source.profiles) == "function" then
@@ -946,7 +946,7 @@ function Options:SelectLegacyPage(order)
     local child = chosen and chosen.frame or legacyScrollChild
     local old = self.activePage and self.activePage.frame or legacyScrollChild
     -- Preview belongs to Home, not to whichever module tab is opened next.
-    if order ~= 0 and (self.previewing or Addon.previewStyle) then
+    if order ~= 0 and (self.previewing or CoreController.previewStyle) then
         self:SetPreviewing(false)
     end
     if old ~= child then old:Hide() end
@@ -980,7 +980,7 @@ FitWindow = function()
         -- collapse. Module tabs and Large Window retain the normal height.
         if panel.isWindow and legacyMaxHeight then
             local target = legacyMaxHeight
-            if not Options.activePage and Addon:PlayerStyle() == "none" then
+            if not Options.activePage and CoreController:PlayerStyle() == "none" then
                 -- Viewport = panel height + LEGACY_SCROLL_TOP - 20.
                 -- Leave an 8px safety margin under the final setting.
                 target = math.min(target,

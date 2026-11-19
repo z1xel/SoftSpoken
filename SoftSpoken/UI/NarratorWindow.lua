@@ -3,7 +3,7 @@ setfenv(1, SpokenEnv)
 
 -- The frame's settings, or their defaults once AceDB has stripped them (Addon:Profile).
 local function FrameConfig()
-    return Addon:Profile("Frame")
+    return CoreController:Profile("Frame")
 end
 
 -- The player: who is speaking, what is waiting, and the controls for both.
@@ -18,7 +18,6 @@ end
 -- calling this file, which is what keeps SoundQueue.lua free of any dependency on it.
 NarratorWindow = {}
 -- Retain the historical internal environment member for integrations.
-PlayerFrame = NarratorWindow
 
 local PORTRAIT_SIZE = 120
 local PORTRAIT_ATLAS_SIZE = 512
@@ -87,9 +86,9 @@ function NarratorWindow:InitDisplay()
         self:SetPoint("BOTTOM", 0, 200)
     end
     self.frame:Reset()
-    if Addon:RestoreLayout("Player", self.frame) then
+    if CoreController:RestoreLayout("Player", self.frame) then
         -- Saved as the width with the portrait, which RefreshConfig takes off when hidden.
-        self.frame:SetWidth(Addon:Layout().Player.width or self.frame:GetWidth())
+        self.frame:SetWidth(CoreController:Layout().Player.width or self.frame:GetWidth())
     end
     self.frame:SetMovable(true)
     self.frame:SetResizable(true)
@@ -173,7 +172,7 @@ end
 
 local function CancelProgressGuard(progress)
     if progress.guardTimer then
-        Addon:CancelTimer(progress.guardTimer, true)
+        CoreController:CancelTimer(progress.guardTimer, true)
         progress.guardTimer = nil
     end
 end
@@ -430,8 +429,8 @@ end
 function NarratorWindow:UpdateProgress()
     local progress = self.progress
     if not progress then return end
-    local shown = Addon:DisplayStyle() == "classic"
-        and Addon:Profile("Transcript").SubtitleProgress ~= false
+    local shown = CoreController:DisplayStyle() == "classic"
+        and CoreController:Profile("Transcript").SubtitleProgress ~= false
         and self.frame:IsShown()
     progress.container:SetShown(shown)
     if not shown then
@@ -481,7 +480,7 @@ function NarratorWindow:UpdateProgress()
                 StaticProgress(progress, PROGRESS_CAP)
                 progress.mode = "capped"
             else
-                progress.guardTimer = Addon:ScheduleTimer(function()
+                progress.guardTimer = CoreController:ScheduleTimer(function()
                     progress.guardTimer = nil
                     if progress.clip ~= clip or progress.attempt ~= attempt
                         or progress.mode ~= "native" or not SoundQueue:IsPlaying(clip) then
@@ -623,7 +622,7 @@ function NarratorWindow:InitMover()
     self.frame.mover.background:SetPoint("CENTER")
     self.frame.mover.background:SetSize(32, 32)
     self.frame.mover:HookScript("OnEnter", function(button)
-        if Addon:IsFrameLocked() then return end
+        if CoreController:IsFrameLocked() then return end
         SetCursor([[Interface\Cursor\UI-Cursor-Move]])
         GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
         GameTooltip:SetText(L.QUEUE_TITLE)
@@ -632,11 +631,11 @@ function NarratorWindow:InitMover()
     end)
     self.frame.mover:HookScript("OnLeave", function() SetCursor(nil); GameTooltip_Hide() end)
     self.frame.mover:HookScript("OnMouseDown", function()
-        if Addon:IsFrameLocked() then return end
+        if CoreController:IsFrameLocked() then return end
         self.frame:StartMoving()
     end)
     self.frame.mover:HookScript("OnMouseUp", function()
-        if Addon:IsFrameLocked() then return end
+        if CoreController:IsFrameLocked() then return end
         self.frame:StopMovingOrSizing()
         self:SaveLayout()
     end)
@@ -675,11 +674,11 @@ function NarratorWindow:RefreshConfig()
         self.frame.mover:SetPoint("CENTER", self.frame.portrait.border, "BOTTOMLEFT", 5, 6)
     end
 
-    self.frame.mover:SetShown(not Addon:IsFrameLocked())
-    self.frame.resizer:SetShown(not Addon:IsFrameLocked())
+    self.frame.mover:SetShown(not CoreController:IsFrameLocked())
+    self.frame.resizer:SetShown(not CoreController:IsFrameLocked())
     self.frame:SetScale(cfg.FrameScale)
     self.frame:SetFrameStrata(cfg.FrameStrata)
-    Addon:ApplyHost(self.frame)
+    CoreController:ApplyHost(self.frame)
     self:Update()
 end
 
@@ -849,7 +848,7 @@ function NarratorWindow:Update()
     if not self.frame then return end
     -- Hidden in voice-only mode; returning to the classic window retains its position.
     local head = self:Current()
-    self.frame:SetShown(Addon:DisplayStyle() == "classic" and head ~= nil)
+    self.frame:SetShown(CoreController:DisplayStyle() == "classic" and head ~= nil)
     if not self.frame:IsShown() then return end
 
     self:SetResizeBounds(FrameConfig().HidePortrait and 100 or PORTRAIT_SIZE + 100)
@@ -891,7 +890,7 @@ function NarratorWindow:Update()
 
     -- Again once the layout has settled: truncation and hover state both depend on where
     -- the rows ended up. The zero-delay timer lets the 1.12 layout settle.
-    Addon:ScheduleTimer(function()
+    CoreController:ScheduleTimer(function()
         self.frame.container.buttons:Update()
         self.frame.container.name:Update()
     end, 0)
@@ -935,13 +934,13 @@ end
 
 function NarratorWindow:SaveLayout()
     local width = self.frame:GetWidth() + (FrameConfig().HidePortrait and PORTRAIT_SIZE or 0)
-    Addon:SaveLayout("Player", self.frame, width)
+    CoreController:SaveLayout("Player", self.frame, width)
 end
 
 --- Back to the default spot and width, forgetting the saved ones, for a frame dragged
 --- off-screen or sized past use.
 function NarratorWindow:Reset()
-    Addon:Layout().Player = nil
+    CoreController:Layout().Player = nil
     if not self.frame then return end
     self.frame:Reset()
     -- Reset's width has the portrait in it, and RefreshConfig only takes it off on a change.

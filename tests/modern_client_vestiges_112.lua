@@ -55,7 +55,7 @@ local broker = { NewDataObject = function(self, name, object)
 end }
 local env = setmetatable({
     L = setmetatable({}, { __index = function(_, key) return key end }),
-    Addon = { db = db },
+    CoreController = { db = db },
     Sources = { Iterate = function() return function() end end,
         IsTurnedOff = function() return false end },
     SoundQueue = { TogglePauseQueue = function() end,

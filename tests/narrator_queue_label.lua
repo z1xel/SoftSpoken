@@ -51,7 +51,7 @@ local function CreateFont()
 end
 
 SpokenEnv = setmetatable({
-    Addon = {Profile=function() return {} end},
+    CoreController = {Profile=function() return {} end},
     Version = {IsLegacyVanilla=true},
     SoundQueue = queue,
     Bullets = {book={texture="BOOK",size=16}},
@@ -61,8 +61,8 @@ SpokenEnv = setmetatable({
     GameFontNormal = {GetFont=function() return "Fonts\\FRIZQT__.TTF" end},
 }, {__index=_G})
 dofile("SoftSpoken/UI/NarratorWindow.lua")
-assert(SpokenEnv.NarratorWindow == SpokenEnv.PlayerFrame, "legacy PlayerFrame alias changed identity")
-local player = SpokenEnv.PlayerFrame
+assert(SpokenEnv.NarratorWindow, "narrator controller missing")
+local player = SpokenEnv.NarratorWindow
 local container = Widget()
 container.buttons = {}
 container.name = Widget(container)

@@ -33,7 +33,7 @@ for expected in (
 ):
     assert expected in voice, f"active Stories integration removed: {expected}"
 assert "function Spoken:SetPlayerHost(frame)" in api
-assert "function Addon:ApplyHost(frame)" in core
-assert "function Addon:SetPlayerHost(host)" in core
+assert "function CoreController:ApplyHost(frame)" in core
+assert "function CoreController:SetPlayerHost(host)" in core
 assert "function Spoken:AddDialogueUISettings(" not in api
 print("PASS: dormant DialogueUI bridge, profile defaults, API stub and locale removed; Vanilla paths retained")

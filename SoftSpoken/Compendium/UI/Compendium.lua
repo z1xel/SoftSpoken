@@ -114,7 +114,7 @@ end
 
 local function SavedCompendium()
     local env = _G.SpokenEnv
-    local addon = env and env.Addon
+    local addon = env and env.CoreController
     local db = addon and addon.db
     local char = db and db.char
     if type(char) ~= "table" then return nil end
