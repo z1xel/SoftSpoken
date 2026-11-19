@@ -140,7 +140,7 @@ retired = {
     ),
     "SoftSpoken_Stories": (
         r"\bSettingsPanel\b", r"\bSSCCompendium\b",
-        r"\bVoiceOver\.Player\b", r"\bPlayer\s*=",
+        r"\bVoiceOver\.Player\b", r"(?m)^Player\s*=",
     ),
     "SoftSpoken_Places": (
         r"\bSSZZonesRuntime\b", r"\bSSCCompendium\b",
