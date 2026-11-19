@@ -380,7 +380,7 @@ function StoriesNarrator:EnqueuePrepared(soundData, asked)
 end
 
 --- Plays a line asked for by a dialog's Play button at once, ahead of the queue, and skips what
---- was speaking rather than replaying it. Callers set `Player.playNow` around the read.
+--- was speaking rather than replaying it. Callers set `StoriesNarrator.playNow` around the read.
 ---@param soundData SoundData
 ---@return boolean playing
 function StoriesNarrator:PlayPreparedNow(soundData)
@@ -529,7 +529,7 @@ function StoriesNarrator:Setup()
             end
             if dialog and dialog.Refresh then dialog:Refresh() end
             if contribute and contribute.Refresh then contribute:Refresh() end
-            local compendium = _G.SSCCompendium or _G.SpokenCompendium
+            local compendium = _G.SpokenCompendium
             if compendium and compendium.Relayout then compendium:Relayout() end
         end)
     end

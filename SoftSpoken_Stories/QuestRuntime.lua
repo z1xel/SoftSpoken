@@ -162,7 +162,7 @@ function Addon:InvokeQuestHandler(event, dispatchOrigin, manual)
         end
     end
     Debug:Record("quest-dispatch", format("Dispatching %s through %s", event, dispatchOrigin or "manual reader"))
-    -- Where the lines this queues come from, for the debug log (Player:Enqueue keeps it on each).
+    -- Where the lines this queues come from, for the debug log (StoriesNarrator:Enqueue keeps it on each).
     StoriesNarrator.origin = StoriesNarrator:Origin(event, dispatchOrigin, manual)
     local succeeded, errorMessage = pcall(handler, self, event, manual)
     StoriesNarrator.origin = nil
@@ -710,7 +710,7 @@ function Addon:OnInitialize()
 
     -- The core queue has a stable questID on each clip. In 1.12 the old
     -- AbandonQuest hook compared a non-existent `questName` field; it could
-    -- never match the clips actually created by Player.lua.
+    -- never match the clips actually created by NarrationSource.lua.
     --
     -- ClassicAPI emits QUEST_REMOVED with the real ID after the quest leaves
     -- the log. This can also happen on a turn-in: never clear the reward

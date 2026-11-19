@@ -1,7 +1,7 @@
 -- Vanilla 1.12 narrator window; voice-only mode does not create a second player frame.
 setfenv(1, SpokenEnv)
 
--- The frame's settings, or their defaults once AceDB has stripped them (Addon:Profile).
+-- The frame's settings, or their defaults once AceDB has stripped them (CoreController:Profile).
 local function FrameConfig()
     return CoreController:Profile("Frame")
 end

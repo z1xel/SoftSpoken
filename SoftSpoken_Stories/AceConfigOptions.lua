@@ -443,7 +443,7 @@ function Options:Initialize()
         tinsert(UISpecialFrames, "VoiceOverOptions")
     end)
     -- Register from the same AceAddon lifecycle as the Quests database.
-    -- The deferred PLAYER_ENTERING_WORLD hook in SettingsPanel remains a
+    -- The deferred PLAYER_ENTERING_WORLD hook in StoriesSettingsPage remains a
     -- fallback if the shared core has not finished setting up yet.
     RunOptionalStep("shared settings page", function()
         if StoriesSettingsPage and StoriesSettingsPage.Setup then StoriesSettingsPage:Setup() end
@@ -473,7 +473,7 @@ function Options:OpenConfigWindow()
     if not self.frame then
         print("|cFFFF4040SoftSpoken Stories: neither settings view could be opened.|r")
         if StoriesSettingsPage and StoriesSettingsPage.lastError then
-            print("Shared Stories settings: " .. SettingsPanel.lastError)
+            print("Shared Stories settings: " .. StoriesSettingsPage.lastError)
         end
         for _, warning in ipairs(self.initializationErrors or {}) do
             print("Legacy Stories settings: " .. tostring(warning))

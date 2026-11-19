@@ -37,8 +37,8 @@ local function RecordVisit(zone, subzone)
     end
     if changed then
         InvalidateExploration()
-        if SSZCompendium and SSZCompendium.Refresh then
-            SSZCompendium:Refresh()
+        if SpokenCompendium and SpokenCompendium.Refresh then
+            SpokenCompendium:Refresh()
         end
         if SSZMapPanel and SSZMapPanel.Refresh then
             SSZMapPanel.Refresh()

@@ -142,7 +142,7 @@ end
 --- Listen or Stop, for the line already found. All a clip starting or stopping can change.
 function DialogPlayButton:Relabel()
     if self.line then
-        self.button:SetText(Player:QueuedClipFor(self.line) and L.OPT_STOP or L.OPT_LISTEN)
+        self.button:SetText(StoriesNarrator:QueuedClipFor(self.line) and L.OPT_STOP or L.OPT_LISTEN)
     end
 end
 
@@ -151,10 +151,10 @@ function DialogPlayButton:OnClick()
     if not self.line then
         return
     end
-    local clip = Player:QueuedClipFor(self.line)
+    local clip = StoriesNarrator:QueuedClipFor(self.line)
     -- The label follows from the CLIP_ callbacks either of these fires.
     if clip then
-        Player:Remove(clip)
+        StoriesNarrator:Remove(clip)
     else
         Addon:ReadVisibleQuest("dialog Play button")
     end

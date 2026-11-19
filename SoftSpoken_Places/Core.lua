@@ -98,8 +98,8 @@ frame:SetScript("OnEvent", function(self, firedEvent, a, b, c)
         if SSZMapHighlight and SSZMapHighlight.Hide then
             SSZMapHighlight.Hide()
         end
-        if SSZCompendium and SSZCompendium.Refresh then
-            SSZCompendium:Refresh()
+        if SpokenCompendium and SpokenCompendium.Refresh then
+            SpokenCompendium:Refresh()
         end
         if SSZMapPanel and SSZMapPanel.Refresh then
             SSZMapPanel.Refresh()
