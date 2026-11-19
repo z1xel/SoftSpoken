@@ -61,6 +61,15 @@ SSBSettings, SSBCharacter = accountSettings, character
 SpokenWritings = nil
 dofile("SoftSpoken_Writings/Core.lua")
 local writings = assert(SpokenWritings)
+-- Load the actual locale after Core, as the Writings TOC does in-game.
+-- The old SSB module alias was removed; it must not be needed for labels.
+SSB = nil
+dofile("SoftSpoken_Writings/Locale/enUS.lua")
+eq(type(writings.L), "table", "Writings locale initialized on canonical module")
+eq(writings.L.PLAY, "Play", "Writings Play button label available")
+eq(writings.L.STOP, "Stop", "Writings Stop button label available")
+eq(writings.L.OPT_SECTION_READING, "When to Read", "Writings settings labels available")
+eq(SSB, nil, "Writings locale does not resurrect retired module alias")
 eq(writings:InitDB(), accountSettings, "Writings settings table identity")
 eq(SSBCharacter, character, "Writings character table identity")
 eq(SSBSettings.autoplay, false, "existing autoplay choice")
