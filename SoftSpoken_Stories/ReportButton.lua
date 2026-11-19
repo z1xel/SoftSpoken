@@ -29,13 +29,6 @@ local function IsFrameVisible(frame)
     return frame:IsShown()
 end
 
-local PAGE_EVENTS =
-{
-    QUEST_DETAIL = Enums.SoundEvent.QuestAccept,
-    QUEST_PROGRESS = Enums.SoundEvent.QuestProgress,
-    QUEST_COMPLETE = Enums.SoundEvent.QuestComplete,
-}
-
 local EVENT_PATHS =
 {
     [Enums.SoundEvent.QuestAccept] = "accept",
@@ -91,9 +84,6 @@ function ReportButton:CurrentTarget()
         event = Enums.SoundEvent.QuestProgress
     elseif IsFrameVisible(QuestFrameDetailPanel) then
         event = Enums.SoundEvent.QuestAccept
-    else
-        local page = Utils:DialogueUIPage()
-        event = page and PAGE_EVENTS[page]
     end
 
     local target = event and self:TargetForQuest(GetQuestID and NotSecret(GetQuestID()), event)
@@ -120,31 +110,17 @@ function ReportButton:Link(target, language)
     return Spoken:ReportURL("quests", target, language)
 end
 
---- Optional compatibility route for an external dialogue UI hiding UIParent:
---- use Core's copy box if it is available instead of a hidden popup.
+-- Vanilla 1.12 uses the same selectable copy-link popup for reporting and
+-- settings URLs. Retired DialogueUI routing is not part of this client.
 local function ShowCopy(url)
-    if Utils:DialogueUIPage() and Spoken and Spoken.ShowContribution then
-        Spoken:ShowContribution(url, nil, true)
-        return
-    end
     shownLink = url
     StaticPopup_Show(COPY_DIALOG)
 end
 
---- The report address for `target`, with the line as the player met it in its fragment: the
---- addon version, the client, the text and the NPC. `clip` is the line being reported, or nil
---- for the window on screen. The bare address in the popup under a Spoken too old to say more.
-function ReportButton:ShowLink(target, language, clip)
-    local url = self:Link(target, language)
-    if not (Spoken and Spoken.ShowReport) then
-        ShowCopy(url)
-        return
-    end
-    -- This 1.12 build does not load Contribute.xml.
-    local contribute = rawget(VoiceOver, "Contribute")
-    Spoken:ShowReport(url, function()
-        return contribute and contribute:ReportContext(clip)
-    end)
+--- Show the native copyable report URL for a quest stage or NPC/object.
+--- The retired Contribute-based report context is not available on 1.12.
+function ReportButton:ShowLink(target, language)
+    ShowCopy(self:Link(target, language))
 end
 
 --- The same popup, for an address that is not a report: the settings panel offers one per
