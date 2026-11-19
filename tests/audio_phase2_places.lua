@@ -23,7 +23,7 @@ SpokenPlacesAudioPacks = {{
     subzones={[1429]={["northshire valley"]={file="Northshire",len=6}}},
 }}
 local chatMessages={}
-SSZZonesRuntime = {
+SpokenPlacesRuntime = {
     Normalise=function(s) return string.lower(s or "") end,
     HeardKey=function(id,area) return area and ("s:"..id..":"..string.lower(area)) or ("z:"..id) end,
     AudioID=function(s) return s=="Elwynn Forest" and 1429 or nil end,
@@ -35,7 +35,7 @@ SSZZonesRuntime = {
     Say=function(message) chatMessages[#chatMessages+1]=message end,
     startupActive=true,firstWorldReady=true,
 }
-local R=SSZZonesRuntime
+local R=SpokenPlacesRuntime
 local calls, rechecks, retries = {}, 0, 0
 R.source = {
     Enqueue=function(self,c)

@@ -33,8 +33,8 @@ end
 local function HasVoice(id,key)
     -- Use the same pack resolver as the narration player, including older
     -- ZoneLoreAudioData installations that the original browser missed.
-    if SSZBridge and SSZBridge.HasVoice then
-        return SSZBridge:HasVoice(id,key)
+    if SpokenPlacesBridge and SpokenPlacesBridge.HasVoice then
+        return SpokenPlacesBridge:HasVoice(id,key)
     end
     local registries={SpokenPlacesAudioPacks,SpokenZonesAudioPacks,ZoneLoreAudioPacks}
     for _,registry in pairs(registries) do
@@ -58,8 +58,8 @@ end
 -- Compendium progress is based on exploration, NOT recordings played.
 -- The audio history is maintained separately by Core.lua.
 local function Found(id,key)
-    return SSZBridge and SSZBridge.IsFound and
-           SSZBridge:IsFound(id,key) or false
+    return SpokenPlacesBridge and SpokenPlacesBridge.IsFound and
+           SpokenPlacesBridge:IsFound(id,key) or false
 end
 local function OnlyFound()
     return Settings().compendiumFoundOnly == true
@@ -493,14 +493,14 @@ end
 -- The current-area preference is Turtle-specific and uses its working bridge.
 function LoreWindow.OpenSelectionFromPlayer(mapID,areaKey)
     if not mapID then
-        if SSZBridge and SSZBridge.RecordCurrentVisit then
-            SSZBridge:RecordCurrentVisit()
+        if SpokenPlacesBridge and SpokenPlacesBridge.RecordCurrentVisit then
+            SpokenPlacesBridge:RecordCurrentVisit()
         end
-        if SSZBridge and SSZBridge.RefreshFound then
-            SSZBridge:RefreshFound()
+        if SpokenPlacesBridge and SpokenPlacesBridge.RefreshFound then
+            SpokenPlacesBridge:RefreshFound()
         end
-        if SSZBridge and SSZBridge.CurrentEntry then
-            mapID,areaKey=SSZBridge:CurrentEntry()
+        if SpokenPlacesBridge and SpokenPlacesBridge.CurrentEntry then
+            mapID,areaKey=SpokenPlacesBridge:CurrentEntry()
         end
     end
     if mapID then LoreWindow.OpenSelection(mapID,areaKey) end
@@ -530,8 +530,8 @@ function LoreWindow.SetupLoreWindow()
             LoreWindow.Refresh()
         end,
         onShow=function()
-            if SSZBridge and SSZBridge.RefreshFound then
-                SSZBridge:RefreshFound()
+            if SpokenPlacesBridge and SpokenPlacesBridge.RefreshFound then
+                SpokenPlacesBridge:RefreshFound()
             end
         end,
         store={

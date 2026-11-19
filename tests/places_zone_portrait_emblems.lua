@@ -70,7 +70,7 @@ local registryPack={
     subzones={[1411]={["valley of trials"]={file="1411/valley",len=8}}},
 }
 SpokenPlacesAudioPacks={SpokenPlacesAudio=registryPack}
-SSZZonesRuntime={
+SpokenPlacesRuntime={
     Normalise=function(text) return string.lower(text or "") end,
     AudioID=function() return 1411 end,
     HeardKey=function(id,area) return "z:"..tostring(id)..":"..tostring(area or "") end,
@@ -102,7 +102,7 @@ SSZLore={zones={
 dofile("SoftSpoken_Places/UI/LoreWindow.lua")
 
 dofile("SoftSpoken_Places/Audio.lua")
-local r=SSZZonesRuntime
+local r=SpokenPlacesRuntime
 local durotar=r.MakeClip(1411,"Durotar","Durotar",true,false)
 local valley=r.MakeClip(1411,"Durotar","Valley of Trials",false,false)
 local city=r.MakeClip(1457,"Darnassus","Darnassus",true,false)

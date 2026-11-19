@@ -1,7 +1,7 @@
 -- SoftSpoken Places (Vanilla 1.12 / Lua 5.0).
 -- Places integration with Core narration and the shared Compendium.
 
-local PlacesRuntime = SSZZonesRuntime
+local PlacesRuntime = SpokenPlacesRuntime
 local Normalise = PlacesRuntime.Normalise
 local AudioID = PlacesRuntime.AudioID
 local HeardKey = PlacesRuntime.HeardKey
@@ -15,15 +15,15 @@ local MakeClip = PlacesRuntime.MakeClip
 local FindRecording = PlacesRuntime.FindRecording
 local ZONE_NAMES = PlacesRuntime.ZONE_NAMES
 
-function SSZBridge:IsFound(mapID,areaKey)
+function SpokenPlacesBridge:IsFound(mapID,areaKey)
     return WasFound(mapID,areaKey)
 end
-function SSZBridge:RefreshFound()
+function SpokenPlacesBridge:RefreshFound()
     InvalidateExploration()
 end
 -- Legacy API retained for compatibility; map clicks no longer call MarkFound.
 -- Discovery records should only be written by genuine world visits/events.
-function SSZBridge:MarkFound(mapID, areaKey)
+function SpokenPlacesBridge:MarkFound(mapID, areaKey)
     if not mapID or not areaKey then return false end
     local lore = SSZLore
     local key = Normalise(areaKey)
@@ -36,7 +36,7 @@ function SSZBridge:MarkFound(mapID, areaKey)
     return true
 end
 
-function SSZBridge:RecordCurrentVisit()
+function SpokenPlacesBridge:RecordCurrentVisit()
     local zone,subzone=CurrentLocation()
     RecordVisit(zone,subzone)
 end
@@ -44,18 +44,18 @@ end
 -- Stateful Compendium narration controls. State is read from the shared player,
 -- not tracked on a button: quest audio and autoplay use the same queue.
 local audioChangedListeners = {}
-function SSZBridge:OnAudioChanged(callback)
+function SpokenPlacesBridge:OnAudioChanged(callback)
     if type(callback) == "function" then
         table.insert(audioChangedListeners, callback)
     end
 end
-function SSZBridge:NotifyAudioChanged()
+function SpokenPlacesBridge:NotifyAudioChanged()
     for _, callback in ipairs(audioChangedListeners) do
         -- A broken or hidden page must not interrupt the Spoken player.
         pcall(callback)
     end
 end
-function SSZBridge:GetAudioState(mapID, areaKey)
+function SpokenPlacesBridge:GetAudioState(mapID, areaKey)
     if not mapID or not PlacesRuntime.source or not PlacesRuntime.source.GetClipState then return "play" end
     local state = PlacesRuntime.source:GetClipState(HeardKey(mapID, areaKey))
     -- A queued or gated location is not actively narrating. Preserve the old
@@ -66,7 +66,7 @@ function SSZBridge:GetAudioState(mapID, areaKey)
 end
 -- Stop/Replay toggles ONLY when this exact lore entry is speaking or paused.
 -- With WoW's sound API, resume restarts the recording at its beginning.
-function SSZBridge:ToggleEntry(mapID, areaKey)
+function SpokenPlacesBridge:ToggleEntry(mapID, areaKey)
     if not mapID then return false, "no entry" end
     local state = self:GetAudioState(mapID, areaKey)
     if state == "stop" or state == "replay" then
@@ -90,7 +90,7 @@ end
 
 -- Compendium -> Spoken audio bridge. The Compendium passes the canonical data key
 -- rather than a display name so "The Den" and "den" resolve to the same clip.
-function SSZBridge:PlayEntry(mapID, areaKey)
+function SpokenPlacesBridge:PlayEntry(mapID, areaKey)
     if not PlacesRuntime.source then return false, "player not ready" end
     local lore = SSZLore or {}
     local z = lore.zones and lore.zones[mapID]
@@ -109,7 +109,7 @@ end
 
 -- Expose the same ID/key resolver to the Compendium so browsing and
 -- automatic narration always point to the same recording and lore entry.
-function SSZBridge:CurrentEntry()
+function SpokenPlacesBridge:CurrentEntry()
     local zone, area = CurrentLocation()
     local mapID = AudioID(zone)
     if not mapID then return nil, nil end
@@ -122,6 +122,6 @@ function SSZBridge:CurrentEntry()
     end
     return mapID, areaKey
 end
-function SSZBridge:HasVoice(mapID, areaKey)
+function SpokenPlacesBridge:HasVoice(mapID, areaKey)
     return FindRecording(mapID, areaKey) ~= nil
 end

@@ -2,8 +2,8 @@
 -- Shared Places runtime state, zone-name lookup, and key helpers.
 
 -- Shared identifiers and startup state for files loaded by the .toc.
-SSZZonesRuntime = {}
-local PlacesRuntime = SSZZonesRuntime
+SpokenPlacesRuntime = {}
+local PlacesRuntime = SpokenPlacesRuntime
 
 -- All Vanilla and Turtle zone names come from the lore catalog loaded
 -- before Core.lua in the .toc. Keep only genuine client-name aliases below,

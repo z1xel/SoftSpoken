@@ -1,7 +1,7 @@
 -- SoftSpoken Places (Vanilla 1.12 / Lua 5.0).
 -- Places voice-pack discovery and narration clip construction.
 
-local PlacesRuntime = SSZZonesRuntime
+local PlacesRuntime = SpokenPlacesRuntime
 local Normalise = PlacesRuntime.Normalise
 local AudioID = PlacesRuntime.AudioID
 local HeardKey = PlacesRuntime.HeardKey
@@ -245,15 +245,15 @@ local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay, initialGre
         -- not when it sits held behind the post-cinematic grace period.
         if item.initialGreeting then CharDB().greeted = true end
         if pending[key] == item then pending[key] = nil end
-        if SSZBridge and SSZBridge.NotifyAudioChanged then
-            SSZBridge:NotifyAudioChanged()
+        if SpokenPlacesBridge and SpokenPlacesBridge.NotifyAudioChanged then
+            SpokenPlacesBridge:NotifyAudioChanged()
         end
     end
     -- A dropped/trimmed clip must remain eligible for future narration.
     clip.stopCallback = function(item, finishedPlaying)
         if pending[key] == item then pending[key] = nil end
-        if SSZBridge and SSZBridge.NotifyAudioChanged then
-            SSZBridge:NotifyAudioChanged()
+        if SpokenPlacesBridge and SpokenPlacesBridge.NotifyAudioChanged then
+            SpokenPlacesBridge:NotifyAudioChanged()
         end
     end
     return clip

@@ -2,7 +2,7 @@
 -- Places lifecycle and event wiring; content and audio policies live in siblings.
 
 -- Lifecycle/wiring only. Content and player policies live in siblings.
-local PlacesRuntime = SSZZonesRuntime
+local PlacesRuntime = SpokenPlacesRuntime
 local CharDB = PlacesRuntime.CharDB
 local Say = PlacesRuntime.Say
 local frame
@@ -58,7 +58,7 @@ frame:SetScript("OnEvent", function(self, firedEvent, a, b, c)
         if PlacesRuntime.source.AddGate then PlacesRuntime.source:AddGate(PlacesRuntime.HoldAutoplay) end
         if Spoken.RegisterCallback then
             Spoken:RegisterCallback("AUDIO_CHANGED", function()
-                SSZBridge:NotifyAudioChanged()
+                SpokenPlacesBridge:NotifyAudioChanged()
             end)
         end
 

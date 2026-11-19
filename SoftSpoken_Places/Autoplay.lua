@@ -1,7 +1,7 @@
 -- SoftSpoken Places (Vanilla 1.12 / Lua 5.0).
 -- Places location events and automatic narration.
 
-local PlacesRuntime = SSZZonesRuntime
+local PlacesRuntime = SpokenPlacesRuntime
 local Normalise = PlacesRuntime.Normalise
 local AudioID = PlacesRuntime.AudioID
 local CurrentLocation = PlacesRuntime.CurrentLocation

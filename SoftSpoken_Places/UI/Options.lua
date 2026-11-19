@@ -1,6 +1,6 @@
 -- The 1.12 Places settings page. Presentation only: narration and map
 -- behavior remain owned by Places runtime; no new settings storage.
-local PlacesRuntime = SSZZonesRuntime
+local PlacesRuntime = SpokenPlacesRuntime
 local Layout = SpokenLayout
 local optionsPage
 local optionsLayout

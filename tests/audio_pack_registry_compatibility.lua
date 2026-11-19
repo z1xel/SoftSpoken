@@ -16,7 +16,7 @@ local runtime = {
     CharDB = function() return {heard={}} end,
     Say = function() end,
 }
-SSZZonesRuntime = runtime
+SpokenPlacesRuntime = runtime
 SpokenPlacesAudioPacks = {
     SpokenPlacesAudio = {
         version=1, addon="SpokenPlacesAudio",

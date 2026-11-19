@@ -74,7 +74,7 @@ function MapHover.Resolve(x, y)
     -- overlays. Do NOT use LoreWindow.IsLocked here: the Compendium's
     -- Unlock Undiscovered setting intentionally bypasses that lock, which
     -- would spoil hidden regions simply by hovering the map.
-    local bridge = SSZBridge
+    local bridge = SpokenPlacesBridge
     if not (bridge and bridge.IsFound and bridge:IsFound(foundID, foundKey)) then
         return nil
     end

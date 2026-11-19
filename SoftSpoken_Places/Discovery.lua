@@ -1,7 +1,7 @@
 -- SoftSpoken Places (Vanilla 1.12 / Lua 5.0).
 -- Places exploration and discovery tracking.
 
-local PlacesRuntime = SSZZonesRuntime
+local PlacesRuntime = SpokenPlacesRuntime
 local Normalise = PlacesRuntime.Normalise
 local AudioID = PlacesRuntime.AudioID
 local CharDB = PlacesRuntime.CharDB

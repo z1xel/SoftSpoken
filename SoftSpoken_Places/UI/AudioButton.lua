@@ -19,7 +19,7 @@ function AudioButton.Bind(button)
         end
         self:Enable()
         self:Show()
-        local bridge=SSZBridge
+        local bridge=SpokenPlacesBridge
         local state="play"
         if bridge and bridge.GetAudioState then
             state=bridge:GetAudioState(self.mapID,self.areaKey)
@@ -34,7 +34,7 @@ function AudioButton.Bind(button)
         local b=this or self -- Vanilla 1.12 scripts use the global `this`.
         if not b or not b.mapID or
            LoreWindow.IsLocked(b.mapID,b.areaKey) or not LoreWindow.HasVoice(b.mapID,b.areaKey) then return end
-        local bridge=SSZBridge
+        local bridge=SpokenPlacesBridge
         if not bridge or not bridge.PlayEntry then
             Notice("Playback bridge not ready.") return
         end
@@ -69,8 +69,8 @@ function AudioButton.Bind(button)
     end)
     -- Multiple pages display the same player state, including playback started
     -- outside the Compendium. Don't attach the state to the visible selection.
-    if SSZBridge and SSZBridge.OnAudioChanged then
-        SSZBridge:OnAudioChanged(function() button:Refresh() end)
+    if SpokenPlacesBridge and SpokenPlacesBridge.OnAudioChanged then
+        SpokenPlacesBridge:OnAudioChanged(function() button:Refresh() end)
     end
     -- Current SoftSpoken fires AUDIO_CHANGED for every queue transition.
     -- Keep the old low-rate polling fallback only for older API builds.

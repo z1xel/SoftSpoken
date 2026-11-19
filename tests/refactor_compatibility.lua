@@ -76,9 +76,12 @@ eq(writings:IsBookFound(44), true, "reset does not erase discovery")
 eq(SSBSettings.autoplay, true, "reset restores default autoplay")
 
 -- Places keeps its global runtime and the map/discovery key semantics.
-SSZLore = { zones = { [1413] = { name = "The Barrens" } } }
+dofile("SoftSpoken_Places/LoreDataRegistry.lua")
+eq(SSZBridge, SpokenPlacesBridge, "generated lore API shares canonical Places bridge")
+SSZBridge:RegisterLoreData("enUS", "zones", { [1413] = { name = "The Barrens" } })
+eq(SpokenPlacesBridge:ShouldLoadLanguage("enUS"), true, "legacy lore language registration")
 dofile("SoftSpoken_Places/Runtime.lua")
-local places = assert(SSZZonesRuntime)
+local places = assert(SpokenPlacesRuntime)
 eq(places.Normalise("The Den"), "den", "legacy subzone key normalization")
 eq(places.AudioID("The Barrens"), 1413, "catalog zone ID resolution")
 eq(places.HeardKey(1413), "z:1413", "zone discovery key")

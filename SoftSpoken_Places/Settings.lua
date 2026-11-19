@@ -1,7 +1,7 @@
 -- SoftSpoken Places (Vanilla 1.12 / Lua 5.0).
 -- Places character settings and discovery-state access.
 
-local PlacesRuntime = SSZZonesRuntime
+local PlacesRuntime = SpokenPlacesRuntime
 local Normalise = PlacesRuntime.Normalise
 local migratedHeard = false
 

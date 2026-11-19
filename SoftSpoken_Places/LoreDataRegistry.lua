@@ -2,11 +2,14 @@
 -- The original data is downloaded separately from rusty-key/spoken-wow
 -- under CC BY-SA 4.0; see LORE_CREDITS.txt.
 SSZLore = { zones = {}, subzones = {} }
-SSZBridge = {}
-function SSZBridge:ShouldLoadLanguage(code)
+SpokenPlacesBridge = {}
+-- Legacy generated lore datasets and third-party packs register here.
+-- The alias is the same table, not a separate service.
+SSZBridge = SpokenPlacesBridge
+function SpokenPlacesBridge:ShouldLoadLanguage(code)
     return code == "enUS"
 end
-function SSZBridge:RegisterLoreData(code, kind, entries)
+function SpokenPlacesBridge:RegisterLoreData(code, kind, entries)
     if code ~= "enUS" or (kind ~= "zones" and kind ~= "subzones") then return end
     if type(entries) == "table" then SSZLore[kind] = entries end
 end
