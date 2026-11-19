@@ -1,4 +1,4 @@
-local SpokenBooks = SSB
+local Writings = SpokenWritings
 
 -- Interface strings used by the Books options, book controls, and narration.
 --
@@ -10,8 +10,8 @@ local SpokenBooks = SSB
 -- missing falls back to English at runtime. Chat and diagnostic prints stay
 -- English everywhere, as in the other Spoken addons.
 
-SpokenBooks.L = SpokenBooks.L or {}
-local L = SpokenBooks.L
+Writings.L = Writings.L or {}
+local L = Writings.L
 
 L.OPT_NOTE = "Books, letters, notes and plaques, read aloud when you open them."
 L.OPT_SECTION_READING = "When to Read"
