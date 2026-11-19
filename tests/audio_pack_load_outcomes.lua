@@ -44,7 +44,12 @@ function EnableAddOn(name)
     byName[name].disabled=false
 end
 function IsAddOnLoaded(name) return loaded[name] == true end
-function GetCVar(name) eq(name,"checkAddonVersion"); return "1" end
+local cvarReads = 0
+function GetCVar(name)
+    cvarReads = cvarReads + 1
+    eq(name,"checkAddonVersion")
+    return "1"
+end
 function SetCVar(name,value)
     eq(name,"checkAddonVersion")
     table.insert(writes,tostring(value))
@@ -95,7 +100,7 @@ eq(loadCalls.DisabledPack,1,"disabled pack loaded after enabling")
 eq(enableCalls.DisabledPack,1,"one enable attempt for disabled pack")
 eq(enableCalls.SpokenQuestsAudioShared,nil,"already-enabled pack untouched")
 eq(enableCalls.NotDemand,nil,"non-LOD addon not enabled")
-eq(table.concat(writes,","),"0,1,0,1,0,1,0,1","original CVar writes")
+eq(next(writes),nil,"voice-pack load must not mutate client CVars")
 
 -- A pfUI profile can disable the pack after loading; its registered data
 -- remains accessible, and later lookups must not enable it again.
@@ -116,7 +121,7 @@ data:EnumerateAddons(false)
 eq(data:LoadPresentModules(),true,"normal load return")
 s=data:GetLoadSummary()
 eq(s.detected,1);eq(s.loaded,1);eq(s.failed,0);eq(s.notAttempted,0)
-eq(table.concat(writes,","),"0,1","unchanged CVar handling")
+eq(next(writes),nil,"normal pack load does not write the global CVar")
 
 -- No packs is a valid state, and never attempts LoadAddOn.
 installed,byName,loadCalls,outcomes,loaded,writes,enableCalls={},{},{},{},{},{},{}
@@ -226,4 +231,46 @@ eq(data:NeedsLoadSelectionReload(),false,"all-disabled profile matches empty reg
 data:SetPackEnabled("WantedPack",true)
 eq(data:NeedsLoadSelectionReload(),true,"new profile enabling skipped pack requires reload")
 
-print("PASS: selective voicepack loading, checkbox recovery, Vanilla API, failure diagnostics")
+-- Missing GetCVar/SetCVar must not break pack metadata or loading.
+installed,byName,loadCalls,outcomes,loaded,writes,enableCalls={},{},{},{},{},{},{}
+install("NoCVarPack","success")
+data.presentModules,data.presentModulesOrdered={},{}
+data.registeredModules,data.registeredModulesOrdered={},{}
+data.loadErrors,data.loadAttempts={},{}
+local originalGetCVar, originalSetCVar = GetCVar, SetCVar
+GetCVar, SetCVar = nil, nil
+data:EnumerateAddons(false)
+local noCVar = data:GetPresentModule("NoCVarPack")
+for i=1,2 do
+    local name,_,_,loadable=data:GetModuleAddOnInfo(noCVar)
+    eq(name,"NoCVarPack","metadata available without CVar API")
+    eq(loadable,true,"metadata read unchanged")
+end
+eq(data:LoadModule(noCVar),true,"pack loads without CVar API")
+eq(loadCalls.NoCVarPack,1,"LoadAddOn called exactly once")
+GetCVar, SetCVar = originalGetCVar, originalSetCVar
+
+-- If the client itself rejects an outdated pack, report that rejection;
+-- never silently bypass the user's configured out-of-date-addon policy.
+installed,byName,loadCalls,outcomes,loaded,writes,enableCalls={},{},{},{},{},{},{}
+install("OutdatedPack","success")
+data.presentModules,data.presentModulesOrdered={},{}
+data.registeredModules,data.registeredModulesOrdered={},{}
+data.loadErrors,data.loadAttempts={},{}
+local originalLoadAddOn = LoadAddOn
+LoadAddOn = function(name)
+    loadCalls[name]=(loadCalls[name] or 0)+1
+    return nil,"INTERFACE_VERSION"
+end
+data:EnumerateAddons(false)
+local loadedOutdated, outdatedReason = data:LoadModule(data:GetPresentModule("OutdatedPack"))
+eq(loadedOutdated,nil,"outdated pack is not forcibly loaded")
+eq(outdatedReason,"INTERFACE_VERSION","client rejection preserved")
+eq(data:GetModuleLoadError("OutdatedPack"),"INTERFACE_VERSION","failure diagnostics preserved")
+eq(loadCalls.OutdatedPack,1,"attempted outdated load once")
+LoadAddOn = originalLoadAddOn
+
+eq(cvarReads,0,"voice-pack loader never reads checkAddonVersion")
+eq(next(writes),nil,"voice-pack loader never writes checkAddonVersion")
+
+print("PASS: selective voicepack loading, no CVar mutation, Vanilla API, failure diagnostics")

@@ -494,23 +494,9 @@ function DataModules:LoadPresentModules()
     return self:HasRegisteredModules()
 end
 
--- A data pack may need the 1.12 "Load out of date AddOns" switch
--- temporarily disabled before LoadAddOn. Restore its previous value afterward.
--- The 5.x+ lastAddonVersion CVar does not exist on our target client.
-local prev_checkAddonVersion, changed_checkAddonVersion
-local function EnableOutOfDate(addon)
-    if not changed_checkAddonVersion then
-        prev_checkAddonVersion = GetCVar("checkAddonVersion")
-        SetCVar("checkAddonVersion", 0)
-        changed_checkAddonVersion = true
-    end
-end
-local function RestoreOutOfDate(addon)
-    if changed_checkAddonVersion then
-        SetCVar("checkAddonVersion", prev_checkAddonVersion)
-        changed_checkAddonVersion = nil
-    end
-end
+-- Loading honors the client's "Load out of date AddOns" setting. The user
+-- must enable it before login; probing or loading a voice pack must not modify
+-- a global client CVar.
 
 ---@param module DataModuleMetadata
 function DataModules:LoadModule(module)
@@ -548,9 +534,7 @@ function DataModules:LoadModule(module)
         end
     end
 
-    EnableOutOfDate(module.AddonName)
     local callSucceeded, loaded, reason = pcall(LoadAddOn, module.AddonName)
-    RestoreOutOfDate(module.AddonName)
 
     if not callSucceeded then
         reason = tostring(loaded)
@@ -577,9 +561,7 @@ function DataModules:GetModuleLoadError(name)
 end
 
 function DataModules:GetModuleAddOnInfo(module)
-    EnableOutOfDate(module.AddonName)
     local name, title, notes, loadable, reason = AddOnInfo(module.AddonName)
-    RestoreOutOfDate(module.AddonName)
     -- Disabling an already-loaded pack does not unregister its data.
     if self:GetModule(module.AddonName) then reason = nil end
     return name, title, notes, loadable, reason
