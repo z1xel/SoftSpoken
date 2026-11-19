@@ -14,7 +14,7 @@
 --   3. nothing                          -- silently, because the alternative is reading the
 --                                          wrong page's words aloud
 
-local Writings = SSB
+local Writings = SpokenWritings
 
 --- Whether the frame is showing mail rather than something the world wrote.
 ---

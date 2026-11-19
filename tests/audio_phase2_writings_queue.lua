@@ -143,7 +143,7 @@ Spoken={
     GetQueue=function() return q:GetQueue() end,
     IsCompatible=function() return true end,
 }
-SSB={}
+SpokenWritings={}
 SSBSettings={autoplay=true,readOnce=false,stopOnClose=false,
     closeWhenRead=false,bookAsOneLine=false}
 SSBCharacter={read={},found={}}
@@ -168,25 +168,25 @@ SpokenBooksAudioPacks={{
       [201]={file="page201",len=1}
     }
 }}
-function SSB:Data() return SSBData end
-function SSB:PlaceOf(id)
+function SpokenWritings:Data() return SSBData end
+function SpokenWritings:PlaceOf(id)
     local p=SSBData.pages[id]
     return p and p.book or nil
 end
-function SSB:BookOf(id)
+function SpokenWritings:BookOf(id)
     return SSBData.books[self:PlaceOf(id)]
 end
-function SSB:LanguageOrder() return {"enUS"} end
-function SSB:PackLanguage() return "enUS" end
-function SSB:MarkBookRead(id) SSBCharacter.read[id]=true end
-function SSB:HasReadBook(id) return SSBCharacter.read[id] == true end
-function SSB:MarkBookFound(id) SSBCharacter.found[id]=true end
-function SSB:PageOnScreen() return self.testPage end
-function SSB:StopOnClose() return false end
-function SSB:SyncStub() end
-SSB.BASE_LANGUAGE="enUS"
-SSB.L={READABLE_BOOK="Book"}
-SSB.source=books
+function SpokenWritings:LanguageOrder() return {"enUS"} end
+function SpokenWritings:PackLanguage() return "enUS" end
+function SpokenWritings:MarkBookRead(id) SSBCharacter.read[id]=true end
+function SpokenWritings:HasReadBook(id) return SSBCharacter.read[id] == true end
+function SpokenWritings:MarkBookFound(id) SSBCharacter.found[id]=true end
+function SpokenWritings:PageOnScreen() return self.testPage end
+function SpokenWritings:StopOnClose() return false end
+function SpokenWritings:SyncStub() end
+SpokenWritings.BASE_LANGUAGE="enUS"
+SpokenWritings.L={READABLE_BOOK="Book"}
+SpokenWritings.source=books
 dofile("SoftSpoken_Writings/Audio.lua")
 dofile("SoftSpoken_Writings/Playlist.lua")
 CreateFrame=function()
@@ -210,9 +210,9 @@ local function resetBook()
     function books:HasClip(m) return self:FindClip(m) ~= nil end
     function books:Remove(c, immediate) return q:RemoveSoundFromQueue(c, nil, immediate) end
     function books:StopAll() return q:RemoveSource(self) end
-    SSB.source=books
-    SSB.following={}
-    SSB.lastPage=nil
+    SpokenWritings.source=books
+    SpokenWritings.following={}
+    SpokenWritings.lastPage=nil
     SSBSettings.autoplay=true
     SSBSettings.readOnce=false
     SSBSettings.stopOnClose=false
@@ -233,7 +233,7 @@ do
             eq(c.continues,true)
         end
     end
-    eq(SSB:SyncTo(101,true),3)
+    eq(SpokenWritings:SyncTo(101,true),3)
     local first=currentPage(101)
     eq(first.ssbPlayback,"compendium")
     eq(first.span.before,0)
@@ -241,7 +241,7 @@ do
     eq(startedSpan and startedSpan.before,0)
     eq(startedSpan and startedSpan.total,3)
     listeners.CLIP_STARTED = nil
-    eq(SSB:SyncTo(101,true),0)
+    eq(SpokenWritings:SyncTo(101,true),0)
     eq(q:PlayNow(clip("queued-quest.mp3",2),stories),true)
     eq(q:PlayNow(clip("queued-place.mp3",2),places),true)
     eq(q:GetQueueSize(),3)
@@ -259,10 +259,10 @@ do
     eq(third.span.before,2)
     eq(third.span.total,3)
     eq(started[third.path],1)
-    eq(SSB.following[10].clip,third)
+    eq(SpokenWritings.following[10].clip,third)
     endSound(third)
     step(0.5)
-    eq(SSB.following[10],nil)
+    eq(SpokenWritings.following[10],nil)
     eq(q:GetCurrentSound().key,"queued-quest.mp3")
     endSound(q:GetCurrentSound())
     eq(q:GetCurrentSound().key,"queued-place.mp3")
@@ -277,17 +277,17 @@ end
 -- pages, never signals successful completion, and leaves another source alone.
 do
     resetBook()
-    eq(SSB:SyncTo(101,true),3)
+    eq(SpokenWritings:SyncTo(101,true),3)
     local first=currentPage(101)
     local quest=clip("quest-after-stop.mp3",2)
     q:Add(quest,stories)
-    SSB:StopReading(10)
-    eq(SSB.following[10],nil)
+    SpokenWritings:StopReading(10)
+    eq(SpokenWritings.following[10],nil)
     eq(first.playState,"removed")
     eq(started["quest-after-stop.mp3"],1)
     eq(q:GetCurrentSound(),quest)
     step(3)
-    eq(started[SSB:ClipFor(102).path],nil)
+    eq(started[SpokenWritings:ClipFor(102).path],nil)
     endSound(quest)
     eq(q:IsEmpty(),true)
 end
@@ -296,23 +296,23 @@ end
 -- repeated READY is idempotent; turning page stops the outdated page.
 do
     resetBook()
-    SSB.testPage=101
-    eq(SSB:OnTextReady(),1)
+    SpokenWritings.testPage=101
+    eq(SpokenWritings:OnTextReady(),1)
     local first=currentPage(101)
     eq(first.ssbPlayback,"reader")
     eq(first.span,nil) -- physical book reader tracks only the current page
-    eq(SSB:OnTextReady(),0)
-    SSB.testPage=102
-    eq(SSB:OnTextReady(),1)
+    eq(SpokenWritings:OnTextReady(),0)
+    SpokenWritings.testPage=102
+    eq(SpokenWritings:OnTextReady(),1)
     local second=currentPage(102)
     eq(first.playState,"removed")
     eq(second.ssbPlayback,"reader")
-    eq(SSB:OnTextReady(),0)
+    eq(SpokenWritings:OnTextReady(),0)
     endSound(second)
     eq(q:IsEmpty(),true) -- waits for the player to turn to page 3
-    eq(started[SSB:ClipFor(103).path],nil)
-    SSB.testPage=103
-    eq(SSB:OnTextReady(),1)
+    eq(started[SpokenWritings:ClipFor(103).path],nil)
+    SpokenWritings.testPage=103
+    eq(SpokenWritings:OnTextReady(),1)
     endSound(currentPage(103))
     eq(q:IsEmpty(),true)
 end
@@ -322,18 +322,18 @@ end
 do
     resetBook()
     SSBSettings.stopOnClose=true
-    SSB.testPage=101
-    eq(SSB:OnTextReady(),1)
+    SpokenWritings.testPage=101
+    eq(SpokenWritings:OnTextReady(),1)
     local quest=clip("quest-after-close.mp3",3)
     q:Add(quest,stories)
-    SSB:OnTextClosed()
+    SpokenWritings:OnTextClosed()
     eq(q:GetCurrentSound(),quest)
-    eq(SSB.lastPage,nil)
+    eq(SpokenWritings.lastPage,nil)
     endSound(quest)
     eq(q:IsEmpty(),true)
     SSBSettings.readOnce=true
-    SSB.testPage=101
-    eq(SSB:OnTextReady(),0)
+    SpokenWritings.testPage=101
+    eq(SpokenWritings:OnTextReady(),0)
     eq(q:IsEmpty(),true)
 end
 
@@ -342,20 +342,20 @@ end
 -- not strand playback or count as a successful completion.
 do
     resetBook()
-    local path=SSB:ClipFor(101).path
+    local path=SpokenWritings:ClipFor(101).path
     failedStarts[path]=true
-    eq(SSB:SyncTo(101,true),2)
+    eq(SpokenWritings:SyncTo(101,true),2)
     eq(currentPage(102).pageId,102)
     eq(currentPage(102).span.before,0)
     eq(currentPage(102).span.total,2)
-    eq(SSB.following[10].clip.pageId,102)
-    eq(started[SSB:ClipFor(103).path],nil)
-    SSB:StopReading(10)
-    eq(SSB.following[10],nil)
+    eq(SpokenWritings.following[10].clip.pageId,102)
+    eq(started[SpokenWritings:ClipFor(103).path],nil)
+    SpokenWritings:StopReading(10)
+    eq(SpokenWritings.following[10],nil)
     eq(q:IsEmpty(),true)
     failedStarts[path]=nil
-    eq(SSB:SyncTo(101,true),3)
-    SSB:StopReading(10)
+    eq(SpokenWritings:SyncTo(101,true),3)
+    SpokenWritings:StopReading(10)
     eq(q:IsEmpty(),true)
 end
 
@@ -370,25 +370,25 @@ do
     SpokenReadablesAudioPacks={
         X={version=1,addon="SpokenReadablesX",pages={[101]={file="preferred",len=0}}},
     }
-    local c=SSB:ClipFor(101)
+    local c=SpokenWritings:ClipFor(101)
     assert(string.find(c.path,"SpokenReadablesX",1,true))
     eq(c.length,nil)
     eq(#c.fallbacks,1)
     assert(string.find(c.fallbacks[1].path,"SpokenBooksZ",1,true))
     eq(c.fallbacks[1].length,5)
     assert(c.fallbacks[1].present and c.fallbacks[1].present.transcript ~= nil)
-    eq(SSB:HasAudio(101),true)
-    eq(SSB:PageLength(101),nil)
+    eq(SpokenWritings:HasAudio(101),true)
+    eq(SpokenWritings:PageLength(101),nil)
     -- Malformed preferred entry must yield to older compatible pack.
     SpokenReadablesAudioPacks.X.pages[101]={file="../escape",len=15}
-    c=SSB:ClipFor(101)
+    c=SpokenWritings:ClipFor(101)
     assert(string.find(c.path,"SpokenBooksZ",1,true))
-    eq(SSB:PageLength(101),5)
+    eq(SpokenWritings:PageLength(101),5)
     -- Both entries corrupt: distinguish absent audio from a valid clip.
     SpokenBooksAudioPacks.Z.pages[101]={file="",len=9}
-    eq(SSB:ClipFor(101),nil)
-    eq(SSB:HasAudio(101),false)
-    eq(SSB:PageLength(101),nil)
+    eq(SpokenWritings:ClipFor(101),nil)
+    eq(SpokenWritings:HasAudio(101),false)
+    eq(SpokenWritings:PageLength(101),nil)
     SpokenBooksAudioPacks=prevBooks
     SpokenReadablesAudioPacks=prevReadables
 end
@@ -400,14 +400,14 @@ do
     resetBook()
     busLimit = 2
     for _, id in ipairs({101, 102, 103, 101, 102, 103}) do
-        SSB.testPage = id
-        eq(SSB:OnTextReady(),1,"rapid reader page change")
+        SpokenWritings.testPage = id
+        eq(SpokenWritings:OnTextReady(),1,"rapid reader page change")
         local active = currentPage(id)
         eq(active.ssbPlayback,"reader")
         eq(q:GetClipState(active),"playing")
     end
     eq(q:GetQueueSize(),1)
-    SSB:StopReading(10)
+    SpokenWritings:StopReading(10)
     busLimit = nil
 end
 

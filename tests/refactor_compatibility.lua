@@ -58,9 +58,9 @@ eq(journal.settings.foundOnly, true, "settings key preserved")
 local accountSettings = { autoplay = false, bookAsOneLine = false }
 local character = { read = { [42] = true } }
 SSBSettings, SSBCharacter = accountSettings, character
-SSB = nil
+SpokenWritings = nil
 dofile("SoftSpoken_Writings/Core.lua")
-local writings = assert(SSB)
+local writings = assert(SpokenWritings)
 eq(writings:InitDB(), accountSettings, "Writings settings table identity")
 eq(SSBCharacter, character, "Writings character table identity")
 eq(SSBSettings.autoplay, false, "existing autoplay choice")

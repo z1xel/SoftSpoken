@@ -1,7 +1,7 @@
 -- SoftSpoken Writings: per-character readable discovery locations for WoW 1.12.
 -- No persistent OnUpdate loop: bag scans run only after BAG_UPDATE settles.
 -- Static SSBPlaces locations remain reference information, not personal discoveries.
-local Writings = SSB
+local Writings = SpokenWritings
 local Compendium = SSCCompendium
 
 local function Character()

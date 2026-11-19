@@ -5,7 +5,7 @@ local currentPage, closeCount, stopCount, narration, marked, read, synced = nil,
 SSBSettings={autoplay=true,readOnce=false,stopOnClose=true,closeWhenRead=true,
     bookAsOneLine=false}
 CloseItemText=function() closeCount=closeCount+1 end
-SSB={
+SpokenWritings={
     source={}, -- registered by SetupSource during PLAYER_ENTERING_WORLD in game
     L={READABLE_BOOK="Book"},
     BASE_LANGUAGE="enUS",
@@ -55,7 +55,7 @@ end
 dofile("SoftSpoken_Writings/Audio.lua")
 dofile("SoftSpoken_Writings/Events.lua")
 
-local first,second=SSB:ClipFor(101),SSB:ClipFor(102)
+local first,second=SpokenWritings:ClipFor(101),SpokenWritings:ClipFor(102)
 assert(first and second)
 eq(first.key,"b:101")
 eq(second.key,"b:102")
@@ -65,17 +65,17 @@ eq(first.path,[[Interface\AddOns\BooksAudio\Sounds\first.mp3]])
 
 -- Page completion is passed only on real successful finishes. A stop, combat
 -- gate or failed playback must not close the book or finish reading.
-currentPage=102;SSB.lastPage=102
+currentPage=102;SpokenWritings.lastPage=102
 first.stopCallback(first,false)
 eq(closeCount,0)
 second.stopCallback(second,false)
 eq(closeCount,0)
 -- On page 1, a later recorded page exists: finishing page 1 doesn't close.
-currentPage=101;SSB.lastPage=101
+currentPage=101;SpokenWritings.lastPage=101
 first.stopCallback(first,true)
 eq(closeCount,0)
 -- On page 2, no recorded later page: natural completion may close the text.
-currentPage=102;SSB.lastPage=102
+currentPage=102;SpokenWritings.lastPage=102
 second.stopCallback(second,true)
 eq(closeCount,1)
 -- A failed or interrupted clip cannot count as completed.
@@ -84,36 +84,36 @@ eq(closeCount,1)
 
 -- ITEM_TEXT_READY repeats on the same page; only new page transitions
 -- trigger autoplay. Stop On Close applies to the open book alone.
-SSB.lastPage=nil
+SpokenWritings.lastPage=nil
 currentPage=101
-eq(SSB:OnTextReady(),1)
+eq(SpokenWritings:OnTextReady(),1)
 eq(synced[1],101)
-eq(SSB:OnTextReady(),0)
+eq(SpokenWritings:OnTextReady(),0)
 eq(#synced,1)
 currentPage=102
-eq(SSB:OnTextReady(),1)
+eq(SpokenWritings:OnTextReady(),1)
 eq(synced[2],102)
 eq(#synced,2)
-SSB:OnTextClosed()
+SpokenWritings:OnTextClosed()
 eq(stopCount,1)
-eq(SSB.lastPage,nil)
+eq(SpokenWritings.lastPage,nil)
 
 -- Read Once should stop a re-opened already-read work but still allow
 -- continuation when the second page belongs to this active reading session.
 SSBSettings.readOnce=true
 read[5]=true
-currentPage=101;SSB.lastPage=nil
-eq(SSB:OnTextReady(),0)
+currentPage=101;SpokenWritings.lastPage=nil
+eq(SpokenWritings:OnTextReady(),0)
 eq(#synced,2)
-currentPage=102;SSB.lastPage=101
-eq(SSB:OnTextReady(),1)
+currentPage=102;SpokenWritings.lastPage=101
+eq(SpokenWritings:OnTextReady(),1)
 eq(synced[3],102)
 -- A disabled autoplay setting doesn't block a manual read request.
 SSBSettings.autoplay=false
-currentPage=201;SSB.lastPage=102
-eq(SSB:OnTextReady(),0)
+currentPage=201;SpokenWritings.lastPage=102
+eq(SpokenWritings:OnTextReady(),0)
 eq(#synced,3)
-eq(SSB:ReadCurrent(),1)
+eq(SpokenWritings:ReadCurrent(),1)
 eq(synced[4],201)
 
 print("audio_phase2_writings.lua: page lifecycle, stop/close and Read Once passed")

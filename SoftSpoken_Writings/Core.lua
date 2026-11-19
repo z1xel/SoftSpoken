@@ -2,8 +2,8 @@
 -- Separate feature module that registers with required SoftSpoken Core;
 -- does not modify Core or Places. Book recognition/playlist code was
 -- adapted from rusty-key/spoken-wow (MIT).
-SSB = SSB or {}
-local Writings = SSB
+SpokenWritings = SpokenWritings or {}
+local Writings = SpokenWritings
 Writings.version = "v0.9.0-beta"
 Writings.name = "SoftSpoken_Writings"
 local defaults = {

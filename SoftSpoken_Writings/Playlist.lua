@@ -5,7 +5,7 @@
 -- Never use the narration player's global Pause button for page boundaries:
 -- it pauses ALL sources, not one book. An empty Writings source queue is the page pause.
 
-local Writings = SSB
+local Writings = SpokenWritings
 
 --- The pages of a book from `pageId` onwards, in reading order.
 function Writings:PagesFrom(pageId)

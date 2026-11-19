@@ -1,6 +1,6 @@
 -- Thin Books adapter over SoftSpoken's shared language rules.
 -- The Books audio/index code keeps its existing method names and pack format.
-local Writings = SSB
+local Writings = SpokenWritings
 local Shared = Spoken.Language
 
 Writings.LOCALES = Shared.LOCALES

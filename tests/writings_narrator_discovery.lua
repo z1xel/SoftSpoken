@@ -51,7 +51,7 @@ SSBPlaces={books={
     [13]={type="scroll",kind="carried",zones={1457}},
     [14]={type="book",kind="world",zones={1438}},
 }}
-SSB={
+SpokenWritings={
     L={READABLE_BOOK="Book",READABLE_LETTER="Letter",READABLE_SCROLL="Scroll",
         READABLE_OTHER="Other"},
     BASE_LANGUAGE="enUS",
@@ -63,17 +63,17 @@ SSB={
     PackLanguage=function() return "enUS" end,
 }
 dofile("SoftSpoken_Writings/DiscoveryLocations.lua")
-eq(SSB:KnownDiscoverySummary(11),"Discovered in Darnassus","world origin")
-eq(SSB:KnownDiscoverySummary(13),"Discovered in Orgrimmar","carried acquisition")
-eq(SSB:KnownDiscoverySummary(12),nil,"no invented catalogue origin")
-eq(SSB:DiscoverySummary(12),"Discovered (location unknown)","Compendium unknown")
-eq(SSB:KnownDiscoverySummary(14),nil,"old saves have no invented origin")
-eq(SSB:DiscoverySummary(11),"Discovered in Darnassus","Compendium found string")
+eq(SpokenWritings:KnownDiscoverySummary(11),"Discovered in Darnassus","world origin")
+eq(SpokenWritings:KnownDiscoverySummary(13),"Discovered in Orgrimmar","carried acquisition")
+eq(SpokenWritings:KnownDiscoverySummary(12),nil,"no invented catalogue origin")
+eq(SpokenWritings:DiscoverySummary(12),"Discovered (location unknown)","Compendium unknown")
+eq(SpokenWritings:KnownDiscoverySummary(14),nil,"old saves have no invented origin")
+eq(SpokenWritings:DiscoverySummary(11),"Discovered in Darnassus","Compendium found string")
 
 -- Same book discovered at multiple locations is sorted and deduplicated by
 -- the persistent map-id keys, never duplicated through possible spawn points.
 SSBCharacter.locations[11][1438]="world"
-eq(SSB:KnownDiscoverySummary(11),
+eq(SpokenWritings:KnownDiscoverySummary(11),
     "Discovered in Darnassus, Teldrassil","multiple recorded sites")
 SSBCharacter.locations[11][1438]=nil
 
@@ -87,7 +87,7 @@ SpokenBooksAudioPacks={TestPack={
     },
 }}
 dofile("SoftSpoken_Writings/Audio.lua")
-local clip=assert(SSB:ClipFor(101))
+local clip=assert(SpokenWritings:ClipFor(101))
 eq(clip.present.portrait.kind,"texture","Writings book portrait is a texture")
 eq(clip.present.portrait.texture,[[Interface\AddOns\SoftSpoken\Textures\WritingsBook]],
     "books use the bundled book cover when no item or material icon exists")
@@ -106,47 +106,47 @@ eq(clip.group,nil,"one-line group unchanged")
 
 -- Non-book readables must not inherit the book cover. Their existing
 -- material and item icon priority remains unchanged.
-local letter=assert(SSB:ClipFor(201))
+local letter=assert(SpokenWritings:ClipFor(201))
 eq(letter.present.portrait.texture,[[Interface\Icons\INV_Misc_Book_09]],
     "letters retain the native default without book artwork")
-local scroll=assert(SSB:ClipFor(301))
+local scroll=assert(SpokenWritings:ClipFor(301))
 eq(scroll.present.portrait.texture,[[Interface\Icons\INV_Misc_Book_09]],
     "scrolls retain the native default without book artwork")
-SSB.lastPage=true
+SpokenWritings.lastPage=true
 ItemTextGetItem=function() return "item" end
 ItemTextGetMaterial=function() return "Stone" end
 Spoken={BagItemIcon=function() return "Interface\\Icons\\CustomItem", {0.1,0.9,0.1,0.9} end}
-local itemPicture=SSB:PagePicture(11)
+local itemPicture=SpokenWritings:PagePicture(11)
 eq(itemPicture.texture,"Interface\\Icons\\CustomItem","item icon wins over custom book artwork")
 eq(itemPicture.texCoord[1],0.1,"item-specific icon crop preserved")
 Spoken.BagItemIcon=function() return nil end
-local stonePicture=SSB:PagePicture(11)
-eq(stonePicture.texture,SSB.MATERIALS.Stone,"material icon wins over custom book artwork")
+local stonePicture=SpokenWritings:PagePicture(11)
+eq(stonePicture.texture,SpokenWritings.MATERIALS.Stone,"material icon wins over custom book artwork")
 ItemTextGetMaterial=function() return "Parchment" end
-eq(SSB:PagePicture(11).texture,[[Interface\AddOns\SoftSpoken\Textures\WritingsBook]],
+eq(SpokenWritings:PagePicture(11).texture,[[Interface\AddOns\SoftSpoken\Textures\WritingsBook]],
     "unknown material falls back to bundled book cover")
-SSB.lastPage=nil
+SpokenWritings.lastPage=nil
 Spoken=nil
 ItemTextGetItem=nil
 ItemTextGetMaterial=nil
 
-local carried=assert(SSB:ClipFor(301))
+local carried=assert(SpokenWritings:ClipFor(301))
 eq(carried.present.header,"A Carried Scroll","other type title promoted")
 eq(carried.present.label,"Scroll " .. DOT .. " Discovered in Orgrimmar",
     "carried readable context names acquired location, not reading place")
 eq(carried.present.queueLabel,"A Carried Scroll","queued scroll title")
 
-local unknown=assert(SSB:ClipFor(201))
+local unknown=assert(SpokenWritings:ClipFor(201))
 eq(unknown.present.header,"An Unlocated Letter","letter title in heading")
 eq(unknown.present.label,"Letter","no false discovery location")
 eq(unknown.present.queueLabel,"An Unlocated Letter","queued letter named")
-local legacy=assert(SSB:ClipFor(401))
+local legacy=assert(SpokenWritings:ClipFor(401))
 eq(legacy.present.header,"A Legacy Book","legacy book title in heading")
 eq(legacy.present.label,"Book","legacy save with unknown origin")
 
 SSBSettings.bookAsOneLine=false
-local page1=assert(SSB:ClipFor(101))
-local page2=assert(SSB:ClipFor(102))
+local page1=assert(SpokenWritings:ClipFor(101))
+local page2=assert(SpokenWritings:ClipFor(102))
 eq(page1.present.header,"The World Tree and the Emerald Dream",
     "per-page mode keeps only the title in the white heading")
 eq(page1.present.label,"Book " .. DOT .. " Discovered in Darnassus " .. DOT .. " Page 1 of 2",
@@ -159,7 +159,7 @@ eq(page1.present.queueLabel,"The World Tree and the Emerald Dream " .. DOT .. " 
 eq(page2.present.queueLabel,"The World Tree and the Emerald Dream " .. DOT .. " Page 2 of 2",
     "queued later page remains distinguishable")
 
-local oldPage=assert(SSB:ClipFor(401))
+local oldPage=assert(SpokenWritings:ClipFor(401))
 eq(oldPage.present.header,"A Legacy Book","per-page unknown title unchanged")
 eq(oldPage.present.label,"Book","single-page work has no redundant page number")
 

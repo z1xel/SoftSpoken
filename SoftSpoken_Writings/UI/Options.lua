@@ -1,6 +1,6 @@
 -- Writings settings page: shares Core's native 1.12 frame and layout.
 -- The reader and SavedVariables retain ownership of every behavior.
-local Writings = SSB
+local Writings = SpokenWritings
 local L = Writings.L or {}
 local Layout = SpokenLayout
 local page

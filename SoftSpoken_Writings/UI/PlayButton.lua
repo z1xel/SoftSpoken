@@ -1,5 +1,5 @@
 -- Small 1.12-compatible button on the vanilla book frame.
-local Writings=SSB
+local Writings=SpokenWritings
 function Writings:RefreshPlayButton()
     local b=self.playButton
     if not b then return end

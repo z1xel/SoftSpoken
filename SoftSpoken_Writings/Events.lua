@@ -1,5 +1,5 @@
 -- ITEM_TEXT_* book event binding for Vanilla 1.12 globals.
-local Writings=SSB
+local Writings=SpokenWritings
 local f=CreateFrame("Frame")
 Writings.eventFrame=f
 f:RegisterEvent("ADDON_LOADED")

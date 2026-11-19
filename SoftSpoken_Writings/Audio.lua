@@ -7,7 +7,7 @@
 -- substituting unrelated audio is worse than silence, because silence is honest about what
 -- is missing and a borrowed clip is not.
 
-local Writings = SSB
+local Writings = SpokenWritings
 
 local L = Writings.L
 

@@ -63,7 +63,7 @@ exports = {
     "SoftSpoken_Stories/Compendium/QuestState.lua": [r"^SSCQuestState\s*="],
     "SoftSpoken/Compendium/UI/Compendium.lua": [r"^SSCCompendium\s*="],
     "SoftSpoken_Places/Runtime.lua": [r"^SSZZonesRuntime\s*="],
-    "SoftSpoken_Writings/Core.lua": [r"^SSB\s*="],
+    "SoftSpoken_Writings/Core.lua": [r"^SpokenWritings\s*="],
 }
 for path, patterns in exports.items():
     for pattern in patterns:
