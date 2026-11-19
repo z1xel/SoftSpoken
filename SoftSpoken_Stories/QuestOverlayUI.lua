@@ -8,8 +8,6 @@ local TEXTURES = [[Interface\AddOns\SoftSpoken\Textures\]]
 QuestOverlayUI = {
     ---@type table<number, QuestPlayButton>
     questPlayButtons = {},
-    ---@type table<number, Button>
-    questContributeButtons = {},
     ---@type QuestPlayButton[]
     displayedButtons = {},
 }
@@ -42,48 +40,6 @@ end
 
 function QuestOverlayUI:CreatePlayButton(questID)
     self.questPlayButtons[questID] = self:MakePlayButton()
-end
-
---- Optional Contribute module, absent from the current 1.12 load manifest.
---- Use rawget so another addon's global cannot be mistaken for ours.
-local function ContributeModule()
-    return rawget(VoiceOver, "Contribute")
-end
-
---- The Contribute button for a quest the log has no sound for, sitting where its Play would,
---- or nil when this client cannot offer one (no Contribute.lua, buttons hidden, or no sound
---- pack at all -- see Contribute:CanOfferFromLog). The client's own plus icon, the same size as
---- Play: the row has room for an icon and not for a word, and the tooltip says what it does.
----@return Button?
-function QuestOverlayUI:ContributeButtonFor(questID, title)
-    local contribute = ContributeModule()
-    if not (contribute and contribute.CanOfferFromLog and contribute:CanOfferFromLog()) then
-        return nil
-    end
-    local button = self.questContributeButtons[questID]
-    if not button then
-        button = Utils:CreateDetachedFrame("Button", nil, self:GetPlayButtonParent())
-        button:SetWidth(20)
-        button:SetHeight(20)
-        button:SetHitRectInsets(2, 2, 2, 2)
-        button:SetNormalTexture("Interface\\Buttons\\UI-PlusButton-Up")
-        button:SetPushedTexture("Interface\\Buttons\\UI-PlusButton-Down")
-        button:SetHighlightTexture("Interface\\Buttons\\UI-PlusButton-Hilight")
-        button:SetScript("OnEnter", function(self)
-            contribute:ShowTooltip(self)
-        end)
-        button:SetScript("OnLeave", function()
-            if GameTooltip then
-                GameTooltip:Hide()
-            end
-        end)
-        contribute:OfferLogMenu(button)
-        self.questContributeButtons[questID] = button
-    end
-    button:SetScript("OnClick", function()
-        contribute:ShowFromLog(questID, title)
-    end)
-    return button
 end
 
 -- The vanilla log and SoftSpoken only prepend whitespace. A non-space prefix (or
@@ -140,9 +96,7 @@ function QuestOverlayUI:RecheckVisibleRowLayouts()
         if questIndex > numEntries then break end
         local title, _, _, isHeader, _, _, _, questID = GetQuestLogTitle(questIndex)
         if not isHeader then
-            local play = self.questPlayButtons[questID]
-            local contribute = self.questContributeButtons[questID]
-            local button = contribute and contribute:IsShown() and contribute or play
+            local button = self.questPlayButtons[questID]
             if button and button:IsShown() then
                 local row = Utils:GetQuestLogTitleFrame(i)
                 if row then
@@ -401,32 +355,21 @@ function QuestOverlayUI:Update()
             end
 
             local playButton = self.questPlayButtons[questID]
-            local shown = playButton
             if DataModules:PrepareSound({ event = Enums.SoundEvent.QuestAccept, questID = questID }) then
                 self:UpdatePlayButton(title, questID, questLogTitleFrame, normalText, questCheck)
                 playButton:Enable()
             else
-                -- No sound: Contribute where Play would be, or Play greyed out where this
-                -- client cannot contribute.
-                local contribute = self:ContributeButtonFor(questID, title)
-                if contribute then
-                    playButton:Hide()
-                    contribute:SetParent(questLogTitleFrame:GetParent())
-                    contribute:SetFrameLevel(questLogTitleFrame:GetFrameLevel() + 2)
-                    shown = contribute
-                else
-                    playButton:Disable()
-                end
-                self:UpdateQuestTitle(questLogTitleFrame, shown, normalText, questCheck, title)
+                -- Unrecorded quests keep their disabled Play button in the
+                -- same row; the retired Contribute UI is not installed.
+                playButton:Disable()
+                self:UpdateQuestTitle(questLogTitleFrame, playButton, normalText, questCheck, title)
             end
 
-            shown:Show()
-            if shown == playButton then
-                self:UpdatePlayButtonTexture(questID)
-            end
+            playButton:Show()
+            self:UpdatePlayButtonTexture(questID)
 
             -- Add the button to displayedButtons
-            table.insert(self.displayedButtons, shown)
+            table.insert(self.displayedButtons, playButton)
         end
     end
 end
