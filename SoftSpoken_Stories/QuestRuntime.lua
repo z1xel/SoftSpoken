@@ -401,20 +401,6 @@ function StoriesAddon:OnInitialize()
         Debug:Record("report-button-error", tostring(reportButtonError))
     end
 
-    -- The Contribute button, on the Blizzard quest/gossip frame rather than the Spoken player
-    -- frame -- see UI/ContributeButton.lua's header for why the player frame will not do. Its
-    -- own event frame (built in Setup, not here) is what keeps it in sync with what's on
-    -- screen; no timer. Guarded like ReportButton just above: a failed build here must not
-    -- take playback down with it.
-    local contributeButtonReady, contributeButtonError = pcall(function()
-        if ContributeButton and ContributeButton.Setup then
-            ContributeButton:Setup()
-        end
-    end)
-    if not contributeButtonReady then
-        Debug:Record("contribute-button-error", tostring(contributeButtonError))
-    end
-
     -- The Play button autoplay's off position leaves the player with. Guarded the same
     -- way, for the same reason.
     local dialogPlayButtonReady, dialogPlayButtonError = pcall(function()
