@@ -219,12 +219,11 @@ local REPORT = {
     onClick = function(clip)
         -- The line itself first: by the time Report is clicked the quest window may be shut.
         local target = ReportButton:TargetForClip(clip)
-        local described = target and clip or nil
         target = target or ReportButton:CurrentTarget()
         if target then
             -- The language the clip was spoken in, which PrepareSound recorded: a fallback line
             -- is an English take even under a German selection, and its report is about that.
-            ReportButton:ShowLink(target, clip.language, described)
+            ReportButton:ShowLink(target, clip.language)
         else
             StaticPopup_Show("VOICEOVER_ERROR", L.OPT_REPORT_NO_LINE)
         end
@@ -521,14 +520,13 @@ function StoriesNarrator:Setup()
         Spoken:RegisterCallback("PART_SWITCHED", function(key)
             if key ~= "quests" and key ~= "gossip" then return end
             -- Each only where this client loads it.
-            local overlay, dialog, contribute = rawget(VoiceOver, "QuestOverlayUI"),
-                rawget(VoiceOver, "DialogPlayButton"), rawget(VoiceOver, "ContributeButton")
+            local overlay, dialog = rawget(VoiceOver, "QuestOverlayUI"),
+                rawget(VoiceOver, "DialogPlayButton")
             if overlay and key == "quests" then
                 if overlay.Update and (QuestLogFrame or QuestScrollFrame) then overlay:Update() end
                 if overlay.UpdateDetailsPlayButton then overlay:UpdateDetailsPlayButton() end
             end
             if dialog and dialog.Refresh then dialog:Refresh() end
-            if contribute and contribute.Refresh then contribute:Refresh() end
             local compendium = _G.SpokenCompendium
             if compendium and compendium.Relayout then compendium:Relayout() end
         end)
