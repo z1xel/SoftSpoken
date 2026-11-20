@@ -1,11 +1,11 @@
 ## Interface: 11200
 ## Title: SoftSpoken Places
 ## Notes: Turtle WoW lore narration, discovery, persistent history, captions, compendium
-## Version: v0.8.1-beta
+## Version: v0.9.0-beta
 ## Dependencies: SoftSpoken
 ## OptionalDeps: SpokenPlacesAudio, SpokenZonesAudio
 ## SavedVariablesPerCharacter: SSZCharacter
-LoreBridge.lua
+LoreDataRegistry.lua
 Data\Zones.lua
 Data\Subzones.lua
 Data\Pictures.lua
@@ -16,7 +16,7 @@ Discovery.lua
 Bridge.lua
 Autoplay.lua
 Core.lua
-UI\CompendiumCompat.lua
+UI\CompendiumHooks.lua
 UI\Pictures.lua
 UI\LoreWindow.lua
 UI\AudioButton.lua

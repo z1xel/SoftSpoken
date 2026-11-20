@@ -1,13 +1,13 @@
 -- Zone-specific Compendium tree and exploration state for Vanilla 1.12.
 SSZLoreWindow = SSZLoreWindow or {}
-local M = SSZLoreWindow
-local C = SSZCompendium
-local CITY_IN = C.CITY_IN
+local LoreWindow = SSZLoreWindow
+local Compendium = SpokenCompendium
+local CITY_IN = Compendium.CITY_IN
 local CONTINENTS = { [1414]="Kalimdor", [1415]="Eastern Kingdoms" }
-local CONTINENT_OF = C.KNOWN_CONTINENT
+local CONTINENT_OF = Compendium.KNOWN_CONTINENT
 
 local rows = {}
-local selectedID, selectedKey
+local selectedMapID, selectedAreaKey
 local expandedZone, expandedCity
 local openWorld = true
 local openContinent = { [1414]=true, [1415]=true }
@@ -21,10 +21,10 @@ local function Lore()
 end
 local function Settings()
     if type(SSZCharacter) ~= "table" then SSZCharacter={} end
-    local db=SSZCharacter
-    if type(db.settings)~="table" then db.settings={} end
-    if type(db.heard)~="table" then db.heard={} end
-    return db.settings, db.heard
+    local characterDB=SSZCharacter
+    if type(characterDB.settings)~="table" then characterDB.settings={} end
+    if type(characterDB.heard)~="table" then characterDB.heard={} end
+    return characterDB.settings, characterDB.heard
 end
 local function ZoneName(id)
     local entry=Lore().zones[id]
@@ -33,8 +33,8 @@ end
 local function HasVoice(id,key)
     -- Use the same pack resolver as the narration player, including older
     -- ZoneLoreAudioData installations that the original browser missed.
-    if SSZBridge and SSZBridge.HasVoice then
-        return SSZBridge:HasVoice(id,key)
+    if SpokenPlacesBridge and SpokenPlacesBridge.HasVoice then
+        return SpokenPlacesBridge:HasVoice(id,key)
     end
     local registries={SpokenPlacesAudioPacks,SpokenZonesAudioPacks,ZoneLoreAudioPacks}
     for _,registry in pairs(registries) do
@@ -58,8 +58,8 @@ end
 -- Compendium progress is based on exploration, NOT recordings played.
 -- The audio history is maintained separately by Core.lua.
 local function Found(id,key)
-    return SSZBridge and SSZBridge.IsFound and
-           SSZBridge:IsFound(id,key) or false
+    return SpokenPlacesBridge and SpokenPlacesBridge.IsFound and
+           SpokenPlacesBridge:IsFound(id,key) or false
 end
 local function OnlyFound()
     return Settings().compendiumFoundOnly == true
@@ -73,11 +73,11 @@ end
 -- All views of the same discovery state must update together. In particular,
 -- turning off Unlock Undiscovered must immediately conceal any lore the map
 -- reader was showing under the previous setting (without changing visits).
-function M.SetUnlockUndiscovered(on)
+function LoreWindow.SetUnlockUndiscovered(on)
     on = on and true or false
     if Unlocked() == on then return end
     Settings().compendiumUnlockUndiscovered = on
-    M.Refresh()
+    LoreWindow.Refresh()
     if SSZMapPanel and SSZMapPanel.Refresh then
         SSZMapPanel.Refresh()
     end
@@ -110,7 +110,7 @@ end
 -- Same guard as upstream: when C_Map is installed, don't present foreign-client
 -- maps that this client cannot identify as loose zones under Azeroth.
 local function UnknownHere(mapID)
-    if not (C_Map and C_Map.GetMapInfo) or C.ContinentOf(mapID) then return false end
+    if not (C_Map and C_Map.GetMapInfo) or Compendium.ContinentOf(mapID) then return false end
     return C_Map.GetMapInfo(mapID)==nil
 end
 local function ZoneIDs()
@@ -353,11 +353,11 @@ end
 -- the page widgets, supply the same structured entry used by upstream's
 -- ShowEntry(). LorePage can render this without changing its 1.12 appearance.
 local function ShowEntry()
-    if not selectedID then
+    if not selectedMapID then
         return {title="Places",subtitle="Zones, cities and subzones",
             text="Select a place to read its history and replay available recordings."}
     end
-    local id,key=selectedID,selectedKey
+    local id,key=selectedMapID,selectedAreaKey
     local zone=Lore().zones[id]
     local sub=key and Lore().subzones[id]
     local entry
@@ -366,7 +366,7 @@ local function ShowEntry()
     local line,parent=PlaceLine(id,key)
     local onSubtitle
     if parent then
-        onSubtitle=function() M.Navigate(parent) end
+        onSubtitle=function() LoreWindow.Navigate(parent) end
     end
     local page={title=name,subtitle=line,onSubtitle=onSubtitle,mapID=id,key=key}
     if IsLocked(id,key) then
@@ -391,7 +391,7 @@ end
 
 local function Select(item)
     if not item or item.locked then return end
-    selectedID,selectedKey=item.id,item.key
+    selectedMapID,selectedAreaKey=item.id,item.key
     if searching=="" then
         if item.kind=="world" then openWorld=not openWorld
         elseif item.kind=="continent" then openContinent[item.id]=not openContinent[item.id]
@@ -405,60 +405,60 @@ local function Select(item)
             if expandedCity==item.id then expandedCity=nil else expandedCity=item.id end
         end
     end
-    C:Refresh()
+    Compendium:Refresh()
 end
 
-function M.RebuildRows() RebuildRows(); return rows end
-function M.ProgressText(item) return ProgressText(item) end
-function M.IsSelected(item) return selectedID==item.id and selectedKey==item.key end
-function M.Lore() return Lore() end
-function M.ZoneName(id) return ZoneName(id) end
-function M.HasVoice(id,key) return HasVoice(id,key) end
-function M.IsLocked(id,key) return IsLocked(id,key) end
-function M.Settings() return Settings() end
-function M.ContinentOf(id) return CONTINENT_OF[id] end
-function M.PlaceAbove(id) return PlaceAbove(id) end
-function M.PlaceLine(id,key) return PlaceLine(id,key) end
-function M.IsPending(entry) return IsPending(entry) end
-function M.PageEntry() return ShowEntry() end
-function M.Reveal(mapID,key) Reveal(mapID,key) end
+function LoreWindow.RebuildRows() RebuildRows(); return rows end
+function LoreWindow.ProgressText(item) return ProgressText(item) end
+function LoreWindow.IsSelected(item) return selectedMapID==item.id and selectedAreaKey==item.key end
+function LoreWindow.Lore() return Lore() end
+function LoreWindow.ZoneName(id) return ZoneName(id) end
+function LoreWindow.HasVoice(id,key) return HasVoice(id,key) end
+function LoreWindow.IsLocked(id,key) return IsLocked(id,key) end
+function LoreWindow.Settings() return Settings() end
+function LoreWindow.ContinentOf(id) return CONTINENT_OF[id] end
+function LoreWindow.PlaceAbove(id) return PlaceAbove(id) end
+function LoreWindow.PlaceLine(id,key) return PlaceLine(id,key) end
+function LoreWindow.IsPending(entry) return IsPending(entry) end
+function LoreWindow.PageEntry() return ShowEntry() end
+function LoreWindow.Reveal(mapID,key) Reveal(mapID,key) end
 -- An in-page breadcrumb moves to the parent without toggling its branch.
 -- It clears search so the revealed parent is visible in the left tree.
-function M.Navigate(mapID,key)
+function LoreWindow.Navigate(mapID,key)
     if not mapID then return end
-    selectedID,selectedKey=mapID,key
+    selectedMapID,selectedAreaKey=mapID,key
     Reveal(mapID,key)
     searching=""
     if list and list.ClearSearch then list:ClearSearch() end
-    M.Refresh(true)
+    LoreWindow.Refresh(true)
 end
-function M.SetSearch(text)
+function LoreWindow.SetSearch(text)
     searching=string.lower(string.gsub(string.gsub(text or "","^%s+",""),"%s+$",""))
 end
-function M.OpenSelection(mapID,areaKey)
+function LoreWindow.OpenSelection(mapID,areaKey)
     if mapID then
-        selectedID,selectedKey=mapID,areaKey
+        selectedMapID,selectedAreaKey=mapID,areaKey
         Reveal(mapID,areaKey)
     end
     searching=""
 end
-function M.Select(item) Select(item) end
+function LoreWindow.Select(item) Select(item) end
 
 -- Ported from upstream LoreWindow's role: register Places with the generic
 -- Compendium and supply the panel's tree, filters, page and selection callbacks.
-function M.Refresh(scrollToSelection)
+function LoreWindow.Refresh(scrollToSelection)
     if not list then return end
     local items=list:Render()
     if scrollToSelection then list:ScrollToSelection(items) end
     -- The Places tab owns a LorePage instance, as in upstream. Give it a
     -- structured entry; the page never has to query selection by itself.
     if page then
-        page:Show(M.PageEntry())
+        page:Show(LoreWindow.PageEntry())
     end
 end
 local function BuildPanel(p)
     panel=p
-    list=C.NewList(p,{
+    list=Compendium.NewList(p,{
         search="Search",
         none="No matching places.",
         noneDiscovered="No places discovered yet.",
@@ -471,19 +471,19 @@ local function BuildPanel(p)
                 get=function() return Settings().compendiumVoicedOnly==true end,
                 set=function(on) Settings().compendiumVoicedOnly=on end},
         },
-        build=M.RebuildRows,
-        isSelected=M.IsSelected,
-        onClick=M.Select,
-        onSearch=function(text) M.SetSearch(text);M.Refresh() end,
+        build=LoreWindow.RebuildRows,
+        isSelected=LoreWindow.IsSelected,
+        onClick=LoreWindow.Select,
+        onSearch=function(text) LoreWindow.SetSearch(text);LoreWindow.Refresh() end,
     })
-    p.Refresh=function() M.Refresh() end
+    p.Refresh=function() LoreWindow.Refresh() end
     p.inset,p.filterButton,p.filterMenu,p.noMatch,p.listBar =
         list.inset,list.filterButton,list.filterMenu,list.noMatch,list.bar
     -- Spoken's original split-window geometry: the parchment reaches the
     -- header while the tree begins below its search field.
     local pageInset
-    pageInset, page = C.CreatePagePane(p, list, function(holder)
-        return SSZLorePage.Build(holder)
+    pageInset, page = Compendium.CreatePagePane(p, list, function(holder)
+        return SSCLorePage.Build(holder)
     end)
     if SSZAudioButton and SSZAudioButton.Bind then SSZAudioButton.Bind(page.play) end
     p.lorePage=page
@@ -491,47 +491,47 @@ local function BuildPanel(p)
     p.page=page.frame
 end
 -- The current-area preference is Turtle-specific and uses its working bridge.
-function M.OpenSelectionFromPlayer(mapID,areaKey)
+function LoreWindow.OpenSelectionFromPlayer(mapID,areaKey)
     if not mapID then
-        if SSZBridge and SSZBridge.RecordCurrentVisit then
-            SSZBridge:RecordCurrentVisit()
+        if SpokenPlacesBridge and SpokenPlacesBridge.RecordCurrentVisit then
+            SpokenPlacesBridge:RecordCurrentVisit()
         end
-        if SSZBridge and SSZBridge.RefreshFound then
-            SSZBridge:RefreshFound()
+        if SpokenPlacesBridge and SpokenPlacesBridge.RefreshFound then
+            SpokenPlacesBridge:RefreshFound()
         end
-        if SSZBridge and SSZBridge.CurrentEntry then
-            mapID,areaKey=SSZBridge:CurrentEntry()
+        if SpokenPlacesBridge and SpokenPlacesBridge.CurrentEntry then
+            mapID,areaKey=SpokenPlacesBridge:CurrentEntry()
         end
     end
-    if mapID then M.OpenSelection(mapID,areaKey) end
-    M.SetSearch("")
+    if mapID then LoreWindow.OpenSelection(mapID,areaKey) end
+    LoreWindow.SetSearch("")
     if list then list:ClearSearch() end
 end
 -- Match the original's explicit ShowLoreFor/ToggleLoreWindow affordances.
-function M.ToggleLoreWindow()
+function LoreWindow.ToggleLoreWindow()
     if Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones") then return end
-    C:Toggle()
+    Compendium:Toggle()
 end
-function M.ShowLoreFor(mapID,areaKey)
+function LoreWindow.ShowLoreFor(mapID,areaKey)
     if not mapID or (Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones")) then return end
-    M.OpenSelectionFromPlayer(mapID,areaKey)
-    C:Open("places")
+    LoreWindow.OpenSelectionFromPlayer(mapID,areaKey)
+    Compendium:Open("places")
     -- Upstream: an explicit request for lore unfolds a collapsed Compendium.
-    C:Expand()
-    M.Refresh(true)
+    Compendium:Expand()
+    LoreWindow.Refresh(true)
 end
-function M.SetupLoreWindow()
-    if C:Tab("places") then return end
-    C:Register("places",{
+function LoreWindow.SetupLoreWindow()
+    if Compendium:Tab("places") then return end
+    Compendium:Register("places",{
         label="Places",order=1,title="Azeroth's Compendium",
         build=BuildPanel,
         onReselect=function()
-            selectedID,selectedKey=nil,nil
-            M.Refresh()
+            selectedMapID,selectedAreaKey=nil,nil
+            LoreWindow.Refresh()
         end,
         onShow=function()
-            if SSZBridge and SSZBridge.RefreshFound then
-                SSZBridge:RefreshFound()
+            if SpokenPlacesBridge and SpokenPlacesBridge.RefreshFound then
+                SpokenPlacesBridge:RefreshFound()
             end
         end,
         store={
@@ -539,13 +539,13 @@ function M.SetupLoreWindow()
             set=function(key,value) Settings()["compendium"..key]=value end,
         },
         open=function() if Spoken and Spoken.IsPartOn and Spoken:IsPartOn("zones") then
-            M.OpenSelectionFromPlayer();C:Open("places")
+            LoreWindow.OpenSelectionFromPlayer();Compendium:Open("places")
         end end,
         enabled=function() return Spoken and Spoken.IsPartOn and Spoken:IsPartOn("zones") end,
         unlock={
             get=function() return Settings().compendiumUnlockUndiscovered==true end,
-            set=function(on) M.SetUnlockUndiscovered(on) end,
+            set=function(on) LoreWindow.SetUnlockUndiscovered(on) end,
         },
     })
 end
-M.SetupLoreWindow()
+LoreWindow.SetupLoreWindow()

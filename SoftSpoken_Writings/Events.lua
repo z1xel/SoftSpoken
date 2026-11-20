@@ -1,13 +1,13 @@
 -- ITEM_TEXT_* book event binding for Vanilla 1.12 globals.
-local B=SSB
+local Writings=SpokenWritings
 local f=CreateFrame("Frame")
-B.eventFrame=f
+Writings.eventFrame=f
 f:RegisterEvent("ADDON_LOADED")
 f:RegisterEvent("PLAYER_ENTERING_WORLD")
 f:RegisterEvent("ITEM_TEXT_BEGIN")
 f:RegisterEvent("ITEM_TEXT_READY")
 f:RegisterEvent("ITEM_TEXT_CLOSED")
-function B:OnTextReady()
+function Writings:OnTextReady()
     -- The game sends READY on opening and page turns, and sometimes repeats
     -- it for a single page. Do not automatically replay a page that just ended.
     local previous = self.lastPage
@@ -28,14 +28,14 @@ function B:OnTextReady()
         not self:IsNarrating(book) and not continuingBook then return 0 end
     return self:SyncTo(page, false)
 end
-function B:OnTextClosed()
+function Writings:OnTextClosed()
     local book=self:PlaceOf(self.lastPage)
     self.lastPage=nil
     if book and SSBSettings and SSBSettings.stopOnClose then
         self:StopReading(book)
     end
 end
-function B:OnPageFinished(clip)
+function Writings:OnPageFinished(clip)
     if not SSBSettings or not SSBSettings.closeWhenRead then return end
     local book=self:PlaceOf(clip and clip.pageId)
     if not book or self:PlaceOf(self.lastPage)~=book or self:IsNarrating(book) then return end
@@ -45,7 +45,7 @@ function B:OnPageFinished(clip)
     end
     if CloseItemText then CloseItemText() end
 end
-function B:ReadCurrent()
+function Writings:ReadCurrent()
     local page=self:PageOnScreen() or self.lastPage
     if not page then return 0 end
     return self:SyncTo(page)
@@ -54,19 +54,19 @@ f:SetScript("OnEvent",function()
     local e=event
     if e=="ADDON_LOADED" then
         if arg1=="SoftSpoken_Writings" then
-            B:InitDB()
+            Writings:InitDB()
             f:UnregisterEvent("ADDON_LOADED")
         end
     elseif e=="PLAYER_ENTERING_WORLD" then
-        if not SSBSettings then B:InitDB() end
-        B:SetupSource()
-        if B.SetupPlayButton then B:SetupPlayButton() end
+        if not SSBSettings then Writings:InitDB() end
+        Writings:SetupSource()
+        if Writings.SetupPlayButton then Writings:SetupPlayButton() end
     elseif e=="ITEM_TEXT_READY" then
-        B:OnTextReady()
-        if B.SetupPlayButton then B:SetupPlayButton() end
-        if B.RefreshPlayButton then B:RefreshPlayButton() end
+        Writings:OnTextReady()
+        if Writings.SetupPlayButton then Writings:SetupPlayButton() end
+        if Writings.RefreshPlayButton then Writings:RefreshPlayButton() end
     elseif e=="ITEM_TEXT_CLOSED" then
-        B:OnTextClosed()
-        if B.RefreshPlayButton then B:RefreshPlayButton() end
+        Writings:OnTextClosed()
+        if Writings.RefreshPlayButton then Writings:RefreshPlayButton() end
     end
 end)

@@ -3,12 +3,12 @@
 --   In-world book: narrate ONLY the page shown by ITEM_TEXT_READY. Wait for the
 --   player to turn the physical book page before starting the next recording.
 -- Never use the narration player's global Pause button for page boundaries:
--- it pauses ALL sources, not one book. An empty Books queue is the page pause.
+-- it pauses ALL sources, not one book. An empty Writings source queue is the page pause.
 
-local SpokenBooks = SSB
+local Writings = SpokenWritings
 
 --- The pages of a book from `pageId` onwards, in reading order.
-function SpokenBooks:PagesFrom(pageId)
+function Writings:PagesFrom(pageId)
 	local book = self:BookOf(pageId)
 	if not book then
 		return {}
@@ -27,7 +27,7 @@ function SpokenBooks:PagesFrom(pageId)
 end
 
 --- Whether a page is already queued or speaking.
-function SpokenBooks:IsQueued(pageId)
+function Writings:IsQueued(pageId)
     return self.source and self.source.HasClip and
         self.source:HasClip("b:" .. pageId) or false
 end
@@ -36,9 +36,9 @@ end
 --- Each book being read, by book: { clip, the page of it in the queue; pages, those still to
 --- come }, each page put at the head as the one before it finishes (PageEnded). A book's entry
 --- goes once it is done, skipped or stopped.
-SpokenBooks.following = {}
+Writings.following = {}
 
-function SpokenBooks:IsComing(pageId)
+function Writings:IsComing(pageId)
 	local book = self:PlaceOf(pageId)
 	local entry = book and self.following[book]
 	for _, id in ipairs(entry and entry.pages or {}) do
@@ -60,28 +60,28 @@ end
 --- A page left the queue: finished, the next page with a clip goes to the head; skipped or
 --- stopped, the rest of the book goes with it.
 local function PageEnded(clip, finished)
-	local book = SpokenBooks:PlaceOf(clip.pageId)
-	local entry = book and SpokenBooks.following[book]
+	local book = Writings:PlaceOf(clip.pageId)
+	local entry = book and Writings.following[book]
 	-- Only the book's page in the queue: an old page dropped as the book starts again over it
 	-- leaves the new reading alone.
 	if not (entry and entry.clip == clip) then
 		return
 	end
 	if not finished then
-		SpokenBooks.following[book] = nil
+		Writings.following[book] = nil
 		return
 	end
 	local span = clip.span
 	local before = span and clip.length and span.before + clip.length
 	while table.getn(entry.pages) > 0 do
 		local id = table.remove(entry.pages, 1)
-		local nextClip = SpokenBooks:ClipFor(id)
+		local nextClip = Writings:ClipFor(id)
 		if nextClip then
 			nextClip.ssbPlayback = "compendium"
 			Follow(nextClip)
 			nextClip.continues = table.getn(entry.pages) > 0
 			nextClip.span = before and nextClip.length and { before = before, total = span.total } or nil
-			if Taken(SpokenBooks.source and SpokenBooks.source:Continue(nextClip), nextClip) then
+			if Taken(Writings.source and Writings.source:Continue(nextClip), nextClip) then
 				entry.clip = nextClip
 				return
 			end
@@ -89,7 +89,7 @@ local function PageEnded(clip, finished)
 		-- A page not read: the bar can no longer say how far through the book this is.
 		before = nil
 	end
-	SpokenBooks.following[book] = nil
+	Writings.following[book] = nil
 end
 
 --- Where the first page of a reading sits in it, so the progress bar runs across the book
@@ -100,7 +100,7 @@ local function Span(first, rest)
 		return nil
 	end
 	for _, id in ipairs(rest) do
-		local length = SpokenBooks:PageLength(id)
+		local length = Writings:PageLength(id)
 		if not length then
 			return nil
 		end
@@ -128,7 +128,7 @@ end
 --- already counted as read, and a refusal there would strand the narration on the page they
 --- turned away from. Walks the book rather than trusting a remembered "currently reading",
 --- which nothing clears when a queue drains on its own.
-function SpokenBooks:IsNarrating(book)
+function Writings:IsNarrating(book)
     local data = self:Data()
     local entry = book and data and data.books[book]
     if not entry or not self.source or not self.source.HasClip then return false end
@@ -149,7 +149,7 @@ end
 ---  * true  = keep reading all subsequent narrated pages without input.
 ---  * false = speak ONLY pageId; ITEM_TEXT_READY triggers the next page.
 --- Returns how many narrated pages were accepted.
-function SpokenBooks:PlayFrom(pageId, browsing)
+function Writings:PlayFrom(pageId, browsing)
     local source = self.source
     if not source then return 0 end
 
@@ -167,27 +167,36 @@ function SpokenBooks:PlayFrom(pageId, browsing)
 
     -- The Compendium ALWAYS plays the complete book without page waits, even
     -- when obsolete readWholeBook/bookAsOneLine saved options are false.
-    local queued, rest, first = 0, {}, nil
+    -- Plan the narrated pages BEFORE admitting the first one. Enqueue can start
+    -- it synchronously and fire AUDIO_CHANGED/CLIP_STARTED before returning;
+    -- attaching span afterward would bind page one's native progress bar to
+    -- only its own duration, while later pages use the whole-book duration.
+    local available = {}
     for _, id in ipairs(self:PagesFrom(pageId)) do
-        if queued == 0 then
-            local clip = self:ClipFor(id)
-            if clip then
-                clip.ssbPlayback = "compendium"
-                Follow(clip)
-                if Taken(source:Enqueue(clip), clip) then
-                    queued = queued + 1
-                    first = clip
-                end
+        if self:HasAudio(id) then table.insert(available, id) end
+    end
+    local queued, rest, first = 0, {}, nil
+    for index, id in ipairs(available) do
+        local clip = self:ClipFor(id)
+        if clip then
+            local remaining = {}
+            for i = index + 1, table.getn(available) do
+                table.insert(remaining, available[i])
             end
-        elseif self:HasAudio(id) then
-            table.insert(rest, id)
-            queued = queued + 1
+            clip.ssbPlayback = "compendium"
+            clip.continues = table.getn(remaining) > 0
+            clip.span = Span(clip, remaining)
+            Follow(clip)
+            -- A rejected physical file may make us try the next voiced page.
+            -- Recalculate its span from that page, not from the failed one.
+            if Taken(source:Enqueue(clip), clip) then
+                queued, rest, first = 1 + table.getn(remaining), remaining, clip
+                break
+            end
         end
     end
     if book and first then
         self.following[book] = { clip = first, pages = rest }
-        first.continues = table.getn(rest) > 0
-        first.span = Span(first, rest)
     end
     return queued
 end
@@ -195,7 +204,7 @@ end
 --- Sync to a page. Never replay an already queued page in the same mode.
 --- Switching between the reader and Compendium cancels the old book session,
 --- even if its current page ID happens to be the same.
-function SpokenBooks:SyncTo(pageId, browsing)
+function Writings:SyncTo(pageId, browsing)
     if not pageId then return 0 end
     local mode = browsing and "compendium" or "reader"
     local book = self:PlaceOf(pageId)
@@ -204,14 +213,16 @@ function SpokenBooks:SyncTo(pageId, browsing)
     if browsing and self:IsComing(pageId) then return 0 end
 
     if book and self:IsNarrating(book) then
-        self:StopReading(book)
+        -- Page replacement immediately starts another recording: do not
+        -- leave the old page fading on the two-stream PlaySoundFile bus.
+        self:StopReading(book, true)
     end
     return self:PlayFrom(pageId, browsing)
 end
 
 --- Stop `book`, or every readable with none, and nothing else: a quest line may be queued too.
 --- Not on closing the frame: a book reads on after it is shut.
-function SpokenBooks:StopReading(book)
+function Writings:StopReading(book, immediate)
 	if not book then
 		if self.source then
 			self.source:StopAll()
@@ -223,7 +234,7 @@ function SpokenBooks:StopReading(book)
 	if self.source then
 		for _, clip in ipairs(Spoken:GetQueue()) do
 			if clip.pageId and self:PlaceOf(clip.pageId) == book then
-				self.source:Remove(clip)
+				self.source:Remove(clip, immediate)
 			end
 		end
 	end

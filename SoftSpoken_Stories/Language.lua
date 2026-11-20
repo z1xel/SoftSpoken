@@ -30,17 +30,17 @@ function Language:GetClientLanguage()
 end
 
 function Language:GetVoiceLanguage()
-    local legacy = Addon and Addon.db and Addon.db.profile.Audio.VoiceLanguage
+    local legacy = StoriesAddon and StoriesAddon.db and StoriesAddon.db.profile.Audio.VoiceLanguage
     return Shared:ResolveVoice(legacy)
 end
 
 function Language:GetFallbackLanguage()
-    local legacy = Addon and Addon.db and Addon.db.profile.Audio.FallbackLanguage
+    local legacy = StoriesAddon and StoriesAddon.db and StoriesAddon.db.profile.Audio.FallbackLanguage
     return Shared:ResolveFallback(legacy)
 end
 
 function Language:ResolutionOrder()
-    local audio = Addon and Addon.db and Addon.db.profile.Audio
+    local audio = StoriesAddon and StoriesAddon.db and StoriesAddon.db.profile.Audio
     return Shared:ResolutionOrder(audio and audio.VoiceLanguage,
                                   audio and audio.FallbackLanguage)
 end

@@ -1,17 +1,17 @@
 -- Zone-specific semantics for the Compendium's generic button.
 SSZAudioButton = SSZAudioButton or {}
-local A = SSZAudioButton
-local M = SSZLoreWindow
+local AudioButton = SSZAudioButton
+local LoreWindow = SSZLoreWindow
 local function Notice(s) DEFAULT_CHAT_FRAME:AddMessage("[Spoken Zones] " .. s) end
-function A.Bind(button)
+function AudioButton.Bind(button)
     if not button or button._sszBound then return button end
     button._sszBound=true
     function button:Refresh()
         -- Like upstream: no empty/locked/unvoiced Play button cluttering
         -- the parchment. SetTarget() refreshes whenever navigation changes.
         if not self.mapID or
-           (M.IsLocked and M.IsLocked(self.mapID,self.areaKey)) or
-           (M.HasVoice and not M.HasVoice(self.mapID,self.areaKey)) then
+           (LoreWindow.IsLocked and LoreWindow.IsLocked(self.mapID,self.areaKey)) or
+           (LoreWindow.HasVoice and not LoreWindow.HasVoice(self.mapID,self.areaKey)) then
             self:SetState("play")
             self:Disable()
             self:Hide()
@@ -19,7 +19,7 @@ function A.Bind(button)
         end
         self:Enable()
         self:Show()
-        local bridge=SSZBridge
+        local bridge=SpokenPlacesBridge
         local state="play"
         if bridge and bridge.GetAudioState then
             state=bridge:GetAudioState(self.mapID,self.areaKey)
@@ -33,8 +33,8 @@ function A.Bind(button)
     button:SetScript("OnClick",function(self)
         local b=this or self -- Vanilla 1.12 scripts use the global `this`.
         if not b or not b.mapID or
-           M.IsLocked(b.mapID,b.areaKey) or not M.HasVoice(b.mapID,b.areaKey) then return end
-        local bridge=SSZBridge
+           LoreWindow.IsLocked(b.mapID,b.areaKey) or not LoreWindow.HasVoice(b.mapID,b.areaKey) then return end
+        local bridge=SpokenPlacesBridge
         if not bridge or not bridge.PlayEntry then
             Notice("Playback bridge not ready.") return
         end
@@ -69,8 +69,8 @@ function A.Bind(button)
     end)
     -- Multiple pages display the same player state, including playback started
     -- outside the Compendium. Don't attach the state to the visible selection.
-    if SSZBridge and SSZBridge.OnAudioChanged then
-        SSZBridge:OnAudioChanged(function() button:Refresh() end)
+    if SpokenPlacesBridge and SpokenPlacesBridge.OnAudioChanged then
+        SpokenPlacesBridge:OnAudioChanged(function() button:Refresh() end)
     end
     -- Current SoftSpoken fires AUDIO_CHANGED for every queue transition.
     -- Keep the old low-rate polling fallback only for older API builds.

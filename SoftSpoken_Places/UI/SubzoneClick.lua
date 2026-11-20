@@ -2,9 +2,9 @@
 -- Preserve upstream's click-vs-drag logic. Use the native hit-name
 -- or POI first, with a unique-overlay fallback only when necessary.
 SSZSubzoneClick = SSZSubzoneClick or {}
-local M = SSZSubzoneClick
-local Compat = SSZMapCompat
-local Panel = SSZMapPanel
+local SubzoneClick = SSZSubzoneClick
+local MapCompat = SSZMapCompat
+local MapPanel = SSZMapPanel
 local DRAG_TOLERANCE = 0.01
 local downX, downY, downMap
 local installed = false
@@ -26,27 +26,27 @@ local function Position(button)
     if x < 0 or x > 1 or y < 0 or y > 1 then return nil end
     return x, y
 end
-M.Position = Position
+SubzoneClick.Position = Position
 
 local function ClearDown()
     downX, downY, downMap = nil, nil, nil
 end
-function M.HandleClick(x, y, poiName)
+function SubzoneClick.HandleClick(x, y, poiName)
     local settings = SSZCharacter and SSZCharacter.settings
     if settings and settings.showMapPanel == false then return false end
-    local mapID = Compat.GetDisplayedMapID()
+    local mapID = MapCompat.GetDisplayedMapID()
     if not mapID then return false end
     -- Leave continent/world map navigation entirely to Blizzard.
-    local _, _, _, zone = Compat.GetDisplayedMapID()
+    local _, _, _, zone = MapCompat.GetDisplayedMapID()
     if not zone or zone <= 0 then return false end
     -- Central resolver: native map name, POI, optional city/overlay fallback.
     local kind, id, method
-    if Compat.ResolveAt then kind, id, method = Compat.ResolveAt(mapID, x, y, poiName) end
+    if MapCompat.ResolveAt then kind, id, method = MapCompat.ResolveAt(mapID, x, y, poiName) end
     local opened
     if kind == "city" then
-        opened = Panel.SelectCity and Panel.SelectCity(mapID, id) or false
+        opened = MapPanel.SelectCity and MapPanel.SelectCity(mapID, id) or false
     elseif kind == "subzone" then
-        opened = Panel.SelectSubzone(mapID, id)
+        opened = MapPanel.SelectSubzone(mapID, id)
     elseif method == "native-unmapped" or method == "poi-unmapped" then
         -- The map identifies this as a distinct area without an available
         -- lore entry. Do not select an unrelated overlapping overlay.
@@ -55,27 +55,27 @@ function M.HandleClick(x, y, poiName)
     return opened == true
 end
 
-function M.MouseDown(button, x, y)
+function SubzoneClick.MouseDown(button, x, y)
     ClearDown()
     if button ~= "LeftButton" then return end
     downX, downY = x, y
-    downMap = Compat.GetDisplayedMapID()
+    downMap = MapCompat.GetDisplayedMapID()
 end
-function M.MouseUp(button, x, y)
+function SubzoneClick.MouseUp(button, x, y)
     if button ~= "LeftButton" then return false end
     local sx, sy, sm = downX, downY, downMap
     ClearDown()
     if not (sx and sy and sm and x and y) then return false end
-    if Compat.GetDisplayedMapID() ~= sm then return false end
+    if MapCompat.GetDisplayedMapID() ~= sm then return false end
     if math.abs(x-sx) + math.abs(y-sy) > DRAG_TOLERANCE then return false end
-    return M.HandleClick(x,y)
+    return SubzoneClick.HandleClick(x,y)
 end
 
 -- POI icons are children of WorldMapButton with their own OnClick handler.
 -- Mouse clicks on them do not reliably pass through the parent button's
 -- OnMouseDown/OnMouseUp hooks. Hook their own OnClick without replacing the
 -- stock handler. POIs are allocated lazily when new maps are visited.
-function M.SetupPOIClicks()
+function SubzoneClick.SetupPOIClicks()
     if not GetNumMapLandmarks then return 0 end
     local count = tonumber(GetNumMapLandmarks()) or 0
     local hooked = 0
@@ -90,7 +90,7 @@ function M.SetupPOIClicks()
                 if which ~= "LeftButton" then return end
                 local x, y = Position(WorldMapButton)
                 if x and y and poiFrame.name then
-                    M.HandleClick(x, y, poiFrame.name)
+                    SubzoneClick.HandleClick(x, y, poiFrame.name)
                 end
             end)
             hookedPOIs[poiFrame] = true
@@ -100,7 +100,7 @@ function M.SetupPOIClicks()
     return hooked
 end
 
-function M.SetupSubzoneClicks()
+function SubzoneClick.SetupSubzoneClicks()
     if installed then return true end
     -- Classic 1.12 retains WorldMapButton. Do not override its handlers:
     -- ClassicAPI backports HookScript, allowing Blizzard map clicks to run.
@@ -113,12 +113,12 @@ function M.SetupSubzoneClicks()
     button:HookScript("OnMouseDown",function(self, mouseButton)
         mouseButton = mouseButton or arg1
         local x, y = Position(self or button)
-        M.MouseDown(mouseButton, x, y)
+        SubzoneClick.MouseDown(mouseButton, x, y)
     end)
     button:HookScript("OnMouseUp",function(self, mouseButton)
         mouseButton = mouseButton or arg1
         local x, y = Position(self or button)
-        M.MouseUp(mouseButton, x, y)
+        SubzoneClick.MouseUp(mouseButton, x, y)
     end)
     installed = true
     return true
@@ -132,8 +132,8 @@ watcher:SetScript("OnUpdate",function(self, dt)
     elapsed = elapsed + (dt or arg1 or 0)
     if elapsed < 1 then return end
     elapsed = 0
-    if not installed then M.SetupSubzoneClicks() end
+    if not installed then SubzoneClick.SetupSubzoneClicks() end
     if WorldMapFrame and WorldMapFrame.IsShown and WorldMapFrame:IsShown() then
-        M.SetupPOIClicks()
+        SubzoneClick.SetupPOIClicks()
     end
 end)

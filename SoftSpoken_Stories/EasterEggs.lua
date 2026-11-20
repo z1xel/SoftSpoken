@@ -29,7 +29,7 @@ EasterEggs =
 ---@return boolean applied Whether an easter egg replaced what the packs resolved
 function EasterEggs:Apply(soundData)
     local alternate = self.alternates[soundData.fileName]
-    if not alternate or not Addon.db.profile.Audio[alternate.option] then
+    if not alternate or not StoriesAddon.db.profile.Audio[alternate.option] then
         return false
     end
 

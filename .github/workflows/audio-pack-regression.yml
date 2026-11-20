@@ -3,15 +3,55 @@ name: Audio pack regression
 on:
   push:
     paths:
+      - "VERSION"
+      - "README.md"
+      - "tests/test_release_version.py"
+      - "tests/test_public_contracts.py"
+      - "tests/refactor_compatibility.lua"
+      - "SoftSpoken/Environment.lua"
+      - "SoftSpoken_Stories/Environment.lua"
+      - "SoftSpoken/SoftSpoken.toc"
+      - "SoftSpoken_Stories/SoftSpoken_Stories.toc"
+      - "SoftSpoken_Places/SoftSpoken_Places.toc"
+      - "SoftSpoken_Writings/SoftSpoken_Writings.toc"
       - "SoftSpoken/UI/Options.lua"
+      - "SoftSpoken/UI/SettingsLayout.lua"
+      - "SoftSpoken/UI/NarratorWindow.lua"
+      - "SoftSpoken/UI/Diagnostics.lua"
+      - "tests/diagnostics_viewer_112.lua"
+      - "tests/greetingfirst_classification.lua"
       - "SoftSpoken/UI/Portrait.lua"
+      - "SoftSpoken/CreatureAppearance.lua"
       - "SoftSpoken/API.lua"
-      - "SoftSpoken/Compendium/UI/Compendium.lua"
+      - "SoftSpoken/SoundQueue.lua"
+      - "SoftSpoken/SoundUtils.lua"
+      - "SoftSpoken/Sources.lua"
+      - "SoftSpoken/OtherSounds.lua"
+      - "SoftSpoken/addon.xml"
+      - "SoftSpoken/Compendium/UI/**"
+      - "SoftSpoken/Compendium/Textures/Skin/**"
+      - "tests/compendium_book_mask.lua"
+      - "tests/compendium_scroll_efficiency.lua"
+      - "tests/test_ui_packaging.py"
+      - "tests/test_texture_path_integrity.py"
+      - "tests/audio_progress_ui.lua"
+      - "tests/narrator_queue_label.lua"
       - "SoftSpoken/Strings.lua"
-      - "SoftSpoken_Stories/Compendium/QuestsTab_112.lua"
-      - "SoftSpoken_Stories/Compendium/QuestPage_112.lua"
-      - "SoftSpoken_Stories/Player.lua"
+      - "SoftSpoken_Stories/Compendium/QuestState.lua"
+      - "SoftSpoken_Stories/Compendium/QuestCatalog.lua"
+      - "SoftSpoken_Stories/Compendium/QuestsTab.lua"
+      - "SoftSpoken_Stories/Compendium/PortraitPreload.lua"
+      - "SoftSpoken_Stories/Compendium/QuestPage.lua"
+      - "SoftSpoken_Stories/QuestDialogue.lua"
+      - "SoftSpoken_Stories/NarrationSource.lua"
+      - "SoftSpoken_Stories/AceConfigOptions.lua"
+      - "SoftSpoken_Stories/UI/SettingsPage.lua"
+      - "SoftSpoken_Stories/QuestOverlayUI.lua"
+      - "SoftSpoken_Stories/QuestRuntime.lua"
+      - "SoftSpoken_Stories/Utils.lua"
+      - "SoftSpoken_Stories/ReportButton.lua"
       - "SoftSpoken_Stories/FactionCrest.lua"
+      - "SoftSpoken_Stories/SpeakerResolver.lua"
       - "SoftSpoken_Stories/addon.xml"
       - "SoftSpoken_Places/**"
       - "SoftSpoken_Writings/**"
@@ -19,22 +59,75 @@ on:
       - "Data_Packs/SSS_VOFallback/**"
       - "tests/audio_pack_*.lua"
       - "tests/classicapi_portrait_compatibility.lua"
+      - "tests/creature_appearance_service.lua"
+      - "tests/stories_compendium_portrait_lifecycle.lua"
+      - "tests/stories_portrait_preloading.lua"
+      - "tests/quest_title_request_recovery.lua"
+      - "tests/stories_questlog_portrait_prime.lua"
+      - "tests/questlog_deferred_layout_compatibility.lua"
       - "tests/stories_faction_crest.lua"
+      - "tests/stories_speaker_resolution.lua"
+      - "tests/stories_quest_event_bridge.lua"
+      - "tests/stories_questlog_subtitles.lua"
+      - "tests/stories_native_reporting.lua"
+      - "tests/stories_quest_dialogue.lua"
+      - "tests/test_dialogueui_cleanup.py"
       - "tests/places_zone_portrait_emblems.lua"
       - "tests/writings_narrator_discovery.lua"
-      - "SoftSpoken/Textures/Zones/**"
+      - "SoftSpoken/Textures/**"
+      - "SoftSpoken_Stories/Textures/**"
       - ".github/workflows/audio-pack-regression.yml"
   pull_request:
     paths:
+      - "VERSION"
+      - "README.md"
+      - "tests/test_release_version.py"
+      - "tests/test_public_contracts.py"
+      - "tests/refactor_compatibility.lua"
+      - "SoftSpoken/Environment.lua"
+      - "SoftSpoken_Stories/Environment.lua"
+      - "SoftSpoken/SoftSpoken.toc"
+      - "SoftSpoken_Stories/SoftSpoken_Stories.toc"
+      - "SoftSpoken_Places/SoftSpoken_Places.toc"
+      - "SoftSpoken_Writings/SoftSpoken_Writings.toc"
       - "SoftSpoken/UI/Options.lua"
+      - "SoftSpoken/UI/SettingsLayout.lua"
+      - "SoftSpoken/UI/NarratorWindow.lua"
+      - "SoftSpoken/UI/Diagnostics.lua"
+      - "tests/diagnostics_viewer_112.lua"
+      - "tests/greetingfirst_classification.lua"
       - "SoftSpoken/UI/Portrait.lua"
+      - "SoftSpoken/CreatureAppearance.lua"
       - "SoftSpoken/API.lua"
-      - "SoftSpoken/Compendium/UI/Compendium.lua"
+      - "SoftSpoken/SoundQueue.lua"
+      - "SoftSpoken/SoundUtils.lua"
+      - "SoftSpoken/Sources.lua"
+      - "SoftSpoken/OtherSounds.lua"
+      - "SoftSpoken/addon.xml"
+      - "SoftSpoken/Compendium/UI/**"
+      - "SoftSpoken/Compendium/Textures/Skin/**"
+      - "tests/compendium_book_mask.lua"
+      - "tests/compendium_scroll_efficiency.lua"
+      - "tests/test_ui_packaging.py"
+      - "tests/test_texture_path_integrity.py"
+      - "tests/audio_progress_ui.lua"
+      - "tests/narrator_queue_label.lua"
       - "SoftSpoken/Strings.lua"
-      - "SoftSpoken_Stories/Compendium/QuestsTab_112.lua"
-      - "SoftSpoken_Stories/Compendium/QuestPage_112.lua"
-      - "SoftSpoken_Stories/Player.lua"
+      - "SoftSpoken_Stories/Compendium/QuestState.lua"
+      - "SoftSpoken_Stories/Compendium/QuestCatalog.lua"
+      - "SoftSpoken_Stories/Compendium/QuestsTab.lua"
+      - "SoftSpoken_Stories/Compendium/PortraitPreload.lua"
+      - "SoftSpoken_Stories/Compendium/QuestPage.lua"
+      - "SoftSpoken_Stories/QuestDialogue.lua"
+      - "SoftSpoken_Stories/NarrationSource.lua"
+      - "SoftSpoken_Stories/AceConfigOptions.lua"
+      - "SoftSpoken_Stories/UI/SettingsPage.lua"
+      - "SoftSpoken_Stories/QuestOverlayUI.lua"
+      - "SoftSpoken_Stories/QuestRuntime.lua"
+      - "SoftSpoken_Stories/Utils.lua"
+      - "SoftSpoken_Stories/ReportButton.lua"
       - "SoftSpoken_Stories/FactionCrest.lua"
+      - "SoftSpoken_Stories/SpeakerResolver.lua"
       - "SoftSpoken_Stories/addon.xml"
       - "SoftSpoken_Places/**"
       - "SoftSpoken_Writings/**"
@@ -42,10 +135,23 @@ on:
       - "Data_Packs/SSS_VOFallback/**"
       - "tests/audio_pack_*.lua"
       - "tests/classicapi_portrait_compatibility.lua"
+      - "tests/creature_appearance_service.lua"
+      - "tests/stories_compendium_portrait_lifecycle.lua"
+      - "tests/stories_portrait_preloading.lua"
+      - "tests/quest_title_request_recovery.lua"
+      - "tests/stories_questlog_portrait_prime.lua"
+      - "tests/questlog_deferred_layout_compatibility.lua"
       - "tests/stories_faction_crest.lua"
+      - "tests/stories_speaker_resolution.lua"
+      - "tests/stories_quest_event_bridge.lua"
+      - "tests/stories_questlog_subtitles.lua"
+      - "tests/stories_native_reporting.lua"
+      - "tests/stories_quest_dialogue.lua"
+      - "tests/test_dialogueui_cleanup.py"
       - "tests/places_zone_portrait_emblems.lua"
       - "tests/writings_narrator_discovery.lua"
-      - "SoftSpoken/Textures/Zones/**"
+      - "SoftSpoken/Textures/**"
+      - "SoftSpoken_Stories/Textures/**"
       - ".github/workflows/audio-pack-regression.yml"
 
 jobs:
@@ -58,28 +164,96 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y lua5.1
+      - name: Compile first-party addon Lua outside bundled libraries and generated data
+        run: |
+          find SoftSpoken SoftSpoken_Stories SoftSpoken_Places SoftSpoken_Writings \
+            -type f -name '*.lua' \
+            ! -path '*/Libs/*' ! -path '*/Data/*' \
+            -print0 | xargs -0 -r -n 1 luac5.1 -p
       - name: Check changed addon Lua syntax
         run: |
-          luac5.1 -p SoftSpoken/UI/Options.lua SoftSpoken/Strings.lua
-          luac5.1 -p SoftSpoken/Compendium/UI/Compendium.lua
-          luac5.1 -p SoftSpoken/UI/Portrait.lua SoftSpoken/Compat.lua SoftSpoken/API.lua
+          luac5.1 -p SoftSpoken/UI/NarratorWindow.lua SoftSpoken/UI/Options.lua SoftSpoken/Strings.lua
+          luac5.1 -p SoftSpoken/UI/Diagnostics.lua tests/diagnostics_viewer_112.lua tests/greetingfirst_classification.lua
+          luac5.1 -p SoftSpoken/Compendium/UI/CompendiumUIHelpers.lua SoftSpoken/Compendium/UI/Compendium.lua SoftSpoken/Compendium/UI/FrameSkin.lua SoftSpoken/Compendium/UI/InteriorSkin.lua
+          luac5.1 -p SoftSpoken/Compendium/UI/NativeScrollbar.lua SoftSpoken/Compendium/UI/LorePage.lua SoftSpoken/Compendium/UI/TextView.lua SoftSpoken/Compendium/UI/PagePane.lua
+          luac5.1 -p SoftSpoken/UI/Portrait.lua SoftSpoken/CreatureAppearance.lua SoftSpoken/Compat.lua SoftSpoken/API.lua
           luac5.1 -p SoftSpoken_Places/Audio.lua tests/places_zone_portrait_emblems.lua
-          luac5.1 -p tests/classicapi_portrait_compatibility.lua tests/stories_faction_crest.lua
-          luac5.1 -p SoftSpoken_Stories/FactionCrest.lua SoftSpoken_Stories/Player.lua SoftSpoken_Stories/Compendium/QuestPage_112.lua
+          luac5.1 -p tests/classicapi_portrait_compatibility.lua tests/creature_appearance_service.lua tests/stories_faction_crest.lua tests/stories_compendium_portrait_lifecycle.lua
+          luac5.1 -p SoftSpoken_Stories/FactionCrest.lua SoftSpoken_Stories/SpeakerResolver.lua SoftSpoken_Stories/NarrationSource.lua SoftSpoken_Stories/QuestDialogue.lua SoftSpoken_Stories/Compendium/QuestPage.lua
+          luac5.1 -p tests/stories_speaker_resolution.lua tests/stories_quest_event_bridge.lua tests/stories_questlog_subtitles.lua tests/stories_quest_dialogue.lua tests/stories_native_reporting.lua tests/stories_portrait_preloading.lua tests/stories_questlog_portrait_prime.lua tests/questlog_deferred_layout_compatibility.lua
           luac5.1 -p SoftSpoken_Places/UI/LoreWindow.lua SoftSpoken_Writings/UI/Readables.lua
-          luac5.1 -p SoftSpoken_Writings/Audio.lua SoftSpoken_Writings/DiscoveryLocations.lua tests/writings_narrator_discovery.lua
+          luac5.1 -p SoftSpoken_Writings/Audio.lua SoftSpoken_Writings/DiscoveryLocations.lua tests/writings_narrator_discovery.lua tests/narrator_queue_label.lua
           luac5.1 -p SoftSpoken_Places/UI/Options.lua SoftSpoken_Writings/UI/Options.lua
-          luac5.1 -p SoftSpoken_Stories/Compendium/QuestsTab_112.lua SoftSpoken_Stories/DataModules.lua
+          luac5.1 -p SoftSpoken_Stories/Compendium/QuestState.lua SoftSpoken_Stories/Compendium/QuestCatalog.lua SoftSpoken_Stories/Compendium/QuestsTab.lua SoftSpoken_Stories/Compendium/PortraitPreload.lua SoftSpoken_Stories/DataModules.lua SoftSpoken_Stories/QuestRuntime.lua SoftSpoken_Stories/QuestOverlayUI.lua
+          luac5.1 -p tests/quest_title_request_recovery.lua
+          luac5.1 -p SoftSpoken/UI/SettingsLayout.lua SoftSpoken_Stories/UI/SettingsPage.lua SoftSpoken_Stories/AceConfigOptions.lua tests/audio_pack_settings_toggle.lua
           luac5.1 -p Data_Packs/SSS_VOFallback/Module.lua
-      - name: Check Writings discovery locations in narrator headings
+          luac5.1 -p tests/refactor_compatibility.lua
+      - name: Check supported Vanilla narrator styles and saved-profile fallback
+        run: lua5.1 tests/narrator_styles_112.lua
+      - name: Check Vanilla-only shared settings and module navigation
+        run: lua5.1 tests/settings_legacy_only.lua
+      - name: Check Compendium book mask and runtime skin assets
+        run: lua5.1 tests/compendium_book_mask.lua
+      - name: Check bounded Vanilla UI fallback polling
+        run: lua5.1 tests/compendium_scroll_efficiency.lua
+      - name: Check Vanilla diagnostics scroll template and readable reports
+        run: lua5.1 tests/diagnostics_viewer_112.lua
+      - name: Check Stories greeting classification and missing-CVar safety
+        run: lua5.1 tests/greetingfirst_classification.lua
+      - name: Check installable UI assets, manifests and legacy identifiers
+        run: python3 tests/test_ui_packaging.py
+      - name: Verify obsolete DialogueUI bridge and profile removal
+        run: python3 tests/test_dialogueui_cleanup.py
+      - name: Verify all local texture paths and catalog mappings
+        run: python3 tests/test_texture_path_integrity.py
+      - name: Check all SoftSpoken release version declarations
+        run: python3 tests/test_release_version.py
+      - name: Guard public APIs, SavedVariables and legacy pack contracts
+        run: |
+          python3 tests/test_public_contracts.py
+          lua5.1 tests/refactor_compatibility.lua
+      - name: Check native player duration and UI progress
+        run: lua5.1 tests/audio_progress_ui.lua
+      - name: Check Writings title and discovery context in the narrator
         run: lua5.1 tests/writings_narrator_discovery.lua
+      - name: Check queued Writings titles and unchanged Stories/Places rows
+        run: lua5.1 tests/narrator_queue_label.lua
       - name: Check Places narrator emblems and all upstream artwork
         run: lua5.1 tests/places_zone_portrait_emblems.lua
       - name: Check Stories faction crests and portrait fallbacks
         run: lua5.1 tests/stories_faction_crest.lua
+      - name: Check Stories shared speaker resolution
+        run: lua5.1 tests/stories_speaker_resolution.lua
+      - name: Exercise live 1.12 quest event dispatch without the watcher
+        run: lua5.1 tests/stories_quest_event_bridge.lua
+      - name: Check quest-log subtitles from the shared text service
+        run: lua5.1 tests/stories_questlog_subtitles.lua
+      - name: Check native report links and missing-audio quest-log buttons
+        run: lua5.1 tests/stories_native_reporting.lua
+      - name: Check central dialogue precedence, capture and UI independence
+        run: lua5.1 tests/stories_quest_dialogue.lua
+      - name: Check Compendium portrait lifecycle
+        run: lua5.1 tests/stories_compendium_portrait_lifecycle.lua
+      - name: Check bounded Stories portrait preloading
+        run: lua5.1 tests/stories_portrait_preloading.lua
+      - name: Check quest-log portrait preloading and retry
+        run: lua5.1 tests/stories_questlog_portrait_prime.lua
+      - name: Check content-aware deferred quest-log compatibility
+        run: lua5.1 tests/questlog_deferred_layout_compatibility.lua
+      - name: Check native quest title request cooldown and recovery
+        run: lua5.1 tests/quest_title_request_recovery.lua
+      - name: Check shared creature appearance service
+        run: lua5.1 tests/creature_appearance_service.lua
       - name: Check ClassicAPI portrait version compatibility
         run: lua5.1 tests/classicapi_portrait_compatibility.lua
+      - name: Check Vanilla-only minimap and modern portrait cleanup
+        run: lua5.1 tests/modern_client_vestiges_112.lua
       - name: Check official pack priority and fallback
         run: lua5.1 tests/audio_pack_priority_guardrails.lua
       - name: Check legacy and current voice pack registries
         run: lua5.1 tests/audio_pack_registry_compatibility.lua
+      - name: Check Stories partial loading failure diagnostics
+        run: lua5.1 tests/audio_pack_load_outcomes.lua
+      - name: Check per-pack settings, reload and enable behavior
+        run: lua5.1 tests/audio_pack_settings_toggle.lua

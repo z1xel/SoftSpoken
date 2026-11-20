@@ -136,31 +136,94 @@ function Search:Build(parent)
     local row = CreateFrame("Frame", nil, parent)
     row:SetWidth(WIDTH)
     row:SetHeight(self.height)
-    local caption = row:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    caption:SetPoint("LEFT", row, "LEFT", 4, 0)
-    caption:SetText("Search")
-    local box = CreateFrame("EditBox", "SpokenSettingsSearchBox", row, "InputBoxTemplate")
-    box:SetWidth(330)
-    box:SetHeight(20)
-    box:SetPoint("LEFT", caption, "RIGHT", 12, 0)
-    box:SetAutoFocus(false)
-    -- A small native Blizzard close button acts as Clear Search. It belongs
-    -- to the search row, not the settings window's close action.
-    local clear = CreateFrame("Button", nil, row, "UIPanelCloseButton")
-    clear:SetWidth(18)
-    clear:SetHeight(18)
-    clear:SetPoint("LEFT", box, "RIGHT", 4, 0)
-    clear:SetScript("OnClick", function()
-        box:SetText("")
-        box:SetFocus()
-    end)
-    clear:Hide()
-    local hint = box:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
-    hint:SetPoint("LEFT", box, "LEFT", 6, 0)
-    hint:SetText(L.SEARCH_HINT or "Search settings")
 
-    -- Results are parented to the outer window, never to the clipped scroll
-    -- child. They overlay both the tabs and the scrollable content.
+    -- Use the Compendium's native three-piece Common-Input-Border instead of
+    -- InputBoxTemplate's larger border/shadow. The fallback is for clients
+    -- where the shared Compendium skin has not been initialized.
+    local ornate = SSCCompendiumInteriorSkin and SSCCompendiumInteriorSkin.ApplySearch
+    local box
+    if ornate then
+        box = CreateFrame("EditBox", "SpokenSettingsSearchBox", row)
+        box:SetFontObject(ChatFontNormal)
+        ornate(box)
+    else
+        box = CreateFrame("EditBox", "SpokenSettingsSearchBox", row, "InputBoxTemplate")
+    end
+    -- The ornate border has a transparent center. Add an opaque backing
+    -- behind its three texture pieces so the header rock cannot show through.
+    if ornate and box.SetBackdrop then
+        box:SetBackdrop({
+            bgFile = [[Interface\Buttons\WHITE8X8]],
+            tile = true, tileSize = 8,
+            insets = {left = 0, right = 0, top = 0, bottom = 0},
+        })
+        box:SetBackdropColor(0, 0, 0, 1)
+    end
+    box:SetHeight(21)
+    box:SetPoint("TOPLEFT", row, "TOPLEFT", 0, -2)
+    box:SetPoint("TOPRIGHT", row, "TOPRIGHT", 0, -2)
+    box:SetAutoFocus(false)
+    box:SetMaxLetters(70)
+    if box.SetTextInsets then box:SetTextInsets(21, 21, 0, 0) end
+
+    -- Match the Compendium's bundled search glass, always-visible clear icon,
+    -- inside-the-field hint, and contextual hover/focus tinting on Vanilla.
+    local controlArt = "Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Controls\\"
+    local glass = box:CreateTexture(nil, "ARTWORK")
+    glass:SetTexture(controlArt .. "UI-SearchBox-Icon")
+    glass:SetWidth(14)
+    glass:SetHeight(14)
+    glass:SetPoint("LEFT", box, "LEFT", 3, -1)
+
+    local hint = box:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+    hint:SetPoint("LEFT", box, "LEFT", 21, 0)
+    hint:SetText("Search settings")
+
+    local clear = CreateFrame("Button", nil, box)
+    clear:SetWidth(17)
+    clear:SetHeight(17)
+    clear:SetPoint("RIGHT", box, "RIGHT", -3, 0)
+    clear:SetNormalTexture(controlArt .. "UI-SearchBox-Clear")
+    clear:SetPushedTexture(controlArt .. "UI-SearchBox-Clear")
+    clear:SetHighlightTexture(controlArt .. "UI-SearchBox-Clear", "ADD")
+    for _, getter in ipairs({ "GetNormalTexture", "GetPushedTexture", "GetHighlightTexture" }) do
+        local texture = clear[getter](clear)
+        if texture then
+            texture:ClearAllPoints()
+            texture:SetWidth(14)
+            texture:SetHeight(14)
+            if getter == "GetPushedTexture" then
+                texture:SetPoint("CENTER", clear, "CENTER", 1, -1)
+            else
+                texture:SetPoint("CENTER", clear, "CENTER", 0, 0)
+            end
+        end
+    end
+    local highlight = clear:GetHighlightTexture()
+    if highlight then highlight:SetAlpha(.25) end
+
+    local focused, hovered, clearHovered = false, false, false
+    local function PaintSearch()
+        local nonempty = (box:GetText() or "") ~= ""
+        if nonempty or focused then hint:Hide() else hint:Show() end
+        local active = focused or hovered or clearHovered
+        glass:SetAlpha(active and 1 or .6)
+        local clearAlpha = clearHovered and 1 or
+            (nonempty and .8 or (focused and .6 or .4))
+        local normal = clear:GetNormalTexture()
+        local pushed = clear:GetPushedTexture()
+        if normal then normal:SetAlpha(clearAlpha) end
+        if pushed then pushed:SetAlpha(clearAlpha) end
+        local border = box.sszSearchBorder
+        if border then
+            local shade = active and 1 or .85
+            for _, piece in ipairs(border) do
+                piece:SetVertexColor(shade, shade, shade, 1)
+            end
+        end
+    end
+
+    -- Results still float above the tabs/content, outside the clipped viewport.
     local results = CreateFrame("Frame", nil, parent)
     results:SetPoint("TOPLEFT", row, "BOTTOMLEFT", 0, -5)
     results:SetWidth(WIDTH)
@@ -176,16 +239,20 @@ function Search:Build(parent)
     end
     results:Hide()
     self.box, self.results, self.rows, self.row = box, results, {}, row
+
+    clear:SetScript("OnEnter", function() clearHovered = true; PaintSearch() end)
+    clear:SetScript("OnLeave", function() clearHovered = false; PaintSearch() end)
+    clear:SetScript("OnClick", function()
+        if (box:GetText() or "") ~= "" then box:SetText("") end
+        box:SetFocus()
+    end)
+    box:SetScript("OnEnter", function() hovered = true; PaintSearch() end)
+    box:SetScript("OnLeave", function() hovered = false; PaintSearch() end)
+    box:SetScript("OnEditFocusGained", function() focused = true; PaintSearch() end)
+    box:SetScript("OnEditFocusLost", function() focused = false; PaintSearch() end)
     box:SetScript("OnTextChanged", function()
-        local value = box:GetText() or ""
-        if value == "" then
-            hint:Show()
-            clear:Hide()
-        else
-            hint:Hide()
-            clear:Show()
-        end
-        Search:ShowResults(value)
+        PaintSearch()
+        Search:ShowResults(box:GetText() or "")
     end)
     box:SetScript("OnEnterPressed", function()
         if Search.found and Search.found[1] then Search:Go(Search.found[1]) end
@@ -194,12 +261,14 @@ function Search:Build(parent)
         box:SetText("")
         box:ClearFocus()
     end)
+    PaintSearch()
     return row
 end
-
 function Search:BuildLegacy(parent)
     local row = self:Build(parent)
-    row:SetPoint("TOPLEFT", parent, "TOPLEFT", 26, -37)
+    -- Match the full-width ornamental frame with balanced 12-unit margins.
+    row:SetPoint("TOPLEFT", parent, "TOPLEFT", 12, -70)
+    self:Fit(526)
     row:Show()
     return row
 end

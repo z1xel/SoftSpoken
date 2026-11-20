@@ -1,11 +1,11 @@
--- SoftSpoken Books: per-character discovery locations for WoW 1.12.
+-- SoftSpoken Writings: per-character readable discovery locations for WoW 1.12.
 -- No persistent OnUpdate loop: bag scans run only after BAG_UPDATE settles.
 -- Static SSBPlaces locations remain reference information, not personal discoveries.
-local B = SSB
-local C = SSCCompendium
+local Writings = SpokenWritings
+local Compendium = SpokenCompendium
 
 local function Character()
-    if not SSBCharacter then B:InitDB() end
+    if not SSBCharacter then Writings:InitDB() end
     SSBCharacter.locations = SSBCharacter.locations or {}
     SSBCharacter.acquisitions = SSBCharacter.acquisitions or {}
     return SSBCharacter
@@ -23,14 +23,14 @@ local function MapForName(name)
     if type(name) ~= "string" or name == "" then return nil end
     local key = string.lower(name)
     if ALIAS[key] then return ALIAS[key] end
-    if not (C and C.MapName) then return nil end
+    if not (Compendium and Compendium.MapName) then return nil end
     for id=1411,1458 do
         if id ~= 1414 and id ~= 1415 and
-            string.lower(C.MapName(id) or "") == key then return id end
+            string.lower(Compendium.MapName(id) or "") == key then return id end
     end
 end
 
-function B:CurrentDiscoveryMap()
+function Writings:CurrentDiscoveryMap()
     local zone = GetZoneText and GetZoneText()
     local real = GetRealZoneText and GetRealZoneText()
     local sub = GetSubZoneText and GetSubZoneText()
@@ -42,11 +42,11 @@ function B:CurrentDiscoveryMap()
     return MapForName(zone) or MapForName(real)
 end
 
-function B:BookLocations(book)
+function Writings:BookLocations(book)
     local locations = Character().locations[book]
     return type(locations)=="table" and locations or nil
 end
-function B:BookFoundAt(book, mapID)
+function Writings:BookFoundAt(book, mapID)
     local locations = self:BookLocations(book)
     return locations and locations[mapID] ~= nil or false
 end
@@ -54,12 +54,12 @@ end
 -- Only the character's recorded locations count as a discovery. The static
 -- SSBPlaces list describes where a book *might* appear, not where it was found.
 -- Both the Writings Compendium and narrator must use this same summary.
-function B:KnownDiscoverySummary(book)
+function Writings:KnownDiscoverySummary(book)
     local locations = self:BookLocations(book)
     local names = {}
     for mapID in pairs(locations or {}) do
-        if type(mapID) == "number" and C and C.MapName then
-            local name = C.MapName(mapID)
+        if type(mapID) == "number" and Compendium and Compendium.MapName then
+            local name = Compendium.MapName(mapID)
             if type(name) == "string" and name ~= "" then
                 table.insert(names, name)
             end
@@ -72,14 +72,14 @@ function B:KnownDiscoverySummary(book)
     return nil
 end
 
-function B:DiscoverySummary(book)
+function Writings:DiscoverySummary(book)
     return self:KnownDiscoverySummary(book) or "Discovered (location unknown)"
 end
-function B:RecordBookLocation(book, mapID, how)
-    if not book or not mapID or not (C and C.MapName) then return false end
-    local db=Character()
-    local locations=db.locations[book]
-    if type(locations)~="table" then locations={}; db.locations[book]=locations end
+function Writings:RecordBookLocation(book, mapID, how)
+    if not book or not mapID or not (Compendium and Compendium.MapName) then return false end
+    local characterDB=Character()
+    local locations=characterDB.locations[book]
+    if type(locations)~="table" then locations={}; characterDB.locations[book]=locations end
     if locations[mapID] then return false end
     locations[mapID]=how or "encounter"
     if self.ReadablesLocationChanged then self:ReadablesLocationChanged() end
@@ -142,7 +142,7 @@ local function Reconcile()
         return
     end
     local acquired=Character().acquisitions
-    local location = B:CurrentDiscoveryMap()
+    local location = Writings:CurrentDiscoveryMap()
     for id,newCount in pairs(totals) do
         local increase = newCount - (previous[id] or 0)
         if increase>0 and location and carriedNames[names[id]] and
@@ -215,8 +215,8 @@ end
 -- Hook the existing discovery point without changing its page-turn/audio logic.
 -- 'world' readables are interacted with in place. A 'carried' readable is
 -- credited only to a matching *previous* bag acquisition, never to its read site.
-local OldMarkBookFound=B.MarkBookFound
-function B:MarkBookFound(book)
+local OldMarkBookFound=Writings.MarkBookFound
+function Writings:MarkBookFound(book)
     local wasFound=self:IsBookFound(book)
     OldMarkBookFound(self,book)
     if not book then return end
@@ -227,9 +227,9 @@ function B:MarkBookFound(book)
         if dirty then bags:Hide();dirty=false;elapsed=0;Reconcile() end
         local title=ItemTextGetItem and ItemTextGetItem()
         local itemID=UniqueInventoryItem(title)
-        local source=itemID and Character().acquisitions[itemID]
-        if type(source)=="table" then
-            for zone,count in pairs(source) do
+        local acquisitionZones=itemID and Character().acquisitions[itemID]
+        if type(acquisitionZones)=="table" then
+            for zone,count in pairs(acquisitionZones) do
                 if count>0 then self:RecordBookLocation(book,zone,"acquired") end
             end
         end

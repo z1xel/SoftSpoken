@@ -16,7 +16,7 @@ local runtime = {
     CharDB = function() return {heard={}} end,
     Say = function() end,
 }
-SSZZonesRuntime = runtime
+SpokenPlacesRuntime = runtime
 SpokenPlacesAudioPacks = {
     SpokenPlacesAudio = {
         version=1, addon="SpokenPlacesAudio",
@@ -49,11 +49,11 @@ expect(runtime.FindRecording(1413) ~= nil,true,"legacy Places recording")
 expect(table.getn(runtime.AudioPackDetails()),2,"both Places pack generations")
 
 -- Writings: current Readables registry alongside legacy Books packs.
-SSB = { L = {} }
-SSB.BASE_LANGUAGE = "enUS"
-function SSB:Data() return SSBData end
-function SSB:LanguageOrder() return {"enUS"} end
-function SSB:PackLanguage(pack) return pack.language or "enUS" end
+SpokenWritings = { L = {} }
+SpokenWritings.BASE_LANGUAGE = "enUS"
+function SpokenWritings:Data() return SSBData end
+function SpokenWritings:LanguageOrder() return {"enUS"} end
+function SpokenWritings:PackLanguage(pack) return pack.language or "enUS" end
 SSBData = {pages={[15]={book=1,text="Hello",number=1}},
            books={[1]={title="A Book",pages={15}}}}
 SpokenReadablesAudioPacks = {
@@ -64,10 +64,10 @@ SpokenReadablesAudioPacks = {
 }
 SpokenBooksAudioPacks = nil
 dofile("SoftSpoken_Writings/Audio.lua")
-expect(table.getn(SSB:GetAudioPacks()),1,"new Readables inventory")
-expect(SSB:GetAudioPacks()[1].addon,"SpokenReadablesAudio","new Readables registry")
-expect(SSB:HasAudio(15),true,"new Readables audio availability")
-expect(SSB:PageLength(15),21,"new Readables duration")
+expect(table.getn(SpokenWritings:GetAudioPacks()),1,"new Readables inventory")
+expect(SpokenWritings:GetAudioPacks()[1].addon,"SpokenReadablesAudio","new Readables registry")
+expect(SpokenWritings:HasAudio(15),true,"new Readables audio availability")
+expect(SpokenWritings:PageLength(15),21,"new Readables duration")
 
 -- Legacy packs still work, and a duplicate pack registered under both names
 -- must not double-count inventory entries.
@@ -75,8 +75,8 @@ SpokenBooksAudioPacks = {
     SpokenBooksAudio = {version=1,addon="SpokenBooksAudio",language="enUS",
         pages={[16]={file="16",len=9}}},
 }
-expect(table.getn(SSB:GetAudioPacks()),2,"both Writings generations")
+expect(table.getn(SpokenWritings:GetAudioPacks()),2,"both Writings generations")
 SpokenBooksAudioPacks.SpokenReadablesAudio = SpokenReadablesAudioPacks.SpokenReadablesAudio
-expect(table.getn(SSB:GetAudioPacks()),2,"deduplicated Readables registry")
+expect(table.getn(SpokenWritings:GetAudioPacks()),2,"deduplicated Readables registry")
 
 print("PASS: current and legacy Places/Writings pack registries")

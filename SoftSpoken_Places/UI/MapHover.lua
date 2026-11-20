@@ -2,23 +2,23 @@
 -- Reuses the EXACT click resolver: no second hitbox system, discovery writes,
 -- zone selection, or dependency on ClassicAPI exploration artwork.
 SSZMapHover = SSZMapHover or {}
-local M = SSZMapHover
-local Compat = SSZMapCompat
-local Click = SSZSubzoneClick
+local MapHover = SSZMapHover
+local MapCompat = SSZMapCompat
+local SubzoneClick = SSZSubzoneClick
 local MapPanel = SSZMapPanel
 local TICK = 0.085
 local state = { elapsed = 0, signature = nil }
-M.state = state
+MapHover.state = state
 
 local function Hide()
     if state.tooltip then state.tooltip:Hide() end
     state.signature = nil
 end
-M.Hide = Hide
+MapHover.Hide = Hide
 
 local function Enabled()
     if not (WorldMapFrame and WorldMapFrame.IsShown and WorldMapFrame:IsShown()) then return false end
-    if not (WorldMapButton and Click and Click.Position and Compat and Compat.ResolveAt) then return false end
+    if not (WorldMapButton and SubzoneClick and SubzoneClick.Position and MapCompat and MapCompat.ResolveAt) then return false end
     local settings = SSZCharacter and SSZCharacter.settings
     if settings and settings.showMapPanel == false then return false end
     local panel = MapPanel and MapPanel.GetPanel and MapPanel.GetPanel()
@@ -48,15 +48,15 @@ local function HoveredPOI()
     end
     return nil
 end
-M.HoveredPOI = HoveredPOI
+MapHover.HoveredPOI = HoveredPOI
 
 -- A nil result means no known lore place under the pointer.
 -- Hovering never discovers, plays or selects a location.
-function M.Resolve(x, y)
+function MapHover.Resolve(x, y)
     if not Enabled() or not x or not y then return nil end
-    local mapID, _, _, zoneIndex = Compat.GetDisplayedMapID()
+    local mapID, _, _, zoneIndex = MapCompat.GetDisplayedMapID()
     if not (mapID and zoneIndex and zoneIndex > 0) then return nil end
-    local kind, id = Compat.ResolveAt(mapID, x, y, HoveredPOI())
+    local kind, id = MapCompat.ResolveAt(mapID, x, y, HoveredPOI())
     if kind ~= 'subzone' and kind ~= 'city' then return nil end
     local lore = SSZLore
     if not lore then return nil end
@@ -74,13 +74,13 @@ function M.Resolve(x, y)
     -- overlays. Do NOT use LoreWindow.IsLocked here: the Compendium's
     -- Unlock Undiscovered setting intentionally bypasses that lock, which
     -- would spoil hidden regions simply by hovering the map.
-    local bridge = SSZBridge
+    local bridge = SpokenPlacesBridge
     if not (bridge and bridge.IsFound and bridge:IsFound(foundID, foundKey)) then
         return nil
     end
     return { mapID=mapID, kind=kind, id=id,
-        name=entry.name or (kind == 'subzone' and id or Compat.Name(id)),
-        parent=Compat.Name(mapID), entry=entry }
+        name=entry.name or (kind == 'subzone' and id or MapCompat.Name(id)),
+        parent=MapCompat.Name(mapID), entry=entry }
 end
 
 -- Don't compete with Blizzard's POI/other add-ons' GameTooltip: own a
@@ -129,11 +129,11 @@ local function Paint(item)
     tip:Show()
 end
 
-function M.Update()
+function MapHover.Update()
     if not Enabled() then Hide(); return end
-    local x, y = Click.Position(WorldMapButton)
+    local x, y = SubzoneClick.Position(WorldMapButton)
     if not x then Hide(); return end
-    local item = M.Resolve(x, y)
+    local item = MapHover.Resolve(x, y)
     if not item then Hide(); return end
     local signature = tostring(item.mapID) .. ':' .. item.kind .. ':' .. tostring(item.id)
     if signature ~= state.signature or not state.tooltip or
@@ -143,15 +143,15 @@ function M.Update()
     end
 end
 
-function M.Setup()
+function MapHover.Setup()
     if state.driver then return true end
-    if not (WorldMapFrame and WorldMapButton and Compat and Click) then return false end
+    if not (WorldMapFrame and WorldMapButton and MapCompat and SubzoneClick) then return false end
     local driver = CreateFrame('Frame', nil, WorldMapFrame)
     driver:SetScript('OnUpdate', function(self, elapsed)
         state.elapsed = state.elapsed + (elapsed or arg1 or 0)
         if state.elapsed < TICK then return end
         state.elapsed = 0
-        M.Update()
+        MapHover.Update()
     end)
     state.driver = driver
     -- Hook, never replace, the client's map frame handlers.
@@ -171,5 +171,5 @@ setup:SetScript('OnUpdate', function(self, dt)
     elapsed = elapsed + (dt or arg1 or 0)
     if elapsed < 1 then return end
     elapsed = 0
-    M.Setup()
+    MapHover.Setup()
 end)

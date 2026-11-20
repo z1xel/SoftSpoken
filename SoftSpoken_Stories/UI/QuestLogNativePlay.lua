@@ -6,7 +6,7 @@ setfenv(1, VoiceOver)
 
 local originalMakePlayButton = QuestOverlayUI.MakePlayButton
 local originalSetPlayButtonState = QuestOverlayUI.SetPlayButtonState
-local ROOT = format([[Interface\AddOns\%s\Textures\]], AddonFolder)
+local ROOT = [[Interface\AddOns\SoftSpoken\Textures\]]
 local PLAY = ROOT .. "QuestLogPlayButtonNative"
 local PLAY_DOWN = ROOT .. "QuestLogPlayButtonNativeDown"
 local STOP = ROOT .. "QuestLogStopButtonNative"
@@ -38,7 +38,7 @@ function QuestOverlayUI:SetPlayButtonState(button)
     if not button or not button.softSpokenNativeRowPlay or button.setPlayState then
         return originalSetPlayButtonState(self, button)
     end
-    local playing = button.soundData and Player:Contains(button.soundData) or false
+    local playing = button.soundData and StoriesNarrator:Contains(button.soundData) or false
     button:SetNormalTexture(playing and STOP or PLAY)
     button:SetPushedTexture(playing and STOP_DOWN or PLAY_DOWN)
 end

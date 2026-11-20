@@ -1,6 +1,6 @@
 setfenv(1, VoiceOver)
 
-local TEXTURES = format([[Interface\AddOns\%s\Textures\]], AddonFolder)
+local TEXTURES = [[Interface\AddOns\SoftSpoken\Textures\]]
 
 ---@class QuestPlayButton : Button
 ---@field soundData SoundData
@@ -8,8 +8,6 @@ local TEXTURES = format([[Interface\AddOns\%s\Textures\]], AddonFolder)
 QuestOverlayUI = {
     ---@type table<number, QuestPlayButton>
     questPlayButtons = {},
-    ---@type table<number, Button>
-    questContributeButtons = {},
     ---@type QuestPlayButton[]
     displayedButtons = {},
 }
@@ -44,53 +42,23 @@ function QuestOverlayUI:CreatePlayButton(questID)
     self.questPlayButtons[questID] = self:MakePlayButton()
 end
 
---- Contribute.lua, or nil where it is not loaded: the legacy clients leave it out
---- (Contribute.xml), and this file runs on them too. rawget, so a global of the same name from
---- some other addon is never mistaken for it.
-local function ContributeModule()
-    return rawget(VoiceOver, "Contribute")
-end
-
---- The Contribute button for a quest the log has no sound for, sitting where its Play would,
---- or nil when this client cannot offer one (no Contribute.lua, buttons hidden, or no sound
---- pack at all -- see Contribute:CanOfferFromLog). The client's own plus icon, the same size as
---- Play: the row has room for an icon and not for a word, and the tooltip says what it does.
----@return Button?
-function QuestOverlayUI:ContributeButtonFor(questID, title)
-    local contribute = ContributeModule()
-    if not (contribute and contribute.CanOfferFromLog and contribute:CanOfferFromLog()) then
-        return nil
+-- The vanilla log and SoftSpoken only prepend whitespace. A non-space prefix (or
+-- a substituted title) belongs to another UI modifier; never rewrite it.
+local function HasExternalTitleText(displayed, questTitle)
+    if type(displayed) ~= "string" or type(questTitle) ~= "string" or questTitle == "" then
+        return true
     end
-    local button = self.questContributeButtons[questID]
-    if not button then
-        button = Utils:CreateDetachedFrame("Button", nil, self:GetPlayButtonParent())
-        button:SetWidth(20)
-        button:SetHeight(20)
-        button:SetHitRectInsets(2, 2, 2, 2)
-        button:SetNormalTexture("Interface\\Buttons\\UI-PlusButton-Up")
-        button:SetPushedTexture("Interface\\Buttons\\UI-PlusButton-Down")
-        button:SetHighlightTexture("Interface\\Buttons\\UI-PlusButton-Hilight")
-        button:SetScript("OnEnter", function(self)
-            contribute:ShowTooltip(self)
-        end)
-        button:SetScript("OnLeave", function()
-            if GameTooltip then
-                GameTooltip:Hide()
-            end
-        end)
-        contribute:OfferLogMenu(button)
-        self.questContributeButtons[questID] = button
-    end
-    button:SetScript("OnClick", function()
-        contribute:ShowFromLog(questID, title)
-    end)
-    return button
+    local at = string.find(displayed, questTitle, 1, true)
+    if not at then return true end
+    return string.find(string.sub(displayed, 1, at - 1), "%S") ~= nil
 end
 
 local prefix
-function QuestOverlayUI:UpdateQuestTitle(questLogTitleFrame, playButton, normalText, questCheck)
-    if not prefix then
-        local text = normalText:GetText()
+function QuestOverlayUI:UpdateQuestTitle(questLogTitleFrame, playButton, normalText, questCheck, questTitle)
+    local displayed = normalText:GetText() or ""
+    local external = HasExternalTitleText(displayed, questTitle)
+
+    if not external and not prefix then
         for i = 1, 20 do
             normalText:SetText(string.rep(" ", i))
             if normalText:GetStringWidth() >= 24 then
@@ -99,24 +67,71 @@ function QuestOverlayUI:UpdateQuestTitle(questLogTitleFrame, playButton, normalT
             end
         end
         prefix = prefix or "  "
-        normalText:SetText(text)
+        normalText:SetText(displayed)
     end
 
-    playButton:SetPoint("LEFT", normalText, "LEFT", 4, 0)
+    playButton:ClearAllPoints()
+    playButton:SetPoint("LEFT", normalText, "LEFT", external and -16 or 4, 0)
 
-    local formatedText = prefix .. string.trim(normalText:GetText() or "")
-
-    normalText:SetText(formatedText)
-    QuestLogDummyText:SetText(formatedText)
+    if not external then
+        -- Idempotent: our old spaces never accumulate on subsequent redraws.
+        local formatted = prefix .. string.trim(displayed)
+        if displayed ~= formatted then
+            normalText:SetText(formatted)
+        end
+        QuestLogDummyText:SetText(formatted)
+    end
 
     questCheck:SetPoint("LEFT", normalText, "LEFT", normalText:GetStringWidth(), 0)
+end
+
+-- A one-frame follow-up is deliberately layout-only. Questie-Octo can rewrite
+-- titles on its own scheduler after QuestLog_Update; repeating Update() here
+-- would also rebuild audio bindings and overwrite its title again.
+function QuestOverlayUI:RecheckVisibleRowLayouts()
+    if not (QuestLogFrame and QuestLogFrame:IsShown() and StoriesAddon:IsPartOn()) then return end
+    local numEntries = GetNumQuestLogEntries()
+    for i = 1, QUESTS_DISPLAYED do
+        local questIndex = i + Utils:GetQuestLogScrollOffset()
+        if questIndex > numEntries then break end
+        local title, _, _, isHeader, _, _, _, questID = GetQuestLogTitle(questIndex)
+        if not isHeader then
+            local button = self.questPlayButtons[questID]
+            if button and button:IsShown() then
+                local row = Utils:GetQuestLogTitleFrame(i)
+                if row then
+                    -- Disabled Play buttons are parented differently from
+                    -- audio-backed ones, but still mark this same quest row.
+                    self:UpdateQuestTitle(row, button,
+                        Utils:GetQuestLogTitleNormalText(i), Utils:GetQuestLogTitleCheck(i), title)
+                end
+            end
+        end
+    end
+end
+
+local layoutRecheckPending
+function QuestOverlayUI:ScheduleLayoutRecheck()
+    if layoutRecheckPending then return end
+    -- Prefer ClassicAPI's RunNextFrame when available; if no supported
+    -- one-shot scheduler exists on this 1.12 client, keep the immediate hook.
+    local schedule = RunNextFrame
+    if type(schedule) ~= "function" and C_Timer and type(C_Timer.After) == "function" then
+        schedule = function(callback) C_Timer.After(0, callback) end
+    end
+    if type(schedule) ~= "function" then return end
+    layoutRecheckPending = true
+    schedule(function()
+        layoutRecheckPending = nil
+        QuestOverlayUI:RecheckVisibleRowLayouts()
+    end)
 end
 
 --- Play or stop, read off the button's own sound data rather than the quest log's table:
 --- the details view has a button that belongs to no quest in particular. A button drawn its
 --- own way (the details view's round one) carries its own `setPlayState`.
 function QuestOverlayUI:SetPlayButtonState(playButton)
-    local isPlaying = playButton.soundData and Player:Contains(playButton.soundData) or false
+    local isPlaying = playButton.soundData and StoriesNarrator:Contains(playButton.soundData) or false
     if playButton.setPlayState then
         playButton.setPlayState(playButton, isPlaying)
         return
@@ -143,18 +158,27 @@ local primed = {}
 
 local function PrimeGiver(questID)
     if primed[questID] or not (Spoken and Spoken.PrimePortrait) then return end
-    local type, id = DataModules:GetQuestLogQuestGiverTypeAndID(questID)
-    if not type then return end
-    primed[questID] = true
-    if Enums.GUID:IsCreature(type) then
-        -- ClassicAPI can request even an NPC never encountered in-game.
-        -- Preload when this quest-log button is bound, before the user clicks it.
-        if C_CreatureInfo and C_CreatureInfo.RequestLoadCreatureByID and id and
-           rawget(_G, "SoftSpokenClassicPortraits") ~= false then
-            pcall(C_CreatureInfo.RequestLoadCreatureByID, id)
-        end
-        Spoken:PrimePortrait(id)
+    local kind, id = DataModules:GetQuestLogQuestGiverTypeAndID(questID)
+    if not kind then return end
+    if not Enums.GUID:IsCreature(kind) then
+        primed[questID] = true -- An object/item never needs a creature query.
+        return
     end
+    id = tonumber(id)
+    if not id or id <= 0 or math.floor(id) ~= id then return end
+    -- Unsupported clients use the existing model/name fallback and do not
+    -- fetch creature data. A rejected native query remains retryable when the
+    -- quest-log row is rebound; a successful/cached request is shared in Core.
+    if rawget(_G, "SoftSpokenClassicPortraits") == false or
+       not (C_CreatureInfo and type(C_CreatureInfo.GetCreatureInfoByID) == "function" and
+            type(C_CreatureInfo.RequestLoadCreatureByID) == "function") or
+       type(Spoken.RequestCreatureAppearance) ~= "function" then
+        primed[questID] = true
+    else
+        local ok, accepted = pcall(Spoken.RequestCreatureAppearance, Spoken, id)
+        if ok and accepted then primed[questID] = true end
+    end
+    Spoken:PrimePortrait(id)
 end
 
 --- What a play button does when it is clicked, for whichever quest it currently stands for.
@@ -179,10 +203,10 @@ function QuestOverlayUI:BindPlayButton(playButton, questID, soundTitle, origin)
         end
 
         local soundData = self.soundData
-        local isPlaying = Player:Contains(soundData)
+        local isPlaying = StoriesNarrator:Contains(soundData)
 
         if not isPlaying then
-            Player:PlayNow(soundData)
+            StoriesNarrator:PlayNow(soundData)
             QuestOverlayUI:SetPlayButtonState(self)
 
             soundData.stopCallback = function()
@@ -191,7 +215,7 @@ function QuestOverlayUI:BindPlayButton(playButton, questID, soundTitle, origin)
                 QuestOverlayUI:SetPlayButtonState(self)
             end
         else
-            Player:Remove(soundData)
+            StoriesNarrator:Remove(soundData)
         end
     end)
     if playButton.setPlayState then self:AddStopReplay(playButton, questID) end
@@ -201,7 +225,7 @@ end
 --- Found again each time, since a rebind or a reopened panel starts afresh.
 function QuestOverlayUI:QueuedLine(questID)
     if not questID then return nil end
-    for _, clip in ipairs(Player:Queued()) do
+    for _, clip in ipairs(StoriesNarrator:Queued()) do
         if clip.questID == questID and clip.event == Enums.SoundEvent.QuestAccept then return clip end
     end
 end
@@ -262,10 +286,10 @@ function QuestOverlayUI:AddStopReplay(playButton, questID)
         if state == "stop" or state == "replay" then
             SpokenLayout.Sound("U_CHAT_SCROLL_BUTTON")
             Spoken:TogglePause()
-        elseif clip and Spoken:IsPaused() and Player.source then
+        elseif clip and Spoken:IsPaused() and StoriesNarrator.source then
             -- Waiting behind a stopped line: Play on it plays it, and takes the queue out of its stop.
             SpokenLayout.Sound("U_CHAT_SCROLL_BUTTON")
-            Player.source:PlayNow(clip)
+            StoriesNarrator.source:PlayNow(clip)
         elseif not clip and bound then
             -- The bound handler queues the line it holds, so it starts from a fresh one.
             button.soundData = nil
@@ -283,7 +307,7 @@ function QuestOverlayUI:UpdatePlayButton(soundTitle, questID, questLogTitleFrame
     playButton:SetParent(questLogTitleFrame:GetParent())
     playButton:SetFrameLevel(questLogTitleFrame:GetFrameLevel() + 2)
 
-    QuestOverlayUI:UpdateQuestTitle(questLogTitleFrame, playButton, normalText, questCheck)
+    QuestOverlayUI:UpdateQuestTitle(questLogTitleFrame, playButton, normalText, questCheck, soundTitle)
     self:BindPlayButton(playButton, questID, soundTitle)
 end
 
@@ -299,7 +323,7 @@ function QuestOverlayUI:Update()
         button:Hide()
     end
     -- Switched off, the part puts nothing on the log.
-    if not Addon:IsPartOn() then
+    if not StoriesAddon:IsPartOn() then
         table.wipe(self.displayedButtons)
         return
     end
@@ -331,32 +355,21 @@ function QuestOverlayUI:Update()
             end
 
             local playButton = self.questPlayButtons[questID]
-            local shown = playButton
             if DataModules:PrepareSound({ event = Enums.SoundEvent.QuestAccept, questID = questID }) then
                 self:UpdatePlayButton(title, questID, questLogTitleFrame, normalText, questCheck)
                 playButton:Enable()
             else
-                -- No sound: Contribute where Play would be, or Play greyed out where this
-                -- client cannot contribute.
-                local contribute = self:ContributeButtonFor(questID, title)
-                if contribute then
-                    playButton:Hide()
-                    contribute:SetParent(questLogTitleFrame:GetParent())
-                    contribute:SetFrameLevel(questLogTitleFrame:GetFrameLevel() + 2)
-                    shown = contribute
-                else
-                    playButton:Disable()
-                end
-                self:UpdateQuestTitle(questLogTitleFrame, shown, normalText, questCheck)
+                -- Unrecorded quests keep their disabled Play button in the
+                -- same row so the quest-log layout remains unchanged.
+                playButton:Disable()
+                self:UpdateQuestTitle(questLogTitleFrame, playButton, normalText, questCheck, title)
             end
 
-            shown:Show()
-            if shown == playButton then
-                self:UpdatePlayButtonTexture(questID)
-            end
+            playButton:Show()
+            self:UpdatePlayButtonTexture(questID)
 
             -- Add the button to displayedButtons
-            table.insert(self.displayedButtons, shown)
+            table.insert(self.displayedButtons, playButton)
         end
     end
 end

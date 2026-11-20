@@ -1,10 +1,11 @@
--- Spoken Books for Turtle WoW 1.12 (Lua 5.0).
--- Independent module: does not modify Spoken or SoftSpoken_Places.
--- Book recognition/playlist adapted from rusty-key/spoken-wow (MIT).
-SSB = SSB or {}
-local B = SSB
-B.version = "v0.8.1-beta"
-B.name = "SoftSpoken_Writings"
+-- SoftSpoken Writings for Turtle WoW 1.12 (Lua 5.0).
+-- Separate feature module that registers with required SoftSpoken Core;
+-- does not modify Core or Places. Book recognition/playlist code was
+-- adapted from rusty-key/spoken-wow (MIT).
+SpokenWritings = SpokenWritings or {}
+local Writings = SpokenWritings
+Writings.version = "v0.9.0-beta"
+Writings.name = "SoftSpoken_Writings"
 local defaults = {
     autoplay=true, readWholeBook=true, bookAsOneLine=true, readOnce=false,
     stopOnClose=false, closeWhenRead=false,
@@ -12,12 +13,12 @@ local defaults = {
     compendiumFoundOnly=true, compendiumVoicedOnly=false,
     compendiumByZone=true, unlockUnfound=false
 }
-function B:Print(message)
+function Writings:Print(message)
     if DEFAULT_CHAT_FRAME and DEFAULT_CHAT_FRAME.AddMessage then
         DEFAULT_CHAT_FRAME:AddMessage("|cff80c0ffSoftSpoken Writings 1.12|r: "..tostring(message))
     end
 end
-function B:InitDB()
+function Writings:InitDB()
     SSBSettings = SSBSettings or {}
     for k,v in pairs(defaults) do
         if SSBSettings[k]==nil then SSBSettings[k]=v end
@@ -33,58 +34,58 @@ function B:InitDB()
     return SSBSettings
 end
 -- Upstream reset semantics: settings only. Character discovery/read history survives.
-function B:ResetOptions()
+function Writings:ResetOptions()
     if not SSBSettings then self:InitDB() end
     for key,value in pairs(defaults) do SSBSettings[key]=value end
     if self.RefreshReadables then self:RefreshReadables() end
     if self.RefreshPlayButton then self:RefreshPlayButton() end
     if self.RefreshOptions then self:RefreshOptions() end
 end
-function B:Get(k)
+function Writings:Get(k)
     if k=="fontSize" then
         return SSBSettings and SSBSettings.fontSize or 12
     end
     return SSBSettings and SSBSettings[k]
 end
-function B:Data() return SSBData end
-function B:MarkBookFound(id)
+function Writings:Data() return SSBData end
+function Writings:MarkBookFound(id)
     if not id then return end
     if not SSBCharacter then self:InitDB() end
     SSBCharacter.found[id]=true
 end
-function B:IsBookFound(id)
+function Writings:IsBookFound(id)
     return id and SSBCharacter and SSBCharacter.found[id]==true or false
 end
-function B:MarkBookRead(id)
+function Writings:MarkBookRead(id)
     if not id then return end
     if not SSBCharacter then self:InitDB() end
     SSBCharacter.read[id]=true
 end
-function B:HasReadBook(id)
+function Writings:HasReadBook(id)
     return id and SSBCharacter and SSBCharacter.read[id]==true or false
 end
-function B:ForgetRead()
+function Writings:ForgetRead()
     local count=0
     if not SSBCharacter then return count end
     for _ in pairs(SSBCharacter.read) do count=count+1 end
     SSBCharacter.read={}
     return count
 end
-function B:PlayerAvailable()
+function Writings:PlayerAvailable()
     return Spoken and Spoken.IsCompatible and Spoken:IsCompatible(1) or false
 end
-function B:IsPartOn()
+function Writings:IsPartOn()
     return not (Spoken and Spoken.IsPartOn) or Spoken:IsPartOn("books")
 end
-function B:SetupSource()
+function Writings:SetupSource()
     if self.source then return self.source end
     if not self:PlayerAvailable() then return nil end
     self.source=Spoken:RegisterSource("books", {
         title="SoftSpoken Writings", addon="SoftSpoken_Writings", order=3,
-        interClipGap=0.35, testBeforeQueue=true,
+        interClipGap=0.35,
         packs=function()
             local names={}
-            for _,p in ipairs(B:GetAudioPacks()) do
+            for _,p in ipairs(Writings:GetAudioPacks()) do
                 table.insert(names,p.title or p.addon)
             end
             return names
@@ -95,11 +96,11 @@ function B:SetupSource()
     end
     if Spoken.RegisterCallback then
         Spoken:RegisterCallback("PART_SWITCHED",function(key)
-            if key=="books" and B.RefreshPlayButton then B:RefreshPlayButton() end
+            if key=="books" and Writings.RefreshPlayButton then Writings:RefreshPlayButton() end
         end)
         Spoken:RegisterCallback("AUDIO_CHANGED",function()
-            if B.RefreshPlayButton then B:RefreshPlayButton() end
-            if B.RefreshReadablesPlayback then B:RefreshReadablesPlayback() end
+            if Writings.RefreshPlayButton then Writings:RefreshPlayButton() end
+            if Writings.RefreshReadablesPlayback then Writings:RefreshReadablesPlayback() end
         end)
     end
     return self.source

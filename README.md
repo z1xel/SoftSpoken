@@ -1,4 +1,4 @@
-# SoftSpoken v0.8.1 βeta
+# SoftSpoken v0.9.0-beta
 *Voiced dialogue, lore, and text for World of Warcraft Vanilla.*
 
 <p align="center">
@@ -19,7 +19,7 @@ Whether you're already familiar with the projects SoftSpoken builds upon, or are
 
 SoftSpoken consists of a central module, simply titled **SoftSpoken**, which provides the narration player and shared audio system that the specialized modules rely on for playback. It also hosts the underlying framework of the **Compendium**, a unified interface for browsing the game's narrated content.
 
-<img width="1530" height="1019" alt="image (33)" src="https://github.com/user-attachments/assets/cb94d9d0-86ca-46e8-a659-24f9956b88f7" />
+<img src="docs/images/screenshots/player.webp" alt="SoftSpoken narration player displaying voiced dialogue in the game world" />
 
 There are currently three specialized modules, with at least one more planned:
 
@@ -31,7 +31,7 @@ There are currently three specialized modules, with at least one more planned:
 
 ### The Compendium
 
-<img width="2254" height="1501" alt="image (32)" src="https://github.com/user-attachments/assets/93b80205-386d-4cab-b6d0-36a652f72bc5" />
+<img src="docs/images/screenshots/compendium.webp" alt="Azeroth's Compendium showing its catalog of discovered narrated lore" />
 
 Each module has a dedicated tab within the Compendium, containing a catalogue of its respective entries.
 
@@ -49,9 +49,9 @@ However, this behavior is entirely optional. Players who prefer to explore the l
 
 SoftSpoken Stories provides narration for quests and NPC gossip throughout the game. Narration can play automatically as you interact with NPCs, with configurable behavior for greetings, conversations, and quest dialogue.
 
-Within the Compendium, Stories maintains a record of the quests you've encountered, organizing them by location and quest chain. Each entry provides access to its associated dialogue and available recordings, allowing you to revisit earlier encounters without returning to the original NPC.
+Within the Compendium, Stories maintains a record of the quests you've encountered, organizing them by location and quest chain. Quests completed before installing SoftSpoken are also recognized, allowing your past adventures to be reflected in the Compendium. Entries contain the associated dialogue and available recordings, accompanied by portraits of the characters involved.
 
-<img width="2254" height="1501" alt="image (34)" src="https://github.com/user-attachments/assets/a4ae5547-77cc-4d2b-b624-b1cfc71ccd19" />
+<img src="docs/images/screenshots/stories.webp" alt="Stories module showing quest dialogue within Azeroth's Compendium" />
 
 ## Places
 
@@ -59,7 +59,15 @@ SoftSpoken Places brings narrated lore to the world's zones and subzones, provid
 
 Places also integrates directly with the in-game World Map, providing access to its lore without having to leave the map interface.
 
-<img width="2254" height="1501" alt="image (35)" src="https://github.com/user-attachments/assets/97f0a168-ad10-4e7d-a03e-90471923720a" />
+<img src="docs/images/screenshots/places.webp" alt="Places module displaying narrated lore for a discovered location" />
+
+The World Map can also display lore for a selected location:
+
+<img src="docs/images/screenshots/map.webp" alt="World Map displaying the narrated Starbreeze Village zone lore panel" />
+
+Discovering new areas can trigger a narration notification in the game world:
+
+<img src="docs/images/screenshots/discovery.webp" alt="Discovery notification displaying narrated lore for Deathknell" />
 
 ## Writings
 
@@ -67,7 +75,7 @@ SoftSpoken Writings provides narration for supported books, letters, scrolls, no
 
 When reading an object in the world, narration follows the page currently being viewed. When revisiting it through the Compendium, playback can continue through the entire work.
 
-<img width="1925" height="1282" alt="image (36)" src="https://github.com/user-attachments/assets/046b846c-5394-4592-b4b1-949d730a74a2" />
+<img src="docs/images/screenshots/writings.webp" alt="Writings module narrating an in-game book as it is read" />
 
 ## Requirements
 
@@ -79,9 +87,9 @@ SoftSpoken is designed for World of Warcraft 1.12 clients, primarily OctoWoW and
 
 SoftSpoken needs **ClassicAPI** to be loaded by the game client, not simply present as an addon in `Interface\\AddOns`.
 
-The OctoWoW launcher includes ClassicAPI under the **Mods** tab, but its bundled version may be older than the latest [official release](https://github.com/brues-code/ClassicAPI/releases/latest). Some users have experienced crashes with older ClassicAPI versions. Upgrading from the launcher-provided v1.15.16 to v1.20.4 resolved the crashes.
+The OctoWoW launcher includes ClassicAPI under the **Mods** tab, but its bundled version may be outdated. Older versions can cause crashes or compatibility issues.
 
-**I recommend updating ClassicAPI when possible**, especially if you experience crashes or other compatibility issues.
+**For the most up-to-date version, use the [latest official ClassicAPI release](https://github.com/brues-code/ClassicAPI/releases/latest)**, especially if you experience issues with the launcher-provided version.
 
 #### Updating ClassicAPI in OctoWoW
 
@@ -101,8 +109,10 @@ You can find the source code and releases in the [ClassicAPI repository](https:/
 
 ## Installation
 
+**Version status:** This `dev` branch is prepared as **v0.9.0-beta**; that build has not been published yet. The downloadable release below is the previous **v0.8.1-beta**. Do not mix modules from different versions.
+
 1. **Enable ClassicAPI**, preferably the [latest version](https://github.com/brues-code/ClassicAPI/releases/latest), before starting the game. OctoWoW users can follow the [update instructions above](#updating-classicapi-in-octowow).
-2. Download **[SoftSpoken-v0.8.1-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.8.1-beta/SoftSpoken-v0.8.1-beta.zip)** and extract it.
+2. For the latest **published** build, download **[SoftSpoken-v0.8.1-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.8.1-beta/SoftSpoken-v0.8.1-beta.zip)** and extract it. The upcoming **v0.9.0-beta** is available as development source on `dev` until its release ZIP is published.
 3. Find the following four addon folders in the extracted contents and copy them into your World of Warcraft 1.12 `Interface\AddOns` directory:
 
    ```text
@@ -215,11 +225,13 @@ An update will not necessarily fix every Error #132. If the game still crashes, 
 
 ### The Interface Works, but No Audio Plays
 
-Verify that the appropriate voice packs are installed and enabled. SoftSpoken's interface and narration system are separate from the audio files themselves.
+Verify that the appropriate voice packs are installed in their own folders directly under `Interface\AddOns`. SoftSpoken's interface and narration system are separate from the audio files themselves. Keep **Load out of date AddOns** enabled at character selection.
 
-Open `/softspoken` and check the **Voice Packs** section of each module to confirm that its recordings are detected.
+Open `/softspoken` and check each module's **Voice Packs** section. For **Stories**, confirm that the desired packs are enabled **within SoftSpoken** and check their **Loaded** status or any reported load errors. Stories manages loading compatible selected packs; disabling an already-loaded Stories pack requires a UI reload.
 
-Refer to the [Voice Packs](#voice-packs) section for installation instructions and compatible downloads.
+For **Places** and **Writings**, check that the corresponding voice-pack addons are enabled at character selection. If a pack does not appear in Settings at all, double-check its folder layout and installation instructions in [Voice Packs](#voice-packs).
+
+If Stories still fails to play recordings, open its diagnostics and include the affected pack names and load errors when [reporting an issue](https://github.com/z1xel/SoftSpoken/issues).
 
 ### Voice Packs Not Loading With pfUI
 

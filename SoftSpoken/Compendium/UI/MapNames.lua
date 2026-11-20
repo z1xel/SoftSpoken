@@ -1,6 +1,7 @@
--- Basic vanilla Azeroth map names. Available even without the Zones module.
-local C=SSCCompendium
-local N={
+-- Compendium UiMapID labels. Available even without the Zones module.
+-- Includes names for imported map IDs missing from the 1.12 client.
+local Compendium=SpokenCompendium
+local MapNames={
     [947]="Azeroth",
     [1411]="Durotar",
     [1412]="Mulgore",
@@ -50,7 +51,11 @@ local N={
     [1456]="Thunder Bluff",
     [1457]="Darnassus",
     [1458]="Undercity",
+    -- Native Vanilla battleground UiMapIDs omitted by the 1.12 map-name table.
+    [1459]="Alterac Valley",
+    [1460]="Warsong Gulch",
+    [1461]="Arathi Basin",
 }
-function C.MapName(mapID)
-    return N[mapID] or tostring(mapID)
+function Compendium.MapName(mapID)
+    return MapNames[mapID] or tostring(mapID)
 end

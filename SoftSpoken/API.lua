@@ -96,14 +96,29 @@ function Spoken:GetPortraitRenderer(kind)
     return Renderers[kind]
 end
 
+-- Shared creature appearance lookup and request coordination for feature addons.
+-- Listeners are invoked on a later UI frame, not inside native cache callbacks.
+function Spoken:GetCreatureDisplayID(creatureID)
+    return CreatureAppearance:GetDisplayID(creatureID)
+end
+function Spoken:RequestCreatureAppearance(creatureID)
+    return CreatureAppearance:Request(creatureID)
+end
+function Spoken:SubscribeCreatureAppearance(callback)
+    return CreatureAppearance:Subscribe(callback)
+end
+function Spoken:UnsubscribeCreatureAppearance(callback)
+    return CreatureAppearance:Unsubscribe(callback)
+end
+
 --- Kept for source compatibility; the classic window uses its 3D model directly.
 function Spoken:PrimePortrait(creatureID)
 end
 
---- How lines are shown: "subtitle", "none", "minimal", "classic" or "dialogueui".
+--- The supported 1.12 narrator styles are "classic" and "none".
 --- Additive: guard on the field.
 function Spoken:GetPlayerStyle()
-    return Addon:PlayerStyle()
+    return CoreController:PlayerStyle()
 end
 
 --------------------------------------------------------------------------------
@@ -121,7 +136,7 @@ end
 --- Whether the player turned every Contribute button off in the Spoken settings.
 --- A feature addon asks this in its gap check, and re-asks on CONTRIBUTE_SETTINGS_CHANGED.
 function Spoken:AreContributeButtonsHidden()
-    return Addon.db and Addon.db.profile.Contribute.HideButtons and true or false
+    return CoreController.db and CoreController.db.profile.Contribute.HideButtons and true or false
 end
 
 --------------------------------------------------------------------------------
@@ -130,19 +145,14 @@ end
 
 --- The classic player window, for addons that need an anchor.
 function Spoken:GetPlayerFrame()
-    return PlayerFrame.frame
+    return NarratorWindow.frame
 end
 
---- Show the player over another frame, or back where it was with nil. For a host that hides
---- UIParent, as DialogueUI does: the windows and subtitles keep their place on screen and stay
---- draggable, and the subtitles pass clicks through to the host. Additive: guard on the field.
+--- Show the player over another frame, or restore UIParent hosting with nil.
+--- Preserve the hosted frame's effective scale, anchor and drag behavior. Additive:
+--- callers should guard on this generic host API.
 function Spoken:SetPlayerHost(frame)
-    Addon:SetPlayerHost(frame)
-end
-
---- Legacy compatibility: DialogueUI is not available on Turtle WoW 1.12.
---- Keep this public method so other Spoken modules may call it safely.
-function Spoken:AddDialogueUISettings(build)
+    CoreController:SetPlayerHost(frame)
 end
 
 --- The Settings category, so a feature addon can nest its panel under it with
@@ -158,7 +168,7 @@ end
 --- Re-read the speaking clip's presentation -- after a setting changed an action's
 --- label, say. Cheap; the frame rebuilds from the queue every time anyway.
 function Spoken:RefreshPlayer()
-    PlayerFrame:Update()
+    NarratorWindow:Update()
 end
 
 --- A feature addon's settings page, shown under Spoken's own in the game's settings as `name`,
@@ -321,7 +331,7 @@ end
 --- or a language code, and a language code or "none". Either is nil while the player has not
 --- chosen it here, and the module then keeps its own.
 function Spoken:GetLanguageChoice()
-    local language = Addon.db and Addon.db.profile.Language
+    local language = CoreController.db and CoreController.db.profile.Language
     if not language then return nil, nil end
     return language.Voice, language.Fallback
 end
@@ -329,7 +339,7 @@ end
 -- The core owns both the preference and the change notification. Feature
 -- modules still supply their legacy defaults when a field is unset here.
 function Spoken:SetLanguageChoice(which, value)
-    if not Addon.db or not self.Language then return false end
+    if not CoreController.db or not self.Language then return false end
     local key
     if which == "voice" then
         if value ~= "auto" and not self.Language:IsSupported(value) then return false end
@@ -340,7 +350,7 @@ function Spoken:SetLanguageChoice(which, value)
     else
         return false
     end
-    local language = Addon.db.profile.Language
+    local language = CoreController.db.profile.Language
     if language[key] == value then return true end
     language[key] = value
     Callbacks:Fire("VOICE_LANGUAGE_CHANGED")
@@ -452,7 +462,7 @@ end
 --- Open/close the shared Compendium when it has a usable tab, from either
 --- the minimap, keybinding, or /compendium. One action means consistent gating.
 function Spoken:ToggleCompendium()
-    local compendium = _G.SSCCompendium or _G.SpokenZones112Compendium or _G.SpokenCompendium
+    local compendium = _G.SpokenCompendium
     if not (compendium and compendium.Toggle) then return false end
     if compendium.Available and not compendium:Available() then return false end
     compendium:Toggle()
@@ -541,21 +551,17 @@ function Spoken:StopAll()
     SoundQueue:RemoveAllSoundsFromQueue()
 end
 
---- A gate that applies to every source: fn(clip) -> reason | nil.
---- Switch a channel off on a source's behalf, e.g. Dialog while a quest line speaks.
---- Unlike a channel the user disabled, clips on it are still admitted, and the mute is
---- lifted before one plays.
+--- Retained upstream API for third-party callers. Vanilla has no separate
+--- NPC Dialog bus, so this intentionally does not mute unrelated game effects.
 function Spoken:MuteChannel(channel, muted)
     SoundUtils:MuteChannel(channel, muted)
 end
 
---- The source is about to queue a line: silence the game's NPC dialogue now rather than
---- when the line starts, so an NPC's greeting is never heard instead of being cut short.
---- Honours the player's "mute game dialogue" setting, and lifts itself if nothing comes.
+--- Upstream compatibility entry point, intentionally inert on Vanilla 1.12.
 function Spoken:MuteGameDialogueAhead(source)
-    SoundQueue:MuteGameDialogueAhead(source:GetChannel())
 end
 
+--- A gate applying to all registered sources: fn(clip) -> reason | nil.
 function Spoken:AddGate(fn)
     SoundQueue:AddGate(fn)
 end
@@ -567,11 +573,11 @@ end
 -- profile setting; further characters and reloaded modules cannot override it.
 -- A previously saved shared setting takes precedence over the imported value.
 function Spoken:ImportLegacyCaptionPreference(value)
-    if not Addon.db then return false end
-    local global = Addon.db.global
+    if not CoreController.db then return false end
+    local global = CoreController.db.global
     if global.LegacyCaptionPreferenceImported then return true end
     global.LegacyCaptionPreferenceImported = true
-    local profile = Addon.db.profile.Transcript
+    local profile = CoreController.db.profile.Transcript
     if type(value) == "boolean" and rawget(profile, "Enabled") == nil then
         -- True is already the shared default. Write only the non-default false.
         if not value then profile.Enabled = false end

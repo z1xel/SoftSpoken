@@ -20,9 +20,9 @@ local ACTION_HEIGHT = 18
 local ICON_SIZE = 24
 local named = 0
 
---- Whether an action's icon can be drawn. The art these use lives in folders that postdate
---- the three legacy clients, where the texture is simply missing and the button
---- would be a blank square; an action carrying a `text` says what to put there instead.
+--- Whether an action icon is available on the 1.12 client. Some newer
+--- interface textures are absent, so actions may supply `text` instead of
+--- showing an empty button.
 local function CanDrawIcon()
     return not Version.IsAnyLegacy
 end
@@ -56,7 +56,7 @@ local BRONZE = Version.IsCamelot and { .95, .68, .35 } or nil
 local rings = setmetatable({}, { __mode = "k" })
 
 local function TintRing(ring)
-    local frame = Addon.db and Addon.db.profile and Addon.db.profile.Frame
+    local frame = CoreController.db and CoreController.db.profile and CoreController.db.profile.Frame
     if BRONZE and frame and frame.BronzeTint then
         ring:SetVertexColor(BRONZE[1], BRONZE[2], BRONZE[3])
     else
@@ -290,7 +290,7 @@ end
 --- -- the subtitle. Nil when the clip has none, or the player hid it.
 function Actions:CornerAction(clip)
     local list = clip and clip.present and clip.present.actions or {}
-    local hidden = Addon:Profile("Frame").HiddenActions or {}
+    local hidden = CoreController:Profile("Frame").HiddenActions or {}
     for _, action in ipairs(list) do
         if action.anchor == "topright" and action.icon and not hidden[action.id]
             and (not action.visible or action.visible()) then
@@ -314,7 +314,7 @@ function Actions:Configure(frame, clip)
     -- A button an addon built keeps its own click handler, so that is not a label problem.
     local owner = clip and clip.source and clip.source.key or "?"
 
-    local hidden = Addon:Profile("Frame").HiddenActions or {}
+    local hidden = CoreController:Profile("Frame").HiddenActions or {}
     for _, action in ipairs(list) do
         if not hidden[action.id] and (not action.visible or action.visible()) then
             local id = owner .. ":" .. action.id

@@ -3,17 +3,17 @@
 -- ClassicAPI already supplies the exact tile layout and paths for Turtle 1.12.
 -- The same AreaAt and IsLocked rules as SubzoneClick decide what can light.
 SSZMapHighlight = SSZMapHighlight or {}
-local M = SSZMapHighlight
-local Compat = SSZMapCompat
-local Click = SSZSubzoneClick
-local Panel = SSZMapPanel
-local Lore = SSZLoreWindow
+local MapHighlight = SSZMapHighlight
+local MapCompat = SSZMapCompat
+local SubzoneClick = SSZSubzoneClick
+local MapPanel = SSZMapPanel
+local LoreWindow = SSZLoreWindow
 
 local HIGHLIGHT_ALPHA = 0.35 -- upstream MapHighlight.lua
 local MAP_ART_WIDTH, MAP_ART_HEIGHT = 1002, 668
 local TICK = 0.075
 local state = { tiles = {}, active = nil }
-M.state = state
+MapHighlight.state = state
 
 local function VisibleMap()
     return WorldMapFrame and WorldMapFrame.IsShown and WorldMapFrame:IsShown()
@@ -23,13 +23,13 @@ local function CanInteract()
     local cfg = SSZCharacter and SSZCharacter.settings
     if cfg and cfg.showMapPanel == false then return false end
     if not (C_Map and C_Map.GetMapOverlays and C_Map.GetAreaInfo) then return false end
-    if not (WorldMapButton and WorldMapDetailFrame and Click and Click.Position) then return false end
+    if not (WorldMapButton and WorldMapDetailFrame and SubzoneClick and SubzoneClick.Position) then return false end
     if not VisibleMap() then return false end
     return true
 end
 
 local function OverPanel()
-    local panel = Panel and Panel.GetPanel and Panel.GetPanel()
+    local panel = MapPanel and MapPanel.GetPanel and MapPanel.GetPanel()
     if not (panel and panel.IsShown and panel:IsShown()) then return false end
     if panel.IsMouseOver then return panel:IsMouseOver() end
     if MouseIsOver then return MouseIsOver(panel) end
@@ -77,7 +77,7 @@ local function KnownNestedOverlay(mapID, key, overlay)
     for id in pairs(ids) do
         local ok, name = pcall(C_Map.GetAreaInfo, id)
         if not ok or type(name) ~= 'string' then return false end
-        local area = Compat.Normalise and Compat.Normalise(name) or string.lower(name)
+        local area = MapCompat.Normalise and MapCompat.Normalise(name) or string.lower(name)
         if area ~= 'shadowglen' and area ~= 'aldrassil' then return false end
         if area == 'shadowglen' then found = true end
     end
@@ -86,22 +86,22 @@ end
 
 -- Ask the exact same primary hit resolver used by the map click, then apply
 -- the Compendium's discovery gate. A hover MUST NEVER call MarkFound.
-function M.Target(x, y)
+function MapHighlight.Target(x, y)
     if not CanInteract() or OverPanel() then return nil end
-    local mapID, _, _, zone = Compat.GetDisplayedMapID()
+    local mapID, _, _, zone = MapCompat.GetDisplayedMapID()
     if not (mapID and zone and zone > 0) then return nil end
     if type(x) ~= 'number' or type(y) ~= 'number' then return nil end
     -- The engine's exact hover name must agree with any overlay we choose
     -- to illuminate. Otherwise the rectangle can highlight a neighbor.
-    local kind, nativeKey, resolution = Compat.ResolveAt(mapID, x, y)
+    local kind, nativeKey, resolution = MapCompat.ResolveAt(mapID, x, y)
     if resolution == 'native-unmapped' or resolution == 'poi-unmapped' or
         kind == 'city' then return nil end
-    local _, entry, key, overlay = Compat.AreaAt(mapID, x, y,
+    local _, entry, key, overlay = MapCompat.AreaAt(mapID, x, y,
         kind == 'subzone' and nativeKey or nil)
     if kind == 'subzone' and nativeKey ~= key then return nil end
     if not (entry and key and overlay and
             (UniqueArea(overlay) or KnownNestedOverlay(mapID,key,overlay))) then return nil end
-    if not (Lore and Lore.IsLocked) or Lore.IsLocked(mapID, key) then return nil end
+    if not (LoreWindow and LoreWindow.IsLocked) or LoreWindow.IsLocked(mapID, key) then return nil end
     return overlay, key
 end
 
@@ -110,7 +110,7 @@ local function HideTiles()
     state.active = nil
     if state.frame then state.frame:Hide() end
 end
-M.Hide = HideTiles
+MapHighlight.Hide = HideTiles
 
 -- ClassicAPI's GetMapOverlays() supplies ready-to-draw tiles, unlike modern
 -- retail's fileDataIDs. Using them preserves the actual source image shape,
@@ -146,7 +146,7 @@ local function Light(overlay)
     state.active = overlay
     state.frame:Show()
 end
-M.Light = Light
+MapHighlight.Light = Light
 
 local function OnUpdate(self, elapsed)
     state.elapsed = (state.elapsed or 0) + (elapsed or arg1 or 0)
@@ -154,15 +154,15 @@ local function OnUpdate(self, elapsed)
     state.elapsed = 0
     if not CanInteract() then HideTiles(); return end
     -- Use the exact normalised mouse position used by SubzoneClick.lua.
-    local x, y = Click.Position(WorldMapButton)
-    local overlay = x and M.Target(x, y)
+    local x, y = SubzoneClick.Position(WorldMapButton)
+    local overlay = x and MapHighlight.Target(x, y)
     if overlay ~= state.active then
         if overlay then Light(overlay) else HideTiles() end
     end
 end
-M.Update = OnUpdate
+MapHighlight.Update = OnUpdate
 
-function M.SetupMapHighlight()
+function MapHighlight.SetupMapHighlight()
     if state.driver then return true end
     if not (WorldMapFrame and WorldMapDetailFrame and WorldMapButton) then return false end
     if not (C_Map and C_Map.GetMapOverlays) then return false end
@@ -204,5 +204,5 @@ setup:SetScript('OnUpdate', function(self, dt)
     elapsed = elapsed + (dt or arg1 or 0)
     if elapsed < 1 then return end
     elapsed = 0
-    M.SetupMapHighlight()
+    MapHighlight.SetupMapHighlight()
 end)

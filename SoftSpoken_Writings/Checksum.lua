@@ -9,7 +9,7 @@
 -- bytes rather than characters. The modulus is the largest signed 32-bit prime, so every
 -- intermediate value stays exact in the doubles Lua stores numbers as.
 
-local SpokenBooks = SSB
+local Writings = SpokenWritings
 
 local MODULUS = 2147483647
 local FACTOR = 31
@@ -22,7 +22,7 @@ local strfind = strfind or string.find
 
 ---@param text string the page as the client is showing it
 ---@return number
-function SpokenBooks:ChecksumOf(text)
+function Writings:ChecksumOf(text)
 	if type(text) ~= "string" then
 		return 0
 	end
@@ -40,7 +40,7 @@ function SpokenBooks:ChecksumOf(text)
 end
 
 --- The storage form the exporter hashes. Mirrors normaliseText in tools/lib/text.mjs.
-function SpokenBooks:Normalise(text)
+function Writings:Normalise(text)
 	text = gsub(text, "\r\n", "\n")
 	text = gsub(text, "\r", "\n")
 	text = gsub(text, "%$[Bb]", "\n")

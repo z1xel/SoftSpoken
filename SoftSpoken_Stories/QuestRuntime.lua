@@ -1,0 +1,1184 @@
+setfenv(1, VoiceOver)
+
+---@class StoriesAddon : AceAddon, AceAddon-3.0, AceEvent-3.0, AceTimer-3.0
+---@field db VoiceOverConfig|AceDBObject-3.0
+local AceAddon = LibStub("AceAddon-3.0")
+
+-- Upstream's players, oldest first: the AceAddon name each registers under, and the folder it
+-- installs into. This project's own old folders are found by Spoken (Core.lua, OLD_FOLDERS).
+local SUPERSEDED_PLAYERS = {
+    { name = "VoiceOver", folder = "AI_VoiceOver" },
+    { name = "VoiceOverContinued", folder = "AI_VoiceOver_Continued" },
+}
+
+-- The folders of the players that actually registered. Two players handle the same events and
+-- queue the same line, so each is stopped here for this session and its folder disabled for
+-- the next login further down; loading two also used to cause a duplicate AceAddon error.
+--
+-- Registering is what makes a folder a duplicate, rather than merely existing: a folder that
+-- registered nothing is an old install already switched off.
+local supersededFolders = {}
+for _, player in ipairs(SUPERSEDED_PLAYERS) do
+    local supersededAddon = AceAddon:GetAddon(player.name, true)
+    if supersededAddon then
+        if supersededAddon.Disable then
+            supersededAddon:Disable()
+        end
+        table.insert(supersededFolders, player.folder)
+    end
+end
+StoriesAddon = AceAddon:NewAddon("SpokenQuests", "AceEvent-3.0", "AceTimer-3.0")
+-- Legacy namespace for integrations that reference VoiceOver.Addon.
+-- Both names refer to the same AceAddon; "SpokenQuests" remains its registered ID.
+Addon = StoriesAddon
+
+StoriesAddon.OnAddonLoad = {}
+
+-- Store original function before EQL3 (Extended Quest Log 3) overrides it and starts prepending quest level
+local GetTitleText = GetTitleText
+
+-- The open quest's title, or "" if none is available from the 1.12
+-- client: lookup keys cannot be nil.
+local function QuestTitle()
+    return GetTitleText and NotSecret(GetTitleText()) or ""
+end
+
+local function IsFrameVisible(frame)
+    if not frame then
+        return false
+    elseif frame.IsVisible then
+        return frame:IsVisible()
+    end
+    return frame:IsShown()
+end
+
+-- Keep the last quest event when another UI replaces Blizzard's quest panels.
+-- A replacement can hide the panels without suppressing the underlying game events,
+-- so panel visibility alone cannot distinguish an offer from a turn-in.
+local lastQuestEvent
+
+-- Defined with the handlers below, and asked by functions above them.
+local ResolveQuestID, NoteGossipPage
+
+-- Each quest event's line: the sound it is keyed by, the data module's name for the
+-- interaction, and the global its text is read from.
+local QUEST_EVENTS = {
+    QUEST_DETAIL = { sound = Enums.SoundEvent.QuestAccept, questStage = "accept",
+        text = function() return GetQuestText and NotSecret(GetQuestText()) or "" end },
+    QUEST_PROGRESS = { sound = Enums.SoundEvent.QuestProgress, questStage = "progress",
+        text = function() return GetProgressText and NotSecret(GetProgressText()) or "" end },
+    QUEST_COMPLETE = { sound = Enums.SoundEvent.QuestComplete, questStage = "complete",
+        text = function() return GetRewardText and NotSecret(GetRewardText()) or "" end },
+}
+
+--- GetQuestID for the dialog `event` names. On a legacy client GetQuestID is
+--- Compatibility.lua's substitute, which resolves the quest from the text of the dialog it
+--- is told about; telling it here, just before asking, means no event order is relied on.
+local function QuestIDFor(event)
+    local quest = QUEST_EVENTS[event]
+    if quest and StoriesAddon.NoteLegacyQuestEvent then
+        StoriesAddon:NoteLegacyQuestEvent(quest.questStage, quest.text())
+    end
+    return GetQuestID and NotSecret(GetQuestID()) or 0
+end
+
+--- The quest on the open dialog `event` names, falling back on its title, NPC and text where
+--- the client has no ID for it. Also used by Followup.lua's accept and turn-in
+--- hooks on the legacy client.
+function StoriesAddon:DialogQuestID(event)
+    local quest = QUEST_EVENTS[event]
+    return ResolveQuestID(quest.questStage, QuestIDFor(event), QuestTitle(),
+        Utils:GetNPCName() or "", quest.text(), true) or 0
+end
+
+-- The 1.12 audio compatibility layer deliberately leaves GetNPCGUID nil.
+-- Capture a separate, verified live unit GUID for portraits only, without
+-- changing pack lookup, gossip deduplication or the narrator's sound identity.
+local function PortraitSpeakerGUID(name)
+    if type(name) ~= "string" or name == "" or
+       type(UnitName) ~= "function" or type(UnitGUID) ~= "function" then return nil end
+    local okName, liveName = pcall(UnitName, "npc")
+    if not okName or liveName ~= name then return nil end
+    local okGUID, guid = pcall(UnitGUID, "npc")
+    if okGUID and type(guid) == "string" and guid ~= "" then return guid end
+end
+
+-- Read the live quest stage through the Vanilla quest-ID adapter. Also preserve a
+-- verified live NPC GUID for the portrait without changing sound identity.
+local function ReadQuestFields(event)
+    local speakerName = Utils:GetNPCName()
+    return QuestIDFor(event), QuestTitle(), QUEST_EVENTS[event].text(), Utils:GetNPCGUID(),
+        speakerName, Utils:IsNPCObjectOrItem(), PortraitSpeakerGUID(speakerName)
+end
+
+local function GetVisibleQuestEvent()
+    -- Completion and progress take priority over detail. IsVisible accounts
+    -- for hidden parents; IsShown can remain true on an inactive child panel.
+    if IsFrameVisible(QuestFrameRewardPanel) then
+        return "QUEST_COMPLETE"
+    elseif IsFrameVisible(QuestFrameProgressPanel) then
+        return "QUEST_PROGRESS"
+    elseif IsFrameVisible(QuestFrameDetailPanel) then
+        return "QUEST_DETAIL"
+    elseif IsFrameVisible(QuestFrameGreetingPanel) then
+        return "QUEST_GREETING"
+    end
+
+    local questID = GetQuestID and NotSecret(GetQuestID())
+    if not questID or questID == 0 then
+        return
+    end
+
+    -- Quest-log detail views do not use the NPC QuestFrame panels, but GetQuestID is
+    -- authoritative while they are visible, and they only ever show the offer text.
+    if IsFrameVisible(QuestLogDetailFrame) or IsFrameVisible(QuestMapDetailsFrame) then
+        return "QUEST_DETAIL"
+    end
+
+    -- No panel of either kind: trust the last event instead of assuming an offer. It is
+    -- cleared by QUEST_FINISHED, so a quest ID the client keeps reporting after the dialog
+    -- closed no longer replays anything.
+    return lastQuestEvent
+end
+
+--- Every read goes through here, automatic or not. `manual` is a player asking for this
+--- line - the Play button, /spq read - rather than the client reporting a dialog, so it reads
+--- whatever autoplay and the greeting frequency say.
+function StoriesAddon:InvokeQuestHandler(event, dispatchOrigin, manual)
+    local handler = self[event]
+    if not handler then
+        Debug:Record("handler-missing", format("No handler exists for %s", tostring(event)))
+        return false
+    end
+    -- Only a read waits on autoplay: a window closing must still stop a line the Play button started.
+    if not manual and event ~= "QUEST_FINISHED" and event ~= "GOSSIP_CLOSED" and not self:IsAutoplayOn() then
+        Debug:Record("autoplay-off", format("Not reading %s: autoplay is off", event))
+        return false
+    end
+    -- Every automatic narration route, including panel/quest-log fallbacks, must arm
+    -- NPC Voice Before Reading *before* the handler enqueues its clip. Some 1.12
+    -- client UI hooks dispatch without an earlier usable sound/gossip event.
+    if not manual then
+        local ready, greetingError = pcall(self.BeginGreetingWait, self, event)
+        if not ready then
+            Debug:Record("greeting-wait-error", tostring(greetingError))
+        end
+    end
+    Debug:Record("quest-dispatch", format("Dispatching %s through %s", event, dispatchOrigin or "manual reader"))
+    -- Where the lines this queues come from, for the debug log (StoriesNarrator:Enqueue keeps it on each).
+    StoriesNarrator.origin = StoriesNarrator:Origin(event, dispatchOrigin, manual)
+    local succeeded, errorMessage = pcall(handler, self, event, manual)
+    StoriesNarrator.origin = nil
+    if not succeeded then
+        Debug:Record("handler-error", format("%s failed: %s", event, tostring(errorMessage)))
+        local errorHandler = geterrorhandler and geterrorhandler()
+        if errorHandler then
+            errorHandler(errorMessage)
+        end
+        return false
+    end
+    return true
+end
+
+--- Whether the player has a part of Spoken switched on (Spoken's settings): "quests", or
+--- "gossip" for what NPCs say. Off, none of its buttons show on the game's frames.
+function StoriesAddon:IsPartOn(part)
+    return not (Spoken and Spoken.IsPartOn) or Spoken:IsPartOn(part or "quests")
+end
+
+--- The part a window belongs to, told by the game event that opens it: greeting and gossip
+--- windows are Gossip's, every quest window Quests'.
+function StoriesAddon:PartOfPage(event)
+    return (event == "GOSSIP_SHOW" or event == "QUEST_GREETING") and "gossip" or "quests"
+end
+
+--- Whether the part the window `event` opens belongs to is switched on.
+function StoriesAddon:IsPageOn(event)
+    return self:IsPartOn(self:PartOfPage(event))
+end
+
+function StoriesAddon:IsAutoplayOn()
+    return self.db.profile.Audio.Autoplay ~= false
+end
+
+--- Read Greetings is at Never: no NPC window reads itself, whatever Read Automatically says.
+function StoriesAddon:IsNever()
+    return self.db.profile.Audio.GossipFrequency == Enums.GossipFrequency.Never
+end
+
+function StoriesAddon:SetAutoplay(on)
+    self.db.profile.Audio.Autoplay = on and true or false
+    -- The Play button stands in for autoplay, so it appears or goes with the setting even
+    -- while a dialog is already open.
+    if DialogPlayButton and DialogPlayButton.Refresh then
+        DialogPlayButton:Refresh()
+    end
+end
+
+--- The quest panels and the gossip frame, in the priority GetVisibleQuestEvent gives them.
+--- Gossip is last because it is the one a quest dialog replaces.
+local function GetVisibleDialogueEvent()
+    local event = GetVisibleQuestEvent()
+    if not event and IsFrameVisible(GossipFrame) then
+        event = "GOSSIP_SHOW"
+    end
+    return event
+end
+
+local SPEECH_EVENTS = {
+    QUEST_GREETING = { sound = Enums.SoundEvent.QuestGreeting, text = function() return NotSecret(GetGreetingText()) end },
+    GOSSIP_SHOW = { sound = Enums.SoundEvent.Gossip, text = function() return NotSecret(GetGossipText()) end },
+}
+
+--- The line the open dialog would read, resolved against the packs, or nil when no dialog
+--- is open or no pack has its line. Asked without reading anything. The second value is
+--- the client event it stands for. Callers that know the event may pass it even
+--- when a replacement dialog UI does not expose Blizzard's visible quest panels.
+---@param event string?
+---@return SoundData?, string?
+function StoriesAddon:GetVisibleLine(event)
+    event = event or GetVisibleDialogueEvent()
+    -- A disabled part exposes neither automatic narration nor a manual Listen action.
+    if event and not self:IsPageOn(event) then
+        return nil, event
+    end
+    local quest = event and QUEST_EVENTS[event]
+    local speech = event and SPEECH_EVENTS[event]
+    local probe
+    if quest then
+        local questID = ResolveQuestID(quest.questStage, QuestIDFor(event),
+            QuestTitle(), Utils:GetNPCName() or "", quest.text(), true)
+        if not questID then
+            return nil
+        end
+        probe = { event = quest.sound, questID = questID }
+    elseif speech then
+        local guid, name = Utils:GetNPCGUID(), Utils:GetNPCName()
+        if not guid and not name then
+            return nil
+        end
+        probe = {
+            event = speech.sound,
+            name = name,
+            text = speech.text() or "",
+            unitGUID = guid,
+            unitIsObjectOrItem = Utils:IsNPCObjectOrItem(),
+        }
+    else
+        return nil
+    end
+    if not DataModules:PrepareSound(probe) then
+        return nil
+    end
+    return probe, event
+end
+
+--- Read the dialog on screen because the player asked to.
+function StoriesAddon:ReadVisibleQuest(dispatchOrigin)
+    local event = GetVisibleDialogueEvent()
+    if not event then
+        Debug:Record("visible-panel-missing", "GetQuestID returned 0 and no Blizzard quest or gossip panel is visible")
+        return false
+    end
+    return self:InvokeQuestHandler(event, dispatchOrigin or "visible quest reader", true)
+end
+
+---@class VoiceOverConfig
+local defaults = {
+    profile = {
+        -- The frame, the minimap button, the sound channel's legacy music-channel
+        -- workaround and the paused flag are the Spoken player's settings now.
+        Audio = {
+            -- Once per NPC rather than once per quest NPC, which upstream defaulted to:
+            -- that setting only silences a repeat where the NPC has a quest, so every
+            -- innkeeper, vendor and flight master said the same line on every visit --
+            -- the greeting a player hears most often is exactly the one it did not
+            -- remember. A profile that stored a choice of its own keeps it.
+            GossipFrequency = Enums.GossipFrequency.OncePerNPC,
+            -- The sound channel and the muting of the client's own NPC dialogue used to
+            -- live here. They describe how anything is played rather than what this addon
+            -- reads, so they are Spoken's settings now.
+            StopAudioOnDisengage = false,
+            -- On, the NPC's own greeting is heard and automatic narration waits
+            -- for its estimated end (GreetingFirst.lua). Vanilla has no NPC-only mute.
+            GreetingFirst = false,
+            -- Off, no quest dialog, greeting or gossip reads itself: nothing plays until
+            -- the Play button on the window is pressed (UI/DialogPlayButton.lua) or
+            -- /spq read is typed. GossipFrequency then has nothing to decide.
+            Autoplay = true,
+            OGThrall = false,
+            -- On, an automatic read starts when the window closes instead of when it opens.
+            ReadAfterClose = false,
+            -- What NPCs say in chat after this player accepts or turns in a quest
+            -- (Followup.lua). Autoplay off silences these too: they read themselves.
+            FollowupLines = true,
+            -- Follow the client, and fall back on English. Every pack that exists today
+            -- is English and declares no language, so an English-speaking player with the
+            -- packs they already have resolves enUS on the first pass and hears exactly
+            -- what they heard before this setting existed.
+            VoiceLanguage = "auto",
+            FallbackLanguage = "enUS",
+            -- Absent entries are enabled by default; only explicitly disabled
+            -- load-on-demand sound packs are skipped at startup.
+            DisabledVoicePacks = {},
+        },
+        DebugEnabled = false,
+    },
+    char = {
+        hasSeenGossipForNPC = {},
+        RecentQuestTitleToID = Version:IsBelowLegacyVersion(30300) and {},
+    }
+}
+
+local lastGossipOptions
+local selectedGossipOption
+-- Set by picking any option, even one whose label could not be found, until the window closes:
+-- every page after the greeting was asked for.
+local gossipOptionPicked
+local currentQuestSoundData
+local currentGossipSoundData
+
+-- ClassicAPI's gossip quest list has authoritative IDs, but is not guaranteed
+-- to remain available after a quest is selected. Keep a snapshot per page.
+local classicGossipQuestLists
+local classicGossipNPC
+local function CacheClassicGossipQuestLists()
+    classicGossipQuestLists = nil
+    classicGossipNPC = nil
+    if not Version.IsLegacyVanilla or not C_GossipInfo then return end
+    local function SafeList(fn)
+        if type(fn) ~= "function" then return nil end
+        local ok, result = pcall(fn)
+        return ok and type(result) == "table" and result or nil
+    end
+    classicGossipQuestLists = {
+        available = SafeList(C_GossipInfo.GetAvailableQuests),
+        active = SafeList(C_GossipInfo.GetActiveQuests),
+    }
+    classicGossipNPC = Utils:GetNPCName()
+end
+
+local function NoteClassicQuestSelection(kind, selection, isQuestID)
+    if not Version.IsLegacyVanilla or not StoriesAddon.NoteClassicQuestSelection then return end
+    local list = classicGossipQuestLists and classicGossipQuestLists[kind]
+    if not list then return end
+    local picked
+    if isQuestID then
+        for _, info in ipairs(list) do
+            if info.questID == selection then picked = info; break end
+        end
+    elseif type(selection) == "number" then
+        picked = list[selection]
+    end
+    if picked and type(picked.questID) == "number" and picked.questID > 0 then
+        StoriesAddon:NoteClassicQuestSelection(picked.questID, picked.title, classicGossipNPC, kind)
+    end
+end
+
+function StoriesAddon:OnInitialize()
+    self.db = LibStub("AceDB-3.0"):New("SpokenQuestsSettings", defaults)
+    self.db.RegisterCallback(self, "OnProfileChanged", "RefreshConfig")
+    self.db.RegisterCallback(self, "OnProfileReset", "RefreshConfig")
+
+    StaticPopupDialogs["VOICEOVER_ERROR"] =
+    {
+        text = "SoftSpoken Stories|n|n%s",
+        button1 = OKAY,
+        timeout = 0,
+        whileDead = 1,
+    }
+
+    StoriesNarrator:Setup()
+    -- Optional NPC greeting setup must never prevent voice-pack discovery.
+    local greetingReady, greetingError = pcall(GreetingFirst.Setup, GreetingFirst)
+    if not greetingReady then
+        Debug:Record("greeting-first-error", tostring(greetingError))
+    end
+    -- The copy-link popup behind the Report button. Guarded because a failure to build a
+    -- dialog must not stop playback initializing.
+    local reportButtonReady, reportButtonError = pcall(ReportButton.Initialize, ReportButton)
+    if not reportButtonReady then
+        Debug:Record("report-button-error", tostring(reportButtonError))
+    end
+
+    -- The Play button autoplay's off position leaves the player with. Guarded the same
+    -- way, for the same reason.
+    local dialogPlayButtonReady, dialogPlayButtonError = pcall(function()
+        if DialogPlayButton and DialogPlayButton.Setup then
+            DialogPlayButton:Setup()
+        end
+    end)
+    if not dialogPlayButtonReady then
+        Debug:Record("dialog-play-button-error", tostring(dialogPlayButtonError))
+    end
+
+    -- The lines NPCs say after a quest. Guarded the same way: a failed hook here must not
+    -- take quest narration down with it.
+    local followupReady, followupError = pcall(function()
+        if Followup and Followup.Setup then
+            Followup:Setup()
+        end
+    end)
+    if not followupReady then
+        Debug:Record("followup-error", tostring(followupError))
+    end
+
+    -- Discover data packs now, but load their multi-megabyte generated Lua
+    -- tables after entering the world. Keeping LoadAddOn out of AceAddon's
+    -- shared initialization/login stack avoids Hardcore's stricter script
+    -- time budget being charged to AceAddon-3.0.
+    DataModules:EnumerateAddons(false)
+    self.dataModulesPending = not DataModules:HasRegisteredModules()
+    local function LoadDeferredDataModules()
+        if not self.dataModulesPending then
+            return
+        end
+        local succeeded, loadError = pcall(DataModules.LoadPresentModules, DataModules)
+        self.dataModulesPending = nil
+        if not succeeded then
+            self.dataModulesDeferredError = tostring(loadError)
+            Debug:Record("data-load-error", self.dataModulesDeferredError)
+        else
+            local summary = DataModules:GetLoadSummary()
+            if summary.failed > 0 then
+                Debug:Record("data-load-partial", format(
+                    "Voice packs: %d/%d loaded, %d failed; see Stories diagnostics",
+                    summary.loaded, summary.detected, summary.failed))
+            elseif summary.loaded > 0 then
+                Debug:Record("data-ready", "Deferred sound packs finished loading")
+            end
+        end
+        -- The settings pages were built before this, with every pack still to register.
+        Spoken:NotifyVoicePacksChanged()
+    end
+    local function ScheduleDeferredDataLoad()
+        if C_Timer and C_Timer.After then
+            C_Timer.After(1, LoadDeferredDataModules)
+        else
+            self:ScheduleTimer(LoadDeferredDataModules, 1)
+        end
+    end
+    if self.dataModulesPending then
+        if IsLoggedIn and IsLoggedIn() then
+            ScheduleDeferredDataLoad()
+        else
+            self.dataLoaderFrame = CreateFrame("Frame")
+            self.dataLoaderFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+            self.dataLoaderFrame:SetScript("OnEvent", function(frame)
+                frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
+                ScheduleDeferredDataLoad()
+            end)
+        end
+    end
+    local optionsSucceeded, optionsError = pcall(Options.Initialize, Options)
+    if not optionsSucceeded then
+        self.optionsInitializationError = tostring(optionsError)
+        Debug:Record("options-ui-failed", self.optionsInitializationError)
+    end
+
+    -- Install this before all optional event registration. AceAddon deliberately
+    -- safe-calls OnInitialize, so a later registration failure must not take
+    -- automatic playback down with it.
+    Debug:Record("options-ready", "Options and manual quest reader are registered")
+    self.eventBridgeErrors = {}
+    local aceRegistered, aceError = pcall(self.RegisterEvent, self, "ADDON_LOADED")
+    if not aceRegistered then
+        table.insert(self.eventBridgeErrors, "AceEvent ADDON_LOADED: " .. tostring(aceError))
+    end
+
+    -- On Vanilla, quest-detail/progress/completion events dispatch directly.
+    -- The event recorder separately preserves quest identity context and last-event hints.
+    local directEvents = {
+        "QUEST_GREETING",
+        "QUEST_FINISHED",
+        "GOSSIP_SHOW",
+        "GOSSIP_CLOSED",
+    }
+    if Version.IsAnyLegacy then
+        table.insert(directEvents, "QUEST_DETAIL")
+        table.insert(directEvents, "QUEST_PROGRESS")
+        table.insert(directEvents, "QUEST_COMPLETE")
+    end
+    -- The recorder preserves context for the 1.12 GetQuestID adapter and manual
+    -- dialog reads. QUEST_FINISHED clears stale event and quest-selection hints.
+    self.questEventRecorderFrame = CreateFrame("Frame")
+    for _, event in ipairs({ "QUEST_DETAIL", "QUEST_PROGRESS", "QUEST_COMPLETE", "QUEST_FINISHED" }) do
+        pcall(self.questEventRecorderFrame.RegisterEvent, self.questEventRecorderFrame, event)
+    end
+    self.questEventRecorderFrame:SetScript("OnEvent", function(_, event)
+        if event == "QUEST_FINISHED" then
+            lastQuestEvent = nil
+            if self.ClearClassicQuestSelection then self:ClearClassicQuestSelection() end
+        else
+            lastQuestEvent = event
+            -- QuestIDFor updates Compatibility.lua's event-stage/text context;
+            -- an unavailable native API must not interrupt event recording.
+            pcall(QuestIDFor, event)
+            pcall(self.BeginGreetingWait, self, event)
+        end
+    end)
+
+    local directEventLookup = {}
+    local lastDispatch = {}
+    local dispatching = {}
+
+    -- Several frame/event hooks can report the same interaction. Only let a
+    -- different quest through the short duplicate window when its positive ID
+    -- and current title can actually be resolved. Unknown IDs (and gossip)
+    -- keep the previous conservative, event-only suppression.
+    local function DispatchQuestID(event)
+        if not QUEST_EVENTS[event] then return nil end
+        local ok, id, title = pcall(function()
+            return QuestIDFor(event), QuestTitle()
+        end)
+        if ok and type(id) == "number" and id > 0 and
+           type(title) == "string" and title ~= "" then
+            return id
+        end
+    end
+
+    local function DispatchDirectEvent(event, dispatchOrigin)
+        local now = GetTime()
+        local questID = DispatchQuestID(event)
+        local previous = lastDispatch[event]
+        if dispatching[event] or
+           (previous and now - previous.time < 0.5 and
+            (not questID or not previous.questID or questID == previous.questID)) then
+            return
+        end
+
+        if event == "GOSSIP_SHOW" or event == "QUEST_GREETING" then
+            -- Save ClassicAPI's quest IDs before the selection closes this page.
+            -- A Vanilla quest giver may use QUEST_GREETING instead of gossip.
+            CacheClassicGossipQuestLists()
+            if self.ClearClassicQuestSelection then self:ClearClassicQuestSelection() end
+            if event == "GOSSIP_SHOW" then
+                -- The next gossip page's label depends on the chosen option.
+                NoteGossipPage()
+            end
+        end
+
+        dispatching[event] = true
+        local succeeded = self:InvokeQuestHandler(event, dispatchOrigin, false)
+        dispatching[event] = nil
+        if not succeeded then
+            return
+        end
+
+        -- Only suppress additional event/frame signals when this route
+        -- actually reached the queue or playback stage. An early event
+        -- with unpopulated quest globals must be allowed to retry.
+        local stage = Debug.runtime and Debug.runtime.stage
+        if stage == "queued" or stage == "queue-paused" or stage == "playing" then
+            lastDispatch[event] = { time = GetTime(), questID = questID }
+        else
+            lastDispatch[event] = nil
+        end
+    end
+    self.DispatchDirectEvent = function(addon, event, dispatchOrigin)
+        return DispatchDirectEvent(event, dispatchOrigin or "manual dispatch")
+    end
+
+    -- Greeting globals can have the same synchronous-event race. Coalesce the
+    -- event/frame signals and read them on a later frame after Blizzard has
+    -- populated the new NPC and text.
+    local deferredSpeechEvents = {
+        QUEST_GREETING = true,
+        GOSSIP_SHOW = true,
+    }
+    local deferredEventGeneration = {}
+    local function SignalDirectEvent(event, dispatchOrigin)
+        -- Also reached by the panel OnShow / QuestFrame hooks, not only the
+        -- direct-event frame. Arm the gate before the 0.1-second speech deferral.
+        if QUEST_EVENTS[event] or SPEECH_EVENTS[event] then
+            local ready, greetingError = pcall(self.BeginGreetingWait, self, event)
+            if not ready then
+                Debug:Record("greeting-wait-error", tostring(greetingError))
+            end
+        end
+        if event == "QUEST_FINISHED" then
+            deferredEventGeneration.QUEST_GREETING = (deferredEventGeneration.QUEST_GREETING or 0) + 1
+        elseif event == "GOSSIP_CLOSED" then
+            deferredEventGeneration.GOSSIP_SHOW = (deferredEventGeneration.GOSSIP_SHOW or 0) + 1
+        end
+        if not deferredSpeechEvents[event] then
+            DispatchDirectEvent(event, dispatchOrigin)
+            return
+        end
+        local generation = (deferredEventGeneration[event] or 0) + 1
+        deferredEventGeneration[event] = generation
+        self:ScheduleTimer(function()
+            if deferredEventGeneration[event] == generation then
+                DispatchDirectEvent(event, dispatchOrigin .. " (deferred)")
+            end
+        end, 0.1)
+    end
+
+    self.directEventFrame = CreateFrame("Frame")
+    for _, event in ipairs(directEvents) do
+        local registered, registerError = pcall(self.directEventFrame.RegisterEvent, self.directEventFrame, event)
+        if registered then
+            directEventLookup[event] = true
+        else
+            table.insert(self.eventBridgeErrors, format("Direct %s: %s", event, tostring(registerError)))
+        end
+    end
+    self.directEventFrame:SetScript("OnEvent", function(frame, event)
+        SignalDirectEvent(event, "direct frame")
+    end)
+
+    -- Quest narration uses direct events; panel-show fallbacks are retained for
+    -- greetings and gossip.
+    local panelEvents = {
+        { frame = QuestFrameGreetingPanel, event = "QUEST_GREETING" },
+        { frame = GossipFrame, event = "GOSSIP_SHOW" },
+    }
+    for _, binding in ipairs(panelEvents) do
+        if binding.frame and binding.frame.HookScript then
+            local event = binding.event
+            local hooked, hookError = pcall(binding.frame.HookScript, binding.frame, "OnShow", function()
+                    SignalDirectEvent(event, "panel OnShow")
+                end)
+            if not hooked then
+                table.insert(self.eventBridgeErrors, format("Panel %s: %s", event, tostring(hookError)))
+            end
+        end
+    end
+
+    -- Hook the exact Blizzard dispatcher that updates the visible quest
+    -- panels. This runs after Blizzard has populated GetQuestID/GetTitleText.
+    --
+    -- This hooks Blizzard's own dispatcher rather than a wrapped frame script.
+    -- On Vanilla 1.12 it can read the event from the global `event` variable.
+    if QuestFrame_OnEvent and hooksecurefunc then
+        local hooked, hookError = pcall(hooksecurefunc, "QuestFrame_OnEvent", function(frame, event)
+                event = event or _G.event
+                if directEventLookup[event] then
+                    SignalDirectEvent(event, "QuestFrame_OnEvent hook")
+                end
+            end)
+        if not hooked then
+            table.insert(self.eventBridgeErrors, "QuestFrame_OnEvent: " .. tostring(hookError))
+        end
+    end
+
+    if next(self.eventBridgeErrors) then
+        Debug:Record("event-bridge-partial", format("Quest event bridge is active; %d optional component(s) failed",
+            #self.eventBridgeErrors))
+    else
+        Debug:Record("event-bridge-ready", "Direct quest event and deferred greeting bridges are registered")
+    end
+
+    -- The folders of the players that registered this session, stopped at the top of this
+    -- file. Disabling one takes effect on the next login only. Nothing is read from their
+    -- saved variables: every player starts this release with settings of its own.
+    --
+    -- Guard DisableAddOn with pcall: failure to disable a superseded folder
+    -- must not prevent quest hooks from installing. The duplicate was already
+    -- stopped for the current session.
+    local disabled = {}
+    for _, folder in ipairs(supersededFolders) do
+        pcall(DisableAddOn, folder)
+        table.insert(disabled, format('"%s"', folder))
+    end
+
+    if next(disabled) and not self.db.profile.SeenDuplicatePlayerDialog then
+        StaticPopupDialogs["VOICEOVER_REDUX_DUPLICATE_ADDON"] =
+        {
+            text = format([[SoftSpoken Stories|n|n%s was also enabled. It has been disabled for the next login, and its event handler was stopped for this session.|n|nKeep your sound pack enabled - "Spoken Audio: Quests" or the older "AI_VoiceOverData_Vanilla", either works. You can delete or leave the old player disabled, then /reload.]],
+                table.concat(disabled, " and ")),
+            button1 = OKAY,
+            timeout = 0,
+            whileDead = 1,
+            OnAccept = function()
+                self.db.profile.SeenDuplicatePlayerDialog = true
+            end,
+        }
+        StaticPopup_Show("VOICEOVER_REDUX_DUPLICATE_ADDON")
+    end
+
+    -- The core queue has a stable questID on each clip. In 1.12 the old
+    -- AbandonQuest hook compared a non-existent `questName` field; it could
+    -- never match the clips actually created by NarrationSource.lua.
+    --
+    -- ClassicAPI emits QUEST_REMOVED with the real ID after the quest leaves
+    -- the log. This can also happen on a turn-in: never clear the reward
+    -- recording on that event, because its narration may still be playing.
+    local function RemoveQuestClips(questID, title, keepReward)
+        if type(questID) ~= "number" or questID <= 0 then questID = nil end
+        if (not questID) and (type(title) ~= "string" or title == "") then return end
+        local toRemove = {}
+        for _, clip in ipairs(StoriesNarrator:Queued()) do
+            if Enums.SoundEvent:IsQuestEvent(clip.event) and
+               (not keepReward or clip.event ~= Enums.SoundEvent.QuestComplete) and
+               ((questID and clip.questID == questID) or
+                ((not questID) and clip.title == title)) then
+                table.insert(toRemove, clip)
+            end
+        end
+        for i = getn(toRemove), 1, -1 do
+            StoriesNarrator:Remove(toRemove[i])
+        end
+        if getn(toRemove) > 0 then
+            Debug:Record("quest-removed-audio", format("Removed %d clip(s) for quest %s",
+                getn(toRemove), tostring(questID or title)))
+        end
+    end
+
+    -- Prefer ClassicAPI's authoritative quest ID over the legacy post-call
+    -- AbandonQuest hook. A removal event alone does not say *why* the quest
+    -- disappeared, so leave completion dialogue queued on this path.
+    local removedFrame = CreateFrame("Frame")
+    local hasRemovedEvent = pcall(removedFrame.RegisterEvent, removedFrame, "QUEST_REMOVED")
+    if hasRemovedEvent then
+        removedFrame:SetScript("OnEvent", function(_, event, questID)
+            if event == "QUEST_REMOVED" then
+                RemoveQuestClips(NotSecret(questID or arg1), nil, true)
+            end
+        end)
+        self.classicQuestRemovedFrame = removedFrame
+    else
+        -- No ClassicAPI event: keep vanilla abandonment support and match the
+        -- actual `title` field, rather than the never-populated questName.
+        if C_QuestLog and C_QuestLog.AbandonQuest and hooksecurefunc then
+            pcall(hooksecurefunc, C_QuestLog, "AbandonQuest", function()
+                local id = C_QuestLog.GetAbandonQuest and C_QuestLog.GetAbandonQuest()
+                RemoveQuestClips(id, nil, false)
+            end)
+        elseif AbandonQuest and hooksecurefunc then
+            pcall(hooksecurefunc, "AbandonQuest", function()
+                local title = GetAbandonQuestName and GetAbandonQuestName()
+                RemoveQuestClips(nil, title, false)
+            end)
+        end
+    end
+
+    if QuestLog_Update then
+        hooksecurefunc("QuestLog_Update", function()
+            QuestOverlayUI:Update()
+            -- One coalesced next-frame layout check for late quest-log title rewrites.
+            QuestOverlayUI:ScheduleLayoutRecheck()
+        end)
+    end
+
+    -- ClassicAPI quest-ID bridge: hooks are additive. The original 1.12
+    -- selection functions still handle the game interaction unchanged.
+    if Version.IsLegacyVanilla and hooksecurefunc then
+        for _, entry in ipairs({
+            { "SelectGossipAvailableQuest", "available" },
+            { "SelectGossipActiveQuest", "active" },
+            { "SelectAvailableQuest", "available" },
+            { "SelectActiveQuest", "active" },
+        }) do
+            if type(_G[entry[1]]) == "function" then
+                local kind = entry[2]
+                pcall(hooksecurefunc, entry[1], function(index)
+                    NoteClassicQuestSelection(kind, index, false)
+                end)
+            end
+        end
+        if C_GossipInfo then
+            for _, entry in ipairs({
+                { "SelectAvailableQuest", "available" },
+                { "SelectActiveQuest", "active" },
+            }) do
+                if type(C_GossipInfo[entry[1]]) == "function" then
+                    local name, kind = entry[1], entry[2]
+                    pcall(hooksecurefunc, C_GossipInfo, name, function(id)
+                        NoteClassicQuestSelection(kind, id, true)
+                    end)
+                end
+            end
+        end
+    end
+
+    if C_GossipInfo and C_GossipInfo.SelectOption then
+        -- Support both quest option IDs and index-based selection APIs.
+        for name, field in pairs({ SelectOption = "gossipOptionID", SelectOptionByIndex = "orderIndex" }) do
+            if C_GossipInfo[name] then
+                hooksecurefunc(C_GossipInfo, name, function(pick)
+                    gossipOptionPicked = true
+                    pick = NotSecret(pick)
+                    if lastGossipOptions and pick then
+                        for _, info in ipairs(lastGossipOptions) do
+                            if NotSecret(info[field]) == pick then
+                                selectedGossipOption = NotSecret(info.name)
+                                break
+                            end
+                        end
+                        lastGossipOptions = nil
+                    end
+                end)
+            end
+        end
+    elseif SelectGossipOption then
+        hooksecurefunc("SelectGossipOption", function(index)
+            gossipOptionPicked = true
+            index = NotSecret(index)
+            if lastGossipOptions and index then
+                selectedGossipOption = NotSecret(lastGossipOptions[1 + (index - 1) * 2])
+                lastGossipOptions = nil
+            end
+        end)
+    end
+end
+
+function StoriesAddon:RefreshConfig()
+    StoriesNarrator:RefreshConfig()
+    -- Quest-local profile language fallbacks also affect the Voiced Only filter.
+    if SSCQuestsTab and SSCQuestsTab.InvalidateVoiceCache then
+        SSCQuestsTab:InvalidateVoiceCache()
+    end
+    -- AceDB profile changes/reset bypass individual pack switches. When the
+    -- selected packs differ from those already loaded, offer a full UI reload
+    -- rather than silently retaining data from the previous profile.
+    if not self.dataModulesPending and DataModules
+        and DataModules:NeedsLoadSelectionReload()
+        and SpokenLayout and SpokenLayout.AskReload then
+        SpokenLayout.AskReload(
+            "The selected Stories voice packs changed with this profile. Reload the UI to apply the voice pack selection?",
+            "Reload", "Later")
+    end
+end
+
+function StoriesAddon:ADDON_LOADED(event, addon)
+    addon = addon or arg1 -- Thanks, Ace3v...
+    local hook = self.OnAddonLoad[addon]
+    if hook then
+        hook()
+    end
+end
+
+local function GossipSoundDataAdded(soundData)
+    -- Save current gossip sound data for dialog/frame sync option
+    currentGossipSoundData = soundData
+end
+
+local function QuestSoundDataAdded(soundData)
+    -- Save current quest sound data for dialog/frame sync option
+    currentQuestSoundData = soundData
+end
+
+function ResolveQuestID(questStage, questID, questTitle, targetName, questText, quiet)
+    if questID and questID ~= 0 then
+        return questID
+    end
+
+    -- On current Classic clients GetQuestID can briefly return 0 while the
+    -- QUEST_DETAIL frame is already populated. Resolve it through the loaded
+    -- data module's title/NPC/text index instead of silently abandoning the
+    -- event. This also handles ambiguous repeated quest titles.
+    local fallbackID = DataModules:GetQuestID(questStage, questTitle or "", targetName or "", questText or "")
+    if fallbackID then
+        if quiet then
+            return fallbackID
+        end
+        Debug:Record("quest-id-fallback", format("Resolved %q to quest ID %d", questTitle or "", fallbackID))
+        return fallbackID
+    end
+
+    if quiet then
+        return
+    end
+    Debug:Record("quest-id-missing", format("The client returned quest ID 0 and the data module could not resolve %q",
+        questTitle or ""))
+end
+
+-- With Read When Window Closes on, an automatic read waits for the window to close
+-- (QUEST_FINISHED). The window shows one quest page at a time, so the last one read is the one kept.
+local pendingRead
+
+local function QueueRead(soundData, manual)
+    if not manual and StoriesAddon.db.profile.Audio.ReadAfterClose then
+        pendingRead = soundData
+        return
+    end
+    StoriesNarrator:Enqueue(soundData, manual)
+end
+
+function StoriesAddon:QUEST_DETAIL(_, manual)
+    local questID, questTitle, questText, guid, targetName, isObjectOrItem, portraitGUID = ReadQuestFields("QUEST_DETAIL")
+
+    Debug:Record("quest-detail", format("QUEST_DETAIL: raw ID %s, title %q, NPC %q",
+        tostring(questID or "nil"), questTitle or "", targetName or ""))
+    questID = ResolveQuestID("accept", questID, questTitle, targetName, questText)
+    if not questID then
+        return
+    end
+
+    if StoriesAddon.db.char.RecentQuestTitleToID and questID ~= 0 then
+        StoriesAddon.db.char.RecentQuestTitleToID[questTitle] = questID
+    end
+
+    local type = guid and Utils:GetGUIDType(guid)
+    if type == Enums.GUID.Item then
+        -- Allow quests started from items to have VO, book icon will be displayed for them
+    elseif not type or not Enums.GUID:CanHaveID(type) then
+        -- If the quest is started by something that we cannot extract the ID of (e.g. Player, when sharing a quest) - try to fallback to a questgiver from a module's database
+        local id
+        type, id = DataModules:GetQuestLogQuestGiverTypeAndID(questID)
+        guid = id and Enums.GUID:CanHaveID(type) and Utils:MakeGUID(type, id) or guid
+        targetName = id and DataModules:GetObjectName(type, id) or targetName or "Unknown Name"
+    end
+
+    -- print("QUEST_DETAIL", questID, questTitle);
+    ---@type SoundData
+    local soundData = {
+        event = Enums.SoundEvent.QuestAccept,
+        questID = questID,
+        name = targetName,
+        title = questTitle,
+        text = questText,
+        unitGUID = guid,
+        portraitGUID = portraitGUID,
+        unitIsObjectOrItem = isObjectOrItem,
+        addedCallback = QuestSoundDataAdded,
+    }
+    QueueRead(soundData, manual)
+end
+
+function StoriesAddon:QUEST_PROGRESS(_, manual)
+    local questID, questTitle, questText, guid, targetName, isObjectOrItem, portraitGUID = ReadQuestFields("QUEST_PROGRESS")
+
+    Debug:Record("quest-progress", format("QUEST_PROGRESS: raw ID %s, title %q, NPC %q",
+        tostring(questID or "nil"), questTitle or "", targetName or ""))
+    questID = ResolveQuestID("progress", questID, questTitle, targetName, questText)
+    if not questID then
+        return
+    end
+
+    if StoriesAddon.db.char.RecentQuestTitleToID then
+        StoriesAddon.db.char.RecentQuestTitleToID[questTitle] = questID
+    end
+
+    ---@type SoundData
+    local soundData = {
+        event = Enums.SoundEvent.QuestProgress,
+        questID = questID,
+        name = targetName,
+        title = questTitle,
+        text = questText,
+        unitGUID = guid,
+        portraitGUID = portraitGUID,
+        unitIsObjectOrItem = isObjectOrItem,
+        addedCallback = QuestSoundDataAdded,
+    }
+    QueueRead(soundData, manual)
+end
+
+function StoriesAddon:QUEST_COMPLETE(_, manual)
+    local questID, questTitle, questText, guid, targetName, isObjectOrItem, portraitGUID = ReadQuestFields("QUEST_COMPLETE")
+
+    Debug:Record("quest-complete", format("QUEST_COMPLETE: raw ID %s, title %q, NPC %q",
+        tostring(questID or "nil"), questTitle or "", targetName or ""))
+    questID = ResolveQuestID("complete", questID, questTitle, targetName, questText)
+    if not questID then
+        return
+    end
+
+    if StoriesAddon.db.char.RecentQuestTitleToID and questID ~= 0 then
+        StoriesAddon.db.char.RecentQuestTitleToID[questTitle] = questID
+    end
+
+    -- print("QUEST_COMPLETE", questID, questTitle);
+    ---@type SoundData
+    local soundData = {
+        event = Enums.SoundEvent.QuestComplete,
+        questID = questID,
+        name = targetName,
+        title = questTitle,
+        text = questText,
+        unitGUID = guid,
+        portraitGUID = portraitGUID,
+        unitIsObjectOrItem = isObjectOrItem,
+        addedCallback = QuestSoundDataAdded,
+    }
+    QueueRead(soundData, manual)
+end
+
+---@param followsOption boolean? the page was reached by picking one of the NPC's options
+function StoriesAddon:ShouldPlayGossip(guid, text, manual, followsOption)
+    local npcKey = guid or "unknown"
+
+    -- Asked for by name, so having heard it before does not stand in the way.
+    if manual then
+        return true, npcKey
+    end
+
+    if self:IsNever() then
+        Debug:Note("gossip", "never", "greetings not read: NPC Greetings is set to never")
+        return
+    end
+    -- The once-per settings hold back the greeting an NPC opens with, not the pages after it.
+    if followsOption then
+        return true, npcKey
+    end
+
+    local gossipSeenForNPC = self.db.char.hasSeenGossipForNPC[npcKey]
+
+    -- Asked again for the same NPC while its window stays open; the log says it once.
+    if self.db.profile.Audio.GossipFrequency == Enums.GossipFrequency.OncePerQuestNPC then
+        local numActiveQuests = GetNumGossipActiveQuests()
+        local numAvailableQuests = GetNumGossipAvailableQuests()
+        local npcHasQuests = (numActiveQuests > 0 or numAvailableQuests > 0)
+        if npcHasQuests and gossipSeenForNPC then
+            Debug:Note("gossip", npcKey .. ":quest-npc", "greeting of %s not read: an NPC with quests, heard before (NPC Greetings: once per quest NPC)", npcKey)
+            return
+        end
+    elseif self.db.profile.Audio.GossipFrequency == Enums.GossipFrequency.OncePerNPC then
+        if gossipSeenForNPC then
+            Debug:Note("gossip", npcKey .. ":once", "greeting of %s not read: heard before (NPC Greetings: once per NPC)", npcKey)
+            return
+        end
+    end
+
+    return true, npcKey
+end
+
+--- On 1.12 there is no separate NPC dialogue channel to mute. If enabled, give
+--- the native greeting time to play before auto-reading an NPC window. Direct
+--- game events arm this early; InvokeQuestHandler also arms it for UI fallbacks
+--- that bypass those events.
+function StoriesAddon:BeginGreetingWait(event)
+    if not GreetingFirst:IsOn() or not self:IsPageOn(event)
+        or not self:IsAutoplayOn() or self.dataModulesPending
+        or not StoriesNarrator.source then
+        return
+    end
+    if not (SPEECH_EVENTS[event] or QUEST_EVENTS[event]) then
+        return
+    end
+    -- Even with Read When Window Closes, a quickly closed window may enqueue
+    -- narration before the native greeting has finished. Keep the gate.
+    GreetingFirst:Open()
+end
+
+function StoriesAddon:QUEST_GREETING(event, manual)
+    local guid = Utils:GetNPCGUID()
+    local targetName = Utils:GetNPCName()
+    local greetingText = NotSecret(GetGreetingText())
+
+    -- Can happen if the player interacted with an NPC while having main menu or options opened
+    if not guid and not targetName then
+        return
+    end
+    if not greetingText then
+        return
+    end
+
+    local play, npcKey = self:ShouldPlayGossip(guid, greetingText, manual)
+    if not play then
+        return
+    end
+
+    -- Play the gossip sound
+    ---@type SoundData
+    local soundData = {
+        event = Enums.SoundEvent.QuestGreeting,
+        name = targetName,
+        text = greetingText,
+        unitGUID = guid,
+        portraitGUID = PortraitSpeakerGUID(targetName),
+        unitIsObjectOrItem = Utils:IsNPCObjectOrItem(),
+        addedCallback = GossipSoundDataAdded,
+        startCallback = function()
+            self.db.char.hasSeenGossipForNPC[npcKey] = true
+        end
+    }
+    StoriesNarrator:Enqueue(soundData, manual)
+end
+
+-- The option the player picked to reach the gossip on screen, as its clip's label. Kept past
+-- the show that consumed selectedGossipOption, for a Play pressed on that same gossip later.
+local shownGossipTitle
+-- Which page that was. The direct event and the frame's OnShow can both deliver one page,
+-- and the second must not overwrite the label the first took.
+local shownGossipKey
+
+--- A fresh gossip page: note which option led here and what the page offers next, whether or
+--- not it is read. With autoplay off it is not, and the next page's label would otherwise be
+--- looked up in this page's predecessor's options.
+function NoteGossipPage()
+    local pageKey = tostring(Utils:GetNPCGUID() or Utils:GetNPCName()) .. ":" .. tostring(NotSecret(GetGossipText()))
+    if not selectedGossipOption and pageKey == shownGossipKey then
+        return
+    end
+    shownGossipKey = pageKey
+    shownGossipTitle = selectedGossipOption and format([["%s"]], selectedGossipOption)
+    selectedGossipOption = nil
+    lastGossipOptions = nil
+    if C_GossipInfo and C_GossipInfo.GetOptions then
+        lastGossipOptions = C_GossipInfo.GetOptions()
+    elseif GetGossipOptions then
+        lastGossipOptions = { GetGossipOptions() }
+    end
+end
+
+function StoriesAddon:GOSSIP_SHOW(event, manual)
+    local guid = Utils:GetNPCGUID()
+    local targetName = Utils:GetNPCName()
+    local gossipText = NotSecret(GetGossipText())
+
+    -- Can happen if the player interacted with an NPC while having main menu or options opened
+    if not guid and not targetName then
+        return
+    end
+    if not gossipText then
+        return
+    end
+
+    local play, npcKey = self:ShouldPlayGossip(guid, gossipText, manual, gossipOptionPicked)
+    if not play then
+        return
+    end
+
+    -- Play the gossip sound
+    ---@type SoundData
+    local soundData = {
+        event = Enums.SoundEvent.Gossip,
+        name = targetName,
+        title = shownGossipTitle,
+        text = gossipText,
+        unitGUID = guid,
+        portraitGUID = PortraitSpeakerGUID(targetName),
+        unitIsObjectOrItem = Utils:IsNPCObjectOrItem(),
+        addedCallback = GossipSoundDataAdded,
+        startCallback = function()
+            self.db.char.hasSeenGossipForNPC[npcKey] = true
+        end
+    }
+    StoriesNarrator:Enqueue(soundData, manual)
+end
+
+function StoriesAddon:QUEST_FINISHED()
+    if StoriesAddon.db.profile.Audio.StopAudioOnDisengage then
+        if currentQuestSoundData then
+            StoriesNarrator:Remove(currentQuestSoundData)
+        end
+        -- A quest giver's greeting is read in the quest frame, so it ends with the frame.
+        if currentGossipSoundData and currentGossipSoundData.event == Enums.SoundEvent.QuestGreeting then
+            StoriesNarrator:Remove(currentGossipSoundData)
+            currentGossipSoundData = nil
+        end
+    end
+    currentQuestSoundData = nil
+    local pending = pendingRead
+    pendingRead = nil
+    if pending then
+        -- Its window has closed, so it is no window's line: the next close leaves it playing.
+        pending.addedCallback = nil
+        StoriesNarrator:Enqueue(pending)
+    end
+end
+
+function StoriesAddon:GOSSIP_CLOSED()
+    if StoriesAddon.db.profile.Audio.StopAudioOnDisengage and currentGossipSoundData then
+        StoriesNarrator:Remove(currentGossipSoundData)
+    end
+    currentGossipSoundData = nil
+
+    selectedGossipOption = nil
+    gossipOptionPicked = nil
+    shownGossipTitle = nil
+    shownGossipKey = nil
+end

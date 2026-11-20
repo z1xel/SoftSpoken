@@ -1,13 +1,12 @@
--- Spoken Books 1.12: Azeroth's Compendium, Readables tab.
+-- SoftSpoken Writings: Azeroth's Compendium Readables tab (Vanilla 1.12).
 -- Adapted from rusty-key/spoken-wow/addons/Spoken_Books/UI/Readables.lua (MIT).
 -- Uses SoftSpoken's built-in shared Compendium window, list, parchment and artwork.
 -- Written for WoW 1.12 / Lua 5.0; no C_Map, atlas, or modern frame methods.
-local B = SSB
-local C = SSCCompendium
-local U = SSCUI
-local P = SSCLorePage
-if not (B and C and C.Register and C.NewList and P and P.CreateLorePage and U) then
-    -- Books recognition and playback remain available with Zones disabled.
+local Writings = SpokenWritings
+local Compendium = SpokenCompendium
+local LorePage = SSCLorePage
+if not (Writings and Compendium and Compendium.Register and Compendium.NewList and Compendium.CreatePagePane and LorePage and LorePage.CreateLorePage) then
+    -- Writings recognition and playback remain available with Places disabled.
     return
 end
 
@@ -17,7 +16,7 @@ local TYPE_NAMES = {
     tablet="Tablets and Runes", plaque="Plaques and Signs", grave="Gravestones",
     exhibit="Exhibits", other="Other"
 }
-local TYPE_ORDER = B.TYPES or {"book","letter","note","scroll","tablet","plaque","grave","exhibit","other"}
+local TYPE_ORDER = Writings.TYPES or {"book","letter","note","scroll","tablet","plaque","grave","exhibit","other"}
 local list, page, panel, index
 local selected = nil
 local expandedZone = nil
@@ -30,10 +29,10 @@ local openedType = {}
 local search = ""
 
 local function Settings()
-    if not SSBSettings then B:InitDB() end
+    if not SSBSettings then Writings:InitDB() end
     return SSBSettings
 end
-local function Books() return B:Data() and B:Data().books or {} end
+local function Books() return Writings:Data() and Writings:Data().books or {} end
 local function Places() return SSBPlaces and SSBPlaces.books or {} end
 local function Title(id)
     local book = Books()[id]
@@ -43,7 +42,7 @@ local function ZoneName(mapID)
     if mapID==WORLD then return "Azeroth" end
     if mapID==WEST then return "Kalimdor" end
     if mapID==EAST then return "Eastern Kingdoms" end
-    return C.MapName and C.MapName(mapID) or tostring(mapID)
+    return Compendium.MapName and Compendium.MapName(mapID) or tostring(mapID)
 end
 local function Lower(str) return string.lower(str or "") end
 local function ByTitle(a,b)
@@ -68,8 +67,8 @@ local function Index()
             table.insert(out.types[kind],id)
             -- Personal discovery locations have priority over the catalogue's
             -- possible locations. Old saves have only found[id], no location.
-            local found=B:IsBookFound(id)
-            local observed=found and B:BookLocations(id) or nil
+            local found=Writings:IsBookFound(id)
+            local observed=found and Writings:BookLocations(id) or nil
             local actual={}
             if type(observed)=="table" then
                 for mapID in pairs(observed) do table.insert(actual,mapID) end
@@ -108,7 +107,7 @@ local function Index()
     return out
 end
 
-local function Found(id) return B:IsBookFound(id) end
+local function Found(id) return Writings:IsBookFound(id) end
 -- Like upstream Readables: a book is voiced when ANY page has a recording.
 -- Cache its first playable page only until the next Compendium refresh.
 local voiced={}
@@ -116,7 +115,7 @@ local function FirstVoiced(id)
     if voiced[id]~=nil then return voiced[id] or nil end
     local book=Books()[id]
     for _,pageId in ipairs(book and book.pages or {}) do
-        if B:HasAudio(pageId) then
+        if Writings:HasAudio(pageId) then
             voiced[id]=pageId
             return pageId
         end
@@ -135,7 +134,7 @@ local function Matches(str) return search=="" or string.find(Lower(str),search,1
 local function Counts(ids, mapID)
     local found,total=0,0
     for _,id in ipairs(ids or {}) do
-        local here = mapID and B:BookFoundAt(id,mapID) or Found(id)
+        local here = mapID and Writings:BookFoundAt(id,mapID) or Found(id)
         if (not OnlyVoiced() or Voiced(id)) and (not OnlyFound() or here) then
             total=total+1
             if here then found=found+1 end
@@ -157,11 +156,11 @@ local function CollectZone(mapID)
     return out
 end
 local function ParentZone(id)
-    return C.CITY_IN and C.CITY_IN[id] or nil
+    return Compendium.CITY_IN and Compendium.CITY_IN[id] or nil
 end
 local function CityIds(parent)
     local ids={}
-    for city,mapID in pairs(C.CITY_IN or {}) do
+    for city,mapID in pairs(Compendium.CITY_IN or {}) do
         if mapID==parent and Index().zones[city] then table.insert(ids,city) end
     end
     table.sort(ids,ByZoneName)
@@ -177,7 +176,7 @@ local function ZoneIds()
     return ids
 end
 local function OnContinent(id,continent)
-    return C.ContinentOf and C.ContinentOf(id)==continent or false
+    return Compendium.ContinentOf and Compendium.ContinentOf(id)==continent or false
 end
 local function Row(kind,name,depth,opt)
     opt=opt or {}
@@ -186,7 +185,7 @@ local function Row(kind,name,depth,opt)
     return opt
 end
 local function Leaf(id,depth,mapID)
-    local here=mapID and B:BookFoundAt(id,mapID) or Found(id)
+    local here=mapID and Writings:BookFoundAt(id,mapID) or Found(id)
     return Row("readable",Title(id),depth,{id=id,book=id,mapID=mapID,
         locked=not here and not Unlocked(),voiced=Voiced(id)})
 end
@@ -384,7 +383,7 @@ end
 local function OtherKnownLocations(id,place)
     if not place then return nil end
     local names={}
-    local observed=B:BookLocations(id) or {}
+    local observed=Writings:BookLocations(id) or {}
     for _,mapID in ipairs(place.zones or {}) do
         if not observed[mapID] then table.insert(names,ZoneName(mapID)) end
     end
@@ -403,11 +402,11 @@ local function ShowEntry()
     end
     if selected.kind=="readable" then
         local id=selected.id
-        local data=B:Data()
+        local data=Writings:Data()
         local book=data and data.books[id]
         if not book then return end
         local place=Places()[id]
-        local location=Found(id) and B:DiscoverySummary(id) or SourceSummary(place)
+        local location=Found(id) and Writings:DiscoverySummary(id) or SourceSummary(place)
         if not Found(id) and not Unlocked() then
             page:Show({title=Title(id),subtitle=location,
                 text="This writing has not been discovered yet."})
@@ -427,7 +426,7 @@ local function ShowEntry()
         -- Static reference locations are supplementary, never recorded as
         -- places the character visited. Muted ink distinguishes this note.
         local other=OtherKnownLocations(id,place)
-        if other then table.insert(parts,"|cff84694a"..other.."|r") end
+        if other then table.insert(parts,"|cff402914"..other.."|r") end
         local first=FirstVoiced(id)
         page:Show({title=Title(id),subtitle=location,
             text=table.concat(parts,"\n\n"),audio=first and {id,first} or nil})
@@ -459,7 +458,7 @@ local function Select(row)
             else openedType[key]=not openedType[key] end
         end
     end
-    B:RefreshReadables()
+    Writings:RefreshReadables()
 end
 
 local function EquipPlay(pageObject)
@@ -480,14 +479,14 @@ local function EquipPlay(pageObject)
         end
         self:Enable()
         self:Show()
-        self:SetState(B:IsNarrating(book) and "stop" or "play")
+        self:SetState(Writings:IsNarrating(book) and "stop" or "play")
     end
     button:SetScript("OnClick",function(self)
         local b=this or self
         if not b or not b.bookId or (not Found(b.bookId) and not Unlocked()) or not Voiced(b.bookId) then return end
-        if B:IsNarrating(b.bookId) then B:StopReading(b.bookId)
-        elseif B.source and b.bookPage then B:SyncTo(b.bookPage,true)
-        else B:Print("Spoken audio player unavailable") end
+        if Writings:IsNarrating(b.bookId) then Writings:StopReading(b.bookId)
+        elseif Writings.source and b.bookPage then Writings:SyncTo(b.bookPage,true)
+        else Writings:Print("Spoken audio player unavailable") end
         b:Refresh()
     end)
     -- The original Zones button polls only when it has a zone mapID. Books' own
@@ -496,13 +495,13 @@ local function EquipPlay(pageObject)
     button:SetTarget(nil,nil)
 end
 
-function B:RefreshReadablesPlayback()
+function Writings:RefreshReadablesPlayback()
     voiced={}
     if page and page.play and page.play.Refresh then page.play:Refresh() end
 end
 local function Build(panelFrame)
     panel=panelFrame
-    list=C.NewList(panel,{
+    list=Compendium.NewList(panel,{
         search="Search",none="No matching writings.",
         noneDiscovered="No writings discovered yet.",
         -- Arrange by Type changes layout, not the visibility of entries.
@@ -516,66 +515,37 @@ local function Build(panelFrame)
                 set=function(on) Settings().compendiumByZone=not on end},
         },
         build=BuildRows,isSelected=IsSelected,onClick=Select,
-        onSearch=function(text) search=Lower(text or "");B:RefreshReadables() end,
+        onSearch=function(text) search=Lower(text or "");Writings:RefreshReadables() end,
     })
-    panel.Refresh=function() B:RefreshReadables() end
+    panel.Refresh=function() Writings:RefreshReadables() end
     panel.inset,panel.filterButton,panel.filterMenu,panel.noMatch,panel.listBar=
         list.inset,list.filterButton,list.filterMenu,list.noMatch,list.bar
+    -- Every current SoftSpoken tab uses the same page constructor and skin.
     local inset
-    if C.CreatePagePane then
-        -- Current shared Compendium helper: preserve its artwork and geometry.
-        inset, page = C.CreatePagePane(panel, list, function(holder)
-            return P.CreateLorePage(holder,"book")
-        end)
-    else
-        -- Older SoftSpoken builds (including the Oct 18 prototype) have no
-        -- shared page-pane helper. Keep their precisely matched geometry.
-        local _,right=C.Margins()
-        local inset=CreateFrame("Frame",nil,panel)
-        -- Pilot 4: the shared prototype visual module paints this inset after
-        -- the real LorePage is constructed.  Keep the fallback for older builds.
-        if not (SSCPrototypePageSkin and SSCPrototypePageSkin.Apply) then
-        U.AddInsetBorder(inset)
-        end
-        if inset.SetBackdropColor then inset:SetBackdropColor(.08,.07,.06,1) end
-        -- Align the page's top with the list inset, exactly as the visual master.
-        inset:SetPoint("TOPLEFT",list.inset,"TOPRIGHT",27,0)
-        inset:SetPoint("BOTTOMRIGHT",panel,"BOTTOMRIGHT",0,6)
-        local holder=CreateFrame("Frame",nil,inset)
-        holder:SetPoint("TOPLEFT",inset,"TOPLEFT",5,-5)
-        -- Leave a 31-unit native-scroll recess to the right of the parchment.
-        holder:SetPoint("BOTTOMRIGHT",inset,"BOTTOMRIGHT",-36,5)
-        -- CreateLorePage, not Build: Build is intentionally a singleton used by
-        -- Places. Both tabs must own independent parchment and scroll state.
-        page=P.CreateLorePage(holder,"book")
-        if SSCPrototypePageSkin and SSCPrototypePageSkin.Apply then
-            SSCPrototypePageSkin.Apply(inset,holder,page)
-        end
-        if SSCPrototypeScrollSkin and SSCPrototypeScrollSkin.AttachPage then
-            SSCPrototypeScrollSkin.AttachPage(inset,page)
-        end
-    end
+    inset, page = Compendium.CreatePagePane(panel, list, function(holder)
+        return LorePage.CreateLorePage(holder)
+    end)
     EquipPlay(page)
     panel.pageInset=inset
     panel.page=page.frame
     panel.readablesPage=page
-    B.readables=panel
+    Writings.readables=panel
 end
 
 -- Called by DiscoveryLocations when a book acquires a verified location or
 -- is first encountered without one. Recompute groups only on such changes.
-function B:ReadablesLocationChanged()
+function Writings:ReadablesLocationChanged()
     index=nil
 end
-function B:RefreshReadables(scrollToSelection)
+function Writings:RefreshReadables(scrollToSelection)
     if not list then return end
     voiced={}
     local items=list:Render()
     if scrollToSelection then list:ScrollToSelection(items) end
     ShowEntry()
 end
-function B:ShowReadables()
-    if not C or not C:Tab("readables") then
+function Writings:ShowReadables()
+    if not Compendium or not Compendium:Tab("readables") then
         self:Print("Writings browsing requires SoftSpoken (shared Compendium)")
         return
     end
@@ -583,29 +553,29 @@ function B:ShowReadables()
     if not self:IsPartOn() then return end
     search=""
     if list then list:ClearSearch() end
-    C:Open("readables")
-    C:Expand()
+    Compendium:Open("readables")
+    Compendium:Expand()
     self:RefreshReadables(true)
 end
-function B:SetupReadables()
-    if C:Tab("readables") then return end
-    C:Register("readables",{
+function Writings:SetupReadables()
+    if Compendium:Tab("readables") then return end
+    Compendium:Register("readables",{
         label="Writings",order=2,title="Azeroth's Compendium",build=Build,
-        onShow=function() B:RefreshReadables() end,
+        onShow=function() Writings:RefreshReadables() end,
         onReselect=function()
             selected=nil
-            B:RefreshReadables()
+            Writings:RefreshReadables()
         end,
         store={
             get=function(key) return Settings()["compendium"..key] end,
             set=function(key,value) Settings()["compendium"..key]=value end,
         },
-        open=function() B:ShowReadables() end,
-        enabled=function() return B:IsPartOn() end,
+        open=function() Writings:ShowReadables() end,
+        enabled=function() return Writings:IsPartOn() end,
         unlock={
             get=Unlocked,
-            set=function(on) Settings().unlockUnfound=on;B:RefreshReadables() end,
+            set=function(on) Settings().unlockUnfound=on;Writings:RefreshReadables() end,
         },
     })
 end
-B:SetupReadables()
+Writings:SetupReadables()

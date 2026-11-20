@@ -90,7 +90,7 @@ end
 -- Build the same diagnostic summary directly from the runtime. Diagnostics
 -- must never depend on public slash commands or temporarily hijack chat print.
 local function SpokenLines(lines)
-    if not (Addon and Addon.db and Spoken and SoundQueue) then
+    if not (CoreController and CoreController.db and Spoken and SoundQueue) then
         table.insert(lines, "Spoken " .. tostring(AddonVersion) .. ": not enabled yet")
         return
     end
@@ -102,7 +102,7 @@ local function SpokenLines(lines)
     for key, source in Sources:Iterate() do
         table.insert(lines, format("  source %s (%s)", key, source.addon or "?"))
     end
-    for _, line in ipairs(PlayerFrame:Describe()) do table.insert(lines, "  " .. line) end
+    for _, line in ipairs(NarratorWindow:Describe()) do table.insert(lines, "  " .. line) end
     table.insert(lines, "  " .. Transcript:Describe())
     for _, err in ipairs(Callbacks.errors) do
         table.insert(lines, "  callback error: " .. err)
@@ -116,14 +116,43 @@ function Developer:Context()
     local version, build = GetBuildInfo()
     table.insert(lines, format("client %s build %s, locale %s", tostring(version), tostring(build),
         GetLocale and GetLocale() or "?"))
-    local profile = Addon.db and Addon.db.profile
+    local profile = CoreController.db and CoreController.db.profile
     local audio = profile and profile.Audio or {}
-    table.insert(lines, format("narrator style %s, window %s", tostring(Addon:PlayerStyle()),
-        PlayerFrame.frame and (PlayerFrame.frame:IsShown() and "shown" or "hidden") or "not built"))
-    table.insert(lines, format("line gap %s s, master %s/%s, dialog %s/%s",
-        tostring(audio.LineGap),
-        tostring(GetCVar("Sound_EnableAllSound")), tostring(GetCVar("Sound_MasterVolume")),
-        tostring(GetCVar("Sound_EnableDialog")), tostring(GetCVar("Sound_DialogVolume"))))
+    table.insert(lines, format("narrator style %s, window %s", tostring(CoreController:PlayerStyle()),
+        NarratorWindow.frame and (NarratorWindow.frame:IsShown() and "shown" or "hidden") or "not built"))
+    local function AudioCVar(name)
+        local ok, value = pcall(GetCVar, name)
+        if ok and value ~= nil and tostring(value) ~= "" then
+            return tostring(value)
+        end
+        return "unavailable"
+    end
+    table.insert(lines, format("line gap %s s, Vanilla master %s, effects %s, music %s, ambience %s",
+        tostring(audio.LineGap), AudioCVar("MasterVolume"), AudioCVar("SoundVolume"),
+        AudioCVar("MusicVolume"), AudioCVar("AmbienceVolume")))
+    -- Read-only engine report: no fake independent volume control and no
+    -- global CVars are changed to collect these details. 'handle present'
+    -- deliberately avoids exposing a native address/pointer.
+    local backend = SoundUtils:BackendError()
+    table.insert(lines, format("ClassicAPI %s, audio backend %s",
+        tostring(CLASSIC_API_VERSION or "not detected"),
+        backend and ("unavailable: " .. backend) or "available"))
+    table.insert(lines, format("narration category %s (new recordings only)",
+        tostring(audio.NarrationChannel or "Master")))
+    -- SuperWoW documents UncapSounds / BackgroundSound; neither is a
+    -- per-file MP3 resume API. Read only, never change a user's settings.
+    local swVersion = SUPERWOW_VERSION
+    table.insert(lines, format("SuperWoW version %s",
+        swVersion == nil and "not reported" or tostring(swVersion)))
+    table.insert(lines, format("sound capacity UncapSounds %s, software channels %s, hardware channels %s, background %s",
+        AudioCVar("UncapSounds"), AudioCVar("SoundSoftwareChannels"),
+        AudioCVar("SoundMaxHardwareChannels"), AudioCVar("BackgroundSound")))
+    local mix = audio.LowerOthers or {}
+    table.insert(lines, format("effects toggle %s, other-sounds ducking %s, targets Music %s Ambience %s SFX %s, active %s, voice bus %s",
+        AudioCVar("MasterSoundEffects"),
+        tostring(mix.Enabled), tostring(mix.Music), tostring(mix.Ambience),
+        tostring(mix.SFX), tostring(OtherSounds and OtherSounds.lowered or false),
+        tostring(OtherSounds and OtherSounds.voice or "none")))
     for key, source in Sources:Iterate() do
         table.insert(lines, format("module %s (%s): %s", key, tostring(source.addon),
             Sources:IsTurnedOff(source) and "turned off" or "on"))
@@ -134,11 +163,16 @@ function Developer:Context()
     end
     for i, clip in ipairs(queue) do
         local held = SoundQueue:GetHeldReason(clip)
-        table.insert(lines, format("queue %d: %s, length %s%s%s%s", i, Developer.Describe(clip),
-            tostring(clip.length), i == 1 and (SoundQueue:IsPaused() and ", stopped" or ", head") or "",
-            held and (", held: " .. tostring(held)) or "",
-            (clip.title and (", " .. tostring(clip.title)) or "")
-                .. (clip.origin and (", from " .. tostring(clip.origin)) or "")))
+        local channel = clip.source and clip.source.GetChannel and
+            clip.source:GetChannel() or "?"
+        local state = SoundQueue:GetClipState(clip)
+        local native = clip.handle and SoundUtils:IsSoundPlaying(clip) or nil
+        table.insert(lines, format("queue %d: %s, state %s, channel %s, handle %s, native %s, estimate %s, errors %s%s",
+            i, Developer.Describe(clip), tostring(state), tostring(channel),
+            clip.handle and "present" or "none",
+            native == nil and "unknown" or (native and "playing" or "ended"),
+            tostring(clip.length), tostring(clip.playbackErrors or 0),
+            held and (", gate " .. tostring(held)) or ""))
     end
     return lines
 end

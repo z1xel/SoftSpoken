@@ -1,11 +1,11 @@
--- Spoken Zones 1.12 -- the ONLY new map API adapter for the upstream map panel.
+-- SoftSpoken Places: 1.12 map API adapter for the lore/map panel.
 -- GetCurrentMapZone is a DISPLAYED-zone index, not an Azeroth lore mapID.
 -- Never change the map zoom merely to resolve it: doing so breaks browsing.
 SSZMapCompat = SSZMapCompat or {}
-local M = SSZMapCompat
-local C = SSZCompendium
-local L = SSZLoreWindow
-local CITY_IN = C and C.CITY_IN or {}
+local MapCompat = SSZMapCompat
+local Compendium = SpokenCompendium
+local LoreWindow = SSZLoreWindow
+local CITY_IN = Compendium and Compendium.CITY_IN or {}
 
 local function Normalise(name)
     if type(name) ~= "string" then return "" end
@@ -18,7 +18,7 @@ local function Normalise(name)
     name = string.gsub(name, "^the ", "")
     return name
 end
-M.Normalise = Normalise
+MapCompat.Normalise = Normalise
 
 local names = {}
 local function NameIndex()
@@ -39,12 +39,12 @@ local function NameIndex()
     names["darnassus"] = 1457
     names["thunder bluff"] = 1456
 end
-function M.IDForName(name)
+function MapCompat.IDForName(name)
     if not next(names) then NameIndex() end
     return names[Normalise(name)]
 end
-function M.Name(mapID)
-    if L and L.ZoneName then return L.ZoneName(mapID) end
+function MapCompat.Name(mapID)
+    if LoreWindow and LoreWindow.ZoneName then return LoreWindow.ZoneName(mapID) end
     local e = SSZLore and SSZLore.zones[mapID]
     return e and e.name or tostring(mapID)
 end
@@ -60,48 +60,48 @@ local function ZoneAt(continent, index)
     return values[index]
 end
 
-function M.GetDisplayedMapID()
+function MapCompat.GetDisplayedMapID()
     if not GetCurrentMapContinent or not GetCurrentMapZone then return nil end
     local continent = tonumber(GetCurrentMapContinent()) or 0
     local zone = tonumber(GetCurrentMapZone()) or 0
     local info = GetMapInfo and GetMapInfo() or nil
     -- City/dungeon maps can report a valid texture while their zone index is
     -- still zero or points to the parent. Prefer that specific texture name.
-    local infoID = M.IDForName(info)
+    local infoID = MapCompat.IDForName(info)
     if infoID and infoID ~= 947 and infoID ~= 1414 and infoID ~= 1415 then
         return infoID, info, continent, zone
     end
     if zone > 0 then
         local name = ZoneAt(continent, zone)
-        local id = M.IDForName(name) or infoID
+        local id = MapCompat.IDForName(name) or infoID
         return id, name or info, continent, zone
     end
     if continent == 1 then return 1414, "Kalimdor", continent, 0 end
     if continent == 2 then return 1415, "Eastern Kingdoms", continent, 0 end
     if continent == 0 then return 947, "Azeroth", continent, 0 end
     -- Some clients place a city in GetMapInfo while reporting zone=0.
-    return M.IDForName(info), info, continent, zone
+    return MapCompat.IDForName(info), info, continent, zone
 end
 
-function M.SetDisplayedMap(mapID)
+function MapCompat.SetDisplayedMap(mapID)
     if not SetMapZoom then return false end
     if mapID == 947 then SetMapZoom(0); return true end
     if mapID == 1414 then SetMapZoom(1); return true end
     if mapID == 1415 then SetMapZoom(2); return true end
-    local parent = C and C.ContinentOf and C.ContinentOf(mapID)
+    local parent = Compendium and Compendium.ContinentOf and Compendium.ContinentOf(mapID)
     local continent = parent == 1414 and 1 or parent == 1415 and 2
     if not continent or not GetMapZones then return false end
     local list = { GetMapZones(continent) }
     if type(list[1]) == "number" and type(list[2]) == "string" then
         for i = 2, table.getn(list), 2 do
-            if M.IDForName(list[i]) == mapID then
+            if MapCompat.IDForName(list[i]) == mapID then
                 SetMapZoom(continent, i / 2)
                 return true
             end
         end
     else
         for i, name in ipairs(list) do
-            if M.IDForName(name) == mapID then
+            if MapCompat.IDForName(name) == mapID then
                 SetMapZoom(continent, i)
                 return true
             end
@@ -151,14 +151,14 @@ local function CityByName(mapID, name)
             local lore = SSZLore and SSZLore.zones
             local cityName = lore and lore[city] and lore[city].name
             if (cityName and Normalise(cityName) == target) or
-                Normalise(M.Name(city)) == target or
-                Normalise(M.Name(city)) == target .. " city" then
+                Normalise(MapCompat.Name(city)) == target or
+                Normalise(MapCompat.Name(city)) == target .. " city" then
                 return city
             end
         end
     end
 end
-M.CityByName = CityByName
+MapCompat.CityByName = CityByName
 
 -- Optional upstream path. Never infer a subzone from the player's current
 -- location: the map may be showing a completely different continent.
@@ -174,7 +174,7 @@ local function NativeArea(x, y)
     if ok and type(name) == "string" and name ~= "" then return name end
     return nil
 end
-M.NativeArea = NativeArea
+MapCompat.NativeArea = NativeArea
 
 local function PreciseArea(mapID, x, y)
     if not (MapUtil and type(MapUtil.FindBestAreaNameAtMouse) == "function") then return nil end
@@ -182,7 +182,7 @@ local function PreciseArea(mapID, x, y)
     if not ok or type(name) ~= "string" or name == "" then return nil end
     return name
 end
-M.PreciseArea = PreciseArea
+MapCompat.PreciseArea = PreciseArea
 
 local function HasZoneSubzone(mapID, key)
     local lore = SSZLore
@@ -206,7 +206,7 @@ local function OverlayRectangle(o)
     if w <= 0 or h <= 0 then return nil end
     return left / w, top / h, right / w, bottom / h
 end
-M.OverlayRectangle = OverlayRectangle
+MapCompat.OverlayRectangle = OverlayRectangle
 
 -- A map-art overlay can list several areas. Never guess among them.
 local function OverlayEntries(mapID, o)
@@ -247,7 +247,7 @@ local function GetOverlays(continent, zone, info)
     return overlayCache.overlays
 end
 
-function M.ClearOverlayCache()
+function MapCompat.ClearOverlayCache()
     overlayCache.key = nil
     overlayCache.overlays = nil
 end
@@ -255,10 +255,10 @@ end
 -- One definite overlay match can be used as a fallback when the map does
 -- not provide a specific name, or to locate the artwork to highlight for a
 -- separately resolved native name. The latter NEVER chooses the lore key.
-function M.AreaAt(mapID, x, y, expectedKey)
+function MapCompat.AreaAt(mapID, x, y, expectedKey)
     if type(x) ~= "number" or type(y) ~= "number" or
         x < 0 or x > 1 or y < 0 or y > 1 then return nil end
-    local displayed, info, continent, zone = M.GetDisplayedMapID()
+    local displayed, info, continent, zone = MapCompat.GetDisplayedMapID()
     if displayed ~= mapID or not zone or zone <= 0 then return nil end
     local overlays = GetOverlays(continent, zone, info)
     if not overlays then return nil end
@@ -297,10 +297,10 @@ local function NamedTarget(mapID, name, source)
     if city then return "city", city, source end
 end
 
-function M.ResolveAt(mapID, x, y, poiName)
+function MapCompat.ResolveAt(mapID, x, y, poiName)
     if type(x) ~= "number" or type(y) ~= "number" or
         x < 0 or x > 1 or y < 0 or y > 1 then return nil end
-    local shown, _, _, zone = M.GetDisplayedMapID()
+    local shown, _, _, zone = MapCompat.GetDisplayedMapID()
     if shown ~= mapID or not zone or zone <= 0 then return nil end
 
     -- A confirmed clicked POI is more specific than the underlying native
@@ -341,7 +341,7 @@ function M.ResolveAt(mapID, x, y, poiName)
         -- If the engine positively names a DIFFERENT area without lore,
         -- refuse to substitute an overlapping overlay's guessed place.
         -- Broad parent-zone names are not fine-grained evidence, however.
-        if Normalise(nativeName) ~= Normalise(M.Name(mapID)) then
+        if Normalise(nativeName) ~= Normalise(MapCompat.Name(mapID)) then
             return nil, nil, "native-unmapped"
         end
     end
@@ -368,7 +368,7 @@ function M.ResolveAt(mapID, x, y, poiName)
 
     -- Overlay geometry: city art can be identified exactly by its area name.
     -- Do not return a city if an independent lore subzone shares the hitbox.
-    local _, info, continent, zoneIndex = M.GetDisplayedMapID()
+    local _, info, continent, zoneIndex = MapCompat.GetDisplayedMapID()
     local overlays = GetOverlays(continent, zoneIndex, info)
     local city, mixed = nil, false
     if overlays then
@@ -401,12 +401,12 @@ function M.ResolveAt(mapID, x, y, poiName)
             end
         end
     end
-    if city and not mixed and not M.AreaAt(mapID, x, y) then
+    if city and not mixed and not MapCompat.AreaAt(mapID, x, y) then
         return "city", city, "overlay"
     end
     -- Older clients might supply no hover name. Use the overlay ONLY when
     -- its matching lore area is unique: never display a choice popup.
-    local _, entry, key = M.AreaAt(mapID, x, y)
+    local _, entry, key = MapCompat.AreaAt(mapID, x, y)
     if entry and key then return "subzone", key, "overlay" end
     return nil
 end

@@ -15,14 +15,12 @@ setfenv(1, SpokenEnv)
 --
 -- A renderer's Update returns false when it has nothing to draw -- a model with no
 -- creature, a creature the client has not cached -- and the portrait then draws the
--- spec's `fallback` instead, once. That is VoiceOverRedux's ShouldShowBookFor turned
--- inside out: the book for Items, GameObjects, missing GUIDs, 2.4.3 and unloaded models
--- is now the quests addon's fallback rather than the player's knowledge.
+-- spec's `fallback` instead, once. Unlike upstream VoiceOverRedux's
+-- ShouldShowBookFor, placeholder artwork for items, objects, missing GUIDs
+-- or unloaded models is selected by Stories rather than hard-coded in Core.
 Portrait = {}
 
-local TEXTURES = [[Interface\AddOns\Spoken\Textures\]]
 local WAIT_FOR_ANIMATION_FINISH_BEFORE_IDLE = true
-local CAN_MODEL_LOAD_CACHE = Version:IsRetailOrAboveLegacyVersion(60000)
 
 --------------------------------------------------------------------------------
 -- Animation durations, by model FileDataID. Lifted whole from the quests addon's
@@ -63,24 +61,10 @@ local animationDurations = {
         [122738]  = { [60] = 3000 }, -- tuskarr
         [122815]  = { [60] = 3600 }, -- vrykul
     },
-    -- HD overrides for model files which did not get a separate HD version
-    ["HD"] = {
-        [119369] = { [60] = 4667 },
-        [119376] = { [60] = 4667 },
-    },
 }
-if Version.IsLegacyVanilla or Version.IsRetailVanilla then
-    -- Goblin models on vanilla (both 1.12 and 1.15) lack the talk animation; 0 makes
-    -- them fall back to idle.
-    animationDurations["Original"][119369][60] = 0
-    animationDurations["Original"][119376][60] = 0
-end
-
---- Which model set durations are looked up in. Compat.lua overrides this for the
---- clients with HD model patches and for Mainline.
-function Portrait:GetCurrentModelSet()
-    return "Original"
-end
+-- Original 1.12 Goblin models lack the talk animation; use idle.
+animationDurations["Original"][119369][60] = 0
+animationDurations["Original"][119376][60] = 0
 
 --- Frame a loaded model on its head. Every client this addon has run on embeds a
 --- portrait camera at index 0 in the creature's M2, and selecting it is what makes the
@@ -93,11 +77,9 @@ end
 ---@return number|nil seconds  0 if the model is known to lack the animation
 --- Whether a model frame has something to draw.
 ---
---- Model:GetModel returned a path and was removed from the current clients, which answer
---- GetModelFileID instead; Compat.lua supplies GetModelFileID on the legacy ones
---- from their GetModel. Asking for the method this client does not have is an error, not
---- a nil, and one raised here abandons the whole frame update -- the portrait is drawn
---- before the rows, so the queue reads as empty.
+--- Use whichever model-ID accessor the 1.12 compatibility layer provides.
+--- Guard the optional methods: an unsupported call would abort the portrait
+--- update before the queue rows are refreshed.
 function Portrait:ModelLoaded(model)
     if model.GetModelFileID then
         return model:GetModelFileID() ~= nil
@@ -111,15 +93,14 @@ end
 
 function Portrait:GetModelAnimationDuration(model, animation)
     if not model or model == 123 then return end
-    local models = animationDurations[self:GetCurrentModelSet()] or animationDurations["Original"]
-    local animations = models[model] or animationDurations["Original"][model]
+    local animations = animationDurations["Original"][model]
     local duration = animations and animations[animation]
     return duration and duration / 1000
 end
 
 --------------------------------------------------------------------------------
--- The model frame. One per portrait on current clients; 1.12 and 2.4.3 cannot show an
--- arbitrary creature in a DressUpModel and get one from a pool instead (Compat.lua).
+-- Default model-frame implementation. The 1.12 compatibility layer can
+-- supply a pooled renderer when native DressUpModel support is insufficient.
 --------------------------------------------------------------------------------
 
 function Portrait:AcquireModelFrame(portrait, clip)
@@ -145,11 +126,6 @@ local function InitModelFrame(model)
         self.animtimer = nil
     end)
     model:HookScript("OnUpdate", function(self, elapsed)
-        -- If the creature was not cached, keep retrying until it is.
-        if CAN_MODEL_LOAD_CACHE and self.oldCreatureID and not self:GetModelFileID() then
-            self:SetCreature(self.oldCreatureID)
-            if not self:GetModelFileID() then return end
-        end
         Portrait:FrameHead(self)
         if self.animation and not self.animDuration then
             self.animDuration = Portrait:GetModelAnimationDuration(self:GetModelFileID(), self.animation)
@@ -219,7 +195,13 @@ Renderers["texture"] = {
     end,
     Update = function(texture, clip, spec)
         if not spec.texture then return false end
-        texture:SetTexture(spec.texture)
+        -- A failed custom texture must not suppress the caller's fallback
+        -- (e.g. Writings' native Vanilla book icon). Client versions differ:
+        -- some report failure from SetTexture, others clear GetTexture.
+        local assigned = texture:SetTexture(spec.texture)
+        if assigned == false or (texture.GetTexture and not texture:GetTexture()) then
+            return false
+        end
         local c = spec.texCoord
         if not c and spec.fit == "cover" then
             c = Portrait:CoverTexCoord(spec.aspectRatio)
@@ -242,7 +224,6 @@ Renderers["model"] = {
         local creatureID = spec.creatureID
         if not creatureID then return false end
         if creatureID ~= model.oldCreatureID then
-            if CAN_MODEL_LOAD_CACHE then model:ClearModel() end
             model:SetCreature(creatureID)
             Portrait:FrameHead(model)
             model:SetModelScale(2)
@@ -264,76 +245,26 @@ Renderers["model"] = {
     end,
 }
 
--- Request creature appearance data independently of audio and quest dispatch.
--- ClassicAPI's creature cache can populate asynchronously. A completion may
--- also fire synchronously during RequestLoadCreatureByID; defer player refresh
--- until OnUpdate to avoid reentering Portrait:Configure.
-local requestedCreatures = {}
-local creatureLoadFrame
-
-local function OnCreatureDataLoaded(frame, eventName, id, success)
-    -- Stock 1.12 events use global event/arg1/arg2; Compat.lua's CreateFrame
-    -- shim passes them to the handler explicitly.
-    frame = frame or creatureLoadFrame
-    eventName = eventName or event
-    id = id or arg1
-    if success == nil then success = arg2 end
-    if eventName ~= "CREATURE_DATA_LOAD_RESULT" then return end
-    id = tonumber(id)
-    if not id or id <= 0 then return end
-    if success == false or success == nil or success == 0 then
-        requestedCreatures[id] = nil -- permit a later retry after a failure
-        return
-    end
-    -- More than one request can finish before a frame update. Do not let
-    -- the most recent response overwrite an earlier, currently speaking NPC.
-    frame.pendingIDs = frame.pendingIDs or {}
-    frame.pendingIDs[id] = true
-    frame:SetScript("OnUpdate", function(self)
-        self = self or creatureLoadFrame
-        self:SetScript("OnUpdate", nil)
-        local ready = self.pendingIDs
-        self.pendingIDs = nil
-        if not ready or rawget(_G, "SoftSpokenClassicPortraits") == false then return end
-        -- Never restart a clip or revive a previous speaker after the queue
-        -- moves on. Only repaint the portrait for the current creature.
-        local ok, clip = pcall(function()
-            return Spoken and Spoken.GetCurrent and Spoken:GetCurrent()
-        end)
-        if not ok then return end
-        local spec = clip and clip.present and clip.present.portrait
-        local currentID = spec and tonumber(spec.creatureID)
-        if spec and spec.kind == "creature" and currentID and ready[currentID] and
-           Spoken and type(Spoken.RefreshPlayer) == "function" then
-            pcall(Spoken.RefreshPlayer, Spoken)
-        end
+-- Creature data requests and native completion events are shared across
+-- narrator, Compendium and quest-log preloading. The service defers callbacks
+-- until OnUpdate, so refreshing the player cannot reenter a native API call.
+local function OnCreatureAppearance(id, displayID, success)
+    if not success or not displayID or rawget(_G, "SoftSpokenClassicPortraits") == false then return end
+    local ok, clip = pcall(function()
+        return Spoken and Spoken.GetCurrent and Spoken:GetCurrent()
     end)
+    if not ok then return end
+    local spec = clip and clip.present and clip.present.portrait
+    if spec and spec.kind == "creature" and tonumber(spec.creatureID) == id and
+       Spoken and type(Spoken.RefreshPlayer) == "function" then
+        pcall(Spoken.RefreshPlayer, Spoken)
+    end
 end
+CreatureAppearance:Subscribe(OnCreatureAppearance)
 
 function Portrait:RequestCreatureData(creatureID)
-    local api = C_CreatureInfo
-    creatureID = tonumber(creatureID)
-    if rawget(_G, "SoftSpokenClassicPortraits") == false or not api or
-       not creatureID or creatureID <= 0 or
-       type(api.RequestLoadCreatureByID) ~= "function" then return false end
-    if requestedCreatures[creatureID] then return true end
-
-    if not creatureLoadFrame then
-        local ok, frame = pcall(CreateFrame, "Frame", nil, UIParent)
-        if not ok or not frame then return false end
-        local registered = pcall(frame.RegisterEvent, frame, "CREATURE_DATA_LOAD_RESULT")
-        if not registered then return false end
-        frame:SetScript("OnEvent", OnCreatureDataLoaded)
-        creatureLoadFrame = frame
-    end
-    -- Mark before requesting: a cache hit can dispatch the event immediately.
-    requestedCreatures[creatureID] = true
-    local ok, accepted = pcall(api.RequestLoadCreatureByID, creatureID)
-    if not ok or accepted == false then
-        requestedCreatures[creatureID] = nil
-        return false
-    end
-    return true
+    if rawget(_G, "SoftSpokenClassicPortraits") == false then return false end
+    return CreatureAppearance:Request(creatureID)
 end
 
 -- ClassicAPI changed the owner of SetDisplayInfo in October 2026:
@@ -387,13 +318,8 @@ Renderers["creature"] = {
         if creatureID and creatureID <= 0 then creatureID = nil end
         if displayID and displayID <= 0 then displayID = nil end
 
-        if not displayID and creatureID and C_CreatureInfo and
-           type(C_CreatureInfo.GetCreatureInfoByID) == "function" then
-            local ok, info = pcall(C_CreatureInfo.GetCreatureInfoByID, creatureID)
-            if ok and type(info) == "table" then
-                displayID = tonumber(info.displayID)
-                if displayID and displayID <= 0 then displayID = nil end
-            end
+        if not displayID and creatureID then
+            displayID = CreatureAppearance:GetDisplayID(creatureID)
         end
         if not displayID then
             -- Never show the last speaker while a new NPC is being fetched.

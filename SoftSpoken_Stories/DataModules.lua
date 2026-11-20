@@ -2,6 +2,26 @@ setfenv(1, VoiceOver)
 
 local CURRENT_MODULE_VERSION = 1
 
+-- A TOC index is metadata, not proof of a playable on-disk MP3. Reject
+-- malformed/escaping paths without probing files or playing noise.
+local function ValidRelativeFile(file)
+    if type(file) ~= "string" or not string.find(file, "%S") then return false end
+    if string.find(file, ":", 1, true) or string.find(file, "%c") then return false end
+    local normalized = string.gsub(file, "\\", "/")
+    if string.sub(normalized, 1, 1) == "/" then return false end
+    if normalized == ".." or string.find(normalized, "^%.%./")
+        or string.find(normalized, "/%.%./") or string.find(normalized, "/%.%.$") then
+        return false
+    end
+    return true
+end
+
+local function EstimateDuration(value)
+    local n = tonumber(value)
+    if n and n > 0 and n < math.huge then return n end
+    return nil
+end
+
 -- A pack declares itself with a TOC key rather than a name, which is why a pack published
 -- years ago is still found today and why the packs kept their folder names through the
 -- rename. The key itself is being renamed, so both generations are read, newest first.
@@ -32,10 +52,29 @@ end
 local function ModuleNumber(addon, suffix)
     return tonumber(ModuleMeta(addon, suffix) or "")
 end
---- Whether the player switched the addon off in the AddOns list for this character. Not
---- GetAddOnEnableState: given a name rather than a GUID, C_AddOns answers for all characters.
+-- Vanilla 1.12 GetAddOnInfo returns (name, title, notes, enabled, loadable, reason,
+-- security); later clients omit "enabled". Normalize before inspecting loadability.
+local function AddOnInfo(addon)
+    local name, title, notes, fourth, fifth, sixth = GetAddOnInfo(addon)
+    if type(fifth) == "boolean" or type(fifth) == "number" then
+        return name, title, notes, fifth, sixth, fourth
+    end
+    return name, title, notes, fourth, fifth, nil
+end
+
+-- Check the current character's enabled state, not whether the pack has already
+-- loaded. A disabled LoadOnDemand pack is still a candidate for deferred startup.
 local function SwitchedOff(addon)
-    local _, _, _, loadable, reason = GetAddOnInfo(addon)
+    if GetAddOnEnableState then
+        local ok, state = pcall(GetAddOnEnableState, nil, addon)
+        if ok and type(state) == "number" then
+            return state == 0
+        end
+    end
+    local _, _, _, loadable, reason, enabled = AddOnInfo(addon)
+    if enabled ~= nil then
+        return enabled == false or enabled == 0
+    end
     return not loadable and reason == "DISABLED"
 end
 local LOAD_ALL_MODULES = true
@@ -102,6 +141,10 @@ DataModules =
     --- Stores the most recent load failure for each detected module.
     ---@type table<string, string>
     loadErrors = {},
+
+    -- Track whether a pack actually entered LoadModule. Successful registrations
+    -- and failure reasons remain authoritative in the existing tables.
+    loadAttempts = {},
 
     --- Stores modules known to exist to present the player with information on how to download or update them
     ---@type AvailableDataModule[]
@@ -216,8 +259,59 @@ function DataModules:Register(name, module)
     table.sort(self.registeredModulesOrdered, SortModules)
 end
 
+-- SoftSpoken's per-profile selection is authoritative for loading. A missing
+-- entry means enabled, including packs installed after the profile was saved.
+-- This is intentionally independent of the character-screen addon checkbox.
+function DataModules:IsPackEnabled(name)
+    local audio = StoriesAddon and StoriesAddon.db and StoriesAddon.db.profile and StoriesAddon.db.profile.Audio
+    local disabled = audio and audio.DisabledVoicePacks
+    return not (disabled and disabled[name] == true)
+end
+
+function DataModules:SetPackEnabled(name, enabled)
+    local audio = assert(StoriesAddon and StoriesAddon.db and StoriesAddon.db.profile and StoriesAddon.db.profile.Audio,
+        "Stories audio preferences are not initialized")
+    audio.DisabledVoicePacks = audio.DisabledVoicePacks or {}
+    if enabled then
+        audio.DisabledVoicePacks[name] = nil
+    else
+        audio.DisabledVoicePacks[name] = true
+    end
+end
+
 function DataModules:HasRegisteredModules()
     return next(self.registeredModules) ~= nil
+end
+
+-- Derive status rather than maintaining a second success/failure registry.
+-- A load interrupted by an unexpected error is distinguishable from one not attempted.
+function DataModules:GetModuleLoadStatus(name)
+    if not self:IsPackEnabled(name) then
+        if self.registeredModules[name] then return "reload required" end
+        return "disabled"
+    end
+    if self.registeredModules[name] then return "loaded" end
+    if self.loadErrors[name] then return "failed", tostring(self.loadErrors[name]) end
+    if self.loadAttempts[name] then return "failed", "LOAD_INTERRUPTED" end
+    return "not attempted"
+end
+
+function DataModules:GetLoadSummary()
+    local summary = { detected = 0, loaded = 0, failed = 0, disabled = 0, notAttempted = 0 }
+    for _, module in self:GetPresentModules() do
+        summary.detected = summary.detected + 1
+        local status = self:GetModuleLoadStatus(module.AddonName)
+        if status == "loaded" or status == "reload required" then
+            summary.loaded = summary.loaded + 1
+        elseif status == "disabled" then
+            summary.disabled = summary.disabled + 1
+        elseif status == "failed" then
+            summary.failed = summary.failed + 1
+        else
+            summary.notAttempted = summary.notAttempted + 1
+        end
+    end
+    return summary
 end
 
 function DataModules:GetModule(name)
@@ -238,6 +332,22 @@ end
 
 function DataModules:GetAvailableModules()
     return ipairs(self.availableModules)
+end
+
+-- Profile changes can flip pack preferences without going through a specific
+-- pack's checkbox. Such a change must not silently leave the loaded registry
+-- out of sync with the selected profile.
+function DataModules:NeedsLoadSelectionReload()
+    for _, module in self:GetPresentModules() do
+        if module.LoadOnDemand then
+            local name = module.AddonName
+            local wanted = self:IsPackEnabled(name)
+            local registered = self:GetModule(name) ~= nil
+            if registered and not wanted then return true end
+            if wanted and not registered and not self.loadAttempts[name] then return true end
+        end
+    end
+    return false
 end
 
 -- Short display names for the known sound packs, shown on the download buttons.
@@ -275,7 +385,7 @@ function DataModules:GetPackLanguage()
     local order = Language:ResolutionOrder()
     for _, language in ipairs(order) do
         for _, module in self:GetPresentModules() do
-            if module.Language == language then
+            if self:IsPackEnabled(module.AddonName) and module.Language == language then
                 return language
             end
         end
@@ -290,7 +400,7 @@ function DataModules:EnumerateAddons(loadModules)
 
     for i = 1, GetNumAddOns() do
         local moduleVersion = ModuleNumber(i, "Version")
-        if moduleVersion and not SwitchedOff(i) then
+        if moduleVersion then
             local name = GetAddOnInfo(i)
             local mapsString = ModuleMeta(i, "Maps")
             local maps = {}
@@ -318,7 +428,8 @@ function DataModules:EnumerateAddons(loadModules)
             table.insert(self.presentModulesOrdered, module)
 
             -- Maybe in the future we can load modules based on the map the player is in (select(8, GetInstanceInfo())), but for now - just load everything
-            if loadModules ~= false and LOAD_ALL_MODULES and IsAddOnLoadOnDemand(name) then
+            if loadModules ~= false and LOAD_ALL_MODULES and IsAddOnLoadOnDemand(name)
+                and self:IsPackEnabled(name) then
                 DataModules:LoadModule(module)
             end
         end
@@ -375,33 +486,26 @@ end
 
 function DataModules:LoadPresentModules()
     for _, module in self:GetPresentModules() do
-        if LOAD_ALL_MODULES and module.LoadOnDemand and not self:GetModule(module.AddonName) then
+        if LOAD_ALL_MODULES and module.LoadOnDemand and self:IsPackEnabled(module.AddonName)
+            and not self:GetModule(module.AddonName) then
             self:LoadModule(module)
         end
     end
     return self:HasRegisteredModules()
 end
 
--- A data pack may need the 1.12 "Load out of date AddOns" switch
--- temporarily disabled before LoadAddOn. Restore its previous value afterward.
--- The 5.x+ lastAddonVersion CVar does not exist on our target client.
-local prev_checkAddonVersion, changed_checkAddonVersion
-local function EnableOutOfDate(addon)
-    if not changed_checkAddonVersion then
-        prev_checkAddonVersion = GetCVar("checkAddonVersion")
-        SetCVar("checkAddonVersion", 0)
-        changed_checkAddonVersion = true
-    end
-end
-local function RestoreOutOfDate(addon)
-    if changed_checkAddonVersion then
-        SetCVar("checkAddonVersion", prev_checkAddonVersion)
-        changed_checkAddonVersion = nil
-    end
-end
+-- Loading honors the client's "Load out of date AddOns" setting. The user
+-- must enable it before login; probing or loading a voice pack must not modify
+-- a global client CVar.
 
 ---@param module DataModuleMetadata
 function DataModules:LoadModule(module)
+    -- A disabled pack is never force-enabled or loaded, even via legacy Load.
+    -- Its records remain discoverable from its TOC for the settings inventory.
+    if not self:IsPackEnabled(module.AddonName) then
+        return false, "PACK_DISABLED"
+    end
+    self.loadAttempts[module.AddonName] = true
     if not module.LoadOnDemand then
         self.loadErrors[module.AddonName] = "NOT_LOAD_ON_DEMAND"
         return false, self.loadErrors[module.AddonName]
@@ -415,9 +519,22 @@ function DataModules:LoadModule(module)
         return false, self.loadErrors[module.AddonName]
     end
 
-    EnableOutOfDate(module.AddonName)
+    -- A third-party addon manager may have disabled this pack. Re-enable it once
+    -- just before the deferred LoadAddOn; never disable it afterward or poll pfUI.
+    -- The already-registered Lua tables remain usable if its flag changes later.
+    if SwitchedOff(module.AddonName) then
+        if type(EnableAddOn) ~= "function" then
+            self.loadErrors[module.AddonName] = "ENABLE_UNAVAILABLE"
+            return false, self.loadErrors[module.AddonName]
+        end
+        local enabled, enableError = pcall(EnableAddOn, module.AddonName)
+        if not enabled then
+            self.loadErrors[module.AddonName] = "ENABLE_FAILED: " .. tostring(enableError)
+            return false, self.loadErrors[module.AddonName]
+        end
+    end
+
     local callSucceeded, loaded, reason = pcall(LoadAddOn, module.AddonName)
-    RestoreOutOfDate(module.AddonName)
 
     if not callSucceeded then
         reason = tostring(loaded)
@@ -444,9 +561,9 @@ function DataModules:GetModuleLoadError(name)
 end
 
 function DataModules:GetModuleAddOnInfo(module)
-    EnableOutOfDate(module.AddonName)
-    local name, title, notes, loadable, reason = GetAddOnInfo(module.AddonName)
-    RestoreOutOfDate(module.AddonName)
+    local name, title, notes, loadable, reason = AddOnInfo(module.AddonName)
+    -- Disabling an already-loaded pack does not unregister its data.
+    if self:GetModule(module.AddonName) then reason = nil end
     return name, title, notes, loadable, reason
 end
 
@@ -619,14 +736,14 @@ end
 
 ---@alias QuestIDLookupSource "accept"|"progress"|"complete"
 
----@param source QuestIDLookupSource
+---@param questStage QuestIDLookupSource
 ---@param title string
 ---@param npcName string
 ---@param text string
 ---@return number questID
-function DataModules:GetQuestID(source, title, npcName, text)
+function DataModules:GetQuestID(questStage, title, npcName, text)
     -- A missing or still-loading quest page has no safe quest ID to resolve.
-    if type(source) ~= "string" or type(title) ~= "string" or title == "" then
+    if type(questStage) ~= "string" or type(title) ~= "string" or title == "" then
         return nil
     end
     -- NPC identity and dialogue text may be absent during 1.12 frame transitions.
@@ -641,7 +758,7 @@ function DataModules:GetQuestID(source, title, npcName, text)
     for _, module in self:GetModules() do
         local data = module.QuestIDLookup
         if data then
-            local titleLookup = data[source] and data[source][cleanedTitle]
+            local titleLookup = data[questStage] and data[questStage][cleanedTitle]
             if titleLookup then
                 if type(titleLookup) == "number" then
                     return titleLookup
@@ -911,6 +1028,11 @@ function DataModules:ResolveSoundFile(soundData, instead)
             end
         end
     end
+    -- Keep playable alternatives in the same language/alias/pack order. Metadata
+    -- only tells us where a file *should* be; ClassicAPI is the first authority
+    -- that can reject an absent physical MP3. The queue can then try the next
+    -- indexed recording without losing the player's requested line.
+    local selected, alternatives, seen = nil, {}, {}
     for _, language in ipairs(languages) do
         for _, wantedFileName in ipairs(candidates) do
             local playerGenderedFileName = DataModules:AddPlayerGenderToFilename(wantedFileName)
@@ -924,22 +1046,43 @@ function DataModules:ResolveSoundFile(soundData, instead)
                     else
                         length = data[wantedFileName]
                     end
-                    if length then
-                        soundData.fileName = fileName
-                        soundData.filePath = format([[Interface\AddOns\%s\%s]], module.METADATA.AddonName,
-                            module.GetSoundPath and module:GetSoundPath(fileName, soundData.event) or
-                            fileName)
-                        soundData.length = length
-                        soundData.module = module
-                        soundData.language = language
-                        EasterEggs:Apply(soundData)
-                        return true
+                    if length ~= nil and ValidRelativeFile(fileName) then
+                        local relative = fileName
+                        if module.GetSoundPath then
+                            local ok, result = pcall(module.GetSoundPath, module, fileName, soundData.event)
+                            relative = ok and result or nil
+                        end
+                        if ValidRelativeFile(relative) then
+                            local filePath = format([[Interface\AddOns\%s\%s]],
+                                module.METADATA.AddonName, relative)
+                            if not seen[filePath] then
+                                seen[filePath] = true
+                                local option = {
+                                    fileName = fileName,
+                                    filePath = filePath,
+                                    path = filePath,
+                                    length = EstimateDuration(length),
+                                    module = module,
+                                    language = language,
+                                }
+                                if not selected then selected = option
+                                else table.insert(alternatives, option) end
+                            end
+                        end
                     end
                 end
             end
         end
     end
-    return false
+    if not selected then return false end
+    soundData.fileName = selected.fileName
+    soundData.filePath = selected.filePath
+    soundData.length = selected.length
+    soundData.module = selected.module
+    soundData.language = selected.language
+    soundData.fallbacks = alternatives
+    EasterEggs:Apply(soundData)
+    return true
 end
 
 function DataModules:AddPlayerGenderToFilename(fileName)

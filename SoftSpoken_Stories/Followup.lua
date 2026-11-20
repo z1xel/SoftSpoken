@@ -29,8 +29,8 @@ local EXPIRY_SLACK = 10
 local GetTitleText = GetTitleText
 
 function Followup:IsEnabled()
-    local audio = Addon and Addon.db and Addon.db.profile.Audio
-    return audio and audio.FollowupLines ~= false and Addon:IsAutoplayOn() or false
+    local audio = StoriesAddon and StoriesAddon.db and StoriesAddon.db.profile.Audio
+    return audio and audio.FollowupLines ~= false and StoriesAddon:IsAutoplayOn() or false
 end
 
 --------------------------------------------------------------------------------
@@ -318,9 +318,10 @@ function Followup:Play(entry, message, sender, guid, npcID, asked)
         length = clip.length,
         module = clip.module,
         language = clip.language,
+        fallbacks = clip.fallbacks,
     }
     -- Appended like any other line, so it waits for the turn-in's own voiceover to finish.
-    return Player:EnqueuePrepared(soundData, asked)
+    return StoriesNarrator:EnqueuePrepared(soundData, asked)
 end
 
 --------------------------------------------------------------------------------
@@ -349,8 +350,8 @@ function Followup:Setup()
     local events = { "CHAT_MSG_MONSTER_SAY", "CHAT_MSG_MONSTER_YELL", "CHAT_MSG_MONSTER_WHISPER",
         "CHAT_MSG_RAID_BOSS_WHISPER" }
     -- ClassicAPI backports both authoritative events to Vanilla 1.12.
-    -- Attempt registration on every client, retaining the old 1.12 hooks
-    -- below as fallback for clients which lack the extension.
+    -- Attempt registration on Vanilla 1.12, retaining button hooks below
+    -- when ClassicAPI does not supply these events.
     table.insert(events, "QUEST_TURNED_IN")
     table.insert(events, "QUEST_ACCEPTED")
     for _, event in ipairs(events) do
@@ -365,9 +366,9 @@ function Followup:Setup()
                 Followup:Arm("end", questID, TitleFor(questID))
             end
         elseif event == "QUEST_ACCEPTED" then
-            -- ClassicAPI on 1.12 sends (questLogIndex, questID). On a
-            -- modern client the first argument may itself be the questID.
-            -- Never treat a quest-log index as an ID on legacy clients.
+            -- On our 1.12 target ClassicAPI sends (questLogIndex, questID).
+            -- The guarded alternative below is inherited compatibility code;
+            -- never treat a quest-log index as an ID on Vanilla.
             local questID = NotSecret(a2 or arg2)
             if not Version.IsAnyLegacy and not questID then
                 questID = NotSecret(a1 or arg1)
@@ -380,19 +381,19 @@ function Followup:Setup()
         end
     end)
 
-    -- The legacy clients have neither event, but every accept and turn-in, clicked or
-    -- automated by another addon, goes through these two calls while the dialog is still up.
+    -- Keep Vanilla's acceptance/reward hooks as fallback if ClassicAPI
+    -- quest events are unavailable or the interaction came through another addon.
     if Version.IsAnyLegacy and hooksecurefunc then
         -- IsEnabled first: resolving the quest can mean a fuzzy search of every loaded pack.
         pcall(hooksecurefunc, "GetQuestReward", function()
             if Followup:IsEnabled() then
-                local questID = Addon:DialogQuestID("QUEST_COMPLETE")
+                local questID = StoriesAddon:DialogQuestID("QUEST_COMPLETE")
                 Followup:Arm("end", questID, TitleFor(questID))
             end
         end)
         pcall(hooksecurefunc, "AcceptQuest", function()
             if Followup:IsEnabled() then
-                local questID = Addon:DialogQuestID("QUEST_DETAIL")
+                local questID = StoriesAddon:DialogQuestID("QUEST_DETAIL")
                 Followup:Arm("start", questID, TitleFor(questID))
             end
         end)

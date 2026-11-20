@@ -52,6 +52,9 @@ library notices when distributing the addon.
   [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 - **Interface artwork, map icons and zone emblems** include Blizzard
   game assets and Spoken-derived artwork.
+- **Compendium reader parchment** uses Blizzard's `QuestBG` artwork from
+  [Gethe's WoW UI texture mirror](https://github.com/Gethe/wow-ui-textures/blob/live/QUESTFRAME/QuestBG.PNG),
+  converted to 32-bit TGA for Vanilla 1.12 texture loading.
 - **Compendium resize grip** uses Blizzard's original
   `UI-ChatIM-SizeGrabber-Up/Down/Highlight` interface sprites,
   taken from [Gethe's WoW UI texture mirror](https://github.com/Gethe/wow-ui-textures/tree/live/CHATFRAME)

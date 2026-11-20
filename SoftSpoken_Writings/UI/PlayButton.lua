@@ -1,6 +1,6 @@
 -- Small 1.12-compatible button on the vanilla book frame.
-local B=SSB
-function B:RefreshPlayButton()
+local Writings=SpokenWritings
+function Writings:RefreshPlayButton()
     local b=self.playButton
     if not b then return end
     if not self:IsPartOn() then b:Hide(); return end
@@ -9,7 +9,7 @@ function B:RefreshPlayButton()
     b:SetText(self:IsNarrating(self:PlaceOf(id)) and (self.L.STOP or "Stop") or (self.L.PLAY or "Play"))
     b:Show()
 end
-function B:SetupPlayButton()
+function Writings:SetupPlayButton()
     if self.playButton then return self.playButton end
     if not ItemTextFrame then return nil end
     local b=CreateFrame("Button",nil,ItemTextFrame,"UIPanelButtonTemplate")
@@ -32,17 +32,17 @@ function B:SetupPlayButton()
         end
     else b:SetPoint("BOTTOMRIGHT",ItemTextFrame,"TOPRIGHT",-39,-412) end
     b:SetScript("OnClick",function()
-        local id=B:PageOnScreen()
+        local id=Writings:PageOnScreen()
         if not id then return end
-        local book=B:PlaceOf(id)
-        if B:IsNarrating(book) then B:StopReading(book)
-        else B:ReadCurrent() end
-        B:RefreshPlayButton()
+        local book=Writings:PlaceOf(id)
+        if Writings:IsNarrating(book) then Writings:StopReading(book)
+        else Writings:ReadCurrent() end
+        Writings:RefreshPlayButton()
     end)
     b:SetScript("OnEnter",function()
         if not GameTooltip then return end
         GameTooltip:SetOwner(b,"ANCHOR_RIGHT")
-        GameTooltip:SetText((b:GetText()==(B.L.STOP or "Stop")) and (B.L.STOP_TIP or "Stop reading this book") or (B.L.PLAY_TIP or "Read this book aloud"))
+        GameTooltip:SetText((b:GetText()==(Writings.L.STOP or "Stop")) and (Writings.L.STOP_TIP or "Stop reading this book") or (Writings.L.PLAY_TIP or "Read this book aloud"))
         GameTooltip:Show()
     end)
     b:SetScript("OnLeave",function() if GameTooltip then GameTooltip:Hide() end end)

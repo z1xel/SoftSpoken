@@ -1,7 +1,7 @@
 -- Which page the client is showing, if any.
 --
--- ItemTextFrame is the whole of the book UI on all three targets, and it serves MAIL as
--- well: the same frame, the same events, the same getters. So the first question here is
+-- Vanilla 1.12's ItemTextFrame displays world readables and also serves MAIL:
+-- the same frame and getters. The first question is therefore
 -- never "which page is this" but "is this a book at all" -- a reader who opens a letter
 -- from another player and hears it read aloud has been given somebody else's post by a
 -- narrator, which is worse than hearing nothing.
@@ -14,14 +14,14 @@
 --   3. nothing                          -- silently, because the alternative is reading the
 --                                          wrong page's words aloud
 
-local SpokenBooks = SSB
+local Writings = SpokenWritings
 
 --- Whether the frame is showing mail rather than something the world wrote.
 ---
 --- Two tests, because they catch different things. A creator is a player's name, and only
 --- mail has one. And MailFrame being open is what catches a piece of mail with no creator
 --- at all -- a returned letter, or one the server sent.
-function SpokenBooks:IsMail()
+function Writings:IsMail()
 	local creator = ItemTextGetCreator and ItemTextGetCreator()
 	if creator and creator ~= "" then
 		return true
@@ -50,7 +50,7 @@ local function Find(index, title, number, checksum)
 end
 
 --- The page id the client is showing, or nil.
-function SpokenBooks:PageOnScreen()
+function Writings:PageOnScreen()
 	local data = self:Data()
 	if not data or self:IsMail() then
 		return nil
@@ -90,7 +90,7 @@ end
 -- identified as books, in the language of the matching index, for those packs.
 -- The title is the book's, so the pages queued after this one carry it too: the corpus has
 -- only the English one.
-function SpokenBooks:RememberPageText(pageId, language, text, title)
+function Writings:RememberPageText(pageId, language, text, title)
 	self.pageText = self.pageText or {}
 	self.pageText[language] = self.pageText[language] or {}
 	self.pageText[language][pageId] = text:gsub("\r\n?", "\n"):gsub("%$[Bb]", "\n")
@@ -104,7 +104,7 @@ function SpokenBooks:RememberPageText(pageId, language, text, title)
 end
 
 --- Where a page sits: its book and its number. Nil for a page the lookup does not carry.
-function SpokenBooks:PlaceOf(pageId)
+function Writings:PlaceOf(pageId)
 	local data = self:Data()
 	local place = data and data.pages[pageId]
 	if not place then
@@ -114,7 +114,7 @@ function SpokenBooks:PlaceOf(pageId)
 end
 
 --- The book a page belongs to: its title and its pages in reading order.
-function SpokenBooks:BookOf(pageId)
+function Writings:BookOf(pageId)
 	local data = self:Data()
 	local book = self:PlaceOf(pageId)
 	return book and data.books[book] or nil

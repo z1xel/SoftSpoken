@@ -1,12 +1,12 @@
--- The 1.12 Zones settings page. Presentation only: every option below is
--- already read by Zones' narration or map code. No new settings storage.
-local R = SSZZonesRuntime
+-- The 1.12 Places settings page. Presentation only: narration and map
+-- behavior remain owned by Places runtime; no new settings storage.
+local PlacesRuntime = SpokenPlacesRuntime
 local Layout = SpokenLayout
 local optionsPage
 local optionsLayout
 
 local function Settings()
-    return R.CharDB().settings
+    return PlacesRuntime.CharDB().settings
 end
 
 local function Refresh()
@@ -54,13 +54,30 @@ local function Build()
     layout:Requires(mode, function()
         return Spoken:IsPartOn("zones") and Settings().auto
     end, "Enable Places and automatic narration to use this.")
-    local combat = layout:Checkbox("Hold During Combat",
-        "Delay automatic Places narration while in combat.",
+    local combat = layout:Checkbox("Hold Narration in Combat",
+        "Do not start new automatic Places narration during combat. A recording already speaking is allowed to finish.",
         function() return Settings().holdCombat end,
-        function(on) Settings().holdCombat = on; if R.Recheck then R.Recheck() end end)
+        function(on)
+            Settings().holdCombat = on and true or false
+            if not on then Settings().stopCombat = false end
+            if PlacesRuntime.Recheck then PlacesRuntime.Recheck() end
+            Refresh()
+        end)
     layout:Requires(combat, function()
         return Spoken:IsPartOn("zones") and Settings().auto
     end, "Enable Places and automatic narration to use this.")
+    local stop = layout:Checkbox("Stop Narration in Combat",
+        "Also interrupt currently playing automatic Places narration when combat starts. The line stays queued and replays from the beginning after combat.",
+        function() return Settings().stopCombat == true end,
+        function(on)
+            Settings().stopCombat = on and true or false
+            if on then Settings().holdCombat = true end
+            if PlacesRuntime.Recheck then PlacesRuntime.Recheck() end
+            Refresh()
+        end)
+    layout:Requires(stop, function()
+        return Spoken:IsPartOn("zones") and Settings().auto and Settings().holdCombat
+    end, "Enable Hold Narration in Combat first.")
     local greeting = layout:Checkbox("Starting Character Greeting",
         "Narrate a starting-area introduction for a new level-one character.",
         function() return Settings().greeting end,
@@ -88,10 +105,10 @@ local function Build()
     -- metadata. Coverage is counted only when a pack is expanded.
     layout:PackInventory(function()
         local result = {}
-        for _, pack in ipairs(R.AudioPackDetails()) do
+        for _, pack in ipairs(PlacesRuntime.AudioPackDetails()) do
             local entry = pack
             local addon = entry.addon
-            local source = entry.source
+            local voicePack = entry.source
             local version = GetAddOnMetadata and GetAddOnMetadata(addon, "Version")
             local loaded = IsAddOnLoaded and IsAddOnLoaded(addon)
             local demand = IsAddOnLoadOnDemand and IsAddOnLoadOnDemand(addon)
@@ -115,16 +132,16 @@ local function Build()
                 table.insert(fields, { label = "Load on Demand", value = demand and YES or NO })
             end
             table.insert(result, {
-                id = addon, source = source, name = entry.title,
+                id = addon, source = voicePack, name = entry.title,
                 version = version, status = "Registered", details = fields,
                 extra = function()
                     local zones, subzones = 0, 0
-                    for _, recording in pairs(source.zones or {}) do
+                    for _, recording in pairs(voicePack.zones or {}) do
                         if type(recording) == "table" and recording.file and recording.len then
                             zones = zones + 1
                         end
                     end
-                    for _, byZone in pairs(source.subzones or {}) do
+                    for _, byZone in pairs(voicePack.subzones or {}) do
                         if type(byZone) == "table" then
                             for _, recording in pairs(byZone) do
                                 if type(recording) == "table" and recording.file and recording.len then
@@ -149,13 +166,13 @@ local function Build()
     layout:Defaults(function()
         Layout.Confirm("Reset Places preferences? Discovered and heard areas are kept.",
             "Reset", "Cancel", function()
-                R.ResetOptions()
+                PlacesRuntime.ResetOptions()
                 -- Apply the restored map preference immediately, not only
                 -- after the next reload or map interaction.
                 if SSZMapPanel and SSZMapPanel.SetEnabled then
                     SSZMapPanel.SetEnabled(true)
                 end
-                if R.Recheck then R.Recheck() end
+                if PlacesRuntime.Recheck then PlacesRuntime.Recheck() end
                 Refresh()
             end)
     end)

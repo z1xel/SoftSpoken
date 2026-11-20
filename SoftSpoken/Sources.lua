@@ -19,7 +19,6 @@ SourceMethods.__index = SourceMethods
 ---@field interClipGap? number
 ---@field channel? fun():string
 ---@field admit? fun(clip, queue):boolean, string?
----@field testBeforeQueue? boolean
 ---@field onQueueEnter? fun()
 ---@field onQueueEmpty? fun()
 ---@field packs? fun():string[] -- the voice packs this source found installed, by name
@@ -41,7 +40,6 @@ function Sources:Register(key, info)
         interClipGap = info.interClipGap or 0.55,
         channel = info.channel,
         admit = info.admit,
-        testBeforeQueue = info.testBeforeQueue,
         onQueueEnter = info.onQueueEnter,
         onQueueEmpty = info.onQueueEmpty,
         packs = info.packs,
@@ -74,13 +72,13 @@ end
 --- part by key whether or not it is installed.
 function Sources:IsTurnedOff(part)
     local key = type(part) == "table" and part.key or part
-    local parts = Addon.db and Addon.db.profile.Parts
+    local parts = CoreController.db and CoreController.db.profile.Parts
     return parts ~= nil and key ~= nil and parts[key] == false
 end
 
 function Sources:SetTurnedOff(key, off)
     -- Not `off and false or nil`, which is nil either way.
-    if off then Addon.db.profile.Parts[key] = false else Addon.db.profile.Parts[key] = nil end
+    if off then CoreController.db.profile.Parts[key] = false else CoreController.db.profile.Parts[key] = nil end
     self:Apply(key)
 end
 
@@ -106,12 +104,19 @@ function Sources:Iterate()
     end
 end
 
---- The channel a clip from this source plays on: its own if it names one, else Master. There is
---- no setting for it: on Dialog, Silence NPC Voices would silence Spoken's voices with the NPCs',
---- and Game Greeting First could not tell them from an NPC's. A string, as PlaySoundFile takes.
+--- ClassicAPI's supported file categories. A source-specific callback still
+--- takes precedence; otherwise all three narration modules share the user's
+--- opt-in category. A corrupted/retired value safely falls back to Master.
+--- Changing the preference affects the NEXT file, never the owned live sound.
 function SourceMethods:GetChannel()
     if self.channel then
         return self.channel()
+    end
+    local profile = CoreController:Profile("Audio")
+    local choice = profile and profile.NarrationChannel or "Master"
+    if choice == "Master" or choice == "SFX" or choice == "Music"
+        or choice == "Ambience" then
+        return choice
     end
     return "Master"
 end
@@ -130,7 +135,7 @@ function SourceMethods:Enqueue(clip)
     return Noted(clip, "queue", SoundQueue:Add(clip, self, false))
 end
 
--- Used by Spoken Books to continue a multi-page reading ahead of other waiting
+-- Used by Writings to continue a multi-page reading ahead of other waiting
 -- clips, after the preceding page has finished. Unlike PlayNow, this never
 -- interrupts a clip that is currently speaking.
 function SourceMethods:Continue(clip)
@@ -156,8 +161,10 @@ function SourceMethods:GetClipState(matcher)
     return SoundQueue:GetClipState(self:FindClip(matcher))
 end
 
-function SourceMethods:Remove(clip)
-    return SoundQueue:RemoveSoundFromQueue(clip)
+-- A caller replacing a clip immediately (e.g. a physical book page turn)
+-- can request a hard stop so the next file has a free native bus slot.
+function SourceMethods:Remove(clip, immediate)
+    return SoundQueue:RemoveSoundFromQueue(clip, nil, immediate)
 end
 
 function SourceMethods:StopAll()

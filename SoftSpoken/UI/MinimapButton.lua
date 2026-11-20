@@ -1,7 +1,7 @@
 setfenv(1, SpokenEnv)
 
--- The one minimap button. Feature addons contribute menu entries rather than buttons of
--- their own, so a player with two Spoken addons installed gets one icon, not two.
+-- The one Core minimap button. Stories, Places and Writings register menu
+-- entries rather than installing separate icons.
 --
 -- Left-click opens settings, middle-click opens the Compendium, and right-click
 -- opens the grouped action menu by default. All three are configurable using
@@ -9,7 +9,7 @@ setfenv(1, SpokenEnv)
 Minimap = { entries = {} }
 
 local ICON = [[Interface\AddOns\SoftSpoken\icon.tga]]
-local ldbObject, menuFrame, minimapButton
+local ldbObject, menuFrame
 
 -- The player's own entries.
 local PLAYER_ENTRIES = {
@@ -18,7 +18,7 @@ local PLAYER_ENTRIES = {
     -- Azeroth's Compendium, whichever parts have a tab in it (UI/Compendium.lua in each).
     { id = "Compendium", text = L.OPT_COMPENDIUM_OPEN, order = 3,
         visible = function()
-            local compendium = _G.SSCCompendium or _G.SpokenZones112Compendium or _G.SpokenCompendium
+            local compendium = _G.SpokenCompendium
             return compendium ~= nil and compendium.Available ~= nil and compendium:Available()
         end,
         onClick = function() Spoken:ToggleCompendium() end },
@@ -35,8 +35,8 @@ local SAFE_CLICK_DEFAULTS = {
     RightButton = "Menu",
 }
 function Minimap:GetClickCommand(button)
-    local commands = Addon.db and Addon.db.profile
-        and Addon.db.profile.Minimap and Addon.db.profile.Minimap.Commands
+    local commands = CoreController.db and CoreController.db.profile
+        and CoreController.db.profile.Minimap and CoreController.db.profile.Minimap.Commands
     if not commands then return SAFE_CLICK_DEFAULTS[button] end
     local command = commands[button]
     if command == nil or command == "" or command == "PlayPause" or command == "Stop" then
@@ -87,16 +87,10 @@ function Minimap:FindEntry(id)
     end
 end
 
--- Two menus, because there are two kinds of client.
---
--- Where the client has UIDropDownMenu, that is what opens: it is the menu every other
--- addon uses, and it brings its own background, its highlight under the cursor, its
--- closing on a click elsewhere and its toggling, none of which is worth reimplementing.
---
--- The three legacy clients do not have it in a shape worth using -- EasyMenu does
--- not exist on 1.12 at all, and the initializer differs on the other two -- so there the
--- player draws its own list of buttons and supplies those four behaviours by hand. That
--- code exists for those clients only, and is below.
+-- Use Blizzard's dropdown where the required menu APIs are available.
+-- Vanilla 1.12 lacks EasyMenu, so the built-in action-button menu provides
+-- highlighting, dismissal and toggle behavior without modern UI dependencies.
+-- The feature check is defensive, not support for additional client versions.
 local dropDown
 local menuCatcher
 local iconTooltip
@@ -279,9 +273,7 @@ local function ToggleMenu(anchor)
     ShowMenu(anchor)
 end
 
---- One click on the button, wherever it is: on the minimap or in Blizzard's addon
---- compartment. `button` is the frame a menu opens on and the one feature addons get;
---- the lib's own button, not the frame the compartment clicked with (see OnClick).
+--- One click on the LibDBIcon button; feature addons share its menu.
 function Minimap:HandleClick(button, mouseButton)
     local command = self:GetClickCommand(mouseButton)
     if command == "Menu" then
@@ -306,7 +298,7 @@ function Minimap:Setup()
     local LibDBIcon = LibStub("LibDBIcon-1.0", true)
     if not LibDataBroker or not LibDBIcon then return end
 
-    local db = Addon.db.profile.Minimap.LibDBIcon
+    local db = CoreController.db.profile.Minimap.LibDBIcon
     -- Seeded once, so the button does not start at angle 0 under other addons' buttons.
     if db.minimapPos == nil then db.minimapPos = 204 end
 
@@ -315,20 +307,6 @@ function Minimap:Setup()
         text = "SoftSpoken",
         icon = ICON,
         OnClick = function(button, mouseButton)
-            -- Blizzard's compartment calls the registered entry with its own menu frame,
-            -- which is closing as the click is handled: a menu opened on it is lost with
-            -- that frame (the first click shows nothing, and the leftover surfaces on
-            -- the next compartment open). From the compartment, wait for the close to
-            -- finish and open on our own button, which neither moves nor closes.
-            if minimapButton and button ~= minimapButton then
-                if C_Timer and C_Timer.After then
-                    C_Timer.After(0.05, function()
-                        Minimap:HandleClick(minimapButton, mouseButton)
-                    end)
-                    return
-                end
-                button = minimapButton
-            end
             Minimap:HandleClick(button, mouseButton)
         end,
         OnTooltipShow = function(tooltip)
@@ -360,30 +338,12 @@ function Minimap:Setup()
         end,
     })
     LibDBIcon:Register("Spoken", ldbObject, db)
-    -- The frame the lib built for this addon. The compartment hands the OnClick a
-    -- different, short-lived frame (see OnClick), so the real button is kept here.
-    minimapButton = LibDBIcon:GetMinimapButton("Spoken")
 end
 
 function Minimap:Refresh()
     local LibDBIcon = LibStub("LibDBIcon-1.0", true)
     if LibDBIcon and ldbObject then
-        LibDBIcon:Refresh("Spoken", Addon.db.profile.Minimap.LibDBIcon)
+        LibDBIcon:Refresh("Spoken", CoreController.db.profile.Minimap.LibDBIcon)
     end
 end
 
---- Whether the Spoken button also shows in Blizzard's addon compartment, on the
---- modern clients that have one. The flag is the settings panel's; the lib's add and
---- remove keep the compartment's entry in step. The flag is written last: removing the
---- entry clears it to nil, which AceDB reads back as the default, on.
-function Minimap:ToggleCompartment(shouldShow)
-    local LibDBIcon = LibStub("LibDBIcon-1.0", true)
-    if LibDBIcon then
-        if shouldShow then
-            LibDBIcon:AddButtonToCompartment("Spoken")
-        else
-            LibDBIcon:RemoveButtonFromCompartment("Spoken")
-        end
-    end
-    Addon.db.profile.Minimap.LibDBIcon.showInCompartment = shouldShow
-end

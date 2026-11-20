@@ -113,28 +113,28 @@ function Utils:IsNPCPlayer()
 end
 
 --- Returns the button index offset of the virtualized Quest Log scroll frame.
---- - Overridden in 3.3.5 and 3.4 due to the different Quest Log layout that uses `HybridScrollFrame` instead of `FauxScrollFrame`.
+--- Uses Vanilla's FauxScrollFrame-based quest log on the supported 1.12 client.
 ---@return number offset
 function Utils:GetQuestLogScrollOffset()
     return FauxScrollFrame_GetOffset(QuestLogListScrollFrame)
 end
 
 --- Returns the `Button` that represents the quest in the Quest Log frame.
---- - Overridden in 3.3.5 and 3.4 due to the different naming scheme used by the Quest Log.
+--- Uses the Vanilla QuestLogTitle frame naming convention.
 ---@return Button button
 function Utils:GetQuestLogTitleFrame(index)
     return _G["QuestLogTitle" .. index]
 end
 
 --- Returns the title `FontString` of the button that represents the quest in the Quest Log frame.
---- - Overridden in 3.3.5 and 3.4 due to the different naming scheme used by the Quest Log.
+--- Uses the Vanilla QuestLogTitle frame naming convention.
 ---@return FontString title
 function Utils:GetQuestLogTitleNormalText(index)
     return _G["QuestLogTitle" .. index .. "NormalText"]
 end
 
 --- Returns the quest tracking check mark `Texture` of the button that represents the quest in the Quest Log frame.
---- - Overridden in 3.3.5 and 3.4 due to the different naming scheme used by the Quest Log.
+--- Uses the Vanilla QuestLogTitle frame naming convention.
 ---@return Texture check
 function Utils:GetQuestLogTitleCheck(index)
     return _G["QuestLogTitle" .. index .. "Check"]
@@ -190,27 +190,4 @@ function Utils:Ordered(tbl, sorter)
     end
 
     return orderedNext, tbl, nil
-end
-
---- The page DialogueUI's window shows, as the dialog event it stands for, or nil while it is
---- closed or the bridge is not loaded.
----@return string?
-function Utils:DialogueUIPage()
-    local bridge = rawget(VoiceOver, "DialogueUIBridge")
-    return bridge and bridge.Page and bridge:Page()
-end
-
---- Whether a text colour is light: DialogueUI writes light on its dark theme, dark on parchment.
-function Utils:IsBright(r, g, b)
-    return (r or 1) * 0.299 + (g or 1) * 0.587 + (b or 1) * 0.114 >= 0.5
-end
-
---- 1 on DialogueUI's parchment, 2 on its dark theme, told by the colour it gives its text,
---- asked each time: its theme can change while the game runs.
-function Utils:DialogueUIThemeID()
-    local font = _G.DUIFont_QuestType_Left
-    if type(font) == "table" and font.GetTextColor and self:IsBright(font:GetTextColor()) then
-        return 2
-    end
-    return 1
 end

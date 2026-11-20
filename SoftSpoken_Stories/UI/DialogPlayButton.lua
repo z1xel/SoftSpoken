@@ -2,22 +2,21 @@ setfenv(1, VoiceOver)
 
 -- The Listen/Stop button on the Blizzard quest and gossip frames, for a player who turned
 -- autoplay off. "Do not start by yourself" must not mean "give me no way to start it"; the Play button is
--- not a way most players will find -- the reason SpokenBooks/UI/PlayButton.lua exists too.
+-- not a way most players will find -- Writings has its own book-frame play button too.
 --
 -- Shown only while autoplay is off. With it on the line is already playing by the time the
 -- dialog has settled, and the Spoken player frame is where it is stopped.
 --
 -- A TEXT button, not an icon, for PlayButton.lua's reason: an icon path cannot be verified
--- without launching the client, and a texture missing on a legacy client draws
--- nothing at all.
+-- without launching the client; a missing texture on 1.12 draws nothing.
 --
 -- IN THE CORNER UI/ContributeButton.lua uses, under the close button, on whichever of the two
 -- frames is up. The two buttons never want it at once: Contribute is shown only for a line the
--- packs do not have, and this only for one they do. Contribute.xml is not loaded on the legacy clients, so the placement is
--- copied here rather than borrowed from it.
+-- packs do not have, and this only for one they do. This 1.12 package does not
+-- load Contribute.xml, so the button's placement is maintained here.
 --
--- Not drawn under a replacement dialog addon: DialogueUI hides QuestFrame and GossipFrame, and
--- a button parented to UIParent would float over nothing. Players can use the native quest-log button.
+-- Only draw the button when Blizzard's quest or gossip panel is genuinely visible.
+-- A replacement dialog UI may hide those panels; never float a button over unrelated UI.
 
 local BUTTON_HEIGHT = 20
 local BUTTON_WIDTH = 60
@@ -40,7 +39,7 @@ local CLIP_EVENTS = { "CLIP_QUEUED", "CLIP_STARTED", "CLIP_STOPPED", "CLIP_DROPP
 
 DialogPlayButton = {}
 
--- The Blizzard panel each event is drawn on. VoiceOver.lua's GetVisibleQuestEvent also answers
+-- The Blizzard panel each event is drawn on. QuestRuntime.lua's GetVisibleQuestEvent also answers
 -- from the quest log or the last event when no panel is up, and there is no window to put a
 -- button on then.
 local PANELS = {
@@ -67,7 +66,7 @@ end
 local function Refresh() DialogPlayButton:Refresh() end
 local function Relabel() DialogPlayButton:Relabel() end
 
--- A copy of VoiceOver.lua's helper of the same name, which is a local there.
+-- A copy of QuestRuntime.lua's helper of the same name, which is a local there.
 local function IsFrameVisible(frame)
     if not frame then
         return false
@@ -124,11 +123,11 @@ function DialogPlayButton:Refresh()
     end
     self.line = nil
 
-    local line, event = Addon:GetVisibleLine()
+    local line, event = StoriesAddon:GetVisibleLine()
     -- Nothing reads itself with Read Automatically off, and no NPC window does at Never.
-    local held = not Addon:IsAutoplayOn() or (event and Addon:PartOfPage(event) == "gossip" and Addon:IsNever())
-    -- The panel itself, not merely the event: under DialogueUI the event arrives and the
-    -- panel never shows. Switched off, the window's part puts no button on it.
+    local held = not StoriesAddon:IsAutoplayOn() or (event and StoriesAddon:PartOfPage(event) == "gossip" and StoriesAddon:IsNever())
+    -- Require the actual panel as well as the event: replacement interfaces can
+    -- deliver quest events without displaying Blizzard's panel.
     if not held or not line or not IsFrameVisible(_G[PANELS[event]]) then
         button:Hide()
         return
@@ -143,7 +142,7 @@ end
 --- Listen or Stop, for the line already found. All a clip starting or stopping can change.
 function DialogPlayButton:Relabel()
     if self.line then
-        self.button:SetText(Player:QueuedClipFor(self.line) and L.OPT_STOP or L.OPT_LISTEN)
+        self.button:SetText(StoriesNarrator:QueuedClipFor(self.line) and L.OPT_STOP or L.OPT_LISTEN)
     end
 end
 
@@ -152,12 +151,12 @@ function DialogPlayButton:OnClick()
     if not self.line then
         return
     end
-    local clip = Player:QueuedClipFor(self.line)
+    local clip = StoriesNarrator:QueuedClipFor(self.line)
     -- The label follows from the CLIP_ callbacks either of these fires.
     if clip then
-        Player:Remove(clip)
+        StoriesNarrator:Remove(clip)
     else
-        Addon:ReadVisibleQuest("dialog Play button")
+        StoriesAddon:ReadVisibleQuest("dialog Play button")
     end
 end
 
@@ -189,7 +188,7 @@ function DialogPlayButton:Setup()
             GameTooltip:SetText(L.OPT_DIALOG_STOP_TIP)
         else
             GameTooltip:SetText(L.OPT_READ_TIP)
-            GameTooltip:AddLine(Addon:IsAutoplayOn() and L.OPT_NEVER_TIP or L.OPT_AUTOPLAY_OFF_TIP, 1, 0.8, 0.2, true)
+            GameTooltip:AddLine(StoriesAddon:IsAutoplayOn() and L.OPT_NEVER_TIP or L.OPT_AUTOPLAY_OFF_TIP, 1, 0.8, 0.2, true)
         end
         GameTooltip:Show()
     end)
@@ -207,10 +206,10 @@ function DialogPlayButton:Setup()
     watcher:SetScript("OnEvent", function()
         DialogPlayButton:Refresh()
         -- Again a moment later: a Classic quest event can arrive before GetQuestID and the
-        -- text globals change (VoiceOver.lua's directEvents comment), and the first look
+        -- text globals change (QuestRuntime.lua's directEvents comment), and the first look
         -- would label the previous quest. Not with autoplay on, when there is no button.
-        if Addon.ScheduleTimer and not Addon:IsAutoplayOn() then
-            Addon:ScheduleTimer(Refresh, 0.2)
+        if StoriesAddon.ScheduleTimer and not StoriesAddon:IsAutoplayOn() then
+            StoriesAddon:ScheduleTimer(Refresh, 0.2)
         end
     end)
 

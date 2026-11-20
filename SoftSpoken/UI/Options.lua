@@ -1,14 +1,10 @@
 setfenv(1, SpokenEnv)
 
--- The player's settings: player-wide things only. Each feature addon keeps its own panel
--- and, where the Settings API exists, nests it under this one.
---
--- Settings.RegisterCanvasLayoutCategory is the modern path and exists on every current
--- client. The three legacy clients have no Settings API at all; there the same
--- panel is a movable window opened with /spoken. One builder, two hosts.
+-- Shared Vanilla 1.12 settings window. Feature addons contribute pages displayed
+-- as tabs in the same bounded Blizzard scroll frame, opened with /spoken.
 Options = {}
 
--- The game's settings list sets its rows 25 in from the canvas's left.
+-- Keep the existing native-window row alignment.
 local INDENT = 25
 local TOP = 16    -- where the page's title starts
 local BOTTOM = 16 -- the margin under the last row
@@ -18,7 +14,7 @@ local BOTTOM = 16 -- the margin under the last row
 local LEGACY_WIDTH = 550
 local LEGACY_CONTENT_WIDTH = 470
 local LEGACY_NAV_WIDTH = 514
-local LEGACY_NAV_TOP = -77
+local LEGACY_NAV_TOP = -37
 local LEGACY_SCROLL_TOP = -116
 
 local panel
@@ -28,24 +24,24 @@ local legacyNavButtons = {}
 local legacyMaxHeight
 local FitWindow
 
--- Rows, headings and the spacing between them come from UI/Layout.lua, the file every
--- Spoken addon carries a copy of, so the three panels read alike.
+-- Rows, headings and spacing come from Core's single SettingsLayout.lua,
+-- shared by Home and each feature module's settings page.
 local Layout = SpokenLayout
 -- Product name stays consistent across locales, unlike descriptive settings text.
 local HOME_TITLE = "SoftSpoken"
 
--- The framed header around the legacy navigation tabs uses the same
--- three-piece Blizzard chat-input border as the Compendium search field:
--- a full-size ornamental cap at either end and a narrow straight middle.
--- Draw directly on the panel's BORDER layer, behind its title and real buttons;
--- a child Frame here would sit above them and risk blocking the tabs.
+-- Full-width ornamental surround for the search row using the same native
+-- chat-input artwork, cap sizes, and silver rails as main.
+-- Draw on a mouse-transparent overlay above the outer window trim, so
+-- its silver corners and rails remain visible where the frames intersect.
 local function DrawOrnateHeaderBand(window)
-    -- Open-top U-shaped silver trim beneath the navigation tabs.
-    -- Keep only the bottom corners/rail and the two vertical sides;
-    -- the title and existing window chrome supply the upper decoration.
+    -- Both horizontal rails and all four corner caps surround the search.
+    -- The original open-top U from main omitted its three top pieces.
     local art = [[Interface\ChatFrame\UI-ChatInputBorder-]]
     local leftX, rightX = 2, -2
-    local topY, bottomY = -17, -111
+    -- Search EditBox spans approximately y=-72..-93. Keep the native
+    -- 16-unit corner pieces and give the field 7-8 units of vertical padding.
+    local topY, bottomY = -65, -101
     local cornerW, cornerH = 28, 16
 
     local function Part(file, layer, u1, u2, v1, v2, width, height, anchor, relative, x, y)
@@ -58,7 +54,19 @@ local function DrawOrnateHeaderBand(window)
         return tex
     end
 
-    -- Bottom ornamentation only. No top corners or horizontal top rail.
+    -- These are the three missing pieces: the upper corner caps and top rail.
+    local tl = Part("Left", "BORDER", 0, 28/256, 0, 0.5,
+        cornerW, cornerH, "TOPLEFT", "TOPLEFT", leftX, topY)
+    local tr = Part("Right", "ARTWORK", 228/256, 1, 0, 0.5,
+        cornerW, cornerH, "TOPRIGHT", "TOPRIGHT", rightX, topY)
+
+    local top = window:CreateTexture(nil, "BORDER")
+    top:SetTexture(art .. "Left")
+    top:SetTexCoord(75/256, 1, 0, 0.5)
+    top:SetHeight(cornerH)
+    top:SetPoint("TOPLEFT", tl, "TOPRIGHT", 0, 0)
+    top:SetPoint("TOPRIGHT", tr, "TOPLEFT", 0, 0)
+
     local bl = Part("Left", "BORDER", 0, 28/256, 0.5, 1,
         cornerW, cornerH, "BOTTOMLEFT", "TOPLEFT", leftX, bottomY)
     local br = Part("Right", "ARTWORK", 228/256, 1, 0.5, 1,
@@ -71,7 +79,7 @@ local function DrawOrnateHeaderBand(window)
     bottom:SetPoint("BOTTOMLEFT", bl, "BOTTOMRIGHT", 0, 0)
     bottom:SetPoint("BOTTOMRIGHT", br, "BOTTOMLEFT", 0, 0)
 
-    -- Vertical sides still join the lower corners, as before.
+    -- The side rails join the new upper caps to the existing lower caps.
     local function Vertical(file, u1, u2, right)
         local tex = window:CreateTexture(nil, right and "ARTWORK" or "BORDER")
         tex:SetTexture(art .. file)
@@ -87,12 +95,9 @@ local function DrawOrnateHeaderBand(window)
     Vertical("Right", 244/256, 248/256, true)
 end
 
--- The ways of showing a line, by the name Addon:PlayerStyle gives each.
+-- Only the two narrator styles supported on Vanilla 1.12.
 local STYLE_LABELS = {
-    minimal = L.OPT_STYLE_MINIMAL,
     classic = L.OPT_STYLE_CLASSIC,
-    dialogueui = L.OPT_STYLE_DIALOGUEUI,
-    subtitle = L.OPT_STYLE_SUBTITLE,
     none = L.OPT_STYLE_NONE,
 }
 
@@ -120,19 +125,8 @@ local PARTS = {
         icon = [[Interface\Icons\INV_Misc_Book_09]], order = 3 },
 }
 
--- Sketches of the ways of showing a line, in flat colour, for their tiles: a portrait in
--- gold, words as pale bars, a window as a darker box. Sized for four tiles to a row, and
--- narrow enough for a fifth.
+-- Sketches for the two supported narrator cards: the classic window and voice only.
 local SKETCHES = {
-    minimal = function(art)
-        local R, w = Layout.Rect, art.width
-        local x = (w - 78) / 2
-        R(art, x, 16, 78, 26, 0.2, 0.18, 0.15, 1)
-        R(art, x + 3, 19, 20, 20, 0.75, 0.6, 0.3, 1)
-        R(art, x + 27, 22, 44, 3, 1, 0.82, 0, 0.9)
-        R(art, x + 27, 30, 40, 2, 0.9, 0.9, 0.9, 0.7)
-        R(art, x + 27, 35, 32, 2, 0.9, 0.9, 0.9, 0.7)
-    end,
     classic = function(art)
         local R, w = Layout.Rect, art.width
         local x = (w - 96) / 2
@@ -146,27 +140,6 @@ local SKETCHES = {
         R(art, x + 41, 36, 40, 2, 0.48, 0.58, 0.65, 0.8)
         R(art, x + 41, 42, 34, 2, 0.48, 0.58, 0.65, 0.6)
     end,
-    -- Parchment, a header strip with the face at its left and the title past it, the words
-    -- in dark ink, a slim scrollbar beside them.
-    dialogueui = function(art)
-        local R, w = Layout.Rect, art.width
-        local x = (w - 60) / 2
-        R(art, x, 6, 60, 48, 0.78, 0.68, 0.5, 1)
-        R(art, x + 3, 9, 54, 12, 0.45, 0.36, 0.24, 1)
-        R(art, x + 5, 10, 10, 10, 0.75, 0.6, 0.3, 1)
-        R(art, x + 18, 14, 26, 3, 0.95, 0.88, 0.7, 0.9)
-        R(art, x + 6, 26, 44, 2, 0.19, 0.17, 0.13, 0.85)
-        R(art, x + 6, 32, 40, 2, 0.19, 0.17, 0.13, 0.85)
-        R(art, x + 6, 38, 30, 2, 0.19, 0.17, 0.13, 0.85)
-        R(art, x + 53, 26, 2, 14, 0.5, 0.36, 0.24, 0.8)
-        R(art, x + 6, 47, 48, 1, 0.5, 0.36, 0.24, 0.8)
-    end,
-    subtitle = function(art)
-        local R, w = Layout.Rect, art.width
-        R(art, (w - 32) / 2, 30, 32, 3, 1, 0.82, 0, 0.9)
-        R(art, (w - 84) / 2, 38, 84, 2, 0.95, 0.95, 0.95, 0.85)
-        R(art, (w - 64) / 2, 44, 64, 2, 0.95, 0.95, 0.95, 0.85)
-    end,
     -- Nothing on screen: the bars of a sound rising and falling, in the middle of the box.
     none = function(art)
         local R, w = Layout.Rect, art.width
@@ -178,17 +151,11 @@ local SKETCHES = {
     end,
 }
 local STYLE_TEXTS = {
-    minimal = L.OPT_STYLE_MINIMAL_TEXT,
     classic = L.OPT_STYLE_CLASSIC_TEXT,
-    dialogueui = L.OPT_STYLE_DIALOGUEUI_TEXT,
-    subtitle = L.OPT_STYLE_SUBTITLE_TEXT,
     none = L.OPT_STYLE_NONE_TEXT,
 }
 local STYLE_TIPS = {
-    minimal = L.WELCOME_STYLE_MINIMAL_TIP,
     classic = L.WELCOME_STYLE_CLASSIC_TIP,
-    dialogueui = L.WELCOME_STYLE_DIALOGUEUI_TIP,
-    subtitle = L.WELCOME_STYLE_SUBTITLE_TIP,
     none = L.WELCOME_STYLE_NONE_TIP,
 }
 -- Locale metadata and auto/fallback policy have one owner in core.
@@ -196,23 +163,23 @@ local LANGUAGES = Spoken.Language.LOCALES
 
 --- Show `style` on screen with a sample line, or nil to stop.
 function Options:Preview(style)
-    Addon.previewStyle = style
-    PlayerFrame:RefreshConfig()
+    CoreController.previewStyle = style
+    NarratorWindow:RefreshConfig()
     Transcript:RefreshConfig()
     if Subtitle then Subtitle:ShowSample(style == "subtitle") end
-    PlayerFrame:ShowSample(style == "classic")
+    NarratorWindow:ShowSample(style == "classic")
 end
 
 --- Preview mode: on, the chosen style is on screen with a sample line, and choosing another swaps
 --- to it (StyleChosen); off, or when the page that turned it on closes, it all goes.
 function Options:SetPreviewing(on)
     self.previewing = on and true or false
-    self:Preview(on and Addon:PlayerStyle() or nil)
+    self:Preview(on and CoreController:PlayerStyle() or nil)
 end
 
 --- A style was chosen: in preview mode, it is the one shown now.
 function Options:StyleChosen()
-    if self.previewing then self:Preview(Addon:PlayerStyle()) end
+    if self.previewing then self:Preview(CoreController:PlayerStyle()) end
 end
 
 --- The one Preview button over the narrator styles, on Spoken's page and in the welcome window,
@@ -226,79 +193,52 @@ function Options:PreviewButton(layout)
     layout:OnRefresh(function()
         button:SetText(Options.previewing and L.STYLE_PREVIEW_HIDE or L.STYLE_PREVIEW)
         Layout.FitButton(button)
-        if Addon:PlayerStyle() == "none" and not Options.previewing then button:Disable() else button:Enable() end
+        if CoreController:PlayerStyle() == "none" and not Options.previewing then button:Disable() else button:Enable() end
     end)
     return button
 end
-
--- Feature addons' pages asked for before this panel was registered; see Options:AddPage.
-local pendingPages = {}
 
 -- The same parts and ways of showing lines, drawn the same way, in the welcome window.
 Options.PARTS, Options.SKETCHES = PARTS, SKETCHES
 Options.STYLE_LABELS, Options.STYLE_TEXTS, Options.STYLE_TIPS = STYLE_LABELS, STYLE_TEXTS, STYLE_TIPS
 
 --- The ways of showing lines this client can offer, in the order they are listed: the narrator
---- cards, and the legacy window's list. Subtitles Only first, the default; Voice Only last, its
---- card a sound's bars rising and falling, since there is nothing on screen to picture.
+--- cards, and the legacy window's list. Classic Window first; Voice Only last,
+--- illustrated by the bars of a sound rising and falling.
 function Options:Styles()
     return { "classic", "none" }
 end
 
-local function Build(canvas)
+local function Build()
     panel = CreateFrame("Frame", "SpokenOptionsPanel", UIParent)
-    -- The family's one entry in the game's settings. This page is its Home; each feature
-    -- addon's page is nested under it (Options:AddPage).
     panel.name = HOME_TITLE
-    -- On the settings canvas the rows are laid out in a scroller, as the books and zones
-    -- panels are: the canvas neither scrolls nor clips, and the contributions rows pushed
-    -- this panel past its bottom edge, drawing the minimap section over the game world. The
-    -- legacy window grows to fit its rows instead (FitWindow), so it keeps laying out on
-    -- the panel itself and never meets a ScrollFrame on a client that has not been tried.
-    local host = panel
-    if canvas then
-        scroller = Layout.Scroll(panel)
-        host = scroller.child
-        panel.content = host
-    else
-        -- Vanilla 1.12 needs a *bounded* viewport: dozens of rows cannot fit in a
-        -- standalone window that simply grows forever. Use the original Blizzard
-        -- scroll template, not the modern custom Layout.Scroll implementation.
-        scroller = CreateFrame("ScrollFrame", "SpokenOptionsLegacyScroll", panel, "UIPanelScrollFrameTemplate")
-        scroller:EnableMouseWheel(true)
-        scroller:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, LEGACY_SCROLL_TOP)
-        scroller:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -42, 20)
-        host = CreateFrame("Frame", nil, scroller)
-        host:SetWidth(LEGACY_CONTENT_WIDTH)
-        host:SetHeight(1)
-        scroller:SetScrollChild(host)
-        legacyScrollChild = host
-        panel.content = host
-    end
-    local cfg = function() return Addon.db.profile.Frame end
-    local audio = function() return Addon.db.profile.Audio end
-    local transcript = function() return Addon.db.profile.Transcript end
-    local mm = function() return Addon.db.profile.Minimap.LibDBIcon end
-    local function Style() return Addon:PlayerStyle() end
+    -- The only supported host is the bounded native Vanilla 1.12 ScrollFrame.
+    scroller = CreateFrame("ScrollFrame", "SpokenOptionsLegacyScroll", panel, "UIPanelScrollFrameTemplate")
+    scroller:EnableMouseWheel(true)
+    scroller:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, LEGACY_SCROLL_TOP)
+    scroller:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -42, 20)
+    local host = CreateFrame("Frame", nil, scroller)
+    host:SetWidth(LEGACY_CONTENT_WIDTH)
+    host:SetHeight(1)
+    scroller:SetScrollChild(host)
+    legacyScrollChild = host
+    panel.content = host
+    local cfg = function() return CoreController.db.profile.Frame end
+    local audio = function() return CoreController.db.profile.Audio end
+    local transcript = function() return CoreController.db.profile.Transcript end
+    local mm = function() return CoreController.db.profile.Minimap.LibDBIcon end
+    local function Style() return CoreController:PlayerStyle() end
     local function InWindow()
         local style = Style()
         return style == "classic"
     end
-    local function Small() return Style() == "minimal" end
-    local function Subtitles() return Style() == "subtitle" end
     local function Words() return transcript().Enabled end
-    local refresh = function() PlayerFrame:RefreshConfig(); Options:UpdateRows() end
+    local refresh = function() NarratorWindow:RefreshConfig(); Options:UpdateRows() end
     local refreshTranscript = function() Transcript:RefreshConfig(); Options:UpdateRows() end
 
     local layout = Layout.New(host, INDENT, -TOP)
     panel.layout = layout
     layout:Header(HOME_TITLE, L.OPT_HOME_NOTE, nil, [[Interface\AddOns\SoftSpoken\icon.tga]], 56)
-    -- On the canvas the page is headed as the game's pages are: its name and its Defaults, and
-    -- no paragraph under them, as the game's own pages have none.
-    if canvas then
-        layout:HideHeader()
-        layout:Intro([[Interface\AddOns\SoftSpoken\icon.tga]], HOME_TITLE)
-    end
     -- Two kinds of row that does nothing right now. One that belongs to another way of
     -- showing lines is hidden, and the page closes up round it: a player who chose subtitles
     -- has no use for the window's size. One waiting on a switch beside it is greyed out
@@ -307,11 +247,6 @@ local function Build(canvas)
     local function Only(row, applies) return layout:ShowWhen(row, applies) end
     local function Shown() return Style() ~= "none" end
 
-    -- Every Spoken page is searchable from here; the game's own settings search cannot see
-    -- inside an addon's canvas.
-    if canvas and Search then
-        layout:Custom(Search:Build(host), Search.height, function(width) Search:Fit(width) end)
-    end
 
     -- Show the three main modules; Gossip belongs to Quests and is still
     -- configured on its page. Keep it marked as known so the optional-source
@@ -333,11 +268,7 @@ local function Build(canvas)
             button = L.OPT_PART_SETTINGS, onButton = function() Options:OpenPage(order) end,
             buttonEnabled = function() return Sources:Get(key) ~= nil end })
     end
-    if canvas then
-        layout:Cards(cards)
-    else
-        layout:ModuleList(cards)
-    end
+    layout:ModuleList(cards)
     -- Optional third-party sources keep their existing switches. Bind the
     -- callbacks through a function scope: 1.12's Lua 5.0 generic-for
     -- variables must not be captured directly by a deferred UI handler.
@@ -361,9 +292,9 @@ local function Build(canvas)
             tooltip = STYLE_TIPS[style], art = SKETCHES[style] })
     end
     Options:PreviewButton(layout)
-    layout:Tiles(tiles, Style, function(v) Addon:SetPlayerStyle(v) end,
+    layout:Tiles(tiles, Style, function(v) CoreController:SetPlayerStyle(v) end,
         function()
-            PlayerFrame:RefreshConfig(); refreshTranscript()
+            NarratorWindow:RefreshConfig(); refreshTranscript()
             Options:StyleChosen()
         end, { choose = L.STYLE_CHOOSE })
     layout:Group(L.OPT_NARRATOR_SETTINGS)
@@ -389,30 +320,17 @@ local function Build(canvas)
         Only(fade, InWindow)
         Requires(fade, Words, L.REASON_WORDS)
     end
-    -- The following options need the full modern transcript engine.
-    if not Transcript.unavailable then
-        Only(layout:Checkbox(L.TRANSCRIPT_SHOW, L.TRANSCRIPT_SHOW_TIP,
-            function() return transcript().Enabled end,
-            function(v) Transcript:SetEnabled(v) end, function() Options:UpdateRows() end), Shown)
-        local typewriter = layout:Checkbox(L.TRANSCRIPT_TYPEWRITER, L.TRANSCRIPT_TYPEWRITER_TIP,
-            function() return transcript().Typewriter end,
-            function(v) transcript().Typewriter = v end, refreshTranscript)
-        Only(typewriter, Shown)
-        Requires(typewriter, Words, L.REASON_WORDS)
-        -- How the subtitles type, under it: letter by letter, or whole words.
-        layout:Indent()
-        local by = layout:Dropdown(L.TRANSCRIPT_TYPEWRITER_BY, L.TRANSCRIPT_TYPEWRITER_BY_TIP, { "word", "letter" },
-            function() return transcript().TypewriterBy or "letter" end,
-            function(v) transcript().TypewriterBy = v end, refreshTranscript,
-            function(v) return v == "letter" and L.TRANSCRIPT_BY_LETTER or L.TRANSCRIPT_BY_WORD end)
-        layout:Outdent()
-        Only(by, Subtitles)
-        Requires(by, function() return Words() and transcript().Typewriter end, L.REASON_TYPEWRITER)
-    end
+    -- Upstream's Show Progress Bar applies to every visible narrator;
+    -- this 1.12 port currently supports Large Window and Voice Only.
+    -- The meter is an estimate; only ClassicAPI determines audio completion.
+    Only(layout:Checkbox(L.OPT_SUBTITLE_PROGRESS, L.OPT_SUBTITLE_PROGRESS_TIP,
+        function() return transcript().SubtitleProgress ~= false end,
+        function(v) transcript().SubtitleProgress = v end, refresh), InWindow)
+
     Only(layout:Checkbox(L.OPT_LOCK_FRAME, L.OPT_LOCK_FRAME_TIP,
         function() return cfg().LockFrame end, function(v) cfg().LockFrame = v end, refresh), Shown)
     Only(layout:Button(L.OPT_RESET, 160, function()
-        PlayerFrame:Reset()
+        NarratorWindow:Reset()
         if Subtitle then Subtitle:Reset() end
     end, L.OPT_RESET_TIP), Shown)
 
@@ -428,9 +346,7 @@ local function Build(canvas)
         layout:Checkbox(L.OPT_BRONZE_TINT, L.OPT_BRONZE_TINT_TIP,
             function() return cfg().BronzeTint end, function(v) cfg().BronzeTint = v end, refresh)
     end
-    -- One row per action an addon declared optional, named by that addon. The player is
-    -- not told what any of them do. The subtitle shows the corner icon too, so the row is
-    -- there with subtitles as well as with a window.
+    -- One row per optional action, shown only for the supported classic window.
     for _, optional in ipairs(Actions.optional) do
         -- Lua 5.0 shares generic-for variables between iterations; callbacks need their own key.
         local actionID = optional.id
@@ -449,8 +365,7 @@ local function Build(canvas)
                 refresh()
                 if Subtitle then Subtitle:Update() end
             end)
-        local function StyleShowsActions() return InWindow() or Subtitles() end
-        Only(row, StyleShowsActions)
+        Only(row, InWindow)
         if isReport then
             -- Requires supplies the disabled look; BlockInteraction prevents
             -- the row's hover, tooltip and checkbox clicks on Vanilla 1.12.
@@ -460,56 +375,12 @@ local function Build(canvas)
             notice:SetTextColor(1, 0.24, 0.24)
             notice:SetAlpha(1)
             notice.layoutBaseAlpha = 1
-            Only(notice, StyleShowsActions)
+            Only(notice, InWindow)
         end
     end
     -- No "hide the window" switch: nothing on screen at all is Voice Only, a way of showing
     -- lines like the others, chosen with them above.
 
-    if not Transcript.unavailable then
-        layout:Section(L.OPT_TEXT_TITLE)
-        local function InWindowText(row)
-            Only(row, InWindow)
-            Requires(row, Words, L.REASON_WORDS)
-        end
-        InWindowText(layout:Slider(L.TRANSCRIPT_SIZE, 12, 26, 1,
-            function() return transcript().FontSize end,
-            function(v) transcript().FontSize = v end, refreshTranscript, Layout.Number, L.TRANSCRIPT_SIZE_TIP))
-        InWindowText(layout:Slider(L.TRANSCRIPT_LINES, 1, 2, 1,
-            function() return transcript().Lines end,
-            function(v) transcript().Lines = v end, refreshTranscript, Layout.Number, L.TRANSCRIPT_LINES_TIP))
-        local SCROLL_LABELS = { line = L.TRANSCRIPT_SCROLL_LINE, page = L.TRANSCRIPT_SCROLL_PAGE,
-            off = L.TRANSCRIPT_SCROLL_OFF }
-        InWindowText(layout:Dropdown(L.TRANSCRIPT_SCROLL, L.TRANSCRIPT_SCROLL_TIP, { "line", "page", "off" },
-            function() return Transcript:ScrollMode() end,
-            function(v) transcript().ScrollMode = v; Transcript.manualScroll = false end, refreshTranscript,
-            function(v) return SCROLL_LABELS[v] or v end))
-
-        layout:Section(L.OPT_SUBTITLE_TITLE)
-        local function ForSubtitles(row)
-            Only(row, Subtitles)
-            Requires(row, Words, L.REASON_WORDS)
-        end
-        -- These two are the subtitle's alone: redrawing it is enough, on every step of a drag,
-        -- without the captions' full refresh and every row's.
-        local refreshSubtitle = function() Subtitle:Update() end
-        ForSubtitles(layout:Slider(L.OPT_SUBTITLE_SIZE, 0.6, 1.6, 0.05,
-            function() return transcript().SubtitleScale end,
-            function(v) transcript().SubtitleScale = v end, refreshSubtitle, nil, L.OPT_SUBTITLE_SIZE_TIP))
-        ForSubtitles(layout:Slider(L.OPT_SUBTITLE_SENTENCES, 1, 4, 1,
-            function() return transcript().SubtitleSentences or 3 end,
-            function(v) transcript().SubtitleSentences = v end, refreshSubtitle, Layout.Number, L.OPT_SUBTITLE_SENTENCES_TIP))
-        ForSubtitles(layout:Slider(L.TRANSCRIPT_SHADOW, 0, 1, 0.05,
-            function() return transcript().SubtitleShadow end,
-            function(v) transcript().SubtitleShadow = v end, refreshSubtitle, nil, L.TRANSCRIPT_SHADOW_TIP))
-        ForSubtitles(layout:Checkbox(L.OPT_SUBTITLE_PROGRESS, L.OPT_SUBTITLE_PROGRESS_TIP,
-            function() return transcript().SubtitleProgress ~= false end,
-            function(v) transcript().SubtitleProgress = v end, refreshSubtitle))
-        panel.sampleButton = Only(layout:Button(L.SUBTITLE_SAMPLE_SHOW, 200, function()
-            Subtitle:ShowSample(not Subtitle:IsShowingSample())
-            Options:UpdateRows()
-        end, L.SUBTITLE_SAMPLE_TIP), Subtitles)
-    end
 
     -- The narrator style's settings end here; what follows is Spoken's whatever the style.
     layout:EndGroup()
@@ -517,7 +388,7 @@ local function Build(canvas)
     -- Azeroth's Compendium: Places, Writings and Stories each supply their
     -- own persisted unlock preference via the registered tab. The rows query
     -- the tab on refresh because feature modules register after this page.
-    local function Compendium() return _G.SSCCompendium or _G.SpokenZones112Compendium or _G.SpokenCompendium end
+    local function Compendium() return _G.SpokenCompendium end
     local function Tab(key)
         local compendium = Compendium()
         return compendium and compendium.Tab and compendium:Tab(key)
@@ -559,7 +430,7 @@ local function Build(canvas)
     local languageUnavailable = L.OPT_LANGUAGE_UNAVAILABLE
         or "* Multiple languages are not currently supported. Language selection is disabled."
     local function LanguageAvailable() return languageSelectionAvailable end
-    local language = function() return Addon.db.profile.Language end
+    local language = function() return CoreController.db.profile.Language end
     local voices, fallbacks = { "auto" }, { "none" }
     for _, locale in ipairs(LANGUAGES) do
         table.insert(voices, locale.code)
@@ -596,17 +467,28 @@ local function Build(canvas)
     languageNotice.layoutBaseAlpha = 1
 
     layout:Section(L.OPT_AUDIO_TITLE)
-    if audio().AutoToggleDialog ~= nil then
-        layout:Checkbox(L.OPT_MUTE_DIALOGUE,
-            Version.IsLegacyVanilla and L.OPT_MUTE_DIALOGUE_TIP_VANILLA or L.OPT_MUTE_DIALOGUE_TIP,
-            function() return audio().AutoToggleDialog end,
-            function(v)
-                audio().AutoToggleDialog = v
-                -- Turning it off while it holds the channel down would leave it muted.
-                if not v then
-                    SoundUtils:MuteChannel("Dialog", false)
-                end
-            end, function() Options:UpdateRows() end)
+    -- ClassicAPI v1.18.14 routes MP3s to real game categories but exposes
+    -- no per-file gain setter. New starts use this selection, never alter
+    -- game CVars or pretend to control an existing voice's native handle.
+    layout:Dropdown(L.OPT_NARRATION_CHANNEL, L.OPT_NARRATION_CHANNEL_TIP,
+        { "Master", "SFX", "Music", "Ambience" },
+        function() return audio().NarrationChannel or "Master" end,
+        function(v)
+            if v == "Master" or v == "SFX" or v == "Music" or v == "Ambience" then
+                audio().NarrationChannel = v
+            end
+        end, nil, function(v)
+            if v == "SFX" then return "Sound Effects" end
+            return v
+        end)
+    -- Upstream Turn Other Sounds Down. Original 1.12 has Music, Ambience,
+    -- and SFX sliders but no independent NPC/Dialog volume.
+    local lower = function() return audio().LowerOthers end
+    local applyLower = function() OtherSounds:RefreshConfig(); Options:UpdateRows() end
+    if OtherSounds:IsAvailable() then
+        layout:Checkbox(L.OPT_LOWER_OTHERS, L.OPT_LOWER_OTHERS_TIP,
+            function() return lower().Enabled end,
+            function(v) lower().Enabled = v and true or false end, applyLower)
     end
     layout:Slider(L.OPT_LINE_GAP, 0, 5, 0.25,
         function() return audio().LineGap or 0 end, function(v) audio().LineGap = v end,
@@ -614,6 +496,26 @@ local function Build(canvas)
     layout:Checkbox(L.OPT_CUE_BETWEEN, L.OPT_CUE_BETWEEN_TIP,
         function() return audio().CueBetweenLines end,
         function(v) audio().CueBetweenLines = v end)
+    if OtherSounds:IsAvailable() then
+        layout:Section(L.OPT_LOWER_TITLE)
+        -- Each call has independent upvalues, including on 1.12 Lua 5.0.
+        local function AddVolumeSlider(channel, label)
+            local slider = layout:Slider(label, 0, 1, 0.05,
+                function() return lower()[channel] end,
+                function(v) lower()[channel] = v end,
+                applyLower, Layout.Percent)
+            Requires(slider, function() return lower().Enabled end, L.REASON_LOWER)
+            -- Don't offer a slider that would lower the current voice
+            -- category; it is always protected from being ducked.
+            Requires(slider, function()
+                return (audio().NarrationChannel or "Master") ~= channel
+            end, L.REASON_VOICE_CHANNEL)
+        end
+        AddVolumeSlider("Music", L.OPT_LOWER_MUSIC)
+        AddVolumeSlider("Ambience", L.OPT_LOWER_AMBIENCE)
+        AddVolumeSlider("SFX", L.OPT_LOWER_SFX)
+        layout:Note(L.OPT_LOWER_VANILLA_NO_DIALOG, nil, 36)
+    end
     -- The buttons live on Blizzard's quest, book and map frames, not on the player, but
     -- they all open the player's box, so the one switch for them is here. Absent where
     -- Contribute.xml is not loaded (the legacy clients): nothing there to hide.
@@ -629,8 +531,8 @@ local function Build(canvas)
             end, L.OPT_GATHER_TIP, true)
         end
         layout:Checkbox(L.OPT_HIDE_CONTRIBUTE, L.OPT_HIDE_CONTRIBUTE_TIP,
-            function() return Addon.db.profile.Contribute.HideButtons end,
-            function(v) Addon.db.profile.Contribute.HideButtons = v end,
+            function() return CoreController.db.profile.Contribute.HideButtons end,
+            function(v) CoreController.db.profile.Contribute.HideButtons = v end,
             function() Callbacks:Fire("CONTRIBUTE_SETTINGS_CHANGED") end)
         -- The opt-out the first Contribute click promises. Independent of hiding the buttons:
         -- a player who gathers has no use for them, and hiding them must not stop it.
@@ -674,15 +576,8 @@ local function Build(canvas)
         local mouseButton, label = entry.key, entry.label
         layout:Dropdown(label, "Choose an existing minimap button action.", commands,
             function() return Minimap:GetClickCommand(mouseButton) end,
-            function(command) Addon.db.profile.Minimap.Commands[mouseButton] = command end,
+            function(command) CoreController.db.profile.Minimap.Commands[mouseButton] = command end,
             nil, function(command) return commandLabels[command] or command end)
-    end
-    -- Blizzard's addon compartment exists on the modern clients only; the player's
-    -- button shows there too, opening the same menu, and this row switches it.
-    if AddonCompartmentFrame then
-        layout:Checkbox(L.OPT_MINIMAP_COMPARTMENT, L.OPT_MINIMAP_COMPARTMENT_TIP,
-            function() return mm().showInCompartment end,
-            function(v) Minimap:ToggleCompartment(v) end)
     end
 
     -- Keys for the queue, said here as well as in the game's key bindings: with subtitles only
@@ -726,11 +621,6 @@ local function Build(canvas)
             Bind(name, key)
         end, L.OPT_KEY_SET_TIP, { press = L.OPT_KEY_PRESS })
     end
-    if canvas and Settings and Settings.KEYBINDINGS_CATEGORY_ID then
-        layout:Button(L.OPT_KEYS_SET, 160, function()
-            pcall(Settings.OpenToCategory, Settings.KEYBINDINGS_CATEGORY_ID)
-        end, L.OPT_KEYS_SET_TIP)
-    end
 
     -- Profiles, for all of Spoken at once: the player's own settings and every part that keeps
     -- its settings in profiles switch, copy and delete together.
@@ -745,8 +635,8 @@ local function Build(canvas)
                 local tab = Tab(key)
                 if tab and tab.unlock then tab.unlock.set(false) end
             end
-            Addon.db:ResetProfile()
-            Addon.db.global.Layout = nil
+            CoreController.db:ResetProfile()
+            CoreController.db.global.Layout = nil
             ReloadUI()
         end)
     end, L.OPT_RESET_ALL_TIP)
@@ -759,7 +649,7 @@ local function Build(canvas)
             -- the minimap button, or a module's own entry point.
             if Search and Search.Close then Search:Close() end
             if Subtitle and Subtitle:IsShowingSample() then Subtitle:ShowSample(false) end
-            if Options.previewing or Addon.previewStyle then Options:SetPreviewing(false) end
+            if Options.previewing or CoreController.previewStyle then Options:SetPreviewing(false) end
         end)
     end
     return panel
@@ -818,9 +708,9 @@ end
 -- Check for a callable GetProfiles method, rather than just a truthy field.
 function Options:ProfileDBs()
     local dbs, seen = {}, {}
-    if Addon.db and type(Addon.db.GetProfiles) == "function" then
-        table.insert(dbs, Addon.db)
-        seen[Addon.db] = true
+    if CoreController.db and type(CoreController.db.GetProfiles) == "function" then
+        table.insert(dbs, CoreController.db)
+        seen[CoreController.db] = true
     end
     for _, source in Sources:Iterate() do
         if type(source.profiles) == "function" then
@@ -969,20 +859,8 @@ end
 --- Open Spoken's page on a tab: Home's is 0, a feature addon's the order it was listed in.
 function Options:OpenPage(order)
     if not panel then return false end
-    if not self.category then
-        if not self:SelectLegacyPage(order) then return false end
-        panel:Show()
-        return true
-    end
-    -- Clients with a Settings canvas use the category registered for this page.
-    local category = order == 0 and self.category or nil
-    if order ~= 0 then
-        for _, page in ipairs(self.pages or {}) do
-            if page.order == order then category = page.category; break end
-        end
-    end
-    if not category then return false end
-    Layout.OpenCategory(category, L.OPT_OPEN_COMBAT)
+    if not self:SelectLegacyPage(order) then return false end
+    panel:Show()
     return true
 end
 
@@ -990,13 +868,10 @@ end
 function Options:Pages()
     local pages = {}
     if panel then
-        table.insert(pages, { name = L.OPT_HOME_TITLE, category = self.category,
-            layout = panel.layout, scroller = self.category and scroller or nil, order = 0 })
+        table.insert(pages, { name = L.OPT_HOME_TITLE, layout = panel.layout, order = 0 })
     end
     for _, page in ipairs(self.pages or {}) do
-        if page.layout and (not self.category or page.category) then
-            table.insert(pages, page)
-        end
+        if page.layout then table.insert(pages, page) end
     end
     return pages
 end
@@ -1005,33 +880,20 @@ end
 --- `page` is one of Pages(), each of which OpenPage finds by its order.
 function Options:ShowRow(page, row)
     if not self:OpenPage(page.order) then return end
-    local function Land()
-        page.layout:Refresh()
-        local offset = math.max(0, -(row.layoutY or 0) - 60)
-        if page.scroller then
-            page.scroller:Recalculate()
-            page.scroller:ScrollTo(offset)
-        elseif scroller and not self.category then
-            -- Original Vanilla scroll frame, shared by all module pages.
-            local maximum = scroller.GetVerticalScrollRange and
-                scroller:GetVerticalScrollRange() or offset
-            if offset > maximum then offset = maximum end
-            scroller:SetVerticalScroll(offset)
-        end
-        page.layout:Highlight(row)
+    page.layout:Refresh()
+    local offset = math.max(0, -(row.layoutY or 0) - 60)
+    -- Search navigation uses the same shared native scrollbar as tab navigation.
+    if scroller then
+        local maximum = scroller.GetVerticalScrollRange and
+            scroller:GetVerticalScrollRange() or offset
+        if offset > maximum then offset = maximum end
+        scroller:SetVerticalScroll(offset)
     end
-    -- Retail's canvas measures its content after the category opens; 1.12
-    -- updates the shared ScrollFrame synchronously and needs no timer.
-    if self.category and C_Timer and C_Timer.After then
-        C_Timer.After(0.05, Land)
-    else
-        Land()
-    end
+    page.layout:Highlight(row)
 end
 
--- On the original 1.12 client there is no Blizzard Settings category tree.
--- Keep upstream's page model, but display each module inside the same bounded
--- Blizzard scroll frame. A page's layout still belongs entirely to that module.
+-- All module pages use one bounded Blizzard 1.12 scroll frame.
+-- Each page keeps its own independent layout.
 function Options:RefreshNavigation()
     if not (panel and panel.isWindow) then return end
     local pages = { { order = 0, name = L.OPT_HOME_TITLE } }
@@ -1084,7 +946,7 @@ function Options:SelectLegacyPage(order)
     local child = chosen and chosen.frame or legacyScrollChild
     local old = self.activePage and self.activePage.frame or legacyScrollChild
     -- Preview belongs to Home, not to whichever module tab is opened next.
-    if order ~= 0 and (self.previewing or Addon.previewStyle) then
+    if order ~= 0 and (self.previewing or CoreController.previewStyle) then
         self:SetPreviewing(false)
     end
     if old ~= child then old:Hide() end
@@ -1106,7 +968,7 @@ function Options:SelectLegacyPage(order)
 end
 
 -- Keep the scroll child tall enough for the active page without growing the
--- bounded Vanilla window. Modern clients size the canvas content instead.
+-- bounded Vanilla window.
 FitWindow = function()
     if not panel then return end
     local activeLayout = Options.activePage and Options.activePage.layout or panel.layout
@@ -1118,7 +980,7 @@ FitWindow = function()
         -- collapse. Module tabs and Large Window retain the normal height.
         if panel.isWindow and legacyMaxHeight then
             local target = legacyMaxHeight
-            if not Options.activePage and Addon:PlayerStyle() == "none" then
+            if not Options.activePage and CoreController:PlayerStyle() == "none" then
                 -- Viewport = panel height + LEGACY_SCROLL_TOP - 20.
                 -- Leave an 8px safety margin under the final setting.
                 target = math.min(target,
@@ -1130,9 +992,7 @@ FitWindow = function()
         end
         local child = Options.activePage and Options.activePage.frame or legacyScrollChild
         child:SetHeight(needed)
-        -- Native UIPanelScrollFrameTemplate does not run the modern custom
-        -- scroller's Recalculate() when a row is hidden or a tab is swapped.
-        -- Refresh its scroll rectangle and native slider after every reflow.
+        -- Refresh the native scroll rectangle and slider after every reflow.
         if scroller then
             if scroller.UpdateScrollChildRect then scroller:UpdateScrollChildRect() end
             local maximum = math.max(0, needed - (scroller:GetHeight() or 0))
@@ -1146,130 +1006,151 @@ FitWindow = function()
             if scroller.SetVerticalScroll then scroller:SetVerticalScroll(offset) end
             if scrollbar and scrollbar.SetValue then scrollbar:SetValue(offset) end
         end
-    elseif scroller and scroller.SetContentHeight then
-        scroller:SetContentHeight(needed)
-    elseif panel.isWindow and needed > (panel:GetHeight() or 0) then
-        panel:SetHeight(needed)
     end
 end
 
 function Options:Setup()
     if panel then return end
-    local canvas = Settings and Settings.RegisterCanvasLayoutCategory and Settings.RegisterAddOnCategory
-    Build(canvas)
-    -- Rows come and go with the way lines are shown; the window or scroller follows what is left.
+    Build()
     panel.layout.onResize = function() FitWindow() end
     self:UpdateRows()
-    -- Built with this page; registered last, after every part's.
-    if canvas then
-        -- Spoken's entry in the game's settings, and each feature addon's page an entry nested
-        -- under it (Options:RegisterPage).
-        FitWindow()
-        self.category = Settings.RegisterCanvasLayoutCategory(panel, HOME_TITLE)
-        Settings.RegisterAddOnCategory(self.category)
-        table.sort(pendingPages, function(a, b) return a.order < b.order end)
-        for _, page in ipairs(pendingPages) do self:RegisterPage(page) end
-        pendingPages = {}
-    else
-        -- No Settings API: our unified window, opened by /spoken. Sized to its
-        -- rows, which vary by client, rather than a fixed height the rows can outgrow.
-        panel.isWindow = true
-        local screenHeight = (UIParent and UIParent.GetHeight and UIParent:GetHeight()) or 768
-        legacyMaxHeight = math.min(620, math.max(300, screenHeight - 80))
-        panel:SetSize(LEGACY_WIDTH, legacyMaxHeight)
-        panel:SetPoint("CENTER")
-        panel:SetMovable(true)
-        panel:EnableMouse(true)
-        panel:SetFrameStrata("DIALOG")
-        -- The former six Key Bindings panels and stretched rock texture left
-        -- transparent rectangles and visible seams across the settings.
-        -- Use one uniform, opaque dark backing behind the original dialogue
-        -- border instead. Keep the silver tab ornament and title separate.
-        if panel.SetBackdrop then
-            panel:SetBackdrop({
-                bgFile = [[Interface\Buttons\WHITE8X8]],
-                edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]],
-                tile = true, tileSize = 16, edgeSize = 32,
-                insets = {left = 10, right = 10, top = 10, bottom = 10},
-            })
-            panel:SetBackdropColor(0.075, 0.07, 0.085, 1)
-        end
-
-        -- The native 400x64 UI-DialogBox-Header is centered on this window.
-        -- Blizzard's Key Bindings uses a -30 horizontal offset for its own
-        -- asymmetric frame; retaining that offset shifts SoftSpoken's plaque
-        -- left of center. Keep the caption anchored to the plaque itself.
-        local titlePlate = panel:CreateTexture(nil, "ARTWORK")
-        titlePlate:SetTexture([[Interface\DialogFrame\UI-DialogBox-Header]])
-        titlePlate:SetWidth(400)
-        titlePlate:SetHeight(64)
-        titlePlate:SetPoint("TOP", panel, "TOP", 0, 12)
-        local heading = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        heading:SetWidth(210)
-        heading:SetHeight(16)
-        heading:SetJustifyH("CENTER")
-        heading:SetPoint("TOP", titlePlate, "TOP", 0, -13)
-        heading:SetText(HOME_TITLE)
-        -- Silver frame replaces the old gold divider under the tabs.
-        DrawOrnateHeaderBand(panel)
-        panel:RegisterForDrag("LeftButton")
-        panel:SetScript("OnDragStart", function() panel:StartMoving() end)
-        panel:SetScript("OnDragStop", function() panel:StopMovingOrSizing() end)
-        FitWindow()
-        if Search and Search.BuildLegacy then Search:BuildLegacy(panel) end
-        panel:Hide()
-        self:RefreshNavigation()
-        self:SelectLegacyPage(0)
-        -- Native escape handling. The panel has a stable global name, and
-        -- its OnHide hook also clears any open search results or preview.
-        if UISpecialFrames then
-            table.insert(UISpecialFrames, "SpokenOptionsPanel")
-        end
-        local close = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
-        close:SetPoint("TOPRIGHT", -4, -4)
-        close:SetScript("OnClick", function() panel:Hide() end)
+    panel.isWindow = true
+    -- Unified Vanilla settings window, bounded to the visible screen.
+    panel.isWindow = true
+    local screenHeight = (UIParent and UIParent.GetHeight and UIParent:GetHeight()) or 768
+    legacyMaxHeight = math.min(620, math.max(300, screenHeight - 80))
+    panel:SetSize(LEGACY_WIDTH, legacyMaxHeight)
+    panel:SetPoint("CENTER")
+    panel:SetMovable(true)
+    panel:EnableMouse(true)
+    panel:SetFrameStrata("DIALOG")
+    -- Use Blizzard's original Vanilla Options menu background, which
+    -- carries its own translucent dark alpha. Keep the separate silver
+    -- window border, rock header and search ornaments unchanged.
+    if panel.SetBackdrop then
+        panel:SetBackdrop({
+            bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]],
+            tile = true, tileSize = 32,
+            insets = {left = 10, right = 10, top = 10, bottom = 10},
+        })
+        panel:SetBackdropColor(1, 1, 1, 1)
     end
+
+    -- Give only the upper title/tab section the same tiled rock backing
+    -- used by the Compendium. Keep the search surround and scroll content
+    -- on the existing dark window backdrop.
+    local headerRock = CreateFrame("Frame", nil, panel)
+    headerRock:SetPoint("TOPLEFT", panel, "TOPLEFT", 10, -11)
+    headerRock:SetPoint("BOTTOMRIGHT", panel, "TOPRIGHT", -10, -93)
+    headerRock:SetFrameLevel(panel:GetFrameLevel())
+    headerRock:EnableMouse(false)
+    headerRock:SetBackdrop({
+        bgFile = [[Interface\AddOns\SoftSpoken\Compendium\Textures\Skin\UI-Background-Rock-Classic]],
+        tile = true, tileSize = 256,
+        insets = {left = 0, right = 0, top = 0, bottom = 0},
+    })
+
+    -- A separate, mouse-transparent edge-only frame makes the native
+    -- silver window border render over the rock and cropped housing.
+    -- The underlying panel keeps only the flat dark background.
+    local windowTrim = CreateFrame("Frame", nil, panel)
+    windowTrim:SetAllPoints(panel)
+    windowTrim:SetFrameLevel(headerRock:GetFrameLevel() + 1)
+    windowTrim:EnableMouse(false)
+    windowTrim:SetBackdrop({
+        edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]],
+        edgeSize = 32,
+        insets = {left = 10, right = 10, top = 10, bottom = 10},
+    })
+
+    -- The search ornament needs its own draw level above the outer
+    -- silver window border. Keep this frame mouse-transparent; only its
+    -- narrow edge textures are drawn on it.
+    local searchTrim = CreateFrame("Frame", nil, panel)
+    searchTrim:SetAllPoints(panel)
+    searchTrim:SetFrameLevel(windowTrim:GetFrameLevel() + 1)
+    searchTrim:EnableMouse(false)
+
+    -- The title plaque stays above both ornamental frame layers.
+    local titleLayer = CreateFrame("Frame", nil, panel)
+    titleLayer:SetAllPoints(panel)
+    titleLayer:SetFrameLevel(searchTrim:GetFrameLevel() + 1)
+    titleLayer:EnableMouse(false)
+
+    -- The native 400x64 UI-DialogBox-Header is centered on this window.
+    -- Blizzard's Key Bindings uses a -30 horizontal offset for its own
+    -- asymmetric frame; retaining that offset shifts SoftSpoken's plaque
+    -- left of center. Keep the caption anchored to the plaque itself.
+    local titlePlate = titleLayer:CreateTexture(nil, "ARTWORK")
+    titlePlate:SetTexture([[Interface\DialogFrame\UI-DialogBox-Header]])
+    titlePlate:SetWidth(400)
+    titlePlate:SetHeight(64)
+    titlePlate:SetPoint("TOP", panel, "TOP", 0, 12)
+    local heading = titleLayer:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    heading:SetWidth(210)
+    heading:SetHeight(16)
+    heading:SetJustifyH("CENTER")
+    heading:SetPoint("TOP", titlePlate, "TOP", 0, -13)
+    heading:SetText(HOME_TITLE)
+    panel:RegisterForDrag("LeftButton")
+    panel:SetScript("OnDragStart", function() panel:StartMoving() end)
+    panel:SetScript("OnDragStop", function() panel:StopMovingOrSizing() end)
+    FitWindow()
+    -- Reuse the Compendium's native marble-and-metal scrollbar housing.
+    -- Keep the existing 1.12 scrollbar as the only scroll controller.
+    if SSCNativeScrollbar and SSCNativeScrollbar.AttachSettings then
+        SSCNativeScrollbar.AttachSettings(panel, scroller)
+    end
+    -- Search-frame rails and diamond corners overdraw the outer trim.
+    DrawOrnateHeaderBand(searchTrim)
+    if Search and Search.BuildLegacy then Search:BuildLegacy(panel) end
+    panel:Hide()
+    self:RefreshNavigation()
+    self:SelectLegacyPage(0)
+    -- Native escape handling. The panel has a stable global name, and
+    -- its OnHide hook also clears any open search results or preview.
+    if UISpecialFrames then
+        table.insert(UISpecialFrames, "SpokenOptionsPanel")
+    end
+    local close = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
+    close:SetPoint("TOPRIGHT", -6, -6)
+    close:SetFrameLevel(titleLayer:GetFrameLevel() + 1)
+    -- Keep the mirrored housing on the rock frame's BORDER layer:
+    -- above that frame's rock backdrop, beneath its ARTWORK/OVERLAY
+    -- decoration, and below the native close button.
+    local closeHousing = headerRock:CreateTexture(nil, "BORDER")
+    closeHousing:SetTexture([[Interface\AddOns\SoftSpoken\Compendium\Textures\Skin\UI-Frame]])
+    closeHousing:SetTexCoord(114/128, 90/128, 26/128, 2/128)
+    closeHousing:SetWidth(24)
+    closeHousing:SetHeight(24)
+    closeHousing:SetPoint("CENTER", close, "CENTER", 0, 0)
+    close:SetScript("OnClick", function() panel:Hide() end)
 end
 
 --- A feature addon's page, as a tab on Spoken's. A feature addon may build its panel before
 --- this one exists, at its own load, so the page waits until it does. `page.Open` opens Spoken
 --- on its tab; legacy clients share one bounded window instead of separate pages.
-function Options:AddPage(frame, name, order, layout, pageScroller)
+function Options:AddPage(frame, name, order, layout)
     if not frame or not layout then return nil end
-    -- The layout and its scroller come along so the search on Home can reach this page's rows.
-    local page = { frame = frame, name = name, order = order or 100, layout = layout, scroller = pageScroller }
+    local page = { frame = frame, name = name, order = order or 100, layout = layout }
     page.Open = function() return Options:OpenPage(page.order) end
     self.pages = self.pages or {}
     table.insert(self.pages, page)
     table.sort(self.pages, function(a, b) return a.order < b.order end)
-    if Settings and Settings.RegisterCanvasLayoutCategory then
-        if self.category then
-            self:RegisterPage(page)
-        else
-            table.insert(pendingPages, page)
-        end
-    else
-        -- A Vanilla page is a scroll child, not a separate settings window.
-        frame:SetWidth(LEGACY_CONTENT_WIDTH)
-        frame:Hide()
-        local priorResize = layout.onResize
-        layout.onResize = function(height)
-            frame:SetHeight(TOP + layout:Height() + BOTTOM)
-            if priorResize then priorResize(height) end
-        end
-        if panel and panel.isWindow then self:RefreshNavigation() end
+    -- A Vanilla page is a scroll child, not a separate settings window.
+    frame:SetWidth(LEGACY_CONTENT_WIDTH)
+    frame:Hide()
+    local priorResize = layout.onResize
+    layout.onResize = function(height)
+        frame:SetHeight(TOP + layout:Height() + BOTTOM)
+        if priorResize then priorResize(height) end
     end
+    if panel and panel.isWindow then self:RefreshNavigation() end
     return page
 end
 
-function Options:RegisterPage(page)
-    page.category = Settings.RegisterCanvasLayoutSubcategory(self.category, page.frame, page.name)
-end
-
 function Options:Open()
-    if self.category and Settings and Settings.OpenToCategory then
-        Layout.OpenCategory(self.category, L.OPT_OPEN_COMBAT)
-    elseif panel then
+    if panel then
         if panel:IsShown() then
             if Search and Search.Close then Search:Close() end
             panel:Hide()

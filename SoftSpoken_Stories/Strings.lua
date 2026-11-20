@@ -7,14 +7,14 @@ setfenv(1, VoiceOver)
 -- hold English literals. Chat and diagnostics prints are deliberately not among
 -- them: those answer bug reports, where one language beats nine translations.
 --
---   Options.lua            legacy AceGUI General and sound-pack fallback (Phase 3)
---   UI/SettingsPanel.lua   the same settings on the interface-settings canvas
+--   AceConfigOptions.lua   legacy AceGUI General and sound-pack fallback (Phase 3)
+--   UI/SettingsPage.lua   the same settings in the shared Vanilla window
 --   UI/DialogPlayButton.lua  Play/Stop button on quest and gossip windows
 --   Compatibility.lua      Play/Stop button on the quest-log details panel
 --   UI/ContributeButton.lua  Contribute button on quest and gossip windows
 --   Contribute.lua         Contribute button tooltip
 --   ReportButton.lua       the copy-link dialog for reporting a line
---   Player.lua             queue integration and voice-pack metadata
+--   NarrationSource.lua    queue integration and voice-pack metadata
 --   UI/QuestsTab.lua       the Quests tab of Azeroth's Compendium
 --
 -- FORMAT ARGUMENTS ARE POSITIONAL (%1$s, %2$d), even where there is only one and
@@ -89,9 +89,8 @@ L.OPT_FORGET_GREETINGS = "Forget Greetings Heard"
 L.REASON_FORGET_GREETINGS = "Set Read Greetings to Once per NPC or Once for Quest Givers to use this."
 L.OPT_FORGET_GREETINGS_DONE = "This character's list of greetings heard is cleared."
 L.OPT_PANEL_GAME_GREETING_FIRST = "NPC Voice Before Reading"
-L.OPT_PANEL_GAME_GREETING_FIRST_TIP = "Waits for the NPC's own voice to finish before reading."
-L.GREETING_DIALOG_APART = "Spoken: Dialog volume set to %1$d%%, apart from the other volume sliders, so NPC Voice Before Reading can tell when an NPC has finished speaking."
-L.QUEUE_HELD_GREETING = "Waiting for the NPC to finish speaking."
+L.OPT_PANEL_GAME_GREETING_FIRST_TIP = "Wait for a Vanilla NPC greeting based on its recorded length when ClassicAPI identifies the sound file; otherwise wait 2 seconds. This estimates timing, not live playback completion."
+L.QUEUE_HELD_GREETING = "Waiting for the NPC greeting (estimated)."
 L.OPT_SECTION_PACKS = "Voice Packs"
 L.OPT_REPORT_PROBLEM = "Report a Problem"
 L.OPT_REPORT_QUEST_TIP = "Get a link to report a wrong reading or a mispronounced name."
@@ -140,21 +139,6 @@ L.REASON_AUTOPLAY_ON_QUESTS = "Turn on Read Automatically on the Stories page to
 L.OPT_RESET_PROFILE_CONFIRM = "Reset every Stories and Gossip setting in the profile in use to its default?"
 L.OPT_CANCEL = "Cancel"
 
-
-L.OPT_SECTION_DIALOGUEUI = "DialogueUI"
-L.OPT_DUI_CAPTIONS = "Mark Words in DialogueUI"
-L.OPT_DUI_CAPTIONS_TIP = "Types out or highlights DialogueUI's text, as set under Words."
-L.OPT_DUI_AUTOSCROLL = "Keep the Words in View"
-L.OPT_DUI_SHOW_PLAYER = "Show Spoken Over DialogueUI"
-L.OPT_DUI_PLAY_BUTTON = "Listen Button on DialogueUI"
-L.OPT_DUI_ON = "On"
-L.OPT_DUI_OFF = "Off"
-L.OPT_DUI_PLAY_RIGHT_CLICK = "Right-click to turn Read Automatically on or off."
-L.OPT_DUI_MISSING = "DialogueUI is not loaded."
-L.OPT_DUI_NO_PLAYER = "Needs the Spoken addon."
-L.OPT_DUI_OLD_PLAYER = "Needs a newer Spoken."
-L.OPT_DUI_UNKNOWN = "This version of DialogueUI is not recognised."
-L.REASON_DUI_CAPTIONS = "Turn on Mark Words in DialogueUI to use this."
 
 L.OPT_REPORT_LINE_TIP = "Get a link to report a wrong reading or a mispronounced name."
 L.OPT_REPORT_NO_LINE = "This client cannot tell which line that was, so there is no address to report."

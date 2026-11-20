@@ -38,7 +38,9 @@ local function Build()
     help:SetPoint("TOPLEFT", window, "TOPLEFT", 28, -49)
     help:SetText("Click the report, then press Ctrl+A and Ctrl+C to copy.")
 
-    scroll = CreateFrame("ScrollFrame", nil, window, "UIPanelScrollFrameTemplate")
+    -- Vanilla's UIPanelScrollFrameTemplate builds globally named scrollbar children.
+    -- Give the parent a stable name so template OnLoad can resolve those children.
+    scroll = CreateFrame("ScrollFrame", "SoftSpokenDiagnosticsScrollFrame", window, "UIPanelScrollFrameTemplate")
     scroll:SetPoint("TOPLEFT", window, "TOPLEFT", 29, -78)
     scroll:SetPoint("BOTTOMRIGHT", window, "BOTTOMRIGHT", -49, 27)
 
@@ -97,7 +99,7 @@ function DiagnosticsViewer:Show(title, lines)
     edit:SetText(text)
     edit.settingText = nil
     -- Approximate wrapped height for long reports (1.12 has no automatic
-    -- multiline scroll-child measurement that works on all clients).
+    -- multiline scroll-child measurement that also works on Vanilla 1.12).
     local count = 0
     local find = string.gfind or string.gmatch
     for line in find(text .. "\n", "(.-)\n") do

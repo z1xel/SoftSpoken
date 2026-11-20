@@ -17,7 +17,7 @@ ReportButton =
     ---@type Button[]
 }
 
--- A copy of VoiceOver.lua's helper of the same name, which is a local there and so not
+-- A copy of QuestRuntime.lua's helper of the same name, which is a local there and so not
 -- reachable from this file. IsVisible is absent on the oldest clients, where IsShown is the
 -- closest equivalent.
 local function IsFrameVisible(frame)
@@ -28,13 +28,6 @@ local function IsFrameVisible(frame)
     end
     return frame:IsShown()
 end
-
-local PAGE_EVENTS =
-{
-    QUEST_DETAIL = Enums.SoundEvent.QuestAccept,
-    QUEST_PROGRESS = Enums.SoundEvent.QuestProgress,
-    QUEST_COMPLETE = Enums.SoundEvent.QuestComplete,
-}
 
 local EVENT_PATHS =
 {
@@ -91,9 +84,6 @@ function ReportButton:CurrentTarget()
         event = Enums.SoundEvent.QuestProgress
     elseif IsFrameVisible(QuestFrameDetailPanel) then
         event = Enums.SoundEvent.QuestAccept
-    else
-        local page = Utils:DialogueUIPage()
-        event = page and PAGE_EVENTS[page]
     end
 
     local target = event and self:TargetForQuest(GetQuestID and NotSecret(GetQuestID()), event)
@@ -108,7 +98,7 @@ end
 
 -- The address the popup is currently showing. Held here rather than passed to
 -- StaticPopup_Show, whose `data` argument and the dialog/data handler signature both postdate
--- the legacy clients: there the popup would open with an empty box.
+-- the 1.12 popup API: passing callback data there would leave the box empty.
 local shownLink
 
 --- The report address for `target`, filed under `language` -- the language of the clip being
@@ -120,31 +110,17 @@ function ReportButton:Link(target, language)
     return Spoken:ReportURL("quests", target, language)
 end
 
---- DialogueUI hides UIParent and the game's popups with it, so under its window the address
---- goes to Spoken's copy box, which shows over that window.
+-- Vanilla 1.12 uses the same selectable copy-link popup for reporting and
+-- settings URLs. No alternative UI route is loaded on this client.
 local function ShowCopy(url)
-    if Utils:DialogueUIPage() and Spoken and Spoken.ShowContribution then
-        Spoken:ShowContribution(url, nil, true)
-        return
-    end
     shownLink = url
     StaticPopup_Show(COPY_DIALOG)
 end
 
---- The report address for `target`, with the line as the player met it in its fragment: the
---- addon version, the client, the text and the NPC. `clip` is the line being reported, or nil
---- for the window on screen. The bare address in the popup under a Spoken too old to say more.
-function ReportButton:ShowLink(target, language, clip)
-    local url = self:Link(target, language)
-    if not (Spoken and Spoken.ShowReport) then
-        ShowCopy(url)
-        return
-    end
-    -- Absent on the legacy clients, whose toc never loads Contribute.xml.
-    local contribute = rawget(VoiceOver, "Contribute")
-    Spoken:ShowReport(url, function()
-        return contribute and contribute:ReportContext(clip)
-    end)
+--- Show the native copyable report URL for a quest stage or NPC/object.
+--- Report context is represented by the quest stage or NPC/object URL.
+function ReportButton:ShowLink(target, language)
+    ShowCopy(self:Link(target, language))
 end
 
 --- The same popup, for an address that is not a report: the settings panel offers one per
@@ -193,7 +169,7 @@ function ReportButton:Initialize()
         end,
     }
 
-    -- The button itself is created on demand by Player.lua as an action on the Spoken
+    -- The button itself is created on demand by NarrationSource.lua as an action on the Spoken
     -- player's frame, which is present for gossip, for progress and completion text, and
     -- while audio is playing -- which is when the complaint occurs to someone.
 end

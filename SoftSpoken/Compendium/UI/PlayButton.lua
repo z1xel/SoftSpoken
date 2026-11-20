@@ -1,9 +1,9 @@
 -- Shared Compendium parchment action button. Module supplies behavior through SetTarget/Refresh.
 -- 1.12-compatible 24px round buttons, matching the original Zones button artwork.
 SSCPlayButton = SSCPlayButton or {}
-local A = SSCPlayButton
+local PlayButton = SSCPlayButton
 local ROOT="Interface\\AddOns\\SoftSpoken\\Compendium\\Textures\\Controls\\"
-function A.Create(parent)
+function PlayButton.Create(parent)
     local button=CreateFrame("Button",nil,parent)
     button:SetWidth(24);button:SetHeight(24)
     button:SetPoint("TOPRIGHT",parent,"TOPRIGHT",-22,-23)

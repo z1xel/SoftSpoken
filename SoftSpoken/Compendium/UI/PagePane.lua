@@ -1,13 +1,13 @@
 -- Shared parchment, border, and scrollbar housing for Compendium pages
 -- and the map's attached lore reader. This is deliberately independent of
 -- lore/discovery data and does not create duplicate scroll controllers.
-local C = SSCCompendium
+local Compendium = SpokenCompendium
 
 -- Creates the same page hierarchy used by all three Compendium modules.
 -- The caller controls only the inset's position; the page's artwork and
 -- narrow 31-unit scrollbar housing always come from the shared skins.
 local function BuildPage(inset, createPage)
-    if not (SSCPrototypePageSkin and SSCPrototypePageSkin.Apply) then
+    if not (SSCLorePage and SSCLorePage.ApplyPaneSkin) then
         SSCUI.AddInsetBorder(inset)
     end
     if inset.SetBackdropColor then
@@ -17,27 +17,32 @@ local function BuildPage(inset, createPage)
     holder:SetPoint("TOPLEFT", inset, "TOPLEFT", 5, -5)
     holder:SetPoint("BOTTOMRIGHT", inset, "BOTTOMRIGHT", -36, 5)
     local page = createPage(holder)
-    if SSCPrototypePageSkin and SSCPrototypePageSkin.Apply then
-        SSCPrototypePageSkin.Apply(inset, holder, page)
+    if SSCLorePage and SSCLorePage.ApplyPaneSkin then
+        SSCLorePage.ApplyPaneSkin(inset, holder, page)
     end
-    if SSCPrototypeScrollSkin and SSCPrototypeScrollSkin.AttachPage then
-        SSCPrototypeScrollSkin.AttachPage(inset, page)
+    if SSCNativeScrollbar and SSCNativeScrollbar.AttachPage then
+        SSCNativeScrollbar.AttachPage(inset, page)
     end
     return page
 end
 
 -- Compendium's existing split view, with its approved offsets unchanged.
-function C.CreatePagePane(panel, list, createPage)
+function Compendium.CreatePagePane(panel, list, createPage)
     local inset = CreateFrame("Frame", nil, panel)
     inset:SetPoint("TOPLEFT", list.inset, "TOPRIGHT", 27, 0)
     inset:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", 0, 6)
-    return inset, BuildPage(inset, createPage)
+    local page = BuildPage(inset, createPage)
+    -- Fade only full Compendium reader content. The World Map reader uses
+    -- its own viewport without the Compendium-specific edge fade.
+    local view = page and page.body
+    if view and view.EnableEdgeFade then view:EnableEdgeFade() end
+    return inset, page
 end
 
 -- Standalone reader (World Map attachment). Same skins and real lore page,
 -- but its inset is anchored to the host panel rather than the left-hand list.
 -- Allows the map to keep its close/collapse header without copying any skin.
-function C.CreateStandalonePagePane(panel, createPage, margins)
+function Compendium.CreateStandalonePagePane(panel, createPage, margins)
     margins = margins or {}
     local inset = CreateFrame("Frame", nil, panel)
     inset:SetPoint("TOPLEFT", panel, "TOPLEFT",

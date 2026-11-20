@@ -5,13 +5,13 @@ setfenv(1, VoiceOver)
 -- files load, so top-level frames also receive the Core wrappers.
 
 if not GetQuestID then
-    local source, text
+    local questStage, text
     local selectedQuest -- ClassicAPI gossip selection, valid only for this quest conversation.
     local GetTitleText = GetTitleText -- Store original function before EQL3 overrides it
 
-    -- VoiceOver.lua captures the selected quest while the gossip list and its
+    -- QuestRuntime.lua captures the selected quest while the gossip list and its
     -- authoritative ClassicAPI quest IDs are still available.
-    function Addon:NoteClassicQuestSelection(id, title, npcName, kind)
+    function StoriesAddon:NoteClassicQuestSelection(id, title, npcName, kind)
         if not Version.IsLegacyVanilla or type(id) ~= "number" or id <= 0 or
            type(title) ~= "string" or title == "" then
             return
@@ -19,18 +19,18 @@ if not GetQuestID then
         selectedQuest = { id = id, title = title, npcName = npcName or "", kind = kind }
     end
 
-    function Addon:ClearClassicQuestSelection()
+    function StoriesAddon:ClearClassicQuestSelection()
         selectedQuest = nil
     end
 
-    -- Told by VoiceOver.lua's QuestIDFor just before it asks which quest this is.
-    function Addon:NoteLegacyQuestEvent(eventSource, eventText)
-        source = eventSource
+    -- Told by QuestRuntime.lua's QuestIDFor just before it asks which quest this is.
+    function StoriesAddon:NoteLegacyQuestEvent(eventStage, eventText)
+        questStage = eventStage
         text = eventText
     end
 
     function GetQuestID()
-        if not source then return 0 end
+        if not questStage then return 0 end
         local title = GetTitleText()
         if type(title) ~= "string" or title == "" then return 0 end
         local npcName = Utils:GetNPCName() or ""
@@ -39,15 +39,15 @@ if not GetQuestID then
         -- gossip list. Verify title, NPC, and accept-vs-turn-in context.
         if selectedQuest and selectedQuest.title == title and
            (selectedQuest.npcName == "" or selectedQuest.npcName == npcName) and
-           ((source == "accept" and selectedQuest.kind == "available") or
-            (source ~= "accept" and selectedQuest.kind == "active")) then
+           ((questStage == "accept" and selectedQuest.kind == "available") or
+            (questStage ~= "accept" and selectedQuest.kind == "active")) then
             return selectedQuest.id
         end
 
         -- A progress/turn-in quest is already in the log. Only trust a title
         -- when exactly one distinct positive real ID matches; duplicated
         -- titles fall back to Spoken's existing NPC/text-aware resolver.
-        if source ~= "accept" and C_QuestLog and
+        if questStage ~= "accept" and C_QuestLog and
            type(C_QuestLog.GetQuestIDForLogIndex) == "function" and GetNumQuestLogEntries then
             local matchedID
             local entries = GetNumQuestLogEntries() or 0
@@ -71,7 +71,7 @@ if not GetQuestID then
             -- Shared quest: keep upstream's original handling.
             return 0
         end
-        return DataModules:GetQuestID(source, title, npcName, text or "") or 0
+        return DataModules:GetQuestID(questStage, title, npcName, text or "") or 0
     end
 end
 
@@ -130,8 +130,8 @@ function GetQuestLogTitle(questIndex)
     if type(questID)~="number" or questID<=0 then
         questID=DataModules:GetQuestID("accept",title,"","")
     end
-    if not questID and Addon.db and Addon.db.char then
-        questID=Addon.db.char.RecentQuestTitleToID[title]
+    if not questID and StoriesAddon.db and StoriesAddon.db.char then
+        questID=StoriesAddon.db.char.RecentQuestTitleToID[title]
     end
     if not questID then
         questID=dummyQuestIDMap[title]
@@ -145,7 +145,7 @@ function GetQuestLogTitle(questIndex)
 end
 
 -- Quest-specific 1.12 behavior is deliberately local to this module.
-LibStub("AceConfig-3.0"):Embed(Addon)
+LibStub("AceConfig-3.0"):Embed(StoriesAddon)
 
 local function getargn(...)
     return arg.n
@@ -171,7 +171,7 @@ function Utils:IsNPCPlayer()
 end
 
 -- Extended Quest Log 3 changes quest-log frames, not shared FrameXML methods.
-function Addon.OnAddonLoad.EQL3() -- Extended Quest Log 3
+function StoriesAddon.OnAddonLoad.EQL3() -- Extended Quest Log 3
     QUESTS_DISPLAYED = EQL3_QUESTS_DISPLAYED
 
     QuestLogFrame = EQL3_QuestLogFrame

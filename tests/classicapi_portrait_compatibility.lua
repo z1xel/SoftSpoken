@@ -60,6 +60,9 @@ local function Scenario(version)
             IsRetailOrAboveLegacyVersion=function() return false end,
         },
         Spoken=speaker, UIParent={}, CreateFrame=Create,
+        -- WoW 1.12 exposes GetTime; the request coordinator now uses it
+        -- to expire missing completions. Keep this test's clock stationary.
+        GetTime=function() return 0 end,
         SoundQueue={IsPlaying=function() return true end,IsPaused=function() return false end},
         C_CreatureInfo={
             GetCreatureInfoByID=function(id)
@@ -73,7 +76,10 @@ local function Scenario(version)
     }, {__index=_G})
     SpokenEnv = env
     SoftSpokenClassicPortraits = nil
+    dofile("SoftSpoken/CreatureAppearance.lua")
     dofile("SoftSpoken/UI/Portrait.lua")
+    expect(env.Portrait:GetModelAnimationDuration(119369,60),0,"1.12 Goblin idle fallback")
+    expect(env.Portrait:GetModelAnimationDuration(119563,60),2.667,"Original human animation duration")
 
     local portrait = {shown=true}
     function portrait:IsShown() return self.shown end
@@ -82,7 +88,12 @@ local function Scenario(version)
         function t:SetAllPoints() end
         function t:Show() self.shown=true end
         function t:Hide() self.shown=false end
-        function t:SetTexture(v) self.texture=v end
+        function t:SetTexture(v)
+            self.texture=v
+            if v=="missing.tga" then return false end
+            if v=="missing-returnless.tga" then self.texture=nil end
+        end
+        function t:GetTexture() return self.texture end
         function t:SetTexCoord() end
         return t
     end
@@ -159,6 +170,18 @@ local function Scenario(version)
         expect(portrait.creatureModel,nil,"no unsupported model selected")
     end
 
+    -- Texture failures must reach the supplied Vanilla icon fallback without
+    -- altering the narrator's current clip or audio state.
+    for _,missing in ipairs({"missing.tga","missing-returnless.tga"}) do
+        Configure({present={portrait={
+            kind="texture",texture=missing,
+            fallback={kind="texture",texture="Interface\\Icons\\INV_Misc_Book_09"},
+        }}})
+        expect(portrait.active,"texture","missing custom art uses texture fallback")
+        expect(portrait.texture.texture,"Interface\\Icons\\INV_Misc_Book_09",
+            "Vanilla icon shown after custom texture assignment fails")
+    end
+
     -- Simulate two asynchronous responses before one OnUpdate. Both IDs must
     -- be retained, not overwritten by the last event. Only the current NPC
     -- should cause a player repaint; the queue itself is never advanced.
@@ -172,17 +195,24 @@ local function Scenario(version)
             end
         end
         assert(eventFrame,"registered ClassicAPI cache event")
+        known[701],known[702] = 1001,1002
         eventFrame.scripts.OnEvent(eventFrame,"CREATURE_DATA_LOAD_RESULT",701,true)
         eventFrame.scripts.OnEvent(eventFrame,"CREATURE_DATA_LOAD_RESULT",702,true)
         current=Clip(701)
         eventFrame.scripts.OnUpdate(eventFrame,0)
         expect(refreshes,1,"both responses retained until refresh")
         expect(eventFrame.scripts.OnUpdate,nil,"remove completed update handler")
-        -- If the current clip is unrelated, responses must not refresh it.
-        eventFrame.scripts.OnEvent(eventFrame,"CREATURE_DATA_LOAD_RESULT",702,true)
+        -- A real pending completion after switching speakers must not
+        -- repaint an unrelated current clip (and must not restart audio).
+        Configure(Clip(703))
+        known[703]=1003
+        eventFrame.scripts.OnEvent(eventFrame,"CREATURE_DATA_LOAD_RESULT",703,true)
         current=Clip(900)
         eventFrame.scripts.OnUpdate(eventFrame,0)
         expect(refreshes,1,"do not refresh wrong speaker")
+        -- Duplicated native events for settled IDs cannot schedule repaint.
+        eventFrame.scripts.OnEvent(eventFrame,"CREATURE_DATA_LOAD_RESULT",703,true)
+        expect(eventFrame.scripts.OnUpdate,nil,"ignore unsolicited completion")
     end
     return true
 end

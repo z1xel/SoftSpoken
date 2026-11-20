@@ -1,20 +1,22 @@
--- SoftSpoken Zones C2: Lua 5.0-compatible module.
--- Extracted from the working Core.lua without changing its algorithms.
+-- SoftSpoken Places (Vanilla 1.12 / Lua 5.0).
+-- Places location events and automatic narration.
 
-local R = SSZZonesRuntime
-local Normalise = R.Normalise
-local AudioID = R.AudioID
-local CurrentLocation = R.CurrentLocation
-local CharDB = R.CharDB
-local RecordVisit = R.RecordVisit
-local FindRecording = R.FindRecording
-local RequestNarration = R.RequestNarration
-local InvalidateExploration = R.InvalidateExploration
-local VisitKey = R.VisitKey
-local ZONE_NAMES = R.ZONE_NAMES
+local PlacesRuntime = SpokenPlacesRuntime
+local Normalise = PlacesRuntime.Normalise
+local AudioID = PlacesRuntime.AudioID
+local CurrentLocation = PlacesRuntime.CurrentLocation
+local CharDB = PlacesRuntime.CharDB
+local RecordVisit = PlacesRuntime.RecordVisit
+local FindRecording = PlacesRuntime.FindRecording
+local RequestNarration = PlacesRuntime.RequestNarration
+local InvalidateExploration = PlacesRuntime.InvalidateExploration
+local VisitKey = PlacesRuntime.VisitKey
+local ZONE_NAMES = PlacesRuntime.ZONE_NAMES
 local lastLocation
 local lastZone
 local STARTUP_SETTLE_SECONDS = 0.75
+local STARTUP_GREETING_GRACE_SECONDS = 1.5
+local CinematicUp -- declared here so startup stabilization can inspect it
 
 -- Greet new level-one characters exactly once, preferring the starting subzone.
 -- The greeting never queues both subzone and parent overview on login.
@@ -27,12 +29,14 @@ local function TryGreeting(zone, subzone)
     if settings.subzones and mapID and Normalise(subzone) ~= "" and
        Normalise(subzone) ~= Normalise(zone) and
        FindRecording(mapID, Normalise(subzone)) then
-        queued = RequestNarration(zone, subzone, false, false, true)
+        queued = RequestNarration(zone, subzone, false, false, true, true)
     end
     if not queued then
-        queued = RequestNarration(zone, zone, false, true, true)
+        queued = RequestNarration(zone, zone, false, true, true, true)
     end
-    if queued then CharDB().greeted = true end
+    -- Do NOT persist delivery at enqueue: a held recording can disappear on
+    -- reload, source disable, or low-priority eviction before it is ever heard.
+    -- The clip's startCallback records greeted only on actual playback start.
 end
 
 -- "unheard" mode narrates supported areas on actual movement only.
@@ -65,23 +69,27 @@ end
 -- world. Wait until the reported location has remained stable briefly before
 -- selecting ONE starting-area greeting (or no audio if greeting is disabled).
 local function StabilizeStartingLocation(elapsed)
-    if not R.startupActive or not R.firstWorldReady then return end
+    if not PlacesRuntime.startupActive or not PlacesRuntime.firstWorldReady then return end
     local zone, subzone = CurrentLocation()
     if zone == "" then return end
     local key = zone .. "|" .. subzone
-    if key ~= R.startupStableKey then
-        R.startupStableKey = key
-        R.startupStableElapsed = 0
+    if key ~= PlacesRuntime.startupStableKey then
+        PlacesRuntime.startupStableKey = key
+        PlacesRuntime.startupStableElapsed = 0
         return
     end
     local delta = elapsed
     -- 1.12 callbacks also expose their arguments via the arg1 global.
     if type(delta) ~= "number" then delta = arg1 end
     if type(delta) ~= "number" then return end
-    R.startupStableElapsed = R.startupStableElapsed + delta
-    if R.startupStableElapsed < STARTUP_SETTLE_SECONDS then return end
+    PlacesRuntime.startupStableElapsed = PlacesRuntime.startupStableElapsed + delta
+    if PlacesRuntime.startupStableElapsed < STARTUP_SETTLE_SECONDS then return end
+    -- The grace begins after BOTH location stabilization and the opening
+    -- cinematic ending; it must not elapse while the movie is still visible.
+    if CinematicUp() then return end
 
-    R.startupActive = false
+    PlacesRuntime.initialGreetingGraceUntil = (GetTime and GetTime() or 0) + STARTUP_GREETING_GRACE_SECONDS
+    PlacesRuntime.startupActive = false
     lastLocation = key
     lastZone = zone
     RecordVisit(zone, subzone)
@@ -122,10 +130,8 @@ local function GetDiscoveryPatterns()
         local pat = DiscoveryPattern(fmt)
         if pat then table.insert(discoveryPatterns, pat) end
     end
-    -- English fallback for older/custom clients lacking the localized globals.
-    -- Turtle and other legacy clients can deliver messages that differ
-    -- from the client global strings. Keep the conservative English fallbacks
-    -- even when a localized discovery format exists.
+    -- Retain English discovery-message fallbacks when Turtle 1.12 differs
+    -- from a localized client global or does not provide the format string.
     table.insert(discoveryPatterns, "^Discovered (.+): %d+ experience gained%.?$")
     table.insert(discoveryPatterns, "^Discovered: (.+)%.?$")
     table.insert(discoveryPatterns, "^Discovered (.+)%.$")
@@ -168,13 +174,13 @@ local function OnDiscovered(area)
     if SSZMapHighlight and SSZMapHighlight.Hide then
         SSZMapHighlight.Hide()
     end
-    if SSZCompendium and SSZCompendium.Refresh then
-        SSZCompendium:Refresh()
+    if SpokenCompendium and SpokenCompendium.Refresh then
+        SpokenCompendium:Refresh()
     end
     if SSZMapPanel and SSZMapPanel.Refresh then
         SSZMapPanel.Refresh()
     end
-    if R.startupActive or not CharDB().settings.auto then return end
+    if PlacesRuntime.startupActive or not CharDB().settings.auto then return end
     if zoneArea then
         RequestNarration(zone,zone,false,true,true)
     elseif CharDB().settings.subzones then
@@ -182,7 +188,8 @@ local function OnDiscovered(area)
     end
 end
 
-local function CinematicUp()
+CinematicUp = function()
+    if PlacesRuntime.cinematicEventActive then return true end
     if InCinematic and InCinematic() then return true end
     if CinematicFrame and CinematicFrame.IsShown and CinematicFrame:IsShown() then return true end
     if MovieFrame and MovieFrame.IsShown and MovieFrame:IsShown() then return true end
@@ -193,18 +200,29 @@ end
 local function HoldAutoplay(item)
     if not item.autoplay then return nil end
     local settings = CharDB().settings
-    if settings.holdCombat and UnitAffectingCombat and
+    if CinematicUp() then return "cinematic" end
+    if (settings.holdCombat or settings.stopCombat) and UnitAffectingCombat and
        UnitAffectingCombat("player") then
         return "combat"
     end
-    if CinematicUp() then return "cinematic" end
+    if item.initialGreeting and PlacesRuntime.initialGreetingGraceUntil and
+       GetTime and GetTime() < PlacesRuntime.initialGreetingGraceUntil then
+        return "starting area"
+    end
     return nil
 end
 
 local function Recheck()
-    if not R.source then return end
-    if R.source.RecheckGates then R.source:RecheckGates() end
-    if R.source.Retry then R.source:Retry() end
+    if not PlacesRuntime.source then return end
+    -- Hold-only must NEVER cut a line in progress. RecheckGates is the
+    -- interrupting operation; request it only for cinematics or Stop mode.
+    local settings = CharDB().settings
+    local stopping = (settings.stopCombat == true) and UnitAffectingCombat and
+        UnitAffectingCombat("player")
+    if (CinematicUp() or stopping) and PlacesRuntime.source.RecheckGates then
+        PlacesRuntime.source:RecheckGates()
+    end
+    if PlacesRuntime.source.Retry then PlacesRuntime.source:Retry() end
 end
 
 
@@ -228,11 +246,11 @@ local discoveryEvents = {
     UI_ERROR_MESSAGE = true,
 }
 
-R.CheckLocation = CheckLocation
-R.StabilizeStartingLocation = StabilizeStartingLocation
-R.DiscoveredArea = DiscoveredArea
-R.OnDiscovered = OnDiscovered
-R.HoldAutoplay = HoldAutoplay
-R.Recheck = Recheck
-R.EventMessage = EventMessage
-R.discoveryEvents = discoveryEvents
+PlacesRuntime.CheckLocation = CheckLocation
+PlacesRuntime.StabilizeStartingLocation = StabilizeStartingLocation
+PlacesRuntime.DiscoveredArea = DiscoveredArea
+PlacesRuntime.OnDiscovered = OnDiscovered
+PlacesRuntime.HoldAutoplay = HoldAutoplay
+PlacesRuntime.Recheck = Recheck
+PlacesRuntime.EventMessage = EventMessage
+PlacesRuntime.discoveryEvents = discoveryEvents
