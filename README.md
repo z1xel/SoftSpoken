@@ -49,7 +49,7 @@ However, this behavior is entirely optional. Players who prefer to explore the l
 
 SoftSpoken Stories provides narration for quests and NPC gossip throughout the game. Narration can play automatically as you interact with NPCs, with configurable behavior for greetings, conversations, and quest dialogue.
 
-Within the Compendium, Stories maintains a record of the quests you've encountered, organizing them by location and quest chain. Each entry provides access to its associated dialogue and available recordings, allowing you to revisit earlier encounters without returning to the original NPC.
+Within the Compendium, Stories maintains a record of the quests you've encountered, organizing them by location and quest chain. Quests completed before installing SoftSpoken are also recognized, allowing your past adventures to be reflected in the Compendium. Entries contain the associated dialogue and available recordings, accompanied by portraits of the characters involved.
 
 <img src="docs/images/screenshots/stories.webp" alt="Stories module showing quest dialogue within Azeroth's Compendium" />
 
