@@ -87,9 +87,9 @@ SoftSpoken is designed for World of Warcraft 1.12 clients, primarily OctoWoW and
 
 SoftSpoken needs **ClassicAPI** to be loaded by the game client, not simply present as an addon in `Interface\\AddOns`.
 
-The OctoWoW launcher includes ClassicAPI under the **Mods** tab, but its bundled version may be older than the latest [official release](https://github.com/brues-code/ClassicAPI/releases/latest). Some users have experienced crashes with older ClassicAPI versions. Upgrading from the launcher-provided v1.15.16 to v1.20.4 resolved the crashes.
+The OctoWoW launcher includes ClassicAPI under the **Mods** tab, but its bundled version may be outdated. Older versions can cause crashes or compatibility issues.
 
-**I recommend updating ClassicAPI when possible**, especially if you experience crashes or other compatibility issues.
+**For the most up-to-date version, use the [latest official ClassicAPI release](https://github.com/brues-code/ClassicAPI/releases/latest)**, especially if you experience issues with the launcher-provided version.
 
 #### Updating ClassicAPI in OctoWoW
 
