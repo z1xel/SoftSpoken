@@ -40,13 +40,10 @@ local function EstimatedLength(length)
     return nil
 end
 
--- The dedicated Writings book portrait is bundled in Core. Keep the native
--- Vanilla inventory icon as a fallback if the custom art cannot be rendered.
-local BOOK_TEXTURE = [[Interface\AddOns\SoftSpoken\Textures\WritingsBook]]
-local VANILLA_BOOK_TEXTURE = [[Interface\Icons\INV_Misc_Book_09]]
+-- Use the native Vanilla book icon when no item or material icon is available.
+local BOOK_TEXTURE = [[Interface\Icons\INV_Misc_Book_09]]
 
--- A page's picture: its bag item's icon, its writing material, then (for
--- books only) our book cover. Other readable types keep the Vanilla icon.
+-- A page's picture: its bag item's icon, its writing material, then the book icon.
 local ICON_CROP = { 0.08, 0.92, 0.08, 0.92 }
 local MATERIALS = {
 	Stone = [[Interface\Icons\INV_Misc_StoneTablet_01]],
@@ -59,7 +56,7 @@ Writings.MATERIALS = MATERIALS
 
 --- Open is what the item text events say, not the game's frame, which DialogueUI hides. A page
 --- queued with nothing open takes the book.
-function Writings:PagePicture(bookID)
+function Writings:PagePicture()
 	if self.lastPage then
 		local item = ItemTextGetItem and ItemTextGetItem()
 		local icon, crop
@@ -70,18 +67,7 @@ function Writings:PagePicture(bookID)
 			return { kind = "texture", texture = MATERIALS[material], texCoord = ICON_CROP }
 		end
 	end
-	local places = _G.SSBPlaces and SSBPlaces.books
-	local readable = places and places[bookID]
-	if not readable or readable.type == "book" then
-		return {
-			kind = "texture", texture = BOOK_TEXTURE,
-			-- The cover is already composed on a square texture. Do not crop
-			-- its edges using the inventory icon's built-in inset.
-			texCoord = { 0, 1, 0, 1 },
-			fallback = { kind = "texture", texture = VANILLA_BOOK_TEXTURE, texCoord = ICON_CROP },
-		}
-	end
-	return { kind = "texture", texture = VANILLA_BOOK_TEXTURE, texCoord = ICON_CROP }
+	return { kind = "texture", texture = BOOK_TEXTURE, texCoord = ICON_CROP }
 end
 
 --- What the open page is written on (ItemTextGetMaterial: Parchment, Stone, Marble...), or nil
@@ -234,7 +220,7 @@ function Writings:ClipFor(pageId)
                         queueLabel = queueLabel,
 						bullet = "book",
 						material = self:PageMaterial(),
-						portrait = self:PagePicture(place.book),
+						portrait = self:PagePicture(),
 					},
 					stopCallback = PageStopped,
 				}
