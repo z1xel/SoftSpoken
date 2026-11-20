@@ -233,24 +233,6 @@ For **Places** and **Writings**, check that the corresponding voice-pack addons 
 
 If Stories still fails to play recordings, open its diagnostics and include the affected pack names and load errors when [reporting an issue](https://github.com/z1xel/SoftSpoken/issues).
 
-### Voice Packs Not Loading With pfUI
-
-pfUI's addon manager may display enabled voice packs as unchecked because SoftSpoken loads them on demand.
-
-This becomes a problem when using pfUI's addon profiles. Saving a profile with those voice packs unchecked and later applying it can cause them to become disabled, preventing SoftSpoken from loading them.
-
-**If you use pfUI, make sure your voice packs are checked before saving an addon profile.** If you've already saved a profile, update it to include your voice packs as well.
-
-You can also verify that they're enabled from the game's AddOns menu at character selection.
-
-### Stories Fails to Load With a GreetingFirst.lua Error (v0.8.1-beta)
-
-In **v0.8.1-beta**, enabling **Game Greeting First** can cause an initialization error that prevents Stories from loading properly.
-
-**Temporary workaround:** Disable **Game Greeting First** in the SoftSpoken settings. If the error prevents you from accessing the settings, exit the game and change `GreetingFirst = true` to `GreetingFirst = false` in `WTF/Account/<ACCOUNT>/SavedVariables/SoftSpoken_Stories.lua` (back up the file first).
-
-This issue has been addressed in the development version and will be fixed in **v0.9.0-beta**. You do not need to delete your saved variables or reset your entire WTF folder.
-
 ### Still Having Trouble?
 
 Bug reports, compatibility issues, and suggestions are always welcome!
