@@ -89,12 +89,11 @@ SpokenBooksAudioPacks={TestPack={
 dofile("SoftSpoken_Writings/Audio.lua")
 local clip=assert(SpokenWritings:ClipFor(101))
 eq(clip.present.portrait.kind,"texture","Writings book portrait is a texture")
-eq(clip.present.portrait.texture,[[Interface\AddOns\SoftSpoken\Textures\WritingsBook]],
-    "books use the bundled book cover when no item or material icon exists")
-eq(clip.present.portrait.fallback.texture,[[Interface\Icons\INV_Misc_Book_09]],
-    "Vanilla book icon remains the renderer fallback")
-eq(clip.present.portrait.texCoord[1],0,"book cover is not cropped as an inventory icon")
-eq(clip.present.portrait.texCoord[2],1,"book cover retains its full width")
+eq(clip.present.portrait.texture,[[Interface\Icons\INV_Misc_Book_09]],
+    "books use the native Vanilla icon when no item or material icon exists")
+eq(clip.present.portrait.fallback,nil,"Vanilla book icon is the default, not a fallback")
+eq(clip.present.portrait.texCoord[1],0.08,"Vanilla icon uses the inventory inset")
+eq(clip.present.portrait.texCoord[2],0.92,"Vanilla icon keeps its inventory crop")
 eq(clip.present.header,"The World Tree and the Emerald Dream",
     "book title promoted to white heading")
 eq(clip.present.label,"Book " .. DOT .. " Discovered in Darnassus",
@@ -104,27 +103,27 @@ eq(clip.present.queueLabel,"The World Tree and the Emerald Dream",
 eq(clip.present.transcript,"First","book transcript unchanged")
 eq(clip.group,nil,"one-line group unchanged")
 
--- Non-book readables must not inherit the book cover. Their existing
--- material and item icon priority remains unchanged.
+-- All readables use the Vanilla book icon by default, preserving the existing
+-- item-specific and writing-material icon priority.
 local letter=assert(SpokenWritings:ClipFor(201))
 eq(letter.present.portrait.texture,[[Interface\Icons\INV_Misc_Book_09]],
-    "letters retain the native default without book artwork")
+    "letters retain the native default")
 local scroll=assert(SpokenWritings:ClipFor(301))
 eq(scroll.present.portrait.texture,[[Interface\Icons\INV_Misc_Book_09]],
-    "scrolls retain the native default without book artwork")
+    "scrolls retain the native default")
 SpokenWritings.lastPage=true
 ItemTextGetItem=function() return "item" end
 ItemTextGetMaterial=function() return "Stone" end
 Spoken={BagItemIcon=function() return "Interface\\Icons\\CustomItem", {0.1,0.9,0.1,0.9} end}
 local itemPicture=SpokenWritings:PagePicture(11)
-eq(itemPicture.texture,"Interface\\Icons\\CustomItem","item icon wins over custom book artwork")
+eq(itemPicture.texture,"Interface\\Icons\\CustomItem","item icon wins over the default book icon")
 eq(itemPicture.texCoord[1],0.1,"item-specific icon crop preserved")
 Spoken.BagItemIcon=function() return nil end
 local stonePicture=SpokenWritings:PagePicture(11)
-eq(stonePicture.texture,SpokenWritings.MATERIALS.Stone,"material icon wins over custom book artwork")
+eq(stonePicture.texture,SpokenWritings.MATERIALS.Stone,"material icon wins over the default book icon")
 ItemTextGetMaterial=function() return "Parchment" end
-eq(SpokenWritings:PagePicture(11).texture,[[Interface\AddOns\SoftSpoken\Textures\WritingsBook]],
-    "unknown material falls back to bundled book cover")
+eq(SpokenWritings:PagePicture(11).texture,[[Interface\Icons\INV_Misc_Book_09]],
+    "unknown material falls back to the native book icon")
 SpokenWritings.lastPage=nil
 Spoken=nil
 ItemTextGetItem=nil
