@@ -109,10 +109,10 @@ You can find the source code and releases in the [ClassicAPI repository](https:/
 
 ## Installation
 
-**Version status:** This `dev` branch is prepared as **v0.9.0-beta**; that build has not been published yet. The downloadable release below is the previous **v0.8.1-beta**. Do not mix modules from different versions.
+**Current release:** **v0.9.0-beta** (pre-release). Do not mix modules from different versions.
 
 1. **Enable ClassicAPI**, preferably the [latest version](https://github.com/brues-code/ClassicAPI/releases/latest), before starting the game. OctoWoW users can follow the [update instructions above](#updating-classicapi-in-octowow).
-2. For the latest **published** build, download **[SoftSpoken-v0.8.1-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.8.1-beta/SoftSpoken-v0.8.1-beta.zip)** and extract it. The upcoming **v0.9.0-beta** is available as development source on `dev` until its release ZIP is published.
+2. Download **[SoftSpoken-v0.9.0-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.9.0-beta/SoftSpoken-v0.9.0-beta.zip)** and extract it. The previous **[SoftSpoken-v0.8.1-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.8.1-beta/SoftSpoken-v0.8.1-beta.zip)** remains available.
 3. Find the following four addon folders in the extracted contents and copy them into your World of Warcraft 1.12 `Interface\AddOns` directory:
 
    ```text
