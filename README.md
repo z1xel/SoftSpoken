@@ -225,25 +225,21 @@ An update will not necessarily fix every Error #132. If the game still crashes, 
 
 ### The Interface Works, but No Audio Plays
 
-Verify that the appropriate voice packs are installed and enabled. SoftSpoken's interface and narration system are separate from the audio files themselves.
+Verify that the appropriate voice packs are installed in their own folders directly under `Interface\AddOns`. SoftSpoken's interface and narration system are separate from the audio files themselves. Keep **Load out of date AddOns** enabled at character selection.
 
-Open `/softspoken` and check the **Voice Packs** section of each module to confirm that its recordings are detected.
+Open `/softspoken` and check each module's **Voice Packs** section. For **Stories**, confirm that the desired packs are enabled **within SoftSpoken** and check their **Loaded** status or any reported load errors. Stories can load selected, compatible load-on-demand packs even when an addon manager has switched off their WoW addon checkbox.
 
-Refer to the [Voice Packs](#voice-packs) section for installation instructions and compatible downloads.
+For **Places** and **Writings**, check that the corresponding voice-pack addons are enabled at character selection. If a pack does not appear in Settings at all, double-check its folder layout and installation instructions in [Voice Packs](#voice-packs).
 
-If a voice pack is missing, check that it's enabled in the character-selection AddOns menu and that **Load out of date AddOns** remains enabled.
+If Stories still fails to play recordings, open its diagnostics and include the affected pack names and load errors when [reporting an issue](https://github.com/z1xel/SoftSpoken/issues).
 
-For Stories, the Voice Packs settings and diagnostics can report whether a pack loaded or failed, including available error details. Include the affected voice pack names and any displayed errors when [reporting an issue](https://github.com/z1xel/SoftSpoken/issues).
+### Voice Packs and pfUI Profiles
 
-### Voice Packs Not Loading With pfUI
+pfUI can show load-on-demand Stories voice packs as unchecked even when SoftSpoken has loaded them. An unchecked box in pfUI does **not**, by itself, mean that the recordings are unavailable.
 
-pfUI's addon manager may display enabled voice packs as unchecked because SoftSpoken loads them on demand.
+**Stories manages its own voice-pack selection** under `/softspoken` → **Stories** → **Voice Packs**. Packs selected there can be enabled for loading by SoftSpoken even if a pfUI addon profile has disabled their WoW addon checkbox. You do not need to keep every Stories voice pack checked in pfUI just to make SoftSpoken load it.
 
-This becomes a problem when using pfUI's addon profiles. Saving a profile with those voice packs unchecked and later applying it can cause them to become disabled, preventing SoftSpoken from loading them.
-
-**If you use pfUI, make sure your voice packs are checked before saving an addon profile.** If you've already saved a profile, update it to include your voice packs as well.
-
-You can also verify that they're enabled from the game's AddOns menu at character selection.
+To **disable an already-loaded Stories pack**, use its SoftSpoken setting and accept the prompted UI reload; loaded Lua data cannot be unloaded immediately. If narration is missing after switching pfUI profiles, check the pack's status and load errors in SoftSpoken before changing pfUI settings.
 
 ### Still Having Trouble?
 
