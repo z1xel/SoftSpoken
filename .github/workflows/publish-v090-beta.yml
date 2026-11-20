@@ -1,0 +1,120 @@
+name: Publish SoftSpoken v0.9.0-beta
+
+# One-shot release: only the specially named main-branch commit triggers publication.
+# The release/tag existence checks prevent accidental overwrite or republishing.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/publish-v090-beta.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    if: "startsWith(github.event.head_commit.message, 'chore(release): publish v0.9.0-beta')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Guard release identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat VERSION)" = "v0.9.0-beta"
+          if gh release view v0.9.0-beta >/dev/null 2>&1; then
+            echo "v0.9.0-beta already published; refusing overwrite"
+            exit 1
+          fi
+          if git ls-remote --tags origin refs/tags/v0.9.0-beta | grep -q .; then
+            echo "v0.9.0-beta tag exists; refusing to reuse"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Validate release and installable files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tests/test_release_version.py
+          python3 tests/test_public_contracts.py
+          python3 tests/test_ui_packaging.py
+          python3 tests/test_texture_path_integrity.py
+
+      - name: Validate Lua 5.1 catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y lua5.1
+          for script in \
+            SoftSpoken_Stories/Data/Compendium.lua \
+            SoftSpoken_Stories/Data/QuestText.lua \
+            SoftSpoken_Stories/Data/TurtleQuestText.lua \
+            SoftSpoken_Stories/Data/TurtleAreaMeta.lua \
+            SoftSpoken/Compendium/UI/DungeonNames.lua; do
+            luac5.1 -p "$script"
+          done
+          lua5.1 tests/catalog_release_gate.lua
+
+      - name: Build installable archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, pathlib, zipfile
+          modules = ("SoftSpoken", "SoftSpoken_Stories", "SoftSpoken_Places", "SoftSpoken_Writings")
+          version = pathlib.Path("VERSION").read_text().strip()
+          assert version == "v0.9.0-beta"
+          output = pathlib.Path(os.environ["RUNNER_TEMP"]) / ("SoftSpoken-" + version + ".zip")
+          files = sorted(p for mod in modules for p in pathlib.Path(mod).rglob("*") if p.is_file())
+          assert files
+          with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=6) as z:
+              for file in files:
+                  assert not file.is_symlink(), file
+                  z.write(file, file.as_posix())
+          with zipfile.ZipFile(output) as z:
+              assert z.testzip() is None
+              assert len(z.namelist()) == len(files)
+              assert all(p.split("/")[0] in modules for p in z.namelist())
+              for mod in modules:
+                  manifest = f"{mod}/{mod}.toc"
+                  assert f"## Version: {version}".encode() in z.read(manifest), manifest
+          print(f"Validated {output.name}: {len(files)} files, {output.stat().st_size:,} bytes")
+          PY
+
+      - name: Publish prerelease and ZIP
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="v0.9.0-beta"
+          cat > "$RUNNER_TEMP/release-notes.md" <<'EOF'
+          ## SoftSpoken v0.9.0-beta
+
+          A major beta update for World of Warcraft Vanilla 1.12 and compatible clients, building on v0.8.1-beta.
+
+          ### Highlights
+          - **Modernized narration:** ClassicAPI-backed audio playback with completion tracking, queued recordings, interruption handling, and diagnostics.
+          - **Expanded Compendium:** Refined Vanilla-inspired windows, native UI details and scrollbars, with character portraits accompanying quest dialogue.
+          - **Stories:** Curated Vanilla and Turtle quest catalogs, quest-chain and location browsing, recognition of quests completed before installation, and more reliable quest text and speaker handling.
+          - **Voice packs:** Stories settings can manage selected compatible load-on-demand packs and surface loading errors; other module packs remain separately installed.
+          - **Places and Writings:** UI, narration, artwork and compatibility refinements.
+          - **Stability:** Greeting timing improvements, initialization fixes, compatibility work and regression coverage.
+
+          ### Installation
+          Download **SoftSpoken-v0.9.0-beta.zip** below and extract the four addon folders directly into `Interface\AddOns`: `SoftSpoken`, `SoftSpoken_Stories`, `SoftSpoken_Places`, and `SoftSpoken_Writings`.
+
+          **ClassicAPI is required.** Use its [latest official release](https://github.com/brues-code/ClassicAPI/releases/latest) and enable **Load out of date AddOns** at character selection. Install compatible Stories, Places and Writings **voice packs separately**; recordings are not included in this ZIP. Do not mix modules from different SoftSpoken versions.
+
+          Consult the [README](https://github.com/z1xel/SoftSpoken/blob/main/README.md) for detailed setup and voice-pack links. The [development-history summary](https://github.com/z1xel/SoftSpoken/blob/main/docs/v0.9.0-beta-development-history.md) records the pre-squash changes.
+          EOF
+          gh release create "$TAG" "$RUNNER_TEMP/SoftSpoken-$TAG.zip" \
+            --target "$GITHUB_SHA" \
+            --title "SoftSpoken v0.9.0-beta" \
+            --notes-file "$RUNNER_TEMP/release-notes.md" \
+            --prerelease
+          gh release view "$TAG" --json tagName,assets,isPrerelease
