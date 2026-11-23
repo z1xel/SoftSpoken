@@ -1,0 +1,86 @@
+name: Refresh existing v0.9.0-beta ZIP (one-time)
+
+# Intentionally updates the ZIP of an ALREADY EXISTING release.
+# It NEVER calls gh release create, creates a tag, or changes release metadata.
+# Only the installation package's four modules are included.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/refresh-existing-v090-asset-20261123.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  update-existing-asset:
+    if: ${{ github.repository == 'z1xel/SoftSpoken' && startsWith(github.event.head_commit.message, 'chore(release): refresh existing v0.9.0-beta ZIP only') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact EXISTING release and asset, without creating a release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat VERSION)" = 'v0.9.0-beta'
+          id="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/v0.9.0-beta" --jq .id)"
+          test "$id" = '452873945'
+          old_asset_id="$(gh api "repos/$GITHUB_REPOSITORY/releases/$id/assets" --jq '.[] | select(.name == "SoftSpoken-v0.9.0-beta.zip") | .id')"
+          test -n "$old_asset_id"
+          printf 'Existing release id=%s and asset id=%s verified\n' "$id" "$old_asset_id"
+
+      - name: Verify release packaging and compatibility
+        run: |
+          python3 tests/test_release_version.py
+          python3 tests/test_public_contracts.py
+          python3 tests/test_ui_packaging.py
+          python3 tests/test_texture_path_integrity.py
+
+      - name: Rebuild exactly the installable archive from main
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, zipfile
+          modules = ("SoftSpoken", "SoftSpoken_Stories", "SoftSpoken_Places", "SoftSpoken_Writings")
+          version = pathlib.Path("VERSION").read_text().strip()
+          assert version == "v0.9.0-beta"
+          package = pathlib.Path("dist") / ("SoftSpoken-" + version + ".zip")
+          package.parent.mkdir(exist_ok=True)
+          files = sorted(p for mod in modules for p in pathlib.Path(mod).rglob("*") if p.is_file())
+          assert files
+          with zipfile.ZipFile(package, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=6) as z:
+              for file in files:
+                  assert not file.is_symlink()
+                  z.write(file, file.as_posix())
+          with zipfile.ZipFile(package) as z:
+              assert z.testzip() is None
+              for mod in modules:
+                  toc = f"{mod}/{mod}.toc"
+                  assert f"## Version: {version}".encode() in z.read(toc)
+              map_panel = z.read("SoftSpoken_Places/UI/MapPanel.lua").decode()
+              assert "Compat.Name(" not in map_panel.replace("MapCompat.Name(", "")
+              assert "MapCompat.Name(mapID)" in map_panel
+          print(f"Repackaged {package} from main: {len(files)} files, {package.stat().st_size:,} bytes")
+          PY
+          sha256sum dist/SoftSpoken-v0.9.0-beta.zip
+
+      - name: Replace the ZIP asset on the existing release (no new release)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release upload v0.9.0-beta dist/SoftSpoken-v0.9.0-beta.zip --clobber --repo "$GITHUB_REPOSITORY"
+
+      - name: Verify same release ID and refreshed ZIP asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/v0.9.0-beta" --jq .id)" = '452873945'
+          gh api "repos/$GITHUB_REPOSITORY/releases/452873945/assets" \
+            --jq '.[] | select(.name == "SoftSpoken-v0.9.0-beta.zip") | {id, name, size, updated_at, digest}'
