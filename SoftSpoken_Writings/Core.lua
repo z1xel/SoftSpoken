@@ -4,7 +4,7 @@
 -- adapted from rusty-key/spoken-wow (MIT).
 SpokenWritings = SpokenWritings or {}
 local Writings = SpokenWritings
-Writings.version = "v0.9.0-beta"
+Writings.version = "v0.9.1-beta"
 Writings.name = "SoftSpoken_Writings"
 local defaults = {
     autoplay=true, readWholeBook=true, bookAsOneLine=true, readOnce=false,

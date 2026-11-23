@@ -4,7 +4,7 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
-EXPECTED = "v0.9.0-beta"
+EXPECTED = "v0.9.1-beta"
 version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
 assert version == EXPECTED, f"Unexpected release milestone: {version!r}"
 
@@ -30,7 +30,7 @@ assert "v0.8.1-beta.zip" in readme, "Existing published release link must remain
 assert not (ROOT / ".github/workflows/publish-v081-beta.yml").exists(), (
     "Retired automatic publisher must not remain active in the release branch"
 )
-stage = ROOT / ".github/workflows/stage-v090-beta.yml"
+stage = ROOT / ".github/workflows/stage-v091-beta.yml"
 assert stage.is_file() and version in stage.read_text(encoding="utf-8"), (
     "New version-specific release staging workflow is missing"
 )

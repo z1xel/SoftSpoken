@@ -23,7 +23,7 @@ SpokenEnv = setmetatable({
     _G = _G,
     AddonFolder = "SoftSpoken",
     -- Initialized before metadata APIs exist; keep aligned with SoftSpoken.toc.
-    AddonVersion = "v0.9.0-beta",
+    AddonVersion = "v0.9.1-beta",
 }, { __index = _G })
 
 -- Created here, filled by API.lua. Reusing an existing table keeps a feature addon's

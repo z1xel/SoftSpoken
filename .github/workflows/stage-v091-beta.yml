@@ -1,4 +1,4 @@
-name: Stage SoftSpoken v0.9.0-beta
+name: Stage SoftSpoken v0.9.1-beta
 
 # Builds a private-to-Actions candidate ZIP; does NOT publish a GitHub release.
 on:
@@ -21,7 +21,7 @@ on:
       - "SoftSpoken_Places/Textures/**"
       - "SoftSpoken_Stories/Textures/**"
       - "SoftSpoken/Textures/**"
-      - ".github/workflows/stage-v090-beta.yml"
+      - ".github/workflows/stage-v091-beta.yml"
   workflow_dispatch:
 
 permissions:
@@ -29,7 +29,7 @@ permissions:
 
 jobs:
   stage:
-    name: Validate and package v0.9.0-beta
+    name: Validate and package v0.9.1-beta
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -62,6 +62,6 @@ jobs:
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: SoftSpoken-v0.9.0-beta-preview
-          path: dist/SoftSpoken-v0.9.0-beta.zip
+          name: SoftSpoken-v0.9.1-beta-preview
+          path: dist/SoftSpoken-v0.9.1-beta.zip
           compression-level: 0
