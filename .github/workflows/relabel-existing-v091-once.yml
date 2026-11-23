@@ -1,0 +1,138 @@
+name: Relabel the existing SoftSpoken beta release (one-time)
+
+# THIS DOES NOT CREATE A GITHUB RELEASE. It changes the tag, title,
+# description and ZIP of existing release record 452873945 only.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/relabel-existing-v091-once.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  relabel:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Confirm existing release and old ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat VERSION)" = "v0.9.1-beta"
+          gh api "repos/$GITHUB_REPOSITORY/releases/452873945" > /tmp/existing-release.json
+          python3 - <<'PY'
+          import json
+          j=json.load(open("/tmp/existing-release.json"))
+          assert j["id"] == 452873945 and j["tag_name"] == "v0.9.0-beta", "Expected existing release was not found unchanged"
+          assert len([a for a in j["assets"] if a["name"]=="SoftSpoken-v0.9.0-beta.zip"])==1, "Existing ZIP missing or ambiguous"
+          print("Existing release ID and ZIP confirmed; no release creation will occur")
+          PY
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v0.9.1-beta" >/dev/null 2>&1; then
+            echo 'v0.9.1-beta tag already exists; refusing to overwrite it' >&2
+            exit 1
+          fi
+
+      - name: Validate packaged version declarations
+        run: |
+          set -euo pipefail
+          python3 tests/test_release_version.py
+          python3 tests/test_public_contracts.py
+          python3 tests/test_ui_packaging.py
+          python3 tests/test_texture_path_integrity.py
+
+      - name: Build v0.9.1-beta ZIP from main
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, zipfile
+          version=pathlib.Path("VERSION").read_text().strip()
+          assert version=="v0.9.1-beta"
+          mods=("SoftSpoken","SoftSpoken_Stories","SoftSpoken_Places","SoftSpoken_Writings")
+          files=sorted(p for mod in mods for p in pathlib.Path(mod).rglob("*") if p.is_file())
+          assert files
+          target=pathlib.Path("dist")/("SoftSpoken-"+version+".zip")
+          target.parent.mkdir(exist_ok=True)
+          with zipfile.ZipFile(target,"w",compression=zipfile.ZIP_DEFLATED,compresslevel=6) as z:
+              for p in files:
+                  assert not p.is_symlink()
+                  z.write(p,p.as_posix())
+          with zipfile.ZipFile(target) as z:
+              assert z.testzip() is None
+              for mod in mods:
+                  p=f"{mod}/{mod}.toc"
+                  assert f"## Version: {version}".encode() in z.read(p)
+              core=z.read("SoftSpoken/Environment.lua")
+              assert b'AddonVersion = "v0.9.1-beta"' in core
+              panel=z.read("SoftSpoken_Places/UI/MapPanel.lua").decode()
+              assert "Compat.Name(" not in panel.replace("MapCompat.Name(","")
+          print(f"Rebuilt {len(files)} installable files, ZIP {target.stat().st_size:,} bytes")
+          PY
+          sha256sum dist/SoftSpoken-v0.9.1-beta.zip
+
+      - name: Create v0.9.1-beta tag without creating a release
+        run: |
+          set -euo pipefail
+          gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" \
+             -f ref="refs/tags/v0.9.1-beta" \
+             -f sha="$GITHUB_SHA" >/dev/null
+
+      - name: Retitle the SAME release record and update its notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os
+          r=json.load(open("/tmp/existing-release.json"))
+          body=(r.get("body") or "").replace("v0.9.0-beta","v0.9.1-beta")
+          payload={
+              "tag_name":"v0.9.1-beta",
+              "name":"SoftSpoken v0.9.1-beta",
+              "target_commitish":os.environ["GITHUB_SHA"],
+              "body":body,
+          }
+          with open("/tmp/relabel-release.json","w") as out: json.dump(payload,out)
+          PY
+          gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/452873945" \
+             --input /tmp/relabel-release.json >/dev/null
+          test "$(gh api "repos/$GITHUB_REPOSITORY/releases/452873945" --jq .tag_name)" = "v0.9.1-beta"
+
+      - name: Upload correctly named ZIP to the existing release
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release upload v0.9.1-beta dist/SoftSpoken-v0.9.1-beta.zip \
+             --repo "$GITHUB_REPOSITORY"
+          test -n "$(gh api "repos/$GITHUB_REPOSITORY/releases/452873945/assets" \
+             --jq '.[] | select(.name=="SoftSpoken-v0.9.1-beta.zip") | .id')"
+
+      - name: Remove obsolete old-name ZIP asset
+        shell: bash
+        run: |
+          set -euo pipefail
+          old_id="$(gh api "repos/$GITHUB_REPOSITORY/releases/452873945/assets" \
+            --jq '.[] | select(.name=="SoftSpoken-v0.9.0-beta.zip") | .id')"
+          test -n "$old_id"
+          gh api -X DELETE "repos/$GITHUB_REPOSITORY/releases/assets/$old_id" >/dev/null
+
+      - name: Verify one existing release with v0.9.1-beta title tag and asset
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/releases/452873945" > /tmp/verified-release.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open("/tmp/verified-release.json"))
+          assert r["id"]==452873945
+          assert r["tag_name"]=="v0.9.1-beta" and r["name"]=="SoftSpoken v0.9.1-beta"
+          assert "v0.9.0-beta" not in (r["body"] or "")
+          assert len(r["assets"])==1
+          a=r["assets"][0]
+          assert a["name"]=="SoftSpoken-v0.9.1-beta.zip" and a["size"]>100000000
+          print("Verified original release ID",r["id"],"tag",r["tag_name"],"asset",a["name"],"size",a["size"])
+          PY
