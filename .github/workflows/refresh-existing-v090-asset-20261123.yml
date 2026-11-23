@@ -14,7 +14,8 @@ permissions:
 
 jobs:
   update-existing-asset:
-    if: ${{ github.repository == 'z1xel/SoftSpoken' && startsWith(github.event.head_commit.message, 'chore(release): refresh existing v0.9.0-beta ZIP only') }}
+    if: >-
+      ${{ github.repository == 'z1xel/SoftSpoken' && startsWith(github.event.head_commit.message, 'chore(release): refresh existing v0.9.0-beta ZIP only') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
