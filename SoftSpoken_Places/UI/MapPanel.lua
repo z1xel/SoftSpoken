@@ -311,7 +311,7 @@ local function PageEntry(mapID)
             local result = {
                 title = name, mapID = mapID, key = selectedAreaKey,
                 lore = {mapID, selectedAreaKey},
-                subtitle = "In " .. Compat.Name(mapID),
+                subtitle = "In " .. MapCompat.Name(mapID),
                 onSubtitle = function() MapPanel.ClearSubzone() end,
             }
             if LoreWindow.IsLocked and LoreWindow.IsLocked(mapID, selectedAreaKey) then
@@ -351,14 +351,14 @@ local function PageEntry(mapID)
     end
     local subtitle, parent
     if foundOn~=mapID then
-        subtitle="Lore of "..Compat.Name(foundOn)
+        subtitle="Lore of "..MapCompat.Name(foundOn)
     else
         subtitle,parent=LoreWindow.PlaceLine(mapID)
     end
     local item={ title=name, mapID=mapID, subtitle=subtitle,
         onSubtitle=parent and function() MapCompat.SetDisplayedMap(parent) end or nil }
     if citySelected then
-        item.subtitle = "In " .. Compat.Name(selectedMapID)
+        item.subtitle = "In " .. MapCompat.Name(selectedMapID)
         item.onSubtitle = function() MapPanel.ClearSubzone() end
     end
     if LoreWindow.IsLocked and LoreWindow.IsLocked(foundOn,nil) then
@@ -366,7 +366,7 @@ local function PageEntry(mapID)
         item.missing=true
     elseif LoreWindow.IsPending and LoreWindow.IsPending(entry) then
         item.lore={foundOn,nil}
-        item.text="The story of "..Compat.Name(foundOn).." has not been written yet."
+        item.text="The story of "..MapCompat.Name(foundOn).." has not been written yet."
         item.missing=true
     else
         item.lore={foundOn,nil}

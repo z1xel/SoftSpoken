@@ -73,6 +73,7 @@ on:
       - "tests/stories_quest_dialogue.lua"
       - "tests/test_dialogueui_cleanup.py"
       - "tests/places_zone_portrait_emblems.lua"
+      - "tests/places_map_panel_names.lua"
       - "tests/writings_narrator_discovery.lua"
       - "SoftSpoken/Textures/**"
       - "SoftSpoken_Stories/Textures/**"
@@ -149,6 +150,7 @@ on:
       - "tests/stories_quest_dialogue.lua"
       - "tests/test_dialogueui_cleanup.py"
       - "tests/places_zone_portrait_emblems.lua"
+      - "tests/places_map_panel_names.lua"
       - "tests/writings_narrator_discovery.lua"
       - "SoftSpoken/Textures/**"
       - "SoftSpoken_Stories/Textures/**"
@@ -177,7 +179,7 @@ jobs:
           luac5.1 -p SoftSpoken/Compendium/UI/CompendiumUIHelpers.lua SoftSpoken/Compendium/UI/Compendium.lua SoftSpoken/Compendium/UI/FrameSkin.lua SoftSpoken/Compendium/UI/InteriorSkin.lua
           luac5.1 -p SoftSpoken/Compendium/UI/NativeScrollbar.lua SoftSpoken/Compendium/UI/LorePage.lua SoftSpoken/Compendium/UI/TextView.lua SoftSpoken/Compendium/UI/PagePane.lua
           luac5.1 -p SoftSpoken/UI/Portrait.lua SoftSpoken/CreatureAppearance.lua SoftSpoken/Compat.lua SoftSpoken/API.lua
-          luac5.1 -p SoftSpoken_Places/Audio.lua tests/places_zone_portrait_emblems.lua
+          luac5.1 -p SoftSpoken_Places/Audio.lua tests/places_zone_portrait_emblems.lua tests/places_map_panel_names.lua
           luac5.1 -p tests/classicapi_portrait_compatibility.lua tests/creature_appearance_service.lua tests/stories_faction_crest.lua tests/stories_compendium_portrait_lifecycle.lua
           luac5.1 -p SoftSpoken_Stories/FactionCrest.lua SoftSpoken_Stories/SpeakerResolver.lua SoftSpoken_Stories/NarrationSource.lua SoftSpoken_Stories/QuestDialogue.lua SoftSpoken_Stories/Compendium/QuestPage.lua
           luac5.1 -p tests/stories_speaker_resolution.lua tests/stories_quest_event_bridge.lua tests/stories_questlog_subtitles.lua tests/stories_quest_dialogue.lua tests/stories_native_reporting.lua tests/stories_portrait_preloading.lua tests/stories_questlog_portrait_prime.lua tests/questlog_deferred_layout_compatibility.lua
@@ -221,6 +223,8 @@ jobs:
         run: lua5.1 tests/narrator_queue_label.lua
       - name: Check Places narrator emblems and all upstream artwork
         run: lua5.1 tests/places_zone_portrait_emblems.lua
+      - name: Check Places map-panel breadcrumbs and subzone selection
+        run: lua5.1 tests/places_map_panel_names.lua
       - name: Check Stories faction crests and portrait fallbacks
         run: lua5.1 tests/stories_faction_crest.lua
       - name: Check Stories shared speaker resolution
