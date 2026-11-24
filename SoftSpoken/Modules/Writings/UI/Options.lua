@@ -142,14 +142,6 @@ function Writings:ShowOptions()
     if page and page.Open then page.Open() end
 end
 
--- Register the shared Writings settings page at login, not only when opened.
-local loader = CreateFrame("Frame")
-loader:RegisterEvent("PLAYER_LOGIN")
-loader:SetScript("OnEvent", function()
-    loader:UnregisterEvent("PLAYER_LOGIN")
-    Writings:SetupOptions()
-end)
-
 function Writings:BooksStatusLines()
     local books, pages, clips = 0, 0, 0
     local data = self:Data()

@@ -442,9 +442,8 @@ function Options:Initialize()
         _G["VoiceOverOptions"] = self.frame.frame
         tinsert(UISpecialFrames, "VoiceOverOptions")
     end)
-    -- Register from the same AceAddon lifecycle as the Quests database.
-    -- The deferred PLAYER_ENTERING_WORLD hook in StoriesSettingsPage remains a
-    -- fallback if the shared core has not finished setting up yet.
+    -- Register after the shared Core and Stories databases are ready.
+    -- Opening the settings page can retry a failed optional UI build.
     RunOptionalStep("shared settings page", function()
         if StoriesSettingsPage and StoriesSettingsPage.Setup then StoriesSettingsPage:Setup() end
     end)

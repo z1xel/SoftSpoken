@@ -6,7 +6,7 @@ SSBSettings={autoplay=true,readOnce=false,stopOnClose=true,closeWhenRead=true,
     bookAsOneLine=false}
 CloseItemText=function() closeCount=closeCount+1 end
 SpokenWritings={
-    source={}, -- registered by SetupSource during PLAYER_ENTERING_WORLD in game
+    source={}, -- registered by SetupSource during coordinated PLAYER_LOGIN in game
     L={READABLE_BOOK="Book"},
     BASE_LANGUAGE="enUS",
     lastPage=nil,
@@ -54,6 +54,10 @@ CreateFrame=function()
 end
 dofile("SoftSpoken/Modules/Writings/Audio.lua")
 dofile("SoftSpoken/Modules/Writings/Events.lua")
+SpokenWritings:SetupEvents()
+local events = SpokenWritings.eventFrame
+SpokenWritings:SetupEvents()
+assert(SpokenWritings.eventFrame == events, "duplicate Writings event frame")
 
 local first,second=SpokenWritings:ClipFor(101),SpokenWritings:ClipFor(102)
 assert(first and second)

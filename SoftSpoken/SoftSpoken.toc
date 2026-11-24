@@ -16,3 +16,4 @@ stories-embeds.xml
 Modules\Stories\addon.xml
 Modules\Places\addon.xml
 Modules\Writings\addon.xml
+Startup.lua

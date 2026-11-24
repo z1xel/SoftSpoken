@@ -101,7 +101,7 @@ Defaults = {
     global = {},
 }
 
---- Idempotent, so the test harness and ADDON_LOADED can both call it.
+--- Idempotent: prepare saved settings before initializing dependent modules.
 function CoreController:InitDB()
     if self.db then
         return
@@ -278,8 +278,8 @@ function CoreController:SeedCompendiumBinding()
 end
 
 --- Initialize the player's UI and its two public commands. Idempotent, so
---- the harness and PLAYER_LOGIN can both call it.
-function CoreController:Enable()
+--- Startup.lua calls this before the feature controllers.
+function CoreController:Initialize()
     if self.enabled then return end
     self:InitDB()
     -- If the previous session crashed mid-duck, restore each saved
@@ -290,18 +290,6 @@ function CoreController:Enable()
     Transcript:Initialize()
     Minimap:Setup()
     Options:Setup()
-
-    -- Wait until feature addons have registered their sources and Quests'
-    -- deferred load-on-demand packs have finished. Only SoftSpoken decides
-    -- whether to show the one missing-voice-pack warning for this login.
-    local voicePackCheckAttempts = 0
-    local function CheckVoicePacksAfterLogin()
-        voicePackCheckAttempts = voicePackCheckAttempts + 1
-        if Spoken:CheckMissingVoicePacks() == false and voicePackCheckAttempts < 6 then
-            CoreController:ScheduleTimer(CheckVoicePacksAfterLogin, 2)
-        end
-    end
-    self:ScheduleTimer(CheckVoicePacksAfterLogin, 3)
 
     -- These are the ONLY public SoftSpoken chat commands. Playback and
     -- debugging have in-game controls, keybindings, or internal APIs instead.
@@ -332,20 +320,21 @@ local function WatchPausedQueue()
     end)
 end
 
--- AceDB needs the saved variable to exist, which is only true once the client has loaded
--- this addon's file. 1.12 hands an OnEvent handler nothing and sets the globals `event`
--- and `arg1` instead, hence the fallback.
-local loader = CreateFrame("Frame")
-loader:RegisterEvent("ADDON_LOADED")
-loader:RegisterEvent("PLAYER_LOGIN")
-loader:SetScript("OnEvent", function(_, ev, name)
-    ev = ev or event
-    if ev == "ADDON_LOADED" and (name or arg1) == AddonFolder then
-        -- Database initialization happens at PLAYER_LOGIN.
-    elseif ev == "PLAYER_LOGIN" then
-        CoreController:Enable()
-        WatchPausedQueue()
-        -- A stop belongs to the line it stopped, which a reload drops, so a session never starts stopped.
-        SoundQueue:SetPaused(false)
+-- Called once after the modules have registered their sources and settings pages.
+function CoreController:FinalizeStartup()
+    WatchPausedQueue()
+    -- A stop belongs to the line it stopped, which a reload drops.
+    SoundQueue:SetPaused(false)
+    Options:UpdateRows()
+    -- Wait until feature modules have registered their sources and Quests'
+    -- deferred load-on-demand packs have finished. Only SoftSpoken decides
+    -- whether to show the one missing-voice-pack warning for this login.
+    local voicePackCheckAttempts = 0
+    local function CheckVoicePacksAfterLogin()
+        voicePackCheckAttempts = voicePackCheckAttempts + 1
+        if Spoken:CheckMissingVoicePacks() == false and voicePackCheckAttempts < 6 then
+            CoreController:ScheduleTimer(CheckVoicePacksAfterLogin, 2)
+        end
     end
-end)
+    self:ScheduleTimer(CheckVoicePacksAfterLogin, 3)
+end

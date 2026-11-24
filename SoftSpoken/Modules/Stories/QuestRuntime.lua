@@ -375,7 +375,11 @@ local function NoteClassicQuestSelection(kind, selection, isQuestID)
     end
 end
 
-function StoriesAddon:OnInitialize()
+-- The AceAddon object remains registered as SpokenQuests for compatibility;
+-- Startup.lua, not AceAddon's automatic OnInitialize, owns startup.
+function StoriesAddon:Initialize()
+    if self.initializationStarted then return end
+    self.initializationStarted = true
     self.db = LibStub("AceDB-3.0"):New("SpokenQuestsSettings", defaults)
     self.db.RegisterCallback(self, "OnProfileChanged", "RefreshConfig")
     self.db.RegisterCallback(self, "OnProfileReset", "RefreshConfig")
@@ -459,16 +463,15 @@ function StoriesAddon:OnInitialize()
         end
     end
     if self.dataModulesPending then
-        if IsLoggedIn and IsLoggedIn() then
+        -- Initialization now runs at PLAYER_LOGIN. IsLoggedIn alone does not
+        -- establish that the player has entered the world.
+        self.dataLoaderFrame = CreateFrame("Frame")
+        self.dataLoaderFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+        self.dataLoaderFrame:SetScript("OnEvent", function(frame)
+            frame = frame or _G.this or self.dataLoaderFrame
+            frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
             ScheduleDeferredDataLoad()
-        else
-            self.dataLoaderFrame = CreateFrame("Frame")
-            self.dataLoaderFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-            self.dataLoaderFrame:SetScript("OnEvent", function(frame)
-                frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
-                ScheduleDeferredDataLoad()
-            end)
-        end
+        end)
     end
     local optionsSucceeded, optionsError = pcall(Options.Initialize, Options)
     if not optionsSucceeded then
@@ -476,9 +479,8 @@ function StoriesAddon:OnInitialize()
         Debug:Record("options-ui-failed", self.optionsInitializationError)
     end
 
-    -- Install this before all optional event registration. AceAddon deliberately
-    -- safe-calls OnInitialize, so a later registration failure must not take
-    -- automatic playback down with it.
+    -- Install this before all optional event registration, so a later
+    -- registration failure does not obscure the available playback controls.
     Debug:Record("options-ready", "Options and manual quest reader are registered")
     self.eventBridgeErrors = {}
     local aceRegistered, aceError = pcall(self.RegisterEvent, self, "ADDON_LOADED")
@@ -821,6 +823,15 @@ function StoriesAddon:OnInitialize()
             end
         end)
     end
+
+    -- Some integrations have already loaded by PLAYER_LOGIN; later ones still
+    -- arrive through AceEvent. Apply each integration once through the same path.
+    if type(IsAddOnLoaded) == "function" then
+        for name in pairs(self.OnAddonLoad) do
+            if IsAddOnLoaded(name) then self:ADDON_LOADED("ADDON_LOADED", name) end
+        end
+    end
+    self.initialized = true
 end
 
 function StoriesAddon:RefreshConfig()
@@ -844,8 +855,13 @@ end
 function StoriesAddon:ADDON_LOADED(event, addon)
     addon = addon or arg1 -- Thanks, Ace3v...
     local hook = self.OnAddonLoad[addon]
-    if hook then
-        hook()
+    self.integrationAttempts = self.integrationAttempts or {}
+    if not hook or self.integrationAttempts[addon] then return end
+    -- Even a partial hook installation must not be repeated on the next event.
+    self.integrationAttempts[addon] = true
+    local ok, err = pcall(hook)
+    if not ok then
+        Debug:Record("integration-error", tostring(addon) .. ": " .. tostring(err))
     end
 end
 

@@ -1,12 +1,5 @@
 -- ITEM_TEXT_* book event binding for Vanilla 1.12 globals.
 local Writings=SpokenWritings
-local f=CreateFrame("Frame")
-Writings.eventFrame=f
-f:RegisterEvent("ADDON_LOADED")
-f:RegisterEvent("PLAYER_ENTERING_WORLD")
-f:RegisterEvent("ITEM_TEXT_BEGIN")
-f:RegisterEvent("ITEM_TEXT_READY")
-f:RegisterEvent("ITEM_TEXT_CLOSED")
 function Writings:OnTextReady()
     -- The game sends READY on opening and page turns, and sometimes repeats
     -- it for a single page. Do not automatically replay a page that just ended.
@@ -50,23 +43,29 @@ function Writings:ReadCurrent()
     if not page then return 0 end
     return self:SyncTo(page)
 end
-f:SetScript("OnEvent",function()
-    local e=event
-    if e=="ADDON_LOADED" then
-        if arg1=="SoftSpoken" then
-            Writings:InitDB()
-            f:UnregisterEvent("ADDON_LOADED")
+function Writings:SetupEvents()
+    if self.eventFrame then return end
+    local f=CreateFrame("Frame")
+    self.eventFrame=f
+    f:RegisterEvent("PLAYER_ENTERING_WORLD")
+    f:RegisterEvent("ITEM_TEXT_BEGIN")
+    f:RegisterEvent("ITEM_TEXT_READY")
+    f:RegisterEvent("ITEM_TEXT_CLOSED")
+    f:SetScript("OnEvent",function()
+        local e=event
+        if e=="PLAYER_ENTERING_WORLD" then
+            -- The source and database are ready. Only the Blizzard book frame
+            -- may not have existed during login.
+            if Writings.SetupPlayButton and Writings:SetupPlayButton() then
+                f:UnregisterEvent("PLAYER_ENTERING_WORLD")
+            end
+        elseif e=="ITEM_TEXT_READY" then
+            Writings:OnTextReady()
+            if Writings.SetupPlayButton then Writings:SetupPlayButton() end
+            if Writings.RefreshPlayButton then Writings:RefreshPlayButton() end
+        elseif e=="ITEM_TEXT_CLOSED" then
+            Writings:OnTextClosed()
+            if Writings.RefreshPlayButton then Writings:RefreshPlayButton() end
         end
-    elseif e=="PLAYER_ENTERING_WORLD" then
-        if not SSBSettings then Writings:InitDB() end
-        Writings:SetupSource()
-        if Writings.SetupPlayButton then Writings:SetupPlayButton() end
-    elseif e=="ITEM_TEXT_READY" then
-        Writings:OnTextReady()
-        if Writings.SetupPlayButton then Writings:SetupPlayButton() end
-        if Writings.RefreshPlayButton then Writings:RefreshPlayButton() end
-    elseif e=="ITEM_TEXT_CLOSED" then
-        Writings:OnTextClosed()
-        if Writings.RefreshPlayButton then Writings:RefreshPlayButton() end
-    end
-end)
+    end)
+end

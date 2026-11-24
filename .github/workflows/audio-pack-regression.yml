@@ -11,6 +11,8 @@ on:
       - "SoftSpoken/Environment.lua"
       - "SoftSpoken/Modules/Stories/Environment.lua"
       - "SoftSpoken/SoftSpoken.toc"
+      - "SoftSpoken/Startup.lua"
+      - "tests/unified_startup.lua"
       - "SoftSpoken/Modules/**"
       - "SoftSpoken/Libs/**"
       - "SoftSpoken/stories-embeds.xml"
@@ -88,6 +90,8 @@ on:
       - "SoftSpoken/Environment.lua"
       - "SoftSpoken/Modules/Stories/Environment.lua"
       - "SoftSpoken/SoftSpoken.toc"
+      - "SoftSpoken/Startup.lua"
+      - "tests/unified_startup.lua"
       - "SoftSpoken/Modules/**"
       - "SoftSpoken/Libs/**"
       - "SoftSpoken/stories-embeds.xml"
@@ -261,3 +265,5 @@ jobs:
         run: lua5.1 tests/audio_pack_load_outcomes.lua
       - name: Check per-pack settings, reload and enable behavior
         run: lua5.1 tests/audio_pack_settings_toggle.lua
+      - name: Verify native unified startup lifecycle
+        run: lua5.1 tests/unified_startup.lua

@@ -13,7 +13,7 @@ local function Refresh()
     if optionsLayout then optionsLayout:Refresh() end
 end
 
-local function Build()
+function PlacesRuntime:SetupOptions()
     if optionsPage or not (Spoken and Spoken.AddSettingsPage and Layout) then return end
     local frame = CreateFrame("Frame", nil, UIParent)
     frame:SetWidth(470)
@@ -181,10 +181,3 @@ local function Build()
     optionsPage = Spoken:AddSettingsPage(frame, "Places", 2, layout)
     Refresh()
 end
-
-local onLogin = CreateFrame("Frame")
-onLogin:RegisterEvent("PLAYER_LOGIN")
-onLogin:SetScript("OnEvent", function()
-    onLogin:UnregisterEvent("PLAYER_LOGIN")
-    Build()
-end)

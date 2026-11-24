@@ -8,9 +8,9 @@ local Say = PlacesRuntime.Say
 local frame
 
 frame = CreateFrame("Frame")
-frame:RegisterEvent("PLAYER_LOGIN")
 local locationPollElapsed = 0
 frame:SetScript("OnUpdate", function(self, elapsed)
+    if not PlacesRuntime.source then return end
     elapsed = elapsed or arg1 or 0
     if PlacesRuntime.startupActive then
         PlacesRuntime.StabilizeStartingLocation(elapsed)
@@ -26,57 +26,7 @@ frame:SetScript("OnUpdate", function(self, elapsed)
 end)
 frame:SetScript("OnEvent", function(self, firedEvent, a, b, c)
     local eventName = firedEvent or event
-    if eventName == "PLAYER_LOGIN" then
-        CharDB()
-        if not Spoken or not Spoken.IsCompatible or not Spoken:IsCompatible(1) then
-            Say("Compatible Spoken player not found.")
-            return
-        end
-        -- Import a previous per-character setting once. After this, the global
-        -- profile setting always wins, even when switching characters.
-        if Spoken.ImportLegacyCaptionPreference then
-            Spoken:ImportLegacyCaptionPreference(CharDB().settings.captions)
-        end
-        -- Packaged 32-bit TGA map-location cursor artwork for Vanilla 1.12;
-        -- the player keeps its existing type glyphs and queued grayscale.
-        if Spoken.RegisterBullet then
-            Spoken:RegisterBullet("zone", [[Interface\AddOns\SoftSpoken\Textures\SoundQueueBulletMaploc]], 16)
-        end
-        PlacesRuntime.source = Spoken:GetSource("zones")
-        if not PlacesRuntime.source then
-            PlacesRuntime.source = Spoken:RegisterSource("zones", {
-                title = "SoftSpoken Places",
-                addon = "SoftSpoken",
-                order = 2,
-                queueLimit = 3,
-                interClipGap = 0.25,
-                -- Existing audio registries, exposed only as read-only
-                -- metadata for the shared settings panel.
-                packs = function() return PlacesRuntime.AudioPackNames() end,
-            })
-        end
-        if PlacesRuntime.source.AddGate then PlacesRuntime.source:AddGate(PlacesRuntime.HoldAutoplay) end
-        if Spoken.RegisterCallback then
-            Spoken:RegisterCallback("AUDIO_CHANGED", function()
-                SpokenPlacesBridge:NotifyAudioChanged()
-            end)
-        end
-
-        -- PLAYER_ENTERING_WORLD is the first safe baseline for spawn/reload.
-        -- Ignore provisional ZONE_CHANGED notifications until it fires.
-        frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-        frame:RegisterEvent("ZONE_CHANGED")
-        frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-        frame:RegisterEvent("ZONE_CHANGED_INDOORS")
-        frame:RegisterEvent("PLAYER_REGEN_DISABLED")
-        frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-        frame:RegisterEvent("CINEMATIC_START")
-        frame:RegisterEvent("CINEMATIC_STOP")
-        for name in pairs(PlacesRuntime.discoveryEvents) do frame:RegisterEvent(name) end
-        -- A supported extension can update exploration while the map is open.
-        pcall(frame.RegisterEvent,frame,"MAP_EXPLORATION_UPDATED")
-
-    elseif not PlacesRuntime.source then
+    if not PlacesRuntime.source then
         return
     elseif eventName == "PLAYER_ENTERING_WORLD" then
         if PlacesRuntime.startupActive then
@@ -118,3 +68,58 @@ frame:SetScript("OnEvent", function(self, firedEvent, a, b, c)
         PlacesRuntime.Recheck()
     end
 end)
+
+function PlacesRuntime:Initialize()
+    if self.initializationStarted then return end
+    self.initializationStarted = true
+    CharDB()
+    if not Spoken or not Spoken.IsCompatible or not Spoken:IsCompatible(1) then
+        Say("Compatible Spoken player not found.")
+        return false
+    end
+    -- Import a previous per-character setting once. After this, the global
+    -- profile setting always wins, even when switching characters.
+    if Spoken.ImportLegacyCaptionPreference then
+        Spoken:ImportLegacyCaptionPreference(CharDB().settings.captions)
+    end
+    -- Packaged 32-bit TGA map-location cursor artwork for Vanilla 1.12;
+    -- the player keeps its existing type glyphs and queued grayscale.
+    if Spoken.RegisterBullet then
+        Spoken:RegisterBullet("zone", [[Interface\AddOns\SoftSpoken\Textures\SoundQueueBulletMaploc]], 16)
+    end
+    PlacesRuntime.source = Spoken:GetSource("zones")
+    if not PlacesRuntime.source then
+        PlacesRuntime.source = Spoken:RegisterSource("zones", {
+            title = "SoftSpoken Places",
+            addon = "SoftSpoken",
+            order = 2,
+            queueLimit = 3,
+            interClipGap = 0.25,
+            -- Existing audio registries, exposed only as read-only
+            -- metadata for the shared settings panel.
+            packs = function() return PlacesRuntime.AudioPackNames() end,
+        })
+    end
+    if PlacesRuntime.source.AddGate then PlacesRuntime.source:AddGate(PlacesRuntime.HoldAutoplay) end
+    if Spoken.RegisterCallback then
+        Spoken:RegisterCallback("AUDIO_CHANGED", function()
+            SpokenPlacesBridge:NotifyAudioChanged()
+        end)
+    end
+
+    -- PLAYER_ENTERING_WORLD is the first safe baseline for spawn/reload.
+    -- Ignore provisional ZONE_CHANGED notifications until it fires.
+    frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+    frame:RegisterEvent("ZONE_CHANGED")
+    frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+    frame:RegisterEvent("ZONE_CHANGED_INDOORS")
+    frame:RegisterEvent("PLAYER_REGEN_DISABLED")
+    frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+    frame:RegisterEvent("CINEMATIC_START")
+    frame:RegisterEvent("CINEMATIC_STOP")
+    for name in pairs(PlacesRuntime.discoveryEvents) do frame:RegisterEvent(name) end
+    -- A supported extension can update exploration while the map is open.
+    pcall(frame.RegisterEvent,frame,"MAP_EXPLORATION_UPDATED")
+    self:SetupOptions()
+    self.initialized = true
+end

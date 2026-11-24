@@ -105,3 +105,14 @@ function Writings:SetupSource()
     end
     return self.source
 end
+
+function Writings:Initialize()
+    if self.initializationStarted then return end
+    self.initializationStarted = true
+    self:InitDB()
+    assert(self:SetupSource(), "Writings source registration failed")
+    self:SetupEvents()
+    self:SetupOptions()
+    if self.SetupPlayButton then self:SetupPlayButton() end
+    self.initialized = true
+end

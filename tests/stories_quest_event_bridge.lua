@@ -96,7 +96,11 @@ eq(VoiceOver.Addon, addon, "legacy Stories controller alias")
 function addon:NoteLegacyQuestEvent(source, words)
     stageSource, stageText = source, words
 end
-addon:OnInitialize()
+addon:Initialize()
+local recorder, direct = addon.questEventRecorderFrame, addon.directEventFrame
+addon:Initialize()
+eq(addon.questEventRecorderFrame, recorder, "recorder initialized once")
+eq(addon.directEventFrame, direct, "direct frame initialized once")
 assert(addon.questEventRecorderFrame and addon.directEventFrame, "event frames missing")
 for _, e in ipairs({ "QUEST_DETAIL", "QUEST_PROGRESS", "QUEST_COMPLETE" }) do
     assert(addon.directEventFrame.registered[e], e .. " not directly registered")

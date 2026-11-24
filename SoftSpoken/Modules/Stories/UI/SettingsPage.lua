@@ -6,8 +6,8 @@ StoriesSettingsPage = {}
 local frame, layout, page
 local UI = SpokenLayout
 
--- Options/VoiceOver initializes via AceAddon. Our settings tab must wait
--- until AceDB exists, and an optional UI failure must not affect quest audio
+-- Startup initializes Core before Stories. The settings tab still checks
+-- that AceDB exists, and an optional UI failure must not affect quest audio
 -- or the existing AceGUI settings window.
 local function Ready()
     return Spoken and Spoken.AddSettingsPage and UI and
@@ -228,13 +228,3 @@ function StoriesSettingsPage:Open()
     if not self:Setup() then return false end
     return page and page.Open and page.Open() or false
 end
-
--- PLAYER_ENTERING_WORLD runs after AceAddon initialises its database on
--- ADDON_LOADED. Do not rely on a competing PLAYER_LOGIN handler's ordering.
-local loader = CreateFrame("Frame")
-loader:RegisterEvent("PLAYER_ENTERING_WORLD")
-loader:SetScript("OnEvent", function()
-    if StoriesSettingsPage:Setup() then
-        loader:UnregisterEvent("PLAYER_ENTERING_WORLD")
-    end
-end)
