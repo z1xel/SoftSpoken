@@ -4,6 +4,7 @@ local now, current = 100, { id = 101, title = "First Quest", npc = "Quest Giver"
 local clips, scheduled = {}, {}
 local stageSource, stageText, lastFallback
 local greetingOn, greetingStarts = false, 0
+local packLoads, packNotifications, earlyHooks, lateHooks = 0, 0, 0, 0
 local function eq(got, want, label)
     assert(got == want, (label or "value") .. ": got " .. tostring(got) ..
         ", expected " .. tostring(want))
@@ -56,6 +57,8 @@ end
 local env = {}
 env = {
     _G = _G, NotSecret = function(v) return v end,
+    IsLoggedIn = function() return true end,
+    IsAddOnLoaded = function(name) return name == "EarlyIntegration" end,
     Version = { IsAnyLegacy = true, IsLegacyVanilla = true,
         IsBelowLegacyVersion = function() return true end },
     Enums = { SoundEvent = { QuestAccept = 1, QuestProgress = 2, QuestComplete = 3 },
@@ -75,7 +78,9 @@ env = {
     DataModules = {
         EnumerateAddons = function() end,
         HasRegisteredModules = function() return true end,
-        HasPendingModules = function() return false end,
+        HasPendingModules = function() return true end,
+        LoadPresentModules = function() packLoads = packLoads + 1 end,
+        GetLoadSummary = function() return { failed = 0, detected = 1, loaded = 1 } end,
         GetQuestID = function(self, source, title, npc, words)
             lastFallback = { source = source, title = title, npc = npc, words = words }
             return title == "Fallback Quest" and 202 or nil
@@ -97,6 +102,8 @@ eq(VoiceOver.Addon, addon, "legacy Stories controller alias")
 function addon:NoteLegacyQuestEvent(source, words)
     stageSource, stageText = source, words
 end
+addon.OnAddonLoad.EarlyIntegration = function() earlyHooks = earlyHooks + 1 end
+addon.OnAddonLoad.LateIntegration = function() lateHooks = lateHooks + 1 end
 addon:Initialize()
 local recorder, direct = addon.questEventRecorderFrame, addon.directEventFrame
 addon:Initialize()
@@ -108,6 +115,35 @@ for _, e in ipairs({ "QUEST_DETAIL", "QUEST_PROGRESS", "QUEST_COMPLETE" }) do
     assert(addon.questEventRecorderFrame.registered[e], e .. " not recorded")
 end
 assert(not addon.autoQuestState and not addon.autoQuestTicker, "watcher state remains")
+eq(table.getn(scheduled), 0, "no timers before world entry")
+eq(packLoads, 0, "pack load deferred until after world entry")
+eq(addon.dataModulesPending, true, "pack load pending")
+eq(earlyHooks, 1, "already-loaded integration installed")
+eq(lateHooks, 0, "late integration not yet installed")
+addon:ADDON_LOADED("ADDON_LOADED", "EarlyIntegration")
+addon:ADDON_LOADED("ADDON_LOADED", "LateIntegration")
+addon:ADDON_LOADED("ADDON_LOADED", "LateIntegration")
+eq(earlyHooks, 1, "early integration installed only once")
+eq(lateHooks, 1, "late integration installed only once")
+
+local loader = assert(addon.dataLoaderFrame, "missing world-entry loader")
+assert(loader.registered.PLAYER_ENTERING_WORLD, "world-entry event missing")
+-- Original Vanilla delivers event arguments through globals rather than self.
+loader.scripts.OnEvent()
+assert(not loader.registered.PLAYER_ENTERING_WORLD, "world-entry listener retained")
+eq(packLoads, 0, "no synchronous world-entry pack load")
+eq(table.getn(scheduled), 1, "one deferred pack timer")
+eq(scheduled[1][2], 1, "one-second deferred delay")
+local timer = table.remove(scheduled, 1)
+env.Spoken = { NotifyVoicePacksChanged = function() packNotifications = packNotifications + 1 end }
+timer[1]()
+eq(packLoads, 1, "packs loaded once after world entry")
+eq(packNotifications, 1, "pack change notification")
+eq(addon.dataModulesPending, nil, "pending state cleared")
+timer[1]()
+eq(packLoads, 1, "duplicate deferred callback ignored")
+eq(packNotifications, 1, "duplicate callback does not notify")
+env.Spoken = nil
 eq(table.getn(scheduled), 0, "watcher timers")
 local function fire(event)
     local recorder, direct = addon.questEventRecorderFrame, addon.directEventFrame

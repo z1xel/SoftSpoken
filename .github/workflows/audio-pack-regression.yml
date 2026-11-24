@@ -13,6 +13,8 @@ on:
       - "SoftSpoken/SoftSpoken.toc"
       - "SoftSpoken/Startup.lua"
       - "tests/unified_startup.lua"
+      - "tests/compendium_completed_sync.lua"
+      - "tests/compendium_pvp_categories.lua"
       - "tests/upgrade_guard.lua"
       - "SoftSpoken/UpgradeGuard.lua"
       - "SoftSpoken/Modules/**"
@@ -94,6 +96,8 @@ on:
       - "SoftSpoken/SoftSpoken.toc"
       - "SoftSpoken/Startup.lua"
       - "tests/unified_startup.lua"
+      - "tests/compendium_completed_sync.lua"
+      - "tests/compendium_pvp_categories.lua"
       - "tests/upgrade_guard.lua"
       - "SoftSpoken/UpgradeGuard.lua"
       - "SoftSpoken/Modules/**"
@@ -273,3 +277,7 @@ jobs:
         run: lua5.1 tests/unified_startup.lua
       - name: Check obsolete addon upgrade guard
         run: lua5.1 tests/upgrade_guard.lua
+      - name: Check historical quest completion synchronization
+        run: lua5.1 tests/compendium_completed_sync.lua
+      - name: Check Compendium PvP category metadata
+        run: lua5.1 tests/compendium_pvp_categories.lua

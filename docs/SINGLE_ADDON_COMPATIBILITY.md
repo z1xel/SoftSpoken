@@ -16,3 +16,11 @@ Remove old full module folders from AddOns, preserve WTF and independent voice p
 ## Deferred operations
 
 Core and the three modules initialize at login. Stories accepts valid early registration via installed metadata, deduplicates inventory entries and defers any remaining selected load-on-demand packs until world entry. Places still waits for world entry before location stabilization; Writings retains its book-frame retry. EQL3 setup handles already-loaded and later-loaded integrations. Existing public names, pack preference policy, version constants, and database schemas remain unchanged.
+
+## C3 regression baseline
+
+All three workflows passed on C2 commit `b22fc01842f8a8167fefd360ad8364f654cc16df`:
+[Audio pack regression](https://github.com/z1xel/SoftSpoken/actions/runs/45328484236),
+[Audio API transport regression](https://github.com/z1xel/SoftSpoken/actions/runs/45328484239),
+[Development quest catalog regression](https://github.com/z1xel/SoftSpoken/actions/runs/45328484279).
+C3 also adds explicit coverage for world-entry deferral, already-loaded and late integrations, and includes the existing completed-quest and PvP category tests in CI. In-game client validation, shipped voice-pack archive verification, and legacy saved-variable migration remain release gates.
