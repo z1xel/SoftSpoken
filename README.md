@@ -113,7 +113,8 @@ You can find the source code and releases in the [ClassicAPI repository](https:/
 
 1. **Enable ClassicAPI**, preferably the [latest version](https://github.com/brues-code/ClassicAPI/releases/latest), before starting the game. OctoWoW users can follow the [update instructions above](#updating-classicapi-in-octowow).
 2. Download **[SoftSpoken-v0.9.1-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.9.1-beta/SoftSpoken-v0.9.1-beta.zip)** and extract it. The previous **[SoftSpoken-v0.8.1-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.8.1-beta/SoftSpoken-v0.8.1-beta.zip)** remains available.
-3. Find the following four addon folders in the extracted contents and copy them into your World of Warcraft 1.12 `Interface\AddOns` directory:
+3. **Updating an existing installation?** Before copying the new version, **delete these four old folders** from `Interface\AddOns`: `SoftSpoken`, `SoftSpoken_Stories`, `SoftSpoken_Places`, and `SoftSpoken_Writings`. This prevents obsolete files from earlier versions from remaining installed. **Keep your separately installed voice-pack folders and SavedVariables**; they do not need to be deleted.
+4. Find the following four addon folders in the extracted contents and copy them into your World of Warcraft 1.12 `Interface\AddOns` directory:
 
    ```text
    Interface/
@@ -123,7 +124,7 @@ You can find the source code and releases in the [ClassicAPI repository](https:/
        ├── SoftSpoken_Places/
        └── SoftSpoken_Writings/
    ```
-4. Launch the game and open the **AddOns** menu at character selection. **Required: enable “Load out of date AddOns”.** Then enable SoftSpoken and its modules. Keep **Load out of date AddOns** enabled when using SoftSpoken and its voice packs.
+5. Launch the game and open the **AddOns** menu at character selection. **Required: enable “Load out of date AddOns”.** Then enable SoftSpoken and its modules. Keep **Load out of date AddOns** enabled when using SoftSpoken and its voice packs.
 
 Use `/softspoken` to open settings or `/compendium` to open Azeroth's Compendium. The Compendium also has a default keybinding of **J**, provided that key was not already assigned to another action.
 
