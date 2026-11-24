@@ -1,6 +1,6 @@
 # SoftSpoken v0.9.1-beta
 
-> **Single-addon development preview:** This branch consolidates Stories, Places, and Writings into one `SoftSpoken/` addon. The published v0.9.1-beta release still uses the four-folder layout documented below. Use a separate test installation or back up your entire `WTF` directory before trying this branch; automatic migration of legacy SavedVariables has not been implemented yet. Keep external voice packs separate.
+> **Single-addon development preview:** This branch consolidates Stories, Places, and Writings into one `SoftSpoken/` addon. The published v0.9.1-beta release still uses the four-folder layout documented below. Use a separate test installation or back up your entire `WTF` directory before trying this branch; automatic migration of legacy SavedVariables has not been implemented yet. Keep external voice packs separate. Remove the three obsolete module folders from AddOns before launching this branch, but do not delete their SavedVariables. The upgrade guard attempts to disable those exact folders and stops unified startup if an old module is still enabled or loaded; it cannot unload Lua that already ran.
 *Voiced dialogue, lore, and text for World of Warcraft Vanilla.*
 
 <p align="center">

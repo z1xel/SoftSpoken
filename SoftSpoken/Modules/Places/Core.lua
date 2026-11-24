@@ -74,7 +74,7 @@ function PlacesRuntime:Initialize()
     self.initializationStarted = true
     CharDB()
     if not Spoken or not Spoken.IsCompatible or not Spoken:IsCompatible(1) then
-        Say("Compatible Spoken player not found.")
+        Say("Shared SoftSpoken player initialization failed.")
         return false
     end
     -- Import a previous per-character setting once. After this, the global

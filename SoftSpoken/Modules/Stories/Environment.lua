@@ -39,7 +39,7 @@ VoiceOver = setmetatable({
     NotSecret = Spoken and Spoken.NotSecret or function(value) return value end,
 }, { __index = _G })
 
--- Core is a required addon. Install shared 1.12 Lua and FrameXML methods now,
+-- Core is loaded earlier in the unified manifest. Install shared Lua and FrameXML methods now,
 -- before subsequent Quests files construct their frames and event handlers.
 -- Compatibility.lua still loads later for quest-specific adapters.
 assert(Spoken and Spoken.Compat and

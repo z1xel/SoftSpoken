@@ -75,6 +75,7 @@ env = {
     DataModules = {
         EnumerateAddons = function() end,
         HasRegisteredModules = function() return true end,
+        HasPendingModules = function() return false end,
         GetQuestID = function(self, source, title, npc, words)
             lastFallback = { source = source, title = title, npc = npc, words = words }
             return title == "Fallback Quest" and 202 or nil

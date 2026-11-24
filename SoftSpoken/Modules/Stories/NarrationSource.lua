@@ -301,7 +301,7 @@ end
 function StoriesNarrator:Enqueue(soundData, asked)
     if not soundData.origin then soundData.origin = self.origin end
     if not self.source then
-        Debug:Record("player-missing", "The Spoken player addon is not installed")
+        Debug:Record("player-missing", "The shared narration source is not initialized")
         return false
     end
 
@@ -327,7 +327,7 @@ end
 function StoriesNarrator:PlayNow(soundData)
     if not soundData.origin then soundData.origin = self.origin end
     if not self.source then
-        Debug:Record("player-missing", "The Spoken player addon is not installed")
+        Debug:Record("player-missing", "The shared narration source is not initialized")
         return false
     end
     local found, why = DataModules:PrepareSound(soundData)
@@ -348,7 +348,7 @@ end
 ---@return boolean queued
 function StoriesNarrator:EnqueuePrepared(soundData, asked)
     if not self.source then
-        Debug:Record("player-missing", "The Spoken player addon is not installed")
+        Debug:Record("player-missing", "The shared narration source is not initialized")
         return false
     end
 
@@ -442,7 +442,7 @@ function StoriesNarrator:Setup()
         return true
     end
     if not (Spoken and Spoken.IsCompatible and Spoken:IsCompatible(1)) then
-        Debug:Record("player-missing", "The Spoken player addon is not installed; nothing will be read aloud")
+        Debug:Record("player-missing", "The shared narration source is not initialized; nothing will be read aloud")
         return false
     end
 

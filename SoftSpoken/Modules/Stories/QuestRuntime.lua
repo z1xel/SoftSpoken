@@ -5,7 +5,7 @@ setfenv(1, VoiceOver)
 local AceAddon = LibStub("AceAddon-3.0")
 
 -- Upstream's players, oldest first: the AceAddon name each registers under, and the folder it
--- installs into. This project's own old folders are found by Spoken (Core.lua, OLD_FOLDERS).
+-- installs into. Retired SoftSpoken folders are handled by UpgradeGuard.lua.
 local SUPERSEDED_PLAYERS = {
     { name = "VoiceOver", folder = "AI_VoiceOver" },
     { name = "VoiceOverContinued", folder = "AI_VoiceOver_Continued" },
@@ -392,7 +392,8 @@ function StoriesAddon:Initialize()
         whileDead = 1,
     }
 
-    StoriesNarrator:Setup()
+    local sourceReady = StoriesNarrator:Setup()
+    if sourceReady == false then return false end
     -- Optional NPC greeting setup must never prevent voice-pack discovery.
     local greetingReady, greetingError = pcall(GreetingFirst.Setup, GreetingFirst)
     if not greetingReady then
@@ -432,7 +433,7 @@ function StoriesAddon:Initialize()
     -- shared initialization/login stack avoids Hardcore's stricter script
     -- time budget being charged to AceAddon-3.0.
     DataModules:EnumerateAddons(false)
-    self.dataModulesPending = not DataModules:HasRegisteredModules()
+    self.dataModulesPending = DataModules:HasPendingModules()
     local function LoadDeferredDataModules()
         if not self.dataModulesPending then
             return

@@ -234,12 +234,42 @@ local function SortModules(a, b)
     return a.AddonName < b.AddonName
 end
 
+-- Read installed TOC metadata on demand. A pack may register before login,
+-- when the full settings inventory has not yet been constructed.
+local function RememberPresentModule(self, name)
+    if self.presentModules[name] then return self.presentModules[name] end
+    if not name or GetAddOnInfo(name) ~= name then return nil end
+    local moduleVersion = ModuleNumber(name, "Version")
+    if not moduleVersion then return nil end
+    local maps = {}
+    local mapsString = ModuleMeta(name, "Maps")
+    if mapsString then
+        for _, mapString in ipairs({ strsplit(",", mapsString) }) do
+            local map = tonumber(mapString)
+            if map then maps[map] = true end
+        end
+    end
+    local module = {
+        AddonName = name,
+        LoadOnDemand = IsAddOnLoadOnDemand(name),
+        ModuleVersion = moduleVersion,
+        ModulePriority = ModuleNumber(name, "Priority") or 0,
+        ContentVersion = GetAddOnMetadata(name, "Version"),
+        Title = GetAddOnMetadata(name, "Title") or name,
+        Maps = maps,
+        Language = Language:Normalize(GetAddOnMetadata(name, LANGUAGE_KEY)),
+    }
+    self.presentModules[name] = module
+    table.insert(self.presentModulesOrdered, module)
+    return module
+end
+
 ---@param name string Addon name
 ---@param module DataModule Module data table
 function DataModules:Register(name, module)
     assert(not self.registeredModules[name], format([[Module "%s" already registered]], name))
 
-    local metadata = assert(self.presentModules[name],
+    local metadata = assert(RememberPresentModule(self, name),
         format([[Module "%s" attempted to register but wasn't detected during addon enumeration]], name))
     local moduleVersion = assert(ModuleNumber(name, "Version"),
         format([[Module "%s" is missing data format version]], name))
@@ -402,33 +432,10 @@ function DataModules:EnumerateAddons(loadModules)
         local moduleVersion = ModuleNumber(i, "Version")
         if moduleVersion then
             local name = GetAddOnInfo(i)
-            local mapsString = ModuleMeta(i, "Maps")
-            local maps = {}
-            if mapsString then
-                for _, mapString in ipairs({ strsplit(",", mapsString) }) do
-                    local map = tonumber(mapString)
-                    if map then
-                        maps[map] = true
-                    end
-                end
-            end
-            ---@type DataModuleMetadata
-            local module =
-            {
-                AddonName = name,
-                LoadOnDemand = IsAddOnLoadOnDemand(name),
-                ModuleVersion = moduleVersion,
-                ModulePriority = ModuleNumber(name, "Priority") or 0,
-                ContentVersion = GetAddOnMetadata(name, "Version"),
-                Title = GetAddOnMetadata(name, "Title") or name,
-                Maps = maps,
-                Language = Language:Normalize(GetAddOnMetadata(i, LANGUAGE_KEY)),
-            }
-            self.presentModules[name] = module
-            table.insert(self.presentModulesOrdered, module)
+            local module = RememberPresentModule(self, name)
 
             -- Maybe in the future we can load modules based on the map the player is in (select(8, GetInstanceInfo())), but for now - just load everything
-            if loadModules ~= false and LOAD_ALL_MODULES and IsAddOnLoadOnDemand(name)
+            if module and loadModules ~= false and LOAD_ALL_MODULES and IsAddOnLoadOnDemand(name)
                 and self:IsPackEnabled(name) then
                 DataModules:LoadModule(module)
             end
@@ -480,6 +487,15 @@ function DataModules:IsOlderContent(installed, known)
     for i = 1, math.max(table.getn(a), table.getn(b)) do
         local x, y = a[i] or 0, b[i] or 0
         if x ~= y then return x < y end
+    end
+    return false
+end
+
+-- An early registration does not imply that all selected packs are loaded.
+function DataModules:HasPendingModules()
+    for _, module in self:GetPresentModules() do
+        if LOAD_ALL_MODULES and module.LoadOnDemand and self:IsPackEnabled(module.AddonName)
+            and not self:GetModule(module.AddonName) then return true end
     end
     return false
 end

@@ -23,6 +23,7 @@ end
 local function Initialize()
     if started then return end
     started = true
+    if UpgradeGuard and not UpgradeGuard:CanStart() then return end
     if not Run("Core", CoreController, "Initialize") then return end
     Run("Stories", VoiceOver and VoiceOver.StoriesAddon, "Initialize")
     Run("Places", SpokenPlacesRuntime, "Initialize")

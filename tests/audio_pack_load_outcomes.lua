@@ -274,3 +274,21 @@ eq(cvarReads,0,"voice-pack loader never reads checkAddonVersion")
 eq(next(writes),nil,"voice-pack loader never writes checkAddonVersion")
 
 print("PASS: selective voicepack loading, no CVar mutation, Vanilla API, failure diagnostics")
+
+-- Pack registration before the login inventory is safe; enumeration must not
+-- duplicate the metadata, and a second selected pack is still pending.
+installed, byName, outcomes, loaded, loadCalls = {}, {}, {}, {}, {}
+data.presentModules, data.presentModulesOrdered = {}, {}
+data.registeredModules, data.registeredModulesOrdered = {}, {}
+data.loadAttempts, data.loadErrors = {}, {}
+VoiceOver.StoriesAddon = nil
+install("EarlyPack", "success")
+install("DeferredPack", "success")
+data:Register("EarlyPack", {SoundLengthLookupByFileName={}})
+eq(data:GetModule("EarlyPack") ~= nil, true, "early registration")
+data:EnumerateAddons(false)
+eq(table.getn(data.presentModulesOrdered), 2, "early metadata deduplicated")
+eq(data:HasPendingModules(), true, "remaining pack pending")
+data:LoadPresentModules()
+eq(data:HasPendingModules(), false, "all selected packs loaded")
+eq(data:GetModule("DeferredPack") ~= nil, true, "remaining pack loaded")

@@ -1,5 +1,5 @@
 -- SoftSpoken Writings for Turtle WoW 1.12 (Lua 5.0).
--- Separate feature module that registers with required SoftSpoken Core;
+-- Internal feature module that registers with the shared SoftSpoken player;
 -- does not modify Core or Places. Book recognition/playlist code was
 -- adapted from rusty-key/spoken-wow (MIT).
 SpokenWritings = SpokenWritings or {}

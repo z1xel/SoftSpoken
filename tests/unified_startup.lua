@@ -1,7 +1,7 @@
 -- Test the real native startup coordinator with minimal Vanilla globals.
 local calls, messages, frame = {}, {}, nil
 local function record(name) calls[table.getn(calls)+1] = name end
-local function setup(fail)
+local function setup(fail, blocked)
     calls, messages = {}, {}
     local function controller(name)
         return { Initialize = function()
@@ -24,7 +24,7 @@ local function setup(fail)
         function frame:SetScript(name, fn) self.scripts[name] = fn end
         return frame
     end
-    SpokenEnv = setmetatable({}, { __index = _G })
+    SpokenEnv = setmetatable({ UpgradeGuard = { CanStart = function() return not blocked end } }, { __index = _G })
     assert(loadfile("SoftSpoken/Startup.lua"))()
     assert(table.getn(calls) == 0, "startup before login")
     assert(frame.registered.PLAYER_LOGIN, "login event missing")
@@ -46,4 +46,6 @@ assert(table.getn(messages) == 1 and string.find(messages[1], "Stories", 1, true
 setup("Core")
 assert(table.concat(calls, ",") == "Core")
 assert(table.getn(messages) == 1)
+setup(nil, true)
+assert(table.getn(calls) == 0, "conflicting old installation initialized")
 print("PASS: native startup order, one-shot initialization and failure isolation")
