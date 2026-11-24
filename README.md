@@ -19,7 +19,7 @@ Whether you're already familiar with the projects SoftSpoken builds upon, or are
 
 SoftSpoken consists of a central module, simply titled **SoftSpoken**, which provides the narration player and shared audio system that the specialized modules rely on for playback. It also hosts the underlying framework of the **Compendium**, a unified interface for browsing the game's narrated content.
 
-<img src="docs/images/screenshots/player.webp" alt="SoftSpoken narration player displaying voiced dialogue in the game world" />
+<img src="docs/images/PLAYER_NEW%20%281%29.png" alt="SoftSpoken narration player displaying voiced dialogue in the game world" />
 
 There are currently three specialized modules, with at least one more planned:
 
@@ -31,7 +31,7 @@ There are currently three specialized modules, with at least one more planned:
 
 ### The Compendium
 
-<img src="docs/images/screenshots/compendium.webp" alt="Azeroth's Compendium showing its catalog of discovered narrated lore" />
+<img src="docs/images/COMPENDIUM_NEW%20%281%29.png" alt="Azeroth's Compendium showing its catalog of discovered narrated lore" />
 
 Each module has a dedicated tab within the Compendium, containing a catalogue of its respective entries.
 
@@ -51,7 +51,7 @@ SoftSpoken Stories provides narration for quests and NPC gossip throughout the g
 
 Within the Compendium, Stories maintains a record of the quests you've encountered, organizing them by location and quest chain. Quests completed before installing SoftSpoken are also recognized, allowing your past adventures to be reflected in the Compendium. Entries contain the associated dialogue and available recordings, accompanied by portraits of the characters involved.
 
-<img src="docs/images/screenshots/stories.webp" alt="Stories module showing quest dialogue within Azeroth's Compendium" />
+<img src="docs/images/STORIES_NEW%20%281%29.png" alt="Stories module showing quest dialogue within Azeroth's Compendium" />
 
 ## Places
 
@@ -63,11 +63,11 @@ Places also integrates directly with the in-game World Map, providing access to 
 
 The World Map can also display lore for a selected location:
 
-<img src="docs/images/screenshots/map.webp" alt="World Map displaying the narrated Starbreeze Village zone lore panel" />
+<img src="docs/images/MAP_NEW%20%281%29.png" alt="World Map displaying the narrated Starbreeze Village zone lore panel" />
 
 Discovering new areas can trigger a narration notification in the game world:
 
-<img src="docs/images/screenshots/discovery.webp" alt="Discovery notification displaying narrated lore for Deathknell" />
+<img src="docs/images/DISCOVERY_NEW%20%281%29.png" alt="Discovery notification displaying narrated lore for Deathknell" />
 
 ## Writings
 
@@ -75,7 +75,7 @@ SoftSpoken Writings provides narration for supported books, letters, scrolls, no
 
 When reading an object in the world, narration follows the page currently being viewed. When revisiting it through the Compendium, playback can continue through the entire work.
 
-<img src="docs/images/screenshots/writings.webp" alt="Writings module narrating an in-game book as it is read" />
+<img src="docs/images/WRITINGS_NEW%20%281%29.png" alt="Writings module narrating an in-game book as it is read" />
 
 ## Requirements
 
