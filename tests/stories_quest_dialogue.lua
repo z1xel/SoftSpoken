@@ -52,7 +52,7 @@ VoiceOver = {
         return state.fallback
     end },
 }
-dofile("SoftSpoken_Stories/QuestDialogue.lua")
+dofile("SoftSpoken/Modules/Stories/QuestDialogue.lua")
 local dialogue=assert(VoiceOver.QuestDialogue,"dialogue service registered")
 eq(frame.events.QUEST_DETAIL,true,"acceptance capture registered")
 eq(frame.events.QUEST_PROGRESS,true,"progress capture registered")
@@ -117,12 +117,12 @@ local function Source(path)
     f:close()
     return result
 end
-local xml=Source("SoftSpoken_Stories/addon.xml")
+local xml=Source("SoftSpoken/Modules/Stories/addon.xml")
 local datasetAt=assert(string.find(xml,"Data\\TurtleQuestText.lua",1,true))
 local serviceAt=assert(string.find(xml,'Include file="QuestDialogue.lua"',1,true))
 local uiAt=assert(string.find(xml,"Compendium\\QuestPage.lua",1,true))
 assert(datasetAt < serviceAt and serviceAt < uiAt,"dialogue load order invalid")
-local page=Source("SoftSpoken_Stories/Compendium/QuestPage.lua")
+local page=Source("SoftSpoken/Modules/Stories/Compendium/QuestPage.lua")
 assert(string.find(page,"QuestDialogue:Text(id,stage)",1,true),
     "Compendium must read from dialogue service")
 assert(string.find(page,"VoiceOver.QuestDialogue:Text(id,stage)",1,true),
@@ -131,7 +131,7 @@ assert(not string.find(page,"local capture=CreateFrame",1,true),
     "live quest capture still owned by UI")
 assert(not string.find(page,"local function SavedText",1,true),
     "duplicate quest-text resolution remains in Compendium")
-local narrator=Source("SoftSpoken_Stories/NarrationSource.lua")
+local narrator=Source("SoftSpoken/Modules/Stories/NarrationSource.lua")
 assert(string.find(narrator,"pcall(dialogue.Text, dialogue",1,true),
     "narrator must use the shared dialogue service")
 assert(not string.find(narrator,"SSCQuestPage",1,true),

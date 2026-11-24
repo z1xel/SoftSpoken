@@ -66,7 +66,7 @@ function LoadAddOn(name)
     end
     return true
 end
-dofile("SoftSpoken_Stories/DataModules.lua")
+dofile("SoftSpoken/Modules/Stories/DataModules.lua")
 data=VoiceOver.DataModules
 install("SpokenQuestsAudioShared","success")
 install("SSS_VOFallback","failure")

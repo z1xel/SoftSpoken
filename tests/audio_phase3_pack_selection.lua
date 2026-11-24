@@ -15,7 +15,7 @@ VoiceOver=setmetatable({
     EasterEggs={Apply=function() return false end},
     Debug={IsMockingMissingVoice=function() return false end},
 },{__index=_G})
-dofile("SoftSpoken_Stories/DataModules.lua")
+dofile("SoftSpoken/Modules/Stories/DataModules.lua")
 local d=VoiceOver.DataModules
 local function register(name,priority,lang,filePath,duration)
     d.presentModules[name]={AddonName=name,ModulePriority=priority,Language=lang}

@@ -47,9 +47,9 @@ R.source = {
     RecheckGates=function(self) rechecks=rechecks+1 end,
     Retry=function(self) retries=retries+1 end,
 }
-dofile("SoftSpoken_Places/Settings.lua")
-dofile("SoftSpoken_Places/Audio.lua")
-dofile("SoftSpoken_Places/Autoplay.lua")
+dofile("SoftSpoken/Modules/Places/Settings.lua")
+dofile("SoftSpoken/Modules/Places/Audio.lua")
+dofile("SoftSpoken/Modules/Places/Autoplay.lua")
 
 -- Existing ON retains OLD stop-and-hold, existing OFF retains both OFF.
 SSZCharacter={settings={holdCombat=true,discoveryDefaultMigrated=true,mode="discovery"}}

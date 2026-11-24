@@ -124,7 +124,7 @@ SpokenQuestsCompendium = {
     }
 }
 
-dofile("SoftSpoken_Stories/SpeakerResolver.lua")
+dofile("SoftSpoken/Modules/Stories/SpeakerResolver.lua")
 local R = VoiceOver.SpeakerResolver
 local function quest(id, stage, kind, speaker)
     local gotKind, gotSpeaker = R:ForQuest(id, stage)
@@ -398,7 +398,7 @@ sound({event=5,name="Someone else"},nil,nil,"no name-only target guessing")
 currentName, currentGUID = nil, nil
 sound({event=5,name="Live NPC"},nil,nil,"missing npc")
 
-local compendium = assert(io.open("SoftSpoken_Stories/Data/Compendium.lua", "r")):read("*a")
+local compendium = assert(io.open("SoftSpoken/Modules/Stories/Data/Compendium.lua", "r")):read("*a")
 assert(string.find(compendium,
     '[814] = { "Work for Food", zones = { 1411 }, starter = 3191, races = 8589934770 },',
     1, true), "restored quest 814 must be indexed under Durotar with Cook Torka")
@@ -476,7 +476,7 @@ for id, expected in pairs(restoredEntries) do
 end
 assert(string.find(compendium, '[60516] = "Marrek Stromnur"', 1, true),
     "corpus NPC name for Marrek Stromnur must be preserved")
-local page = assert(io.open("SoftSpoken_Stories/Compendium/QuestPage.lua", "r")):read("*a")
+local page = assert(io.open("SoftSpoken/Modules/Stories/Compendium/QuestPage.lua", "r")):read("*a")
 assert(string.find(page,'local MULTIPLE_LABEL="Multiple speakers possible"',1,true),
     "Compendium should label ambiguous stages without pretending to know the speaker")
 assert(string.find(page,'local MULTIPLE_SPEAKERS_ICON = "Interface\\\\Icons\\\\INV_Misc_QuestionMark"',1,true),
@@ -491,11 +491,11 @@ assert(string.find(page, "resolver:ForQuest(id,stage)", 1, true),
     "Compendium and narrator must use shared stage resolver")
 assert(not string.find(page, "local function Speaker(id,stage)", 1, true),
     "Compendium must not duplicate quest speaker selection")
-local voiceSource = assert(io.open("SoftSpoken_Stories/QuestRuntime.lua", "r")):read("*a")
+local voiceSource = assert(io.open("SoftSpoken/Modules/Stories/QuestRuntime.lua", "r")):read("*a")
 assert(string.find(voiceSource,
     "speakerName, Utils:IsNPCObjectOrItem(), PortraitSpeakerGUID(speakerName)", 1, true),
     "live quest-dialog fields should preserve an actual portrait GUID")
-local xml = assert(io.open("SoftSpoken_Stories/addon.xml", "r")):read("*a")
+local xml = assert(io.open("SoftSpoken/Modules/Stories/addon.xml", "r")):read("*a")
 local resolverPos = assert(string.find(xml, 'file="SpeakerResolver.lua"', 1, true))
 local playerPos = assert(string.find(xml, 'file="NarrationSource.lua"', 1, true))
 assert(resolverPos < playerPos, "resolver must load before narrator")

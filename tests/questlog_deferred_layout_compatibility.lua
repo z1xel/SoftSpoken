@@ -42,7 +42,7 @@ GetQuestLogTitle = function() return title, 35, nil, false, nil, nil, nil, 101 e
 RunNextFrame = function(callback) table.insert(frames, callback) end
 
 VoiceOver = setmetatable({
-    AddonFolder = "SoftSpoken_Stories",
+    AddonFolder = "SoftSpoken",
     format = string.format,
     StoriesAddon = { IsPartOn = function() return true end },
     Utils = {
@@ -53,7 +53,7 @@ VoiceOver = setmetatable({
     },
 }, { __index = _G })
 
-dofile("SoftSpoken_Stories/QuestOverlayUI.lua")
+dofile("SoftSpoken/Modules/Stories/QuestOverlayUI.lua")
 local overlay = VoiceOver.QuestOverlayUI
 overlay.questPlayButtons[101] = button
 
@@ -105,7 +105,7 @@ local oldOffset = button.offset
 frames[2]()
 eq(button.offset, oldOffset, "closed log untouched")
 
-local voiceover = assert(io.open("SoftSpoken_Stories/QuestRuntime.lua", "r")):read("*a")
+local voiceover = assert(io.open("SoftSpoken/Modules/Stories/QuestRuntime.lua", "r")):read("*a")
 assert(string.find(voiceover, "QuestOverlayUI:ScheduleLayoutRecheck()", 1, true),
     "QuestLog_Update must schedule the deferred check")
 print("PASS: vanilla padding, external title preservation and deferred row layout")

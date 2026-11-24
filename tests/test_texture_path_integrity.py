@@ -9,7 +9,7 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
-MODULES = ("SoftSpoken", "SoftSpoken_Stories", "SoftSpoken_Places", "SoftSpoken_Writings")
+MODULES = ("SoftSpoken",)
 ASSET_SUFFIXES = (".tga", ".blp")
 all_assets = {
     p.relative_to(ROOT).as_posix()
@@ -103,20 +103,20 @@ if book_path.is_file():
         ):
             issues.append(f"{book_art}: expected uncompressed power-of-two 32-bit true-color TGA")
 
-for old in ("SoftSpoken_Stories/Textures", "SoftSpoken_Places/Textures/Art",
-            "SoftSpoken_Places/Textures/ClassicFrames", "SoftSpoken_Places/Textures/Controls"):
+for old in ("SoftSpoken/Modules/Stories/Textures", "SoftSpoken/Modules/Places/Textures/Art",
+            "SoftSpoken/Modules/Places/Textures/ClassicFrames", "SoftSpoken/Modules/Places/Textures/Controls"):
     if (ROOT / old).exists():
         issues.append(f"Retired texture directory still installed: {old}")
 
 # Places assembles image paths from a generated Lua mapping rather than from
 # literal per-image paths. Check *every* mapped filename, including cross-zone
 # references to another zone's illustration.
-place_text = (ROOT / "SoftSpoken_Places/Data/Pictures.lua").read_text(encoding="utf-8")
+place_text = (ROOT / "SoftSpoken/Modules/Places/Data/Pictures.lua").read_text(encoding="utf-8")
 pictures = re.findall(r'\[[^\]\n]+\]\s*=\s*"([^"]+)"', place_text)
 if len(pictures) < 700:
     issues.append(f"Unexpected Places picture mapping count: {len(pictures)}")
 for name in pictures:
-    check("SoftSpoken_Places/Textures/Pictures/" + name, "Places image registry", 0, "places")
+    check("SoftSpoken/Modules/Places/Textures/Pictures/" + name, "Places image registry", 0, "places")
 
 # Core constructs ZoneIcon paths by appending a mapped name.
 core_api = (ROOT / "SoftSpoken/API.lua").read_text(encoding="utf-8")

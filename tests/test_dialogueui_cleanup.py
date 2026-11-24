@@ -3,12 +3,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIME = [
-    "SoftSpoken_Stories/QuestRuntime.lua",
-    "SoftSpoken_Stories/Utils.lua",
-    "SoftSpoken_Stories/ReportButton.lua",
-    "SoftSpoken_Stories/QuestOverlayUI.lua",
-    "SoftSpoken_Stories/UI/DialogPlayButton.lua",
-    "SoftSpoken_Stories/Strings.lua",
+    "SoftSpoken/Modules/Stories/QuestRuntime.lua",
+    "SoftSpoken/Modules/Stories/Utils.lua",
+    "SoftSpoken/Modules/Stories/ReportButton.lua",
+    "SoftSpoken/Modules/Stories/QuestOverlayUI.lua",
+    "SoftSpoken/Modules/Stories/UI/DialogPlayButton.lua",
+    "SoftSpoken/Modules/Stories/Strings.lua",
     "SoftSpoken/Core.lua",
     "SoftSpoken/API.lua",
     "SoftSpoken/Strings.lua",
@@ -32,16 +32,16 @@ retired_ui_patterns = (
     "Spoken:ShowContribution(", "Spoken:ShowReport(",
 )
 for path in (
-    "SoftSpoken_Stories/QuestOverlayUI.lua",
-    "SoftSpoken_Stories/NarrationSource.lua",
-    "SoftSpoken_Stories/QuestRuntime.lua",
-    "SoftSpoken_Stories/ReportButton.lua",
+    "SoftSpoken/Modules/Stories/QuestOverlayUI.lua",
+    "SoftSpoken/Modules/Stories/NarrationSource.lua",
+    "SoftSpoken/Modules/Stories/QuestRuntime.lua",
+    "SoftSpoken/Modules/Stories/ReportButton.lua",
 ):
     contents = (ROOT / path).read_text(encoding="utf-8")
     for token in retired_ui_patterns:
         assert token not in contents, f"{path}: retired UI/controller token {token}"
 
-report = (ROOT / "SoftSpoken_Stories/ReportButton.lua").read_text(encoding="utf-8")
+report = (ROOT / "SoftSpoken/Modules/Stories/ReportButton.lua").read_text(encoding="utf-8")
 assert "function ReportButton:CurrentTarget()" in report
 assert "function ReportButton:ShowAddress(url)" in report
 assert "function ReportButton:ShowLink(target, language)" in report

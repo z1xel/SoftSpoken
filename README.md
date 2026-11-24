@@ -1,4 +1,6 @@
 # SoftSpoken v0.9.1-beta
+
+> **Single-addon development preview:** This branch consolidates Stories, Places, and Writings into one `SoftSpoken/` addon. The published v0.9.1-beta release still uses the four-folder layout documented below. Use a separate test installation or back up your entire `WTF` directory before trying this branch; automatic migration of legacy SavedVariables has not been implemented yet. Keep external voice packs separate.
 *Voiced dialogue, lore, and text for World of Warcraft Vanilla.*
 
 <p align="center">

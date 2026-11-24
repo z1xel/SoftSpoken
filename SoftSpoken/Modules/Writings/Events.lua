@@ -53,7 +53,7 @@ end
 f:SetScript("OnEvent",function()
     local e=event
     if e=="ADDON_LOADED" then
-        if arg1=="SoftSpoken_Writings" then
+        if arg1=="SoftSpoken" then
             Writings:InitDB()
             f:UnregisterEvent("ADDON_LOADED")
         end

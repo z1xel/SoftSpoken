@@ -46,7 +46,7 @@ local function Complete(id,success)
     if success then cached[id]=id+10000 end
     for callback in pairs(callbacks) do callback(id,cached[id],success) end
 end
-dofile("SoftSpoken_Stories/Compendium/PortraitPreload.lua")
+dofile("SoftSpoken/Modules/Stories/Compendium/PortraitPreload.lua")
 local P=SSCQuestPortraitPreload
 local function Tick(seconds)
     now=now+seconds
@@ -211,7 +211,7 @@ eq(remaining,0,"native loss removes shared callback")
 local core=assert(io.open("SoftSpoken/Compendium/UI/Compendium.lua","r")):read("*a")
 assert(string.find(core,"self.opts.onVisibleRows(self.items,index,last)",1,true),
     "virtual list should report visible row bounds")
-local quests=assert(io.open("SoftSpoken_Stories/Compendium/QuestsTab.lua","r")):read("*a")
+local quests=assert(io.open("SoftSpoken/Modules/Stories/Compendium/QuestsTab.lua","r")):read("*a")
 assert(string.find(quests,"Preload:Selected(selectedQuestID)",1,true),
     "selected speaker request must precede speculative list redraw")
 assert(string.find(quests,"Preload:Visible(items,first,last)",1,true),

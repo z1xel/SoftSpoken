@@ -62,7 +62,7 @@ SpokenWritings={
     LanguageOrder=function() return {"enUS"} end,
     PackLanguage=function() return "enUS" end,
 }
-dofile("SoftSpoken_Writings/DiscoveryLocations.lua")
+dofile("SoftSpoken/Modules/Writings/DiscoveryLocations.lua")
 eq(SpokenWritings:KnownDiscoverySummary(11),"Discovered in Darnassus","world origin")
 eq(SpokenWritings:KnownDiscoverySummary(13),"Discovered in Orgrimmar","carried acquisition")
 eq(SpokenWritings:KnownDiscoverySummary(12),nil,"no invented catalogue origin")
@@ -86,7 +86,7 @@ SpokenBooksAudioPacks={TestPack={
         [401]={file="legacy",text="Legacy",len=9},
     },
 }}
-dofile("SoftSpoken_Writings/Audio.lua")
+dofile("SoftSpoken/Modules/Writings/Audio.lua")
 local clip=assert(SpokenWritings:ClipFor(101))
 eq(clip.present.portrait.kind,"texture","Writings book portrait is a texture")
 eq(clip.present.portrait.texture,[[Interface\Icons\INV_Misc_Book_09]],
@@ -164,7 +164,7 @@ eq(oldPage.present.label,"Book","single-page work has no redundant page number")
 
 -- The Compendium is wired to the same persisted summary, not a duplicate
 -- local implementation that may diverge from what the narrator reports.
-local f=assert(io.open("SoftSpoken_Writings/UI/Readables.lua","r"))
+local f=assert(io.open("SoftSpoken/Modules/Writings/UI/Readables.lua","r"))
 local ui=f:read("*a")
 f:close()
 assert(string.find(ui,"Writings:DiscoverySummary(id)",1,true),

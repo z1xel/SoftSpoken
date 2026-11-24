@@ -17,7 +17,7 @@ function SetCVar() writes=writes+1;error("diagnostics cannot change CVars") end
 function GetBuildInfo() return "1.12.1",5875 end
 function GetLocale() return "enUS" end
 CLASSIC_API_VERSION=11814
-local books={key="books",addon="SoftSpoken_Writings",GetChannel=function() return "Master" end}
+local books={key="books",addon="SoftSpoken",GetChannel=function() return "Master" end}
 local sources={books=books}
 SpokenEnv=setmetatable({
     format=string.format,

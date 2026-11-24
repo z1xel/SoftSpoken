@@ -99,9 +99,9 @@ SSZLore={zones={
     [1438]={name="Teldrassil"},
     [1457]={name="Darnassus"},
 },subzones={}}
-dofile("SoftSpoken_Places/UI/LoreWindow.lua")
+dofile("SoftSpoken/Modules/Places/UI/LoreWindow.lua")
 
-dofile("SoftSpoken_Places/Audio.lua")
+dofile("SoftSpoken/Modules/Places/Audio.lua")
 local r=SpokenPlacesRuntime
 local durotar=r.MakeClip(1411,"Durotar","Durotar",true,false)
 local valley=r.MakeClip(1411,"Durotar","Valley of Trials",false,false)
@@ -151,10 +151,10 @@ SSZLoreWindow=savedLoreWindow
 SSZPictures={
     [1411]={[""]="1411-zone",["valley of trials"]="1411-valley"},
 }
-dofile("SoftSpoken_Places/UI/Pictures.lua")
+dofile("SoftSpoken/Modules/Places/UI/Pictures.lua")
 local picture=SSZPicturesUI.Get(1411,"valley of trials")
 expect(picture,
-    "Interface\\AddOns\\SoftSpoken_Places\\Textures\\Pictures\\1411-valley",
+    "Interface\\AddOns\\SoftSpoken\\Modules\\Places\\Textures\\Pictures\\1411-valley",
     "separate Compendium landscape source")
 assert(picture~=valley.present.portrait.texture,
     "scene art must not replace narrator zone emblem")

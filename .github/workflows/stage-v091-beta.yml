@@ -8,18 +8,18 @@ on:
       - "VERSION"
       - "README.md"
       - "SoftSpoken/SoftSpoken.toc"
-      - "SoftSpoken_Stories/SoftSpoken_Stories.toc"
-      - "SoftSpoken_Places/SoftSpoken_Places.toc"
-      - "SoftSpoken_Writings/SoftSpoken_Writings.toc"
+      - "SoftSpoken/Modules/**"
+      - "SoftSpoken/Libs/**"
+      - "SoftSpoken/stories-embeds.xml"
       - "SoftSpoken/Environment.lua"
-      - "SoftSpoken_Stories/Environment.lua"
-      - "SoftSpoken_Writings/Core.lua"
+      - "SoftSpoken/Modules/Stories/Environment.lua"
+      - "SoftSpoken/Modules/Writings/Core.lua"
       - "tests/test_release_version.py"
       - "tests/test_public_contracts.py"
       - "tests/test_ui_packaging.py"
       - "tests/test_texture_path_integrity.py"
-      - "SoftSpoken_Places/Textures/**"
-      - "SoftSpoken_Stories/Textures/**"
+      - "SoftSpoken/Modules/Places/Textures/**"
+      - "SoftSpoken/Modules/Stories/Textures/**"
       - "SoftSpoken/Textures/**"
       - ".github/workflows/stage-v091-beta.yml"
   workflow_dispatch:
@@ -43,7 +43,7 @@ jobs:
         run: |
           python3 - <<'PY'
           import pathlib, zipfile
-          modules = ("SoftSpoken", "SoftSpoken_Stories", "SoftSpoken_Places", "SoftSpoken_Writings")
+          modules = ("SoftSpoken",)
           version = pathlib.Path("VERSION").read_text().strip()
           package = pathlib.Path("dist") / ("SoftSpoken-" + version + ".zip")
           package.parent.mkdir(exist_ok=True)

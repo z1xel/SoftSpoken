@@ -4,12 +4,7 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
-MODULES = (
-    "SoftSpoken",
-    "SoftSpoken_Stories",
-    "SoftSpoken_Places",
-    "SoftSpoken_Writings",
-)
+MODULES = ("SoftSpoken",)
 LEGACY_IDENTIFIERS = (
     "SSCPrototypeFrameSkin",
     "SSCPrototypeInteriorSkin",
@@ -68,20 +63,20 @@ for name in REQUIRED_RUNTIME + REQUIRED_SOURCES:
 # Exported globals, SavedVariables, folder names, and runtime include order remain stable.
 RENAMED_RUNTIME = {
     "SoftSpoken/UI/PlayerFrame.lua": "SoftSpoken/UI/NarratorWindow.lua",
-    "SoftSpoken_Stories/Player.lua": "SoftSpoken_Stories/NarrationSource.lua",
-    "SoftSpoken_Stories/VoiceOver.lua": "SoftSpoken_Stories/QuestRuntime.lua",
-    "SoftSpoken_Stories/Options.lua": "SoftSpoken_Stories/AceConfigOptions.lua",
-    "SoftSpoken_Stories/UI/SettingsPanel.lua": "SoftSpoken_Stories/UI/SettingsPage.lua",
+    "SoftSpoken/Modules/Stories/Player.lua": "SoftSpoken/Modules/Stories/NarrationSource.lua",
+    "SoftSpoken/Modules/Stories/VoiceOver.lua": "SoftSpoken/Modules/Stories/QuestRuntime.lua",
+    "SoftSpoken/Modules/Stories/Options.lua": "SoftSpoken/Modules/Stories/AceConfigOptions.lua",
+    "SoftSpoken/Modules/Stories/UI/SettingsPanel.lua": "SoftSpoken/Modules/Stories/UI/SettingsPage.lua",
     "SoftSpoken/UI/Layout.lua": "SoftSpoken/UI/SettingsLayout.lua",
     "SoftSpoken/Compendium/UI/Layout.lua": "SoftSpoken/Compendium/UI/CompendiumUIHelpers.lua",
-    "SoftSpoken_Places/LoreBridge.lua": "SoftSpoken_Places/LoreDataRegistry.lua",
-    "SoftSpoken_Places/UI/CompendiumCompat.lua": "SoftSpoken_Places/UI/CompendiumHooks.lua",
-    "SoftSpoken_Places/UI/CompendiumAliases.lua": "SoftSpoken_Places/UI/CompendiumHooks.lua",
-    "SoftSpoken_Stories/Compendium/QuestState_112.lua": "SoftSpoken_Stories/Compendium/QuestState.lua",
-    "SoftSpoken_Stories/Compendium/QuestCatalog_112.lua": "SoftSpoken_Stories/Compendium/QuestCatalog.lua",
-    "SoftSpoken_Stories/Compendium/PortraitPreload_112.lua": "SoftSpoken_Stories/Compendium/PortraitPreload.lua",
-    "SoftSpoken_Stories/Compendium/QuestsTab_112.lua": "SoftSpoken_Stories/Compendium/QuestsTab.lua",
-    "SoftSpoken_Stories/Compendium/QuestPage_112.lua": "SoftSpoken_Stories/Compendium/QuestPage.lua",
+    "SoftSpoken/Modules/Places/LoreBridge.lua": "SoftSpoken/Modules/Places/LoreDataRegistry.lua",
+    "SoftSpoken/Modules/Places/UI/CompendiumCompat.lua": "SoftSpoken/Modules/Places/UI/CompendiumHooks.lua",
+    "SoftSpoken/Modules/Places/UI/CompendiumAliases.lua": "SoftSpoken/Modules/Places/UI/CompendiumHooks.lua",
+    "SoftSpoken/Modules/Stories/Compendium/QuestState_112.lua": "SoftSpoken/Modules/Stories/Compendium/QuestState.lua",
+    "SoftSpoken/Modules/Stories/Compendium/QuestCatalog_112.lua": "SoftSpoken/Modules/Stories/Compendium/QuestCatalog.lua",
+    "SoftSpoken/Modules/Stories/Compendium/PortraitPreload_112.lua": "SoftSpoken/Modules/Stories/Compendium/PortraitPreload.lua",
+    "SoftSpoken/Modules/Stories/Compendium/QuestsTab_112.lua": "SoftSpoken/Modules/Stories/Compendium/QuestsTab.lua",
+    "SoftSpoken/Modules/Stories/Compendium/QuestPage_112.lua": "SoftSpoken/Modules/Stories/Compendium/QuestPage.lua",
 }
 for old_path, new_path in RENAMED_RUNTIME.items():
     assert not (ROOT / old_path).exists(), f"Retired runtime path still exists: {old_path}"
@@ -90,28 +85,28 @@ for old_path, new_path in RENAMED_RUNTIME.items():
 # Shared Compendium classic-frame art is owned by Core, never by the retired
 # Places UI-artwork directory. Places/Pictures is independently retained.
 for obsolete_dir in ("Art", "ClassicFrames", "Controls"):
-    obsolete_path = ROOT / "SoftSpoken_Places/Textures" / obsolete_dir
+    obsolete_path = ROOT / "SoftSpoken/Modules/Places/Textures" / obsolete_dir
     assert not obsolete_path.exists(), f"Retired Places UI art reintroduced: {obsolete_path}"
 
 # Texture ownership policy: Stories and Writings have no local texture assets.
 # Places retains *only* its location pictures, which remain dynamically mapped.
-for module in ("SoftSpoken_Stories", "SoftSpoken_Writings"):
+for module in ("SoftSpoken/Modules/Stories", "SoftSpoken/Modules/Writings"):
     assert not (ROOT / module / "Textures").exists(), (
         f"{module} must resolve small UI textures from SoftSpoken/Textures"
     )
-places = ROOT / "SoftSpoken_Places/Textures"
+places = ROOT / "SoftSpoken/Modules/Places/Textures"
 assert (places / "Pictures").is_dir(), "Places location illustrations must remain available"
 assert not any(p.is_file() for p in places.rglob("*") if "Pictures" not in p.relative_to(places).parts), (
-    "Only location pictures belong in SoftSpoken_Places/Textures"
+    "Only location pictures belong in SoftSpoken/Modules/Places/Textures"
 )
 
 # Check literal and constructed runtime texture roots, not just file existence.
 core_root = "Interface\\AddOns\\SoftSpoken\\Textures\\"
 for path in (
-    "SoftSpoken_Stories/NarrationSource.lua",
-    "SoftSpoken_Stories/QuestOverlayUI.lua",
-    "SoftSpoken_Stories/UI/QuestLogNativePlay.lua",
-    "SoftSpoken_Stories/Compendium/QuestPage.lua",
+    "SoftSpoken/Modules/Stories/NarrationSource.lua",
+    "SoftSpoken/Modules/Stories/QuestOverlayUI.lua",
+    "SoftSpoken/Modules/Stories/UI/QuestLogNativePlay.lua",
+    "SoftSpoken/Modules/Stories/Compendium/QuestPage.lua",
 ):
     code = (ROOT / path).read_text(encoding="utf-8").replace("\\\\", "\\")
     assert core_root in code, f"{path}: Core's texture root is not in use"
@@ -141,7 +136,8 @@ for module in MODULES:
         # Catch direct and dynamically constructed references to legacy Places
         # UI paths while allowing its actively used location picture collection.
         normalized = code.replace("\\\\", "\\").replace("/", "\\").lower()
-        needle = "softspoken_places\\textures\\"
+        assert "softspoken_places\\textures\\" not in normalized, f"{path}: legacy Places texture root"
+        needle = "softspoken\\modules\\places\\textures\\"
         pos = 0
         while True:
             at = normalized.find(needle, pos)
@@ -153,6 +149,9 @@ for module in MODULES:
             pos = at + len(needle)
 
 # Read all included Lua/XML paths in the game's addon entrypoints.
+for legacy in ("SoftSpoken_Stories", "SoftSpoken_Places", "SoftSpoken_Writings"):
+    assert not (ROOT / legacy).exists(), f"Legacy addon directory remains: {legacy}"
+assert list((ROOT / "SoftSpoken").rglob("*.toc")) == [ROOT / "SoftSpoken/SoftSpoken.toc"]
 for module in MODULES:
     base = ROOT / module
     toc = base / f"{module}.toc"

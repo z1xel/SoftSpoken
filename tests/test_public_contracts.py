@@ -23,18 +23,8 @@ def require(path, pattern, label):
 # These names are serialized in players' WTF files. Do not rename/migrate here.
 manifests = {
     "SoftSpoken": {
-        "SavedVariables": ["SpokenSettings"],
-    },
-    "SoftSpoken_Stories": {
-        "SavedVariables": ["SpokenQuestsSettings"],
-        "SavedVariablesPerCharacter": ["SSCQuestJournal"],
-    },
-    "SoftSpoken_Places": {
-        "SavedVariablesPerCharacter": ["SSZCharacter"],
-    },
-    "SoftSpoken_Writings": {
-        "SavedVariables": ["SSBSettings"],
-        "SavedVariablesPerCharacter": ["SSBCharacter"],
+        "SavedVariables": ["SpokenSettings", "SpokenQuestsSettings", "SSBSettings"],
+        "SavedVariablesPerCharacter": ["SSCQuestJournal", "SSZCharacter", "SSBCharacter"],
     },
 }
 for module, expected in manifests.items():
@@ -51,20 +41,19 @@ for module, expected in manifests.items():
         assert found[kind] == expected.get(kind, []), (
             f"{module}: {kind} changed: {found[kind]!r}"
         )
-    if module != "SoftSpoken":
-        assert re.search(r"(?m)^## Dependencies:\s*SoftSpoken\s*$", text), (
-            f"{module}: Core dependency removed"
-        )
+    assert not re.search(r"(?m)^## Dependencies:.*SoftSpoken", text), "Self dependency"
+    for legacy in ("SoftSpoken_Stories", "SoftSpoken_Places", "SoftSpoken_Writings"):
+        assert not (ROOT / legacy).exists(), f"Legacy addon still installed: {legacy}"
 
 # Public names stay stable even if their private local bindings change.
 exports = {
     "SoftSpoken/Environment.lua": [r"^SpokenEnv\s*=", r"^Spoken\s*="],
-    "SoftSpoken_Stories/Environment.lua": [r"^VoiceOver\s*="],
-    "SoftSpoken_Stories/Compendium/QuestState.lua": [r"^SSCQuestState\s*="],
+    "SoftSpoken/Modules/Stories/Environment.lua": [r"^VoiceOver\s*="],
+    "SoftSpoken/Modules/Stories/Compendium/QuestState.lua": [r"^SSCQuestState\s*="],
     "SoftSpoken/Compendium/UI/Compendium.lua": [r"^SpokenCompendium\s*="],
-    "SoftSpoken_Places/Runtime.lua": [r"^SpokenPlacesRuntime\s*="],
-    "SoftSpoken_Places/LoreDataRegistry.lua": [r"^SpokenPlacesBridge\s*=", r"^SSZBridge\s*=\s*SpokenPlacesBridge\b"],
-    "SoftSpoken_Writings/Core.lua": [r"^SpokenWritings\s*="],
+    "SoftSpoken/Modules/Places/Runtime.lua": [r"^SpokenPlacesRuntime\s*="],
+    "SoftSpoken/Modules/Places/LoreDataRegistry.lua": [r"^SpokenPlacesBridge\s*=", r"^SSZBridge\s*=\s*SpokenPlacesBridge\b"],
+    "SoftSpoken/Modules/Writings/Core.lua": [r"^SpokenWritings\s*="],
 }
 for path, patterns in exports.items():
     for pattern in patterns:
@@ -83,7 +72,7 @@ for method in (
 
 # Upstream AI VoiceOver packs register against the VoiceOver global and keep
 # their existing metadata spellings and quest lookup table shape.
-stories_data = "SoftSpoken_Stories/DataModules.lua"
+stories_data = "SoftSpoken/Modules/Stories/DataModules.lua"
 require(stories_data, r"^function DataModules:Register\(", "DataModules:Register")
 require(stories_data, r"^function DataModules:GetQuestID\(", "GetQuestID callable")
 for prefix in ("X-VoiceOver-DataModule-", "X-SpokenQuests-DataModule-"):
@@ -99,16 +88,16 @@ for table in (
 # The registered source keys and optional pack registry names are external
 # contracts. The settings inventory's "source" field also stays unchanged.
 for path, key in (
-    ("SoftSpoken_Stories/NarrationSource.lua", "quests"),
-    ("SoftSpoken_Stories/NarrationSource.lua", "gossip"),
-    ("SoftSpoken_Writings/Core.lua", "books"),
+    ("SoftSpoken/Modules/Stories/NarrationSource.lua", "quests"),
+    ("SoftSpoken/Modules/Stories/NarrationSource.lua", "gossip"),
+    ("SoftSpoken/Modules/Writings/Core.lua", "books"),
 ):
     require(path, rf'RegisterSource\("{key}"\s*,', f"narration source {key}")
 for path, names in {
-    "SoftSpoken_Places/Audio.lua": (
+    "SoftSpoken/Modules/Places/Audio.lua": (
         "SpokenPlacesAudioPacks", "SpokenZonesAudioPacks", "ZoneLoreAudioPacks",
     ),
-    "SoftSpoken_Writings/Audio.lua": (
+    "SoftSpoken/Modules/Writings/Audio.lua": (
         "SpokenReadablesAudioPacks", "SpokenBooksAudioPacks",
     ),
 }.items():
@@ -117,8 +106,8 @@ for path, names in {
         assert re.search(rf"\b{name}\b", source), f"{path}: registry {name}"
 
 for path in (
-    "SoftSpoken_Places/UI/Options.lua",
-    "SoftSpoken_Writings/UI/Options.lua",
+    "SoftSpoken/Modules/Places/UI/Options.lua",
+    "SoftSpoken/Modules/Writings/UI/Options.lua",
 ):
     require(path, r"\bsource\s*=", "public pack inventory source field")
 
@@ -126,15 +115,15 @@ for path in (
 for path, assertion in (
     ("SoftSpoken/UI/NarratorWindow.lua", r"^NarratorWindow\s*=\s*\{"),
     ("SoftSpoken/Core.lua", r"^CoreController\s*="),
-    ("SoftSpoken_Stories/NarrationSource.lua", r"^StoriesNarrator\s*=\s*\{"),
-    ("SoftSpoken_Stories/UI/SettingsPage.lua", r"^StoriesSettingsPage\s*=\s*\{"),
-    ("SoftSpoken_Stories/QuestRuntime.lua", r'^StoriesAddon\s*=\s*AceAddon:NewAddon\("SpokenQuests"'),
+    ("SoftSpoken/Modules/Stories/NarrationSource.lua", r"^StoriesNarrator\s*=\s*\{"),
+    ("SoftSpoken/Modules/Stories/UI/SettingsPage.lua", r"^StoriesSettingsPage\s*=\s*\{"),
+    ("SoftSpoken/Modules/Stories/QuestRuntime.lua", r'^StoriesAddon\s*=\s*AceAddon:NewAddon\("SpokenQuests"'),
 ):
     require(path, assertion, "canonical controller declared")
 
 # The registered AceAddon identity and historical VoiceOver.Addon access remain intact.
 require(
-    "SoftSpoken_Stories/QuestRuntime.lua",
+    "SoftSpoken/Modules/Stories/QuestRuntime.lua",
     r"^Addon\s*=\s*StoriesAddon\b",
     "legacy VoiceOver.Addon shares the canonical StoriesAddon controller",
 )
@@ -146,22 +135,24 @@ retired = {
         r"\bAddon\b", r"\bPlayerFrame\b", r"\bSSCCompendium\b",
         r"\bSSZCompendium\b", r"\bSpokenZones112Compendium\b",
     ),
-    "SoftSpoken_Stories": (
+    "SoftSpoken/Modules/Stories": (
         r"\bSettingsPanel\b", r"\bSSCCompendium\b",
         r"\bVoiceOver\.Player\b", r"(?m)^Player\s*=",
     ),
-    "SoftSpoken_Places": (
+    "SoftSpoken/Modules/Places": (
         r"\bSSZZonesRuntime\b", r"\bSSCCompendium\b",
         r"\bSSZCompendium\b", r"\bSSZUI\b", r"\bSSZLorePage\b",
         r"\bSSZTextView\b", r"\bSSZClassicFrameSkin\b",
         r"\bSSZOriginalArt\b",
     ),
-    "SoftSpoken_Writings": (
+    "SoftSpoken/Modules/Writings": (
         r"\bSSB\b", r"\bSSCCompendium\b",
     ),
 }
 for module, patterns in retired.items():
     for file in (ROOT / module).rglob("*.lua"):
+        if module == "SoftSpoken" and "Modules" in file.relative_to(ROOT / module).parts:
+            continue
         if any(part in ("Libs", "Data", "Locale") for part in file.parts):
             continue
         # Comments and runtime text are not controller identities.
@@ -178,13 +169,15 @@ for module, patterns in retired.items():
 # Locale/enUS.lua still referenced the retired SSB table after Core renamed it.
 # Generated Data/ is separate: SSBData/SSBPlaces and SSZBridge are supported
 # external data contracts, not deprecated implementation controllers.
-for module in ("SoftSpoken", "SoftSpoken_Stories", "SoftSpoken_Writings"):
+for module in ("SoftSpoken", "SoftSpoken/Modules/Stories", "SoftSpoken/Modules/Writings"):
     for file in (ROOT / module).rglob("*.lua"):
+        if module == "SoftSpoken" and "Modules" in file.relative_to(ROOT / module).parts:
+            continue
         if any(part in ("Libs", "Data") for part in file.parts):
             continue
         for number, line in enumerate(file.read_text(encoding="utf-8").splitlines(), 1):
             code = line.split("--", 1)[0]
-            if module == "SoftSpoken_Writings":
+            if module == "SoftSpoken/Modules/Writings":
                 assert not re.search(r"\bSSB\b", code), (
                     f"{file.relative_to(ROOT)}:{number}: retired Writings module global SSB"
                 )
@@ -201,16 +194,16 @@ for module in ("SoftSpoken", "SoftSpoken_Stories", "SoftSpoken_Writings"):
 
 # Coverage is not just source spelling: refactor_compatibility.lua actually
 # executes Core.lua followed by Locale/enUS.lua and checks the resulting L keys.
-require("SoftSpoken_Writings/Locale/enUS.lua",
+require("SoftSpoken/Modules/Writings/Locale/enUS.lua",
         r"^local Writings\s*=\s*SpokenWritings\s*$",
         "Writings locale bound to canonical controller")
-require("SoftSpoken_Writings/Locale/enUS.lua",
+require("SoftSpoken/Modules/Writings/Locale/enUS.lua",
         r"^Writings\.L\s*=\s*Writings\.L\s+or\s+\{\}",
         "Writings locale table initialized before the UI")
 
 # The exception is deliberate: packaged/generated lore still calls SSZBridge.
 require(
-    "SoftSpoken_Places/LoreDataRegistry.lua",
+    "SoftSpoken/Modules/Places/LoreDataRegistry.lua",
     r"^SSZBridge\s*=\s*SpokenPlacesBridge\b",
     "existing lore packs retain SSZBridge registration",
 )

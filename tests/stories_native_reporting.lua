@@ -54,7 +54,7 @@ VoiceOver = setmetatable({
         GetIDFromGUID=function(_,guid) return guid=="object" and 99 or 44 end,
     },
 }, {__index=_G})
-dofile("SoftSpoken_Stories/ReportButton.lua")
+dofile("SoftSpoken/Modules/Stories/ReportButton.lua")
 local report=VoiceOver.ReportButton
 report:Initialize()
 eq(type(StaticPopupDialogs.VOICEOVER_COPY_REPORT_LINK),"table","native popup registered")
@@ -112,7 +112,7 @@ overlayEnv.Utils.GetQuestLogTitleFrame=function(_,i) return {row=i} end
 overlayEnv.Utils.GetQuestLogTitleNormalText=function(_,i) return {row=i} end
 overlayEnv.Utils.GetQuestLogTitleCheck=function(_,i) return {row=i} end
 table.wipe=function(t) for k in pairs(t) do t[k]=nil end end
-dofile("SoftSpoken_Stories/QuestOverlayUI.lua")
+dofile("SoftSpoken/Modules/Stories/QuestOverlayUI.lua")
 local overlay=overlayEnv.QuestOverlayUI
 local rowsUpdated={}
 function overlay:CreatePlayButton(id)

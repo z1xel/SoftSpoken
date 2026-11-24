@@ -46,7 +46,7 @@ VoiceOver = setmetatable({
         end,
     },
 }, {__index = _G})
-dofile("SoftSpoken_Stories/NarrationSource.lua")
+dofile("SoftSpoken/Modules/Stories/NarrationSource.lua")
 local player = VoiceOver.StoriesNarrator
 player.source = {PlayNow=function(self,clip) table.insert(played,clip); return true end}
 

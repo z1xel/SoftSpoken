@@ -1,5 +1,5 @@
 -- Run from the repo root: lua5.1 tests/audio_pack_priority_guardrails.lua
--- Tests the actual SoftSpoken_Stories/DataModules.lua with stubbed WoW APIs.
+-- Tests the actual SoftSpoken/Modules/Stories/DataModules.lua with stubbed WoW APIs.
 -- The data-module file builds its sound-event dispatch table at load time.
 -- This harness tests pack priority, not gameplay event lookup, so stub those
 -- symbolic event IDs before executing the real loader.
@@ -62,7 +62,7 @@ end
 function IsAddOnLoadOnDemand() return true end
 function UnitSex() return 0 end
 
-dofile("SoftSpoken_Stories/DataModules.lua")
+dofile("SoftSpoken/Modules/Stories/DataModules.lua")
 local modules = VoiceOver.DataModules
 local function reset()
     installed, byName = {}, {}

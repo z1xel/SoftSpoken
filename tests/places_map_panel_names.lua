@@ -36,7 +36,7 @@ CreateFrame=function()
     return {SetScript=function(self,event,callback) self[event]=callback end}
 end
 
-dofile("SoftSpoken_Places/UI/MapPanel.lua")
+dofile("SoftSpoken/Modules/Places/UI/MapPanel.lua")
 local panel=assert(SSZMapPanel,"map panel installed")
 -- PageEntry is intentionally private. Inspect its closure from Refresh so
 -- the test invokes the same real implementation as the UI without fake frames.
@@ -81,7 +81,7 @@ assert(#nameCalls>=4,"adapter was used for each breadcrumb and pending text")
 
 -- Guard against another stale rename. No naked Compat.Name can compile and
 -- evade behavior checks simply because its branch wasn't visited.
-local file=assert(io.open("SoftSpoken_Places/UI/MapPanel.lua","r"))
+local file=assert(io.open("SoftSpoken/Modules/Places/UI/MapPanel.lua","r"))
 local source=file:read("*a");file:close()
 assert(not string.find(source,"%f[%w]Compat%.Name%s*%("),
     "MapPanel contains a stale global Compat.Name lookup")

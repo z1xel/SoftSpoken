@@ -29,9 +29,9 @@ dofile("SoftSpoken/SoundUtils.lua")
 dofile("SoftSpoken/Sources.lua")
 local S=SpokenEnv.Sources
 local U=SpokenEnv.SoundUtils
-local stories=S:Register("quests",{title="Stories",addon="SoftSpoken_Stories"})
-local places=S:Register("zones",{title="Places",addon="SoftSpoken_Places"})
-local writings=S:Register("books",{title="Writings",addon="SoftSpoken_Writings"})
+local stories=S:Register("quests",{title="Stories",addon="SoftSpoken"})
+local places=S:Register("zones",{title="Places",addon="SoftSpoken"})
+local writings=S:Register("books",{title="Writings",addon="SoftSpoken"})
 local choices={"Master","SFX","Music","Ambience"}
 for _,channel in ipairs(choices) do
     profile.Audio.NarrationChannel=channel

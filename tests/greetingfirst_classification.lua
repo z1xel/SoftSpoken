@@ -47,10 +47,10 @@ local function reset()
     end
     local chunk
     if _VERSION == "Lua 5.1" then
-        chunk = assert(loadfile("SoftSpoken_Stories/GreetingFirst.lua"))
+        chunk = assert(loadfile("SoftSpoken/Modules/Stories/GreetingFirst.lua"))
         setfenv(chunk, env)
     else
-        chunk = assert(loadfile("SoftSpoken_Stories/GreetingFirst.lua", "t", env))
+        chunk = assert(loadfile("SoftSpoken/Modules/Stories/GreetingFirst.lua", "t", env))
     end
     chunk()
     env.GreetingFirst:Setup()

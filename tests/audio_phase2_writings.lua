@@ -52,8 +52,8 @@ SpokenBooksAudioPacks={{
 CreateFrame=function()
     return {RegisterEvent=function() end,SetScript=function() end,UnregisterEvent=function() end}
 end
-dofile("SoftSpoken_Writings/Audio.lua")
-dofile("SoftSpoken_Writings/Events.lua")
+dofile("SoftSpoken/Modules/Writings/Audio.lua")
+dofile("SoftSpoken/Modules/Writings/Events.lua")
 
 local first,second=SpokenWritings:ClipFor(101),SpokenWritings:ClipFor(102)
 assert(first and second)

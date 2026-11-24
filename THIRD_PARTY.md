@@ -24,7 +24,7 @@ this possible.
 ## Bundled Lua libraries
 
 The addons bundle libraries in `SoftSpoken/Libs/` and
-`SoftSpoken_Stories/Libs/`. These retain their own licenses:
+`SoftSpoken/Libs/`. These retain their own licenses:
 
 - **Ace3 components and CallbackHandler-1.0** — Ace3 Development Team,
   [Ace3 license](LICENSES/Ace3.txt). Includes AceDB, AceTimer, AceAddon,
@@ -60,7 +60,7 @@ library notices when distributing the addon.
   taken from [Gethe's WoW UI texture mirror](https://github.com/Gethe/wow-ui-textures/tree/live/CHATFRAME)
   and converted pixel-for-pixel into Vanilla-compatible TGA files.
 - **Places illustrations** are adapted game screenshots. The
-  [per-picture source credits](SoftSpoken_Places/Textures/Pictures/CREDITS.md)
+  [per-picture source credits](SoftSpoken/Modules/Places/Textures/Pictures/CREDITS.md)
   identify the original images and their source pages.
 - Other player textures and service icons inherit their original
   sources and trademarks; further details appear in

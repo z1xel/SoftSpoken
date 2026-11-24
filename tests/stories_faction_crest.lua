@@ -6,10 +6,10 @@ local function expect(actual,wanted,label)
         ", got "..tostring(actual))
 end
 
-dofile("SoftSpoken_Stories/FactionCrest.lua")
+dofile("SoftSpoken/Modules/Stories/FactionCrest.lua")
 local F=SSCQuestFactionCrest
-local ALLIANCE="Interface\\AddOns\\SoftSpoken_Stories\\Assets\\AllianceCrest"
-local HORDE="Interface\\AddOns\\SoftSpoken_Stories\\Assets\\HordeCrest"
+local ALLIANCE="Interface\\AddOns\\SoftSpoken\\Modules\\Stories\\Assets\\AllianceCrest"
+local HORDE="Interface\\AddOns\\SoftSpoken\\Modules\\Stories\\Assets\\HordeCrest"
 local UNKNOWN="Interface\\Icons\\INV_Misc_Book_11"
 
 UnitFactionGroup=function() return "Alliance" end
@@ -47,7 +47,7 @@ expect(label,"Your faction is unavailable","unknown faction tooltip")
 -- texture fallback. Renderers consume the spec without constructing assets.
 UnitFactionGroup=function() return "Alliance" end
 VoiceOver=setmetatable({
-    AddonFolder="SoftSpoken_Stories",
+    AddonFolder="SoftSpoken",
     format=string.format, -- supplied by the addon environment in-game
     L={},
     Enums={
@@ -77,8 +77,8 @@ Spoken={
         return info and info.displayID
     end,
 }
-dofile("SoftSpoken_Stories/SpeakerResolver.lua")
-dofile("SoftSpoken_Stories/NarrationSource.lua")
+dofile("SoftSpoken/Modules/Stories/SpeakerResolver.lua")
+dofile("SoftSpoken/Modules/Stories/NarrationSource.lua")
 local Player=VoiceOver.StoriesNarrator
 local function prep(id, faceless)
     return Player:Prepare({
@@ -131,7 +131,7 @@ expect(second.fallback.texture,HORDE,"portrait resolves faction for each clip")
 
 -- Guard against future duplicate faction logic in the Compendium. Both
 -- displays must call the same resolver rather than independently choose art.
-local file=assert(io.open("SoftSpoken_Stories/Compendium/QuestPage.lua","r"))
+local file=assert(io.open("SoftSpoken/Modules/Stories/Compendium/QuestPage.lua","r"))
 local source=file:read("*a")
 file:close()
 assert(string.find(source,"FactionCrest.Resolve()",1,true),

@@ -17,7 +17,7 @@ eq(Spoken, previousSpoken, "public Spoken table identity")
 eq(SpokenEnv.Spoken, previousSpoken, "Core private environment references public API")
 
 -- Existing upstream voice packs still refer to the global VoiceOver.
-dofile("SoftSpoken_Stories/Environment.lua")
+dofile("SoftSpoken/Modules/Stories/Environment.lua")
 eq(type(VoiceOver), "table", "VoiceOver public compatibility environment")
 eq(VoiceOver.Spoken, previousSpoken, "Stories environment can reach Core")
 
@@ -37,7 +37,7 @@ CreateFrame = function()
         SetScript = function() end,
     }
 end
-dofile("SoftSpoken_Stories/Compendium/QuestState.lua")
+dofile("SoftSpoken/Modules/Stories/Compendium/QuestState.lua")
 local questState = assert(SSCQuestState)
 eq(questState.Saved(), journal, "quest journal table identity")
 eq(journal.dialogue, dialogue, "captured quest text retained")
@@ -59,12 +59,12 @@ local accountSettings = { autoplay = false, bookAsOneLine = false }
 local character = { read = { [42] = true } }
 SSBSettings, SSBCharacter = accountSettings, character
 SpokenWritings = nil
-dofile("SoftSpoken_Writings/Core.lua")
+dofile("SoftSpoken/Modules/Writings/Core.lua")
 local writings = assert(SpokenWritings)
 -- Load the actual locale after Core, as the Writings TOC does in-game.
 -- The old SSB module alias was removed; it must not be needed for labels.
 SSB = nil
-dofile("SoftSpoken_Writings/Locale/enUS.lua")
+dofile("SoftSpoken/Modules/Writings/Locale/enUS.lua")
 eq(type(writings.L), "table", "Writings locale initialized on canonical module")
 eq(writings.L.PLAY, "Play", "Writings Play button label available")
 eq(writings.L.STOP, "Stop", "Writings Stop button label available")
@@ -85,11 +85,11 @@ eq(writings:IsBookFound(44), true, "reset does not erase discovery")
 eq(SSBSettings.autoplay, true, "reset restores default autoplay")
 
 -- Places keeps its global runtime and the map/discovery key semantics.
-dofile("SoftSpoken_Places/LoreDataRegistry.lua")
+dofile("SoftSpoken/Modules/Places/LoreDataRegistry.lua")
 eq(SSZBridge, SpokenPlacesBridge, "generated lore API shares canonical Places bridge")
 SSZBridge:RegisterLoreData("enUS", "zones", { [1413] = { name = "The Barrens" } })
 eq(SpokenPlacesBridge:ShouldLoadLanguage("enUS"), true, "legacy lore language registration")
-dofile("SoftSpoken_Places/Runtime.lua")
+dofile("SoftSpoken/Modules/Places/Runtime.lua")
 local places = assert(SpokenPlacesRuntime)
 eq(places.Normalise("The Den"), "den", "legacy subzone key normalization")
 eq(places.AudioID("The Barrens"), 1413, "catalog zone ID resolution")

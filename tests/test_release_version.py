@@ -8,7 +8,7 @@ EXPECTED = "v0.9.1-beta"
 version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
 assert version == EXPECTED, f"Unexpected release milestone: {version!r}"
 
-modules = ("SoftSpoken", "SoftSpoken_Stories", "SoftSpoken_Places", "SoftSpoken_Writings")
+modules = ("SoftSpoken",)
 for module in modules:
     text = (ROOT / module / (module + ".toc")).read_text(encoding="utf-8-sig")
     found = re.findall(r"(?m)^## Version:\s*(\S+)\s*$", text)
@@ -16,8 +16,8 @@ for module in modules:
 
 runtime = {
     "SoftSpoken/Environment.lua": r'AddonVersion\s*=\s*"([^"]+)"',
-    "SoftSpoken_Stories/Environment.lua": r'AddonVersion\s*=\s*"([^"]+)"',
-    "SoftSpoken_Writings/Core.lua": r'Writings\.version\s*=\s*"([^"]+)"',
+    "SoftSpoken/Modules/Stories/Environment.lua": r'AddonVersion\s*=\s*"([^"]+)"',
+    "SoftSpoken/Modules/Writings/Core.lua": r'Writings\.version\s*=\s*"([^"]+)"',
     "tests/audio_phase2_diagnostics.lua": r'AddonVersion\s*=\s*"([^"]+)"',
 }
 for path, pattern in runtime.items():
@@ -34,4 +34,4 @@ stage = ROOT / ".github/workflows/stage-v091-beta.yml"
 assert stage.is_file() and version in stage.read_text(encoding="utf-8"), (
     "New version-specific release staging workflow is missing"
 )
-print("PASS:", version, "matches four addon manifests, runtime constants, tests and staging")
+print("PASS:", version, "matches the unified addon manifest, runtime constants, tests and staging")

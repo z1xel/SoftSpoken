@@ -23,14 +23,14 @@ Spoken={
     end,
 }
 VoiceOver=setmetatable({
-    AddonFolder="SoftSpoken_Stories",
+    AddonFolder="SoftSpoken",
     format=string.format,
     Enums={GUID={Creature=8,GameObject=11,IsCreature=function(self,k) return k==8 end}},
     DataModules={GetQuestLogQuestGiverTypeAndID=function(self,quest)
         return typeByQuest[quest],idByQuest[quest]
     end},
 },{__index=_G})
-dofile("SoftSpoken_Stories/QuestOverlayUI.lua")
+dofile("SoftSpoken/Modules/Stories/QuestOverlayUI.lua")
 local overlay=VoiceOver.QuestOverlayUI
 local button={scripts={}}
 function button:SetScript(name,fn) self.scripts[name]=fn end

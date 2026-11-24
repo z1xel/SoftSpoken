@@ -2,16 +2,16 @@ name: Development quest catalog regression
 
 on:
   push:
-    branches: [dev]
+    branches: [dev, feature/single-addon]
     paths:
-      - "SoftSpoken_Stories/**"
+      - "SoftSpoken/Modules/Stories/**"
       - "SoftSpoken/Compendium/UI/**"
       - "tests/catalog_release_gate.lua"
       - ".github/workflows/catalog-release-regression.yml"
   pull_request:
-    branches: [dev]
+    branches: [dev, feature/single-addon]
     paths:
-      - "SoftSpoken_Stories/**"
+      - "SoftSpoken/Modules/Stories/**"
       - "SoftSpoken/Compendium/UI/**"
       - "tests/catalog_release_gate.lua"
       - ".github/workflows/catalog-release-regression.yml"
@@ -31,10 +31,10 @@ jobs:
           sudo apt-get install -y lua5.1
       - name: Check compiled shipped quest databases
         run: |
-          luac5.1 -p SoftSpoken_Stories/Data/Compendium.lua
-          luac5.1 -p SoftSpoken_Stories/Data/QuestText.lua
-          luac5.1 -p SoftSpoken_Stories/Data/TurtleQuestText.lua
-          luac5.1 -p SoftSpoken_Stories/Data/TurtleAreaMeta.lua
+          luac5.1 -p SoftSpoken/Modules/Stories/Data/Compendium.lua
+          luac5.1 -p SoftSpoken/Modules/Stories/Data/QuestText.lua
+          luac5.1 -p SoftSpoken/Modules/Stories/Data/TurtleQuestText.lua
+          luac5.1 -p SoftSpoken/Modules/Stories/Data/TurtleAreaMeta.lua
           luac5.1 -p SoftSpoken/Compendium/UI/DungeonNames.lua
       - name: Validate roster, speaker data associations and stage overlays
         run: lua5.1 tests/catalog_release_gate.lua

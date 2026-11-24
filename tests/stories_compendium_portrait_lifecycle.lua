@@ -182,10 +182,10 @@ SetPortraitTextureFromCreatureDisplayID=function(texture,displayID)
     nativePaints[#nativePaints+1]={texture=texture,displayID=displayID}
     texture:SetTexture("portrait:"..displayID)
 end
-dofile("SoftSpoken_Stories/Data/TurtleQuestText.lua")
+dofile("SoftSpoken/Modules/Stories/Data/TurtleQuestText.lua")
 -- Match the actual addon.xml load order after dialogue extraction.
-dofile("SoftSpoken_Stories/QuestDialogue.lua")
-dofile("SoftSpoken_Stories/Compendium/QuestPage.lua")
+dofile("SoftSpoken/Modules/Stories/QuestDialogue.lua")
+dofile("SoftSpoken/Modules/Stories/Compendium/QuestPage.lua")
 -- A Turtle overlay is additive and resolved separately for each quest stage.
 -- The production table is deliberately empty until source distribution is reviewed.
 local originalJournal=SSCQuestJournal
@@ -439,7 +439,7 @@ eq(details.parts.accept.speaker.textColor[1],0,
     "ordinary speaker label resets to black")
 
 -- The quarter-second ticker remains solely for audio buttons.
-local source=assert(io.open("SoftSpoken_Stories/Compendium/QuestPage.lua","r")):read("*a")
+local source=assert(io.open("SoftSpoken/Modules/Stories/Compendium/QuestPage.lua","r")):read("*a")
 assert(not string.find(source,"RefreshPendingPortraits",1,true),"no portrait polling")
 assert(not string.find(source,"pendingChecks",1,true),"no retry ticker")
 eq(type(details.events.scripts.OnUpdate),"function","buttons still refresh")

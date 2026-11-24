@@ -41,4 +41,5 @@
     <!-- Optional shared settings page: built after the quest runtime and compatibility layer. -->
     <Include file="UI\SettingsPage.lua"/>
 
+    <Include file="Gossip\Gossip.xml"/>
 </Ui>

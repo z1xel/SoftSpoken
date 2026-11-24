@@ -24,7 +24,7 @@ local function Setup(journal,query)
         function frame:SetScript(script,fn) self[script]=fn end
         return frame
     end
-    dofile("SoftSpoken_Stories/Compendium/QuestState.lua")
+    dofile("SoftSpoken/Modules/Stories/Compendium/QuestState.lua")
     local function Fire(event)
         assert(frame.events[event],"event not registered: "..event)
         frame.OnEvent(frame,event)

@@ -1,9 +1,9 @@
 -- Standalone in-game corpus regression: no generator or live database needed.
 -- From repository root: lua5.1 tests/catalog_release_gate.lua
-dofile("SoftSpoken_Stories/Data/Compendium.lua")
-dofile("SoftSpoken_Stories/Data/QuestText.lua")
-dofile("SoftSpoken_Stories/Data/TurtleQuestText.lua")
-dofile("SoftSpoken_Stories/Data/TurtleAreaMeta.lua")
+dofile("SoftSpoken/Modules/Stories/Data/Compendium.lua")
+dofile("SoftSpoken/Modules/Stories/Data/QuestText.lua")
+dofile("SoftSpoken/Modules/Stories/Data/TurtleQuestText.lua")
+dofile("SoftSpoken/Modules/Stories/Data/TurtleAreaMeta.lua")
 
 local function count(tbl)
     local n=0

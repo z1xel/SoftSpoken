@@ -46,7 +46,7 @@ frame:SetScript("OnEvent", function(self, firedEvent, a, b, c)
         if not PlacesRuntime.source then
             PlacesRuntime.source = Spoken:RegisterSource("zones", {
                 title = "SoftSpoken Places",
-                addon = "SoftSpoken_Places",
+                addon = "SoftSpoken",
                 order = 2,
                 queueLimit = 3,
                 interClipGap = 0.25,

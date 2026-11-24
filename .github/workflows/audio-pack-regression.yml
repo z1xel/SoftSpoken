@@ -9,11 +9,11 @@ on:
       - "tests/test_public_contracts.py"
       - "tests/refactor_compatibility.lua"
       - "SoftSpoken/Environment.lua"
-      - "SoftSpoken_Stories/Environment.lua"
+      - "SoftSpoken/Modules/Stories/Environment.lua"
       - "SoftSpoken/SoftSpoken.toc"
-      - "SoftSpoken_Stories/SoftSpoken_Stories.toc"
-      - "SoftSpoken_Places/SoftSpoken_Places.toc"
-      - "SoftSpoken_Writings/SoftSpoken_Writings.toc"
+      - "SoftSpoken/Modules/**"
+      - "SoftSpoken/Libs/**"
+      - "SoftSpoken/stories-embeds.xml"
       - "SoftSpoken/UI/Options.lua"
       - "SoftSpoken/UI/SettingsLayout.lua"
       - "SoftSpoken/UI/NarratorWindow.lua"
@@ -37,25 +37,25 @@ on:
       - "tests/audio_progress_ui.lua"
       - "tests/narrator_queue_label.lua"
       - "SoftSpoken/Strings.lua"
-      - "SoftSpoken_Stories/Compendium/QuestState.lua"
-      - "SoftSpoken_Stories/Compendium/QuestCatalog.lua"
-      - "SoftSpoken_Stories/Compendium/QuestsTab.lua"
-      - "SoftSpoken_Stories/Compendium/PortraitPreload.lua"
-      - "SoftSpoken_Stories/Compendium/QuestPage.lua"
-      - "SoftSpoken_Stories/QuestDialogue.lua"
-      - "SoftSpoken_Stories/NarrationSource.lua"
-      - "SoftSpoken_Stories/AceConfigOptions.lua"
-      - "SoftSpoken_Stories/UI/SettingsPage.lua"
-      - "SoftSpoken_Stories/QuestOverlayUI.lua"
-      - "SoftSpoken_Stories/QuestRuntime.lua"
-      - "SoftSpoken_Stories/Utils.lua"
-      - "SoftSpoken_Stories/ReportButton.lua"
-      - "SoftSpoken_Stories/FactionCrest.lua"
-      - "SoftSpoken_Stories/SpeakerResolver.lua"
-      - "SoftSpoken_Stories/addon.xml"
-      - "SoftSpoken_Places/**"
-      - "SoftSpoken_Writings/**"
-      - "SoftSpoken_Stories/DataModules.lua"
+      - "SoftSpoken/Modules/Stories/Compendium/QuestState.lua"
+      - "SoftSpoken/Modules/Stories/Compendium/QuestCatalog.lua"
+      - "SoftSpoken/Modules/Stories/Compendium/QuestsTab.lua"
+      - "SoftSpoken/Modules/Stories/Compendium/PortraitPreload.lua"
+      - "SoftSpoken/Modules/Stories/Compendium/QuestPage.lua"
+      - "SoftSpoken/Modules/Stories/QuestDialogue.lua"
+      - "SoftSpoken/Modules/Stories/NarrationSource.lua"
+      - "SoftSpoken/Modules/Stories/AceConfigOptions.lua"
+      - "SoftSpoken/Modules/Stories/UI/SettingsPage.lua"
+      - "SoftSpoken/Modules/Stories/QuestOverlayUI.lua"
+      - "SoftSpoken/Modules/Stories/QuestRuntime.lua"
+      - "SoftSpoken/Modules/Stories/Utils.lua"
+      - "SoftSpoken/Modules/Stories/ReportButton.lua"
+      - "SoftSpoken/Modules/Stories/FactionCrest.lua"
+      - "SoftSpoken/Modules/Stories/SpeakerResolver.lua"
+      - "SoftSpoken/Modules/Stories/addon.xml"
+      - "SoftSpoken/Modules/Places/**"
+      - "SoftSpoken/Modules/Writings/**"
+      - "SoftSpoken/Modules/Stories/DataModules.lua"
       - "Data_Packs/SSS_VOFallback/**"
       - "tests/audio_pack_*.lua"
       - "tests/classicapi_portrait_compatibility.lua"
@@ -76,7 +76,7 @@ on:
       - "tests/places_map_panel_names.lua"
       - "tests/writings_narrator_discovery.lua"
       - "SoftSpoken/Textures/**"
-      - "SoftSpoken_Stories/Textures/**"
+      - "SoftSpoken/Modules/Stories/Textures/**"
       - ".github/workflows/audio-pack-regression.yml"
   pull_request:
     paths:
@@ -86,11 +86,11 @@ on:
       - "tests/test_public_contracts.py"
       - "tests/refactor_compatibility.lua"
       - "SoftSpoken/Environment.lua"
-      - "SoftSpoken_Stories/Environment.lua"
+      - "SoftSpoken/Modules/Stories/Environment.lua"
       - "SoftSpoken/SoftSpoken.toc"
-      - "SoftSpoken_Stories/SoftSpoken_Stories.toc"
-      - "SoftSpoken_Places/SoftSpoken_Places.toc"
-      - "SoftSpoken_Writings/SoftSpoken_Writings.toc"
+      - "SoftSpoken/Modules/**"
+      - "SoftSpoken/Libs/**"
+      - "SoftSpoken/stories-embeds.xml"
       - "SoftSpoken/UI/Options.lua"
       - "SoftSpoken/UI/SettingsLayout.lua"
       - "SoftSpoken/UI/NarratorWindow.lua"
@@ -114,25 +114,25 @@ on:
       - "tests/audio_progress_ui.lua"
       - "tests/narrator_queue_label.lua"
       - "SoftSpoken/Strings.lua"
-      - "SoftSpoken_Stories/Compendium/QuestState.lua"
-      - "SoftSpoken_Stories/Compendium/QuestCatalog.lua"
-      - "SoftSpoken_Stories/Compendium/QuestsTab.lua"
-      - "SoftSpoken_Stories/Compendium/PortraitPreload.lua"
-      - "SoftSpoken_Stories/Compendium/QuestPage.lua"
-      - "SoftSpoken_Stories/QuestDialogue.lua"
-      - "SoftSpoken_Stories/NarrationSource.lua"
-      - "SoftSpoken_Stories/AceConfigOptions.lua"
-      - "SoftSpoken_Stories/UI/SettingsPage.lua"
-      - "SoftSpoken_Stories/QuestOverlayUI.lua"
-      - "SoftSpoken_Stories/QuestRuntime.lua"
-      - "SoftSpoken_Stories/Utils.lua"
-      - "SoftSpoken_Stories/ReportButton.lua"
-      - "SoftSpoken_Stories/FactionCrest.lua"
-      - "SoftSpoken_Stories/SpeakerResolver.lua"
-      - "SoftSpoken_Stories/addon.xml"
-      - "SoftSpoken_Places/**"
-      - "SoftSpoken_Writings/**"
-      - "SoftSpoken_Stories/DataModules.lua"
+      - "SoftSpoken/Modules/Stories/Compendium/QuestState.lua"
+      - "SoftSpoken/Modules/Stories/Compendium/QuestCatalog.lua"
+      - "SoftSpoken/Modules/Stories/Compendium/QuestsTab.lua"
+      - "SoftSpoken/Modules/Stories/Compendium/PortraitPreload.lua"
+      - "SoftSpoken/Modules/Stories/Compendium/QuestPage.lua"
+      - "SoftSpoken/Modules/Stories/QuestDialogue.lua"
+      - "SoftSpoken/Modules/Stories/NarrationSource.lua"
+      - "SoftSpoken/Modules/Stories/AceConfigOptions.lua"
+      - "SoftSpoken/Modules/Stories/UI/SettingsPage.lua"
+      - "SoftSpoken/Modules/Stories/QuestOverlayUI.lua"
+      - "SoftSpoken/Modules/Stories/QuestRuntime.lua"
+      - "SoftSpoken/Modules/Stories/Utils.lua"
+      - "SoftSpoken/Modules/Stories/ReportButton.lua"
+      - "SoftSpoken/Modules/Stories/FactionCrest.lua"
+      - "SoftSpoken/Modules/Stories/SpeakerResolver.lua"
+      - "SoftSpoken/Modules/Stories/addon.xml"
+      - "SoftSpoken/Modules/Places/**"
+      - "SoftSpoken/Modules/Writings/**"
+      - "SoftSpoken/Modules/Stories/DataModules.lua"
       - "Data_Packs/SSS_VOFallback/**"
       - "tests/audio_pack_*.lua"
       - "tests/classicapi_portrait_compatibility.lua"
@@ -153,7 +153,7 @@ on:
       - "tests/places_map_panel_names.lua"
       - "tests/writings_narrator_discovery.lua"
       - "SoftSpoken/Textures/**"
-      - "SoftSpoken_Stories/Textures/**"
+      - "SoftSpoken/Modules/Stories/Textures/**"
       - ".github/workflows/audio-pack-regression.yml"
 
 jobs:
@@ -179,16 +179,16 @@ jobs:
           luac5.1 -p SoftSpoken/Compendium/UI/CompendiumUIHelpers.lua SoftSpoken/Compendium/UI/Compendium.lua SoftSpoken/Compendium/UI/FrameSkin.lua SoftSpoken/Compendium/UI/InteriorSkin.lua
           luac5.1 -p SoftSpoken/Compendium/UI/NativeScrollbar.lua SoftSpoken/Compendium/UI/LorePage.lua SoftSpoken/Compendium/UI/TextView.lua SoftSpoken/Compendium/UI/PagePane.lua
           luac5.1 -p SoftSpoken/UI/Portrait.lua SoftSpoken/CreatureAppearance.lua SoftSpoken/Compat.lua SoftSpoken/API.lua
-          luac5.1 -p SoftSpoken_Places/Audio.lua tests/places_zone_portrait_emblems.lua tests/places_map_panel_names.lua
+          luac5.1 -p SoftSpoken/Modules/Places/Audio.lua tests/places_zone_portrait_emblems.lua tests/places_map_panel_names.lua
           luac5.1 -p tests/classicapi_portrait_compatibility.lua tests/creature_appearance_service.lua tests/stories_faction_crest.lua tests/stories_compendium_portrait_lifecycle.lua
-          luac5.1 -p SoftSpoken_Stories/FactionCrest.lua SoftSpoken_Stories/SpeakerResolver.lua SoftSpoken_Stories/NarrationSource.lua SoftSpoken_Stories/QuestDialogue.lua SoftSpoken_Stories/Compendium/QuestPage.lua
+          luac5.1 -p SoftSpoken/Modules/Stories/FactionCrest.lua SoftSpoken/Modules/Stories/SpeakerResolver.lua SoftSpoken/Modules/Stories/NarrationSource.lua SoftSpoken/Modules/Stories/QuestDialogue.lua SoftSpoken/Modules/Stories/Compendium/QuestPage.lua
           luac5.1 -p tests/stories_speaker_resolution.lua tests/stories_quest_event_bridge.lua tests/stories_questlog_subtitles.lua tests/stories_quest_dialogue.lua tests/stories_native_reporting.lua tests/stories_portrait_preloading.lua tests/stories_questlog_portrait_prime.lua tests/questlog_deferred_layout_compatibility.lua
-          luac5.1 -p SoftSpoken_Places/UI/LoreWindow.lua SoftSpoken_Writings/UI/Readables.lua
-          luac5.1 -p SoftSpoken_Writings/Audio.lua SoftSpoken_Writings/DiscoveryLocations.lua tests/writings_narrator_discovery.lua tests/narrator_queue_label.lua
-          luac5.1 -p SoftSpoken_Places/UI/Options.lua SoftSpoken_Writings/UI/Options.lua
-          luac5.1 -p SoftSpoken_Stories/Compendium/QuestState.lua SoftSpoken_Stories/Compendium/QuestCatalog.lua SoftSpoken_Stories/Compendium/QuestsTab.lua SoftSpoken_Stories/Compendium/PortraitPreload.lua SoftSpoken_Stories/DataModules.lua SoftSpoken_Stories/QuestRuntime.lua SoftSpoken_Stories/QuestOverlayUI.lua
+          luac5.1 -p SoftSpoken/Modules/Places/UI/LoreWindow.lua SoftSpoken/Modules/Writings/UI/Readables.lua
+          luac5.1 -p SoftSpoken/Modules/Writings/Audio.lua SoftSpoken/Modules/Writings/DiscoveryLocations.lua tests/writings_narrator_discovery.lua tests/narrator_queue_label.lua
+          luac5.1 -p SoftSpoken/Modules/Places/UI/Options.lua SoftSpoken/Modules/Writings/UI/Options.lua
+          luac5.1 -p SoftSpoken/Modules/Stories/Compendium/QuestState.lua SoftSpoken/Modules/Stories/Compendium/QuestCatalog.lua SoftSpoken/Modules/Stories/Compendium/QuestsTab.lua SoftSpoken/Modules/Stories/Compendium/PortraitPreload.lua SoftSpoken/Modules/Stories/DataModules.lua SoftSpoken/Modules/Stories/QuestRuntime.lua SoftSpoken/Modules/Stories/QuestOverlayUI.lua
           luac5.1 -p tests/quest_title_request_recovery.lua
-          luac5.1 -p SoftSpoken/UI/SettingsLayout.lua SoftSpoken_Stories/UI/SettingsPage.lua SoftSpoken_Stories/AceConfigOptions.lua tests/audio_pack_settings_toggle.lua
+          luac5.1 -p SoftSpoken/UI/SettingsLayout.lua SoftSpoken/Modules/Stories/UI/SettingsPage.lua SoftSpoken/Modules/Stories/AceConfigOptions.lua tests/audio_pack_settings_toggle.lua
           luac5.1 -p Data_Packs/SSS_VOFallback/Module.lua
           luac5.1 -p tests/refactor_compatibility.lua
       - name: Check supported Vanilla narrator styles and saved-profile fallback

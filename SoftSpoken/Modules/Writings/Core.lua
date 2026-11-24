@@ -5,7 +5,7 @@
 SpokenWritings = SpokenWritings or {}
 local Writings = SpokenWritings
 Writings.version = "v0.9.1-beta"
-Writings.name = "SoftSpoken_Writings"
+Writings.name = "SoftSpoken"
 local defaults = {
     autoplay=true, readWholeBook=true, bookAsOneLine=true, readOnce=false,
     stopOnClose=false, closeWhenRead=false,
@@ -81,7 +81,7 @@ function Writings:SetupSource()
     if self.source then return self.source end
     if not self:PlayerAvailable() then return nil end
     self.source=Spoken:RegisterSource("books", {
-        title="SoftSpoken Writings", addon="SoftSpoken_Writings", order=3,
+        title="SoftSpoken Writings", addon="SoftSpoken", order=3,
         interClipGap=0.35,
         packs=function()
             local names={}

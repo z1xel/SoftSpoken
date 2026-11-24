@@ -1,11 +1,18 @@
 ## Interface: 11200
 ## Title: SoftSpoken
-## Notes: The voice player every SoftSpoken addon speaks through, for the 1.12 client.
+## Notes: Narration and lore companion for the 1.12 client.
 ## Version: v0.9.1-beta
-## SavedVariables: SpokenSettings
+## SavedVariables: SpokenSettings, SpokenQuestsSettings, SSBSettings
+## SavedVariablesPerCharacter: SSCQuestJournal, SSZCharacter, SSBCharacter
+## OptionalDeps: SpokenPlacesAudio, SpokenZonesAudio, SpokenReadablesAudio, SpokenBooksAudio
 ## X-Part-Of: SoftSpoken
 ## X-Spoken-Player: 1
+## X-VoiceOver-Player: 1
 
 embeds.xml
 addon.xml
 Transcript.lua
+stories-embeds.xml
+Modules\Stories\addon.xml
+Modules\Places\addon.xml
+Modules\Writings\addon.xml

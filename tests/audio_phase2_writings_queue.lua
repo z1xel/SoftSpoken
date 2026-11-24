@@ -187,13 +187,13 @@ function SpokenWritings:SyncStub() end
 SpokenWritings.BASE_LANGUAGE="enUS"
 SpokenWritings.L={READABLE_BOOK="Book"}
 SpokenWritings.source=books
-dofile("SoftSpoken_Writings/Audio.lua")
-dofile("SoftSpoken_Writings/Playlist.lua")
+dofile("SoftSpoken/Modules/Writings/Audio.lua")
+dofile("SoftSpoken/Modules/Writings/Playlist.lua")
 CreateFrame=function()
     return {RegisterEvent=function() end,SetScript=function() end,
             UnregisterEvent=function() end}
 end
-dofile("SoftSpoken_Writings/Events.lua")
+dofile("SoftSpoken/Modules/Writings/Events.lua")
 
 local function currentPage(id)
     local c=q:GetCurrentSound()

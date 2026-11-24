@@ -1,0 +1,23 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+    <Include file="LoreDataRegistry.lua"/>
+    <Include file="Data\Zones.lua"/>
+    <Include file="Data\Subzones.lua"/>
+    <Include file="Data\Pictures.lua"/>
+    <Include file="Runtime.lua"/>
+    <Include file="Settings.lua"/>
+    <Include file="Audio.lua"/>
+    <Include file="Discovery.lua"/>
+    <Include file="Bridge.lua"/>
+    <Include file="Autoplay.lua"/>
+    <Include file="Core.lua"/>
+    <Include file="UI\CompendiumHooks.lua"/>
+    <Include file="UI\Pictures.lua"/>
+    <Include file="UI\LoreWindow.lua"/>
+    <Include file="UI\AudioButton.lua"/>
+    <Include file="UI\MapCompat.lua"/>
+    <Include file="UI\MapPanel.lua"/>
+    <Include file="UI\SubzoneClick.lua"/>
+    <Include file="UI\MapHighlight.lua"/>
+    <Include file="UI\MapHover.lua"/>
+    <Include file="UI\Options.lua"/>
+</Ui>

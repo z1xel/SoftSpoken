@@ -33,7 +33,7 @@ CreateFrame=function()
     function frame:SetScript(name,callback) self[name]=callback end
     return frame
 end
-dofile("SoftSpoken_Stories/Compendium/QuestState.lua")
+dofile("SoftSpoken/Modules/Stories/Compendium/QuestState.lua")
 local state=SSCQuestState
 local function Event(id,success)
     eq(frame.events.QUEST_DATA_LOAD_RESULT,true,"native event registered")

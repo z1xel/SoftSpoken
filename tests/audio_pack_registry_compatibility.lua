@@ -27,7 +27,7 @@ SpokenPlacesAudioPacks = {
 SpokenZonesAudioPacks = nil
 ZoneLoreAudioPacks = nil
 ZoneLoreAudioData = nil
-dofile("SoftSpoken_Places/Audio.lua")
+dofile("SoftSpoken/Modules/Places/Audio.lua")
 local pack, clip = runtime.FindRecording(1438)
 expect(pack.addon,"SpokenPlacesAudio","new Places registry")
 expect(clip.len,12,"new Places recording")
@@ -63,7 +63,7 @@ SpokenReadablesAudioPacks = {
     },
 }
 SpokenBooksAudioPacks = nil
-dofile("SoftSpoken_Writings/Audio.lua")
+dofile("SoftSpoken/Modules/Writings/Audio.lua")
 expect(table.getn(SpokenWritings:GetAudioPacks()),1,"new Readables inventory")
 expect(SpokenWritings:GetAudioPacks()[1].addon,"SpokenReadablesAudio","new Readables registry")
 expect(SpokenWritings:HasAudio(15),true,"new Readables audio availability")

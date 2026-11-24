@@ -4,8 +4,8 @@
 SSCQuestFactionCrest = SSCQuestFactionCrest or {}
 local FactionCrest = SSCQuestFactionCrest
 
-local ALLIANCE = "Interface\\AddOns\\SoftSpoken_Stories\\Assets\\AllianceCrest"
-local HORDE = "Interface\\AddOns\\SoftSpoken_Stories\\Assets\\HordeCrest"
+local ALLIANCE = "Interface\\AddOns\\SoftSpoken\\Modules\\Stories\\Assets\\AllianceCrest"
+local HORDE = "Interface\\AddOns\\SoftSpoken\\Modules\\Stories\\Assets\\HordeCrest"
 local UNKNOWN = "Interface\\Icons\\INV_Misc_Book_11"
 local ALLIANCE_RACES = {
     human=true, dwarf=true, gnome=true, nightelf=true,

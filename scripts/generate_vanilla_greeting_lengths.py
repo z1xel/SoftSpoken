@@ -60,7 +60,7 @@ if __name__ == "__main__":
     parser.add_argument("sound_map", type=Path)
     parser.add_argument("vanilla_paths", type=Path)
     parser.add_argument("--output", type=Path, default=Path(
-        "SoftSpoken_Stories/Data/VanillaGreetingLengths.lua"))
+        "SoftSpoken/Modules/Stories/Data/VanillaGreetingLengths.lua"))
     args = parser.parse_args()
     output = generate(args.sound_map, args.vanilla_paths)
     args.output.parent.mkdir(parents=True, exist_ok=True)
