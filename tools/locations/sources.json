@@ -30,6 +30,11 @@
     {
       "source": "https://github.com/shagu/pfQuest-turtle/tree/0bc7bf4e55d8867a065354da6f386461255e4801",
       "status": "corroboration-only"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/TheGrayDot/wow-vanilla-world-coords/a89f74022f5737295dc805640a35f7b0f770fb40/worldmaparea.csv",
+      "status": "corroboration-only",
+      "reason": "README identifies 1.12.1.5875 extract; only 49 rows, not a full four-table profile. Used as map identity evidence, not active native bindings."
     }
   ],
   "missing": [

@@ -1,0 +1,7375 @@
+{
+  "status": "partial content-backed Vanilla identity seed; no native profile claims",
+  "sourceRevisions": {
+    "softspoken": "54d23f99e2fec4a4fc3224d8d954af7e8f4e1855",
+    "pfQuest": "104f35678ca39ab1fb78b655f815cc7016f5e0c8",
+    "worldMapArea": "a89f74022f5737295dc805640a35f7b0f770fb40"
+  },
+  "counts": {
+    "mapEntities": 52,
+    "instanceEntities": 26,
+    "subzoneEntities": 470,
+    "totalEntities": 548,
+    "legacySubzoneHolds": 408,
+    "nativeEvidenceCandidates": 519
+  },
+  "nativeEvidenceCandidates": [
+    {
+      "location": "durotar",
+      "areaTable": 14,
+      "areaName": "Durotar",
+      "worldMapArea": [
+        4
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "mulgore",
+      "areaTable": 215,
+      "areaName": "Mulgore",
+      "worldMapArea": [
+        9
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens",
+      "areaTable": 17,
+      "areaName": "The Barrens",
+      "worldMapArea": [
+        11
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "alterac_mountains",
+      "areaTable": 36,
+      "areaName": "Alterac Mountains",
+      "worldMapArea": [
+        15
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "arathi_highlands",
+      "areaTable": 45,
+      "areaName": "Arathi Highlands",
+      "worldMapArea": [
+        16
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "badlands",
+      "areaTable": 3,
+      "areaName": "Badlands",
+      "worldMapArea": [
+        17
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "blasted_lands",
+      "areaTable": 4,
+      "areaName": "Blasted Lands",
+      "worldMapArea": [
+        19
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tirisfal_glades",
+      "areaTable": 85,
+      "areaName": "Tirisfal Glades",
+      "worldMapArea": [
+        20
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silverpine_forest",
+      "areaTable": 130,
+      "areaName": "Silverpine Forest",
+      "worldMapArea": [
+        21
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "western_plaguelands",
+      "areaTable": 28,
+      "areaName": "Western Plaguelands",
+      "worldMapArea": [
+        22
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands",
+      "areaTable": 139,
+      "areaName": "Eastern Plaguelands",
+      "worldMapArea": [
+        23
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "hillsbrad_foothills",
+      "areaTable": 267,
+      "areaName": "Hillsbrad Foothills",
+      "worldMapArea": [
+        24
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "hinterlands",
+      "areaTable": 47,
+      "areaName": "The Hinterlands",
+      "worldMapArea": [
+        26
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dun_morogh",
+      "areaTable": 1,
+      "areaName": "Dun Morogh",
+      "worldMapArea": [
+        27
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "searing_gorge",
+      "areaTable": 51,
+      "areaName": "Searing Gorge",
+      "worldMapArea": [
+        28
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "burning_steppes",
+      "areaTable": 46,
+      "areaName": "Burning Steppes",
+      "worldMapArea": [
+        29
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "elwynn_forest",
+      "areaTable": 12,
+      "areaName": "Elwynn Forest",
+      "worldMapArea": [
+        30
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "deadwind_pass",
+      "areaTable": 41,
+      "areaName": "Deadwind Pass",
+      "worldMapArea": [
+        32
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "duskwood",
+      "areaTable": 10,
+      "areaName": "Duskwood",
+      "worldMapArea": [
+        34
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "loch_modan",
+      "areaTable": 38,
+      "areaName": "Loch Modan",
+      "worldMapArea": [
+        35
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "redridge_mountains",
+      "areaTable": 44,
+      "areaName": "Redridge Mountains",
+      "worldMapArea": [
+        36
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale",
+      "areaTable": 33,
+      "areaName": "Stranglethorn Vale",
+      "worldMapArea": [
+        37
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "swamp_of_sorrows",
+      "areaTable": 8,
+      "areaName": "Swamp of Sorrows",
+      "worldMapArea": [
+        38
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "westfall",
+      "areaTable": 40,
+      "areaName": "Westfall",
+      "worldMapArea": [
+        39
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "wetlands",
+      "areaTable": 11,
+      "areaName": "Wetlands",
+      "worldMapArea": [
+        40
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "teldrassil",
+      "areaTable": 141,
+      "areaName": "Teldrassil",
+      "worldMapArea": [
+        41
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "darkshore",
+      "areaTable": 148,
+      "areaName": "Darkshore",
+      "worldMapArea": [
+        42
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale",
+      "areaTable": 331,
+      "areaName": "Ashenvale",
+      "worldMapArea": [
+        43
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "thousand_needles",
+      "areaTable": 400,
+      "areaName": "Thousand Needles",
+      "worldMapArea": [
+        61
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stonetalon_mountains",
+      "areaTable": 406,
+      "areaName": "Stonetalon Mountains",
+      "worldMapArea": [
+        81
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "desolace",
+      "areaTable": 405,
+      "areaName": "Desolace",
+      "worldMapArea": [
+        101
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "feralas",
+      "areaTable": 357,
+      "areaName": "Feralas",
+      "worldMapArea": [
+        121
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dustwallow_marsh",
+      "areaTable": 15,
+      "areaName": "Dustwallow Marsh",
+      "worldMapArea": [
+        141
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris",
+      "areaTable": 440,
+      "areaName": "Tanaris",
+      "worldMapArea": [
+        161
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara",
+      "areaTable": 16,
+      "areaName": "Azshara",
+      "worldMapArea": [
+        181
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "felwood",
+      "areaTable": 361,
+      "areaName": "Felwood",
+      "worldMapArea": [
+        182
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ungoro_crater",
+      "areaTable": 490,
+      "areaName": "Un'Goro Crater",
+      "worldMapArea": [
+        201
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "moonglade",
+      "areaTable": 493,
+      "areaName": "Moonglade",
+      "worldMapArea": [
+        241
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silithus",
+      "areaTable": 1377,
+      "areaName": "Silithus",
+      "worldMapArea": [
+        261
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "winterspring",
+      "areaTable": 618,
+      "areaName": "Winterspring",
+      "worldMapArea": [
+        281
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stormwind_city",
+      "areaTable": 1519,
+      "areaName": "Stormwind City",
+      "worldMapArea": [
+        301
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "orgrimmar",
+      "areaTable": 1637,
+      "areaName": "Orgrimmar",
+      "worldMapArea": [
+        321
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ironforge",
+      "areaTable": 1537,
+      "areaName": "Ironforge",
+      "worldMapArea": [
+        341
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "thunder_bluff",
+      "areaTable": 1638,
+      "areaName": "Thunder Bluff",
+      "worldMapArea": [
+        362
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "darnassus",
+      "areaTable": 1657,
+      "areaName": "Darnassus",
+      "worldMapArea": [
+        381
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "undercity",
+      "areaTable": 1497,
+      "areaName": "Undercity",
+      "worldMapArea": [
+        382
+      ],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "alterac_valley",
+      "areaTable": 2597,
+      "areaName": "Alterac Valley",
+      "worldMapArea": [],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "warsong_gulch",
+      "areaTable": 3277,
+      "areaName": "Warsong Gulch",
+      "worldMapArea": [],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "arathi_basin",
+      "areaTable": 3358,
+      "areaName": "Arathi Basin",
+      "worldMapArea": [],
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "durotar.drygulch_ravine",
+      "areaTable": 370,
+      "areaName": "Drygulch Ravine",
+      "mapRegionAreaID": 14,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "durotar.echo_isles",
+      "areaTable": 368,
+      "areaName": "Echo Isles",
+      "mapRegionAreaID": 14,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "durotar.kolkar_crag",
+      "areaTable": 366,
+      "areaName": "Kolkar Crag",
+      "mapRegionAreaID": 14,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "durotar.razor_hill",
+      "areaTable": 362,
+      "areaName": "Razor Hill",
+      "mapRegionAreaID": 14,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "durotar.razormane_grounds",
+      "areaTable": 816,
+      "areaName": "Razormane Grounds",
+      "mapRegionAreaID": 14,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "durotar.senjin_village",
+      "areaTable": 367,
+      "areaName": "Sen'jin Village",
+      "mapRegionAreaID": 14,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "durotar.skull_rock",
+      "areaTable": 817,
+      "areaName": "Skull Rock",
+      "mapRegionAreaID": 14,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "durotar.thunder_ridge",
+      "areaTable": 369,
+      "areaName": "Thunder Ridge",
+      "mapRegionAreaID": 14,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "durotar.tiragarde_keep",
+      "areaTable": 372,
+      "areaName": "Tiragarde Keep",
+      "mapRegionAreaID": 14,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "durotar.valley_of_trials",
+      "areaTable": 363,
+      "areaName": "Valley of Trials",
+      "mapRegionAreaID": 14,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "mulgore.baeldun_digsite",
+      "areaTable": 404,
+      "areaName": "Bael'dun Digsite",
+      "mapRegionAreaID": 215,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "mulgore.bloodhoof_village",
+      "areaTable": 222,
+      "areaName": "Bloodhoof Village",
+      "mapRegionAreaID": 215,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "mulgore.golden_plains",
+      "areaTable": 820,
+      "areaName": "The Golden Plains",
+      "mapRegionAreaID": 215,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "mulgore.palemane_rock",
+      "areaTable": 818,
+      "areaName": "Palemane Rock",
+      "mapRegionAreaID": 215,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "mulgore.ravaged_caravan",
+      "areaTable": 224,
+      "areaName": "Ravaged Caravan",
+      "mapRegionAreaID": 215,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "mulgore.red_cloud_mesa",
+      "areaTable": 220,
+      "areaName": "Red Cloud Mesa",
+      "mapRegionAreaID": 215,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "mulgore.red_rocks",
+      "areaTable": 225,
+      "areaName": "Red Rocks",
+      "mapRegionAreaID": 215,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "mulgore.rolling_plains",
+      "areaTable": 821,
+      "areaName": "The Rolling Plains",
+      "mapRegionAreaID": 215,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "mulgore.thunderhorn_water_well",
+      "areaTable": 397,
+      "areaName": "Thunderhorn Water Well",
+      "mapRegionAreaID": 215,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "mulgore.venture_co_mine",
+      "areaTable": 360,
+      "areaName": "The Venture Co. Mine",
+      "mapRegionAreaID": 215,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "mulgore.wildmane_water_well",
+      "areaTable": 398,
+      "areaName": "Wildmane Water Well",
+      "mapRegionAreaID": 215,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "mulgore.windfury_ridge",
+      "areaTable": 819,
+      "areaName": "Windfury Ridge",
+      "mapRegionAreaID": 215,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "mulgore.winterhoof_water_well",
+      "areaTable": 396,
+      "areaName": "Winterhoof Water Well",
+      "mapRegionAreaID": 215,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.agamagor",
+      "areaTable": 1700,
+      "areaName": "Agama'gor",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.bael_modan",
+      "areaTable": 359,
+      "areaName": "Bael Modan",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.blackthorn_ridge",
+      "areaTable": 1701,
+      "areaName": "Blackthorn Ridge",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.boulder_lode_mine",
+      "areaTable": 381,
+      "areaName": "Boulder Lode Mine",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.bramblescar",
+      "areaTable": 1698,
+      "areaName": "Bramblescar",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.camp_taurajo",
+      "areaTable": 378,
+      "areaName": "Camp Taurajo",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.crossroads",
+      "areaTable": 380,
+      "areaName": "The Crossroads",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.dreadmist_peak",
+      "areaTable": 384,
+      "areaName": "Dreadmist Peak",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.dry_hills",
+      "areaTable": 383,
+      "areaName": "The Dry Hills",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.far_watch_post",
+      "areaTable": 379,
+      "areaName": "Far Watch Post",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.field_of_giants",
+      "areaTable": 390,
+      "areaName": "Field of Giants",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.forgotten_pools",
+      "areaTable": 386,
+      "areaName": "The Forgotten Pools",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.groldom_farm",
+      "areaTable": 1704,
+      "areaName": "Grol'dom Farm",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.lushwater_oasis",
+      "areaTable": 387,
+      "areaName": "Lushwater Oasis",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.merchant_coast",
+      "areaTable": 391,
+      "areaName": "The Merchant Coast",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.morshan_rampart",
+      "areaTable": 1703,
+      "areaName": "The Mor'shan Rampart",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.raptor_grounds",
+      "areaTable": 1697,
+      "areaName": "Raptor Grounds",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.ratchet",
+      "areaTable": 392,
+      "areaName": "Ratchet",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.sludge_fen",
+      "areaTable": 382,
+      "areaName": "The Sludge Fen",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.stagnant_oasis",
+      "areaTable": 388,
+      "areaName": "The Stagnant Oasis",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "barrens.thorn_hill",
+      "areaTable": 1699,
+      "areaName": "Thorn Hill",
+      "mapRegionAreaID": 17,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "alterac_mountains.dalaran",
+      "areaTable": 279,
+      "areaName": "Dalaran",
+      "mapRegionAreaID": 36,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "alterac_mountains.dandreds_fold",
+      "areaTable": 1682,
+      "areaName": "Dandred's Fold",
+      "mapRegionAreaID": 36,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "alterac_mountains.lordamere_internment_camp",
+      "areaTable": 278,
+      "areaName": "Lordamere Internment Camp",
+      "mapRegionAreaID": 36,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "alterac_mountains.ruins_of_alterac",
+      "areaTable": 281,
+      "areaName": "Ruins of Alterac",
+      "mapRegionAreaID": 36,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "alterac_mountains.uplands",
+      "areaTable": 284,
+      "areaName": "The Uplands",
+      "mapRegionAreaID": 36,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "arathi_highlands.boulderfist_hall",
+      "areaTable": 316,
+      "areaName": "Boulderfist Hall",
+      "mapRegionAreaID": 45,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "arathi_highlands.bouldergor",
+      "areaTable": 1858,
+      "areaName": "Boulder'gor",
+      "mapRegionAreaID": 45,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "arathi_highlands.circle_of_east_binding",
+      "areaTable": 333,
+      "areaName": "Circle of East Binding",
+      "mapRegionAreaID": 45,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "arathi_highlands.circle_of_inner_binding",
+      "areaTable": 335,
+      "areaName": "Circle of Inner Binding",
+      "mapRegionAreaID": 45,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "arathi_highlands.circle_of_outer_binding",
+      "areaTable": 336,
+      "areaName": "Circle of Outer Binding",
+      "mapRegionAreaID": 45,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "arathi_highlands.circle_of_west_binding",
+      "areaTable": 334,
+      "areaName": "Circle of West Binding",
+      "mapRegionAreaID": 45,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "arathi_highlands.dabyries_farmstead",
+      "areaTable": 315,
+      "areaName": "Dabyrie's Farmstead",
+      "mapRegionAreaID": 45,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "arathi_highlands.faldirs_cove",
+      "areaTable": 327,
+      "areaName": "Faldir's Cove",
+      "mapRegionAreaID": 45,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "arathi_highlands.goshek_farm",
+      "areaTable": 314,
+      "areaName": "Go'Shek Farm",
+      "mapRegionAreaID": 45,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "arathi_highlands.hammerfall",
+      "areaTable": 321,
+      "areaName": "Hammerfall",
+      "mapRegionAreaID": 45,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "arathi_highlands.northfold_manor",
+      "areaTable": 313,
+      "areaName": "Northfold Manor",
+      "mapRegionAreaID": 45,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "arathi_highlands.refuge_pointe",
+      "areaTable": 320,
+      "areaName": "Refuge Pointe",
+      "mapRegionAreaID": 45,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "arathi_highlands.stromgarde_keep",
+      "areaTable": 324,
+      "areaName": "Stromgarde Keep",
+      "mapRegionAreaID": 45,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "arathi_highlands.witherbark_village",
+      "areaTable": 317,
+      "areaName": "Witherbark Village",
+      "mapRegionAreaID": 45,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "badlands.agmonds_end",
+      "areaTable": 345,
+      "areaName": "Agmond's End",
+      "mapRegionAreaID": 3,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "badlands.angor_fortress",
+      "areaTable": 338,
+      "areaName": "Angor Fortress",
+      "mapRegionAreaID": 3,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "badlands.apocryphans_rest",
+      "areaTable": 337,
+      "areaName": "Apocryphan's Rest",
+      "mapRegionAreaID": 3,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "badlands.camp_boff",
+      "areaTable": 342,
+      "areaName": "Camp Boff",
+      "mapRegionAreaID": 3,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "badlands.camp_cagg",
+      "areaTable": 344,
+      "areaName": "Camp Cagg",
+      "mapRegionAreaID": 3,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "badlands.camp_kosh",
+      "areaTable": 341,
+      "areaName": "Camp Kosh",
+      "mapRegionAreaID": 3,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "badlands.dustbowl",
+      "areaTable": 1878,
+      "areaName": "The Dustbowl",
+      "mapRegionAreaID": 3,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "badlands.dustwind_gulch",
+      "areaTable": 1898,
+      "areaName": "Dustwind Gulch",
+      "mapRegionAreaID": 3,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "badlands.hammertoes_digsite",
+      "areaTable": 346,
+      "areaName": "Hammertoe's Digsite",
+      "mapRegionAreaID": 3,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "badlands.kargath",
+      "areaTable": 340,
+      "areaName": "Kargath",
+      "mapRegionAreaID": 3,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "badlands.lethlor_ravine",
+      "areaTable": 339,
+      "areaName": "Lethlor Ravine",
+      "mapRegionAreaID": 3,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "badlands.makers_terrace",
+      "areaTable": 1897,
+      "areaName": "The Maker's Terrace",
+      "mapRegionAreaID": 3,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "badlands.mirage_flats",
+      "areaTable": 1879,
+      "areaName": "Mirage Flats",
+      "mapRegionAreaID": 3,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "badlands.valley_of_fangs",
+      "areaTable": 1877,
+      "areaName": "Valley of Fangs",
+      "mapRegionAreaID": 3,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "blasted_lands.dark_portal",
+      "areaTable": 72,
+      "areaName": "The Dark Portal",
+      "mapRegionAreaID": 4,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "blasted_lands.dreadmaul_post",
+      "areaTable": 1439,
+      "areaName": "Dreadmaul Post",
+      "mapRegionAreaID": 4,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "blasted_lands.garrison_armory",
+      "areaTable": 1457,
+      "areaName": "Garrison Armory",
+      "mapRegionAreaID": 4,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "blasted_lands.nethergarde_keep",
+      "areaTable": 1438,
+      "areaName": "Nethergarde Keep",
+      "mapRegionAreaID": 4,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "blasted_lands.rise_of_the_defiler",
+      "areaTable": 2517,
+      "areaName": "Rise of the Defiler",
+      "mapRegionAreaID": 4,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "blasted_lands.serpents_coil",
+      "areaTable": 1440,
+      "areaName": "Serpent's Coil",
+      "mapRegionAreaID": 4,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "blasted_lands.tainted_scar",
+      "areaTable": 73,
+      "areaName": "The Tainted Scar",
+      "mapRegionAreaID": 4,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tirisfal_glades.agamand_mills",
+      "areaTable": 157,
+      "areaName": "Agamand Mills",
+      "mapRegionAreaID": 85,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tirisfal_glades.balnir_farmstead",
+      "areaTable": 165,
+      "areaName": "Balnir Farmstead",
+      "mapRegionAreaID": 85,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tirisfal_glades.brightwater_lake",
+      "areaTable": 162,
+      "areaName": "Brightwater Lake",
+      "mapRegionAreaID": 85,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tirisfal_glades.brill",
+      "areaTable": 159,
+      "areaName": "Brill",
+      "mapRegionAreaID": 85,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tirisfal_glades.cold_hearth_manor",
+      "areaTable": 166,
+      "areaName": "Cold Hearth Manor",
+      "mapRegionAreaID": 85,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tirisfal_glades.crusader_outpost",
+      "areaTable": 167,
+      "areaName": "Crusader Outpost",
+      "mapRegionAreaID": 85,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tirisfal_glades.deathknell",
+      "areaTable": 154,
+      "areaName": "Deathknell",
+      "mapRegionAreaID": 85,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tirisfal_glades.garrens_haunt",
+      "areaTable": 164,
+      "areaName": "Garren's Haunt",
+      "mapRegionAreaID": 85,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tirisfal_glades.nightmare_vale",
+      "areaTable": 811,
+      "areaName": "Nightmare Vale",
+      "mapRegionAreaID": 85,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tirisfal_glades.scarlet_watch_post",
+      "areaTable": 459,
+      "areaName": "Scarlet Watch Post",
+      "mapRegionAreaID": 85,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tirisfal_glades.solliden_farmstead",
+      "areaTable": 156,
+      "areaName": "Solliden Farmstead",
+      "mapRegionAreaID": 85,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tirisfal_glades.stillwater_pond",
+      "areaTable": 810,
+      "areaName": "Stillwater Pond",
+      "mapRegionAreaID": 85,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tirisfal_glades.venomweb_vale",
+      "areaTable": 812,
+      "areaName": "Venomweb Vale",
+      "mapRegionAreaID": 85,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tirisfal_glades.whispering_gardens",
+      "areaTable": 160,
+      "areaName": "Whispering Gardens",
+      "mapRegionAreaID": 85,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silverpine_forest.ambermill",
+      "areaTable": 233,
+      "areaName": "Ambermill",
+      "mapRegionAreaID": 130,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silverpine_forest.berens_peril",
+      "areaTable": 231,
+      "areaName": "Beren's Peril",
+      "mapRegionAreaID": 130,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silverpine_forest.dead_field",
+      "areaTable": 240,
+      "areaName": "The Dead Field",
+      "mapRegionAreaID": 130,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silverpine_forest.decrepit_ferry",
+      "areaTable": 237,
+      "areaName": "The Decrepit Ferry",
+      "mapRegionAreaID": 130,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silverpine_forest.deep_elem_mine",
+      "areaTable": 213,
+      "areaName": "Deep Elem Mine",
+      "mapRegionAreaID": 130,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silverpine_forest.fenris_isle",
+      "areaTable": 172,
+      "areaName": "Fenris Isle",
+      "mapRegionAreaID": 130,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silverpine_forest.greymane_wall",
+      "areaTable": 230,
+      "areaName": "The Greymane Wall",
+      "mapRegionAreaID": 130,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silverpine_forest.maldens_orchard",
+      "areaTable": 238,
+      "areaName": "Malden's Orchard",
+      "mapRegionAreaID": 130,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silverpine_forest.north_tides_hollow",
+      "areaTable": 928,
+      "areaName": "North Tide's Hollow",
+      "mapRegionAreaID": 130,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silverpine_forest.olsens_farthing",
+      "areaTable": 229,
+      "areaName": "Olsen's Farthing",
+      "mapRegionAreaID": 130,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silverpine_forest.pyrewood_village",
+      "areaTable": 204,
+      "areaName": "Pyrewood Village",
+      "mapRegionAreaID": 130,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silverpine_forest.sepulcher",
+      "areaTable": 228,
+      "areaName": "The Sepulcher",
+      "mapRegionAreaID": 130,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silverpine_forest.shining_strand",
+      "areaTable": 927,
+      "areaName": "The Shining Strand",
+      "mapRegionAreaID": 130,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silverpine_forest.skittering_dark",
+      "areaTable": 226,
+      "areaName": "The Skittering Dark",
+      "mapRegionAreaID": 130,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "western_plaguelands.caer_darrow",
+      "areaTable": 2298,
+      "areaName": "Caer Darrow",
+      "mapRegionAreaID": 28,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "western_plaguelands.dalsons_tears",
+      "areaTable": 200,
+      "areaName": "Dalson's Tears",
+      "mapRegionAreaID": 28,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "western_plaguelands.felstone_field",
+      "areaTable": 199,
+      "areaName": "Felstone Field",
+      "mapRegionAreaID": 28,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "western_plaguelands.gahrrons_withering",
+      "areaTable": 201,
+      "areaName": "Gahrron's Withering",
+      "mapRegionAreaID": 28,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "western_plaguelands.hearthglen",
+      "areaTable": 190,
+      "areaName": "Hearthglen",
+      "mapRegionAreaID": 28,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "western_plaguelands.northridge_lumber_camp",
+      "areaTable": 192,
+      "areaName": "Northridge Lumber Camp",
+      "mapRegionAreaID": 28,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "western_plaguelands.ruins_of_andorhal",
+      "areaTable": 193,
+      "areaName": "Ruins of Andorhal",
+      "mapRegionAreaID": 28,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "western_plaguelands.sorrow_hill",
+      "areaTable": 197,
+      "areaName": "Sorrow Hill",
+      "mapRegionAreaID": 28,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "western_plaguelands.weeping_cave",
+      "areaTable": 198,
+      "areaName": "The Weeping Cave",
+      "mapRegionAreaID": 28,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "western_plaguelands.writhing_haunt",
+      "areaTable": 202,
+      "areaName": "The Writhing Haunt",
+      "mapRegionAreaID": 28,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.blackwood_lake",
+      "areaTable": 2624,
+      "areaName": "Blackwood Lake",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.corins_crossing",
+      "areaTable": 2264,
+      "areaName": "Corin's Crossing",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.crown_guard_tower",
+      "areaTable": 2263,
+      "areaName": "Crown Guard Tower",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.darrowshire",
+      "areaTable": 2262,
+      "areaName": "Darrowshire",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.eastwall_tower",
+      "areaTable": 2271,
+      "areaName": "Eastwall Tower",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.fungal_vale",
+      "areaTable": 2258,
+      "areaName": "The Fungal Vale",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.infectis_scar",
+      "areaTable": 2623,
+      "areaName": "The Infectis Scar",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.lake_mereldar",
+      "areaTable": 2621,
+      "areaName": "Lake Mereldar",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.lights_hope_chapel",
+      "areaTable": 2268,
+      "areaName": "Light's Hope Chapel",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.marris_stead",
+      "areaTable": 2260,
+      "areaName": "The Marris Stead",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.northdale",
+      "areaTable": 2272,
+      "areaName": "Northdale",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.northpass_tower",
+      "areaTable": 2275,
+      "areaName": "Northpass Tower",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.noxious_glade",
+      "areaTable": 2270,
+      "areaName": "The Noxious Glade",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.pestilent_scar",
+      "areaTable": 2622,
+      "areaName": "Pestilent Scar",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.plaguewood",
+      "areaTable": 2277,
+      "areaName": "Plaguewood",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.quellithien_lodge",
+      "areaTable": 2276,
+      "areaName": "Quel'Lithien Lodge",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.terrordale",
+      "areaTable": 2627,
+      "areaName": "Terrordale",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.tyrs_hand",
+      "areaTable": 2266,
+      "areaName": "Tyr's Hand",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.undercroft",
+      "areaTable": 2261,
+      "areaName": "The Undercroft",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "eastern_plaguelands.zulmashar",
+      "areaTable": 2273,
+      "areaName": "Zul'Mashar",
+      "mapRegionAreaID": 139,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "hillsbrad_foothills.purgation_isle",
+      "areaTable": 896,
+      "areaName": "Purgation Isle",
+      "mapRegionAreaID": 267,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "hinterlands.aerie_peak",
+      "areaTable": 348,
+      "areaName": "Aerie Peak",
+      "mapRegionAreaID": 47,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "hinterlands.agolwatha",
+      "areaTable": 1884,
+      "areaName": "Agol'watha",
+      "mapRegionAreaID": 47,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "hinterlands.altar_of_zul",
+      "areaTable": 355,
+      "areaName": "The Altar of Zul",
+      "mapRegionAreaID": 47,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "hinterlands.creeping_ruin",
+      "areaTable": 1886,
+      "areaName": "The Creeping Ruin",
+      "mapRegionAreaID": 47,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "hinterlands.hiriwatha",
+      "areaTable": 1885,
+      "areaName": "Hiri'watha",
+      "mapRegionAreaID": 47,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "hinterlands.jinthaalor",
+      "areaTable": 354,
+      "areaName": "Jintha'Alor",
+      "mapRegionAreaID": 47,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "hinterlands.overlook_cliffs",
+      "areaTable": 307,
+      "areaName": "The Overlook Cliffs",
+      "mapRegionAreaID": 47,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "hinterlands.plaguemist_ravine",
+      "areaTable": 1882,
+      "areaName": "Plaguemist Ravine",
+      "mapRegionAreaID": 47,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "hinterlands.queldanil_lodge",
+      "areaTable": 350,
+      "areaName": "Quel'Danil Lodge",
+      "mapRegionAreaID": 47,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "hinterlands.seradane",
+      "areaTable": 356,
+      "areaName": "Seradane",
+      "mapRegionAreaID": 47,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "hinterlands.shadraalor",
+      "areaTable": 353,
+      "areaName": "Shadra'Alor",
+      "mapRegionAreaID": 47,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "hinterlands.shaolwatha",
+      "areaTable": 1917,
+      "areaName": "Shaol'watha",
+      "mapRegionAreaID": 47,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "hinterlands.skulk_rock",
+      "areaTable": 351,
+      "areaName": "Skulk Rock",
+      "mapRegionAreaID": 47,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "hinterlands.valorwind_lake",
+      "areaTable": 1883,
+      "areaName": "Valorwind Lake",
+      "mapRegionAreaID": 47,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dun_morogh.amberstill_ranch",
+      "areaTable": 803,
+      "areaName": "Amberstill Ranch",
+      "mapRegionAreaID": 1,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dun_morogh.brewnall_village",
+      "areaTable": 137,
+      "areaName": "Brewnall Village",
+      "mapRegionAreaID": 1,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dun_morogh.chill_breeze_valley",
+      "areaTable": 801,
+      "areaName": "Chill Breeze Valley",
+      "mapRegionAreaID": 1,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dun_morogh.coldridge_pass",
+      "areaTable": 800,
+      "areaName": "Coldridge Pass",
+      "mapRegionAreaID": 1,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dun_morogh.coldridge_valley",
+      "areaTable": 132,
+      "areaName": "Coldridge Valley",
+      "mapRegionAreaID": 1,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dun_morogh.frostmane_hold",
+      "areaTable": 135,
+      "areaName": "Frostmane Hold",
+      "mapRegionAreaID": 1,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dun_morogh.golbolar_quarry",
+      "areaTable": 134,
+      "areaName": "Gol'Bolar Quarry",
+      "mapRegionAreaID": 1,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dun_morogh.grizzled_den",
+      "areaTable": 136,
+      "areaName": "The Grizzled Den",
+      "mapRegionAreaID": 1,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dun_morogh.helms_bed_lake",
+      "areaTable": 212,
+      "areaName": "Helm's Bed Lake",
+      "mapRegionAreaID": 1,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dun_morogh.iceflow_lake",
+      "areaTable": 211,
+      "areaName": "Iceflow Lake",
+      "mapRegionAreaID": 1,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dun_morogh.kharanos",
+      "areaTable": 131,
+      "areaName": "Kharanos",
+      "mapRegionAreaID": 1,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dun_morogh.misty_pine_refuge",
+      "areaTable": 138,
+      "areaName": "Misty Pine Refuge",
+      "mapRegionAreaID": 1,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dun_morogh.north_gate_outpost",
+      "areaTable": 808,
+      "areaName": "North Gate Outpost",
+      "mapRegionAreaID": 1,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dun_morogh.shimmer_ridge",
+      "areaTable": 802,
+      "areaName": "Shimmer Ridge",
+      "mapRegionAreaID": 1,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dun_morogh.south_gate_outpost",
+      "areaTable": 806,
+      "areaName": "South Gate Outpost",
+      "mapRegionAreaID": 1,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dun_morogh.tundrid_hills",
+      "areaTable": 804,
+      "areaName": "The Tundrid Hills",
+      "mapRegionAreaID": 1,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "searing_gorge.blackchar_cave",
+      "areaTable": 1957,
+      "areaName": "Blackchar Cave",
+      "mapRegionAreaID": 51,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "searing_gorge.cauldron",
+      "areaTable": 246,
+      "areaName": "The Cauldron",
+      "mapRegionAreaID": 51,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "searing_gorge.dustfire_valley",
+      "areaTable": 1959,
+      "areaName": "Dustfire Valley",
+      "mapRegionAreaID": 51,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "searing_gorge.firewatch_ridge",
+      "areaTable": 1442,
+      "areaName": "Firewatch Ridge",
+      "mapRegionAreaID": 51,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "searing_gorge.grimesilt_dig_site",
+      "areaTable": 247,
+      "areaName": "Grimesilt Dig Site",
+      "mapRegionAreaID": 51,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "searing_gorge.sea_of_cinders",
+      "areaTable": 1444,
+      "areaName": "The Sea of Cinders",
+      "mapRegionAreaID": 51,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "searing_gorge.tanner_camp",
+      "areaTable": 1958,
+      "areaName": "Tanner Camp",
+      "mapRegionAreaID": 51,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "burning_steppes.blackrock_pass",
+      "areaTable": 2417,
+      "areaName": "Blackrock Pass",
+      "mapRegionAreaID": 46,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "burning_steppes.blackrock_stronghold",
+      "areaTable": 252,
+      "areaName": "Blackrock Stronghold",
+      "mapRegionAreaID": 46,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "burning_steppes.dracodar",
+      "areaTable": 2421,
+      "areaName": "Draco'dar",
+      "mapRegionAreaID": 46,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "burning_steppes.dreadmaul_rock",
+      "areaTable": 249,
+      "areaName": "Dreadmaul Rock",
+      "mapRegionAreaID": 46,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "burning_steppes.morgans_vigil",
+      "areaTable": 2418,
+      "areaName": "Morgan's Vigil",
+      "mapRegionAreaID": 46,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "burning_steppes.pillar_of_ash",
+      "areaTable": 253,
+      "areaName": "The Pillar of Ash",
+      "mapRegionAreaID": 46,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "burning_steppes.ruins_of_thaurissan",
+      "areaTable": 250,
+      "areaName": "Ruins of Thaurissan",
+      "mapRegionAreaID": 46,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "burning_steppes.terror_wing_path",
+      "areaTable": 2420,
+      "areaName": "Terror Wing Path",
+      "mapRegionAreaID": 46,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "elwynn_forest.brackwell_pumpkin_patch",
+      "areaTable": 62,
+      "areaName": "Brackwell Pumpkin Patch",
+      "mapRegionAreaID": 12,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "elwynn_forest.crystal_lake",
+      "areaTable": 18,
+      "areaName": "Crystal Lake",
+      "mapRegionAreaID": 12,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "elwynn_forest.eastvale_logging_camp",
+      "areaTable": 88,
+      "areaName": "Eastvale Logging Camp",
+      "mapRegionAreaID": 12,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "elwynn_forest.fargodeep_mine",
+      "areaTable": 57,
+      "areaName": "Fargodeep Mine",
+      "mapRegionAreaID": 12,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "elwynn_forest.forests_edge",
+      "areaTable": 60,
+      "areaName": "Forest's Edge",
+      "mapRegionAreaID": 12,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "elwynn_forest.goldshire",
+      "areaTable": 87,
+      "areaName": "Goldshire",
+      "mapRegionAreaID": 12,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "elwynn_forest.jerods_landing",
+      "areaTable": 797,
+      "areaName": "Jerod's Landing",
+      "mapRegionAreaID": 12,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "elwynn_forest.northshire_valley",
+      "areaTable": 9,
+      "areaName": "Northshire Valley",
+      "mapRegionAreaID": 12,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "elwynn_forest.ridgepoint_tower",
+      "areaTable": 798,
+      "areaName": "Ridgepoint Tower",
+      "mapRegionAreaID": 12,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "elwynn_forest.stone_cairn_lake",
+      "areaTable": 86,
+      "areaName": "Stone Cairn Lake",
+      "mapRegionAreaID": 12,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "elwynn_forest.tower_of_azora",
+      "areaTable": 91,
+      "areaName": "Tower of Azora",
+      "mapRegionAreaID": 12,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "deadwind_pass.deadmans_crossing",
+      "areaTable": 2697,
+      "areaName": "Deadman's Crossing",
+      "mapRegionAreaID": 41,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "deadwind_pass.karazhan",
+      "areaTable": 2562,
+      "areaName": "Karazhan",
+      "mapRegionAreaID": 41,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "deadwind_pass.vice",
+      "areaTable": 2561,
+      "areaName": "The Vice",
+      "mapRegionAreaID": 41,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "duskwood.addles_stead",
+      "areaTable": 536,
+      "areaName": "Addle's Stead",
+      "mapRegionAreaID": 10,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "duskwood.brightwood_grove",
+      "areaTable": 242,
+      "areaName": "Brightwood Grove",
+      "mapRegionAreaID": 10,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "duskwood.darkened_bank",
+      "areaTable": 799,
+      "areaName": "The Darkened Bank",
+      "mapRegionAreaID": 10,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "duskwood.darkshire",
+      "areaTable": 42,
+      "areaName": "Darkshire",
+      "mapRegionAreaID": 10,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "duskwood.hushed_bank",
+      "areaTable": 1097,
+      "areaName": "The Hushed Bank",
+      "mapRegionAreaID": 10,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "duskwood.manor_mistmantle",
+      "areaTable": 1098,
+      "areaName": "Manor Mistmantle",
+      "mapRegionAreaID": 10,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "duskwood.raven_hill",
+      "areaTable": 94,
+      "areaName": "Raven Hill",
+      "mapRegionAreaID": 10,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "duskwood.raven_hill_cemetery",
+      "areaTable": 492,
+      "areaName": "Raven Hill Cemetery",
+      "mapRegionAreaID": 10,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "duskwood.rotting_orchard",
+      "areaTable": 241,
+      "areaName": "The Rotting Orchard",
+      "mapRegionAreaID": 10,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "duskwood.tranquil_gardens_cemetery",
+      "areaTable": 121,
+      "areaName": "Tranquil Gardens Cemetery",
+      "mapRegionAreaID": 10,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "duskwood.twilight_grove",
+      "areaTable": 856,
+      "areaName": "Twilight Grove",
+      "mapRegionAreaID": 10,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "duskwood.vulgol_ogre_mound",
+      "areaTable": 93,
+      "areaName": "Vul'Gol Ogre Mound",
+      "mapRegionAreaID": 10,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "duskwood.yorgen_farmstead",
+      "areaTable": 245,
+      "areaName": "The Yorgen Farmstead",
+      "mapRegionAreaID": 10,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "loch_modan.farstrider_lodge",
+      "areaTable": 147,
+      "areaName": "The Farstrider Lodge",
+      "mapRegionAreaID": 38,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "loch_modan.grizzlepaw_ridge",
+      "areaTable": 936,
+      "areaName": "Grizzlepaw Ridge",
+      "mapRegionAreaID": 38,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "loch_modan.ironbands_excavation_site",
+      "areaTable": 142,
+      "areaName": "Ironband's Excavation Site",
+      "mapRegionAreaID": 38,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "loch_modan.loch",
+      "areaTable": 556,
+      "areaName": "The Loch",
+      "mapRegionAreaID": 38,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "loch_modan.mogrosh_stronghold",
+      "areaTable": 143,
+      "areaName": "Mo'grosh Stronghold",
+      "mapRegionAreaID": 38,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "loch_modan.silver_stream_mine",
+      "areaTable": 149,
+      "areaName": "Silver Stream Mine",
+      "mapRegionAreaID": 38,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "loch_modan.stonesplinter_valley",
+      "areaTable": 923,
+      "areaName": "Stonesplinter Valley",
+      "mapRegionAreaID": 38,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "loch_modan.stonewrought_dam",
+      "areaTable": 146,
+      "areaName": "Stonewrought Dam",
+      "mapRegionAreaID": 38,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "loch_modan.thelsamar",
+      "areaTable": 144,
+      "areaName": "Thelsamar",
+      "mapRegionAreaID": 38,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "loch_modan.valley_of_kings",
+      "areaTable": 924,
+      "areaName": "Valley of Kings",
+      "mapRegionAreaID": 38,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "redridge_mountains.althers_mill",
+      "areaTable": 97,
+      "areaName": "Alther's Mill",
+      "mapRegionAreaID": 44,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "redridge_mountains.galardell_valley",
+      "areaTable": 1000,
+      "areaName": "Galardell Valley",
+      "mapRegionAreaID": 44,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "redridge_mountains.lake_everstill",
+      "areaTable": 68,
+      "areaName": "Lake Everstill",
+      "mapRegionAreaID": 44,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "redridge_mountains.lakeridge_highway",
+      "areaTable": 1001,
+      "areaName": "Lakeridge Highway",
+      "mapRegionAreaID": 44,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "redridge_mountains.lakeshire",
+      "areaTable": 69,
+      "areaName": "Lakeshire",
+      "mapRegionAreaID": 44,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "redridge_mountains.redridge_canyons",
+      "areaTable": 95,
+      "areaName": "Redridge Canyons",
+      "mapRegionAreaID": 44,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "redridge_mountains.renders_camp",
+      "areaTable": 996,
+      "areaName": "Render's Camp",
+      "mapRegionAreaID": 44,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "redridge_mountains.renders_valley",
+      "areaTable": 997,
+      "areaName": "Render's Valley",
+      "mapRegionAreaID": 44,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "redridge_mountains.stonewatch",
+      "areaTable": 70,
+      "areaName": "Stonewatch",
+      "mapRegionAreaID": 44,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "redridge_mountains.stonewatch_falls",
+      "areaTable": 71,
+      "areaName": "Stonewatch Falls",
+      "mapRegionAreaID": 44,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "redridge_mountains.three_corners",
+      "areaTable": 1002,
+      "areaName": "Three Corners",
+      "mapRegionAreaID": 44,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.baliamah_ruins",
+      "areaTable": 127,
+      "areaName": "Balia'mah Ruins",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.ballal_ruins",
+      "areaTable": 123,
+      "areaName": "Bal'lal Ruins",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.bloodsail_compound",
+      "areaTable": 1739,
+      "areaName": "Bloodsail Compound",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.booty_bay",
+      "areaTable": 35,
+      "areaName": "Booty Bay",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.crystalvein_mine",
+      "areaTable": 310,
+      "areaName": "Crystalvein Mine",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.gromgol_base_camp",
+      "areaTable": 117,
+      "areaName": "Grom'gol Base Camp",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.gurubashi_arena",
+      "areaTable": 1741,
+      "areaName": "Gurubashi Arena",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.jaguero_isle",
+      "areaTable": 297,
+      "areaName": "Jaguero Isle",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.kalai_ruins",
+      "areaTable": 125,
+      "areaName": "Kal'ai Ruins",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.kurzens_compound",
+      "areaTable": 101,
+      "areaName": "Kurzen's Compound",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.lake_nazferiti",
+      "areaTable": 37,
+      "areaName": "Lake Nazferiti",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.mistvale_valley",
+      "areaTable": 1737,
+      "areaName": "Mistvale Valley",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.mizjah_ruins",
+      "areaTable": 129,
+      "areaName": "Mizjah Ruins",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.moshogg_ogre_mound",
+      "areaTable": 105,
+      "areaName": "Mosh'Ogg Ogre Mound",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.nekmani_wellspring",
+      "areaTable": 1738,
+      "areaName": "Nek'mani Wellspring",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.nesingwarys_expedition",
+      "areaTable": 100,
+      "areaName": "Nesingwary's Expedition",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.rebel_camp",
+      "areaTable": 99,
+      "areaName": "Rebel Camp",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.ruins_of_aboraz",
+      "areaTable": 311,
+      "areaName": "Ruins of Aboraz",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.ruins_of_jubuwal",
+      "areaTable": 477,
+      "areaName": "Ruins of Jubuwal",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.ruins_of_zulkunda",
+      "areaTable": 102,
+      "areaName": "Ruins of Zul'Kunda",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.ruins_of_zulmamwe",
+      "areaTable": 103,
+      "areaName": "Ruins of Zul'Mamwe",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.venture_co_base_camp",
+      "areaTable": 1740,
+      "areaName": "Venture Co. Base Camp",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.vile_reef",
+      "areaTable": 104,
+      "areaName": "The Vile Reef",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.wild_shore",
+      "areaTable": 43,
+      "areaName": "Wild Shore",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.ziatajai_ruins",
+      "areaTable": 128,
+      "areaName": "Ziata'jai Ruins",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stranglethorn_vale.zuuldaia_ruins",
+      "areaTable": 122,
+      "areaName": "Zuuldaia Ruins",
+      "mapRegionAreaID": 33,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "swamp_of_sorrows.fallow_sanctuary",
+      "areaTable": 76,
+      "areaName": "Fallow Sanctuary",
+      "mapRegionAreaID": 8,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "swamp_of_sorrows.harborage",
+      "areaTable": 657,
+      "areaName": "The Harborage",
+      "mapRegionAreaID": 8,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "swamp_of_sorrows.ithariuss_cave",
+      "areaTable": 1777,
+      "areaName": "Itharius's Cave",
+      "mapRegionAreaID": 8,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "swamp_of_sorrows.misty_reed_strand",
+      "areaTable": 300,
+      "areaName": "Misty Reed Strand",
+      "mapRegionAreaID": 8,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "swamp_of_sorrows.misty_valley",
+      "areaTable": 116,
+      "areaName": "Misty Valley",
+      "mapRegionAreaID": 8,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "swamp_of_sorrows.pool_of_tears",
+      "areaTable": 74,
+      "areaName": "Pool of Tears",
+      "mapRegionAreaID": 8,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "swamp_of_sorrows.shifting_mire",
+      "areaTable": 1798,
+      "areaName": "The Shifting Mire",
+      "mapRegionAreaID": 8,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "swamp_of_sorrows.sorrowmurk",
+      "areaTable": 1778,
+      "areaName": "Sorrowmurk",
+      "mapRegionAreaID": 8,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "swamp_of_sorrows.splinterspear_junction",
+      "areaTable": 1780,
+      "areaName": "Splinterspear Junction",
+      "mapRegionAreaID": 8,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "swamp_of_sorrows.stagalbog",
+      "areaTable": 1797,
+      "areaName": "Stagalbog",
+      "mapRegionAreaID": 8,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "swamp_of_sorrows.stonard",
+      "areaTable": 75,
+      "areaName": "Stonard",
+      "mapRegionAreaID": 8,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "westfall.alexston_farmstead",
+      "areaTable": 219,
+      "areaName": "Alexston Farmstead",
+      "mapRegionAreaID": 40,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "westfall.dagger_hills",
+      "areaTable": 920,
+      "areaName": "The Dagger Hills",
+      "mapRegionAreaID": 40,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "westfall.dead_acre",
+      "areaTable": 917,
+      "areaName": "The Dead Acre",
+      "mapRegionAreaID": 40,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "westfall.demonts_place",
+      "areaTable": 921,
+      "areaName": "Demont's Place",
+      "mapRegionAreaID": 40,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "westfall.dust_plains",
+      "areaTable": 922,
+      "areaName": "The Dust Plains",
+      "mapRegionAreaID": 40,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "westfall.furlbrows_pumpkin_farm",
+      "areaTable": 109,
+      "areaName": "Furlbrow's Pumpkin Farm",
+      "mapRegionAreaID": 40,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "westfall.gold_coast_quarry",
+      "areaTable": 113,
+      "areaName": "Gold Coast Quarry",
+      "mapRegionAreaID": 40,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "westfall.jangolode_mine",
+      "areaTable": 111,
+      "areaName": "Jangolode Mine",
+      "mapRegionAreaID": 40,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "westfall.jansen_stead",
+      "areaTable": 916,
+      "areaName": "The Jansen Stead",
+      "mapRegionAreaID": 40,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "westfall.molsen_farm",
+      "areaTable": 918,
+      "areaName": "The Molsen Farm",
+      "mapRegionAreaID": 40,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "westfall.moonbrook",
+      "areaTable": 20,
+      "areaName": "Moonbrook",
+      "mapRegionAreaID": 40,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "westfall.saldeans_farm",
+      "areaTable": 107,
+      "areaName": "Saldean's Farm",
+      "mapRegionAreaID": 40,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "westfall.sentinel_hill",
+      "areaTable": 108,
+      "areaName": "Sentinel Hill",
+      "mapRegionAreaID": 40,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "westfall.westfall_lighthouse",
+      "areaTable": 115,
+      "areaName": "Westfall Lighthouse",
+      "mapRegionAreaID": 40,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "wetlands.angerfang_encampment",
+      "areaTable": 1036,
+      "areaName": "Angerfang Encampment",
+      "mapRegionAreaID": 11,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "wetlands.black_channel_marsh",
+      "areaTable": 1018,
+      "areaName": "Black Channel Marsh",
+      "mapRegionAreaID": 11,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "wetlands.bluegill_marsh",
+      "areaTable": 1022,
+      "areaName": "Bluegill Marsh",
+      "mapRegionAreaID": 11,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "wetlands.direforge_hill",
+      "areaTable": 1016,
+      "areaName": "Direforge Hill",
+      "mapRegionAreaID": 11,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "wetlands.dragonmaw_gates",
+      "areaTable": 1038,
+      "areaName": "Dragonmaw Gates",
+      "mapRegionAreaID": 11,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "wetlands.dun_modr",
+      "areaTable": 205,
+      "areaName": "Dun Modr",
+      "mapRegionAreaID": 11,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "wetlands.ironbeards_tomb",
+      "areaTable": 309,
+      "areaName": "Ironbeard's Tomb",
+      "mapRegionAreaID": 11,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "wetlands.menethil_harbor",
+      "areaTable": 150,
+      "areaName": "Menethil Harbor",
+      "mapRegionAreaID": 11,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "wetlands.mosshide_fen",
+      "areaTable": 1020,
+      "areaName": "Mosshide Fen",
+      "mapRegionAreaID": 11,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "wetlands.raptor_ridge",
+      "areaTable": 1017,
+      "areaName": "Raptor Ridge",
+      "mapRegionAreaID": 11,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "wetlands.saltspray_glen",
+      "areaTable": 1023,
+      "areaName": "Saltspray Glen",
+      "mapRegionAreaID": 11,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "wetlands.sundown_marsh",
+      "areaTable": 1024,
+      "areaName": "Sundown Marsh",
+      "mapRegionAreaID": 11,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "wetlands.thelgen_rock",
+      "areaTable": 1021,
+      "areaName": "Thelgen Rock",
+      "mapRegionAreaID": 11,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "wetlands.whelgars_excavation_site",
+      "areaTable": 118,
+      "areaName": "Whelgar's Excavation Site",
+      "mapRegionAreaID": 11,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "teldrassil.banethil_hollow",
+      "areaTable": 736,
+      "areaName": "Ban'ethil Hollow",
+      "mapRegionAreaID": 141,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "teldrassil.dolanaar",
+      "areaTable": 186,
+      "areaName": "Dolanaar",
+      "mapRegionAreaID": 141,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "teldrassil.gnarlpine_hold",
+      "areaTable": 261,
+      "areaName": "Gnarlpine Hold",
+      "mapRegionAreaID": 141,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "teldrassil.lake_alameth",
+      "areaTable": 259,
+      "areaName": "Lake Al'Ameth",
+      "mapRegionAreaID": 141,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "teldrassil.oracle_glade",
+      "areaTable": 264,
+      "areaName": "The Oracle Glade",
+      "mapRegionAreaID": 141,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "teldrassil.pools_of_arlithrien",
+      "areaTable": 478,
+      "areaName": "Pools of Arlithrien",
+      "mapRegionAreaID": 141,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "teldrassil.ruttheran_village",
+      "areaTable": 702,
+      "areaName": "Rut'theran Village",
+      "mapRegionAreaID": 141,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "teldrassil.shadowglen",
+      "areaTable": 188,
+      "areaName": "Shadowglen",
+      "mapRegionAreaID": 141,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "teldrassil.starbreeze_village",
+      "areaTable": 260,
+      "areaName": "Starbreeze Village",
+      "mapRegionAreaID": 141,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "teldrassil.wellspring_lake",
+      "areaTable": 266,
+      "areaName": "Wellspring Lake",
+      "mapRegionAreaID": 141,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "darkshore.ametharan",
+      "areaTable": 447,
+      "areaName": "Ameth'Aran",
+      "mapRegionAreaID": 148,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "darkshore.auberdine",
+      "areaTable": 442,
+      "areaName": "Auberdine",
+      "mapRegionAreaID": 148,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "darkshore.bashalaran",
+      "areaTable": 446,
+      "areaName": "Bashal'Aran",
+      "mapRegionAreaID": 148,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "darkshore.cliffspring_river",
+      "areaTable": 456,
+      "areaName": "Cliffspring River",
+      "mapRegionAreaID": 148,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "darkshore.grove_of_the_ancients",
+      "areaTable": 448,
+      "areaName": "Grove of the Ancients",
+      "mapRegionAreaID": 148,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "darkshore.masters_glaive",
+      "areaTable": 449,
+      "areaName": "The Master's Glaive",
+      "mapRegionAreaID": 148,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "darkshore.remtravels_excavation",
+      "areaTable": 450,
+      "areaName": "Remtravel's Excavation",
+      "mapRegionAreaID": 148,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "darkshore.ruins_of_mathystra",
+      "areaTable": 443,
+      "areaName": "Ruins of Mathystra",
+      "mapRegionAreaID": 148,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "darkshore.tower_of_althalaxx",
+      "areaTable": 444,
+      "areaName": "Tower of Althalaxx",
+      "mapRegionAreaID": 148,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.astranaar",
+      "areaTable": 415,
+      "areaName": "Astranaar",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.bough_shadow",
+      "areaTable": 438,
+      "areaName": "Bough Shadow",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.fallen_sky_lake",
+      "areaTable": 422,
+      "areaName": "Fallen Sky Lake",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.felfire_hill",
+      "areaTable": 434,
+      "areaName": "Felfire Hill",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.fire_scar_shrine",
+      "areaTable": 417,
+      "areaName": "Fire Scar Shrine",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.howling_vale",
+      "areaTable": 419,
+      "areaName": "The Howling Vale",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.iris_lake",
+      "areaTable": 424,
+      "areaName": "Iris Lake",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.lake_falathim",
+      "areaTable": 441,
+      "areaName": "Lake Falathim",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.maestras_post",
+      "areaTable": 413,
+      "areaName": "Maestra's Post",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.mystral_lake",
+      "areaTable": 421,
+      "areaName": "Mystral Lake",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.night_run",
+      "areaTable": 428,
+      "areaName": "Night Run",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.raynewood_retreat",
+      "areaTable": 426,
+      "areaName": "Raynewood Retreat",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.ruins_of_stardust",
+      "areaTable": 418,
+      "areaName": "The Ruins of Stardust",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.satyrnaar",
+      "areaTable": 430,
+      "areaName": "Satyrnaar",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.shrine_of_aessina",
+      "areaTable": 416,
+      "areaName": "The Shrine of Aessina",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.thistlefur_village",
+      "areaTable": 2301,
+      "areaName": "Thistlefur Village",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.warsong_lumber_camp",
+      "areaTable": 437,
+      "areaName": "Warsong Lumber Camp",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ashenvale.zoram_strand",
+      "areaTable": 414,
+      "areaName": "The Zoram Strand",
+      "mapRegionAreaID": 331,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "thousand_needles.camp_ethok",
+      "areaTable": 480,
+      "areaName": "Camp E'thok",
+      "mapRegionAreaID": 400,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "thousand_needles.darkcloud_pinnacle",
+      "areaTable": 2097,
+      "areaName": "Darkcloud Pinnacle",
+      "mapRegionAreaID": 400,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "thousand_needles.freewind_post",
+      "areaTable": 484,
+      "areaName": "Freewind Post",
+      "mapRegionAreaID": 400,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "thousand_needles.highperch",
+      "areaTable": 482,
+      "areaName": "Highperch",
+      "mapRegionAreaID": 400,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "thousand_needles.screeching_canyon",
+      "areaTable": 483,
+      "areaName": "The Screeching Canyon",
+      "mapRegionAreaID": 400,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "thousand_needles.shimmering_flats",
+      "areaTable": 439,
+      "areaName": "The Shimmering Flats",
+      "mapRegionAreaID": 400,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "thousand_needles.splithoof_crag",
+      "areaTable": 481,
+      "areaName": "Splithoof Crag",
+      "mapRegionAreaID": 400,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "thousand_needles.windbreak_canyon",
+      "areaTable": 2303,
+      "areaName": "Windbreak Canyon",
+      "mapRegionAreaID": 400,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stonetalon_mountains.boulderslide_ravine",
+      "areaTable": 2540,
+      "areaName": "Boulderslide Ravine",
+      "mapRegionAreaID": 406,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stonetalon_mountains.camp_aparaje",
+      "areaTable": 2538,
+      "areaName": "Camp Aparaje",
+      "mapRegionAreaID": 406,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stonetalon_mountains.charred_vale",
+      "areaTable": 465,
+      "areaName": "The Charred Vale",
+      "mapRegionAreaID": 406,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stonetalon_mountains.grimtotem_post",
+      "areaTable": 2537,
+      "areaName": "Grimtotem Post",
+      "mapRegionAreaID": 406,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stonetalon_mountains.malakajin",
+      "areaTable": 2539,
+      "areaName": "Malaka'jin",
+      "mapRegionAreaID": 406,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stonetalon_mountains.mirkfallon_lake",
+      "areaTable": 464,
+      "areaName": "Mirkfallon Lake",
+      "mapRegionAreaID": 406,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stonetalon_mountains.sishir_canyon",
+      "areaTable": 2541,
+      "areaName": "Sishir Canyon",
+      "mapRegionAreaID": 406,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stonetalon_mountains.stonetalon_peak",
+      "areaTable": 467,
+      "areaName": "Stonetalon Peak",
+      "mapRegionAreaID": 406,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stonetalon_mountains.sun_rock_retreat",
+      "areaTable": 460,
+      "areaName": "Sun Rock Retreat",
+      "mapRegionAreaID": 406,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stonetalon_mountains.webwinder_path",
+      "areaTable": 1076,
+      "areaName": "Webwinder Path",
+      "mapRegionAreaID": 406,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "stonetalon_mountains.windshear_crag",
+      "areaTable": 461,
+      "areaName": "Windshear Crag",
+      "mapRegionAreaID": 406,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "desolace.ethel_rethor",
+      "areaTable": 2405,
+      "areaName": "Ethel Rethor",
+      "mapRegionAreaID": 405,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "desolace.gelkis_village",
+      "areaTable": 606,
+      "areaName": "Gelkis Village",
+      "mapRegionAreaID": 405,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "desolace.kodo_graveyard",
+      "areaTable": 596,
+      "areaName": "Kodo Graveyard",
+      "mapRegionAreaID": 405,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "desolace.kolkar_village",
+      "areaTable": 609,
+      "areaName": "Kolkar Village",
+      "mapRegionAreaID": 405,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "desolace.kormeks_hut",
+      "areaTable": 2407,
+      "areaName": "Kormek's Hut",
+      "mapRegionAreaID": 405,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "desolace.magram_village",
+      "areaTable": 604,
+      "areaName": "Magram Village",
+      "mapRegionAreaID": 405,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "desolace.mannoroc_coven",
+      "areaTable": 602,
+      "areaName": "Mannoroc Coven",
+      "mapRegionAreaID": 405,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "desolace.nijels_point",
+      "areaTable": 608,
+      "areaName": "Nijel's Point",
+      "mapRegionAreaID": 405,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "desolace.ranazjar_isle",
+      "areaTable": 2406,
+      "areaName": "Ranazjar Isle",
+      "mapRegionAreaID": 405,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "desolace.sargeron",
+      "areaTable": 603,
+      "areaName": "Sargeron",
+      "mapRegionAreaID": 405,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "desolace.shadowbreak_ravine",
+      "areaTable": 2198,
+      "areaName": "Shadowbreak Ravine",
+      "mapRegionAreaID": 405,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "desolace.shadowprey_village",
+      "areaTable": 2408,
+      "areaName": "Shadowprey Village",
+      "mapRegionAreaID": 405,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "desolace.tethris_aran",
+      "areaTable": 2404,
+      "areaName": "Tethris Aran",
+      "mapRegionAreaID": 405,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "desolace.thunder_axe_fortress",
+      "areaTable": 599,
+      "areaName": "Thunder Axe Fortress",
+      "mapRegionAreaID": 405,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "desolace.valley_of_spears",
+      "areaTable": 607,
+      "areaName": "Valley of Spears",
+      "mapRegionAreaID": 405,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "feralas.camp_mojache",
+      "areaTable": 1099,
+      "areaName": "Camp Mojache",
+      "mapRegionAreaID": 357,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "feralas.dream_bough",
+      "areaTable": 1111,
+      "areaName": "Dream Bough",
+      "mapRegionAreaID": 357,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "feralas.feral_scar_vale",
+      "areaTable": 1105,
+      "areaName": "Feral Scar Vale",
+      "mapRegionAreaID": 357,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "feralas.forgotten_coast",
+      "areaTable": 1108,
+      "areaName": "The Forgotten Coast",
+      "mapRegionAreaID": 357,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "feralas.frayfeather_highlands",
+      "areaTable": 1106,
+      "areaName": "Frayfeather Highlands",
+      "mapRegionAreaID": 357,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "feralas.gordunni_outpost",
+      "areaTable": 1103,
+      "areaName": "Gordunni Outpost",
+      "mapRegionAreaID": 357,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "feralas.grimtotem_compound",
+      "areaTable": 1100,
+      "areaName": "Grimtotem Compound",
+      "mapRegionAreaID": 357,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "feralas.isle_of_dread",
+      "areaTable": 1121,
+      "areaName": "Isle of Dread",
+      "mapRegionAreaID": 357,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "feralas.lower_wilds",
+      "areaTable": 1137,
+      "areaName": "Lower Wilds",
+      "mapRegionAreaID": 357,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "feralas.oneiros",
+      "areaTable": 1113,
+      "areaName": "Oneiros",
+      "mapRegionAreaID": 357,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "feralas.ruins_of_isildien",
+      "areaTable": 2522,
+      "areaName": "Ruins of Isildien",
+      "mapRegionAreaID": 357,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "feralas.ruins_of_ravenwind",
+      "areaTable": 1114,
+      "areaName": "Ruins of Ravenwind",
+      "mapRegionAreaID": 357,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "feralas.sardor_isle",
+      "areaTable": 1120,
+      "areaName": "Sardor Isle",
+      "mapRegionAreaID": 357,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "feralas.twin_colossals",
+      "areaTable": 1119,
+      "areaName": "The Twin Colossals",
+      "mapRegionAreaID": 357,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "feralas.writhing_deep",
+      "areaTable": 1101,
+      "areaName": "The Writhing Deep",
+      "mapRegionAreaID": 357,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dustwallow_marsh.alcaz_island",
+      "areaTable": 2079,
+      "areaName": "Alcaz Island",
+      "mapRegionAreaID": 15,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dustwallow_marsh.brackenwall_village",
+      "areaTable": 496,
+      "areaName": "Brackenwall Village",
+      "mapRegionAreaID": 15,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dustwallow_marsh.den_of_flame",
+      "areaTable": 509,
+      "areaName": "The Den of Flame",
+      "mapRegionAreaID": 15,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dustwallow_marsh.quagmire",
+      "areaTable": 2302,
+      "areaName": "The Quagmire",
+      "mapRegionAreaID": 15,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dustwallow_marsh.theramore_isle",
+      "areaTable": 513,
+      "areaName": "Theramore Isle",
+      "mapRegionAreaID": 15,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dustwallow_marsh.witch_hill",
+      "areaTable": 502,
+      "areaName": "Witch Hill",
+      "mapRegionAreaID": 15,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "dustwallow_marsh.wyrmbog",
+      "areaTable": 511,
+      "areaName": "Wyrmbog",
+      "mapRegionAreaID": 15,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.abyssal_sands",
+      "areaTable": 1939,
+      "areaName": "Abyssal Sands",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.broken_pillar",
+      "areaTable": 1938,
+      "areaName": "Broken Pillar",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.dunemaul_compound",
+      "areaTable": 983,
+      "areaName": "Dunemaul Compound",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.eastmoon_ruins",
+      "areaTable": 984,
+      "areaName": "Eastmoon Ruins",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.gadgetzan",
+      "areaTable": 976,
+      "areaName": "Gadgetzan",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.gaping_chasm",
+      "areaTable": 981,
+      "areaName": "The Gaping Chasm",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.lands_end_beach",
+      "areaTable": 987,
+      "areaName": "Land's End Beach",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.lost_rigger_cove",
+      "areaTable": 1336,
+      "areaName": "Lost Rigger Cove",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.noonshade_ruins",
+      "areaTable": 1937,
+      "areaName": "Noonshade Ruins",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.noxious_lair",
+      "areaTable": 982,
+      "areaName": "The Noxious Lair",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.sandsorrow_watch",
+      "areaTable": 979,
+      "areaName": "Sandsorrow Watch",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.southbreak_shore",
+      "areaTable": 1940,
+      "areaName": "Southbreak Shore",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.southmoon_ruins",
+      "areaTable": 992,
+      "areaName": "Southmoon Ruins",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.steamwheedle_port",
+      "areaTable": 977,
+      "areaName": "Steamwheedle Port",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.thistleshrub_valley",
+      "areaTable": 980,
+      "areaName": "Thistleshrub Valley",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.valley_of_the_watchers",
+      "areaTable": 990,
+      "areaName": "Valley of the Watchers",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.waterspring_field",
+      "areaTable": 985,
+      "areaName": "Waterspring Field",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "tanaris.zalashjis_den",
+      "areaTable": 986,
+      "areaName": "Zalashji's Den",
+      "mapRegionAreaID": 440,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.bay_of_storms",
+      "areaTable": 1227,
+      "areaName": "Bay of Storms",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.bitter_reaches",
+      "areaTable": 2497,
+      "areaName": "Bitter Reaches",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.forlorn_ridge",
+      "areaTable": 1233,
+      "areaName": "Forlorn Ridge",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.haldarr_encampment",
+      "areaTable": 1236,
+      "areaName": "Haldarr Encampment",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.jagged_reef",
+      "areaTable": 1230,
+      "areaName": "Jagged Reef",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.lake_mennar",
+      "areaTable": 1234,
+      "areaName": "Lake Mennar",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.legash_encampment",
+      "areaTable": 1219,
+      "areaName": "Legash Encampment",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.ravencrest_monument",
+      "areaTable": 1232,
+      "areaName": "Ravencrest Monument",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.ruined_reaches",
+      "areaTable": 1256,
+      "areaName": "The Ruined Reaches",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.ruins_of_eldarath",
+      "areaTable": 1221,
+      "areaName": "Ruins of Eldarath ",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.shadowsong_shrine",
+      "areaTable": 1235,
+      "areaName": "Shadowsong Shrine",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.shattered_strand",
+      "areaTable": 1228,
+      "areaName": "The Shattered Strand",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.southridge_beach",
+      "areaTable": 1231,
+      "areaName": "Southridge Beach",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.temple_of_arkkoran",
+      "areaTable": 1226,
+      "areaName": "Temple of Arkkoran",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.thalassian_base_camp",
+      "areaTable": 1220,
+      "areaName": "Thalassian Base Camp",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.tower_of_eldara",
+      "areaTable": 1229,
+      "areaName": "Tower of Eldara",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.ursolan",
+      "areaTable": 1225,
+      "areaName": "Ursolan",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "azshara.valormok",
+      "areaTable": 1237,
+      "areaName": "Valormok",
+      "mapRegionAreaID": 16,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "felwood.bloodvenom_falls",
+      "areaTable": 1765,
+      "areaName": "Bloodvenom Falls",
+      "mapRegionAreaID": 361,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "felwood.deadwood_village",
+      "areaTable": 1761,
+      "areaName": "Deadwood Village",
+      "mapRegionAreaID": 361,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "felwood.emerald_sanctuary",
+      "areaTable": 2479,
+      "areaName": "Emerald Sanctuary",
+      "mapRegionAreaID": 361,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "felwood.felpaw_village",
+      "areaTable": 1762,
+      "areaName": "Felpaw Village",
+      "mapRegionAreaID": 361,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "felwood.irontree_woods",
+      "areaTable": 1767,
+      "areaName": "Irontree Woods",
+      "mapRegionAreaID": 361,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "felwood.jadefire_glen",
+      "areaTable": 2480,
+      "areaName": "Jadefire Glen",
+      "mapRegionAreaID": 361,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "felwood.jadefire_run",
+      "areaTable": 2618,
+      "areaName": "Jadefire Run",
+      "mapRegionAreaID": 361,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "felwood.jaedenar",
+      "areaTable": 1763,
+      "areaName": "Jaedenar",
+      "mapRegionAreaID": 361,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "felwood.morlosaran",
+      "areaTable": 2478,
+      "areaName": "Morlos'Aran",
+      "mapRegionAreaID": 361,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "felwood.ruins_of_constellas",
+      "areaTable": 2481,
+      "areaName": "Ruins of Constellas",
+      "mapRegionAreaID": 361,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "felwood.shatter_scar_vale",
+      "areaTable": 1766,
+      "areaName": "Shatter Scar Vale",
+      "mapRegionAreaID": 361,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "felwood.talonbranch_glade",
+      "areaTable": 1998,
+      "areaName": "Talonbranch Glade ",
+      "mapRegionAreaID": 361,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ungoro_crater.fire_plume_ridge",
+      "areaTable": 537,
+      "areaName": "Fire Plume Ridge",
+      "mapRegionAreaID": 490,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ungoro_crater.golakka_hot_springs",
+      "areaTable": 543,
+      "areaName": "Golakka Hot Springs",
+      "mapRegionAreaID": 490,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ungoro_crater.ironstone_plateau",
+      "areaTable": 1943,
+      "areaName": "Ironstone Plateau",
+      "mapRegionAreaID": 490,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ungoro_crater.lakkari_tar_pits",
+      "areaTable": 538,
+      "areaName": "Lakkari Tar Pits",
+      "mapRegionAreaID": 490,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ungoro_crater.marshlands",
+      "areaTable": 1942,
+      "areaName": "The Marshlands",
+      "mapRegionAreaID": 490,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ungoro_crater.slithering_scar",
+      "areaTable": 540,
+      "areaName": "The Slithering Scar",
+      "mapRegionAreaID": 490,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "ungoro_crater.terror_run",
+      "areaTable": 539,
+      "areaName": "Terror Run",
+      "mapRegionAreaID": 490,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "moonglade.lake_eluneara",
+      "areaTable": 656,
+      "areaName": "Lake Elune'ara",
+      "mapRegionAreaID": 493,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silithus.cenarion_hold",
+      "areaTable": 3425,
+      "areaName": "Cenarion Hold",
+      "mapRegionAreaID": 1377,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silithus.crystal_vale",
+      "areaTable": 2740,
+      "areaName": "The Crystal Vale",
+      "mapRegionAreaID": 1377,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silithus.hiveashi",
+      "areaTable": 2742,
+      "areaName": "Hive'Ashi",
+      "mapRegionAreaID": 1377,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silithus.hiveregal",
+      "areaTable": 2744,
+      "areaName": "Hive'Regal",
+      "mapRegionAreaID": 1377,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silithus.hivezora",
+      "areaTable": 2743,
+      "areaName": "Hive'Zora",
+      "mapRegionAreaID": 1377,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silithus.scarab_wall",
+      "areaTable": 2737,
+      "areaName": "The Scarab Wall",
+      "mapRegionAreaID": 1377,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "silithus.southwind_village",
+      "areaTable": 2738,
+      "areaName": "Southwind Village",
+      "mapRegionAreaID": 1377,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "winterspring.darkwhisper_gorge",
+      "areaTable": 2256,
+      "areaName": "Darkwhisper Gorge",
+      "mapRegionAreaID": 618,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "winterspring.everlook",
+      "areaTable": 2255,
+      "areaName": "Everlook",
+      "mapRegionAreaID": 618,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "winterspring.frostfire_hot_springs",
+      "areaTable": 2246,
+      "areaName": "Frostfire Hot Springs",
+      "mapRegionAreaID": 618,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "winterspring.frostsaber_rock",
+      "areaTable": 2241,
+      "areaName": "Frostsaber Rock",
+      "mapRegionAreaID": 618,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "winterspring.frostwhisper_gorge",
+      "areaTable": 2249,
+      "areaName": "Frostwhisper Gorge",
+      "mapRegionAreaID": 618,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "winterspring.hidden_grove",
+      "areaTable": 2242,
+      "areaName": "The Hidden Grove",
+      "mapRegionAreaID": 618,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "winterspring.ice_thistle_hills",
+      "areaTable": 2247,
+      "areaName": "Ice Thistle Hills",
+      "mapRegionAreaID": 618,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "winterspring.lake_keltheril",
+      "areaTable": 2251,
+      "areaName": "Lake Kel'Theril",
+      "mapRegionAreaID": 618,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "winterspring.mazthoril",
+      "areaTable": 2245,
+      "areaName": "Mazthoril",
+      "mapRegionAreaID": 618,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "winterspring.owl_wing_thicket",
+      "areaTable": 2250,
+      "areaName": "Owl Wing Thicket",
+      "mapRegionAreaID": 618,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "winterspring.starfall_village",
+      "areaTable": 2253,
+      "areaName": "Starfall Village",
+      "mapRegionAreaID": 618,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "winterspring.timbermaw_post",
+      "areaTable": 2243,
+      "areaName": "Timbermaw Post",
+      "mapRegionAreaID": 618,
+      "status": "corroborated-not-profile-verified"
+    },
+    {
+      "location": "winterspring.winterfall_village",
+      "areaTable": 2244,
+      "areaName": "Winterfall Village",
+      "mapRegionAreaID": 618,
+      "status": "corroborated-not-profile-verified"
+    }
+  ],
+  "legacySubzoneHolds": [
+    {
+      "mapID": 1411,
+      "key": "bladefist bay",
+      "candidateAreaIDs": [
+        374
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1411,
+      "key": "burning blade coven",
+      "candidateAreaIDs": [
+        365
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1411,
+      "key": "darkspear strand",
+      "candidateAreaIDs": [
+        393
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1411,
+      "key": "deadeye shore",
+      "candidateAreaIDs": [
+        375
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1411,
+      "key": "den",
+      "candidateAreaIDs": [
+        364
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1411,
+      "key": "dustwind cave",
+      "candidateAreaIDs": [
+        371
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1411,
+      "key": "hidden path",
+      "candidateAreaIDs": [
+        638
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1411,
+      "key": "jaggedswine farm",
+      "candidateAreaIDs": [
+        1297
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1411,
+      "key": "razor hill barracks",
+      "candidateAreaIDs": [
+        2337
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1411,
+      "key": "razorwind canyon",
+      "candidateAreaIDs": [
+        410
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1411,
+      "key": "rocktusk farm",
+      "candidateAreaIDs": [
+        1296
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1411,
+      "key": "scuttle coast",
+      "candidateAreaIDs": [
+        373
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1411,
+      "key": "shrine of the dormant flame",
+      "candidateAreaIDs": [
+        640
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1411,
+      "key": "southfury river",
+      "candidateAreaIDs": [
+        377,
+        814,
+        815,
+        878,
+        879
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1411,
+      "key": "spirit rock",
+      "candidateAreaIDs": [
+        639
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1411,
+      "key": "torkren farm",
+      "candidateAreaIDs": [
+        2979
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1412,
+      "key": "brambleblade ravine",
+      "candidateAreaIDs": [
+        358
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1412,
+      "key": "camp gevrek",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1412,
+      "key": "camp narache",
+      "candidateAreaIDs": [
+        221
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1412,
+      "key": "galak camp",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1412,
+      "key": "gloomrise",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1412,
+      "key": "kodo rock",
+      "candidateAreaIDs": [
+        637
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1412,
+      "key": "skywatcher plateau",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1412,
+      "key": "stonebull lake",
+      "candidateAreaIDs": [
+        223
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1413,
+      "key": "baeldun keep",
+      "candidateAreaIDs": [
+        2157
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1413,
+      "key": "dreadmist den",
+      "candidateAreaIDs": [
+        2138
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1413,
+      "key": "fray island",
+      "candidateAreaIDs": [
+        720
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1413,
+      "key": "gold road",
+      "candidateAreaIDs": [
+        458
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1413,
+      "key": "morshan base camp",
+      "candidateAreaIDs": [
+        1599
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1413,
+      "key": "shrine of the fallen warrior",
+      "candidateAreaIDs": [
+        2757
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1413,
+      "key": "southern gold road",
+      "candidateAreaIDs": [
+        1157
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1413,
+      "key": "southfury river",
+      "candidateAreaIDs": [
+        377,
+        814,
+        815,
+        878,
+        879
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1413,
+      "key": "tidus stair",
+      "candidateAreaIDs": [
+        401
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1413,
+      "key": "wailing caverns",
+      "candidateAreaIDs": [
+        718
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1416,
+      "key": "eventide",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1416,
+      "key": "old dalaran ruins",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1417,
+      "key": "drowned reef",
+      "candidateAreaIDs": [
+        328
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1417,
+      "key": "drywhisker gorge",
+      "candidateAreaIDs": [
+        318
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1417,
+      "key": "thandol span",
+      "candidateAreaIDs": [
+        330,
+        880,
+        881
+      ],
+      "matchingMapRegionIDs": [
+        880
+      ],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1417,
+      "key": "thoradins wall",
+      "candidateAreaIDs": [
+        293,
+        1057,
+        1857,
+        2377
+      ],
+      "matchingMapRegionIDs": [
+        1857
+      ],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1417,
+      "key": "tower of arathor",
+      "candidateAreaIDs": [
+        325
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1418,
+      "key": "camp wurg",
+      "candidateAreaIDs": [
+        343
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1418,
+      "key": "dustbelch grotto",
+      "candidateAreaIDs": [
+        347
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1418,
+      "key": "uldaman",
+      "candidateAreaIDs": [
+        1337,
+        1517
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1420,
+      "key": "agamand family crypt",
+      "candidateAreaIDs": [
+        158
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1420,
+      "key": "bandarion keep",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1420,
+      "key": "brill town hall",
+      "candidateAreaIDs": [
+        2118
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1420,
+      "key": "bulwark",
+      "candidateAreaIDs": [
+        152,
+        813
+      ],
+      "matchingMapRegionIDs": [
+        152
+      ],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1420,
+      "key": "faols rest",
+      "candidateAreaIDs": [
+        173
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1420,
+      "key": "gallows end tavern",
+      "candidateAreaIDs": [
+        2119
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1420,
+      "key": "gunthers retreat",
+      "candidateAreaIDs": [
+        163
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1420,
+      "key": "night webs hollow",
+      "candidateAreaIDs": [
+        155
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1420,
+      "key": "north coast",
+      "candidateAreaIDs": [
+        168
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1420,
+      "key": "ruins of lordaeron",
+      "candidateAreaIDs": [
+        153
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1420,
+      "key": "scarlet monastery",
+      "candidateAreaIDs": [
+        796
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1420,
+      "key": "shadow grave",
+      "candidateAreaIDs": [
+        2117
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1420,
+      "key": "shadowvale",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1420,
+      "key": "terrace of repose",
+      "candidateAreaIDs": [
+        161
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1420,
+      "key": "whispering forest",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1420,
+      "key": "whispering shore",
+      "candidateAreaIDs": [
+        169
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1421,
+      "key": "dawning isles",
+      "candidateAreaIDs": [
+        232
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1421,
+      "key": "fenris keep",
+      "candidateAreaIDs": [
+        235
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1421,
+      "key": "ivar patch",
+      "candidateAreaIDs": [
+        239
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1421,
+      "key": "lordamere lake",
+      "candidateAreaIDs": [
+        170,
+        1338,
+        1339
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1421,
+      "key": "north tides run",
+      "candidateAreaIDs": [
+        305
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1421,
+      "key": "shadowfang keep",
+      "candidateAreaIDs": [
+        209,
+        236
+      ],
+      "matchingMapRegionIDs": [
+        236
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1421,
+      "key": "south tides run",
+      "candidateAreaIDs": [
+        306
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1421,
+      "key": "valgans field",
+      "candidateAreaIDs": [
+        227
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1422,
+      "key": "bulwark",
+      "candidateAreaIDs": [
+        152,
+        813
+      ],
+      "matchingMapRegionIDs": [
+        813
+      ],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1422,
+      "key": "chillwind camp",
+      "candidateAreaIDs": [
+        3197
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1422,
+      "key": "darrowmere lake",
+      "candidateAreaIDs": [
+        2297,
+        2299
+      ],
+      "matchingMapRegionIDs": [
+        2297
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1422,
+      "key": "mardenholde keep",
+      "candidateAreaIDs": [
+        203
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1422,
+      "key": "scholomance",
+      "candidateAreaIDs": [
+        2057
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1422,
+      "key": "thondroril river",
+      "candidateAreaIDs": [
+        2619,
+        2620
+      ],
+      "matchingMapRegionIDs": [
+        2620
+      ],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1422,
+      "key": "uthers tomb",
+      "candidateAreaIDs": [
+        196
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1423,
+      "key": "browman mill",
+      "candidateAreaIDs": [
+        2269
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1423,
+      "key": "eastwall gate",
+      "candidateAreaIDs": [
+        2625
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1423,
+      "key": "mazraalor",
+      "candidateAreaIDs": [
+        2274
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1423,
+      "key": "scarlet base camp",
+      "candidateAreaIDs": [
+        2265
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1423,
+      "key": "scarlet basilica",
+      "candidateAreaIDs": [
+        2267
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1423,
+      "key": "stratholme",
+      "candidateAreaIDs": [
+        2017,
+        2279
+      ],
+      "matchingMapRegionIDs": [
+        2279
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1423,
+      "key": "terrorweb tunnel",
+      "candidateAreaIDs": [
+        2626
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1423,
+      "key": "thondroril river",
+      "candidateAreaIDs": [
+        2619,
+        2620
+      ],
+      "matchingMapRegionIDs": [
+        2619
+      ],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1424,
+      "key": "azurelode mine",
+      "candidateAreaIDs": [
+        288,
+        2379
+      ],
+      "matchingMapRegionIDs": [
+        288
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1424,
+      "key": "chillwind point",
+      "candidateAreaIDs": [
+        1684
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1424,
+      "key": "corrahns dagger",
+      "candidateAreaIDs": [
+        1679
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1424,
+      "key": "crushridge hold",
+      "candidateAreaIDs": [
+        282
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1424,
+      "key": "darrow hill",
+      "candidateAreaIDs": [
+        1056,
+        2375
+      ],
+      "matchingMapRegionIDs": [
+        1056
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1424,
+      "key": "dun garok",
+      "candidateAreaIDs": [
+        290,
+        2371
+      ],
+      "matchingMapRegionIDs": [
+        290
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1424,
+      "key": "durnholde keep",
+      "candidateAreaIDs": [
+        275,
+        2370
+      ],
+      "matchingMapRegionIDs": [
+        275
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1424,
+      "key": "eastern strand",
+      "candidateAreaIDs": [
+        294,
+        2373
+      ],
+      "matchingMapRegionIDs": [
+        294
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1424,
+      "key": "gallows corner",
+      "candidateAreaIDs": [
+        1357
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1424,
+      "key": "gavins naze",
+      "candidateAreaIDs": [
+        1677
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1424,
+      "key": "growless cave",
+      "candidateAreaIDs": [
+        1683
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1424,
+      "key": "headland",
+      "candidateAreaIDs": [
+        1680
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1424,
+      "key": "hillsbrad fields",
+      "candidateAreaIDs": [
+        286,
+        2372
+      ],
+      "matchingMapRegionIDs": [
+        286
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1424,
+      "key": "misty shore",
+      "candidateAreaIDs": [
+        1681
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1424,
+      "key": "nethander stead",
+      "candidateAreaIDs": [
+        289,
+        2374
+      ],
+      "matchingMapRegionIDs": [
+        289
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1424,
+      "key": "ravenholdt manor",
+      "candidateAreaIDs": [
+        3486
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1424,
+      "key": "slaughter hollow",
+      "candidateAreaIDs": [
+        283
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1424,
+      "key": "soferas naze",
+      "candidateAreaIDs": [
+        1678
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1424,
+      "key": "southpoint tower",
+      "candidateAreaIDs": [
+        285,
+        2376
+      ],
+      "matchingMapRegionIDs": [
+        285
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1424,
+      "key": "strahnbrad",
+      "candidateAreaIDs": [
+        280
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1424,
+      "key": "tarren mill",
+      "candidateAreaIDs": [
+        272,
+        2368
+      ],
+      "matchingMapRegionIDs": [
+        272
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1424,
+      "key": "thoradins wall",
+      "candidateAreaIDs": [
+        293,
+        1057,
+        1857,
+        2377
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1424,
+      "key": "western strand",
+      "candidateAreaIDs": [
+        295,
+        2378
+      ],
+      "matchingMapRegionIDs": [
+        295
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1425,
+      "key": "bogens ledge",
+      "candidateAreaIDs": [
+        1887
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1425,
+      "key": "featherbeards hovel",
+      "candidateAreaIDs": [
+        1880
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1425,
+      "key": "martsirt",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1425,
+      "key": "revantusk village",
+      "candidateAreaIDs": [
+        3317
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1425,
+      "key": "shindiggers camp",
+      "candidateAreaIDs": [
+        1881
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1425,
+      "key": "wildhammer keep",
+      "candidateAreaIDs": [
+        349
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1425,
+      "key": "zunwatha",
+      "candidateAreaIDs": [
+        352
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1426,
+      "key": "anvilmar",
+      "candidateAreaIDs": [
+        77
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1426,
+      "key": "gates of ironforge",
+      "candidateAreaIDs": [
+        809
+      ],
+      "matchingMapRegionIDs": [
+        809
+      ],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1426,
+      "key": "gnomeregan",
+      "candidateAreaIDs": [
+        133,
+        721
+      ],
+      "matchingMapRegionIDs": [
+        133
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1426,
+      "key": "ironbands compound",
+      "candidateAreaIDs": [
+        716
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1426,
+      "key": "ironforge submarine facility",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1426,
+      "key": "north gate pass",
+      "candidateAreaIDs": [
+        807,
+        838
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1426,
+      "key": "south gate pass",
+      "candidateAreaIDs": [
+        805,
+        839
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1426,
+      "key": "steelgrills depot",
+      "candidateAreaIDs": [
+        189
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1426,
+      "key": "thunderbrew distillery",
+      "candidateAreaIDs": [
+        2102
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1427,
+      "key": "blackrock mountain",
+      "candidateAreaIDs": [
+        25,
+        254,
+        1445
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1427,
+      "key": "slag pit",
+      "candidateAreaIDs": [
+        1443
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1427,
+      "key": "stonewrought pass",
+      "candidateAreaIDs": [
+        2838
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1427,
+      "key": "thorium point",
+      "candidateAreaIDs": [
+        1446
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1428,
+      "key": "blackrock mountain",
+      "candidateAreaIDs": [
+        25,
+        254,
+        1445
+      ],
+      "matchingMapRegionIDs": [
+        254
+      ],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1428,
+      "key": "flame crest",
+      "candidateAreaIDs": [
+        251
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1428,
+      "key": "poachers den",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1428,
+      "key": "slither rock",
+      "candidateAreaIDs": [
+        2419
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1429,
+      "key": "echo ridge mine",
+      "candidateAreaIDs": [
+        34
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1429,
+      "key": "heroes vigil",
+      "candidateAreaIDs": [
+        56
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1429,
+      "key": "jasperlode mine",
+      "candidateAreaIDs": [
+        54
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1429,
+      "key": "maclure vineyards",
+      "candidateAreaIDs": [
+        64
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1429,
+      "key": "mirror lake",
+      "candidateAreaIDs": [
+        92
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1429,
+      "key": "mirror lake orchard",
+      "candidateAreaIDs": [
+        89
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1429,
+      "key": "northshire abbey",
+      "candidateAreaIDs": [
+        24
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1429,
+      "key": "northshire valley camelot",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1429,
+      "key": "northshire vineyards",
+      "candidateAreaIDs": [
+        59
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1429,
+      "key": "stonefield farm",
+      "candidateAreaIDs": [
+        63
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1429,
+      "key": "thunder falls",
+      "candidateAreaIDs": [
+        61
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1429,
+      "key": "westbrook garrison",
+      "candidateAreaIDs": [
+        120
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1430,
+      "key": "aridens camp",
+      "candidateAreaIDs": [
+        2560
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1430,
+      "key": "deadwind ravine",
+      "candidateAreaIDs": [
+        2558
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1430,
+      "key": "groshgok compound",
+      "candidateAreaIDs": [
+        2937
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1430,
+      "key": "masters cellar",
+      "candidateAreaIDs": [
+        2837
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1430,
+      "key": "morgans plot",
+      "candidateAreaIDs": [
+        2563
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1430,
+      "key": "sleeping gorge",
+      "candidateAreaIDs": [
+        2938
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1431,
+      "key": "beggars haunt",
+      "candidateAreaIDs": [
+        576
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1431,
+      "key": "dawning wood catacombs",
+      "candidateAreaIDs": [
+        2098
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1431,
+      "key": "forlorn rowe",
+      "candidateAreaIDs": [
+        243
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1431,
+      "key": "rolands doom",
+      "candidateAreaIDs": [
+        2161
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1432,
+      "key": "algaz station",
+      "candidateAreaIDs": [
+        925
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1432,
+      "key": "dun algaz",
+      "candidateAreaIDs": [
+        269,
+        836,
+        837
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1432,
+      "key": "north gate pass",
+      "candidateAreaIDs": [
+        807,
+        838
+      ],
+      "matchingMapRegionIDs": [
+        838
+      ],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1432,
+      "key": "south gate pass",
+      "candidateAreaIDs": [
+        805,
+        839
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1432,
+      "key": "stoutlager inn",
+      "candidateAreaIDs": [
+        2101
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1433,
+      "key": "renders rock",
+      "candidateAreaIDs": [
+        998
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1433,
+      "key": "rethban caverns",
+      "candidateAreaIDs": [
+        98
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1433,
+      "key": "stonewatch keep",
+      "candidateAreaIDs": [
+        2099
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1433,
+      "key": "stonewatch tower",
+      "candidateAreaIDs": [
+        999
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1433,
+      "key": "tower of ilgalar",
+      "candidateAreaIDs": [
+        96
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1434,
+      "key": "cape of stranglethorn",
+      "candidateAreaIDs": [
+        1577
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1434,
+      "key": "crystal shore",
+      "candidateAreaIDs": [
+        302
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1434,
+      "key": "janeiros point",
+      "candidateAreaIDs": [
+        312
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1434,
+      "key": "savage coast",
+      "candidateAreaIDs": [
+        301
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1434,
+      "key": "south seas",
+      "candidateAreaIDs": [
+        2317,
+        2338
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1434,
+      "key": "southern savage coast",
+      "candidateAreaIDs": [
+        1578
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1434,
+      "key": "spirit den",
+      "candidateAreaIDs": [
+        1742
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1434,
+      "key": "stockpile",
+      "candidateAreaIDs": [
+        106
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1434,
+      "key": "tkashi ruins",
+      "candidateAreaIDs": [
+        126
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1434,
+      "key": "venture co operations center",
+      "candidateAreaIDs": [
+        1760
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1434,
+      "key": "yojamba isle",
+      "candidateAreaIDs": [
+        3357
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1434,
+      "key": "zulgurub",
+      "candidateAreaIDs": [
+        19,
+        1977
+      ],
+      "matchingMapRegionIDs": [
+        19
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1435,
+      "key": "misty reed post",
+      "candidateAreaIDs": [
+        1978
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1435,
+      "key": "stagalbog cave",
+      "candidateAreaIDs": [
+        1817
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1435,
+      "key": "temple of atalhakkar",
+      "candidateAreaIDs": [
+        1477
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1436,
+      "key": "deadmines",
+      "candidateAreaIDs": [
+        1581
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1436,
+      "key": "longshore",
+      "candidateAreaIDs": [
+        2
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1436,
+      "key": "stendels pond",
+      "candidateAreaIDs": [
+        919
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1437,
+      "key": "baradin bay",
+      "candidateAreaIDs": [
+        298
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1437,
+      "key": "deepwater tavern",
+      "candidateAreaIDs": [
+        2104
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1437,
+      "key": "dragonmaw retreat",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1437,
+      "key": "drunken dwarf",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1437,
+      "key": "dun algaz",
+      "candidateAreaIDs": [
+        269,
+        836,
+        837
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1437,
+      "key": "excavation site wetlands",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1437,
+      "key": "green belt",
+      "candidateAreaIDs": [
+        1019,
+        1025
+      ],
+      "matchingMapRegionIDs": [
+        1025
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1437,
+      "key": "grim batol",
+      "candidateAreaIDs": [
+        1037
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1437,
+      "key": "lost fleet",
+      "candidateAreaIDs": [
+        1039
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1437,
+      "key": "menethil bay",
+      "candidateAreaIDs": [
+        299
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1437,
+      "key": "menethil keep",
+      "candidateAreaIDs": [
+        2103
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1437,
+      "key": "thandol span",
+      "candidateAreaIDs": [
+        330,
+        880,
+        881
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1438,
+      "key": "aldrassil",
+      "candidateAreaIDs": [
+        256
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1438,
+      "key": "banethil barrow den",
+      "candidateAreaIDs": [
+        262
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1438,
+      "key": "cleft",
+      "candidateAreaIDs": [
+        263
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1438,
+      "key": "fel rock",
+      "candidateAreaIDs": [
+        258
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1438,
+      "key": "shadowthread cave",
+      "candidateAreaIDs": [
+        257
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1438,
+      "key": "wellspring river",
+      "candidateAreaIDs": [
+        265
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1439,
+      "key": "blackwood den",
+      "candidateAreaIDs": [
+        455
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1439,
+      "key": "cliffspring falls",
+      "candidateAreaIDs": [
+        445
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1439,
+      "key": "long wash",
+      "candidateAreaIDs": [
+        453
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1439,
+      "key": "mists edge",
+      "candidateAreaIDs": [
+        452
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1439,
+      "key": "twilight vale",
+      "candidateAreaIDs": [
+        2077
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1439,
+      "key": "wildbend river",
+      "candidateAreaIDs": [
+        454
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "bathrans haunt",
+      "candidateAreaIDs": [
+        411
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "blackfathom deeps",
+      "candidateAreaIDs": [
+        719,
+        2797
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1440,
+      "key": "bloodtooth camp",
+      "candidateAreaIDs": [
+        2357
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "demon fall canyon",
+      "candidateAreaIDs": [
+        435
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "demon fall ridge",
+      "candidateAreaIDs": [
+        436
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "dordanil barrow den",
+      "candidateAreaIDs": [
+        432
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "falfarren river",
+      "candidateAreaIDs": [
+        433
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "forest song",
+      "candidateAreaIDs": [
+        2358
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "greenpaw village",
+      "candidateAreaIDs": [
+        2359
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "kargathia keep",
+      "candidateAreaIDs": [
+        2637
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "nightsong woods",
+      "candidateAreaIDs": [
+        2457
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "ruins of ordilaran",
+      "candidateAreaIDs": [
+        412
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "shady nook",
+      "candidateAreaIDs": [
+        427
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "silverwind refuge",
+      "candidateAreaIDs": [
+        420
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "silverwing grove",
+      "candidateAreaIDs": [
+        3319
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "silverwing outpost",
+      "candidateAreaIDs": [
+        2360
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "southfury river",
+      "candidateAreaIDs": [
+        377,
+        814,
+        815,
+        878,
+        879
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1440,
+      "key": "splintertree post",
+      "candidateAreaIDs": [
+        431
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "talondeep path",
+      "candidateAreaIDs": [
+        1276,
+        1277
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1440,
+      "key": "warsong labor camp",
+      "candidateAreaIDs": [
+        3177
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "xavian",
+      "candidateAreaIDs": [
+        429
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1440,
+      "key": "zoramgar outpost",
+      "candidateAreaIDs": [
+        2897
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1441,
+      "key": "great lift",
+      "candidateAreaIDs": [
+        485,
+        1718
+      ],
+      "matchingMapRegionIDs": [
+        485
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1441,
+      "key": "ironstone camp",
+      "candidateAreaIDs": [
+        3037
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1441,
+      "key": "mirage raceway",
+      "candidateAreaIDs": [
+        2240
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1441,
+      "key": "razorfen downs",
+      "candidateAreaIDs": [
+        722,
+        1316
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1441,
+      "key": "roguefeather den",
+      "candidateAreaIDs": [
+        487
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1441,
+      "key": "rustmaul dig site",
+      "candidateAreaIDs": [
+        479
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1441,
+      "key": "scalding ridge",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1441,
+      "key": "splithoof hold",
+      "candidateAreaIDs": [
+        1557
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1441,
+      "key": "tahonda ruins",
+      "candidateAreaIDs": [
+        3039
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1441,
+      "key": "weathered nook",
+      "candidateAreaIDs": [
+        488
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1441,
+      "key": "weazels crater",
+      "candidateAreaIDs": [
+        3038
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1441,
+      "key": "whitereach post",
+      "candidateAreaIDs": [
+        2237
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1442,
+      "key": "blackwolf river",
+      "candidateAreaIDs": [
+        636
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1442,
+      "key": "boulderslide cavern",
+      "candidateAreaIDs": [
+        3157
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1442,
+      "key": "cragpool lake",
+      "candidateAreaIDs": [
+        463
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1442,
+      "key": "greatwood vale",
+      "candidateAreaIDs": [
+        469
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1442,
+      "key": "talon den",
+      "candidateAreaIDs": [
+        468
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1442,
+      "key": "talondeep path",
+      "candidateAreaIDs": [
+        1276,
+        1277
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1442,
+      "key": "windshear mine",
+      "candidateAreaIDs": [
+        2160
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1443,
+      "key": "bolgans hole",
+      "candidateAreaIDs": [
+        600
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1443,
+      "key": "ghost walker post",
+      "candidateAreaIDs": [
+        597
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1443,
+      "key": "sartheris strand",
+      "candidateAreaIDs": [
+        598
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1443,
+      "key": "scrabblescrews camp",
+      "candidateAreaIDs": [
+        2617
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1443,
+      "key": "valley of bones",
+      "candidateAreaIDs": [
+        2657
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1444,
+      "key": "dire maul",
+      "candidateAreaIDs": [
+        2557,
+        2577
+      ],
+      "matchingMapRegionIDs": [
+        2577
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1444,
+      "key": "feathermoon stronghold",
+      "candidateAreaIDs": [
+        1116
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1444,
+      "key": "high wilderness",
+      "candidateAreaIDs": [
+        1136
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1444,
+      "key": "jademir lake",
+      "candidateAreaIDs": [
+        1112
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1444,
+      "key": "lariss pavilion",
+      "candidateAreaIDs": [
+        2518
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1444,
+      "key": "rage scar hold",
+      "candidateAreaIDs": [
+        1115
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1444,
+      "key": "ruins of solarsal",
+      "candidateAreaIDs": [
+        1117
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1444,
+      "key": "shalzarus lair",
+      "candidateAreaIDs": [
+        3117
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1444,
+      "key": "thalanaar",
+      "candidateAreaIDs": [
+        489
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1444,
+      "key": "verdantis river",
+      "candidateAreaIDs": [
+        2521
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1444,
+      "key": "wildwind lake",
+      "candidateAreaIDs": [
+        1102
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1444,
+      "key": "woodpaw den",
+      "candidateAreaIDs": [
+        2520
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1444,
+      "key": "woodpaw hills",
+      "candidateAreaIDs": [
+        2519
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1445,
+      "key": "beezils wreck",
+      "candidateAreaIDs": [
+        501
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1445,
+      "key": "bloodfen burrow",
+      "candidateAreaIDs": [
+        498
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1445,
+      "key": "bluefen",
+      "candidateAreaIDs": [
+        507
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1445,
+      "key": "darkmist cavern",
+      "candidateAreaIDs": [
+        499
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1445,
+      "key": "dragonmurk",
+      "candidateAreaIDs": [
+        510
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1445,
+      "key": "dreadmurk shore",
+      "candidateAreaIDs": [
+        518
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1445,
+      "key": "dustwallow bay",
+      "candidateAreaIDs": [
+        516
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1445,
+      "key": "emberstrifes den",
+      "candidateAreaIDs": [
+        2158
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1445,
+      "key": "foothold citadel",
+      "candidateAreaIDs": [
+        514
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1445,
+      "key": "lost point",
+      "candidateAreaIDs": [
+        506
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1445,
+      "key": "north point tower",
+      "candidateAreaIDs": [
+        504
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1445,
+      "key": "onyxias lair",
+      "candidateAreaIDs": [
+        2159
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1445,
+      "key": "sentry point",
+      "candidateAreaIDs": [
+        503
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1445,
+      "key": "shady rest inn",
+      "candidateAreaIDs": [
+        403
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1445,
+      "key": "stonemaul ruins",
+      "candidateAreaIDs": [
+        508
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1445,
+      "key": "swamplight manor",
+      "candidateAreaIDs": [
+        497
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1445,
+      "key": "tidefury cove",
+      "candidateAreaIDs": [
+        517
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1446,
+      "key": "caverns of time",
+      "candidateAreaIDs": [
+        1941,
+        2300
+      ],
+      "matchingMapRegionIDs": [
+        2300
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1446,
+      "key": "south seas",
+      "candidateAreaIDs": [
+        2317,
+        2338
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1446,
+      "key": "uldum",
+      "candidateAreaIDs": [
+        989
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1446,
+      "key": "wavestrider beach",
+      "candidateAreaIDs": [
+        988
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1446,
+      "key": "zulfarrak",
+      "candidateAreaIDs": [
+        978,
+        1176
+      ],
+      "matchingMapRegionIDs": [
+        978
+      ],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1447,
+      "key": "bears head",
+      "candidateAreaIDs": [
+        1224
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1447,
+      "key": "blackmaw hold",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1447,
+      "key": "hetaeras clutch",
+      "candidateAreaIDs": [
+        1222
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1447,
+      "key": "legashi encampment",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1447,
+      "key": "legashi stronghold",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1447,
+      "key": "rethress sanctum",
+      "candidateAreaIDs": [
+        3138
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1447,
+      "key": "scalebeards cave",
+      "candidateAreaIDs": [
+        3140
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1447,
+      "key": "southfury river",
+      "candidateAreaIDs": [
+        377,
+        814,
+        815,
+        878,
+        879
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1447,
+      "key": "storm cliffs",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1447,
+      "key": "talrendis point",
+      "candidateAreaIDs": [
+        3137
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1447,
+      "key": "temple of zin malor",
+      "candidateAreaIDs": [
+        1223
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1447,
+      "key": "thalassian vanguard camp",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1448,
+      "key": "bloodvenom post",
+      "candidateAreaIDs": [
+        1997
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1448,
+      "key": "bloodvenom river",
+      "candidateAreaIDs": [
+        1764
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1448,
+      "key": "irontree cavern",
+      "candidateAreaIDs": [
+        1768
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1448,
+      "key": "shadow hold",
+      "candidateAreaIDs": [
+        1770
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1448,
+      "key": "shrine of the deceiver",
+      "candidateAreaIDs": [
+        1771
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1448,
+      "key": "timbermaw hold",
+      "candidateAreaIDs": [
+        1216,
+        1769
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1449,
+      "key": "fungal rock",
+      "candidateAreaIDs": [
+        542
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1449,
+      "key": "marshals refuge",
+      "candidateAreaIDs": [
+        541
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1449,
+      "key": "pillar of assimilation",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1449,
+      "key": "shapers terrace",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1449,
+      "key": "stomping grounds",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1450,
+      "key": "nighthaven",
+      "candidateAreaIDs": [
+        2361
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1450,
+      "key": "shrine of remulos",
+      "candidateAreaIDs": [
+        2362
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1450,
+      "key": "stormrage barrow dens",
+      "candidateAreaIDs": [
+        2363
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1450,
+      "key": "timbermaw hold",
+      "candidateAreaIDs": [
+        1216,
+        1769
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1451,
+      "key": "bones of grakkarond",
+      "candidateAreaIDs": [
+        3257
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1451,
+      "key": "bronzebeard encampment",
+      "candidateAreaIDs": [
+        3427
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1451,
+      "key": "ortells hideout",
+      "candidateAreaIDs": [
+        3447
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1451,
+      "key": "ravaged twilight camp",
+      "candidateAreaIDs": [
+        3100
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1451,
+      "key": "scarab dais",
+      "candidateAreaIDs": [
+        2741
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1451,
+      "key": "staghelm point",
+      "candidateAreaIDs": [
+        3426
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1451,
+      "key": "swarming pillar",
+      "candidateAreaIDs": [
+        3097
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1451,
+      "key": "twilight base camp",
+      "candidateAreaIDs": [
+        2739
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1451,
+      "key": "twilight outpost",
+      "candidateAreaIDs": [
+        3099
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1451,
+      "key": "twilight post",
+      "candidateAreaIDs": [
+        3098
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1451,
+      "key": "twilights run",
+      "candidateAreaIDs": [
+        3446
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1451,
+      "key": "valors rest",
+      "candidateAreaIDs": [
+        3077
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1452,
+      "key": "banthallow barrow den",
+      "candidateAreaIDs": [
+        2254
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1452,
+      "key": "dun mandarr",
+      "candidateAreaIDs": [
+        2248
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1452,
+      "key": "moon horror den",
+      "candidateAreaIDs": [
+        3139
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1452,
+      "key": "ruins of keltheril",
+      "candidateAreaIDs": [
+        2252
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1452,
+      "key": "timbermaw hold",
+      "candidateAreaIDs": [
+        1216,
+        1769
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1453,
+      "key": "champions hall",
+      "candidateAreaIDs": [
+        2918
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1453,
+      "key": "deeprun tram",
+      "candidateAreaIDs": [
+        2257
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1453,
+      "key": "stormwind harbor",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "name absent or ambiguous in pinned area names"
+    },
+    {
+      "mapID": 1453,
+      "key": "valley of heroes",
+      "candidateAreaIDs": [
+        1617
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1454,
+      "key": "hall of legends",
+      "candidateAreaIDs": [
+        2917
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1454,
+      "key": "ragefire chasm",
+      "candidateAreaIDs": [
+        2437
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1455,
+      "key": "deeprun tram",
+      "candidateAreaIDs": [
+        2257
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1455,
+      "key": "gates of ironforge",
+      "candidateAreaIDs": [
+        809
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 1456,
+      "key": "elder rise",
+      "candidateAreaIDs": [
+        1639
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1456,
+      "key": "hunter rise",
+      "candidateAreaIDs": [
+        1641
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1456,
+      "key": "pools of vision",
+      "candidateAreaIDs": [
+        2197
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1456,
+      "key": "spirit rise",
+      "candidateAreaIDs": [
+        1640
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1457,
+      "key": "cenarion enclave",
+      "candidateAreaIDs": [
+        1658
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1457,
+      "key": "craftsmens terrace",
+      "candidateAreaIDs": [
+        1659
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1457,
+      "key": "temple gardens",
+      "candidateAreaIDs": [
+        1661
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1457,
+      "key": "tradesmens terrace",
+      "candidateAreaIDs": [
+        1662
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1457,
+      "key": "warriors terrace",
+      "candidateAreaIDs": [
+        1660
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "no matching map-region evidence"
+    },
+    {
+      "mapID": 1458,
+      "key": "ruins of lordaeron",
+      "candidateAreaIDs": [
+        153
+      ],
+      "matchingMapRegionIDs": [],
+      "reason": "repeated legacy key"
+    },
+    {
+      "mapID": 2482,
+      "key": "cradle of tranquility",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2482,
+      "key": "daegun",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2482,
+      "key": "elderwild",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2482,
+      "key": "felblood scar",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2482,
+      "key": "malornes retreat",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2482,
+      "key": "mournings rest",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2482,
+      "key": "shrine of aviana",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2482,
+      "key": "summit of eternity",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2482,
+      "key": "tainted foothills",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "bandit hideout",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "east pylon watchtower",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "fairweather stables",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "falaath village",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "gustberry lowlands",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "nightclaw cavern",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "overlook standing stones",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "rise of spirits",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "rohashi spires",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "ruins of banaethal",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "sanctum of storms",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "shadowgale forest",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "shendar highlands",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "shendar village",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "shriekling den",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "shrine of akir",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "skywall",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "thendal cave",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "thendal grove",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "thendal standing stones",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "thendal village",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "valanaar",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "valanaar skydocks",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "west pylon watchtower",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "windfield orchard",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "windsong lake",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2521,
+      "key": "windsong standing stones",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2524,
+      "key": "abandoned tower",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2524,
+      "key": "shipwreck cove",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "ashwoods fall",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "bolderok",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "bristle hills",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "eastwind shore",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "elbrims farm",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "farholde keep",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "forlorn pit",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "kroldok stronghold",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "meadowsbrook",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "powderfuse port",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "rogmar",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "southern watch",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "sunnyglade",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "terrals watch",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "turners logging camp",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "twilights shroud",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "wheelers grange",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2548,
+      "key": "windstead",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2652,
+      "key": "bristleback retreat",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2652,
+      "key": "evenshades overlook",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2652,
+      "key": "forlorn gardens",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2652,
+      "key": "magram front",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    },
+    {
+      "mapID": 2652,
+      "key": "outcast hideaway",
+      "candidateAreaIDs": [],
+      "matchingMapRegionIDs": [],
+      "reason": "no reviewed Vanilla map context"
+    }
+  ]
+}
