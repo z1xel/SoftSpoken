@@ -73,6 +73,28 @@ function Sources:IsTurnedOff(part)
     return parts ~= nil and key ~= nil and parts[key] == false
 end
 
+local discoveryKeys = { quests = true, zones = true, books = true }
+
+function Sources:TracksWhileOff(key)
+    local profile = CoreController.db and CoreController.db.profile
+    local preferences = profile and profile.SilentDiscovery
+    return not preferences or preferences[key] ~= false
+end
+
+function Sources:ShouldTrack(key)
+    return not self:IsTurnedOff(key) or
+        (discoveryKeys[key] == true and self:TracksWhileOff(key))
+end
+
+function Sources:SetTrackWhileOff(key, on)
+    assert(discoveryKeys[key], "Unknown discovery source")
+    local profile = CoreController.db.profile
+    profile.SilentDiscovery = profile.SilentDiscovery or {}
+    if on then profile.SilentDiscovery[key] = nil
+    else profile.SilentDiscovery[key] = false end
+    Callbacks:Fire("DISCOVERY_POLICY_CHANGED", key, self:ShouldTrack(key))
+end
+
 function Sources:SetTurnedOff(key, off)
     -- Not `off and false or nil`, which is nil either way.
     if off then CoreController.db.profile.Parts[key] = false else CoreController.db.profile.Parts[key] = nil end
@@ -87,6 +109,9 @@ function Sources:Apply(key)
     if off and source then SoundQueue:RemoveSource(source) end
     -- And the part takes its own buttons off the game's frames, or puts them back.
     Callbacks:Fire("PART_SWITCHED", key, not off)
+    if discoveryKeys[key] then
+        Callbacks:Fire("DISCOVERY_POLICY_CHANGED", key, self:ShouldTrack(key))
+    end
 end
 
 --- Iterates `key, source` in `order`.

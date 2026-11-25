@@ -54,6 +54,8 @@ Defaults = {
         -- Parts of Spoken switched off in the settings, by source key, as false. Absent means on.
         -- See Sources:IsTurnedOff for why this is the player's switch and not the client's.
         Parts = {},
+        -- False opts out of discovery only while this source is disabled.
+        SilentDiscovery = {},
         Contribute = {
             -- One switch for every feature addon's Contribute button, since they all hand
             -- the player the same box and a player who does not want one wants none.

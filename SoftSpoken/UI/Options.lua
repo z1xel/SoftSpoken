@@ -281,6 +281,18 @@ local function Build()
         if not known[key] then AddOtherSource(key, source) end
     end
 
+    layout:Section(L.OPT_SILENT_DISCOVERY, true)
+    local function AddDiscoverySwitch(key, label)
+        layout:Checkbox(format(L.OPT_SILENT_DISCOVERY_LABEL, label),
+            L.OPT_SILENT_DISCOVERY_TIP,
+            function() return Sources:TracksWhileOff(key) end,
+            function(v) Sources:SetTrackWhileOff(key, v) end,
+            function() Options:UpdateRows() end)
+    end
+    AddDiscoverySwitch("quests", L.OPT_PART_QUESTS)
+    AddDiscoverySwitch("zones", L.OPT_PART_ZONES)
+    AddDiscoverySwitch("books", L.OPT_PART_BOOKS)
+
     -- The two narrator styles this 1.12 client actually supports. Both
     -- use SpokenLayout's existing hand-drawn sketches and tooltip borders;
     -- no Retail assets or new style settings are involved.

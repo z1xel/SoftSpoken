@@ -186,6 +186,11 @@ function Spoken:IsPartOn(key)
     return not Sources:IsTurnedOff(key)
 end
 
+--- Discovery is independent of narration.
+function Spoken:ShouldTrackDiscovery(key)
+    return Sources:ShouldTrack(key)
+end
+
 --- How a part stands, as a state ("ok", "warn", "off") and the words for it: not installed,
 --- switched off, or how many voice packs it found. For the line at the top of its own page.
 function Spoken:PartStatus(key)

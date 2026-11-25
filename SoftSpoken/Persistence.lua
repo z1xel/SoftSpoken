@@ -70,6 +70,7 @@ function Persistence:ValidateImportedPreferences(root)
     local function CheckCore(profile, path)
         CheckSchema(profile, coreSchema, path)
         CheckMap(profile.Parts, "boolean", path .. ".Parts")
+        CheckMap(profile.SilentDiscovery, "boolean", path .. ".SilentDiscovery")
         if profile.Frame then CheckMap(profile.Frame.HiddenActions, "boolean", path .. ".Frame.HiddenActions") end
         if profile.Audio then
             CheckType(profile.Audio.SFXDucking, "table", path .. ".Audio.SFXDucking")
