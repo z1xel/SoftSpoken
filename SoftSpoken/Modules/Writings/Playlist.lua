@@ -150,6 +150,7 @@ end
 ---  * false = speak ONLY pageId; ITEM_TEXT_READY triggers the next page.
 --- Returns how many narrated pages were accepted.
 function Writings:PlayFrom(pageId, browsing)
+    if self.IsPartOn and not self:IsPartOn() then return 0 end
     local source = self.source
     if not source then return 0 end
 

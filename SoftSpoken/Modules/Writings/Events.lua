@@ -1,6 +1,7 @@
 -- ITEM_TEXT_* book event binding for Vanilla 1.12 globals.
 local Writings=SpokenWritings
 function Writings:OnTextReady()
+    if self.ShouldTrack and not self:ShouldTrack() then self.lastPage = nil; return 0 end
     -- The game sends READY on opening and page turns, and sometimes repeats
     -- it for a single page. Do not automatically replay a page that just ended.
     local previous = self.lastPage
@@ -9,6 +10,7 @@ function Writings:OnTextReady()
     if not page then return 0 end
     local book = self:PlaceOf(page)
     self:MarkBookFound(book)
+    if self.IsPartOn and not self:IsPartOn() then return 0 end
     if self.RefreshReadables and self.readables and self.readables.IsShown and self.readables:IsShown() then
         self:RefreshReadables()
     end
@@ -56,12 +58,12 @@ function Writings:SetupEvents()
         if e=="PLAYER_ENTERING_WORLD" then
             -- The source and database are ready. Only the Blizzard book frame
             -- may not have existed during login.
-            if Writings.SetupPlayButton and Writings:SetupPlayButton() then
+            if (not Writings.IsPartOn or Writings:IsPartOn()) and Writings.SetupPlayButton and Writings:SetupPlayButton() then
                 f:UnregisterEvent("PLAYER_ENTERING_WORLD")
             end
         elseif e=="ITEM_TEXT_READY" then
             Writings:OnTextReady()
-            if Writings.SetupPlayButton then Writings:SetupPlayButton() end
+            if (not Writings.IsPartOn or Writings:IsPartOn()) and Writings.SetupPlayButton then Writings:SetupPlayButton() end
             if Writings.RefreshPlayButton then Writings:RefreshPlayButton() end
         elseif e=="ITEM_TEXT_CLOSED" then
             Writings:OnTextClosed()

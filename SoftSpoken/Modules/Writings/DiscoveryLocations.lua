@@ -74,6 +74,7 @@ function Writings:DiscoverySummary(book)
     return self:KnownDiscoverySummary(book) or "Discovered (location unknown)"
 end
 function Writings:RecordBookLocation(book, mapID, how)
+    if self.ShouldTrack and not self:ShouldTrack() then return false end
     if not book or not mapID or not (Compendium and Compendium.MapName) then return false end
     local characterDB=Character()
     if not characterDB then return false end
@@ -174,16 +175,35 @@ bags:SetScript("OnUpdate",function(self,delta)
     if elapsed<0.25 then return end
     self:Hide()
     elapsed=0
-    if dirty then dirty=false;Reconcile() end
+    if dirty then
+        dirty=false
+        if not Writings.ShouldTrack or Writings:ShouldTrack() then Reconcile() end
+    end
 end)
 local function Schedule()
     dirty=true
     elapsed=0
     bags:Show()
 end
+local tracking
+function Writings:ApplyDiscoveryPolicy()
+    local now = not self.ShouldTrack or self:ShouldTrack()
+    if tracking == now then return end
+    local wasTracking = tracking
+    tracking = now
+    previous=nil; ready=false; dirty=false; elapsed=0
+    bags:Hide()
+    -- Initial baseline waits for PLAYER_ENTERING_WORLD, as before.
+    if now and wasTracking == false then Schedule() end
+end
 bags:SetScript("OnEvent",function(self)
     if not Writings.character then return end
     local e=event
+    if Writings.ShouldTrack and not Writings:ShouldTrack() then
+        if e=="BANKFRAME_OPENED" then inBank=true end
+        if e=="BANKFRAME_CLOSED" then inBank=false;ignoreTransfer=true end
+        return
+    end
     if e=="PLAYER_ENTERING_WORLD" then
         -- The first snapshot is a baseline, not evidence of acquisition.
         previous=nil; ready=false
@@ -217,6 +237,7 @@ end
 -- credited only to a matching *previous* bag acquisition, never to its read site.
 local OldMarkBookFound=Writings.MarkBookFound
 function Writings:MarkBookFound(book)
+    if self.ShouldTrack and not self:ShouldTrack() then return end
     local wasFound=self:IsBookFound(book)
     if not self.character then return end
     OldMarkBookFound(self,book)

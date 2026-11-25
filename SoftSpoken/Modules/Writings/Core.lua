@@ -35,6 +35,7 @@ function Writings:Get(k)
 end
 function Writings:Data() return SSBData end
 function Writings:MarkBookFound(id)
+    if not self:ShouldTrack() then return end
     if id and self.character then self.character.found[id]=true end
 end
 function Writings:IsBookFound(id)
@@ -59,6 +60,9 @@ end
 function Writings:IsPartOn()
     return not (Spoken and Spoken.IsPartOn) or Spoken:IsPartOn("books")
 end
+function Writings:ShouldTrack()
+    return not (Spoken and Spoken.ShouldTrackDiscovery) or Spoken:ShouldTrackDiscovery("books")
+end
 function Writings:SetupSource()
     if self.source then return self.source end
     if not self:PlayerAvailable() then return nil end
@@ -78,7 +82,18 @@ function Writings:SetupSource()
     end
     if Spoken.RegisterCallback then
         Spoken:RegisterCallback("PART_SWITCHED",function(key)
-            if key=="books" and Writings.RefreshPlayButton then Writings:RefreshPlayButton() end
+            if key ~= "books" then return end
+            if not Writings:IsPartOn() then
+                Writings.lastPage = nil
+                -- Sources already removed the queue; discard page continuations.
+                Writings.following = {}
+            elseif Writings.SetupPlayButton then
+                Writings:SetupPlayButton()
+            end
+            if Writings.RefreshPlayButton then Writings:RefreshPlayButton() end
+        end)
+        Spoken:RegisterCallback("DISCOVERY_POLICY_CHANGED",function(key)
+            if key == "books" and Writings.ApplyDiscoveryPolicy then Writings:ApplyDiscoveryPolicy() end
         end)
         Spoken:RegisterCallback("AUDIO_CHANGED",function()
             if Writings.RefreshPlayButton then Writings:RefreshPlayButton() end
@@ -94,6 +109,7 @@ function Writings:Initialize()
     self:InitDB()
     assert(self:SetupSource(), "Writings source registration failed")
     self:SetupEvents()
+    if self.ApplyDiscoveryPolicy then self:ApplyDiscoveryPolicy() end
     self:SetupOptions()
     if self.SetupPlayButton then self:SetupPlayButton() end
     self.initialized = true
