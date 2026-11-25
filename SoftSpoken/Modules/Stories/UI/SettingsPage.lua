@@ -192,9 +192,9 @@ function StoriesSettingsPage:Build()
     layout:Columns(nil)
 
     layout:Defaults(function()
-        UI.Confirm("Reset Stories and Gossip preferences? Their profiles are reset; reading history is kept.",
+        UI.Confirm("Reset Stories and Gossip preferences in the current profile? Discovery and narration history are kept.",
             "Reset", "Cancel", function()
-                StoriesAddon.db:ResetProfile()
+                StoriesAddon:ResetOptions()
                 Refresh()
             end)
     end)

@@ -380,11 +380,6 @@ function StoriesAddon:Initialize()
     if self.initializationStarted then return end
     self.initializationStarted = true
     self:InitDB()
-    -- Root profile operations refresh all modules after namespace propagation.
-    -- A module-local reset still needs to refresh Stories.
-    self.db.RegisterCallback(self, "OnProfileReset", function()
-        if self.initialized then self:RefreshConfig() end
-    end)
 
     StaticPopupDialogs["VOICEOVER_ERROR"] =
     {
@@ -837,10 +832,17 @@ function StoriesAddon:Initialize()
     self.initialized = true
 end
 
-function StoriesAddon:RefreshConfig()
+function StoriesAddon:ResetOptions()
+    self.db:ResetProfile()
+    if self.initialized then self:RefreshConfig() end
+end
+
+-- A root profile change sends the shared language notification after all
+-- namespace changes; a local reset invalidates Stories directly.
+function StoriesAddon:RefreshConfig(sharedLanguageWillRefresh)
     StoriesNarrator:RefreshConfig()
     -- Quest-local profile language fallbacks also affect the Voiced Only filter.
-    if SSCQuestsTab and SSCQuestsTab.InvalidateVoiceCache then
+    if not sharedLanguageWillRefresh and SSCQuestsTab and SSCQuestsTab.InvalidateVoiceCache then
         SSCQuestsTab:InvalidateVoiceCache()
     end
     -- AceDB profile changes/reset bypass individual pack switches. When the

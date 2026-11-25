@@ -83,7 +83,11 @@ eq(namespaces.Writings.profile.bookAsOneLine, false, "existing page mode choice"
 eq(writings:IsBookFound(42), true, "read record preserves discovery")
 writings:MarkBookRead(43)
 writings:MarkBookFound(44)
+local refreshCount=0
+writings.initialized=true
+writings.RefreshConfig=function() refreshCount=refreshCount+1 end
 writings:ResetOptions()
+eq(refreshCount,1,"module reset refreshes once")
 eq(namespaces.Writings.profile, accountSettings, "Writings reset reuses original settings table")
 eq(SpokenEnv.Persistence.character.Writings, character, "Writings reset retains character table")
 eq(writings:HasReadBook(43), true, "reset does not erase reading history")

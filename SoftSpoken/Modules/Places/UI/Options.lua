@@ -167,13 +167,6 @@ function PlacesRuntime:SetupOptions()
         Layout.Confirm("Reset Places preferences? Discovered and heard areas are kept.",
             "Reset", "Cancel", function()
                 PlacesRuntime.ResetOptions()
-                -- Apply the restored map preference immediately, not only
-                -- after the next reload or map interaction.
-                if SSZMapPanel and SSZMapPanel.SetEnabled then
-                    SSZMapPanel.SetEnabled(true)
-                end
-                if PlacesRuntime.Recheck then PlacesRuntime.Recheck() end
-                Refresh()
             end)
     end)
 

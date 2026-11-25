@@ -166,11 +166,12 @@ function CoreController:ApplyProfile()
     if Subtitle and Subtitle.Update then Subtitle:Update() end
     -- Hands LibDBIcon the new profile's table: it keeps the one it was given.
     if Minimap and Minimap.Refresh then Minimap:Refresh() end
+    if OtherSounds and OtherSounds.RefreshConfig then OtherSounds:RefreshConfig() end
     -- Which modules are on is the profile's too: each puts its buttons back or takes them off,
     -- and what one now off had queued goes, as switching it off on Spoken's page does.
     for key in Sources:Iterate() do Sources:Apply(key) end
     if VoiceOver and VoiceOver.StoriesAddon and VoiceOver.StoriesAddon.initialized then
-        VoiceOver.StoriesAddon:RefreshConfig()
+        VoiceOver.StoriesAddon:RefreshConfig(true)
     end
     if SpokenPlacesRuntime and SpokenPlacesRuntime.initialized then
         SpokenPlacesRuntime:RefreshConfig()
@@ -178,11 +179,10 @@ function CoreController:ApplyProfile()
     if SpokenWritings and SpokenWritings.initialized then
         SpokenWritings:RefreshConfig()
     end
-    if SpokenCompendium and SpokenCompendium.Refresh then SpokenCompendium:Refresh() end
-    if Options and Options.UpdateRows then Options:UpdateRows() end
-    -- Profile switches may change the shared voice language without using the
-    -- settings dropdown; invalidate consumers of the derived voice order.
+    -- Stories invalidates its voice cache through this notification; do not
+    -- separately refresh it during the same root profile operation.
     Callbacks:Fire("VOICE_LANGUAGE_CHANGED")
+    if Options and Options.UpdateRows then Options:UpdateRows() end
 end
 
 --- One of the profile's settings tables ("Frame", "Transcript"), or its defaults where there is

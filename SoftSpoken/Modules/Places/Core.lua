@@ -79,9 +79,6 @@ function PlacesRuntime:Initialize()
         return false
     end
     -- Legacy caption preferences are handled during D4 recovery, before DB initialization.
-    self.db.RegisterCallback(self, "OnProfileReset", function()
-        if self.initialized then self:RefreshConfig() end
-    end)
     -- Packaged 32-bit TGA map-location cursor artwork for Vanilla 1.12;
     -- the player keeps its existing type glyphs and queued grayscale.
     if Spoken.RegisterBullet then
@@ -127,6 +124,8 @@ end
 -- Re-evaluate the active combat gate and any open Places UI on profile changes.
 function PlacesRuntime:RefreshConfig()
     self.Recheck()
+    if SSZMapHighlight and SSZMapHighlight.Hide then SSZMapHighlight.Hide() end
+    if SSZMapHover and SSZMapHover.Hide then SSZMapHover.Hide() end
     if SSZMapPanel and SSZMapPanel.Refresh then SSZMapPanel.Refresh() end
     if SSZLoreWindow and SSZLoreWindow.Refresh then SSZLoreWindow.Refresh() end
     if self.RefreshOptions then self:RefreshOptions() end

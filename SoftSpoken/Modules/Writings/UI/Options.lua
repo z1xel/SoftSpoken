@@ -124,7 +124,6 @@ function Writings:SetupOptions()
             "Reset", "Cancel", function()
                 Writings:ResetOptions()
                 Writings:Print("Writings settings reset; discoveries and reading history preserved")
-                Refresh()
             end)
     end)
 

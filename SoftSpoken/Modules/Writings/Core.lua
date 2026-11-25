@@ -20,6 +20,7 @@ end
 -- Profile reset does not touch personal discoveries or reading history.
 function Writings:ResetOptions()
     self.db:ResetProfile()
+    if self.initialized then self:RefreshConfig() end
 end
 
 function Writings:RefreshConfig()
@@ -91,9 +92,6 @@ function Writings:Initialize()
     if self.initializationStarted then return end
     self.initializationStarted = true
     self:InitDB()
-    self.db.RegisterCallback(self, "OnProfileReset", function()
-        if self.initialized then self:RefreshConfig() end
-    end)
     assert(self:SetupSource(), "Writings source registration failed")
     self:SetupEvents()
     self:SetupOptions()

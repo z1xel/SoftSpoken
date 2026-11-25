@@ -45,9 +45,6 @@ function Sources:Register(key, info)
         packs = info.packs,
         hasUsablePacks = info.hasUsablePacks,
         voicePacksPending = info.voicePacksPending,
-        -- A part's settings kept in AceDB profiles: a function returning its AceDB object, so
-        -- Spoken's own Profiles section switches it with the player's (Options:ProfileDBs).
-        profiles = info.profiles,
         gates = {},
     }, SourceMethods)
     self.byKey[key] = source

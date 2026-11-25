@@ -26,6 +26,7 @@ end
 
 local function ResetOptions()
     PlacesRuntime.db:ResetProfile()
+    if PlacesRuntime.initialized then PlacesRuntime:RefreshConfig() end
 end
 
 PlacesRuntime.CharDB = CharDB

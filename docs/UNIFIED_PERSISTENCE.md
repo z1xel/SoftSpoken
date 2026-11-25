@@ -1,6 +1,6 @@
 # Unified persistence — phase D
 
-## D1–D2 foundation and module cutover
+## D1–D3 unified persistence and profile management
 
 The target has two SavedVariables globals: `SoftSpokenDB` (account) and
 `SoftSpokenCharacterDB` (per-character). `Persistence.lua` is private to
@@ -36,9 +36,13 @@ module may cache a profile table across profile changes.
 
 - D2: switch TOC and controllers together; move all persisted access to this
   foundation. Audit early event handlers and cached settings pointers.
-- D3: simplify profile operations and refresh callbacks, retain module-specific
-  resets, distinguish Core-only reset from whole-profile reset. Keep profile UI
-  disabled until validated.
+- D3: root-only profile operations; root callbacks run after all namespaces
+  have changed. Explicit module reset methods refresh only their own module.
+  Core-only reset preserves all module preferences (including unlock switches),
+  clears the account-wide window layout and reloads. Whole-profile reset
+  restores all module/Core preferences but preserves account layout, character
+  history and other profiles. Keep profile UI disabled until actual client
+  validation (D5).
 - D4: use the proposed ClassicAPI read-only import returning account and
   character tables separately. Migrate only released addon identities.
   Preserve each character's active legacy preferences, not inactive legacy
@@ -50,3 +54,8 @@ module may cache a profile table across profile changes.
 D1 tests load the real vendored AceDB and exercise seeded data, idempotent
 initialization, profile switching/copy/reset/delete and history isolation.
 D2 regression fixtures use the new module settings/history access paths. Legacy Places combat/default flags, heard-key normalization and caption conversion must be covered by D4 migration tests.
+
+D3 fixes two D2 Writings lookups (autoplay and closeWhenRead), caught by the
+audio transport regression. The bundled AceDB test now also exercises the
+actual Core callback and Options profile operations, ensuring one root refresh
+pass and independent reset scopes. Module reset tests assert a local refresh.

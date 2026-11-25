@@ -622,24 +622,16 @@ local function Build()
         end, L.OPT_KEY_SET_TIP, { press = L.OPT_KEY_PRESS })
     end
 
-    -- Profiles, for all of Spoken at once: the player's own settings and every part that keeps
-    -- its settings in profiles switch, copy and delete together.
+    -- One profile owns Core and every feature namespace.
     Options:AddProfiles(layout)
 
-    -- Restore the player's existing settings (module preferences are separate).
-    layout:StartOver(L.OPT_START_OVER_TITLE, L.OPT_RESET_ALL, function()
-        Layout.Confirm(L.OPT_RESET_ALL_CONFIRM, L.OPT_RESET_AND_RELOAD, L.CANCEL, function()
-            -- The Unlock switches are on this page but kept with each part's settings, which
-            -- ResetProfile does not reach, and each part's own Reset skips them.
-            for _, key in ipairs({ "places", "readables", "quests" }) do
-                local tab = Tab(key)
-                if tab and tab.unlock then tab.unlock.set(false) end
-            end
-            CoreController.db:ResetProfile(true)
-            CoreController.db.global.Layout = nil
+    -- Core-only reset; account-wide window layout is cleared explicitly.
+    layout:StartOver(L.OPT_START_OVER_TITLE, L.OPT_RESET_CORE, function()
+        Layout.Confirm(L.OPT_RESET_CORE_CONFIRM, L.OPT_RESET_AND_RELOAD, L.CANCEL, function()
+            Options:ResetCoreSettings()
             ReloadUI()
         end)
-    end, L.OPT_RESET_ALL_TIP)
+    end, L.OPT_RESET_CORE_TIP)
 
     if panel.HookScript then
         panel:HookScript("OnShow", function() Options:UpdateRows() end)
@@ -702,88 +694,46 @@ function Options:PartVoice(key)
     return have == 0 and "muted" or "neutral", L.PART_VOICE, tostring(have)
 end
 
---- Every AceDB object a profile choice applies to: the player's, then each installed part's
---- that keeps its settings in profiles (a source's `profiles`).
--- One installed source may advertise profiles before its AceDB object is ready.
--- Check for a callable GetProfiles method, rather than just a truthy field.
-function Options:ProfileDBs()
-    local dbs, seen = {}, {}
-    if CoreController.db and type(CoreController.db.GetProfiles) == "function" then
-        table.insert(dbs, CoreController.db)
-        seen[CoreController.db] = true
-    end
-    for _, source in Sources:Iterate() do
-        if type(source.profiles) == "function" then
-            local ok, db = pcall(source.profiles)
-            if ok and type(db) == "table" and
-                type(db.GetProfiles) == "function" and not seen[db] then
-                table.insert(dbs, db)
-                seen[db] = true
-            end
-        end
-    end
-    return dbs
-end
-
--- AceDB's GetProfiles returns a list, but a partially initialized module
--- must not prevent the entire 1.12 settings window from opening.
-local function ProfileList(db)
-    if not db or type(db.GetProfiles) ~= "function" then return {} end
-    local ok, result = pcall(db.GetProfiles, db)
-    if not ok or type(result) ~= "table" then return {} end
-    return result
-end
-
-local function Has(db, name)
-    for _, other in ipairs(ProfileList(db)) do
-        if other == name then return true end
-    end
-    return false
-end
-
---- Every profile any of the installed databases has, sorted once.
+--- AceDB propagates operations from the root to every registered namespace.
 function Options:ProfileNames()
-    local seen, names = {}, {}
-    for _, db in ipairs(self:ProfileDBs()) do
-        for _, name in ipairs(ProfileList(db)) do
-            if type(name) == "string" and not seen[name] then
-                seen[name] = true
-                table.insert(names, name)
-            end
-        end
-    end
+    local names = CoreController.db:GetProfiles()
     table.sort(names)
     return names
 end
 
 function Options:CurrentProfile()
-    local db = self:ProfileDBs()[1]
-    return db and db:GetCurrentProfile()
+    return CoreController.db:GetCurrentProfile()
 end
 
---- Switch every one to `name`, which AceDB makes where it is new.
 function Options:SetProfile(name)
-    for _, db in ipairs(self:ProfileDBs()) do db:SetProfile(name) end
+    CoreController.db:SetProfile(name)
 end
 
---- Copy `name` into the profile in use, in every one that has it.
 function Options:CopyProfile(name)
-    for _, db in ipairs(self:ProfileDBs()) do
-        if db.CopyProfile and Has(db, name) and db:GetCurrentProfile() ~= name then db:CopyProfile(name) end
-    end
+    local db = CoreController.db
+    if name ~= db:GetCurrentProfile() and db.profiles[name] then db:CopyProfile(name) end
 end
 
 function Options:DeleteProfile(name)
-    for _, db in ipairs(self:ProfileDBs()) do
-        if db.DeleteProfile and Has(db, name) and db:GetCurrentProfile() ~= name then db:DeleteProfile(name) end
-    end
+    local db = CoreController.db
+    if name ~= db:GetCurrentProfile() and db.profiles[name] then db:DeleteProfile(name) end
+end
+
+function Options:ResetCurrentProfile()
+    CoreController.db:ResetProfile()
+end
+
+function Options:ResetCoreSettings()
+    -- No child resets and no live refresh: this action immediately reloads.
+    CoreController.db:ResetProfile(true, true)
+    CoreController.db.global.Layout = nil
 end
 
 function Options:AddProfiles(layout)
-    if not self:ProfileDBs()[1] then return end
+    if not CoreController.db then return end
     self.profileLayout = layout
-    -- Preserve all AceDB profile logic and saved data for later use, but make
-    -- this entire UI section inert until profile support is ready.
+    -- Keep the controls inert until the unified system is validated in the
+    -- actual Vanilla client (D5); operations already use the root database.
     local profileSelectionAvailable = false
     local profileUnavailable = L.OPT_PROFILE_UNAVAILABLE
         or "* Profiles are currently unavailable. Profile management is disabled."
@@ -801,7 +751,7 @@ function Options:AddProfiles(layout)
     end
     local function Pick(name) return name or L.OPT_PROFILE_PICK end
     layout:Section(L.OPT_SECTION_PROFILES)
-    local current = layout:Dropdown(L.OPT_PROFILE, L.OPT_PROFILE_TIP,
+    local current = layout:Dropdown(L.OPT_PROFILE, L.OPT_UNIFIED_PROFILE_TIP,
         function() return self:ProfileNames() end,
         function() return self:CurrentProfile() end,
         function(name)
@@ -820,6 +770,14 @@ function Options:AddProfiles(layout)
             if profileSelectionAvailable then self:DeleteProfile(name); layout:Refresh() end
         end, nil, Pick)
     DisableProfileControl(delete)
+    local reset = layout:Button(L.OPT_RESET_PROFILE, 200, function()
+        if not profileSelectionAvailable then return end
+        Layout.Confirm(L.OPT_RESET_PROFILE_CONFIRM, L.OPT_RESET_PROFILE, L.CANCEL, function()
+            self:ResetCurrentProfile()
+            layout:Refresh()
+        end)
+    end, L.OPT_RESET_PROFILE_TIP)
+    DisableProfileControl(reset)
     if StaticPopupDialogs and StaticPopup_Show then
         StaticPopupDialogs.SPOKEN_NEW_PROFILE = StaticPopupDialogs.SPOKEN_NEW_PROFILE or {
             text = L.OPT_PROFILE_NEW_PROMPT, button1 = _G.ACCEPT or "Accept", button2 = L.CANCEL,

@@ -65,7 +65,11 @@ dofile("SoftSpoken/Modules/Places/Autoplay.lua")
 local s=R.Settings()
 s.holdCombat=true
 s.stopCombat=true
+local refreshCount=0
+R.initialized=true
+R.RefreshConfig=function() refreshCount=refreshCount+1 end
 R.ResetOptions()
+eq(refreshCount,1)
 eq(s.holdCombat,false);eq(s.stopCombat,false)
 local oldProfile=s
 R.db.profile={auto=true,subzones=true,mode="discovery",holdCombat=false,
