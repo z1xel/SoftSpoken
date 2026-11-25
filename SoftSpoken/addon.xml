@@ -3,6 +3,7 @@
     <Include file="UpgradeGuard.lua"/>
     <Include file="Version.lua"/>
     <Include file="Persistence.lua"/>
+    <Include file="Migration.lua"/>
     <Include file="Core.lua"/>
     <Include file="SoundUtils.lua"/>
     <Include file="Callbacks.lua"/>

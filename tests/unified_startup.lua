@@ -24,6 +24,7 @@ local function setup(fail, blocked)
         function frame:SetScript(name, fn) self.scripts[name] = fn end
         return frame
     end
+    Persistence = { RecoverLegacy = function() record("Migration"); if fail == "Migration" then error("import failed") end end }
     SpokenEnv = setmetatable({ UpgradeGuard = { CanStart = function() return not blocked end } }, { __index = _G })
     assert(loadfile("SoftSpoken/Startup.lua"))()
     assert(table.getn(calls) == 0, "startup before login")
@@ -38,14 +39,16 @@ local function setup(fail, blocked)
 end
 
 setup()
-assert(table.concat(calls, ",") == "Core,Stories,Places,Writings,Finalize")
+assert(table.concat(calls, ",") == "Migration,Core,Stories,Places,Writings,Finalize")
 assert(table.getn(messages) == 0)
 setup("Stories")
-assert(table.concat(calls, ",") == "Core,Stories,Places,Writings,Finalize")
+assert(table.concat(calls, ",") == "Migration,Core,Stories,Places,Writings,Finalize")
 assert(table.getn(messages) == 1 and string.find(messages[1], "Stories", 1, true))
 setup("Core")
-assert(table.concat(calls, ",") == "Core")
+assert(table.concat(calls, ",") == "Migration,Core")
 assert(table.getn(messages) == 1)
+setup("Migration")
+assert(table.concat(calls, ",") == "Migration" and table.getn(messages) == 1)
 setup(nil, true)
 assert(table.getn(calls) == 0, "conflicting old installation initialized")
 print("PASS: native startup order, one-shot initialization and failure isolation")

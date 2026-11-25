@@ -221,4 +221,3 @@ frame:SetScript("OnEvent",function(self,evt,a1,a2)
         SpokenCompendium:Refresh()
     end
 end)
-Saved()

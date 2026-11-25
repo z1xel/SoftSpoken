@@ -59,3 +59,7 @@ D3 fixes two D2 Writings lookups (autoplay and closeWhenRead), caught by the
 audio transport regression. The bundled AceDB test now also exercises the
 actual Core callback and Options profile operations, ensuring one root refresh
 pass and independent reset scopes. Module reset tests assert a local refresh.
+
+### D4 implementation contract
+
+Startup calls the read-only global `ImportSavedVariables(addon)` before Core initialization. The proposed function must return two tables keyed by saved-variable name (account and current character); missing files return empty tables, errors must throw or return a non-table. No writes occur until all imports and transformations succeed. Missing API blocks startup rather than silently initializing defaults. The account snapshot retains active preferences for other characters because the old Core filename is reused; each character consumes its own snapshot on first login. Character-specific imported profiles avoid cross-character preference conflicts. The API is not yet available in the real client; D5 must verify it and actual logout/reload behavior.
