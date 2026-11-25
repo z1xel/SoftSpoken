@@ -1,0 +1,14 @@
+{
+  "identities": {},
+  "base": {
+    "entities": {},
+    "bindings": [],
+    "relations": [],
+    "mapRepresentations": [],
+    "mapCoverage": []
+  },
+  "worldOverlays": {},
+  "profileOverlays": {},
+  "sourceDispositions": [],
+  "contentCrosswalk": []
+}

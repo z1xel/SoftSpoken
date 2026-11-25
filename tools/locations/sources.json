@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "profiles": {},
+  "contentScopes": {
+    "spoken_classic": {
+      "revision": "SoftSpoken 5ed57984130fc8d2dbca5933e3cc0447ac70e8b4",
+      "provenance": "checked-in legacy content keys; exact upstream modern UiMap source remains unverified"
+    }
+  },
+  "candidates": [
+    {
+      "source": "https://github.com/oplancelot/Turtle-WOW-DBC/tree/e92f27cffc536124702ccffbaca38317c43a6663/dbc.MPQ/DBFilesClient",
+      "status": "rejected-as-effective-client",
+      "reason": "AreaTable has 988 rows, 21 fields, max ID 2897; Map has 37 fields; no custom Turtle IDs. Not effective patched 5875 layout.",
+      "blobs": {
+        "AreaTable": "243ee9d99f01ee362f2a8086fab594a16b506c6a",
+        "Map": "ee001ec434245cb9ba33491f7c8a1edf5d3cafb6",
+        "WorldMapArea": "2ca246639adc3f34d24496d35747e91e892c3716",
+        "WorldMapOverlay": "ca7c2d95bde56f568a14ead469fe7e13cbc4fcfd"
+      }
+    },
+    {
+      "source": "https://github.com/suprsokr/VanillaDBDefs/tree/d23630b7e5fac1d5086cc7ae9f538a8485f7080a",
+      "status": "layout-reference-only"
+    },
+    {
+      "source": "https://github.com/shagu/pfQuest/tree/104f35678ca39ab1fb78b655f815cc7016f5e0c8",
+      "status": "corroboration-only"
+    },
+    {
+      "source": "https://github.com/shagu/pfQuest-turtle/tree/0bc7bf4e55d8867a065354da6f386461255e4801",
+      "status": "corroboration-only"
+    }
+  ],
+  "missing": [
+    "effective Vanilla 5875 DBCs",
+    "effective Turtle DBCs",
+    "effective Octo DBCs",
+    "verified upstream UiMap snapshot",
+    "runtime native profile selector"
+  ]
+}
