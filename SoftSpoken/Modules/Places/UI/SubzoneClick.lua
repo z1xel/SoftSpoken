@@ -32,6 +32,7 @@ local function ClearDown()
     downX, downY, downMap = nil, nil, nil
 end
 function SubzoneClick.HandleClick(x, y, poiName)
+    if Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones") then return false end
     local settings = SpokenPlacesRuntime and SpokenPlacesRuntime.Settings()
     if not settings or settings.showMapPanel == false then return false end
     local mapID = MapCompat.GetDisplayedMapID()
@@ -57,6 +58,7 @@ end
 
 function SubzoneClick.MouseDown(button, x, y)
     ClearDown()
+    if Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones") then return end
     if button ~= "LeftButton" then return end
     downX, downY = x, y
     downMap = MapCompat.GetDisplayedMapID()
@@ -129,6 +131,7 @@ end
 local watcher = CreateFrame("Frame")
 local elapsed = 0
 watcher:SetScript("OnUpdate",function(self, dt)
+    if Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones") then return end
     elapsed = elapsed + (dt or arg1 or 0)
     if elapsed < 1 then return end
     elapsed = 0

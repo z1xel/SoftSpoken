@@ -144,7 +144,10 @@ function PlacesRuntime:Initialize()
             if key == "zones" then ApplyDiscovery() end
         end)
         Spoken:RegisterCallback("PART_SWITCHED", function(key)
-            if key == "zones" and SSZMapPanel and SSZMapPanel.Refresh then SSZMapPanel.Refresh() end
+            if key ~= "zones" then return end
+            if SSZMapHover and SSZMapHover.Hide then SSZMapHover.Hide() end
+            if SSZMapHighlight and SSZMapHighlight.Hide then SSZMapHighlight.Hide() end
+            if SSZMapPanel and SSZMapPanel.Refresh then SSZMapPanel.Refresh() end
         end)
     end
     ApplyDiscovery()

@@ -17,6 +17,7 @@ end
 MapHover.Hide = Hide
 
 local function Enabled()
+    if Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones") then return false end
     if not (WorldMapFrame and WorldMapFrame.IsShown and WorldMapFrame:IsShown()) then return false end
     if not (WorldMapButton and SubzoneClick and SubzoneClick.Position and MapCompat and MapCompat.ResolveAt) then return false end
     local settings = SpokenPlacesRuntime and SpokenPlacesRuntime.Settings()
@@ -148,6 +149,7 @@ function MapHover.Setup()
     if not (WorldMapFrame and WorldMapButton and MapCompat and SubzoneClick) then return false end
     local driver = CreateFrame('Frame', nil, WorldMapFrame)
     driver:SetScript('OnUpdate', function(self, elapsed)
+        if Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones") then return end
         state.elapsed = state.elapsed + (elapsed or arg1 or 0)
         if state.elapsed < TICK then return end
         state.elapsed = 0
@@ -168,6 +170,7 @@ local setup = CreateFrame('Frame')
 local elapsed = 0
 setup:SetScript('OnUpdate', function(self, dt)
     if state.driver then self:SetScript('OnUpdate', nil); return end
+    if Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones") then return end
     elapsed = elapsed + (dt or arg1 or 0)
     if elapsed < 1 then return end
     elapsed = 0

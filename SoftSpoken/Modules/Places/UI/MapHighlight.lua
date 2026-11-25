@@ -20,6 +20,7 @@ local function VisibleMap()
 end
 
 local function CanInteract()
+    if Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones") then return false end
     local cfg = SpokenPlacesRuntime and SpokenPlacesRuntime.Settings()
     if not cfg or cfg.showMapPanel == false then return false end
     if not (C_Map and C_Map.GetMapOverlays and C_Map.GetAreaInfo) then return false end
@@ -149,6 +150,7 @@ end
 MapHighlight.Light = Light
 
 local function OnUpdate(self, elapsed)
+    if Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones") then return end
     state.elapsed = (state.elapsed or 0) + (elapsed or arg1 or 0)
     if state.elapsed < TICK then return end
     state.elapsed = 0
@@ -201,6 +203,7 @@ local setup = CreateFrame('Frame')
 local elapsed = 0
 setup:SetScript('OnUpdate', function(self, dt)
     if state.driver then self:SetScript('OnUpdate', nil); return end
+    if Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones") then return end
     elapsed = elapsed + (dt or arg1 or 0)
     if elapsed < 1 then return end
     elapsed = 0

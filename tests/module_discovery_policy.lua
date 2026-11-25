@@ -1,6 +1,7 @@
 -- Test actual source policy, persistence preference and notification contract.
 local events, removed = {}, {}
 local env=setmetatable({
+    format=string.format,
     CoreController={db={profile={Parts={}}}},
     Callbacks={Fire=function(self,name,key,value)
         table.insert(events,{name,key,value})

@@ -592,7 +592,8 @@ function StoriesAddon:Initialize()
         if (QUEST_EVENTS[event] or SPEECH_EVENTS[event]) and not self:IsPageOn(event) then
             -- Quest capture has its own observer. Retain shared NPC quest-list
             -- context for enabled quest narration, even if gossip is silent.
-            if not (SPEECH_EVENTS[event] and self:IsPartOn("quests")) then return end
+            local trackQuests = Spoken and Spoken.ShouldTrackDiscovery and Spoken:ShouldTrackDiscovery("quests")
+            if not (SPEECH_EVENTS[event] and (self:IsPartOn("quests") or trackQuests)) then return end
         end
         -- Also reached by the panel OnShow / QuestFrame hooks, not only the
         -- direct-event frame. Arm the gate before the 0.1-second speech deferral.
@@ -837,7 +838,14 @@ function StoriesAddon:Initialize()
     end
     if Spoken and Spoken.RegisterCallback then
         Spoken:RegisterCallback("PART_SWITCHED", function(key, on)
-            if key == "quests" and not on then self:ClearPendingRead() end
+            if key == "quests" and not on then
+                self:ClearPendingRead()
+                if Followup then Followup.armed = {}; Followup.recentlyArmed = {} end
+            elseif key == "gossip" and not on then
+                -- Invalidate any already scheduled greeting/gossip timer.
+                deferredEventGeneration.QUEST_GREETING = (deferredEventGeneration.QUEST_GREETING or 0) + 1
+                deferredEventGeneration.GOSSIP_SHOW = (deferredEventGeneration.GOSSIP_SHOW or 0) + 1
+            end
         end)
         local tracking = not Spoken.ShouldTrackDiscovery or Spoken:ShouldTrackDiscovery("quests")
         Spoken:RegisterCallback("DISCOVERY_POLICY_CHANGED", function(key, on)
