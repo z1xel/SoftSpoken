@@ -118,8 +118,14 @@ def inventory(root, pack=None):
     for path, name, ns in [("Compendium/UI/MapNames.lua","MapNames","upstreamUiMap"),
                            ("Compendium/UI/DungeonNames.lua","DungeonNames","instanceMap"),
                            ("Modules/Stories/Data/TurtleAreaMeta.lua","SSCTurtleAreaMeta","areaTable")]:
-        for key in table(read(path), name):
+        for key, entry in table(read(path), name).items():
             add(name, key, ns, key)
+            if name == "SSCTurtleAreaMeta":
+                for field, namespace in (("uiMapID","upstreamUiMap"),("dungeonMapID","instanceMap"),
+                                         ("continent","upstreamUiMap"),("parentZone","upstreamUiMap"),
+                                         ("parentArea","areaTable")):
+                    if field in entry:
+                        add(name+"."+field,key,namespace,entry[field])
     # Extract nested quest table independently from outer metadata.
     quests = table(read("Modules/Stories/Data/Compendium.lua"), "quests")
     sorts = []

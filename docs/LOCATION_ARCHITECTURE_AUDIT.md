@@ -12,7 +12,7 @@ Counts below were obtained from the generated Lua table declarations at the pinn
 | --- | --- | --- |
 | Modules/Places/Data/Zones.lua | 54 UiMap-keyed rows | English names and lore; five pending entries (2482 Mount Hyjal, 2521 Zephras Isle, 2524 Darkspear Islands, 2548 Riverglades, 2652 Shen'dralas) outside shared MapNames. Pending is not proof of availability or native ID. |
 | Modules/Places/Data/Subzones.lua | 878 subzone keys in 51 parent groups | Parent UiMapID + normalized English key, not native area IDs. All 51 parent IDs exist in Zones. |
-| Modules/Places/Data/Pictures.lua | 52 groups, 810 picture associations (52 empty-key zone associations, 758 subzone associations) | Artwork references, not unique locations or unique files; empty key means zone. Keep content separate. |
+| Modules/Places/Data/Pictures.lua | 52 groups, 862 picture associations (52 empty-key zone associations, 810 subzone associations; corrected by L3 literal-table inventory) | Artwork references, not unique locations or unique files; empty key means zone. Keep content separate. |
 | Compendium/UI/MapNames.lua | 52 UiMap labels | Three battleground IDs 1459–1461 not present in Places Zones; five pending Places IDs absent here. |
 | Compendium/UI/DungeonNames.lua | 26 named instance maps + 7 raid flags | Map.dbc instance namespace, not UiMap or AreaTable. Unknown maps currently default to dungeon. |
 | Modules/Stories/Data/TurtleAreaMeta.lua | 45 AreaTable rows | Reviewed mappings to UiMap/instance IDs, named custom areas, continent/parentZone/parentArea and instanceType. |

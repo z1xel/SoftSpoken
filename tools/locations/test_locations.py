@@ -36,7 +36,7 @@ class LocationTests(unittest.TestCase):
         counts = Counter(x["owner"] for x in refs)
         self.assertEqual(counts["Places.Zones"],54)
         self.assertEqual(counts["Places.Subzones"],878)
-        self.assertEqual(counts["Places.Pictures"],810)
+        self.assertEqual(counts["Places.Pictures"],862)
         self.assertEqual(counts["Stories.turtleArea"],980)
         self.assertEqual(counts["Stories.dungeon"],556)
         self.assertEqual(len(data["questSortsExcluded"]),1118)
@@ -139,7 +139,7 @@ class LocationTests(unittest.TestCase):
             b=build(manifest,decisions,ROOT,p/"b")
             self.assertEqual(a,b)
             self.assertEqual(a["sourceCounts"],{"held":4})
-            for name in ("Locations.generated.lua","coverage.json","normalized-sources.json"):
+            for name in ("Locations.generated.lua","ContentBindings.generated.lua","coverage.json","normalized-sources.json"):
                 self.assertEqual((p/"a"/name).read_bytes(),(p/"b"/name).read_bytes())
             source["effectivePatched"]=False
             with self.assertRaises(ValueError):

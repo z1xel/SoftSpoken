@@ -271,7 +271,9 @@ def canonicalize(view):
 
 def build(manifest, decisions, root, output, pack=None, previous=None, inventory_only=False):
     refs = inventory(root,pack)
-    output = Path(output)
+    output = Path(output).resolve()
+    addon = (Path(root)/"SoftSpoken").resolve()
+    require(output != addon and addon not in output.parents, "staging output must be outside the addon")
     output.mkdir(parents=True, exist_ok=True)
     def dump(name, data):
         (output/name).write_text(json.dumps(data, indent=2, sort_keys=True, ensure_ascii=False)+"\n",encoding="utf-8")
@@ -312,6 +314,12 @@ def build(manifest, decisions, root, output, pack=None, previous=None, inventory
                "profiles":{p:{"world":s["world"]} for p,s in sorted(manifest["profiles"].items())},
                "redirects":{k:v["redirect"] for k,v in identities.items() if "redirect" in v},
                "splits":{k:sorted(v["split"]) for k,v in identities.items() if "split" in v}}
+    # Independent content bindings: no prose, artwork or audio embedded in locations.
+    mapped = [{k:row[k] for k in ("namespace","value","area","location") if k in row}
+              for row in decisions.get("contentCrosswalk",[]) if row["status"] == "mapped"]
+    mapped.sort(key=lambda row: json.dumps(row,sort_keys=True,ensure_ascii=True))
+    (output/"ContentBindings.generated.lua").write_text(
+        "-- Generated staging content crosswalk; not loaded by the addon.\nSoftSpokenLocationContentBindings = "+lua(mapped)+"\n",encoding="utf-8")
     (output/"Locations.generated.lua").write_text("-- Generated staging data; not loaded by the addon.\nSoftSpokenLocationData = "+lua(payload)+"\n",encoding="utf-8")
     return {k:report[k] for k in ("sourceCounts","contentCounts")}
 
