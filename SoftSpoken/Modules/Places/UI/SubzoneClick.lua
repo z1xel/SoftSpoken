@@ -32,8 +32,8 @@ local function ClearDown()
     downX, downY, downMap = nil, nil, nil
 end
 function SubzoneClick.HandleClick(x, y, poiName)
-    local settings = SSZCharacter and SSZCharacter.settings
-    if settings and settings.showMapPanel == false then return false end
+    local settings = SpokenPlacesRuntime and SpokenPlacesRuntime.Settings()
+    if not settings or settings.showMapPanel == false then return false end
     local mapID = MapCompat.GetDisplayedMapID()
     if not mapID then return false end
     -- Leave continent/world map navigation entirely to Blizzard.

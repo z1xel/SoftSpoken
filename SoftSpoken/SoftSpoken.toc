@@ -2,8 +2,8 @@
 ## Title: SoftSpoken
 ## Notes: Narration and lore companion for the 1.12 client.
 ## Version: v0.9.1-beta
-## SavedVariables: SpokenSettings, SpokenQuestsSettings, SSBSettings
-## SavedVariablesPerCharacter: SSCQuestJournal, SSZCharacter, SSBCharacter
+## SavedVariables: SoftSpokenDB
+## SavedVariablesPerCharacter: SoftSpokenCharacterDB
 ## OptionalDeps: SpokenPlacesAudio, SpokenZonesAudio, SpokenReadablesAudio, SpokenBooksAudio
 ## X-Part-Of: SoftSpoken
 ## X-Spoken-Player: 1

@@ -3,7 +3,6 @@ Options = { }
 
 local AceGUI = LibStub("AceGUI-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-local AceDBOptions = LibStub("AceDBOptions-3.0")
 
 ------------------------------------------------------------
 -- Construction of the options table for AceConfigDialog --
@@ -127,7 +126,6 @@ Options.table = {
     args = {
         General = GeneralTab,
         DataModules = DataModulesTab,
-        Profiles = nil, -- Filled in Options:OnInitialize, order is implicitly 100
 
     }
 }
@@ -409,10 +407,6 @@ function Options:Initialize()
         local message = name .. ": " .. tostring(result)
         table.insert(self.initializationErrors, message)
     end
-
-    RunOptionalStep("profile options", function()
-        self.table.args.Profiles = AceDBOptions:GetOptionsTable(StoriesAddon.db)
-    end)
 
     -- Create options table
     Debug:Print("Registering options table...", "Options")

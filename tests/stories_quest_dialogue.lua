@@ -11,7 +11,7 @@ local journal = { dialogue = {
     [101] = { accept="Captured acceptance $N." },
     [102] = { accept="   " },
 } }
-SSCQuestJournal = journal
+SpokenEnv={Persistence={character={Stories={journal=journal}}}}
 SpokenQuestsText = {
     [101] = { accept="Base acceptance.", progress="Base progress.", complete="Base completion." },
     [102] = { accept="Base 102.", progress="Base 102 progress." },
@@ -68,7 +68,7 @@ eq(dialogue:Text(102,"accept"),"Turtle Ari Mage Human her.","blank captured stag
 eq(dialogue:Text(102,"progress"),"Base 102 progress.","stage-by-stage fallback")
 eq(dialogue:Text(103,"accept"),"Original Mage Human \nher.","original tokens expanded")
 eq(dialogue:Text(900,"accept"),nil,"missing quest has no text")
-eq(journal.dialogue,SSCQuestJournal.dialogue,"saved-variable table identity")
+eq(journal.dialogue,SpokenEnv.Persistence.character.Stories.journal.dialogue,"saved-variable table identity")
 eq(SpokenQuestsText[101].accept,"Base acceptance.","original corpus unmodified")
 
 -- Capture all three live quest stages through the actual event callback.

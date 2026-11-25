@@ -10,8 +10,7 @@ local DOWNLOAD = "https://www.curseforge.com/wow/addons/spoken-books-audio"
 
 local function S(key, fallback) return L[key] or fallback end
 local function Settings()
-    if not SSBSettings then Writings:InitDB() end
-    return SSBSettings
+    return Writings.db.profile
 end
 local function Refresh()
     if layout then layout:Refresh() end
@@ -152,8 +151,8 @@ function Writings:BooksStatusLines()
         for _ in pairs(pack.pages or {}) do clips = clips + 1 end
     end
     local found, read = 0, 0
-    for _ in pairs(SSBCharacter and SSBCharacter.found or {}) do found = found + 1 end
-    for _ in pairs(SSBCharacter and SSBCharacter.read or {}) do read = read + 1 end
+    for _ in pairs(Writings.character and Writings.character.found or {}) do found = found + 1 end
+    for _ in pairs(Writings.character and Writings.character.read or {}) do read = read + 1 end
     return {
         tostring(books) .. " books / " .. tostring(pages) .. " pages",
         tostring(found) .. " discovered / " .. tostring(read) .. " read",

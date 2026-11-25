@@ -24,16 +24,16 @@ function Writings:GetClientLanguage()
 end
 
 function Writings:GetVoiceLanguage()
-    return Shared:ResolveVoice(SSBSettings and SSBSettings.voiceLanguage)
+    return Shared:ResolveVoice(self.db and self.db.profile.voiceLanguage)
 end
 
 function Writings:GetFallbackLanguage()
-    return Shared:ResolveFallback(SSBSettings and SSBSettings.fallbackLanguage)
+    return Shared:ResolveFallback(self.db and self.db.profile.fallbackLanguage)
 end
 
 function Writings:LanguageOrder()
-    return Shared:ResolutionOrder(SSBSettings and SSBSettings.voiceLanguage,
-                                  SSBSettings and SSBSettings.fallbackLanguage)
+    return Shared:ResolutionOrder(self.db and self.db.profile.voiceLanguage,
+                                  self.db and self.db.profile.fallbackLanguage)
 end
 
 function Writings:PackLanguage(pack)

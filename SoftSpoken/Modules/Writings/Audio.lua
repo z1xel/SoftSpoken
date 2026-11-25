@@ -114,7 +114,7 @@ end
 
 --- Whether a book is one line in the queue (Read Book as One Line), rather than a line per page.
 function Writings:OneLine()
-	return not (SSBSettings and SSBSettings.bookAsOneLine == false)
+	return not (self.db and self.db.profile.bookAsOneLine == false)
 end
 
 --- Every installed pack this version can read, newest format first.

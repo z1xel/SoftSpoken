@@ -19,8 +19,8 @@ MapHover.Hide = Hide
 local function Enabled()
     if not (WorldMapFrame and WorldMapFrame.IsShown and WorldMapFrame:IsShown()) then return false end
     if not (WorldMapButton and SubzoneClick and SubzoneClick.Position and MapCompat and MapCompat.ResolveAt) then return false end
-    local settings = SSZCharacter and SSZCharacter.settings
-    if settings and settings.showMapPanel == false then return false end
+    local settings = SpokenPlacesRuntime and SpokenPlacesRuntime.Settings()
+    if not settings or settings.showMapPanel == false then return false end
     local panel = MapPanel and MapPanel.GetPanel and MapPanel.GetPanel()
     if panel and panel.IsShown and panel:IsShown() then
         if panel.IsMouseOver and panel:IsMouseOver() then return false end

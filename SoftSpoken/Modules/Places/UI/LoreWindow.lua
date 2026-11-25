@@ -20,11 +20,7 @@ local function Lore()
     return SSZLore or {zones={},subzones={}}
 end
 local function Settings()
-    if type(SSZCharacter) ~= "table" then SSZCharacter={} end
-    local characterDB=SSZCharacter
-    if type(characterDB.settings)~="table" then characterDB.settings={} end
-    if type(characterDB.heard)~="table" then characterDB.heard={} end
-    return characterDB.settings, characterDB.heard
+    return SpokenPlacesRuntime.Settings(), SpokenPlacesRuntime.CharDB().heard
 end
 local function ZoneName(id)
     local entry=Lore().zones[id]

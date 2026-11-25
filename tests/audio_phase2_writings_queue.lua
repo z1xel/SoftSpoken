@@ -144,9 +144,11 @@ Spoken={
     IsCompatible=function() return true end,
 }
 SpokenWritings={}
-SSBSettings={autoplay=true,readOnce=false,stopOnClose=false,
+local settings={autoplay=true,readOnce=false,stopOnClose=false,
     closeWhenRead=false,bookAsOneLine=false}
-SSBCharacter={read={},found={}}
+local character={read={},found={}}
+SpokenWritings.db={profile=settings}
+SpokenWritings.character=character
 SSBData={
   pages={
     [101]={book=10,number=1,text="First"},
@@ -178,9 +180,9 @@ function SpokenWritings:BookOf(id)
 end
 function SpokenWritings:LanguageOrder() return {"enUS"} end
 function SpokenWritings:PackLanguage() return "enUS" end
-function SpokenWritings:MarkBookRead(id) SSBCharacter.read[id]=true end
-function SpokenWritings:HasReadBook(id) return SSBCharacter.read[id] == true end
-function SpokenWritings:MarkBookFound(id) SSBCharacter.found[id]=true end
+function SpokenWritings:MarkBookRead(id) character.read[id]=true end
+function SpokenWritings:HasReadBook(id) return character.read[id] == true end
+function SpokenWritings:MarkBookFound(id) character.found[id]=true end
 function SpokenWritings:PageOnScreen() return self.testPage end
 function SpokenWritings:StopOnClose() return false end
 function SpokenWritings:SyncStub() end
@@ -213,11 +215,11 @@ local function resetBook()
     SpokenWritings.source=books
     SpokenWritings.following={}
     SpokenWritings.lastPage=nil
-    SSBSettings.autoplay=true
-    SSBSettings.readOnce=false
-    SSBSettings.stopOnClose=false
-    SSBSettings.closeWhenRead=false
-    SSBCharacter.read={}
+    settings.autoplay=true
+    settings.readOnce=false
+    settings.stopOnClose=false
+    settings.closeWhenRead=false
+    character.read={}
 end
 
 -- Compendium 3-page narration continues in order and does not allow a
@@ -321,7 +323,7 @@ end
 -- intentionally do not affect a quest queued beside the book.
 do
     resetBook()
-    SSBSettings.stopOnClose=true
+    settings.stopOnClose=true
     SpokenWritings.testPage=101
     eq(SpokenWritings:OnTextReady(),1)
     local quest=clip("quest-after-close.mp3",3)
@@ -331,7 +333,7 @@ do
     eq(SpokenWritings.lastPage,nil)
     endSound(quest)
     eq(q:IsEmpty(),true)
-    SSBSettings.readOnce=true
+    settings.readOnce=true
     SpokenWritings.testPage=101
     eq(SpokenWritings:OnTextReady(),0)
     eq(q:IsEmpty(),true)

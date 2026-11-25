@@ -72,16 +72,16 @@ end)
 function PlacesRuntime:Initialize()
     if self.initializationStarted then return end
     self.initializationStarted = true
+    self:InitDB()
     CharDB()
     if not Spoken or not Spoken.IsCompatible or not Spoken:IsCompatible(1) then
         Say("Shared SoftSpoken player initialization failed.")
         return false
     end
-    -- Import a previous per-character setting once. After this, the global
-    -- profile setting always wins, even when switching characters.
-    if Spoken.ImportLegacyCaptionPreference then
-        Spoken:ImportLegacyCaptionPreference(CharDB().settings.captions)
-    end
+    -- Legacy caption preferences are handled during D4 recovery, before DB initialization.
+    self.db.RegisterCallback(self, "OnProfileReset", function()
+        if self.initialized then self:RefreshConfig() end
+    end)
     -- Packaged 32-bit TGA map-location cursor artwork for Vanilla 1.12;
     -- the player keeps its existing type glyphs and queued grayscale.
     if Spoken.RegisterBullet then
@@ -122,4 +122,12 @@ function PlacesRuntime:Initialize()
     pcall(frame.RegisterEvent,frame,"MAP_EXPLORATION_UPDATED")
     self:SetupOptions()
     self.initialized = true
+end
+
+-- Re-evaluate the active combat gate and any open Places UI on profile changes.
+function PlacesRuntime:RefreshConfig()
+    self.Recheck()
+    if SSZMapPanel and SSZMapPanel.Refresh then SSZMapPanel.Refresh() end
+    if SSZLoreWindow and SSZLoreWindow.Refresh then SSZLoreWindow.Refresh() end
+    if self.RefreshOptions then self:RefreshOptions() end
 end

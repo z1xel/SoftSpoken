@@ -20,7 +20,8 @@ CreateFrame = function()
         SetScript=function() end,
     }
 end
-SSBCharacter = {
+local character = {
+    acquisitions={},
     found={ [11]=true, [12]=true, [13]=true, [14]=true },
     locations={
         [11]={[1457]="world"},
@@ -28,7 +29,7 @@ SSBCharacter = {
         [13]={[1454]="acquired"},
     },
 }
-SSBSettings={bookAsOneLine=true}
+local settings={bookAsOneLine=true}
 SSBData={
     books={
         [11]={title="The World Tree and the Emerald Dream",pages={101,102}},
@@ -52,13 +53,14 @@ SSBPlaces={books={
     [14]={type="book",kind="world",zones={1438}},
 }}
 SpokenWritings={
+    db={profile=settings},character=character,
     L={READABLE_BOOK="Book",READABLE_LETTER="Letter",READABLE_SCROLL="Scroll",
         READABLE_OTHER="Other"},
     BASE_LANGUAGE="enUS",
     InitDB=function() end,
     Data=function() return SSBData end,
-    IsBookFound=function(self,book) return SSBCharacter.found[book]==true end,
-    MarkBookFound=function(self,book) SSBCharacter.found[book]=true end,
+    IsBookFound=function(self,book) return character.found[book]==true end,
+    MarkBookFound=function(self,book) character.found[book]=true end,
     LanguageOrder=function() return {"enUS"} end,
     PackLanguage=function() return "enUS" end,
 }
@@ -72,10 +74,10 @@ eq(SpokenWritings:DiscoverySummary(11),"Discovered in Darnassus","Compendium fou
 
 -- Same book discovered at multiple locations is sorted and deduplicated by
 -- the persistent map-id keys, never duplicated through possible spawn points.
-SSBCharacter.locations[11][1438]="world"
+character.locations[11][1438]="world"
 eq(SpokenWritings:KnownDiscoverySummary(11),
     "Discovered in Darnassus, Teldrassil","multiple recorded sites")
-SSBCharacter.locations[11][1438]=nil
+character.locations[11][1438]=nil
 
 SpokenBooksAudioPacks={TestPack={
     addon="TestPack",version=1,pages={
@@ -143,7 +145,7 @@ local legacy=assert(SpokenWritings:ClipFor(401))
 eq(legacy.present.header,"A Legacy Book","legacy book title in heading")
 eq(legacy.present.label,"Book","legacy save with unknown origin")
 
-SSBSettings.bookAsOneLine=false
+settings.bookAsOneLine=false
 local page1=assert(SpokenWritings:ClipFor(101))
 local page2=assert(SpokenWritings:ClipFor(102))
 eq(page1.present.header,"The World Tree and the Emerald Dream",

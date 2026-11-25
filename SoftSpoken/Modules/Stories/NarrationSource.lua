@@ -455,7 +455,6 @@ function StoriesNarrator:Setup()
         interClipGap = 0.55,
         -- Play-and-stop the file before admitting it, as the queue always did here.
         -- Its settings follow the profile chosen in Spoken's own settings.
-        profiles = function() return StoriesAddon.db end,
         -- Printed after Spoken's own by its Show Diagnostics.
         diagnostics = function() Options:PrintDiagnostics() end,
         -- Quests' installed-pack inventory can include load-on-demand addons
@@ -478,7 +477,6 @@ function StoriesNarrator:Setup()
         addon = AddonFolder,
         order = 2,
         interClipGap = 0.55,
-        profiles = function() return StoriesAddon.db end,
         -- The voice packs that hold gossip.
         packs = function()
             local names = {}

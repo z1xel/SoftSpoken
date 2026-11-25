@@ -21,7 +21,7 @@ local CinematicUp -- declared here so startup stabilization can inspect it
 -- Greet new level-one characters exactly once, preferring the starting subzone.
 -- The greeting never queues both subzone and parent overview on login.
 local function TryGreeting(zone, subzone)
-    local settings = CharDB().settings
+    local settings = PlacesRuntime.Settings()
     if not settings.greeting or CharDB().greeted or not UnitLevel or
        UnitLevel("player") ~= 1 then return end
     local queued = false
@@ -51,14 +51,14 @@ local function CheckLocation()
     local zoneChanged = Normalise(zone) ~= Normalise(lastZone)
     lastLocation = location
     lastZone = zone
-    if not CharDB().settings.auto or CharDB().settings.mode ~= "unheard" then return end
+    if not PlacesRuntime.Settings().auto or PlacesRuntime.Settings().mode ~= "unheard" then return end
     local mapID = AudioID(zone)
     if not mapID then return end
 
     if zoneChanged then
         RequestNarration(zone, zone, false, true, true)
     end
-    if CharDB().settings.subzones and Normalise(subzone) ~= "" and
+    if PlacesRuntime.Settings().subzones and Normalise(subzone) ~= "" and
        Normalise(subzone) ~= Normalise(zone) then
         RequestNarration(zone, subzone, false, false, true)
     end
@@ -98,7 +98,7 @@ local function StabilizeStartingLocation(elapsed)
     TryGreeting(zone, subzone)
     -- Optional transition-based narration for characters with areas already
     -- explored before they installed Spoken. Off by default, like upstream.
-    if CharDB().settings.mode == "unheard" and
+    if PlacesRuntime.Settings().mode == "unheard" and
        not (UnitLevel and UnitLevel("player") == 1) then
         lastLocation = nil
         lastZone = nil
@@ -180,10 +180,10 @@ local function OnDiscovered(area)
     if SSZMapPanel and SSZMapPanel.Refresh then
         SSZMapPanel.Refresh()
     end
-    if PlacesRuntime.startupActive or not CharDB().settings.auto then return end
+    if PlacesRuntime.startupActive or not PlacesRuntime.Settings().auto then return end
     if zoneArea then
         RequestNarration(zone,zone,false,true,true)
-    elseif CharDB().settings.subzones then
+    elseif PlacesRuntime.Settings().subzones then
         RequestNarration(zone,area,false,false,true)
     end
 end
@@ -199,7 +199,7 @@ end
 -- Source-specific gate: never hold someone else's Spoken recordings.
 local function HoldAutoplay(item)
     if not item.autoplay then return nil end
-    local settings = CharDB().settings
+    local settings = PlacesRuntime.Settings()
     if CinematicUp() then return "cinematic" end
     if (settings.holdCombat or settings.stopCombat) and UnitAffectingCombat and
        UnitAffectingCombat("player") then
@@ -216,7 +216,7 @@ local function Recheck()
     if not PlacesRuntime.source then return end
     -- Hold-only must NEVER cut a line in progress. RecheckGates is the
     -- interrupting operation; request it only for cinematics or Stop mode.
-    local settings = CharDB().settings
+    local settings = PlacesRuntime.Settings()
     local stopping = (settings.stopCombat == true) and UnitAffectingCombat and
         UnitAffectingCombat("player")
     if (CinematicUp() or stopping) and PlacesRuntime.source.RecheckGates then

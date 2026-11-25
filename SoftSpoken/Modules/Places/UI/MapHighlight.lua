@@ -20,8 +20,8 @@ local function VisibleMap()
 end
 
 local function CanInteract()
-    local cfg = SSZCharacter and SSZCharacter.settings
-    if cfg and cfg.showMapPanel == false then return false end
+    local cfg = SpokenPlacesRuntime and SpokenPlacesRuntime.Settings()
+    if not cfg or cfg.showMapPanel == false then return false end
     if not (C_Map and C_Map.GetMapOverlays and C_Map.GetAreaInfo) then return false end
     if not (WorldMapButton and WorldMapDetailFrame and SubzoneClick and SubzoneClick.Position) then return false end
     if not VisibleMap() then return false end

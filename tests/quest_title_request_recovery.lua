@@ -10,7 +10,8 @@ local rejected = {}
 local requestErrors = {}
 local frame
 SSCQuestState=nil
-SSCQuestJournal=nil
+local journal={seen={},completed={},titles={},dialogue={}}
+SpokenEnv={Persistence={character={Stories={journal=journal}}}}
 GetTime=function() return now end
 C_QuestLog={
     GetTitleForQuestID=function(id) return nativeTitles[id] end,
@@ -59,7 +60,7 @@ nativeTitles[101]="Native replacement title"
 Event(101,true)
 eq(state.revision,1,"new native title invalidates tree once")
 eq(refreshes,1,"new native title refreshes Compendium once")
-eq(SSCQuestJournal.titles[101],"Native replacement title","native title saved")
+eq(journal.titles[101],"Native replacement title","native title saved")
 eq(state:Title(101,"Curated title",true),"Native replacement title","native title preferred")
 Event(101,true)
 eq(state.revision,1,"late duplicate completion does not rebuild")
@@ -73,7 +74,7 @@ nativeTitles[102]="Unchanged title"
 Event(102,true)
 eq(state.revision,1,"matching title leaves tree untouched")
 eq(refreshes,1,"matching title does not refresh")
-eq(SSCQuestJournal.titles[102],"Unchanged title","matching title persisted")
+eq(journal.titles[102],"Unchanged title","matching title persisted")
 
 -- The protected native call may throw or return false. Both outcomes remain
 -- eligible for a later on-demand retry, without per-refresh request floods.

@@ -635,7 +635,7 @@ local function Build()
                 local tab = Tab(key)
                 if tab and tab.unlock then tab.unlock.set(false) end
             end
-            CoreController.db:ResetProfile()
+            CoreController.db:ResetProfile(true)
             CoreController.db.global.Layout = nil
             ReloadUI()
         end)

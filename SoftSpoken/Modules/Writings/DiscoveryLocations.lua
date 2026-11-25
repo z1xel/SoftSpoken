@@ -5,10 +5,7 @@ local Writings = SpokenWritings
 local Compendium = SpokenCompendium
 
 local function Character()
-    if not SSBCharacter then Writings:InitDB() end
-    SSBCharacter.locations = SSBCharacter.locations or {}
-    SSBCharacter.acquisitions = SSBCharacter.acquisitions or {}
-    return SSBCharacter
+    return Writings.character
 end
 
 -- Resolve a *known* map ID. Names, especially city names, are more trustworthy
@@ -43,7 +40,8 @@ function Writings:CurrentDiscoveryMap()
 end
 
 function Writings:BookLocations(book)
-    local locations = Character().locations[book]
+    local character = Character()
+    local locations = character and character.locations[book]
     return type(locations)=="table" and locations or nil
 end
 function Writings:BookFoundAt(book, mapID)
@@ -78,6 +76,7 @@ end
 function Writings:RecordBookLocation(book, mapID, how)
     if not book or not mapID or not (Compendium and Compendium.MapName) then return false end
     local characterDB=Character()
+    if not characterDB then return false end
     local locations=characterDB.locations[book]
     if type(locations)~="table" then locations={}; characterDB.locations[book]=locations end
     if locations[mapID] then return false end
@@ -183,6 +182,7 @@ local function Schedule()
     bags:Show()
 end
 bags:SetScript("OnEvent",function(self)
+    if not Writings.character then return end
     local e=event
     if e=="PLAYER_ENTERING_WORLD" then
         -- The first snapshot is a baseline, not evidence of acquisition.
@@ -218,6 +218,7 @@ end
 local OldMarkBookFound=Writings.MarkBookFound
 function Writings:MarkBookFound(book)
     local wasFound=self:IsBookFound(book)
+    if not self.character then return end
     OldMarkBookFound(self,book)
     if not book then return end
     local place=SSBPlaces and SSBPlaces.books and SSBPlaces.books[book]

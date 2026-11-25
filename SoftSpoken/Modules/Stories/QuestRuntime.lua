@@ -284,50 +284,44 @@ function StoriesAddon:ReadVisibleQuest(dispatchOrigin)
 end
 
 ---@class VoiceOverConfig
-local defaults = {
-    profile = {
-        -- The frame, the minimap button, the sound channel's legacy music-channel
-        -- workaround and the paused flag are the Spoken player's settings now.
-        Audio = {
-            -- Once per NPC rather than once per quest NPC, which upstream defaulted to:
-            -- that setting only silences a repeat where the NPC has a quest, so every
-            -- innkeeper, vendor and flight master said the same line on every visit --
-            -- the greeting a player hears most often is exactly the one it did not
-            -- remember. A profile that stored a choice of its own keeps it.
-            GossipFrequency = Enums.GossipFrequency.OncePerNPC,
-            -- The sound channel and the muting of the client's own NPC dialogue used to
-            -- live here. They describe how anything is played rather than what this addon
-            -- reads, so they are Spoken's settings now.
-            StopAudioOnDisengage = false,
-            -- On, the NPC's own greeting is heard and automatic narration waits
-            -- for its estimated end (GreetingFirst.lua). Vanilla has no NPC-only mute.
-            GreetingFirst = false,
-            -- Off, no quest dialog, greeting or gossip reads itself: nothing plays until
-            -- the Play button on the window is pressed (UI/DialogPlayButton.lua) or
-            -- /spq read is typed. GossipFrequency then has nothing to decide.
-            Autoplay = true,
-            OGThrall = false,
-            -- On, an automatic read starts when the window closes instead of when it opens.
-            ReadAfterClose = false,
-            -- What NPCs say in chat after this player accepts or turns in a quest
-            -- (Followup.lua). Autoplay off silences these too: they read themselves.
-            FollowupLines = true,
-            -- Follow the client, and fall back on English. Every pack that exists today
-            -- is English and declares no language, so an English-speaking player with the
-            -- packs they already have resolves enUS on the first pass and hears exactly
-            -- what they heard before this setting existed.
-            VoiceLanguage = "auto",
-            FallbackLanguage = "enUS",
-            -- Absent entries are enabled by default; only explicitly disabled
-            -- load-on-demand sound packs are skipped at startup.
-            DisabledVoicePacks = {},
-        },
-        DebugEnabled = false,
+StoriesProfileDefaults = {
+    -- The frame, the minimap button, the sound channel's legacy music-channel
+    -- workaround and the paused flag are the Spoken player's settings now.
+    Audio = {
+        -- Once per NPC rather than once per quest NPC, which upstream defaulted to:
+        -- that setting only silences a repeat where the NPC has a quest, so every
+        -- innkeeper, vendor and flight master said the same line on every visit --
+        -- the greeting a player hears most often is exactly the one it did not
+        -- remember. A profile that stored a choice of its own keeps it.
+        GossipFrequency = Enums.GossipFrequency.OncePerNPC,
+        -- The sound channel and the muting of the client's own NPC dialogue used to
+        -- live here. They describe how anything is played rather than what this addon
+        -- reads, so they are Spoken's settings now.
+        StopAudioOnDisengage = false,
+        -- On, the NPC's own greeting is heard and automatic narration waits
+        -- for its estimated end (GreetingFirst.lua). Vanilla has no NPC-only mute.
+        GreetingFirst = false,
+        -- Off, no quest dialog, greeting or gossip reads itself: nothing plays until
+        -- the Play button on the window is pressed (UI/DialogPlayButton.lua) or
+        -- /spq read is typed. GossipFrequency then has nothing to decide.
+        Autoplay = true,
+        OGThrall = false,
+        -- On, an automatic read starts when the window closes instead of when it opens.
+        ReadAfterClose = false,
+        -- What NPCs say in chat after this player accepts or turns in a quest
+        -- (Followup.lua). Autoplay off silences these too: they read themselves.
+        FollowupLines = true,
+        -- Follow the client, and fall back on English. Every pack that exists today
+        -- is English and declares no language, so an English-speaking player with the
+        -- packs they already have resolves enUS on the first pass and hears exactly
+        -- what they heard before this setting existed.
+        VoiceLanguage = "auto",
+        FallbackLanguage = "enUS",
+        -- Absent entries are enabled by default; only explicitly disabled
+        -- load-on-demand sound packs are skipped at startup.
+        DisabledVoicePacks = {},
     },
-    char = {
-        hasSeenGossipForNPC = {},
-        RecentQuestTitleToID = Version:IsBelowLegacyVersion(30300) and {},
-    }
+    DebugEnabled = false,
 }
 
 local lastGossipOptions
@@ -377,12 +371,20 @@ end
 
 -- The AceAddon object remains registered as SpokenQuests for compatibility;
 -- Startup.lua, not AceAddon's automatic OnInitialize, owns startup.
+function StoriesAddon:InitDB()
+    self.db = SpokenEnv.Persistence:ModuleDB("Stories")
+    self.character = SpokenEnv.Persistence.character.Stories
+end
+
 function StoriesAddon:Initialize()
     if self.initializationStarted then return end
     self.initializationStarted = true
-    self.db = LibStub("AceDB-3.0"):New("SpokenQuestsSettings", defaults)
-    self.db.RegisterCallback(self, "OnProfileChanged", "RefreshConfig")
-    self.db.RegisterCallback(self, "OnProfileReset", "RefreshConfig")
+    self:InitDB()
+    -- Root profile operations refresh all modules after namespace propagation.
+    -- A module-local reset still needs to refresh Stories.
+    self.db.RegisterCallback(self, "OnProfileReset", function()
+        if self.initialized then self:RefreshConfig() end
+    end)
 
     StaticPopupDialogs["VOICEOVER_ERROR"] =
     {
@@ -923,8 +925,8 @@ function StoriesAddon:QUEST_DETAIL(_, manual)
         return
     end
 
-    if StoriesAddon.db.char.RecentQuestTitleToID and questID ~= 0 then
-        StoriesAddon.db.char.RecentQuestTitleToID[questTitle] = questID
+    if StoriesAddon.character.RecentQuestTitleToID and questID ~= 0 then
+        StoriesAddon.character.RecentQuestTitleToID[questTitle] = questID
     end
 
     local type = guid and Utils:GetGUIDType(guid)
@@ -964,8 +966,8 @@ function StoriesAddon:QUEST_PROGRESS(_, manual)
         return
     end
 
-    if StoriesAddon.db.char.RecentQuestTitleToID then
-        StoriesAddon.db.char.RecentQuestTitleToID[questTitle] = questID
+    if StoriesAddon.character.RecentQuestTitleToID then
+        StoriesAddon.character.RecentQuestTitleToID[questTitle] = questID
     end
 
     ---@type SoundData
@@ -993,8 +995,8 @@ function StoriesAddon:QUEST_COMPLETE(_, manual)
         return
     end
 
-    if StoriesAddon.db.char.RecentQuestTitleToID and questID ~= 0 then
-        StoriesAddon.db.char.RecentQuestTitleToID[questTitle] = questID
+    if StoriesAddon.character.RecentQuestTitleToID and questID ~= 0 then
+        StoriesAddon.character.RecentQuestTitleToID[questTitle] = questID
     end
 
     -- print("QUEST_COMPLETE", questID, questTitle);
@@ -1031,7 +1033,7 @@ function StoriesAddon:ShouldPlayGossip(guid, text, manual, followsOption)
         return true, npcKey
     end
 
-    local gossipSeenForNPC = self.db.char.hasSeenGossipForNPC[npcKey]
+    local gossipSeenForNPC = self.character.hasSeenGossipForNPC[npcKey]
 
     -- Asked again for the same NPC while its window stays open; the log says it once.
     if self.db.profile.Audio.GossipFrequency == Enums.GossipFrequency.OncePerQuestNPC then
@@ -1099,7 +1101,7 @@ function StoriesAddon:QUEST_GREETING(event, manual)
         unitIsObjectOrItem = Utils:IsNPCObjectOrItem(),
         addedCallback = GossipSoundDataAdded,
         startCallback = function()
-            self.db.char.hasSeenGossipForNPC[npcKey] = true
+            self.character.hasSeenGossipForNPC[npcKey] = true
         end
     }
     StoriesNarrator:Enqueue(soundData, manual)
@@ -1161,7 +1163,7 @@ function StoriesAddon:GOSSIP_SHOW(event, manual)
         unitIsObjectOrItem = Utils:IsNPCObjectOrItem(),
         addedCallback = GossipSoundDataAdded,
         startCallback = function()
-            self.db.char.hasSeenGossipForNPC[npcKey] = true
+            self.character.hasSeenGossipForNPC[npcKey] = true
         end
     }
     StoriesNarrator:Enqueue(soundData, manual)

@@ -29,8 +29,7 @@ local openedType = {}
 local search = ""
 
 local function Settings()
-    if not SSBSettings then Writings:InitDB() end
-    return SSBSettings
+    return Writings.db.profile
 end
 local function Books() return Writings:Data() and Writings:Data().books or {} end
 local function Places() return SSBPlaces and SSBPlaces.books or {} end

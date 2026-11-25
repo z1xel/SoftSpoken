@@ -2,10 +2,11 @@
 -- Run: lua5.1 tests/audio_phase2_writings.lua
 local function eq(a,b) assert(a==b,tostring(a).." ~= "..tostring(b)) end
 local currentPage, closeCount, stopCount, narration, marked, read, synced = nil,0,0,false,{}, {},{}
-SSBSettings={autoplay=true,readOnce=false,stopOnClose=true,closeWhenRead=true,
+local settings={autoplay=true,readOnce=false,stopOnClose=true,closeWhenRead=true,
     bookAsOneLine=false}
 CloseItemText=function() closeCount=closeCount+1 end
 SpokenWritings={
+    db={profile=settings},
     source={}, -- registered by SetupSource during coordinated PLAYER_LOGIN in game
     L={READABLE_BOOK="Book"},
     BASE_LANGUAGE="enUS",
@@ -104,7 +105,7 @@ eq(SpokenWritings.lastPage,nil)
 
 -- Read Once should stop a re-opened already-read work but still allow
 -- continuation when the second page belongs to this active reading session.
-SSBSettings.readOnce=true
+settings.readOnce=true
 read[5]=true
 currentPage=101;SpokenWritings.lastPage=nil
 eq(SpokenWritings:OnTextReady(),0)
@@ -113,7 +114,7 @@ currentPage=102;SpokenWritings.lastPage=101
 eq(SpokenWritings:OnTextReady(),1)
 eq(synced[3],102)
 -- A disabled autoplay setting doesn't block a manual read request.
-SSBSettings.autoplay=false
+settings.autoplay=false
 currentPage=201;SpokenWritings.lastPage=102
 eq(SpokenWritings:OnTextReady(),0)
 eq(#synced,3)

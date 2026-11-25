@@ -1,7 +1,7 @@
 -- Stories' authoritative quest dialogue: retained Spoken text, curated Turtle
 -- stage overrides, and per-character live-captured NPC dialogue.
 -- Data lookup and capture live here, independently of the Compendium UI or
--- narrator. Keep the existing SSCQuestJournal.dialogue saved-variable format.
+-- narrator. Preserve the journal's existing per-quest dialogue format.
 -- Lua 5.0 / WoW 1.12 compatible.
 local Dialogue = {}
 VoiceOver.QuestDialogue = Dialogue
@@ -38,9 +38,8 @@ local function Fill(text)
     return text
 end
 local function Stored()
-    if type(SSCQuestJournal)~="table" then return nil end
-    SSCQuestJournal.dialogue=SSCQuestJournal.dialogue or {}
-    return SSCQuestJournal.dialogue
+    local character = SpokenEnv.Persistence.character
+    return character and character.Stories.journal.dialogue
 end
 local function SavedText(id,stage)
     local questTextDB=Stored()
@@ -87,6 +86,7 @@ function Dialogue:CaptureEvent(eventName)
     end
     if not id or type(text)~="string" or text=="" then return end
     local questTextDB=Stored()
+    if not questTextDB then return end
     questTextDB[id]=questTextDB[id] or {}
     questTextDB[id][stage]=text
     -- The UI may opt in to refresh a visible quest page, but the text

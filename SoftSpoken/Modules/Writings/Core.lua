@@ -6,69 +6,50 @@ SpokenWritings = SpokenWritings or {}
 local Writings = SpokenWritings
 Writings.version = "v0.9.1-beta"
 Writings.name = "SoftSpoken"
-local defaults = {
-    autoplay=true, readWholeBook=true, bookAsOneLine=true, readOnce=false,
-    stopOnClose=false, closeWhenRead=false,
-    voiceLanguage="auto", fallbackLanguage="enUS",
-    compendiumFoundOnly=true, compendiumVoicedOnly=false,
-    compendiumByZone=true, unlockUnfound=false
-}
 function Writings:Print(message)
     if DEFAULT_CHAT_FRAME and DEFAULT_CHAT_FRAME.AddMessage then
         DEFAULT_CHAT_FRAME:AddMessage("|cff80c0ffSoftSpoken Writings 1.12|r: "..tostring(message))
     end
 end
 function Writings:InitDB()
-    SSBSettings = SSBSettings or {}
-    for k,v in pairs(defaults) do
-        if SSBSettings[k]==nil then SSBSettings[k]=v end
-    end
-    SSBCharacter = SSBCharacter or {}
-    SSBCharacter.read = SSBCharacter.read or {}
-    if not SSBCharacter.found then
-        SSBCharacter.found = {}
-        for id in pairs(SSBCharacter.read) do
-            SSBCharacter.found[id]=true
-        end
-    end
-    return SSBSettings
+    self.db = SpokenEnv.Persistence:ModuleDB("Writings")
+    self.character = SpokenEnv.Persistence.character.Writings
+    return self.db.profile
 end
--- Upstream reset semantics: settings only. Character discovery/read history survives.
+
+-- Profile reset does not touch personal discoveries or reading history.
 function Writings:ResetOptions()
-    if not SSBSettings then self:InitDB() end
-    for key,value in pairs(defaults) do SSBSettings[key]=value end
+    self.db:ResetProfile()
+end
+
+function Writings:RefreshConfig()
     if self.RefreshReadables then self:RefreshReadables() end
     if self.RefreshPlayButton then self:RefreshPlayButton() end
     if self.RefreshOptions then self:RefreshOptions() end
 end
+
 function Writings:Get(k)
-    if k=="fontSize" then
-        return SSBSettings and SSBSettings.fontSize or 12
-    end
-    return SSBSettings and SSBSettings[k]
+    if k == "fontSize" then return self.db and self.db.profile.fontSize or 12 end
+    return self.db and self.db.profile[k]
 end
 function Writings:Data() return SSBData end
 function Writings:MarkBookFound(id)
-    if not id then return end
-    if not SSBCharacter then self:InitDB() end
-    SSBCharacter.found[id]=true
+    if id and self.character then self.character.found[id]=true end
 end
 function Writings:IsBookFound(id)
-    return id and SSBCharacter and SSBCharacter.found[id]==true or false
+    return id and self.character and self.character.found[id]==true or false
 end
 function Writings:MarkBookRead(id)
-    if not id then return end
-    if not SSBCharacter then self:InitDB() end
-    SSBCharacter.read[id]=true
+    if id and self.character then self.character.read[id]=true end
 end
 function Writings:HasReadBook(id)
-    return id and SSBCharacter and SSBCharacter.read[id]==true or false
+    return id and self.character and self.character.read[id]==true or false
 end
 function Writings:ForgetRead()
     local count=0
-    if not SSBCharacter then return count end
-    for _ in pairs(SSBCharacter.read) do count=count+1 end
-    SSBCharacter.read={}
+    if not self.character then return count end
+    for _ in pairs(self.character.read) do count=count+1 end
+    self.character.read={}
     return count
 end
 function Writings:PlayerAvailable()
@@ -110,6 +91,9 @@ function Writings:Initialize()
     if self.initializationStarted then return end
     self.initializationStarted = true
     self:InitDB()
+    self.db.RegisterCallback(self, "OnProfileReset", function()
+        if self.initialized then self:RefreshConfig() end
+    end)
     assert(self:SetupSource(), "Writings source registration failed")
     self:SetupEvents()
     self:SetupOptions()

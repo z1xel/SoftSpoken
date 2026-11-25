@@ -13,7 +13,7 @@ Renderers = {}
 RemoveColor = { 225 / 255, 20 / 255, 8 / 255 }
 
 -- Player-wide settings only. Anything a single domain cares about -- gossip frequency,
--- autoplay, which pack to prefer -- stays in that feature addon's own saved variables.
+-- autoplay, which pack to prefer -- belongs to that feature namespace.
 Defaults = {
     profile = {
         Frame = {
@@ -106,7 +106,12 @@ function CoreController:InitDB()
     if self.db then
         return
     end
-    self.db = LibStub("AceDB-3.0"):New("SpokenSettings", Defaults)
+    self.db = Persistence:Initialize(Defaults, VoiceOver.StoriesProfileDefaults)
+    -- Core builds settings UI before the feature controllers start. Bind every
+    -- namespace now so Compendium filters and unlock getters can read it safely.
+    VoiceOver.StoriesAddon:InitDB()
+    SpokenPlacesRuntime:InitDB()
+    SpokenWritings:InitDB()
     -- A saved AutoScroll = false predates ScrollMode: carry it over as "off", in every profile.
     for _, profile in pairs(self.db.sv and self.db.sv.profiles or {}) do
         -- Migrate our early one-channel prototype to upstream's full mixer
@@ -164,6 +169,16 @@ function CoreController:ApplyProfile()
     -- Which modules are on is the profile's too: each puts its buttons back or takes them off,
     -- and what one now off had queued goes, as switching it off on Spoken's page does.
     for key in Sources:Iterate() do Sources:Apply(key) end
+    if VoiceOver and VoiceOver.StoriesAddon and VoiceOver.StoriesAddon.initialized then
+        VoiceOver.StoriesAddon:RefreshConfig()
+    end
+    if SpokenPlacesRuntime and SpokenPlacesRuntime.initialized then
+        SpokenPlacesRuntime:RefreshConfig()
+    end
+    if SpokenWritings and SpokenWritings.initialized then
+        SpokenWritings:RefreshConfig()
+    end
+    if SpokenCompendium and SpokenCompendium.Refresh then SpokenCompendium:Refresh() end
     if Options and Options.UpdateRows then Options:UpdateRows() end
     -- Profile switches may change the shared voice language without using the
     -- settings dropdown; invalidate consumers of the derived voice order.

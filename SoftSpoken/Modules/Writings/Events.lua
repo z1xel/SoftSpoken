@@ -13,23 +13,23 @@ function Writings:OnTextReady()
         self:RefreshReadables()
     end
     if previous == page then return 0 end
-    if not self.source or not SSBSettings or not SSBSettings.autoplay then return 0 end
+    if not self.source or not self.db or not self.db.autoplay then return 0 end
     -- Read Only Once applies to opening a previously read book, not to every
     -- new page of a book that has been marked read during THIS reading session.
     local continuingBook = previous and self:PlaceOf(previous) == book
-    if SSBSettings.readOnce and self:HasReadBook(book) and
+    if self.db.profile.readOnce and self:HasReadBook(book) and
         not self:IsNarrating(book) and not continuingBook then return 0 end
     return self:SyncTo(page, false)
 end
 function Writings:OnTextClosed()
     local book=self:PlaceOf(self.lastPage)
     self.lastPage=nil
-    if book and SSBSettings and SSBSettings.stopOnClose then
+    if book and self.db and self.db.profile.stopOnClose then
         self:StopReading(book)
     end
 end
 function Writings:OnPageFinished(clip)
-    if not SSBSettings or not SSBSettings.closeWhenRead then return end
+    if not self.db or not self.db.closeWhenRead then return end
     local book=self:PlaceOf(clip and clip.pageId)
     if not book or self:PlaceOf(self.lastPage)~=book or self:IsNarrating(book) then return end
     local later=self:PagesFrom(clip.pageId)

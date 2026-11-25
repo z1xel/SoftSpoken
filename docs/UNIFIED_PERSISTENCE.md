@@ -1,13 +1,10 @@
 # Unified persistence — phase D
 
-## D1 foundation (staged)
+## D1–D2 foundation and module cutover
 
 The target has two SavedVariables globals: `SoftSpokenDB` (account) and
 `SoftSpokenCharacterDB` (per-character). `Persistence.lua` is private to
-SpokenEnv and is deliberately inert at file load. D2 switches the TOC and
-controllers together; until then the existing declarations and runtime remain
-unchanged. This avoids running two competing persistence systems. Do not
-distribute D1–D3 as a migration-ready release.
+SpokenEnv and is deliberately inert at file load. D2 switches the TOC and controllers together. Core initializes the root and binds all module namespaces before constructing the shared UI; feature initialization consumes those namespaces. The old globals are no longer declared. **Do not use D2–D3 against a real WTF directory:** legacy import is not implemented until D4; normal logout can replace the old Core file.
 
 ### Ownership
 
@@ -32,8 +29,7 @@ silently discarding character records. Core's existing account-wide AceDB
 `char` subsection remains character-keyed and is not a profile or journal.
 
 Namespaces use the bundled AceDB's native profile propagation, not another
-registry. Core and Stories supply their existing defaults; D2 replaces the
-old Places/Writings defaults with the definitions in Persistence.lua. No
+registry. Core and Stories supply their existing defaults; Places/Writings use the definitions in Persistence.lua. No
 module may cache a profile table across profile changes.
 
 ### D2–D5
@@ -53,4 +49,4 @@ module may cache a profile table across profile changes.
 
 D1 tests load the real vendored AceDB and exercise seeded data, idempotent
 initialization, profile switching/copy/reset/delete and history isolation.
-They do not claim the live controllers use the new foundation yet.
+D2 regression fixtures use the new module settings/history access paths. Legacy Places combat/default flags, heard-key normalization and caption conversion must be covered by D4 migration tests.

@@ -20,11 +20,11 @@ def require(path, pattern, label):
     )
 
 
-# These names are serialized in players' WTF files. Do not rename/migrate here.
+# Unified persistence identity. Migration from released legacy names belongs to D4.
 manifests = {
     "SoftSpoken": {
-        "SavedVariables": ["SpokenSettings", "SpokenQuestsSettings", "SSBSettings"],
-        "SavedVariablesPerCharacter": ["SSCQuestJournal", "SSZCharacter", "SSBCharacter"],
+        "SavedVariables": ["SoftSpokenDB"],
+        "SavedVariablesPerCharacter": ["SoftSpokenCharacterDB"],
     },
 }
 for module, expected in manifests.items():

@@ -36,6 +36,8 @@ CreateFrame=function()
     return {SetScript=function(self,event,callback) self[event]=callback end}
 end
 
+local settings={showMapPanel=true,mapPanelCollapsed=false}
+SpokenPlacesRuntime={Settings=function() return settings end}
 dofile("SoftSpoken/Modules/Places/UI/MapPanel.lua")
 local panel=assert(SSZMapPanel,"map panel installed")
 -- PageEntry is intentionally private. Inspect its closure from Refresh so

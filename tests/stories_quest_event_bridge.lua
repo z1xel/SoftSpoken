@@ -43,14 +43,8 @@ function ace:NewAddon()
         end,
     }
 end
-local aceDB = {}
-function aceDB:New(_, defaults)
-    return { profile = defaults.profile, char = defaults.char,
-        RegisterCallback = function() end }
-end
 _G.LibStub = function(name)
     if name == "AceAddon-3.0" then return ace end
-    if name == "AceDB-3.0" then return aceDB end
     error("unexpected LibStub request: " .. tostring(name))
 end
 
@@ -97,6 +91,9 @@ env = {
 }
 VoiceOver = setmetatable(env, { __index = _G })
 assert(loadfile("SoftSpoken/Modules/Stories/QuestRuntime.lua"))()
+local namespace = {profile=VoiceOver.StoriesProfileDefaults,RegisterCallback=function() end}
+SpokenEnv={Persistence={ModuleDB=function(_,name) assert(name=="Stories"); return namespace end,
+    character={Stories={hasSeenGossipForNPC={},RecentQuestTitleToID={}}}}}
 local addon = VoiceOver.StoriesAddon
 eq(VoiceOver.Addon, addon, "legacy Stories controller alias")
 function addon:NoteLegacyQuestEvent(source, words)
@@ -105,6 +102,7 @@ end
 addon.OnAddonLoad.EarlyIntegration = function() earlyHooks = earlyHooks + 1 end
 addon.OnAddonLoad.LateIntegration = function() lateHooks = lateHooks + 1 end
 addon:Initialize()
+assert(addon.db==namespace and addon.character==SpokenEnv.Persistence.character.Stories)
 local recorder, direct = addon.questEventRecorderFrame, addon.directEventFrame
 addon:Initialize()
 eq(addon.questEventRecorderFrame, recorder, "recorder initialized once")

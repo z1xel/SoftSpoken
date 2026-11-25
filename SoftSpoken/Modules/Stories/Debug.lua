@@ -168,8 +168,8 @@ local function ContextLines(lines)
     local guid = Safe(function() return Utils:GetNPCGUID() end)
     table.insert(lines, format("now: quest ID %s, title %q, NPC %q, GUID %s", tostring(questID), tostring(title or ""),
         tostring(npc or ""), tostring(guid)))
-    local heard = guid and StoriesAddon.db and StoriesAddon.db.char.hasSeenGossipForNPC
-        and StoriesAddon.db.char.hasSeenGossipForNPC[guid]
+    local heard = guid and StoriesAddon.character and StoriesAddon.character.hasSeenGossipForNPC
+        and StoriesAddon.character.hasSeenGossipForNPC[guid]
     if guid then
         table.insert(lines, "this NPC's greeting heard before: " .. (heard and "yes" or "no"))
     end

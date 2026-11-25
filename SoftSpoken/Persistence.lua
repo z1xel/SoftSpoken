@@ -1,12 +1,10 @@
 setfenv(1, SpokenEnv)
 
--- Unified storage foundation. D2 will switch the controllers and TOC to these
--- identities together. Loading this file alone neither opens nor writes a DB.
+-- Unified storage. Loading this file alone neither opens nor writes a DB.
 Persistence = {}
 
--- Core and Stories retain their existing default declarations until D2 moves
--- their constructors here. Places and Writings keep the same effective defaults
--- as their current runtime; no legacy migration flags belong in a new profile.
+-- Core and Stories supply their defaults; Places and Writings declare theirs
+-- here. No legacy migration flags belong in a new profile.
 local placesDefaults = {
     profile = {
         auto = true, subzones = true, mode = "discovery",
@@ -71,7 +69,8 @@ local function CharacterDB()
     return character
 end
 
--- D2 will call this once, after migration and before controller initialization.
+-- Called by Core at login, before feature controllers initialize.
+-- D4 will recover legacy state before this call.
 -- The default profile selection remains AceDB's character-named profile.
 -- The root retains Core's existing defaults (including the paused char flag).
 -- Stories' old char section is replaced by the profile-independent journal

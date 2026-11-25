@@ -184,18 +184,19 @@ SetPortraitTextureFromCreatureDisplayID=function(texture,displayID)
 end
 dofile("SoftSpoken/Modules/Stories/Data/TurtleQuestText.lua")
 -- Match the actual addon.xml load order after dialogue extraction.
+SpokenEnv={Persistence={character={Stories={journal={dialogue={}}}}}}
 dofile("SoftSpoken/Modules/Stories/QuestDialogue.lua")
 dofile("SoftSpoken/Modules/Stories/Compendium/QuestPage.lua")
 -- A Turtle overlay is additive and resolved separately for each quest stage.
 -- The production table is deliberately empty until source distribution is reviewed.
-local originalJournal=SSCQuestJournal
+local originalJournal=SpokenEnv.Persistence.character.Stories.journal
 local originalTurtle=SSCTurtleQuestText
 SSCTurtleQuestText={
     [101]={accept="Turtle Accept $N"},
     [102]={progress="   ",complete="Turtle Complete"},
     [103]={complete="Turtle Completion $C"},
 }
-SSCQuestJournal={dialogue={[101]={progress="Live Progress $N"}}}
+SpokenEnv.Persistence.character.Stories.journal={dialogue={[101]={progress="Live Progress $N"}}}
 eq(SSCQuestPage:Text(101,"accept"),"Turtle Accept Player","Turtle acceptance override")
 eq(SSCQuestPage:Text(101,"progress"),"Live Progress Player","live text first")
 eq(SSCQuestPage:Text(101,"complete"),"Finish A","fallback stage to original Spoken")
@@ -204,7 +205,7 @@ eq(SSCQuestPage:Text(102,"complete"),"Turtle Complete","Turtle completion overri
 eq(SSCQuestPage:Text(103,"complete"),"Turtle Completion Mage","Turtle token substitution")
 eq(SSCQuestPage:Text(103,"accept"),"Accept C","original corpus remains available")
 SSCTurtleQuestText=originalTurtle
-SSCQuestJournal=originalJournal
+SpokenEnv.Persistence.character.Stories.journal=originalJournal
 local baseTypography=function() end
 local baseReflow=function() end
 local view={

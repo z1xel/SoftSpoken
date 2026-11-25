@@ -76,6 +76,7 @@ SpokenPlacesRuntime={
     HeardKey=function(id,area) return "z:"..tostring(id)..":"..tostring(area or "") end,
     WasHeard=function() return false end,
     CharDB=function() return {heard={}} end,
+    Settings=function() return {compendiumFoundOnly=true} end,
     Say=function() end,
 }
 -- Load the *real* Compendium map hierarchy and Places' parent/name

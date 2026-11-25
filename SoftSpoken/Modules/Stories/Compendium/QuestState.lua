@@ -9,15 +9,7 @@ QuestState.revision = 0
 local TITLE_RETRY_INTERVAL = 15
 local ask = {}
 local function Saved()
-    if type(SSCQuestJournal) ~= "table" then SSCQuestJournal = {} end
-    local questJournal = SSCQuestJournal
-    if type(questJournal.seen) ~= "table" then questJournal.seen = {} end
-    if type(questJournal.completed) ~= "table" then questJournal.completed = {} end
-    if type(questJournal.titles) ~= "table" then questJournal.titles = {} end
-    if type(questJournal.settings) ~= "table" then questJournal.settings = {} end
-    -- First-use Compendium filter; preserve an explicitly saved false.
-    if questJournal.settings.foundOnly == nil then questJournal.settings.foundOnly = true end
-    return questJournal
+    return SpokenEnv.Persistence.character.Stories.journal
 end
 QuestState.Saved = Saved
 local function ValidID(id)
@@ -178,7 +170,7 @@ function QuestState:CurrentMap()
     return Call(C_Map,"GetBestMapForUnit","player")
 end
 function QuestState:Setting(key, value)
-    local settings=Saved().settings
+    local settings=SpokenEnv.Persistence:ModuleDB("Stories").profile.Compendium
     if value~=nil then settings[key]=value and true or false end
     return settings[key] == true
 end
@@ -189,6 +181,7 @@ for _,evt in ipairs({"PLAYER_ENTERING_WORLD","QUEST_LOG_UPDATE","QUEST_ACCEPTED"
     pcall(frame.RegisterEvent,frame,evt)
 end
 frame:SetScript("OnEvent",function(self,evt,a1,a2)
+    if not SpokenEnv.Persistence.character then return end
     evt = type(evt)=="string" and evt or _G.event
     a1 = a1 or _G.arg1
     a2 = a2 or _G.arg2

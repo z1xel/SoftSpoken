@@ -15,13 +15,7 @@ local selectedMapID, selectedAreaKey, selectedCityID
 local anchoredOutside -- nil until the first map geometry check
 
 local function Settings()
-    if type(SSZCharacter) ~= "table" then SSZCharacter = {} end
-    local characterDB = SSZCharacter
-    if type(characterDB.settings) ~= "table" then characterDB.settings = {} end
-    local settings = characterDB.settings
-    if settings.mapPanelCollapsed == nil then settings.mapPanelCollapsed = false end
-    if settings.showMapPanel == nil then settings.showMapPanel = true end
-    return settings
+    return SpokenPlacesRuntime and SpokenPlacesRuntime.Settings()
 end
 
 -- Turtle WoW's actual minimized World Map border, sourced directly from
@@ -290,7 +284,7 @@ local function ApplyAnchors()
     return true
 end
 local function Available()
-    return WorldMapFrame and WorldMapFrame:IsShown() and Settings().showMapPanel
+    return Settings() and WorldMapFrame and WorldMapFrame:IsShown() and Settings().showMapPanel
 end
 
 local function PageEntry(mapID)
@@ -483,7 +477,7 @@ local function HookScript(frame,event,callback)
 end
 
 function MapPanel.SetupMapPanel()
-    if ready or not WorldMapFrame then return false end
+    if ready or not WorldMapFrame or not Settings() then return false end
     BuildPanel()
     BuildToggle()
     ApplyAnchors()

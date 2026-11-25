@@ -47,20 +47,31 @@ R.source = {
     RecheckGates=function(self) rechecks=rechecks+1 end,
     Retry=function(self) retries=retries+1 end,
 }
+local defaults={auto=true,subzones=true,mode="discovery",holdCombat=false,stopCombat=false,
+    greeting=true,showMapPanel=true,loreFontSize=14}
+local function Reset(db)
+    for k in pairs(db.profile) do db.profile[k]=nil end
+    for k,v in pairs(defaults) do db.profile[k]=v end
+end
+R.db={profile={},ResetProfile=Reset}
+Reset(R.db)
+SpokenEnv={Persistence={character={Places={heard={},visited={}}}}}
 dofile("SoftSpoken/Modules/Places/Settings.lua")
 dofile("SoftSpoken/Modules/Places/Audio.lua")
 dofile("SoftSpoken/Modules/Places/Autoplay.lua")
 
--- Existing ON retains OLD stop-and-hold, existing OFF retains both OFF.
-SSZCharacter={settings={holdCombat=true,discoveryDefaultMigrated=true,mode="discovery"}}
-local s=R.CharDB().settings
-eq(s.holdCombat,true);eq(s.stopCombat,true)
-eq(s.combatModesMigrated,true)
-SSZCharacter={settings={holdCombat=false,discoveryDefaultMigrated=true,mode="discovery"}}
-s=R.CharDB().settings
-eq(s.holdCombat,false);eq(s.stopCombat,false)
+-- The migration of legacy combat flags belongs to D4; runtime settings
+-- are now the active profile, independent of discovery state.
+local s=R.Settings()
+s.holdCombat=true
+s.stopCombat=true
 R.ResetOptions()
 eq(s.holdCombat,false);eq(s.stopCombat,false)
+local oldProfile=s
+R.db.profile={auto=true,subzones=true,mode="discovery",holdCombat=false,
+    stopCombat=false,greeting=true}
+s=R.Settings()
+assert(s~=oldProfile, "cached old profile")
 
 -- The level-one first greeting waits for stable location and finished movie.
 -- Its 1.5s hold is separate from the 0.75s settling check.
@@ -77,7 +88,7 @@ eq(R.startupActive,false)
 eq(#calls,1)
 eq(calls[1].initialGreeting,true)
 eq(calls[1].autoplay,true)
-eq(SSZCharacter.greeted,nil) -- merely queued does NOT count as heard
+eq(R.CharDB().greeted,nil) -- merely queued does NOT count as heard
 eq(R.HoldAutoplay(calls[1]),"starting area")
 clock=2.29
 eq(R.HoldAutoplay(calls[1]),"starting area")
@@ -85,8 +96,8 @@ clock=2.31
 eq(R.HoldAutoplay(calls[1]),nil)
 eq(#calls,1)
 calls[1].startCallback(calls[1])
-eq(SSZCharacter.greeted,true)
-eq(SSZCharacter.heard[calls[1].key],true)
+eq(R.CharDB().greeted,true)
+eq(R.CharDB().heard[calls[1].key],true)
 local queued=R.RequestNarration("Elwynn Forest","Northshire Valley",false,false,true,true)
 eq(queued,false) -- replay/duplicate initial greeting suppressed
 
@@ -139,15 +150,16 @@ eq(rechecks,3)
 
 -- The selected initial greeting must be retried after a reload before its
 -- playback starts; new character SavedVariables are not marked greeted.
-SSZCharacter={settings={greeting=true,combatModesMigrated=true,holdCombat=false,stopCombat=false,
-    discoveryDefaultMigrated=true,mode="discovery"}}
+SpokenEnv.Persistence.character.Places={heard={},visited={}}
+R.ResetOptions()
+s=R.Settings()
 R.startupActive=true;R.firstWorldReady=true;R.startupStableKey=nil
 R.startupStableElapsed=0
 clock=20;calls={}
 R.StabilizeStartingLocation(0.01)
 R.StabilizeStartingLocation(0.8)
 eq(#calls,1)
-eq(SSZCharacter.greeted,nil)
+eq(R.CharDB().greeted,nil)
 eq(R.HoldAutoplay(calls[1]),"starting area")
 
 -- A manual PlayNow may accept a selection behind a different clip. Report
@@ -198,4 +210,4 @@ do
     SpokenPlacesAudioPacks=initial
 end
 
-print("audio_phase2_places.lua: combat migration, distinct gates and starting grace passed")
+print("audio_phase2_places.lua: profile reset, distinct gates and starting grace passed")

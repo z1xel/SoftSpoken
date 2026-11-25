@@ -27,10 +27,12 @@ local journal = {
     seen = { [101] = true },
     completed = { [102] = true },
     titles = { [101] = "A Remembered Quest" },
-    settings = { foundOnly = false },
     dialogue = dialogue,
 }
-SSCQuestJournal = journal
+local storiesProfile={Compendium={foundOnly=false}}
+local namespaces={Stories={profile=storiesProfile}}
+SpokenEnv.Persistence={character={Stories={journal=journal}},
+    ModuleDB=function(_,name) return namespaces[name] end}
 CreateFrame = function()
     return {
         RegisterEvent = function() end,
@@ -51,13 +53,17 @@ questState:MarkCompleted(103)
 eq(journal.seen[103], true, "new quest uses original seen field")
 eq(journal.completed[103], true, "new quest uses original completion field")
 eq(journal.titles[103], "New Quest", "new quest title")
-eq(questState:Setting("foundOnly", true), true, "settings writes original journal")
-eq(journal.settings.foundOnly, true, "settings key preserved")
+eq(questState:Setting("foundOnly", true), true, "settings writes namespace")
+eq(storiesProfile.Compendium.foundOnly, true, "settings key preserved")
 
 -- Writings must preserve existing account and character storage on init/reset.
 local accountSettings = { autoplay = false, bookAsOneLine = false }
-local character = { read = { [42] = true } }
-SSBSettings, SSBCharacter = accountSettings, character
+local character = { read = { [42] = true }, found = { [42] = true } }
+SpokenEnv.Persistence.character.Writings=character
+namespaces.Writings={profile=accountSettings,ResetProfile=function(self)
+    self.profile.autoplay=true
+    self.profile.bookAsOneLine=true
+end}
 SpokenWritings = nil
 dofile("SoftSpoken/Modules/Writings/Core.lua")
 local writings = assert(SpokenWritings)
@@ -71,18 +77,18 @@ eq(writings.L.STOP, "Stop", "Writings Stop button label available")
 eq(writings.L.OPT_SECTION_READING, "When to Read", "Writings settings labels available")
 eq(SSB, nil, "Writings locale does not resurrect retired module alias")
 eq(writings:InitDB(), accountSettings, "Writings settings table identity")
-eq(SSBCharacter, character, "Writings character table identity")
-eq(SSBSettings.autoplay, false, "existing autoplay choice")
-eq(SSBSettings.bookAsOneLine, false, "existing page mode choice")
-eq(writings:IsBookFound(42), true, "legacy read record migrates to discovery")
+eq(SpokenEnv.Persistence.character.Writings, character, "Writings character table identity")
+eq(namespaces.Writings.profile.autoplay, false, "existing autoplay choice")
+eq(namespaces.Writings.profile.bookAsOneLine, false, "existing page mode choice")
+eq(writings:IsBookFound(42), true, "read record preserves discovery")
 writings:MarkBookRead(43)
 writings:MarkBookFound(44)
 writings:ResetOptions()
-eq(SSBSettings, accountSettings, "Writings reset reuses original settings table")
-eq(SSBCharacter, character, "Writings reset retains character table")
+eq(namespaces.Writings.profile, accountSettings, "Writings reset reuses original settings table")
+eq(SpokenEnv.Persistence.character.Writings, character, "Writings reset retains character table")
 eq(writings:HasReadBook(43), true, "reset does not erase reading history")
 eq(writings:IsBookFound(44), true, "reset does not erase discovery")
-eq(SSBSettings.autoplay, true, "reset restores default autoplay")
+eq(namespaces.Writings.profile.autoplay, true, "reset restores default autoplay")
 
 -- Places keeps its global runtime and the map/discovery key semantics.
 dofile("SoftSpoken/Modules/Places/LoreDataRegistry.lua")

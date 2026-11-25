@@ -7,7 +7,15 @@ end
 
 local function Setup(journal,query)
     SSCQuestState=nil
-    SSCQuestJournal=journal
+    journal=journal or {}
+    journal.seen=journal.seen or {}
+    journal.completed=journal.completed or {}
+    journal.titles=journal.titles or {}
+    journal.dialogue=journal.dialogue or {}
+    local namespace={profile={Compendium=journal.settings or {foundOnly=true}}}
+    journal.settings=nil
+    SpokenEnv={Persistence={character={Stories={journal=journal}},
+        ModuleDB=function() return namespace end}}
     C_QuestLog={}
     GetNumQuestLogEntries=function() return 0 end
     GetQuestsCompleted=query
@@ -45,7 +53,7 @@ eq(state:IsCompleted(103),false,"false flag ignored")
 eq(state:IsCompleted(0),false,"zero ID ignored")
 eq(state:IsCompleted(-4),false,"negative ID ignored")
 eq(state:IsCompleted(104.5),false,"fractional ID ignored")
-eq(SSCQuestJournal.seen[101],nil,"no duplicate seen entry")
+eq(SpokenEnv.Persistence.character.Stories.journal.seen[101],nil,"no duplicate seen entry")
 local requests,refreshes=counts()
 eq(requests,0,"no redundant server query")
 eq(refreshes,1,"one Compendium refresh")
@@ -69,8 +77,8 @@ eq(state:IsCompleted(201),true,"previously seen quest completed")
 eq(state:IsCompleted(202),true,"newly discovered history imported")
 eq(state:IsCompleted(250),true,"duplicate completion unchanged")
 eq(state:IsCompleted(999),true,"local repeatable history preserved")
-eq(SSCQuestJournal.titles[201],"Known quest","title preserved")
-eq(SSCQuestJournal.settings.foundOnly,false,"settings preserved")
+eq(SpokenEnv.Persistence.character.Stories.journal.titles[201],"Known quest","title preserved")
+eq(state:Setting("foundOnly"),false,"settings preserved")
 eq(state.revision,1,"cached import increments once")
 eq(state:ImportCompletedQuests(),0,"subsequent imports idempotent")
 state:MarkCompleted(203)

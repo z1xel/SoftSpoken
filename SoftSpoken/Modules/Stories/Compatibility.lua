@@ -130,8 +130,8 @@ function GetQuestLogTitle(questIndex)
     if type(questID)~="number" or questID<=0 then
         questID=DataModules:GetQuestID("accept",title,"","")
     end
-    if not questID and StoriesAddon.db and StoriesAddon.db.char then
-        questID=StoriesAddon.db.char.RecentQuestTitleToID[title]
+    if not questID and StoriesAddon.character then
+        questID=StoriesAddon.character.RecentQuestTitleToID[title]
     end
     if not questID then
         questID=dummyQuestIDMap[title]

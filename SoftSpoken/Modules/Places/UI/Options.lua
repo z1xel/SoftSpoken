@@ -6,7 +6,7 @@ local optionsPage
 local optionsLayout
 
 local function Settings()
-    return PlacesRuntime.CharDB().settings
+    return PlacesRuntime.Settings()
 end
 
 local function Refresh()
@@ -181,3 +181,5 @@ function PlacesRuntime:SetupOptions()
     optionsPage = Spoken:AddSettingsPage(frame, "Places", 2, layout)
     Refresh()
 end
+
+function PlacesRuntime:RefreshOptions() Refresh() end
