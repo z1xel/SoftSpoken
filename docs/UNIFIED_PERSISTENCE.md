@@ -1,5 +1,7 @@
 # Unified persistence — phase D
 
+**Current status:** D1–D6C are implemented; the real ClassicAPI importer, Vanilla serialization, and profile UI validation are still pending. The numbered sections below retain implementation history. See [development status](CONSOLIDATION_STATUS.md) for current release gates.
+
 ## D1–D3 unified persistence and profile management
 
 The target has two SavedVariables globals: `SoftSpokenDB` (account) and
@@ -10,7 +12,7 @@ SpokenEnv and is deliberately inert at file load. D2 switches the TOC and contro
 
 | Destination | Content |
 | --- | --- |
-| Root AceDB profile | Existing Core preferences, including Parts, shared language, narrator, transcript, audio and minimap |
+| Root AceDB profile | Existing Core preferences, including Parts, SilentDiscovery, shared language, narrator, transcript, audio and minimap |
 | Root AceDB global | Existing account-wide layout, recovery baseline and other global state |
 | Root AceDB char | Existing non-profile Core state (IsPaused) |
 | Stories namespace profile | Existing Stories profile (Audio, DebugEnabled, other saved preferences); Compendium.foundOnly, voicedOnly, unlock |

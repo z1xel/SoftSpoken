@@ -1,6 +1,6 @@
 # SoftSpoken v0.9.1-beta
 
-> **Single-addon development preview:** This branch consolidates Stories, Places, and Writings into one `SoftSpoken/` addon. The published v0.9.1-beta release still uses the four-folder layout documented below. Use a separate test installation or back up your entire `WTF` directory before trying this branch; legacy migration is implemented against a proposed ClassicAPI ImportSavedVariables function, but real-client validation is pending. Do not launch this branch against your only copy of WTF. The legacy Core SavedVariables declaration is retained as a passive safety slot, not a replacement for a disk backup. See [the D5 validation checklist](docs/UNIFIED_PERSISTENCE.md#d5-client-validation). Keep external voice packs separate. Remove the three obsolete module folders from AddOns before launching this branch, but do not delete their SavedVariables. The upgrade guard attempts to disable those exact folders and stops unified startup if an old module is still enabled or loaded; it cannot unload Lua that already ran.
+> **Development preview — not the published release.** This branch uses one `SoftSpoken/` addon containing Stories, Places and Writings. The [published v0.9.1-beta release](https://github.com/z1xel/SoftSpoken/tree/main) still uses four addon folders. The preview requires a proposed ClassicAPI `ImportSavedVariables` function for first-time migration and unseen characters; that native extension and real-client validation remain release gates. Test only against a disposable client with an independent backup of the entire `WTF` directory. See [development status](docs/CONSOLIDATION_STATUS.md) and [migration validation](docs/UNIFIED_PERSISTENCE.md#d5-client-validation).
 *Voiced dialogue, lore, and text for World of Warcraft Vanilla.*
 
 <p align="center">
@@ -19,7 +19,7 @@ Whether you're already familiar with the projects SoftSpoken builds upon, or are
 
 ## How SoftSpoken Works
 
-SoftSpoken consists of a central module, simply titled **SoftSpoken**, which provides the narration player and shared audio system that the specialized modules rely on for playback. It also hosts the underlying framework of the **Compendium**, a unified interface for browsing the game's narrated content.
+SoftSpoken is a single installable addon with a shared narration player and audio system that its internal feature modules use for playback. It also hosts the underlying framework of the **Compendium**, a unified interface for browsing the game's narrated content.
 
 <img src="docs/images/PLAYER_NEW%20%281%29.png" alt="SoftSpoken narration player displaying voiced dialogue in the game world" />
 
@@ -30,6 +30,8 @@ There are currently three specialized modules, with at least one more planned:
 - **[SoftSpoken Places](#places)** — Provides narrated lore for Azeroth's zones and subzones as you explore, tracking the places you've discovered and integrating with the World Map.
 
 - **[SoftSpoken Writings](#writings)** — Narrates books, letters, notes, and other readable objects encountered throughout the world, maintaining a record of your discoveries and reading history.
+
+Modules can be enabled or disabled individually in settings without reloading. By default, disabled modules silently retain discovery progress; the **Silent discovery** settings let you opt out for each module. Gossip remains an independent narration switch. Voice packs are still separate addons.
 
 ### The Compendium
 
@@ -111,22 +113,25 @@ You can find the source code and releases in the [ClassicAPI repository](https:/
 
 ## Installation
 
-**Current release:** **v0.9.1-beta**. Do not mix modules from different versions.
+### Published release
 
-1. **Enable ClassicAPI**, preferably the [latest version](https://github.com/brues-code/ClassicAPI/releases/latest), before starting the game. OctoWoW users can follow the [update instructions above](#updating-classicapi-in-octowow).
-2. Download **[SoftSpoken-v0.9.1-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.9.1-beta/SoftSpoken-v0.9.1-beta.zip)** and extract it. The previous **[SoftSpoken-v0.8.1-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.8.1-beta/SoftSpoken-v0.8.1-beta.zip)** remains available.
-3. **Updating an existing installation?** Before copying the new version, **delete these four old folders** from `Interface\AddOns`: `SoftSpoken`, `SoftSpoken_Stories`, `SoftSpoken_Places`, and `SoftSpoken_Writings`. This prevents obsolete files from earlier versions from remaining installed. **Keep your separately installed voice-pack folders and SavedVariables**; they do not need to be deleted.
-4. Find the following four addon folders in the extracted contents and copy them into your World of Warcraft 1.12 `Interface\AddOns` directory:
+For regular play, download [SoftSpoken-v0.9.1-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.9.1-beta/SoftSpoken-v0.9.1-beta.zip) and follow the [released installation instructions](https://github.com/z1xel/SoftSpoken/blob/main/README.md#installation). The previous [SoftSpoken-v0.8.1-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.8.1-beta/SoftSpoken-v0.8.1-beta.zip) remains available.
+
+### Development preview (single addon)
+
+**Do not upgrade your only live installation to this branch.** The native import extension is required before a first-time or unseen-character login can complete safely.
+
+1. Close the client. Make a separate test installation and back up its entire `WTF` directory outside the game.
+2. Enable a ClassicAPI build implementing the [migration contract](docs/UNIFIED_PERSISTENCE.md#d4-implementation-contract).
+3. Remove the four old SoftSpoken addon folders from the test installation: `SoftSpoken`, `SoftSpoken_Stories`, `SoftSpoken_Places`, and `SoftSpoken_Writings`. Do not delete SavedVariables or independent voice packs.
+4. Copy the unified `SoftSpoken/` directory from this branch or its Actions preview artifact into `Interface\AddOns`.
 
    ```text
    Interface/
    └── AddOns/
-       ├── SoftSpoken/
-       ├── SoftSpoken_Stories/
-       ├── SoftSpoken_Places/
-       └── SoftSpoken_Writings/
+       └── SoftSpoken/
    ```
-5. Launch the game and open the **AddOns** menu at character selection. **Required: enable “Load out of date AddOns”.** Then enable SoftSpoken and its modules. Keep **Load out of date AddOns** enabled when using SoftSpoken and its voice packs.
+5. Enable **Load out of date AddOns** and SoftSpoken in the character-selection AddOns menu. Enable any desired voice packs separately. Follow the [client validation checklist](docs/UNIFIED_PERSISTENCE.md#d5-client-validation).
 
 Use `/softspoken` to open settings or `/compendium` to open Azeroth's Compendium. The Compendium also has a default keybinding of **J**, provided that key was not already assigned to another action.
 
@@ -160,19 +165,16 @@ To enable narration, install compatible voice packs for whichever modules you in
 
 These voice packs originate from [Spoken](https://github.com/rusty-key/spoken-wow) by Rusty Key. The **Places** and **Writings** downloads above are [Vanilla 1.12-compatible repacks](https://github.com/z1xel/SoftSpoken/releases/tag/audio-vanilla-112-v1) of the [original Zones](https://github.com/rusty-key/spoken-wow/releases/tag/zones-audio/v2.0.1) and [Books](https://github.com/rusty-key/spoken-wow/releases/tag/books-audio/v2.1.2) releases. Only the addon manifests (`.toc` files) were adjusted; the recordings are unchanged.
 
-**Installing voice packs:** Download the packs you want and extract them directly into `Interface\AddOns`, alongside the SoftSpoken modules.
+**Installing voice packs:** Download the packs you want and extract them directly into `Interface\AddOns`, alongside the single SoftSpoken addon (or the four folders in the published release).
 
 **Important:** The `SpokenQuestsAudioAll` download contains four separate voicepack folders. Place those folders directly inside `Interface\AddOns`—**not** inside an extra `SpokenQuestsAudioAll` folder.
 
-For example, a complete installation with all the optional voice packs might look like this:
+For example, a development-preview installation with all the optional voice packs might look like this:
 
 ```text
 Interface/
 └── AddOns/
     ├── SoftSpoken/
-    ├── SoftSpoken_Stories/
-    ├── SoftSpoken_Places/
-    ├── SoftSpoken_Writings/
     │
     ├── SpokenQuestsAudioAlliance/
     ├── SpokenQuestsAudioHorde/
@@ -201,7 +203,7 @@ I've also prepared **SSS_VOFallback** (SoftSpoken Stories VoiceOver Fallback), a
 | **Turtle WoW VoiceOver** | AI-generated narration for Turtle WoW's custom quests and NPC dialogue. | [Download Turtle WoW Voice Data](https://github.com/lightbladeninja/wow-voiceover/releases/download/v1.5.0/AI_VoiceOverData_Turtle.zip) |
 | **SSS_VOFallback** | Additional Vanilla and VanillaExtra recordings that fill gaps in Spoken's quest and gossip coverage. | [SSS_VOFallback Pack](https://github.com/z1xel/SoftSpoken/releases/download/v0.8.0-beta.1/SSS_VOFallback.zip) |
 
-**Installation:** Place the `AI_VoiceOverData_Turtle` and/or `SSS_VOFallback` folders directly inside `Interface\AddOns`, alongside the SoftSpoken modules.
+**Installation:** Place the `AI_VoiceOverData_Turtle` and/or `SSS_VOFallback` folders directly inside `Interface\AddOns`, alongside the single SoftSpoken addon (or the four folders in the published release).
 
 When multiple packs contain the same recording, SoftSpoken automatically prioritizes **Spoken → SSS_VOFallback → Turtle WoW**, without requiring manual edits to audio priorities.
 

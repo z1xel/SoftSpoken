@@ -7,20 +7,11 @@ on:
     paths:
       - "VERSION"
       - "README.md"
-      - "SoftSpoken/SoftSpoken.toc"
-      - "SoftSpoken/Modules/**"
-      - "SoftSpoken/Libs/**"
-      - "SoftSpoken/stories-embeds.xml"
-      - "SoftSpoken/Environment.lua"
-      - "SoftSpoken/Modules/Stories/Environment.lua"
-      - "SoftSpoken/Modules/Writings/Core.lua"
+      - "SoftSpoken/**"
       - "tests/test_release_version.py"
       - "tests/test_public_contracts.py"
       - "tests/test_ui_packaging.py"
       - "tests/test_texture_path_integrity.py"
-      - "SoftSpoken/Modules/Places/Textures/**"
-      - "SoftSpoken/Modules/Stories/Textures/**"
-      - "SoftSpoken/Textures/**"
       - ".github/workflows/stage-v091-beta.yml"
   workflow_dispatch:
 
@@ -55,6 +46,9 @@ jobs:
                   z.write(file, file.as_posix())
           with zipfile.ZipFile(package) as z:
               assert z.testzip() is None
+              assert len(z.namelist()) == len(files)
+              assert all(name.startswith("SoftSpoken/") for name in z.namelist())
+              assert [name for name in z.namelist() if name.lower().endswith(".toc")] == ["SoftSpoken/SoftSpoken.toc"]
               for mod in modules:
                   toc = f"{mod}/{mod}.toc"
                   assert f"## Version: {version}".encode() in z.read(toc)

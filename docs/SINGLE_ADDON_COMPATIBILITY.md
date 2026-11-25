@@ -11,11 +11,11 @@ Release asset archives were not opened during this source audit. A release may d
 
 ## Upgrade safety
 
-Remove old full module folders from AddOns, preserve WTF and independent voice packs. UpgradeGuard disables only exact retired SoftSpoken module folder names before startup if possible. The login gate refuses unified initialization if a conflicting old addon is still enabled or already loaded. It cannot unload code already executed or guarantee the client honors DisableAddOn during its current loading pass. Restart after removing old folders. Saved-variable migration is Phase D, not implemented here.
+Remove old full module folders from AddOns, preserve WTF and independent voice packs. UpgradeGuard disables only exact retired SoftSpoken module folder names before startup if possible. The login gate refuses unified initialization if a conflicting old addon is still enabled or already loaded. It cannot unload code already executed or guarantee the client honors DisableAddOn during its current loading pass. Restart after removing old folders. Phase D now implements saved-variable migration against the proposed native import function; see [unified persistence](UNIFIED_PERSISTENCE.md). Actual client validation remains pending.
 
 ## Deferred operations
 
-Core and the three modules initialize at login. Stories accepts valid early registration via installed metadata, deduplicates inventory entries and defers any remaining selected load-on-demand packs until world entry. Places still waits for world entry before location stabilization; Writings retains its book-frame retry. EQL3 setup handles already-loaded and later-loaded integrations. Existing public names, pack preference policy, version constants, and database schemas remain unchanged.
+Core and the three modules initialize at login. Stories accepts valid early registration via installed metadata, deduplicates inventory entries and defers any remaining selected load-on-demand packs until world entry. Places still waits for world entry before location stabilization; Writings retains its book-frame retry. EQL3 setup handles already-loaded and later-loaded integrations. Existing public source names, pack preference policy and version constants remain unchanged. Phase D subsequently unified persistence; Phase E separated discovery tracking from narration activation.
 
 ## C3 regression baseline
 
@@ -23,4 +23,4 @@ All three workflows passed on C2 commit `b22fc01842f8a8167fefd360ad8364f654cc16d
 [Audio pack regression](https://github.com/z1xel/SoftSpoken/actions/runs/45328484236),
 [Audio API transport regression](https://github.com/z1xel/SoftSpoken/actions/runs/45328484239),
 [Development quest catalog regression](https://github.com/z1xel/SoftSpoken/actions/runs/45328484279).
-C3 also adds explicit coverage for world-entry deferral, already-loaded and late integrations, and includes the existing completed-quest and PvP category tests in CI. In-game client validation, shipped voice-pack archive verification, and legacy saved-variable migration remain release gates.
+C3 also adds explicit coverage for world-entry deferral, already-loaded and late integrations, and includes the existing completed-quest and PvP category tests in CI. This is a historical baseline. Current release gates are tracked in [development status](CONSOLIDATION_STATUS.md).

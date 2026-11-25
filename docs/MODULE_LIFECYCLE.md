@@ -29,3 +29,7 @@ window is open, during a delayed read and bag scan, on the map, and across
 profile changes; check all three modes and repeat switches without duplicate
 handlers. Verify world entry and bank transfer baselines. ClassicAPI migration
 and the existing D release gates are unchanged.
+
+## Automated validation
+
+The final E6 implementation (`1db7b9a`) passed all five regression workflows, including the focused discovery suite ([run 45568198449](https://github.com/z1xel/SoftSpoken/actions/runs/45568198449)). This does not replace actual client validation.
