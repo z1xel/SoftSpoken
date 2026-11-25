@@ -154,6 +154,8 @@ dofile("SoftSpoken/Modules/Places/Runtime.lua")
 dofile("SoftSpoken/Modules/Places/Settings.lua")
 dofile("SoftSpoken/Modules/Writings/Core.lua")
 dofile("SoftSpoken/Strings.lua")
+-- Options reads the shared locale inventory at file load, as in the manifest.
+dofile("SoftSpoken/Language.lua")
 dofile("SoftSpoken/UI/Options.lua")
 
 local P, core, options = SpokenEnv.Persistence, SpokenEnv.CoreController, SpokenEnv.Options
