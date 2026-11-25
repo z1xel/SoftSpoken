@@ -117,3 +117,5 @@ L1 is complete as a checked-in inventory and source feasibility audit. Completen
 Relevant existing suites: tests/places_map_panel_names.lua, tests/places_zone_portrait_emblems.lua, tests/audio_phase2_places.lua, tests/module_discovery_policy.lua, tests/catalog_release_gate.lua, tests/compendium_pvp_categories.lua, tests/writings_narrator_discovery.lua, tests/legacy_migration.lua, tests/unified_persistence.lua, tests/test_persistence_lifecycle.py, tests/test_public_contracts.py, tests/test_ui_packaging.py. Preserve existing contracts; add schema, source, lookup, collision, overlay and migration tests in their respective phases.
 
 See [CONSOLIDATION_STATUS.md](CONSOLIDATION_STATUS.md) for the independent ClassicAPI SavedVariables migration and real-client release gates.
+
+**L2 follow-up:** [Location architecture contract v1](LOCATION_ARCHITECTURE_CONTRACT.md) formalizes the schema and consumer boundaries. The synthetic fixture under tools/locations/fixtures is not production data.

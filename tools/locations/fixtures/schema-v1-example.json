@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "note": "Synthetic schema examples; no production geographical mappings.",
+  "entities": {
+    "example_world": {
+      "name": "Example World",
+      "kind": "world"
+    },
+    "example_zone": {
+      "name": "Example Zone",
+      "kind": "zone",
+      "parent": "example_world"
+    },
+    "example_other_zone": {
+      "name": "Other Zone",
+      "kind": "zone",
+      "parent": "example_world"
+    },
+    "example.tower": {
+      "name": "Tower",
+      "kind": "landmark",
+      "parent": "example_zone",
+      "aliases": {
+        "enUS": [
+          "Old Tower"
+        ]
+      }
+    },
+    "other.tower": {
+      "name": "Tower",
+      "kind": "landmark",
+      "parent": "example_other_zone"
+    },
+    "example.bridge": {
+      "name": "Example Bridge",
+      "kind": "landmark",
+      "parent": "example_zone"
+    },
+    "example.instance": {
+      "name": "Example Instance",
+      "kind": "dungeon"
+    }
+  },
+  "bindings": [
+    {
+      "scope": "fixture_vanilla",
+      "namespace": "areaTable",
+      "value": 209,
+      "location": "example.tower"
+    },
+    {
+      "scope": "fixture_vanilla",
+      "namespace": "instanceMap",
+      "value": 209,
+      "location": "example.instance"
+    },
+    {
+      "scope": "fixture_vanilla",
+      "namespace": "areaTable",
+      "value": 210,
+      "location": "other.tower"
+    },
+    {
+      "scope": "fixture_vanilla",
+      "namespace": "areaTable",
+      "value": 211,
+      "location": "example.bridge"
+    },
+    {
+      "scope": "fixture_vanilla",
+      "namespace": "areaTable",
+      "value": 212,
+      "location": "example.bridge"
+    },
+    {
+      "scope": "fixture_spoken",
+      "namespace": "upstreamUiMap",
+      "value": 1429,
+      "location": "example_zone"
+    }
+  ],
+  "relations": [
+    {
+      "from": "example.bridge",
+      "relation": "within",
+      "to": "example_other_zone"
+    },
+    {
+      "from": "example.instance",
+      "relation": "entranceIn",
+      "to": "example_zone"
+    }
+  ],
+  "mapRepresentations": [
+    {
+      "scope": "fixture_vanilla",
+      "namespace": "worldMapArea",
+      "value": 1,
+      "subject": "example_zone"
+    },
+    {
+      "scope": "fixture_vanilla",
+      "namespace": "worldMapArea",
+      "value": 2,
+      "subject": "example_other_zone"
+    }
+  ],
+  "mapCoverage": [
+    {
+      "location": "example.bridge",
+      "map": {
+        "scope": "fixture_vanilla",
+        "namespace": "worldMapArea",
+        "value": 1
+      }
+    },
+    {
+      "location": "example.bridge",
+      "map": {
+        "scope": "fixture_vanilla",
+        "namespace": "worldMapArea",
+        "value": 2
+      }
+    }
+  ],
+  "expected": [
+    {
+      "query": "areaTable 209 fixture_vanilla",
+      "status": "resolved",
+      "id": "example.tower"
+    },
+    {
+      "query": "instanceMap 209 fixture_vanilla",
+      "status": "resolved",
+      "id": "example.instance"
+    },
+    {
+      "query": "name Tower without context",
+      "status": "ambiguous",
+      "candidates": [
+        "example.tower",
+        "other.tower"
+      ]
+    },
+    {
+      "query": "name Tower with parent example_zone",
+      "status": "resolved",
+      "id": "example.tower"
+    },
+    {
+      "query": "areaTable 209 unknown profile",
+      "status": "unavailable"
+    },
+    {
+      "query": "areaTable 211 and 212 fixture_vanilla",
+      "status": "resolved",
+      "id": "example.bridge"
+    }
+  ]
+}
