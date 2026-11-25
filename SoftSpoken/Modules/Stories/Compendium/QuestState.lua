@@ -12,6 +12,9 @@ local function Saved()
     return SpokenEnv.Persistence.character.Stories.journal
 end
 QuestState.Saved = Saved
+local function Tracking()
+    return not (Spoken and Spoken.ShouldTrackDiscovery) or Spoken:ShouldTrackDiscovery("quests")
+end
 local function ValidID(id)
     id = tonumber(id)
     return id and id > 0 and math.floor(id) == id and id or nil
@@ -33,7 +36,7 @@ function QuestState:Title(id, fallback, request)
     if type(title) == "string" and title ~= "" then
         local previous = ask[id]
         ask[id] = nil
-        Saved().titles[id] = title
+        if Tracking() then Saved().titles[id] = title end
         -- The native title can become available before its completion event.
         -- Invalidate an old tree label once, not on every successful lookup.
         if previous and title ~= previous.displayed then
@@ -76,6 +79,7 @@ function QuestState:SeenIDs()
     return ids
 end
 function QuestState:MarkSeen(id, title)
+    if not Tracking() then return end
     id=ValidID(id)
     if not id then return end
     local questJournal=Saved()
@@ -84,6 +88,7 @@ function QuestState:MarkSeen(id, title)
     if type(title)=="string" and title~="" then questJournal.titles[id]=title end
 end
 function QuestState:MarkCompleted(id)
+    if not Tracking() then return end
     id=ValidID(id)
     if not id then return end
     local questJournal=Saved()
@@ -97,6 +102,7 @@ end
 -- ClassicAPI receives Turtle's rewarded quest IDs from the server and caches
 -- them before firing QUEST_QUERY_COMPLETE. Never issue a second server query.
 function QuestState:ImportCompletedQuests()
+    if not Tracking() then return 0 end
     if type(GetQuestsCompleted)~="function" then return 0 end
     local ok,completed=pcall(GetQuestsCompleted)
     if not ok or type(completed)~="table" then return 0 end
@@ -116,6 +122,7 @@ end
 -- older active entries solely because they weren't enumerated; IsOnQuest is
 -- the authoritative check when ClassicAPI provides it.
 function QuestState:ReadLog()
+    if not Tracking() then return end
     local nextActive={}
     local entries=0
     if type(GetNumQuestLogEntries)=="function" then
@@ -145,6 +152,7 @@ end
 -- One-time check for quests hidden by collapsed log headers. ClassicAPI can
 -- identify them by ID even when Vanilla cannot enumerate their log rows.
 function QuestState:SeedActive(indexedIDs)
+    if not Tracking() then return end
     if self.seeded then return end
     self.seeded=true
     if not C_QuestLog or type(C_QuestLog.IsOnQuest)~="function" then return end
@@ -181,7 +189,7 @@ for _,evt in ipairs({"PLAYER_ENTERING_WORLD","QUEST_LOG_UPDATE","QUEST_ACCEPTED"
     pcall(frame.RegisterEvent,frame,evt)
 end
 frame:SetScript("OnEvent",function(self,evt,a1,a2)
-    if not SpokenEnv.Persistence.character then return end
+    if not SpokenEnv.Persistence.character or not Tracking() then return end
     evt = type(evt)=="string" and evt or _G.event
     a1 = a1 or _G.arg1
     a2 = a2 or _G.arg2

@@ -150,6 +150,7 @@ function StoriesAddon:InvokeQuestHandler(event, dispatchOrigin, manual)
         Debug:Record("handler-missing", format("No handler exists for %s", tostring(event)))
         return false
     end
+    if event ~= "QUEST_FINISHED" and event ~= "GOSSIP_CLOSED" and not self:IsPageOn(event) then return false end
     -- Only a read waits on autoplay: a window closing must still stop a line the Play button started.
     if not manual and event ~= "QUEST_FINISHED" and event ~= "GOSSIP_CLOSED" and not self:IsAutoplayOn() then
         Debug:Record("autoplay-off", format("Not reading %s: autoplay is off", event))
@@ -588,6 +589,11 @@ function StoriesAddon:Initialize()
     }
     local deferredEventGeneration = {}
     local function SignalDirectEvent(event, dispatchOrigin)
+        if (QUEST_EVENTS[event] or SPEECH_EVENTS[event]) and not self:IsPageOn(event) then
+            -- Quest capture has its own observer. Retain shared NPC quest-list
+            -- context for enabled quest narration, even if gossip is silent.
+            if not (SPEECH_EVENTS[event] and self:IsPartOn("quests")) then return end
+        end
         -- Also reached by the panel OnShow / QuestFrame hooks, not only the
         -- direct-event frame. Arm the gate before the 0.1-second speech deferral.
         if QUEST_EVENTS[event] or SPEECH_EVENTS[event] then
@@ -829,6 +835,20 @@ function StoriesAddon:Initialize()
             if IsAddOnLoaded(name) then self:ADDON_LOADED("ADDON_LOADED", name) end
         end
     end
+    if Spoken and Spoken.RegisterCallback then
+        Spoken:RegisterCallback("PART_SWITCHED", function(key, on)
+            if key == "quests" and not on then self:ClearPendingRead() end
+        end)
+        local tracking = not Spoken.ShouldTrackDiscovery or Spoken:ShouldTrackDiscovery("quests")
+        Spoken:RegisterCallback("DISCOVERY_POLICY_CHANGED", function(key, on)
+            if key ~= "quests" or tracking == on then return end
+            tracking = on
+            if on and _G.SSCQuestState then
+                _G.SSCQuestState:ReadLog()
+                _G.SSCQuestState:ImportCompletedQuests()
+            end
+        end)
+    end
     self.initialized = true
 end
 
@@ -908,6 +928,7 @@ end
 -- With Read When Window Closes on, an automatic read waits for the window to close
 -- (QUEST_FINISHED). The window shows one quest page at a time, so the last one read is the one kept.
 local pendingRead
+function StoriesAddon:ClearPendingRead() pendingRead = nil end
 
 local function QueueRead(soundData, manual)
     if not manual and StoriesAddon.db.profile.Audio.ReadAfterClose then
@@ -1185,7 +1206,7 @@ function StoriesAddon:QUEST_FINISHED()
     currentQuestSoundData = nil
     local pending = pendingRead
     pendingRead = nil
-    if pending then
+    if pending and self:IsPartOn("quests") then
         -- Its window has closed, so it is no window's line: the next close leaves it playing.
         pending.addedCallback = nil
         StoriesNarrator:Enqueue(pending)

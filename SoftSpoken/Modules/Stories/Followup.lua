@@ -30,7 +30,8 @@ local GetTitleText = GetTitleText
 
 function Followup:IsEnabled()
     local audio = StoriesAddon and StoriesAddon.db and StoriesAddon.db.profile.Audio
-    return audio and audio.FollowupLines ~= false and StoriesAddon:IsAutoplayOn() or false
+    return audio and audio.FollowupLines ~= false and StoriesAddon:IsAutoplayOn()
+        and (not StoriesAddon.IsPartOn or StoriesAddon:IsPartOn("quests")) or false
 end
 
 --------------------------------------------------------------------------------

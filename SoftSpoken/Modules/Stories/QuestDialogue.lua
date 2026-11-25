@@ -64,6 +64,7 @@ end
 -- Record the text actually shown during a live quest interaction.
 -- Capture is observational only: no audio enqueueing or quest-status changes.
 function Dialogue:CaptureEvent(eventName)
+    if Spoken and Spoken.ShouldTrackDiscovery and not Spoken:ShouldTrackDiscovery("quests") then return end
     eventName=type(eventName)=="string" and eventName or _G.event
     local stage=eventName=="QUEST_DETAIL" and "accept" or
         eventName=="QUEST_PROGRESS" and "progress" or
