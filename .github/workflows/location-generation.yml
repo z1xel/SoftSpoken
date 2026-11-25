@@ -23,3 +23,4 @@ jobs:
           python-version: '3.11'
       - run: python -m unittest discover -s tools/locations -p 'test_*.py' -v
       - run: python tools/locations/build.py --inventory-only --output /tmp/location-inventory
+      - run: python tools/locations/build.py --seed-only --manifest tools/locations/sources.json --decisions tools/locations/decisions.json --output /tmp/location-seed

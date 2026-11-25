@@ -25,3 +25,13 @@ python -m unittest discover -s tools/locations -p 'test_*.py' -v
 ```
 
 Output is staged: normalized-sources.json (private research input), coverage.json (complete explicit row/reference accounting), review-candidates.json (unreviewed source records with raw evidence for L4/L5), Locations.generated.lua (lean base/overlays, not loaded), ContentBindings.generated.lua (independent reviewed content crosswalk). Never copy it into the addon as a release dataset before L4/L5 review. Supply --previous-identities for allocation continuity checks against a previous manifest. Runtime resolution and persistence are later phases. The synthetic fixture tests structure, not actual world geography. Source coverage, evidence and rights must be reviewed before real data is published.
+
+## L4 content-backed Vanilla seed (partial)
+
+`decisions.json` now contains 548 allocated identities and reviewed content crosswalks, with zero verified native bindings. See [L4 status](../../docs/LOCATION_VANILLA_CATALOG.md) for selection criteria and blockers. Validate the seed without native files:
+
+```sh
+python tools/locations/build.py --seed-only --manifest tools/locations/sources.json --decisions tools/locations/decisions.json --output /tmp/location-seed
+```
+
+This produces only seed-coverage.json. The normal generator still refuses an empty native profile manifest. The evidence candidates are offline review data, not active bindings.

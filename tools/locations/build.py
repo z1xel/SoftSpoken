@@ -335,6 +335,51 @@ def build(manifest, decisions, root, output, pack=None, previous=None, inventory
     return {k:report[k] for k in ("sourceCounts","contentCounts")}
 
 
+def seed_audit(manifest, decisions, root, output, pack=None):
+    """Validate content-backed seed without making any native profile claims.
+
+    This mode emits only an offline audit, never runtime Lua.
+    """
+    require(not manifest.get("profiles"), "seed-only is for an unverified native source set")
+    require(not decisions.get("sourceDispositions"), "native dispositions require verified inputs")
+    require(not decisions.get("worldOverlays") and not decisions.get("profileOverlays"),
+            "seed-only does not validate client overlays")
+    scopes = {}
+    for key, record in manifest.get("contentScopes", {}).items():
+        require(record.get("revision") and record.get("provenance"), f"invalid content scope {key}")
+        scopes[key] = "content"
+    identities = decisions["identities"]
+    identity_manifest(identities)
+    base = decisions["base"]
+    validate_view(base, identities, scopes)
+    require(set(base["entities"]) == {key for key, row in identities.items()
+                                      if row["status"] == "active"}, "seed has orphan active identities")
+    refs = inventory(root, pack)
+    report = content_report(refs["references"], decisions.get("contentCrosswalk", []), identities)
+    require(all(row["location"] in base["entities"] for row in report if row["status"] == "mapped"),
+            "mapped seed target is not in base")
+    seen = set()
+    for row in base.get("bindings", []):
+        require(row["namespace"] == "upstreamUiMap", "seed-only forbids native identifiers")
+        seen.add((row["value"], row["location"]))
+    for row in decisions.get("contentCrosswalk", []):
+        if row["status"] == "mapped" and row["namespace"] == "upstreamUiMap":
+            require((row["value"], row["location"]) in seen, "map crosswalk conflicts with seed binding")
+    output = Path(output).resolve()
+    addon = (Path(root)/"SoftSpoken").resolve()
+    require(output != addon and addon not in output.parents, "staging output must be outside the addon")
+    require(not (output/"Locations.generated.lua").exists() and
+            not (output/"ContentBindings.generated.lua").exists(), "use an empty staging directory for seed audit")
+    output.mkdir(parents=True, exist_ok=True)
+    result = {"status":"partial-content-backed-seed",
+              "entities":len(base["entities"]), "nativeProfiles":0,
+              "nativeBindings":0, "contentCounts":dict(Counter(x["status"] for x in report)),
+              "questSortsExcluded":len(refs["questSortsExcluded"])}
+    (output/"seed-coverage.json").write_text(json.dumps(dict(result, content=report),
+                  indent=2,sort_keys=True,ensure_ascii=False)+"\n", encoding="utf-8")
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root",type=Path,default=Path(__file__).resolve().parents[2])
@@ -343,16 +388,21 @@ def main():
     parser.add_argument("--previous-identities",type=Path)
     parser.add_argument("--voice-pack",type=Path)
     parser.add_argument("--output",type=Path,required=True)
-    parser.add_argument("--inventory-only",action="store_true")
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--inventory-only",action="store_true")
+    modes.add_argument("--seed-only",action="store_true")
     args = parser.parse_args()
     if not args.inventory_only and (not args.manifest or not args.decisions):
         parser.error("--manifest and --decisions required for catalog generation")
     try:
-        result = build(read_json(args.manifest) if args.manifest else {},
-                       read_json(args.decisions) if args.decisions else {},
-                       args.root,args.output,args.voice_pack,
-                       read_json(args.previous_identities) if args.previous_identities else None,
-                       args.inventory_only)
+        manifest = read_json(args.manifest) if args.manifest else {}
+        decisions = read_json(args.decisions) if args.decisions else {}
+        if args.seed_only:
+            result = seed_audit(manifest, decisions, args.root, args.output, args.voice_pack)
+        else:
+            result = build(manifest, decisions, args.root,args.output,args.voice_pack,
+                           read_json(args.previous_identities) if args.previous_identities else None,
+                           args.inventory_only)
     except (ValueError,KeyError,TypeError,OSError) as exc:
         parser.exit(1,f"location build failed: {exc}\n")
     print(json.dumps(result,sort_keys=True))

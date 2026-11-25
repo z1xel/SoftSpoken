@@ -7,7 +7,7 @@ from pathlib import Path
 
 from dbc import LAYOUTS, read_dbc, sha256, load_sources
 from inventory import inventory, table
-from build import identity_manifest, validate_view, effective, content_report, source_report, lua, build
+from build import identity_manifest, validate_view, effective, content_report, source_report, lua, build, seed_audit
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
@@ -154,6 +154,26 @@ class LocationTests(unittest.TestCase):
             (p/"AreaTable.dbc").write_bytes(b"oops")
             with self.assertRaises(ValueError):
                 read_dbc(p/"AreaTable.dbc","AreaTable")
+
+    def test_vanilla_seed(self):
+        manifest = json.loads((HERE/"sources.json").read_text())
+        decisions = json.loads((HERE/"decisions.json").read_text())
+        research = json.loads((HERE/"review/vanilla-seed.json").read_text())
+        self.assertEqual(len(decisions["identities"]),548)
+        self.assertEqual(research["counts"]["legacySubzoneHolds"],408)
+        self.assertEqual(research["counts"]["nativeEvidenceCandidates"],519)
+        self.assertEqual(len(decisions["base"]["bindings"]),52)
+        self.assertTrue(all(row["namespace"] == "upstreamUiMap" for row in decisions["base"]["bindings"]))
+        with tempfile.TemporaryDirectory() as tmp:
+            result = seed_audit(manifest,decisions,ROOT,tmp)
+            self.assertEqual(result["entities"],548)
+            self.assertEqual(result["nativeBindings"],0)
+            self.assertGreater(result["contentCounts"]["mapped"],0)
+            self.assertGreater(result["contentCounts"]["held"],0)
+            self.assertFalse((Path(tmp)/"Locations.generated.lua").exists())
+            decisions["base"]["bindings"].append({"scope":"spoken_classic","namespace":"areaTable","value":87,"location":"elwynn_forest.goldshire"})
+            with self.assertRaises(ValueError):
+                seed_audit(manifest,decisions,ROOT,tmp)
 
     def test_lua_escaping(self):
         self.assertEqual(lua('A"\\é'),'"A\\034\\092\\195\\169"')
