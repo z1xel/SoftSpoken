@@ -66,3 +66,11 @@ PlacesRuntime.firstWorldReady = false
 PlacesRuntime.startupStableKey = nil
 PlacesRuntime.startupStableElapsed = 0
 PlacesRuntime.source = nil
+
+function PlacesRuntime:IsPartOn()
+    return not (Spoken and Spoken.IsPartOn) or Spoken:IsPartOn("zones")
+end
+
+function PlacesRuntime:ShouldTrack()
+    return not (Spoken and Spoken.ShouldTrackDiscovery) or Spoken:ShouldTrackDiscovery("zones")
+end

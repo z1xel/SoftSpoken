@@ -20,6 +20,7 @@ local function VisitKey(mapID, areaKey)
 end
 
 local function RecordVisit(zone, subzone)
+    if PlacesRuntime.ShouldTrack and not PlacesRuntime:ShouldTrack() then return end
     local mapID = AudioID(zone)
     if not mapID then return end
     local visited = CharDB().visited

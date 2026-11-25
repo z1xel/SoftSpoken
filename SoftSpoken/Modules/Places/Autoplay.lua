@@ -43,6 +43,7 @@ end
 -- Parent overviews are queued ONLY when changing parent zones, not when
 -- merely moving between two locations inside the same parent zone.
 local function CheckLocation()
+    if PlacesRuntime.ShouldTrack and not PlacesRuntime:ShouldTrack() then return end
     local zone, subzone = CurrentLocation()
     if zone == "" then return end
     local location = zone .. "|" .. subzone
@@ -51,6 +52,7 @@ local function CheckLocation()
     local zoneChanged = Normalise(zone) ~= Normalise(lastZone)
     lastLocation = location
     lastZone = zone
+    if PlacesRuntime.IsPartOn and not PlacesRuntime:IsPartOn() then return end
     if not PlacesRuntime.Settings().auto or PlacesRuntime.Settings().mode ~= "unheard" then return end
     local mapID = AudioID(zone)
     if not mapID then return end
@@ -95,6 +97,7 @@ local function StabilizeStartingLocation(elapsed)
     RecordVisit(zone, subzone)
     -- Keep a low-frequency location poll after startup. Some 1.12 clients
     -- omit subzone transition events, especially nested places.
+    if PlacesRuntime.IsPartOn and not PlacesRuntime:IsPartOn() then return end
     TryGreeting(zone, subzone)
     -- Optional transition-based narration for characters with areas already
     -- explored before they installed Spoken. Off by default, like upstream.
@@ -149,6 +152,7 @@ local function DiscoveredArea(message)
 end
 
 local function OnDiscovered(area)
+    if PlacesRuntime.ShouldTrack and not PlacesRuntime:ShouldTrack() then return end
     local zone = GetRealZoneText() or ""
     local mapID = AudioID(zone)
     if not mapID then return end
@@ -180,6 +184,7 @@ local function OnDiscovered(area)
     if SSZMapPanel and SSZMapPanel.Refresh then
         SSZMapPanel.Refresh()
     end
+    if PlacesRuntime.IsPartOn and not PlacesRuntime:IsPartOn() then return end
     if PlacesRuntime.startupActive or not PlacesRuntime.Settings().auto then return end
     if zoneArea then
         RequestNarration(zone,zone,false,true,true)
@@ -245,6 +250,19 @@ local discoveryEvents = {
     UI_INFO_MESSAGE = true,
     UI_ERROR_MESSAGE = true,
 }
+
+-- Resume at the current location, without replaying missed transitions.
+function PlacesRuntime.ResetLocationBaseline()
+    if not PlacesRuntime.firstWorldReady then return end
+    local zone, subzone = CurrentLocation()
+    if zone == "" then return end
+    if PlacesRuntime.startupActive then
+        PlacesRuntime.startupActive = false
+        PlacesRuntime.startupStableKey = nil
+    end
+    lastLocation, lastZone = zone .. "|" .. subzone, zone
+    RecordVisit(zone, subzone)
+end
 
 PlacesRuntime.CheckLocation = CheckLocation
 PlacesRuntime.StabilizeStartingLocation = StabilizeStartingLocation

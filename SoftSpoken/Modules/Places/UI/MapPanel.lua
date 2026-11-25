@@ -283,8 +283,11 @@ local function ApplyAnchors()
     end
     return true
 end
+local function ModuleOn()
+    return not (Spoken and Spoken.IsPartOn) or Spoken:IsPartOn("zones")
+end
 local function Available()
-    return Settings() and WorldMapFrame and WorldMapFrame:IsShown() and Settings().showMapPanel
+    return ModuleOn() and Settings() and WorldMapFrame and WorldMapFrame:IsShown() and Settings().showMapPanel
 end
 
 local function PageEntry(mapID)
@@ -503,6 +506,7 @@ end
 local watch=CreateFrame("Frame")
 local elapsed=0
 watch:SetScript("OnUpdate",function(self,dt)
+    if not ModuleOn() then return end
     dt=dt or arg1 or 0
     elapsed=elapsed+dt
     if elapsed<.25 then return end

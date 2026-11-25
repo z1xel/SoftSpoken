@@ -10,7 +10,7 @@ local frame
 frame = CreateFrame("Frame")
 local locationPollElapsed = 0
 frame:SetScript("OnUpdate", function(self, elapsed)
-    if not PlacesRuntime.source then return end
+    if not PlacesRuntime.source or not PlacesRuntime:ShouldTrack() then return end
     elapsed = elapsed or arg1 or 0
     if PlacesRuntime.startupActive then
         PlacesRuntime.StabilizeStartingLocation(elapsed)
@@ -29,6 +29,10 @@ frame:SetScript("OnEvent", function(self, firedEvent, a, b, c)
     if not PlacesRuntime.source then
         return
     elseif eventName == "PLAYER_ENTERING_WORLD" then
+        if not PlacesRuntime:ShouldTrack() then
+            PlacesRuntime.firstWorldReady = true
+            return
+        end
         if PlacesRuntime.startupActive then
             PlacesRuntime.firstWorldReady = true
             PlacesRuntime.startupStableKey = nil
@@ -37,6 +41,9 @@ frame:SetScript("OnEvent", function(self, firedEvent, a, b, c)
             -- Later world transitions (boats/instances) are real travel.
             PlacesRuntime.CheckLocation()
         end
+    elseif eventName ~= "CINEMATIC_START" and eventName ~= "CINEMATIC_STOP" and
+           not PlacesRuntime:ShouldTrack() then
+        return
     elseif eventName == "ZONE_CHANGED" or eventName == "ZONE_CHANGED_NEW_AREA" or
            eventName == "ZONE_CHANGED_INDOORS" then
         if not PlacesRuntime.startupActive then PlacesRuntime.CheckLocation() end
@@ -65,7 +72,7 @@ frame:SetScript("OnEvent", function(self, firedEvent, a, b, c)
         -- The start event may precede the cinematic frame becoming visible.
         if eventName == "CINEMATIC_START" then PlacesRuntime.cinematicEventActive = true end
         if eventName == "CINEMATIC_STOP" then PlacesRuntime.cinematicEventActive = false end
-        PlacesRuntime.Recheck()
+        if PlacesRuntime:IsPartOn() then PlacesRuntime.Recheck() end
     end
 end)
 
@@ -119,6 +126,28 @@ function PlacesRuntime:Initialize()
     pcall(frame.RegisterEvent,frame,"MAP_EXPLORATION_UPDATED")
     self:SetupOptions()
     self.initialized = true
+    local tracking
+    local function ApplyDiscovery()
+        local now = PlacesRuntime:ShouldTrack()
+        if tracking == now then return end
+        tracking = now
+        locationPollElapsed = 0
+        if now then
+            if frame.Show then frame:Show() end
+            if PlacesRuntime.ResetLocationBaseline then PlacesRuntime.ResetLocationBaseline() end
+        else
+            if frame.Hide then frame:Hide() end
+        end
+    end
+    if Spoken.RegisterCallback then
+        Spoken:RegisterCallback("DISCOVERY_POLICY_CHANGED", function(key)
+            if key == "zones" then ApplyDiscovery() end
+        end)
+        Spoken:RegisterCallback("PART_SWITCHED", function(key)
+            if key == "zones" and SSZMapPanel and SSZMapPanel.Refresh then SSZMapPanel.Refresh() end
+        end)
+    end
+    ApplyDiscovery()
 end
 
 -- Re-evaluate the active combat gate and any open Places UI on profile changes.

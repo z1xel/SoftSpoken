@@ -262,6 +262,7 @@ end
 -- Return true only for an accepted request. The Spoken R.source handles audio,
 -- queue order, deduplication, trim, playback, and its on-screen controls.
 local function RequestNarration(zoneName, areaLabel, immediate, isZone, quietMissing, initialGreeting)
+    if PlacesRuntime.IsPartOn and not PlacesRuntime:IsPartOn() then return false end
     if not PlacesRuntime.source then
         if not quietMissing then Say("Spoken player is not ready.") end
         return false
