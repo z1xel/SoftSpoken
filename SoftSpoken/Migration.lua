@@ -70,6 +70,7 @@ local function PlacesPreferences(history)
 end
 
 function Persistence:RecoverLegacy(import)
+    assert(not self.root, "Migration must precede database initialization")
     local existing = rawget(_G, "SoftSpokenDB")
     local existingChar = rawget(_G, "SoftSpokenCharacterDB")
     if existing and existing.migration and existing.migration.version == 1
@@ -84,12 +85,16 @@ function Persistence:RecoverLegacy(import)
         assert(not next(root) and not next(character), "Unrecognized pre-migration unified database")
     end
 
-    local coreAccount = Read(import, "SoftSpoken")
+    local core, stories, writingsAccount = {}, {}, {}
     local storiesAccount, storiesCharacter = Read(import, "SoftSpoken_Stories")
     local _, placesCharacter = Read(import, "SoftSpoken_Places")
-    local writingsAccount, writingsCharacter = Read(import, "SoftSpoken_Writings")
-    local core = Table(coreAccount.SpokenSettings, "SpokenSettings")
-    local stories = Table(storiesAccount.SpokenQuestsSettings, "SpokenQuestsSettings")
+    local importedWritings, writingsCharacter = Read(import, "SoftSpoken_Writings")
+    if not migration then
+        local coreAccount = Read(import, "SoftSpoken")
+        core = Table(coreAccount.SpokenSettings, "SpokenSettings")
+        stories = Table(storiesAccount.SpokenQuestsSettings, "SpokenQuestsSettings")
+        writingsAccount = importedWritings
+    end
     if not migration then
         local pending = AccountSnapshot(core, stories, Table(writingsAccount.SSBSettings, "SSBSettings"))
         -- Include the current character even when old AceDB omitted its mapping.
@@ -102,10 +107,15 @@ function Persistence:RecoverLegacy(import)
         root.migration = migration
     end
     assert(migration.version == 1, "Unsupported migration version")
-    local pending = migration.pending
+    local pending = Table(migration.pending, "migration pending")
+    root.global = Table(root.global, "Core global")
+    root.char = Table(root.char, "Core char")
+    root.profiles = Table(root.profiles, "Core profiles")
+    root.profileKeys = Table(root.profileKeys, "Core profileKeys")
+    root.namespaces = Table(root.namespaces, "Core namespaces")
     if character.migrationVersion ~= 1 then
-        local profile = Copy(pending.core[key] or Active(core, key))
-        local storyProfile = Copy(pending.stories[key] or Active(stories, key))
+        local profile = Copy(pending.core[key] or {})
+        local storyProfile = Copy(pending.stories[key] or {})
         local storyHistory = Copy(Table(pending.storyChar[key], "Stories character"))
         local journal = Copy(Table(storiesCharacter.SSCQuestJournal, "SSCQuestJournal"))
         storyProfile.Compendium = Copy(Table(journal.settings, "Quest journal settings"))
@@ -139,9 +149,18 @@ function Persistence:RecoverLegacy(import)
         for module, prefs in pairs({Stories=storyProfile, Places=places, Writings=Copy(pending.writings)}) do
             local ns = root.namespaces[module] or {profiles={}}
             root.namespaces[module] = ns
+            ns.profiles = Table(ns.profiles, module .. " profiles")
             ns.profiles[name] = prefs
         end
         pending.core[key], pending.stories[key], pending.storyChar[key] = nil, nil, nil
+        for _, entry in ipairs({
+            {character.Stories.journal, {"seen", "completed", "titles", "dialogue"}},
+            {character.Stories, {"hasSeenGossipForNPC", "RecentQuestTitleToID"}},
+            {character.Places, {"visited", "heard"}},
+            {character.Writings, {"read", "found", "locations", "acquisitions"}},
+        }) do
+            for _, field in ipairs(entry[2]) do Table(entry[1][field], field) end
+        end
         character.migrationVersion = 1
     end
     _G.SoftSpokenDB, _G.SoftSpokenCharacterDB = root, character

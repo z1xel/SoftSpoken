@@ -63,3 +63,18 @@ pass and independent reset scopes. Module reset tests assert a local refresh.
 ### D4 implementation contract
 
 Startup calls the read-only global `ImportSavedVariables(addon)` before Core initialization. The proposed function must return two tables keyed by saved-variable name (account and current character); missing files return empty tables, errors must throw or return a non-table. No writes occur until all imports and transformations succeed. Missing API blocks startup rather than silently initializing defaults. The account snapshot retains active preferences for other characters because the old Core filename is reused; each character consumes its own snapshot on first login. Character-specific imported profiles avoid cross-character preference conflicts. The API is not yet available in the real client; D5 must verify it and actual logout/reload behavior.
+
+### D5 client validation
+
+**Release blocked:** the real ClassicAPI import implementation and Vanilla client have not been tested. The four D4 CI workflows passed on ecdd0c4. D5 adds explicit tests for migration after AceDB cleanup, malformed histories, fresh characters, and runs the persistence/startup/upgrade suites together.
+
+Use a disposable copy of the client and the entire WTF directory. Never test against the sole original copy: even if startup rejects migration, the client may overwrite the old Core SavedVariables file on logout because the TOC ownership changed. Keep the original backup outside the test client.
+
+- [ ] Confirm ClassicAPI exposes ImportSavedVariables(addonName) at PLAYER_LOGIN; verify both scopes, missing files, malformed files, and no file writes or execution of arbitrary Lua. Confirm account and realm/character isolation.
+- [ ] Start from released v0.9.1-beta with two characters, distinct active Core/Stories profiles, shared Writings settings, and distinct Places preferences. Seed quest dialogue/history, visited/heard/greeted state, books/discoveries/locations, explicit false settings, layout and mixer baseline. Exit normally and copy WTF.
+- [ ] Replace the four addon folders with the unified folder; retain voice packs and WTF. Log in character A and inspect both new saved variables after logout. Compare all seeded data to the original backup.
+- [ ] Log in character B after the old Core file is replaced; confirm original B settings and history, and no changes to A. Reload both characters twice; ensure no duplicate import or reverted preferences.
+- [ ] Test empty WTF, missing API, partial/malformed legacy files and old folder conflicts using separate disposable copies. Failure must be visible and must not initialize controllers. Restore backup before retrying if files were overwritten.
+- [ ] Test narration, quest log/gossip, Places map and autoplay, Writings page/book playback, Compendium filters, unlocks, pfUI/Questie/pfQuest integrations, native audio and portraits on supported clients. Verify voice-pack enable/load/reload behavior.
+- [ ] In a disposable developer build only, enable the profile UI and test switch/copy/delete, Core-only reset, whole-profile reset and module reset; check all histories remain unchanged across reload/logout. Only enable the shipping UI after these pass.
+- [ ] Verify packaged archive contains one addon folder plus separately installed packs, and no retired module folders. Do not merge or release until all gates are recorded.

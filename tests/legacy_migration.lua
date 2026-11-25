@@ -36,6 +36,13 @@ assert(SoftSpokenDB==root and SoftSpokenCharacterDB==char)
 player="Two"
 SoftSpokenCharacterDB=nil
 core={} -- old Core file has been replaced
+local oldImport = Import
+Import = function(addon)
+ assert(addon ~= "SoftSpoken", "already replaced Core file was read again")
+ return oldImport(addon)
+end
+-- AceDB strips empty sections at logout; a namespace can lose its profiles.
+root.namespaces.Writings.profiles = nil
 assert(P:RecoverLegacy(Import))
 root=SoftSpokenDB
 name=root.profileKeys["Two - Realm"]
@@ -45,4 +52,26 @@ assert(root.namespaces.Stories.profiles[name].DebugEnabled)
 assert(SoftSpokenCharacterDB.Stories.custom)
 assert(root.namespaces.Writings.profiles[name].autoplay==false)
 assert(root.profiles["One - Realm"].Frame.FrameScale==1.2)
-print("PASS: migration, failure isolation, idempotence and second character")
+-- New character with no legacy files must not inherit a retired character's profile.
+player="Three"
+SoftSpokenCharacterDB=nil
+root.global=nil -- simulate cleanup of an empty section
+assert(P:RecoverLegacy(function(addon)
+ assert(addon ~= "SoftSpoken")
+ return {},{}
+end))
+assert(not next(SoftSpokenCharacterDB.Stories.journal))
+local third=SoftSpokenDB.profileKeys["Three - Realm"]
+assert(not next(SoftSpokenDB.profiles[third]))
+-- Corrupt history fails before publishing either table.
+local savedRoot=SoftSpokenDB
+player="Four"
+SoftSpokenCharacterDB=nil
+assert(not pcall(function()
+ P:RecoverLegacy(function(addon)
+  if addon=="SoftSpoken_Stories" then return {},{SSCQuestJournal={seen="bad"}} end
+  return {},{}
+ end)
+end))
+assert(SoftSpokenDB==savedRoot and not SoftSpokenCharacterDB)
+print("PASS: migration, failure isolation, idempotence, second character and logout cleanup")

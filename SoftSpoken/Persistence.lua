@@ -70,7 +70,7 @@ local function CharacterDB()
 end
 
 -- Called by Core at login, before feature controllers initialize.
--- D4 will recover legacy state before this call.
+-- Legacy recovery runs before this call.
 -- The default profile selection remains AceDB's character-named profile.
 -- The root retains Core's existing defaults (including the paused char flag).
 -- Stories' old char section is replaced by the profile-independent journal
