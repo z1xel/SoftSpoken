@@ -78,3 +78,24 @@ Use a disposable copy of the client and the entire WTF directory. Never test aga
 - [ ] Test narration, quest log/gossip, Places map and autoplay, Writings page/book playback, Compendium filters, unlocks, pfUI/Questie/pfQuest integrations, native audio and portraits on supported clients. Verify voice-pack enable/load/reload behavior.
 - [ ] In a disposable developer build only, enable the profile UI and test switch/copy/delete, Core-only reset, whole-profile reset and module reset; check all histories remain unchanged across reload/logout. Only enable the shipping UI after these pass.
 - [ ] Verify packaged archive contains one addon folder plus separately installed packs, and no retired module folders. Do not merge or release until all gates are recorded.
+
+### D6A — character migration lifecycle
+
+The account migration record now contains `characters[characterKey]` with
+`legacy` or `new` status. A character already recorded there is never
+reimported, even if its per-character file is absent; its current profile
+selection is untouched. Missing history starts empty, rather than resurrecting
+an obsolete snapshot. A character-only completion marker without the account
+record is rejected as inconsistent. Unreleased D4/D5 snapshots without the
+ledger are intentionally unsupported.
+
+An unseen character is legacy only if it has a staged Core/Stories character
+record or at least one of the three released per-character saved variables
+(including an explicitly saved empty table). Otherwise it receives normal
+namespace defaults, not the legacy Writings account snapshot. The snapshot
+is retained for late-arriving history-only characters, but never applied to
+characters without legacy evidence. This does not prove when a character was
+created: a character with no surviving per-character or account-keyed evidence
+cannot be identified as legacy. The read-only API remains required to classify
+unseen characters; completed characters require no further API calls. D6B
+still owns the file-protection and missing-API contract.

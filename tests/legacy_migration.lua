@@ -60,9 +60,56 @@ assert(P:RecoverLegacy(function(addon)
  assert(addon ~= "SoftSpoken")
  return {},{}
 end))
-assert(not next(SoftSpokenCharacterDB.Stories.journal))
+assert(SoftSpokenCharacterDB.Stories==nil and SoftSpokenCharacterDB.Writings==nil)
 local third=SoftSpokenDB.profileKeys["Three - Realm"]
 assert(not next(SoftSpokenDB.profiles[third]))
+assert(not (SoftSpokenDB.namespaces.Writings.profiles or {})[third], "fresh character inherited old Writings settings")
+assert(SoftSpokenDB.migration.characters["Three - Realm"]=="new")
+assert(SoftSpokenDB.migration.characters["One - Realm"]=="legacy")
+assert(SoftSpokenDB.migration.characters["Two - Realm"]=="legacy")
+assert(not SoftSpokenDB.migration.pending.core["Two - Realm"])
+assert(not SoftSpokenDB.migration.pending.storyChar["Two - Realm"])
+
+-- A missing character file cannot resurrect retired history or select a new profile.
+player="One"
+SoftSpokenCharacterDB=nil
+local currentRoot=SoftSpokenDB
+currentRoot.profileKeys["One - Realm"]="Manually selected"
+currentRoot.profiles["Manually selected"]={custom=true}
+assert(P:RecoverLegacy(function() error("completed character must not import again") end))
+assert(SoftSpokenDB==currentRoot)
+assert(SoftSpokenDB.profileKeys["One - Realm"]=="Manually selected")
+assert(SoftSpokenCharacterDB.migrationVersion==1 and not SoftSpokenCharacterDB.Stories)
+-- The same protection applies to a previously new character.
+player="Three"
+SoftSpokenCharacterDB=nil
+assert(P:RecoverLegacy(function() error("new character must not reimport") end))
+assert(SoftSpokenDB.profileKeys["Three - Realm"]==third)
+-- A legacy character known only through a character file still gets the
+-- original account-wide Writings preferences, even after all known keys are consumed.
+player="HistoryOnly"
+SoftSpokenCharacterDB=nil
+assert(P:RecoverLegacy(function(addon)
+ if addon=="SoftSpoken_Places" then return {},{SSZCharacter={}} end
+ return {},{}
+end))
+local late=SoftSpokenDB.profileKeys["HistoryOnly - Realm"]
+assert(SoftSpokenDB.migration.characters["HistoryOnly - Realm"]=="legacy")
+assert(SoftSpokenDB.namespaces.Writings.profiles[late].autoplay==false)
+-- Unknown new character colliding with an existing profile name gets defaults.
+player="Collision"
+SoftSpokenCharacterDB=nil
+SoftSpokenDB.profiles["Collision - Realm"]={custom=true}
+assert(P:RecoverLegacy(function() return {},{} end))
+local collision=SoftSpokenDB.profileKeys["Collision - Realm"]
+assert(collision~="Collision - Realm" and not next(SoftSpokenDB.profiles[collision]))
+assert(SoftSpokenDB.profiles["Collision - Realm"].custom)
+-- A character-only marker without account completion is inconsistent, not a clean install.
+player="Inconsistent"
+SoftSpokenCharacterDB={migrationVersion=1,Stories={custom=true}}
+local beforeRoot,beforeChar=SoftSpokenDB,SoftSpokenCharacterDB
+assert(not pcall(function() P:RecoverLegacy(function() error("unexpected import") end) end))
+assert(SoftSpokenDB==beforeRoot and SoftSpokenCharacterDB==beforeChar)
 -- Corrupt history fails before publishing either table.
 local savedRoot=SoftSpokenDB
 player="Four"
@@ -74,4 +121,12 @@ assert(not pcall(function()
  end)
 end))
 assert(SoftSpokenDB==savedRoot and not SoftSpokenCharacterDB)
-print("PASS: migration, failure isolation, idempotence, second character and logout cleanup")
+-- Start with completely empty WTF: the first character is new, not legacy.
+SoftSpokenDB,SoftSpokenCharacterDB=nil,nil
+player="Fresh"
+assert(P:RecoverLegacy(function() return {},{} end))
+assert(SoftSpokenDB.migration.characters["Fresh - Realm"]=="new")
+assert(not next(SoftSpokenDB.profiles["Fresh - Realm"]))
+assert(not next(SoftSpokenDB.namespaces))
+assert(SoftSpokenCharacterDB.migrationVersion==1)
+print("PASS: migration, new/legacy classification, consumed ledger, collision and recovery")

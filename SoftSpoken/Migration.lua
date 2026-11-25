@@ -31,15 +31,38 @@ end
 local function AccountSnapshot(core, stories, writings)
     local pending = { core = {}, stories = {}, storyChar = Copy(Table(stories.char, "Stories char")),
         writings = Copy(writings) }
-    for _, entry in ipairs({{core, pending.core}, {stories, pending.stories}}) do
-        local db, target = entry[1], entry[2]
-        for key in pairs(Table(db.profileKeys, "profileKeys")) do target[key] = Active(db, key) end
-        -- AceDB can retain character-named profiles without profileKeys.
-        for key in pairs(Table(db.char, "char")) do
-            if not target[key] then target[key] = Active(db, key) end
-        end
+    local known = {}
+    for _, db in ipairs({core, stories}) do
+        for key in pairs(Table(db.profileKeys, "profileKeys")) do known[key] = true end
+        for key in pairs(Table(db.char, "char")) do known[key] = true end
+    end
+    -- A character known to either database has a legacy active profile in
+    -- both, even when one database has no explicit profile selection.
+    for key in pairs(known) do
+        pending.core[key] = Active(core, key)
+        pending.stories[key] = Active(stories, key)
     end
     return pending
+end
+
+local function CharacterKey()
+    local name, realm = UnitName("player"), GetRealmName()
+    assert(type(name) == "string" and name ~= "" and type(realm) == "string"
+        and realm ~= "", "Character identity unavailable for migration")
+    return name .. " - " .. realm
+end
+
+local function Consume(pending, key)
+    pending.core[key], pending.stories[key], pending.storyChar[key] = nil, nil, nil
+end
+
+local function UniqueProfile(root, key)
+    local name, suffix = key, 1
+    while root.profiles[name] do
+        suffix = suffix + 1
+        name = key .. " (Imported " .. suffix .. ")"
+    end
+    return name
 end
 
 local function PlacesPreferences(history)
@@ -71,51 +94,81 @@ end
 
 function Persistence:RecoverLegacy(import)
     assert(not self.root, "Migration must precede database initialization")
-    local existing = rawget(_G, "SoftSpokenDB")
-    local existingChar = rawget(_G, "SoftSpokenCharacterDB")
-    if existing and existing.migration and existing.migration.version == 1
-        and existingChar and existingChar.migrationVersion == 1 then return true end
-    import = import or _G.ImportSavedVariables
-    assert(type(import) == "function", "ClassicAPI ImportSavedVariables is required for safe migration")
-    local key = UnitName("player") .. " - " .. GetRealmName()
-    local root = Copy(Table(existing, "SoftSpokenDB"))
-    local character = Copy(Table(existingChar, "SoftSpokenCharacterDB"))
-    local migration = root.migration
-    if not migration then
-        assert(not next(root) and not next(character), "Unrecognized pre-migration unified database")
+    local key = CharacterKey()
+    local existing = Table(rawget(_G, "SoftSpokenDB"), "SoftSpokenDB")
+    local existingChar = Table(rawget(_G, "SoftSpokenCharacterDB"), "SoftSpokenCharacterDB")
+    local oldMigration = existing.migration
+    if oldMigration ~= nil then
+        assert(type(oldMigration) == "table" and oldMigration.version == 1,
+            "Unsupported migration version")
+        -- This branch has never shipped. Do not guess completion for a D4/D5
+        -- development snapshot that predates the account-side ledger.
+        assert(type(oldMigration.characters) == "table", "Unsupported development migration snapshot")
+    end
+    local marker = existingChar.migrationVersion
+    assert(marker == nil or marker == 1, "Unsupported character migration version")
+    local completed = oldMigration and oldMigration.characters[key]
+    assert(completed == nil or completed == "legacy" or completed == "new",
+        "Invalid character migration status")
+    if completed then
+        -- An absent character file is not permission to reimport obsolete
+        -- history or change the account's current profile selection. Retain
+        -- any surviving character data, or let Persistence create fresh history.
+        if marker == nil then
+            local character = Copy(existingChar)
+            character.migrationVersion = 1
+            _G.SoftSpokenCharacterDB = character
+        end
+        return true
+    end
+    assert(marker == nil, "Character migration marker has no account completion record")
+    assert(not next(existingChar), "Unrecognized pre-migration character database")
+    if not oldMigration then
+        assert(not next(existing), "Unrecognized pre-migration unified database")
     end
 
-    local core, stories, writingsAccount = {}, {}, {}
+    import = import or _G.ImportSavedVariables
+    assert(type(import) == "function", "ClassicAPI ImportSavedVariables is required for safe migration")
+    local root, character = Copy(existing), {}
+    local migration = root.migration
+    local core, stories = {}, {}
     local storiesAccount, storiesCharacter = Read(import, "SoftSpoken_Stories")
     local _, placesCharacter = Read(import, "SoftSpoken_Places")
-    local importedWritings, writingsCharacter = Read(import, "SoftSpoken_Writings")
+    local writingsAccount, writingsCharacter = Read(import, "SoftSpoken_Writings")
+    -- Check the actual legacy variables, not whether an account-wide setting
+    -- exists. An explicitly saved empty character table is also evidence.
+    local hasCharacterLegacy = storiesCharacter.SSCQuestJournal ~= nil
+        or placesCharacter.SSZCharacter ~= nil or writingsCharacter.SSBCharacter ~= nil
     if not migration then
         local coreAccount = Read(import, "SoftSpoken")
         core = Table(coreAccount.SpokenSettings, "SpokenSettings")
         stories = Table(storiesAccount.SpokenQuestsSettings, "SpokenQuestsSettings")
-        writingsAccount = importedWritings
-    end
-    if not migration then
         local pending = AccountSnapshot(core, stories, Table(writingsAccount.SSBSettings, "SSBSettings"))
-        -- Include the current character even when old AceDB omitted its mapping.
-        pending.core[key] = Active(core, key)
-        pending.stories[key] = Active(stories, key)
+        if hasCharacterLegacy then
+            pending.core[key] = Active(core, key)
+            pending.stories[key] = Active(stories, key)
+        end
         root.global = Copy(Table(core.global, "Core global"))
         root.char = Copy(Table(core.char, "Core char"))
         root.profiles, root.profileKeys, root.namespaces = {}, {}, {}
-        migration = { version = 1, pending = pending }
+        migration = { version = 1, pending = pending, characters = {} }
         root.migration = migration
     end
-    assert(migration.version == 1, "Unsupported migration version")
     local pending = Table(migration.pending, "migration pending")
+    assert(type(pending.core) == "table" and type(pending.stories) == "table"
+        and type(pending.storyChar) == "table" and type(pending.writings) == "table",
+        "Invalid pending migration snapshot")
     root.global = Table(root.global, "Core global")
     root.char = Table(root.char, "Core char")
     root.profiles = Table(root.profiles, "Core profiles")
     root.profileKeys = Table(root.profileKeys, "Core profileKeys")
     root.namespaces = Table(root.namespaces, "Core namespaces")
-    if character.migrationVersion ~= 1 then
-        local profile = Copy(pending.core[key] or {})
-        local storyProfile = Copy(pending.stories[key] or {})
+
+    local legacy = hasCharacterLegacy or pending.core[key] ~= nil
+        or pending.stories[key] ~= nil or pending.storyChar[key] ~= nil
+    if legacy then
+        local profile = Copy(Table(pending.core[key], "Core profile"))
+        local storyProfile = Copy(Table(pending.stories[key], "Stories profile"))
         local storyHistory = Copy(Table(pending.storyChar[key], "Stories character"))
         local journal = Copy(Table(storiesCharacter.SSCQuestJournal, "SSCQuestJournal"))
         storyProfile.Compendium = Copy(Table(journal.settings, "Quest journal settings"))
@@ -138,13 +191,7 @@ function Persistence:RecoverLegacy(import)
                 if profile.Transcript.Enabled == nil then profile.Transcript.Enabled = captions end
             end
         end
-        -- Never overwrite another character's existing profile, including a
-        -- manually created profile with the same name.
-        local name, suffix = key, 1
-        while root.profiles[name] do
-            suffix = suffix + 1
-            name = key .. " (Imported " .. suffix .. ")"
-        end
+        local name = UniqueProfile(root, key)
         root.profileKeys[key], root.profiles[name] = name, profile
         for module, prefs in pairs({Stories=storyProfile, Places=places, Writings=Copy(pending.writings)}) do
             local ns = root.namespaces[module] or {profiles={}}
@@ -152,7 +199,6 @@ function Persistence:RecoverLegacy(import)
             ns.profiles = Table(ns.profiles, module .. " profiles")
             ns.profiles[name] = prefs
         end
-        pending.core[key], pending.stories[key], pending.storyChar[key] = nil, nil, nil
         for _, entry in ipairs({
             {character.Stories.journal, {"seen", "completed", "titles", "dialogue"}},
             {character.Stories, {"hasSeenGossipForNPC", "RecentQuestTitleToID"}},
@@ -161,8 +207,19 @@ function Persistence:RecoverLegacy(import)
         }) do
             for _, field in ipairs(entry[2]) do Table(entry[1][field], field) end
         end
-        character.migrationVersion = 1
+    else
+        -- No character-specific legacy evidence: use default preferences,
+        -- never the retired Writings snapshot or an unrelated named profile.
+        -- Preserve any explicit profile selection already present.
+        if not root.profileKeys[key] then
+            local name = UniqueProfile(root, key)
+            root.profileKeys[key], root.profiles[name] = name, {}
+        end
     end
+
+    Consume(pending, key)
+    migration.characters[key] = legacy and "legacy" or "new"
+    character.migrationVersion = 1
     _G.SoftSpokenDB, _G.SoftSpokenCharacterDB = root, character
     return true
 end
