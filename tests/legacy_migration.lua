@@ -7,9 +7,14 @@ dofile("SoftSpoken/Persistence.lua")
 dofile("SoftSpoken/Migration.lua")
 SpokenPlacesRuntime = {Normalise=function(s) return string.gsub(string.lower(s), "^the ", "") end}
 local P = SpokenEnv.Persistence
+-- Representative schemas for the isolated migration test; production uses
+-- the actual Core/Stories defaults, not a second hand-maintained schema.
+SpokenEnv.Defaults = {profile = {Frame = {FrameScale=0.7}, Audio = {LowerOthers={Enabled=true}},
+ Transcript={Enabled=true}, Parts={}}, char={IsPaused=false}}
+VoiceOver = {StoriesProfileDefaults={Audio={Autoplay=true,DisabledVoicePacks={}},DebugEnabled=false}}
 local core = {profileKeys={["One - Realm"]="Shared",["Two - Realm"]="Other"},
  profiles={Shared={Frame={FrameScale=1.2}},Other={Frame={FrameScale=0.8}},Unused={bad=true}},
- global={Layout={x=42}},char={["Two - Realm"]={IsPaused=true}}}
+ global={Layout={Narrator={left=42}}},char={["Two - Realm"]={IsPaused=true}}}
 local story = {profileKeys={["One - Realm"]="A",["Two - Realm"]="B"},
  profiles={A={Audio={Autoplay=false}},B={DebugEnabled=true}},char={["Two - Realm"]={custom=true}}}
 local function Import(addon)
@@ -18,19 +23,55 @@ local function Import(addon)
  if addon=="SoftSpoken_Places" then return {},{SSZCharacter={settings={holdCombat=true,captions=false},heard={["s:1:The Den"]=true},extra=8}} end
  return {SSBSettings={autoplay=false}},{SSBCharacter={read={[2]=true},extra=9}}
 end
+-- Missing native API or a later read failure must leave the old Core value
+-- intact and must not publish unified data.
+SpokenSettings=core
+assert(not pcall(function() P:RecoverLegacy() end))
+assert(not SoftSpokenDB and not SoftSpokenCharacterDB and SpokenSettings==core)
 assert(not pcall(function() P:RecoverLegacy(function() return nil end) end))
-assert(not SoftSpokenDB and not SoftSpokenCharacterDB)
+assert(not SoftSpokenDB and not SoftSpokenCharacterDB and SpokenSettings==core)
+assert(not pcall(function()
+ P:RecoverLegacy(function(addon)
+  if addon=="SoftSpoken_Stories" then error("unreadable legacy file") end
+  return Import(addon)
+ end)
+end))
+assert(not SoftSpokenDB and not SoftSpokenCharacterDB and SpokenSettings==core)
+-- A malformed pending second-character preference must fail before publication.
+story.profiles.B.Audio="bad"
+assert(not pcall(function() P:RecoverLegacy(Import) end))
+assert(not SoftSpokenDB and not SoftSpokenCharacterDB and SpokenSettings==core)
+story.profiles.B.Audio=nil
+-- Nested history and executable/unserializable data also fail.
+for _, bad in ipairs({function() end, {seen="bad"}, {dialogue={[1]="bad"}}}) do
+ assert(not pcall(function()
+  P:RecoverLegacy(function(addon)
+   if addon=="SoftSpoken_Stories" then return {SpokenQuestsSettings=story},{SSCQuestJournal=bad} end
+   return Import(addon)
+  end)
+ end))
+ assert(not SoftSpokenDB and not SoftSpokenCharacterDB and SpokenSettings==core)
+end
+local cyclic={}
+cyclic.self=cyclic
+assert(not pcall(function()
+ P:RecoverLegacy(function(addon)
+  if addon=="SoftSpoken_Stories" then return {},{SSCQuestJournal=cyclic} end
+  return Import(addon)
+ end)
+end))
+assert(not SoftSpokenDB and not SoftSpokenCharacterDB and SpokenSettings==core)
 assert(P:RecoverLegacy(Import))
 local root, char = SoftSpokenDB, SoftSpokenCharacterDB
 local name=root.profileKeys["One - Realm"]
 assert(root.profiles[name].Frame.FrameScale==1.2 and not root.profiles[name].Transcript.Enabled)
-assert(not root.profiles.Unused and root.global.Layout.x==42)
+assert(not root.profiles.Unused and root.global.Layout.Narrator.left==42)
 assert(root.namespaces.Stories.profiles[name].Compendium.foundOnly==false)
 assert(root.namespaces.Places.profiles[name].stopCombat==true)
 assert(char.Places.heard["s:1:den"] and char.Places.extra==8)
 assert(char.Stories.journal.completed[1] and char.Stories.journal.extra==7 and not char.Stories.journal.settings)
 assert(char.Writings.found[2] and char.Writings.extra==9)
-assert(core.profiles.Shared.Transcript==nil)
+assert(core.profiles.Shared.Transcript==nil and SpokenSettings==core)
 assert(P:RecoverLegacy(function() error("must not reimport") end))
 assert(SoftSpokenDB==root and SoftSpokenCharacterDB==char)
 player="Two"
@@ -122,8 +163,18 @@ assert(not pcall(function()
 end))
 assert(SoftSpokenDB==savedRoot and not SoftSpokenCharacterDB)
 -- Start with completely empty WTF: the first character is new, not legacy.
-SoftSpokenDB,SoftSpokenCharacterDB=nil,nil
+SoftSpokenDB,SoftSpokenCharacterDB,SpokenSettings=nil,nil,nil
 player="Fresh"
+-- Native recovery can populate the legacy retention slot even when the
+-- client did not load it. This remains available after a later failure.
+assert(not pcall(function()
+ P:RecoverLegacy(function(addon)
+  if addon=="SoftSpoken" then return {SpokenSettings={global={retained=true}}},{} end
+  error("read failure")
+ end)
+end))
+assert(SpokenSettings.global.retained and not SoftSpokenDB and not SoftSpokenCharacterDB)
+SpokenSettings=nil
 assert(P:RecoverLegacy(function() return {},{} end))
 assert(SoftSpokenDB.migration.characters["Fresh - Realm"]=="new")
 assert(not next(SoftSpokenDB.profiles["Fresh - Realm"]))

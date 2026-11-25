@@ -2,10 +2,28 @@ setfenv(1, SpokenEnv)
 
 -- Read-only import from the released four-addon layout. Nothing is published
 -- until every source and transformation has succeeded.
-local function Copy(value)
-    if type(value) ~= "table" then return value end
+-- Only accept ordinary serializable saved-variable data, not executable or
+-- metatable-backed objects. Reject cycles before touching unified globals.
+local function Copy(value, visiting)
+    local kind = type(value)
+    if kind ~= "table" then
+        assert(kind == "nil" or kind == "string" or kind == "boolean"
+            or (kind == "number" and value - value == 0),
+            "Unsupported saved-variable value type: " .. kind)
+        return value
+    end
+    assert(not getmetatable(value), "Unexpected saved-variable metatable")
+    visiting = visiting or {}
+    assert(not visiting[value], "Cyclic saved-variable table")
+    visiting[value] = true
     local result = {}
-    for k,v in pairs(value) do result[k] = Copy(v) end
+    for k,v in pairs(value) do
+        local keyType = type(k)
+        assert(keyType == "string" or keyType == "boolean"
+            or (keyType == "number" and k - k == 0), "Unsupported saved-variable key")
+        result[k] = Copy(v, visiting)
+    end
+    visiting[value] = nil
     return result
 end
 
@@ -19,12 +37,15 @@ local function Read(import, addon)
     local account, character = import(addon)
     assert(type(account) == "table" and type(character) == "table",
         "Cannot recover saved variables for " .. addon)
-    return account, character
+    -- The native contract must return detached, plain tables; inspect the
+    -- complete result before indexing it. Errors are never treated as absence.
+    return Copy(account), Copy(character)
 end
 
 local function Active(db, key)
     local keys = Table(db.profileKeys, "profileKeys")
     local name = keys[key] or key
+    assert(type(name) == "string" and name ~= "", "Invalid legacy profile selection")
     return Copy(Table(Table(db.profiles, "profiles")[name], "profile"))
 end
 
@@ -76,7 +97,8 @@ local function PlacesPreferences(history)
     end
     if settings.stopCombat then settings.holdCombat = true end
     local size = tonumber(settings.loreFontSize)
-    if not size or size < 10 or size > 24 then settings.loreFontSize = 14 end
+    if not size or size < 10 or size > 24 then settings.loreFontSize = 14
+    else settings.loreFontSize = size end
     local captions = settings.captions
     settings.captions, settings.discoveryDefaultMigrated, settings.combatModesMigrated = nil, nil, nil
     local heard = Table(history.heard, "Places heard")
@@ -114,6 +136,7 @@ function Persistence:RecoverLegacy(import)
         -- An absent character file is not permission to reimport obsolete
         -- history or change the account's current profile selection. Retain
         -- any surviving character data, or let Persistence create fresh history.
+        self:ValidateCharacterHistory(existingChar)
         if marker == nil then
             local character = Copy(existingChar)
             character.migrationVersion = 1
@@ -132,6 +155,22 @@ function Persistence:RecoverLegacy(import)
     local root, character = Copy(existing), {}
     local migration = root.migration
     local core, stories = {}, {}
+    if not migration then
+        -- Read the shared Core filename first. The transitional TOC retains
+        -- SpokenSettings so a later failure cannot discard a valid loaded
+        -- legacy value at normal logout. If native recovery was needed,
+        -- retain its untouched data in that same declared variable.
+        local coreAccount = Read(import, "SoftSpoken")
+        local loaded = rawget(_G, "SpokenSettings")
+        if loaded ~= nil then
+            assert(coreAccount.SpokenSettings ~= nil,
+                "ClassicAPI did not recover the loaded legacy Core variable")
+        end
+        core = Table(coreAccount.SpokenSettings, "SpokenSettings")
+        if loaded == nil and coreAccount.SpokenSettings ~= nil then
+            _G.SpokenSettings = Copy(core)
+        end
+    end
     local storiesAccount, storiesCharacter = Read(import, "SoftSpoken_Stories")
     local _, placesCharacter = Read(import, "SoftSpoken_Places")
     local writingsAccount, writingsCharacter = Read(import, "SoftSpoken_Writings")
@@ -140,8 +179,6 @@ function Persistence:RecoverLegacy(import)
     local hasCharacterLegacy = storiesCharacter.SSCQuestJournal ~= nil
         or placesCharacter.SSZCharacter ~= nil or writingsCharacter.SSBCharacter ~= nil
     if not migration then
-        local coreAccount = Read(import, "SoftSpoken")
-        core = Table(coreAccount.SpokenSettings, "SpokenSettings")
         stories = Table(storiesAccount.SpokenQuestsSettings, "SpokenQuestsSettings")
         local pending = AccountSnapshot(core, stories, Table(writingsAccount.SSBSettings, "SSBSettings"))
         if hasCharacterLegacy then
@@ -199,14 +236,7 @@ function Persistence:RecoverLegacy(import)
             ns.profiles = Table(ns.profiles, module .. " profiles")
             ns.profiles[name] = prefs
         end
-        for _, entry in ipairs({
-            {character.Stories.journal, {"seen", "completed", "titles", "dialogue"}},
-            {character.Stories, {"hasSeenGossipForNPC", "RecentQuestTitleToID"}},
-            {character.Places, {"visited", "heard"}},
-            {character.Writings, {"read", "found", "locations", "acquisitions"}},
-        }) do
-            for _, field in ipairs(entry[2]) do Table(entry[1][field], field) end
-        end
+        self:ValidateCharacterHistory(character)
     else
         -- No character-specific legacy evidence: use default preferences,
         -- never the retired Writings snapshot or an unrelated named profile.
@@ -217,6 +247,9 @@ function Persistence:RecoverLegacy(import)
         end
     end
 
+    -- Validate the active imported profiles and every staged profile before
+    -- marking this import complete. No unified state is published on failure.
+    self:ValidateImportedPreferences(root)
     Consume(pending, key)
     migration.characters[key] = legacy and "legacy" or "new"
     character.migrationVersion = 1

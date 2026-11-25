@@ -4,7 +4,7 @@
 
 The target has two SavedVariables globals: `SoftSpokenDB` (account) and
 `SoftSpokenCharacterDB` (per-character). `Persistence.lua` is private to
-SpokenEnv and is deliberately inert at file load. D2 switches the TOC and controllers together. Core initializes the root and binds all module namespaces before constructing the shared UI; feature initialization consumes those namespaces. The old globals are no longer declared. **Do not use D2–D3 against a real WTF directory:** legacy import is not implemented until D4; normal logout can replace the old Core file.
+SpokenEnv and is deliberately inert at file load. D2 switches the TOC and controllers together. Core initializes the root and binds all module namespaces before constructing the shared UI; feature initialization consumes those namespaces. The old module globals are no longer declared; D6B temporarily retains the old Core name as a passive migration safety slot. **Do not use D2–D3 against a real WTF directory:** legacy import is not implemented until D4; normal logout can replace the old Core file.
 
 ### Ownership
 
@@ -62,7 +62,7 @@ pass and independent reset scopes. Module reset tests assert a local refresh.
 
 ### D4 implementation contract
 
-Startup calls the read-only global `ImportSavedVariables(addon)` before Core initialization. The proposed function must return two tables keyed by saved-variable name (account and current character); missing files return empty tables, errors must throw or return a non-table. No writes occur until all imports and transformations succeed. Missing API blocks startup rather than silently initializing defaults. The account snapshot retains active preferences for other characters because the old Core filename is reused; each character consumes its own snapshot on first login. Character-specific imported profiles avoid cross-character preference conflicts. The API is not yet available in the real client; D5 must verify it and actual logout/reload behavior.
+Startup calls the read-only global `ImportSavedVariables(addon)` before Core initialization. The proposed function must return two tables keyed by saved-variable name (account and current character); missing files return empty tables, errors must throw or return a non-table. No unified database writes occur until all imports and transformations succeed (D6B may retain recovered Core data in the declared legacy slot). Missing API blocks startup rather than silently initializing defaults. The account snapshot retains active preferences for other characters because the old Core filename is reused; each character consumes its own snapshot on first login. Character-specific imported profiles avoid cross-character preference conflicts. The API is not yet available in the real client; D5 must verify it and actual logout/reload behavior.
 
 ### D5 client validation
 
@@ -99,3 +99,40 @@ created: a character with no surviving per-character or account-keyed evidence
 cannot be identified as legacy. The read-only API remains required to classify
 unseen characters; completed characters require no further API calls. D6B
 still owns the file-protection and missing-API contract.
+
+### D6B — legacy file protection and import validation
+
+The migration release declares `SpokenSettings` alongside `SoftSpokenDB`
+in the account TOC. This is not a third live database: no controller reads or
+writes preferences through it. Valid old Core data loaded by the client is
+left untouched, including on missing API, failed import, old-folder conflict,
+or failed startup. If the native importer recovers a Core table the client did
+not load, a detached copy is retained before other reads. The declaration and
+retained data must not be removed until a later, explicitly validated cleanup
+release. The other three legacy addon files remain outside the unified TOC.
+
+This is semantic retention of readable Lua data, not a byte-for-byte backup or
+an atomic disk-write guarantee. A malformed original file, native loader failure,
+crash during write, or client-specific serialization behavior is not protected
+by a TOC declaration alone. Before the first upgraded launch the installer/user
+must keep a complete out-of-process WTF backup. Verify normal logout and failed
+migration logout on the actual 1.12 client before shipping. Do not rely on .bak
+rotation or attempt to restore files from a running Lua addon.
+
+Native contract remains `ImportSavedVariables(addonName) -> account, character`.
+Both returns must be detached plain tables, keyed by variable name, from the
+current account and current realm/character, with empty tables only when absent.
+Unreadable/malformed files must report errors, not absence. The DLL must use a
+safe saved-data parser rather than execute arbitrary Lua, and must not mutate
+files. SoftSpoken rejects non-serializable values, metatables, cycles, invalid
+known preference types (using live defaults), and malformed nested history.
+Unknown serializable fields are preserved. The unified globals and import ledger
+are published only after validation; the retained legacy slot is the exception.
+The session-local startupComplete flag is separate from import completion.
+
+The native import function remains mandatory for unseen characters, including a
+clean first install, because Lua cannot safely prove the absence of the retired
+files when the function is missing. Completed characters need no importer.
+Supporting first install without the extension would require a trustworthy
+external clean-install assertion or presence probe; do not infer this from empty
+new globals. No new DLL function is assumed or implemented here.

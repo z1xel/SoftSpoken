@@ -26,10 +26,13 @@ local function Initialize()
     if UpgradeGuard and not UpgradeGuard:CanStart() then return end
     if not Run("Legacy migration", Persistence, "RecoverLegacy") then return end
     if not Run("Core", CoreController, "Initialize") then return end
-    Run("Stories", VoiceOver and VoiceOver.StoriesAddon, "Initialize")
-    Run("Places", SpokenPlacesRuntime, "Initialize")
-    Run("Writings", SpokenWritings, "Initialize")
-    Run("Core finalization", CoreController, "FinalizeStartup")
+    local storiesReady = Run("Stories", VoiceOver and VoiceOver.StoriesAddon, "Initialize")
+    local placesReady = Run("Places", SpokenPlacesRuntime, "Initialize")
+    local writingsReady = Run("Writings", SpokenWritings, "Initialize")
+    local coreReady = Run("Core finalization", CoreController, "FinalizeStartup")
+    -- Import markers only describe imported data, not successful UI startup.
+    -- Keep the latter session-local; never mark a failed controller as ready.
+    Persistence.startupComplete = storiesReady and placesReady and writingsReady and coreReady
 end
 
 local loader = CreateFrame("Frame")

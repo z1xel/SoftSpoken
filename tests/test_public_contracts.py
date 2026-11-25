@@ -20,10 +20,11 @@ def require(path, pattern, label):
     )
 
 
-# Unified persistence identity. Migration from released legacy names belongs to D4.
+# Unified persistence identity. The legacy Core variable is retained only to
+# protect the shared SavedVariables filename during the migration release.
 manifests = {
     "SoftSpoken": {
-        "SavedVariables": ["SoftSpokenDB"],
+        "SavedVariables": ["SoftSpokenDB", "SpokenSettings"],
         "SavedVariablesPerCharacter": ["SoftSpokenCharacterDB"],
     },
 }
