@@ -12,6 +12,8 @@ on:
       - "SoftSpoken/Modules/Stories/Environment.lua"
       - "SoftSpoken/SoftSpoken.toc"
       - "SoftSpoken/Startup.lua"
+      - "SoftSpoken/Persistence.lua"
+      - "tests/unified_persistence.lua"
       - "tests/unified_startup.lua"
       - "tests/compendium_completed_sync.lua"
       - "tests/compendium_pvp_categories.lua"
@@ -95,6 +97,8 @@ on:
       - "SoftSpoken/Modules/Stories/Environment.lua"
       - "SoftSpoken/SoftSpoken.toc"
       - "SoftSpoken/Startup.lua"
+      - "SoftSpoken/Persistence.lua"
+      - "tests/unified_persistence.lua"
       - "tests/unified_startup.lua"
       - "tests/compendium_completed_sync.lua"
       - "tests/compendium_pvp_categories.lua"
@@ -281,3 +285,5 @@ jobs:
         run: lua5.1 tests/compendium_completed_sync.lua
       - name: Check Compendium PvP category metadata
         run: lua5.1 tests/compendium_pvp_categories.lua
+      - name: Check unified persistence with bundled AceDB
+        run: lua5.1 tests/unified_persistence.lua
