@@ -136,3 +136,23 @@ files when the function is missing. Completed characters need no importer.
 Supporting first install without the extension would require a trustworthy
 external clean-install assertion or presence probe; do not infer this from empty
 new globals. No new DLL function is assumed or implemented here.
+
+### D6C — cross-session persistence regression
+
+Run `python3 tests/test_persistence_lifecycle.py` from the repository root.
+The runner uses a temporary directory and fresh Lua 5.1 processes for each
+session. It reads and writes only generated fixtures; its fixture-only loader
+is not the native ClassicAPI parser. The Lua harness uses the actual TOC
+SavedVariables declarations, production migration and Core/module DB binding,
+real Core and Stories preference defaults, Options profile operations, and
+the bundled AceDB PLAYER_LOGOUT handler. No WoW UI is constructed.
+
+Scenarios: seed released-format files, failed import followed by logout, first
+legacy login and profile operations, second character sharing an old Core
+profile, repeat login, late history-only character, new character and reload,
+and loss of the first character's unified history file. Assert separate
+character histories, account layout, profile changes, original Core retention,
+consumption ledger, no repeated import, default stripping, and fresh defaults.
+The simulated file round trip does not verify the real client serializer,
+ClassicAPI parser, crash durability or controller/UI integration; those remain
+release gates. D6A and D6B CI passed before this test was added.
