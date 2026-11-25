@@ -99,8 +99,8 @@ class LocationTests(unittest.TestCase):
 
     def test_holds(self):
         v,i,s = fixture()
-        refs=[{"namespace":"legacyPlace","value":1429,"area":"tower","owner":"Places","record":"1"},
-              {"namespace":"legacyPlace","value":1429,"area":"other","owner":"Places","record":"2"}]
+        refs=[{"sourceScope":"spoken_classic","namespace":"legacyPlace","value":1429,"area":"tower","owner":"Places","record":"1"},
+              {"sourceScope":"spoken_classic","namespace":"legacyPlace","value":1429,"area":"other","owner":"Places","record":"2"}]
         result=content_report(refs,[dict(refs[0],status="mapped",location="example.tower",reason="review")],i)
         self.assertEqual([r["status"] for r in result],["mapped","held"])
         self.assertNotIn("location",result[1])
@@ -139,7 +139,7 @@ class LocationTests(unittest.TestCase):
             b=build(manifest,decisions,ROOT,p/"b")
             self.assertEqual(a,b)
             self.assertEqual(a["sourceCounts"],{"held":4})
-            for name in ("Locations.generated.lua","ContentBindings.generated.lua","coverage.json","normalized-sources.json"):
+            for name in ("Locations.generated.lua","ContentBindings.generated.lua","coverage.json","normalized-sources.json","review-candidates.json"):
                 self.assertEqual((p/"a"/name).read_bytes(),(p/"b"/name).read_bytes())
             source["effectivePatched"]=False
             with self.assertRaises(ValueError):

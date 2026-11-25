@@ -225,7 +225,9 @@ def source_report(tables, dispositions, identities):
 
 
 def content_key(ref):
-    return ref["namespace"], ref["value"], ref.get("area")
+    scope = ref["sourceScope"]
+    require(isinstance(scope,str) and scope.strip(), "content reference lacks source scope")
+    return scope, ref["namespace"], ref["value"], ref.get("area")
 
 
 def content_report(refs, crosswalk, identities):
@@ -302,6 +304,15 @@ def build(manifest, decisions, root, output, pack=None, previous=None, inventory
         views[profile] = view
     source = source_report(tables,decisions.get("sourceDispositions",[]),identities)
     content = content_report(refs["references"],decisions.get("contentCrosswalk",[]),identities)
+    # Candidate research inventory: do not propose a canonical ID from a name
+    # or assume that raw AreaTable parent IDs imply canonical containment.
+    candidates = []
+    for row in source:
+        if row["status"] != "held":
+            continue
+        record = tables[row["scope"]][row["table"]][row["id"]]
+        candidates.append(dict(row, evidence=record))
+    dump("review-candidates.json", candidates)
     report = {"sourceCounts":dict(Counter(r["status"] for r in source)),
               "contentCounts":dict(Counter(r["status"] for r in content)),
               "sources":source,"content":content,"questSortsExcluded":refs["questSortsExcluded"]}
@@ -315,7 +326,7 @@ def build(manifest, decisions, root, output, pack=None, previous=None, inventory
                "redirects":{k:v["redirect"] for k,v in identities.items() if "redirect" in v},
                "splits":{k:sorted(v["split"]) for k,v in identities.items() if "split" in v}}
     # Independent content bindings: no prose, artwork or audio embedded in locations.
-    mapped = [{k:row[k] for k in ("namespace","value","area","location") if k in row}
+    mapped = [{k:row[k] for k in ("sourceScope","namespace","value","area","location") if k in row}
               for row in decisions.get("contentCrosswalk",[]) if row["status"] == "mapped"]
     mapped.sort(key=lambda row: json.dumps(row,sort_keys=True,ensure_ascii=True))
     (output/"ContentBindings.generated.lua").write_text(

@@ -100,7 +100,10 @@ def inventory(root, pack=None):
     def add(owner, record, namespace, value, area=None):
         if type(value) is not int:
             raise ValueError(f"{owner}/{record}: invalid numeric reference {value!r}")
-        entry = dict(owner=owner, record=str(record), namespace=namespace, value=value)
+        # Source reference scopes are not automatically native runtime profiles.
+        scope = {"legacyPlace":"spoken_classic","upstreamUiMap":"spoken_classic",
+                 "instanceMap":"vanilla_instance_catalog","areaTable":"tortoise_snapshot"}[namespace]
+        entry = dict(owner=owner, record=str(record), sourceScope=scope, namespace=namespace, value=value)
         if area is not None:
             if not isinstance(area, str):
                 raise ValueError("invalid legacy subzone key")
