@@ -1,0 +1,16 @@
+name: Module discovery regression
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  discovery:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y lua5.1
+      - run: |
+          lua5.1 tests/module_discovery_policy.lua
+          lua5.1 tests/audio_phase2_places.lua
+          lua5.1 tests/audio_phase2_writings.lua
+          lua5.1 tests/compendium_completed_sync.lua
+          lua5.1 tests/stories_quest_dialogue.lua

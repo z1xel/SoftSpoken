@@ -122,3 +122,20 @@ eq(SpokenWritings:ReadCurrent(),1)
 eq(synced[4],201)
 
 print("audio_phase2_writings.lua: page lifecycle, stop/close and Read Once passed")
+
+local enabled, tracking = false, true
+SpokenWritings.IsPartOn=function() return enabled end
+SpokenWritings.ShouldTrack=function() return tracking end
+settings.autoplay=true;settings.readOnce=false
+marked={};SpokenWritings.lastPage=nil
+currentPage=101
+local before=table.getn(synced)
+eq(SpokenWritings:OnTextReady(),0)
+eq(marked[5],true);eq(table.getn(synced),before)
+tracking=false;currentPage=201
+eq(SpokenWritings:OnTextReady(),0)
+eq(marked[6],nil);eq(SpokenWritings.lastPage,nil)
+enabled=true;tracking=true
+eq(SpokenWritings:OnTextReady(),1)
+eq(marked[6],true);eq(table.getn(synced),before+1)
+print("Writings silent discovery policy passed")

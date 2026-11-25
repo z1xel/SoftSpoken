@@ -137,3 +137,12 @@ assert(string.find(narrator,"pcall(dialogue.Text, dialogue",1,true),
 assert(not string.find(narrator,"SSCQuestPage",1,true),
     "narrator must not depend on Compendium UI")
 print("PASS: shared quest dialogue precedence, placeholders, capture and load order")
+
+local tracking=false
+Spoken={ShouldTrackDiscovery=function() return tracking end}
+state.id=998;state.accept="New dialogue"
+dialogue:CaptureEvent("QUEST_DETAIL")
+eq(journal.dialogue[998],nil,"suspended dialogue")
+tracking=true
+dialogue:CaptureEvent("QUEST_DETAIL")
+eq(journal.dialogue[998].accept,"New dialogue","silent dialogue")

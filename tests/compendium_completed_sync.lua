@@ -107,3 +107,21 @@ fire("QUEST_QUERY_COMPLETE")
 eq(state:IsCompleted(303),true,"empty response preserves history")
 eq(state.revision,0,"empty response does not rebuild")
 print("PASS: ClassicAPI historical quest-completion synchronization")
+
+local tracking=true
+Spoken={ShouldTrackDiscovery=function(self,key) assert(key=="quests");return tracking end}
+state,fire,counts=Setup(nil,function() return {[501]=true} end)
+fire("QUEST_QUERY_COMPLETE")
+eq(state:IsCompleted(501),true,"silent completed quest recorded")
+tracking=false
+state:MarkSeen(502,"Suspended")
+state:MarkCompleted(503)
+eq(state:IsSeen(502),false,"suspended seen")
+eq(state:IsCompleted(503),false,"suspended completion")
+GetQuestsCompleted=function() return {[504]=true} end
+fire("QUEST_QUERY_COMPLETE")
+eq(state:IsCompleted(504),false,"suspended cache import")
+tracking=true
+fire("QUEST_QUERY_COMPLETE")
+eq(state:IsCompleted(504),true,"recover native progression")
+eq(state:IsCompleted(501),true,"previous history retained")

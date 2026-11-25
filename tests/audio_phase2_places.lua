@@ -215,3 +215,25 @@ do
 end
 
 print("audio_phase2_places.lua: profile reset, distinct gates and starting grace passed")
+
+-- Disabled Places keeps discovering, but never queues audio. Opt-out
+-- suspends local discovery; resuming does not narrate the missed transition.
+local tracking, speaking = true, false
+R.ShouldTrack=function() return tracking end
+R.IsPartOn=function() return speaking end
+R.startupActive=false
+R.Settings().auto=true
+R.Settings().mode="discovery"
+local before=table.getn(calls)
+R.CharDB().visited={}
+R.OnDiscovered("Elwynn Forest")
+assert(R.CharDB().visited.seen==true,"silent zone discovery missing")
+eq(table.getn(calls),before)
+tracking=false
+R.CharDB().visited={}
+R.OnDiscovered("Elwynn Forest")
+assert(next(R.CharDB().visited)==nil,"suspended Places discovered a zone")
+tracking=true; speaking=true
+R.ResetLocationBaseline()
+eq(table.getn(calls),before)
+print("Places silent discovery policy passed")
