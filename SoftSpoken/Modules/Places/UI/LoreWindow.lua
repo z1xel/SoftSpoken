@@ -27,7 +27,7 @@ local function Lore()
     return SSZLore or {zones={},subzones={}}
 end
 local function Settings()
-    return SpokenPlacesRuntime.Settings(), SpokenPlacesRuntime.CharDB().heard
+    return SpokenPlacesRuntime.Settings()
 end
 local function ZoneName(id)
     local entry=Lore().zones[id]

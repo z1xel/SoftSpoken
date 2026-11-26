@@ -30,9 +30,14 @@ function SpokenPlacesBridge:MarkFound(mapID, areaKey)
     local key = Normalise(areaKey)
     if not (lore and lore.subzones and lore.subzones[mapID] and
             lore.subzones[mapID][key]) then return false end
-    local visited = CharDB().visited
-    visited[VisitKey(mapID)] = true
-    visited[VisitKey(mapID, key)] = true
+    if PlacesRuntime.MarkVisit then
+        PlacesRuntime.MarkVisit(VisitKey(mapID))
+        PlacesRuntime.MarkVisit(VisitKey(mapID,key))
+    else
+        local visited=CharDB().visited
+        visited[VisitKey(mapID)]=true
+        visited[VisitKey(mapID,key)]=true
+    end
     InvalidateExploration()
     return true
 end

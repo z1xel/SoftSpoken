@@ -138,6 +138,11 @@ function Persistence:ValidateCharacterHistory(character)
     end
     -- History flags have historically been interpreted by truthiness in some
     -- readers. Preserve their serialized values rather than coercing them.
+    if character.geographyVersion~=nil then
+        assert(LocationHistory,"missing geographical history validator")
+        LocationHistory:Validate(character)
+        return
+    end
     for id, zones in pairs(writings.locations or {}) do
         CheckMap(zones, "string", "Writings.locations." .. tostring(id))
     end
@@ -204,6 +209,7 @@ function Persistence:Initialize(coreDefaults, storiesProfileDefaults)
     assert(type(storiesProfileDefaults) == "table", "Missing Stories profile defaults")
     local storiesProfile = StoriesSchema(storiesProfileDefaults)
 
+    if LocationHistory then LocationHistory:Upgrade() end
     local character = CharacterDB()
     local saved = EnsureTable(_G, "SoftSpokenDB")
     local root = LibStub("AceDB-3.0"):New(saved, coreDefaults)

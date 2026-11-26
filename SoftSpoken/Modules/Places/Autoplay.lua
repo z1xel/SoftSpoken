@@ -164,15 +164,18 @@ local function OnDiscovered(area)
                      Normalise(area) == Normalise(ZONE_NAMES[mapID])
     local areaKey = ResolveCurrentAreaKey(mapID,zone,area)
     -- Record genuine discoveries regardless of the autoplay preference.
-    local visited=CharDB().visited
+    local function Mark(key)
+        if PlacesRuntime.MarkVisit then return PlacesRuntime.MarkVisit(key) end
+        CharDB().visited[key]=true
+    end
     if zoneArea then
-        visited[VisitKey(mapID)] = true
+        Mark(VisitKey(mapID))
     else
         local lore=SSZLore
         if areaKey and lore and lore.subzones and lore.subzones[mapID] and
            lore.subzones[mapID][areaKey] then
-            visited[VisitKey(mapID,areaKey)] = true
-            visited[VisitKey(mapID)] = true
+            Mark(VisitKey(mapID,areaKey))
+            Mark(VisitKey(mapID))
         end
     end
     InvalidateExploration()

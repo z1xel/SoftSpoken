@@ -16,7 +16,14 @@ local function Settings()
 end
 
 local function WasHeard(key)
-    return CharDB().heard[key] == true
+    local p=CharDB()
+    if p.locationHolds then return SpokenEnv.LocationHistory:PlaceHas(p,"heard",key) end
+    return p.heard[key]==true
+end
+local function MarkHeard(key)
+    local p=CharDB()
+    if p.locationHolds then return SpokenEnv.LocationHistory:PlaceMark(p,"heard",key) end
+    p.heard[key]=true
 end
 
 function SSZLoreFontSize()
@@ -32,4 +39,5 @@ end
 PlacesRuntime.CharDB = CharDB
 PlacesRuntime.Settings = Settings
 PlacesRuntime.WasHeard = WasHeard
+PlacesRuntime.MarkHeard = MarkHeard
 PlacesRuntime.ResetOptions = ResetOptions

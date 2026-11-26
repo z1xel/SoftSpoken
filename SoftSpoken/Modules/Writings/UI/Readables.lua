@@ -51,7 +51,9 @@ local function ByTitle(a,b)
 end
 local function ByZoneName(a,b)
     local first,second=Lower(ZoneName(a)),Lower(ZoneName(b))
-    return first==second and a<b or first<second
+    if first~=second then return first<second end
+    if type(a)==type(b) then return a<b end
+    return type(a)<type(b)
 end
 local function Index()
     if index then return index end

@@ -19,14 +19,24 @@ local function VisitKey(mapID, areaKey)
     return areaKey and (tostring(mapID) .. "/" .. Normalise(areaKey)) or tostring(mapID)
 end
 
+local function HasVisit(key)
+    local p=CharDB()
+    if p.locationHolds then return SpokenEnv.LocationHistory:PlaceHas(p,"visited",key) end
+    return not not p.visited[key]
+end
+local function MarkVisit(key)
+    local p=CharDB()
+    if p.locationHolds then return SpokenEnv.LocationHistory:PlaceMark(p,"visited",key) end
+    if p.visited[key] then return false end
+    p.visited[key]=true
+    return true
+end
+
 local function RecordVisit(zone, subzone)
     if PlacesRuntime.ShouldTrack and not PlacesRuntime:ShouldTrack() then return end
     local mapID = AudioID(zone)
     if not mapID then return end
-    local visited = CharDB().visited
-    local changed=false
-    local zoneKey=VisitKey(mapID)
-    if not visited[zoneKey] then visited[zoneKey]=true;changed=true end
+    local changed=MarkVisit(VisitKey(mapID))
     local areaKey = PlacesRuntime.ResolveCurrentAreaKey and PlacesRuntime.ResolveCurrentAreaKey(mapID,zone,subzone)
     if not PlacesRuntime.ResolveCurrentAreaKey then areaKey=ResolveAreaKey(mapID,subzone) end
     if areaKey and areaKey ~= "" and Normalise(subzone) ~= Normalise(zone) then
@@ -34,7 +44,7 @@ local function RecordVisit(zone, subzone)
         if lore and lore.subzones and lore.subzones[mapID] and
            lore.subzones[mapID][areaKey] then
             local key=VisitKey(mapID,areaKey)
-            if not visited[key] then visited[key]=true;changed=true end
+            if MarkVisit(key) then changed=true end
         end
     end
     if changed then
@@ -180,8 +190,7 @@ end
 
 local function WasFound(mapID, areaKey)
     if not mapID or (PlacesRuntime.IsMapSupported and not PlacesRuntime.IsMapSupported(mapID)) then return false end
-    local visited = CharDB().visited
-    if visited[VisitKey(mapID,areaKey)] then return true end
+    if HasVisit(VisitKey(mapID,areaKey)) then return true end
     -- A shared geographical identity is not evidence of a visit in another
     -- content context. Only this map/key or its own exploration evidence
     -- may unlock this entry; recordings and visits stay context-specific.
@@ -198,11 +207,11 @@ local function WasFound(mapID, areaKey)
     local subs=lore and lore.subzones and lore.subzones[mapID]
     if subs then
         for key in pairs(subs) do
-            if visited[VisitKey(mapID,key)] or scanned.keys[key] then return true end
+            if HasVisit(VisitKey(mapID,key)) or scanned.keys[key] then return true end
         end
     end
     for city,parent in pairs(CITY_PARENT) do
-        if parent==mapID and (visited[VisitKey(city)] or ScanExploration(city).zone) then
+        if parent==mapID and (HasVisit(VisitKey(city)) or ScanExploration(city).zone) then
             return true
         end
     end
@@ -210,6 +219,8 @@ local function WasFound(mapID, areaKey)
 end
 
 PlacesRuntime.VisitKey = VisitKey
+PlacesRuntime.MarkVisit = MarkVisit
+PlacesRuntime.HasVisit = HasVisit
 PlacesRuntime.RecordVisit = RecordVisit
 PlacesRuntime.InvalidateExploration = InvalidateExploration
 PlacesRuntime.WasFound = WasFound

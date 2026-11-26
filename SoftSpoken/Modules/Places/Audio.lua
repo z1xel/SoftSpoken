@@ -242,7 +242,8 @@ local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay, initialGre
     end
     -- IMPORTANT: don't burn a location's history while it is merely waiting.
     clip.startCallback = function(item)
-        CharDB().heard[key] = true
+        if PlacesRuntime.MarkHeard then PlacesRuntime.MarkHeard(key)
+        else CharDB().heard[key]=true end
         -- The initial level-one greeting counts only once it actually starts,
         -- not when it sits held behind the post-cinematic grace period.
         if item.initialGreeting then CharDB().greeted = true end

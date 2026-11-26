@@ -15,6 +15,10 @@ local function Registry()
     local r=SpokenEnv and SpokenEnv.Locations
     if r and r:IsReady() then return r end
 end
+local function History()
+    local w=Character()
+    if w and w.locationHolds then return SpokenEnv.LocationHistory end
+end
 local function Locale() return GetLocale and GetLocale() or "enUS" end
 local function ContentLocation(r,mapID)
     if r and type(mapID)=="number" then
@@ -36,18 +40,20 @@ local ROOTS={[947]=true,[1414]=true,[1415]=true}
 local REGIONAL={zone=true,city=true,dungeon=true,raid=true,battleground=true,arena=true,continent=true,world=true}
 
 function Writings:LocationForMap(mapID)
-    return ContentLocation(Registry(),mapID)
+    local r=Registry()
+    if r and type(mapID)=="string" then return r:ResolveCanonical(mapID) end
+    return ContentLocation(r,mapID)
 end
 function Writings:LocationName(mapID)
     local r=Registry()
-    local id=ContentLocation(r,mapID)
+    local id=self:LocationForMap(mapID)
     if id then return r:GetName(id,Locale()) end
     return Compendium and Compendium.MapName and Compendium.MapName(mapID) or tostring(mapID)
 end
 function Writings:LocationContinent(mapID)
     local r=Registry()
     if r then
-        local id=ContentLocation(r,mapID)
+        local id=self:LocationForMap(mapID)
         if id=="kalimdor" then return 1414 end
         if id=="eastern_kingdoms" then return 1415 end
         for _,parent in ipairs(r:GetAncestors(id)) do
@@ -124,9 +130,8 @@ local function MapForName(name,r)
 end
 
 -- Resolve the native player's zone, independently of the world map UI.
--- Return canonical identity even for a contentless native region. Until
--- L10 the persisted origin has a numeric upstream map key, so such a
--- region is held as unknown origin rather than projected to its continent.
+-- Return canonical identity even for a contentless native region. The
+-- legacy map projection is for presentation/old callers only.
 local function RegionalLocation(r,id)
     if not id then return nil end
     local entity=r:Get(id)
@@ -189,10 +194,44 @@ function Writings:BookLocations(book)
     local locations = character and character.locations[book]
     return type(locations)=="table" and locations or nil
 end
--- Canonical read projection; keep the raw numeric/method table untouched
--- until L10. Merge equivalent observations only for display/lookup.
+-- Canonical observations use the old map key only where a unique UI
+-- projection exists. Otherwise the browser uses the canonical string.
+local function SavedProjection(raw,held,isQuantity)
+    local r=Registry()
+    local result={}
+    for id,value in pairs(raw or {}) do
+        local mapID=LegacyMap(r,id) or id
+        local p={mapID=mapID,locationID=id}
+        if isQuantity then p.quantity=value else p.methods=value end
+        table.insert(result,p)
+    end
+    for key,value in pairs(held or {}) do
+        -- Preserve the original held number for the legacy display path.
+        -- Other typed raw keys remain lossless in holds, not a made-up ID.
+        if type(key)=="number" then
+            local p={mapID=key,sourceMapID=key,held=true}
+            if isQuantity then
+                if type(value)=="number" and value>0 then
+                    p.quantity=value;table.insert(result,p)
+                end
+            elseif type(value)=="string" then
+                p.methods={[value]=true};table.insert(result,p)
+            end
+        end
+    end
+    table.sort(result,function(a,b)
+        if type(a.mapID)==type(b.mapID) and type(a.mapID)=="number" then return a.mapID<b.mapID end
+        if type(a.mapID)~=type(b.mapID) then return type(a.mapID)<type(b.mapID) end
+        return tostring(a.mapID)<tostring(b.mapID)
+    end)
+    return result
+end
+
 function Writings:ObservedLocations(book)
     local locations=self:BookLocations(book)
+    if History() then
+        return SavedProjection(locations,Character().locationHolds.locations[book],false)
+    end
     local r=Registry()
     local values={}
     for mapID in pairs(locations or {}) do
@@ -214,6 +253,13 @@ end
 function Writings:BookFoundAt(book,mapID)
     if mapID==nil then return false end
     local locations=self:BookLocations(book)
+    local history=History()
+    if history then
+        local id=history:ResolveWritingsKey(mapID)
+        if id and locations and locations[id] then return true end
+        local held=Character().locationHolds.locations[book]
+        return held and held[mapID]~=nil or false
+    end
     if not locations then return false end
     if locations[mapID]~=nil then return true end
     local r=Registry()
@@ -247,7 +293,16 @@ function Writings:DiscoverySummary(book)
 end
 function Writings:RecordBookLocation(book, mapID, how)
     if self.ShouldTrack and not self:ShouldTrack() then return false end
-    if not book or type(mapID)~="number" or ROOTS[mapID] then return false end
+    if not book or mapID==nil or ROOTS[mapID] then return false end
+    local history=History()
+    if history then
+        local id=history:ResolveWritingsKey(mapID)
+        if not id or id=="azeroth" or id=="kalimdor" or id=="eastern_kingdoms" then return false end
+        local changed=history:BookMark(Character(),book,id,how)
+        if changed and self.ReadablesLocationChanged then self:ReadablesLocationChanged() end
+        return changed
+    end
+    if type(mapID)~="number" then return false end
     local r=Registry()
     if r and not ContentLocation(r,mapID) then return false end
     mapID=ProjectMap(r,mapID)
@@ -261,11 +316,12 @@ function Writings:RecordBookLocation(book, mapID, how)
     return true
 end
 
--- Outstanding quantities are projected by canonical identity for reading,
--- without changing any raw counters or multiplying an ambiguous reference.
+-- Outstanding quantities are already canonical after L10; legacy
+-- counters remain a separate held projection.
 function Writings:AcquisitionLocations(itemID)
     local character=Character()
     local raw=character and character.acquisitions and character.acquisitions[itemID]
+    if History() then return SavedProjection(raw,character.locationHolds.acquisitions[itemID],true) end
     local values={}
     for mapID,n in pairs(type(raw)=="table" and raw or {}) do
         if type(mapID)=="number" and type(n)=="number" and n>0 then table.insert(values,mapID) end
@@ -340,22 +396,29 @@ local function Reconcile()
         return
     end
     local acquired=Character().acquisitions
-    local location = Writings:CurrentDiscoveryMap()
-    if location then location=ProjectMap(Registry(),location) end
+    local history=History()
+    local id,mapID=Writings:CurrentDiscoveryLocation()
+    local location=history and id or mapID
+    if history and (id=="azeroth" or id=="kalimdor" or id=="eastern_kingdoms") then location=nil end
+    if not history and location then location=ProjectMap(Registry(),location) end
     for id,newCount in pairs(totals) do
         local increase = newCount - (previous[id] or 0)
         if increase>0 and location and carriedNames[names[id]] and
             not inBank and not ignoreTransfer then
-            local byZone=acquired[id]
-            if type(byZone)~="table" then byZone={};acquired[id]=byZone end
-            byZone[location]=(byZone[location] or 0)+increase
+            if history then history:Acquire(Character(),id,location,increase)
+            else
+                local byZone=acquired[id]
+                if type(byZone)~="table" then byZone={};acquired[id]=byZone end
+                byZone[location]=(byZone[location] or 0)+increase
+            end
         end
     end
     -- A dropped/sold/deposited item is not still an outstanding bag acquisition.
     for id,oldCount in pairs(previous) do
         local gone=oldCount-(totals[id] or 0)
         local candidates=acquired[id]
-        if gone>0 and type(candidates)=="table" then
+        if gone>0 and history then history:Consume(Character(),id,gone)
+        elseif gone>0 and type(candidates)=="table" then
             for mapID,n in pairs(candidates) do
                 if gone<=0 then break end
                 local used=math.min(gone,n)
@@ -443,14 +506,28 @@ function Writings:MarkBookFound(book)
     if not book then return end
     local place=SSBPlaces and SSBPlaces.books and SSBPlaces.books[book]
     if place and place.kind=="world" then
-        self:RecordBookLocation(book,self:CurrentDiscoveryMap(),"world")
+        local id,mapID=self:CurrentDiscoveryLocation()
+        self:RecordBookLocation(book,History() and id or mapID,"world")
     elseif place and place.kind=="carried" then
         if dirty then bags:Hide();dirty=false;elapsed=0;Reconcile() end
         local title=ItemTextGetItem and ItemTextGetItem()
         local itemID=UniqueInventoryItem(title)
         if itemID then
             for _,origin in ipairs(self:AcquisitionLocations(itemID)) do
-                if origin.quantity>0 then self:RecordBookLocation(book,origin.mapID,"acquired") end
+                if origin.quantity>0 then
+                    if History() and origin.held then
+                        -- A prior observed bag acquisition with an unresolved
+                        -- source remains evidence, not a canonical location.
+                        local held=Character().locationHolds.locations
+                        held[book]=held[book] or {}
+                        if held[book][origin.mapID]==nil then
+                            held[book][origin.mapID]="acquired"
+                            if self.ReadablesLocationChanged then self:ReadablesLocationChanged() end
+                        end
+                    else
+                        self:RecordBookLocation(book,origin.locationID and History() and origin.locationID or origin.mapID,"acquired")
+                    end
+                end
             end
         end
     end
