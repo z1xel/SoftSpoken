@@ -88,13 +88,14 @@ function PlacesRuntime:SetupOptions()
 
     layout:Section("World Map")
     layout:Checkbox("Show Map Lore Panel",
-        "Show the existing lore reader on the world map.",
+        "Show the lore reader on the world map. To reopen a closed reader, select a discovered place or turn this option off and on.",
         function() return Settings().showMapPanel ~= false end,
         function(on)
             if SSZMapPanel and SSZMapPanel.SetEnabled then
                 SSZMapPanel.SetEnabled(on)
             else
                 Settings().showMapPanel = on
+                if on then Settings().mapPanelCollapsed = false end
             end
         end)
 

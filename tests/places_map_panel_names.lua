@@ -81,10 +81,25 @@ eq(pending.text,"The story of Elwynn Forest has not been written yet.",
 SSZLore.zones[1429].pending=nil
 assert(#nameCalls>=4,"adapter was used for each breadcrumb and pending text")
 
+-- Closing the reader leaves no floating button; selecting a place or
+-- re-enabling the setting opens the reader again.
+panel.SetMapPanelCollapsed(true)
+eq(settings.mapPanelCollapsed,true,"close reader")
+eq(panel.SelectSubzone(1429,"northshire valley"),true,"reopen by selection")
+eq(settings.mapPanelCollapsed,false,"selection reopens reader")
+panel.SetMapPanelCollapsed(true)
+panel.SetEnabled(false)
+eq(settings.showMapPanel,false,"disable reader")
+panel.SetEnabled(true)
+eq(settings.showMapPanel,true,"enable reader")
+eq(settings.mapPanelCollapsed,false,"enable reopens reader")
+
 -- Guard against another stale rename. No naked Compat.Name can compile and
 -- evade behavior checks simply because its branch wasn't visited.
 local file=assert(io.open("SoftSpoken/Modules/Places/UI/MapPanel.lua","r"))
 local source=file:read("*a");file:close()
 assert(not string.find(source,"%f[%w]Compat%.Name%s*%("),
     "MapPanel contains a stale global Compat.Name lookup")
-print("PASS: Places subzone, city, ancestor and pending lore breadcrumbs")
+assert(not string.find(source,"SSZMapLoreToggle",1,true),
+    "Floating map lore toggle must not be created")
+print("PASS: Places lore breadcrumbs and reader visibility")
