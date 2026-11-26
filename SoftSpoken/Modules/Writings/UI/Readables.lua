@@ -41,6 +41,7 @@ local function ZoneName(mapID)
     if mapID==WORLD then return "Azeroth" end
     if mapID==WEST then return "Kalimdor" end
     if mapID==EAST then return "Eastern Kingdoms" end
+    if Writings.LocationName then return Writings:LocationName(mapID) end
     return Compendium.MapName and Compendium.MapName(mapID) or tostring(mapID)
 end
 local function Lower(str) return string.lower(str or "") end
@@ -67,24 +68,23 @@ local function Index()
             -- Personal discovery locations have priority over the catalogue's
             -- possible locations. Old saves have only found[id], no location.
             local found=Writings:IsBookFound(id)
-            local observed=found and Writings:BookLocations(id) or nil
-            local actual={}
-            if type(observed)=="table" then
-                for mapID in pairs(observed) do table.insert(actual,mapID) end
-            end
+            local actual=found and Writings:ObservedLocations(id) or {}
+            local geography=Writings:BookGeography(id)
             if found and table.getn(actual)==0 then
                 table.insert(out.legacy,id)
             elseif found then
-                for _,mapID in ipairs(actual) do
+                for _,location in ipairs(actual) do
+                    local mapID=location.mapID
                     local zone=out.zones[mapID] or {}
                     out.zones[mapID]=zone
                     zone[kind]=zone[kind] or {}
                     table.insert(zone[kind],id)
                 end
-            elseif place.wide then
+            elseif geography.wide then
                 table.insert(out.wide,id)
-            elseif type(place.zones)=="table" and table.getn(place.zones)>0 then
-                for _,mapID in ipairs(place.zones) do
+            elseif table.getn(geography.locations)>0 then
+                for _,location in ipairs(geography.locations) do
+                    local mapID=location.mapID
                     local zone=out.zones[mapID] or {}
                     out.zones[mapID]=zone
                     zone[kind]=zone[kind] or {}
@@ -130,10 +130,14 @@ local function Visible(id)
     return (not OnlyFound() or Found(id)) and (not OnlyVoiced() or Voiced(id))
 end
 local function Matches(str) return search=="" or string.find(Lower(str),search,1,true)~=nil end
+local function FoundHere(id,mapID)
+    if mapID~=nil then return Writings:BookFoundAt(id,mapID) end
+    return Found(id)
+end
 local function Counts(ids, mapID)
     local found,total=0,0
     for _,id in ipairs(ids or {}) do
-        local here = mapID and Writings:BookFoundAt(id,mapID) or Found(id)
+        local here = FoundHere(id,mapID)
         if (not OnlyVoiced() or Voiced(id)) and (not OnlyFound() or here) then
             total=total+1
             if here then found=found+1 end
@@ -175,23 +179,25 @@ local function ZoneIds()
     return ids
 end
 local function OnContinent(id,continent)
-    return Compendium.ContinentOf and Compendium.ContinentOf(id)==continent or false
+    return Writings:LocationContinent(id)==continent
 end
 local function Row(kind,name,depth,opt)
     opt=opt or {}
     opt.kind=kind; opt.name=name; opt.label=name; opt.depth=depth
     opt.leaf=kind=="readable"
+    if opt.mapID then opt.locationID=Writings:LocationForMap(opt.mapID) end
     return opt
 end
 local function Leaf(id,depth,mapID)
-    local here=mapID and Writings:BookFoundAt(id,mapID) or Found(id)
+    local here=FoundHere(id,mapID)
     return Row("readable",Title(id),depth,{id=id,book=id,mapID=mapID,
         locked=not here and not Unlocked(),voiced=Voiced(id)})
 end
-local function Eligible(ids,allowGroupMatch)
+local function Eligible(ids,allowGroupMatch,mapID)
     local out={}
     for _,id in ipairs(ids) do
-        if Visible(id) and (allowGroupMatch or Matches(Title(id))) then table.insert(out,id) end
+        if Visible(id) and (not OnlyFound() or FoundHere(id,mapID)) and
+            (allowGroupMatch or Matches(Title(id))) then table.insert(out,id) end
     end
     return out
 end
@@ -200,7 +206,7 @@ local function Add(container,rows)
 end
 local function GroupRows(key,title,ids,depth,mapID,matchAncestor)
     local matched=matchAncestor or Matches(title)
-    local eligible=Eligible(ids,matched)
+    local eligible=Eligible(ids,matched,mapID)
     if table.getn(eligible)==0 then return {} end
     local found,total=Counts(ids,mapID)
     local isOpen=search~="" or openedGroup[key]==true
@@ -212,7 +218,7 @@ local function GroupRows(key,title,ids,depth,mapID,matchAncestor)
 end
 local function TypeRows(kind,ids,depth,mapID,parentMatches)
     local matched=parentMatches or Matches(TYPE_NAMES[kind] or kind)
-    local eligible=Eligible(ids,matched)
+    local eligible=Eligible(ids,matched,mapID)
     if table.getn(eligible)==0 then return {} end
     local found,total=Counts(ids,mapID)
     local key=mapID and (tostring(mapID)..":"..kind) or kind
@@ -345,19 +351,19 @@ local function LocalSourceName(index)
     local locale=GetLocale and GetLocale() or "enUS"
     return entry[locale] or entry[1]
 end
-local function SourceLines(place)
+local function SourceLines(geography)
     local lines={}
-    if not place then return lines end
-    for _,from in ipairs(place.from or {}) do
-        local description=HOW[from[1]]
+    if not geography then return lines end
+    for _,from in ipairs(geography.sources) do
+        local description=HOW[from.method]
         if description then
-            local name=from[2] and LocalSourceName(from[2])
+            local name=from.nameIndex and LocalSourceName(from.nameIndex)
             local text=name and (description.." "..name) or
-                (from[1]=="fishing" and description or nil)
+                (from.method=="fishing" and description or nil)
             if text then
                 local where={}
-                for i=3,table.getn(from) do
-                    if from[i] then table.insert(where,ZoneName(from[i])) end
+                for _,location in ipairs(from.locations) do
+                    table.insert(where,ZoneName(location.mapID))
                 end
                 if table.getn(where)>0 then
                     text=text.." ("..table.concat(where,", ")..")"
@@ -371,7 +377,7 @@ end
 local function SourceSummary(place)
     if not place then return "Location unknown" end
     local names={}
-    for _,mapID in ipairs(place.zones or {}) do table.insert(names,ZoneName(mapID)) end
+    for _,location in ipairs(place.locations) do table.insert(names,ZoneName(location.mapID)) end
     if place.wide then return "Found across Azeroth" end
     if table.getn(names)>0 then
         local prefix=place.kind=="world" and "In the World" or "Carried"
@@ -382,9 +388,10 @@ end
 local function OtherKnownLocations(id,place)
     if not place then return nil end
     local names={}
-    local observed=Writings:BookLocations(id) or {}
-    for _,mapID in ipairs(place.zones or {}) do
-        if not observed[mapID] then table.insert(names,ZoneName(mapID)) end
+    for _,location in ipairs(place.locations) do
+        if not Writings:BookFoundAt(id,location.mapID) then
+            table.insert(names,ZoneName(location.mapID))
+        end
     end
     table.sort(names)
     if table.getn(names)>0 then
@@ -404,7 +411,7 @@ local function ShowEntry()
         local data=Writings:Data()
         local book=data and data.books[id]
         if not book then return end
-        local place=Places()[id]
+        local place=Writings:BookGeography(id)
         local location=Found(id) and Writings:DiscoverySummary(id) or SourceSummary(place)
         if not Found(id) and not Unlocked() then
             page:Show({title=Title(id),subtitle=location,
