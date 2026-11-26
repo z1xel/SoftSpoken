@@ -116,19 +116,13 @@ Three distinct relationship classes:
 
 Represent additional edges as records `{ from, relation, to }` keyed by the canonical IDs. No generic relation type beyond the above is needed in v1; module-specific content associations belong to content datasets. Cross-zone Blackrock Mountain and similarly named subzones require individual adjudication, not a global merge rule. Presentation trees may project an entity under multiple branches without duplicating its identity.
 
-## 6. Server and native-client scope
+## 6. Fixed Octo client scope
 
-Distinguish server family (what world/content policy applies) from native data profile (which client DBC ID bindings are valid). A profile is a named, pinned input fingerprint, not merely the executable version 1.12.1. The offline manifest records the build/source revision and hashes; L3/L5 must determine a reliable runtime selector or leave the profile unresolved. Never infer Turtle from the existence of a single custom area, or assume Octo equals Turtle.
+OctoWoW is the sole supported runtime target for the current implementation. The native identifiers come from the pinned Octo client export. No server detection, live DBC fingerprints, compatibility probes, automatic profile selection, or native extensions. The offline manifest preserves provenance and checksums for reproducible builds, not runtime activation.
 
-Base contains shared Vanilla identity. Each supported world overlay may add entities or explicitly patch names, kinds, parent and relations; each native profile supplies its native bindings. Overlay operations:
-- add: new canonical ID present in identity manifest; not an implicit override.
-- patch: existing canonical ID, explicit set fields and explicit clear list for optional fields; omitted fields inherit, no implicit deep merge of arrays.
-- removeBinding/addBinding: exact scoped binding operation; a repurposed native ID must first remove the old binding in the effective profile, then bind the new one.
-- availability: per-world `present`, `absent`, or `unknown`; base Vanilla existence is not evidence of reachability. Absence suppresses live resolution for that world, not historical identity lookup.
+The existing base and Octo overlay decisions are composed offline into a single effective view. Explicit add/patch operations, namespace separation, stable identities, and validation are retained. Runtime loads the fixed scope directly; it does not evaluate or stack overlays. Other worlds are out of scope until support is explicitly revisited.
 
-Order: base -> selected world overlay -> explicitly selected compatible client-data overlay/bindings. No arbitrary stacking of Turtle and Octo; no name-based auto-merge. Patch targets must exist and changes must validate the full effective graph and indexes. A base binding is usable only for its own profile or an explicitly verified inherited profile; overlay may not silently inherit unverified native IDs. Canonical Get(id) can retrieve known inactive entities for historical display; context-dependent native resolution and current geography use only the active profile.
-
-If profile is unknown, shared canonical IDs and pinned external content keys remain usable, with no native claims beyond evidence. Do not guess native identifier bindings; preserve existing compatibility behavior during staged rollout, report unresolved and avoid wrong discovery. No new hard startup dependency.
+Existence in the catalog is not proof of reachability or discovery. Missing or ambiguous identifiers remain unresolved. The data schema does not require a separate startup dependency.
 
 ## 7. Content compatibility and crosswalks
 
@@ -162,7 +156,7 @@ Locations:GetName(locationID, locale)              -- preferred name or fallback
 Locations:GetAvailability(locationID)             -- present/absent/unknown
 ```
 
-Canonical identity resolution follows explicit redirects, reports retired unresolved splits rather than guessing. Status for resolver functions is `resolved`, `unknown`, `ambiguous`, or `unavailable`; only resolved returns an ID. Ambiguous candidates are ordered, not used as fallbacks by caller. Missing scope for a native namespace uses verified active profile; without one returns unavailable. Legacy content key is not a native identifier. Get(id) does not turn a split into a live entity; diagnostics can inspect retained manifest records separately.
+Canonical identity resolution follows explicit redirects, reports retired unresolved splits rather than guessing. Status for resolver functions is `resolved`, `unknown`, `ambiguous`, or `unavailable`; only resolved returns an ID. Ambiguous candidates are ordered, not used as fallbacks by caller. Missing scope for a native namespace uses the fixed Octo scope; unsupported scopes return unavailable. Legacy content key is not a native identifier. Get(id) does not turn a split into a live entity; diagnostics can inspect retained manifest records separately.
 
 Name resolver uses exact localized/display name then normalized alias matching under explicit context (locale, scope, parent/map/instance constraints). Name normalization is not identity: retain exact original string, use existing English legacy normalization only for pack keys, and define locale-safe matching in L6; Lua 5.0 string.lower is not Unicode casefolding. Do not strip articles/punctuation across all languages as if universal. Apply only proven contextual constraints; if several distinct IDs remain, ambiguous. Do not choose first result. Current player location adapter obtains native evidence where available, otherwise existing zone/subzone text; displayed world map never establishes player location. No changing zoom or opening map to resolve identity.
 
@@ -195,11 +189,11 @@ Required checks before L4/L5 publication:
 - no lore or other content fields in registry records;
 - existing Lua 5.0 client compatibility and existing regression suites, no changes to public pack contracts.
 
-L6 tests resolver statuses, deterministic indexes, unknown profiles, base/overlay isolation, cross-boundary relationships, map reference namespaces, no mutation/side effects. L7–L9 compare existing consumer output before and after each adapter migration. L10 tests both original released legacy imports and consolidated DB, held keys, merges, distinct recordings, methods and quantities, redirects/splits, failed transform and reload. L11 measures startup/memory on real client and validates all consumers. No historical discovery recovery in L2–L6; subsequent feature can query area identity without reshaping the model.
+L6 tests resolver statuses, deterministic indexes, unsupported scopes, fixed Octo data, cross-boundary relationships, map reference namespaces, no mutation/side effects. L7–L9 compare existing consumer output before and after each adapter migration. L10 tests both original released legacy imports and consolidated DB, held keys, merges, distinct recordings, methods and quantities, redirects/splits, failed transform and reload. L11 measures startup/memory on real client and validates all consumers. No historical discovery recovery in L2–L6; subsequent feature can query area identity without reshaping the model.
 
 ## 11. Open evidence, not open architecture
 
-L1 did not acquire authoritative raw Vanilla/Turtle/Octo DBC inputs or exact upstream modern UiMap snapshot. L3 must acquire/verify them or explicitly report gaps. Reliable runtime world/native-profile selection requires verification in L5/L6. Real identity decisions for repeated names, multi-area places, instance entrance relationships and repurposed IDs belong in the reviewed manifest during L4/L5. No production entity mappings are approved by illustrative examples above.
+L1 did not acquire authoritative raw Vanilla/Turtle/Octo DBC inputs or exact upstream modern UiMap snapshot. L3 must acquire/verify them or explicitly report gaps. Runtime world/native-profile selection is out of scope under the fixed Octo target. Real identity decisions for repeated names, multi-area places, instance entrance relationships and repurposed IDs belong in the reviewed manifest during L4/L5. No production entity mappings are approved by illustrative examples above.
 
 Design choices made within the approved five decisions: semantic ID grammar; scoped bindings separate from record storage; one primary containment plus optional verified additional containment; strict unresolved resolution; no implicit overlay deep merge; preserve independent heard variants and acquisition methods; conservative migration holds. These defaults avoid inventing geography or losing existing state. Exact implementation details and evidence-driven exceptions can be refined in later phases without changing the agreed architecture.
 

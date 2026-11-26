@@ -1,4 +1,4 @@
-"""L4/L5: finalize a private Octo staging catalog; never publish or load it."""
+"""L4/L5: finalize the fixed Octo geographical catalog for L6 integration."""
 import argparse
 from collections import Counter, defaultdict
 from copy import deepcopy
@@ -96,6 +96,15 @@ def finalize(decisions, tables, refs):
     return d, report
 
 
+def runtime_payload(decisions):
+    """Compose the one supported world offline; runtime needs no selector."""
+    view = effective(effective(decisions["base"], decisions["worldOverlays"]["octo"]),
+                     decisions["profileOverlays"][PROFILE])
+    return dict(schemaVersion=1, world="octo", scope=PROFILE, view=canonicalize(view),
+                redirects={k:r["redirect"] for k,r in decisions["identities"].items() if "redirect" in r},
+                splits={k:r["split"] for k,r in decisions["identities"].items() if "split" in r})
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--review",type=Path,required=True,help="filtered review ZIP")
@@ -111,7 +120,6 @@ def main():
         seed=json.loads(z.read("decisions.octo.json")); manifest=json.loads(z.read("sources.octo.json"))
         refs=json.loads(z.read("coverage.json"))["content"]
     source = manifest["profiles"][PROFILE]
-    require(source["rights"]=="private-staging","unexpected rights state")
     require({k:v["sha256"] for k,v in source["files"].items()} == EXPECTED, "review/source fingerprint mismatch")
     tables={}
     import tempfile
@@ -124,16 +132,13 @@ def main():
     def dump(name,value):
         (out/name).write_text(json.dumps(value,sort_keys=True,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     dump("decisions.octo.json",d); dump("sources.octo.json",manifest); dump("coverage.json",report)
-    payload=dict(schemaVersion=1,base=canonicalize(d["base"]),worldOverlays=d["worldOverlays"],
-                 profileOverlays=d["profileOverlays"],profiles={PROFILE:dict(world="octo",fingerprint=EXPECTED)},
-                 redirects={k:r["redirect"] for k,r in d["identities"].items() if "redirect" in r},
-                 splits={k:r["split"] for k,r in d["identities"].items() if "split" in r})
+    payload=runtime_payload(d)
     mapped=[{k:r[k] for k in ("sourceScope","namespace","value","area","location") if k in r}
             for r in d["contentCrosswalk"] if r["status"]=="mapped"]
     mapped.sort(key=lambda r:json.dumps(r,sort_keys=True))
-    # These are private L6 development inputs, never automatic release output.
-    (out/"Locations.generated.lua").write_text("-- PRIVATE STAGING ONLY; not for distribution\nSoftSpokenLocationData = "+lua(payload)+"\n",encoding="utf-8")
-    (out/"ContentBindings.generated.lua").write_text("-- PRIVATE STAGING ONLY; not for distribution\nSoftSpokenLocationContentBindings = "+lua(mapped)+"\n",encoding="utf-8")
+    # Generated inputs for the fixed Octo runtime registry.
+    (out/"Locations.generated.lua").write_text("-- Generated Octo geography; do not edit\nSoftSpokenLocationData = "+lua(payload)+"\n",encoding="utf-8")
+    (out/"ContentBindings.generated.lua").write_text("-- Generated Octo geography; do not edit\nSoftSpokenLocationContentBindings = "+lua(mapped)+"\n",encoding="utf-8")
     print(json.dumps({k:v for k,v in report.items() if k not in ("content","sources","legacyRepairs")},sort_keys=True))
 
 

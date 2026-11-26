@@ -1,6 +1,6 @@
 import copy
 import unittest
-from finalize_octo import finalize
+from finalize_octo import finalize, runtime_payload
 from bootstrap_octo import reconcile, PROFILE
 from test_octo_bootstrap import OctoBootstrapTests
 
@@ -21,3 +21,16 @@ class FinalizeTests(unittest.TestCase):
         self.assertEqual(result["identities"],decisions["identities"])
         with self.assertRaises(ValueError):
             finalize(result,tables,refs)
+
+    def test_fixed_runtime_view(self):
+        seed,research,tables,refs=OctoBootstrapTests().fixture()
+        decisions,_=reconcile(seed,research,tables,refs)
+        result,_=finalize(decisions,tables,refs)
+        payload=runtime_payload(result)
+        self.assertEqual(payload["world"],"octo")
+        self.assertEqual(payload["scope"],PROFILE)
+        self.assertIn("elwynn_forest",payload["view"]["entities"])
+        self.assertTrue(any(r["namespace"]=="nativeUiMap" for r in payload["view"]["bindings"]))
+        self.assertNotIn("profiles",payload)
+        self.assertNotIn("profileOverlays",payload)
+        self.assertNotIn("worldOverlays",payload)
