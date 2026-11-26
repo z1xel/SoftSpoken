@@ -214,9 +214,18 @@ local function CurrentMapID(zoneName)
     local requestedID=requested and registry:ByUiMapID(requested)
     if requestedID and (id==requestedID or registry:IsWithin(id,requestedID)
             or LegacyKeyForLocation(requested,id)) then return requested end
+    -- A contentless zone or instance is not the same place as its
+    -- containing continent/world. Stop at the first regional identity.
+    local regional={zone=true,city=true,dungeon=true,raid=true,
+                    battleground=true,arena=true,continent=true,world=true}
+    local entity=registry:Get(id)
+    if entity and regional[entity.kind] then return nil end
     for _,ancestor in ipairs(registry:GetAncestors(id)) do
+        local parent=registry:Get(ancestor)
+        if parent and (parent.kind=="continent" or parent.kind=="world") then return nil end
         local mapID=MapForLocation(ancestor)
         if mapID and ZONE_NAMES[mapID] then return mapID end
+        if parent and regional[parent.kind] then return nil end
     end
 end
 
