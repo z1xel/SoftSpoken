@@ -17,6 +17,19 @@ REL = {"within", "associatedWith", "entranceIn"}
 TABLE = {"areaTable":"AreaTable", "worldMapArea":"WorldMapArea", "instanceMap":"Map", "worldMap":"Map"}
 
 
+# User-approved exclusion of unsupported WoW Forever content maps.
+# Scope matters: these numbers are not native AreaTable IDs.
+EXCLUDED_SPOKEN_MAPS = {
+    2482: "Mount Hyjal", 2521: "Zephras Isle", 2524: "Darkspear Islands",
+    2548: "Riverglades", 2652: "Shen'dralas",
+}
+
+
+def excluded_content_map(scope, namespace, value):
+    return (scope == "spoken_classic" and namespace in ("upstreamUiMap", "legacyPlace")
+            and value in EXCLUDED_SPOKEN_MAPS)
+
+
 def require(condition, message):
     if not condition:
         raise ValueError(message)
@@ -82,6 +95,7 @@ def check_id(row, scopes):
     scope, ns, value = key_of(row)
     require(ns in NS and type(value) is int, f"invalid identifier {row}")
     require(scope in scopes, f"unknown scope {scope}")
+    require(not excluded_content_map(scope, ns, value), f"excluded WoW Forever map {key_of(row)}")
     require((ns == "nativeUiMap" and value != 0) or
             (ns in ("instanceMap","worldMap") and value >= 0) or
             (ns not in ("nativeUiMap","instanceMap","worldMap") and value > 0),
@@ -234,6 +248,7 @@ def content_report(refs, crosswalk, identities):
     index = {}
     for row in crosswalk:
         key = content_key(row)
+        require(not excluded_content_map(*key[:3]), f"excluded WoW Forever crosswalk {key}")
         require(key not in index, f"duplicate crosswalk {key}")
         require(row.get("status") in ("mapped","held"), f"invalid crosswalk {key}")
         require(isinstance(row.get("reason"),str) and row["reason"].strip(), f"missing crosswalk evidence {key}")
@@ -242,7 +257,11 @@ def content_report(refs, crosswalk, identities):
         index[key] = row
     report = []
     for ref in refs:
-        row = index.get(content_key(ref), {"status":"held","reason":"no reviewed crosswalk"})
+        key = content_key(ref)
+        if excluded_content_map(*key[:3]):
+            row = {"status":"excluded","reason":"user policy: unsupported WoW Forever map"}
+        else:
+            row = index.get(key, {"status":"held","reason":"no reviewed crosswalk"})
         report.append(dict(ref, **{k:row[k] for k in ("status","reason","location") if k in row}))
     return report
 

@@ -261,6 +261,7 @@ def reconcile(seed, research, tables, refs=(), meta=None, reviewed=False):
         coverage.append(dict(location=key,map=dict(scope=PROFILE,namespace="worldMapArea",value=wid)))
 
     # Fill held content references only with exact normalized name and verified native context.
+    from build import excluded_content_map
     cross=d["contentCrosswalk"]
     def ckey(r): return r["sourceScope"],r["namespace"],r["value"],r.get("area")
     existing={ckey(r):r for r in cross}
@@ -271,6 +272,7 @@ def reconcile(seed, research, tables, refs=(), meta=None, reviewed=False):
         ck=ckey(ref)
         if ck in existing: continue
         scope,ns,value,subkey=ck
+        if excluded_content_map(scope,ns,value): continue
         key=None
         if ns=="legacyPlace" and value in upstream and subkey:
             parents=area_by_entity[upstream[value]]
