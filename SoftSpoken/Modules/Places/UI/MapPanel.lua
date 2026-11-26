@@ -225,8 +225,8 @@ local function BuildToggle()
     icon:SetTexture("Interface\\Icons\\INV_Misc_Map_01")
     icon:SetTexCoord(.08,.92,.08,.92)
     toggle:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square","ADD")
-    -- Original UI remains full-screen on 1.12: put the reopen button within it.
-    -- ApplyAnchors positions the toggle together with its panel.
+    -- Fixed outside anchor, independent of reader docking and screen bounds.
+    toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",0,-75)
     toggle:SetScript("OnClick",function() MapPanel.SetMapPanelCollapsed(false) end)
     toggle:SetScript("OnEnter",function(self)
         if GameTooltip then
@@ -267,19 +267,16 @@ local function ApplyAnchors()
     if anchoredOutside == outside then return false end
     anchoredOutside = outside
     panel:ClearAllPoints()
-    toggle:ClearAllPoints()
     if outside then
         -- These are the same outer-edge anchors used by upstream MapPanel.lua.
         -- Crucially, WorldMapFrame itself is NEVER touched.
         panel:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",GAP,0)
         panel:SetPoint("BOTTOMLEFT",WorldMapFrame,"BOTTOMRIGHT",GAP,0)
-        toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",0,-75)
     else
         -- Fullscreen 1.12 and windowed maps too near the screen edge:
         -- leave the Blizzard map geometry alone and display an inset overlay.
         panel:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-28,-62)
         panel:SetPoint("BOTTOMRIGHT",WorldMapFrame,"BOTTOMRIGHT",-28,54)
-        toggle:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-33,-75)
     end
     return true
 end
