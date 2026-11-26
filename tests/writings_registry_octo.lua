@@ -218,3 +218,46 @@ db.acquisitions[itemID]={[616]=2}
 local held=W:AcquisitionLocations(itemID)[1]
 eq(held.locationID,nil);eq(held.quantity,2);eq(db.acquisitions[itemID][616],2)
 print("PASS: Writings Octo registry, "..count(SSBPlaces.books).." books, "..refs.." geographic references, "..sourceRows.." source rows; observed origins, bag counters and source metadata retained")
+
+dofile("SoftSpoken/Locations/History.lua")
+local H=SpokenEnv.LocationHistory
+local migrated=H:Transform({Writings=db})
+db=migrated.Writings
+W.character=db
+W:ReadablesLocationChanged()
+eq(db.locations[worldBook].elwynn_forest.world,true)
+eq(db.locations[worldBook][1429],nil)
+eq(db.locationHolds.locations[288][999999],"encounter")
+eq(W:KnownDiscoverySummary(worldBook),"Discovered in Elwynn Forest")
+eq(W:RecordBookLocation(worldBook,"elwynn_forest","encounter"),true)
+eq(db.locations[worldBook].elwynn_forest.encounter,true)
+eq(db.locations[worldBook].elwynn_forest.world,true)
+eq(W:RecordBookLocation(worldBook,1429,"world"),false)
+native=616
+W:MarkBookFound(289)
+eq(db.locations[289].hyjal.world,true)
+eq(W:KnownDiscoverySummary(289),"Discovered in Hyjal")
+eq(W:BookFoundAt(289,"hyjal"),true)
+eq(W:BookFoundAt(289,616),false)
+assert(has(Index().zones.hyjal.plaque,289))
+eq(W:LocationContinent("hyjal"),1414)
+eq(W:LocationName("hyjal"),"Hyjal")
+settings.compendiumFoundOnly=true
+eq(BuildRows()[1].count,5)
+settings.compendiumFoundOnly=false
+qty=0;fire("PLAYER_ENTERING_WORLD")
+qty=2;fire("BAG_UPDATE")
+eq(db.acquisitions[itemID].hyjal,2)
+eq(db.locationHolds.acquisitions[itemID][616],2)
+native=14;W:MarkBookFound(carriedBook)
+eq(db.locations[carriedBook].hyjal.acquired,true)
+eq(db.locations[carriedBook].durotar,nil)
+eq(db.locationHolds.locations[carriedBook][616],"acquired")
+eq(db.locations[carriedBook].elwynn_forest.acquired,true)
+qty=0;fire("BAG_UPDATE")
+eq(db.acquisitions[itemID],nil)
+eq(db.locationHolds.acquisitions[itemID][616],2)
+H:Consume(db,itemID,2)
+eq(db.locationHolds.acquisitions[itemID],nil)
+H:Validate(migrated)
+print("PASS: L10 Writings canonical book methods, native-only origins and acquisition counters")

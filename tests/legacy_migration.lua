@@ -181,3 +181,77 @@ assert(not next(SoftSpokenDB.profiles["Fresh - Realm"]))
 assert(not next(SoftSpokenDB.namespaces))
 assert(SoftSpokenCharacterDB.migrationVersion==1)
 print("PASS: migration, new/legacy classification, consumed ledger, collision and recovery")
+
+-- Real D import followed by detached L10 conversion.
+dofile("SoftSpoken/Locations/Data.lua")
+dofile("SoftSpoken/Locations/Registry.lua")
+dofile("SoftSpoken/Locations/History.lua")
+local H=SpokenEnv.LocationHistory
+local registry=SpokenEnv.Locations
+player="Geo";SoftSpokenCharacterDB=nil
+local placesSource={visited={["1411/southfury river"]=true,["1413/southfury river"]=true,
+    ["1412/camp gevrek"]=true,["2482"]=true,[42]=false},
+    heard={["s:1411:southfury river"]=true,["s:1413:southfury river"]=true,
+        ["s:1412:camp gevrek"]=true},greeted=true}
+local writingsSource={read={[17]=true},locations={[17]={[1429]="world",[616]="encounter",["1429"]="legacy-string"}},
+    acquisitions={[123]={[1429]=2,[616]=3}}}
+assert(P:RecoverLegacy(function(addon)
+    if addon=="SoftSpoken_Places" then return {},{SSZCharacter=placesSource} end
+    if addon=="SoftSpoken_Writings" then return {},{SSBCharacter=writingsSource} end
+    if addon=="SoftSpoken_Stories" then return {},{SSCQuestJournal={completed={[88]=true}}} end
+    return {},{}
+end))
+local pre=SoftSpokenCharacterDB
+local account=SoftSpokenDB
+assert(pre.geographyVersion==nil and pre.migrationVersion==1)
+local migrated=H:Upgrade()
+assert(migrated==SoftSpokenCharacterDB and migrated~=pre and migrated.geographyVersion==1)
+assert(SoftSpokenDB==account and account.migration.characters["Geo - Realm"]=="legacy")
+assert(migrated.migrationVersion==1 and migrated.Stories.journal.completed[88])
+assert(migrated.Writings.read[17] and migrated.Writings.found[17] and migrated.Places.greeted)
+local p,w=migrated.Places,migrated.Writings
+assert(p.visited.southfury_river["1411/southfury river"] and p.visited.southfury_river["1413/southfury river"])
+assert(p.heard.southfury_river["s:1411:southfury river"] and p.heard.southfury_river["s:1413:southfury river"])
+assert(p.locationHolds.visited["2482"] and p.locationHolds.visited[42]==false)
+assert(H:PlaceHas(p,"visited","1412/camp gevrek"))
+assert(not H:PlaceHas(p,"visited","1440/southfury river"))
+assert(w.locations[17].elwynn_forest.world and not w.locations[17][1429])
+assert(w.locationHolds.locations[17][616]=="encounter" and w.locationHolds.locations[17]["1429"]=="legacy-string")
+assert(w.acquisitions[123].elwynn_forest==2 and w.locationHolds.acquisitions[123][616]==3)
+assert(pre.Places.visited["1411/southfury river"] and placesSource.visited["1411/southfury river"])
+assert(writingsSource.locations[17][1429]=="world")
+assert(H:Upgrade()==migrated)
+assert(P:RecoverLegacy(function() error("must not reimport migrated character") end))
+assert(SoftSpokenCharacterDB==migrated)
+P:ValidateCharacterHistory(migrated)
+local malformed={migrationVersion=1,Writings={locations={[1]="bad"}}}
+SoftSpokenCharacterDB=malformed
+assert(not pcall(function() H:Upgrade() end))
+assert(SoftSpokenCharacterDB==malformed and not malformed.geographyVersion)
+assert(SoftSpokenDB==account)
+local good={migrationVersion=1,Writings={locations={[1]={[1429]="world"}}}}
+SoftSpokenCharacterDB=good
+local validate=P.ValidateCharacterHistory
+P.ValidateCharacterHistory=function() error("injected validation failure") end
+assert(not pcall(function() H:Upgrade() end))
+assert(SoftSpokenCharacterDB==good and not good.geographyVersion)
+P.ValidateCharacterHistory=validate
+assert(H:Upgrade().Writings.locations[1].elwynn_forest.world)
+-- Controlled aliases exercise union/sum even without actual current aliases.
+SpokenEnv.Locations=setmetatable({
+    ResolveContentIdentifier=function(self,ns,value,scope)
+        assert(ns=="upstreamUiMap" and scope=="spoken_classic")
+        if value==9001 or value==9002 then return "elwynn_forest","resolved" end
+        return registry:ResolveContentIdentifier(ns,value,scope)
+    end
+},{__index=registry})
+local alias=H:Transform({Writings={
+    locations={[7]={[9001]="world",[9002]="acquired"}},
+    acquisitions={[9]={[9001]=2,[9002]=3,[9003]=4}}
+}})
+assert(alias.Writings.locations[7].elwynn_forest.world)
+assert(alias.Writings.locations[7].elwynn_forest.acquired)
+assert(alias.Writings.acquisitions[9].elwynn_forest==5)
+assert(alias.Writings.locationHolds.acquisitions[9][9003]==4)
+SpokenEnv.Locations=registry
+print("PASS: L10 migration after D, unified save, holds, union/sum, atomic failure and idempotence")

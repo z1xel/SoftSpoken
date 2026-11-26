@@ -172,3 +172,35 @@ for _,row in ipairs(SSZLoreWindow.RebuildRows()) do
 end
 eq(SSZLoreWindow.IsLocked(2482,nil),true)
 print("PASS: L7 real Octo Places geography, map evidence, independent discovery contexts, and independent clip variants")
+
+-- Exercise canonical history against the real consumer adapters.
+dofile("SoftSpoken/Locations/History.lua")
+local H=SpokenEnv.LocationHistory
+local legacy={Places={visited={["1411/southfury river"]=true,["1412/camp gevrek"]=true},
+    heard={["s:1411:southfury river"]=true,["s:1412:camp gevrek"]=true},greeted=true}}
+local upgraded=H:Transform(legacy)
+SpokenEnv.Persistence.character=upgraded
+db=R.CharDB()
+eq(db.visited.southfury_river["1411/southfury river"],true)
+eq(db.visited.southfury_river["1413/southfury river"],nil)
+eq(db.locationHolds.visited["1412/camp gevrek"],true)
+eq(R.WasFound(1412,"camp gevrek"),true)
+eq(R.WasHeard("s:1412:camp gevrek"),true)
+eq(R.WasHeard(a.key),true);eq(R.WasHeard(b.key),false)
+R.InvalidateExploration()
+eq(R.WasFound(1411,"southfury river"),true);eq(R.WasFound(1413,"southfury river"),false)
+nativeArea=377
+R.RecordVisit("The Barrens","Southfury River")
+eq(db.visited.southfury_river["1413/southfury river"],true)
+eq(R.WasFound(1413,"southfury river"),true)
+eq(R.WasFound(1440,"southfury river"),false)
+b.startCallback(b)
+eq(db.heard.southfury_river[a.key],true);eq(db.heard.southfury_river[b.key],true)
+eq(db.greeted,true)
+nativeArea=12;R.RecordVisit("Elwynn Forest","Goldshire")
+eq(db.visited.elwynn_forest["1429"],true)
+eq(db.visited["elwynn_forest.goldshire"]["1429/goldshire"],true)
+eq(db.visited["1429"],nil)
+eq(legacy.Places.visited["1413/southfury river"],nil)
+H:Validate(upgraded)
+print("PASS: L10 Places canonical visits and distinct contexts/recordings")
