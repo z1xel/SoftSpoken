@@ -89,7 +89,17 @@ local function Ordered()
     end)
     return out
 end
+-- Registration happens at file load; the character database is only published
+-- after migration and Core initialization. A failed startup must not allow
+-- a keybinding or map integration to construct a window that reads that DB.
+local function PersistenceReady()
+    local env = _G.SpokenEnv
+    local persistence = env and env.Persistence
+    return persistence and persistence.root ~= nil and
+        type(persistence.character) == "table"
+end
 local function Enabled(def)
+    if not PersistenceReady() then return false end
     return not def.enabled or (def.enabled() and true or false)
 end
 -- Upstream's size management, adapted to Vanilla Frame methods and existing
@@ -557,6 +567,7 @@ function Compendium:Register(key,def)
 end
 function Compendium:Tab(key) return Compendium.tabs[key] end
 function Compendium:Window()
+    if not PersistenceReady() then return nil end
     if not window then BuildWindow() end
     return window
 end
@@ -648,6 +659,7 @@ function Compendium:Relayout()
     end
 end
 function Compendium:Toggle()
+    if not PersistenceReady() then return end
     if window and window:IsShown() then window:Hide();return end
     local tab=active and Compendium.tabs[active]
     if not (tab and Enabled(tab)) then

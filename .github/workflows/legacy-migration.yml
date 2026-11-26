@@ -11,6 +11,7 @@ jobs:
       - run: |
           lua5.1 tests/legacy_migration.lua
           lua5.1 tests/unified_startup.lua
+          lua5.1 tests/compendium_startup_gate.lua
           lua5.1 tests/unified_persistence.lua
           lua5.1 tests/upgrade_guard.lua
           python3 tests/test_public_contracts.py
