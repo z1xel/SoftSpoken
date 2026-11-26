@@ -40,7 +40,7 @@ def dump(path, obj):
     path.write_text(json.dumps(obj, indent=2, ensure_ascii=False, sort_keys=True)+"\n", encoding="utf-8")
 
 
-def reconcile(seed, research, tables, refs=(), meta=None):
+def reconcile(seed, research, tables, refs=(), meta=None, reviewed=False):
     """Return a candidate manifest and explicit review report, without mutating seed."""
     d = deepcopy(seed)
     if d.get("worldOverlays") or d.get("profileOverlays") or d.get("sourceDispositions"):
@@ -196,6 +196,19 @@ def reconcile(seed, research, tables, refs=(), meta=None):
         key = allocate(name,kind,"area",aid,"AreaTable")
         assign_area(aid,key,"unique named native row; new candidate identity")
 
+    relations = []
+    boundary_keys = set()
+    instance_alias_areas = set()
+    if reviewed:
+        from octo_policy import apply, CROSS_ZONE, SEAS, MAP_ALIASES
+        related = apply(area,wma,map_ids,areas,entities,added,d["identities"],dispositions,assign_area)
+        boundary_keys = set(CROSS_ZONE) | set(SEAS)
+        instance_alias_areas = {i for i,_ in MAP_ALIASES.values()}
+        relations = [dict(from_=src,relation="associatedWith",to=dst) for src,dst in related]
+        conflicts = [r for r in conflicts if not (
+            r["kind"] in ("duplicate-area-name","existing-name-unbound") and r["areaID"] in areas or
+            r["kind"]=="multiple-map-root-areas" and all(i in areas and areas[i]==r["location"] for i in r["candidates"]))]
+
     # DBC containment only where both ends are mapped and within the same underlying map.
     # Cross-map parent links are evidence for review, not physical containment assertions.
     parent_candidates = defaultdict(set)
@@ -206,9 +219,18 @@ def reconcile(seed, research, tables, refs=(), meta=None):
                 parent_candidates[key].add(areas[parent])
             elif parent not in areas or area[parent]["worldMap"] != row["worldMap"]:
                 issue("unresolved-native-parent",areaID=aid,parentArea=parent,location=key)
-        elif row["worldMap"] in (0,1) and key not in ("eastern_kingdoms","kalimdor"):
+        elif aid not in instance_alias_areas and row["worldMap"] in (0,1) and key not in ("eastern_kingdoms","kalimdor"):
             parent_candidates[key].add(map_ids[row["worldMap"]])
     for key, parents in sorted(parent_candidates.items()):
+        if key in boundary_keys and len(parents)>1:
+            # Several verified DBC region associations; do not fabricate a primary.
+            if key in added: added[key].pop("parent",None)
+            elif entities[key].get("parent"):
+                patch=patches.setdefault(key,{"set":{},"clear":[]})
+                patch["set"].pop("parent",None); patch["clear"].append("parent")
+            for parent in sorted(parents):
+                relations.append(dict(from_=key,relation="associatedWith",to=parent))
+            continue
         if len(parents)!=1:
             issue("multiple-native-parents",location=key,candidates=sorted(parents)); continue
         parent=next(iter(parents))
@@ -264,6 +286,9 @@ def reconcile(seed, research, tables, refs=(), meta=None):
             if subkey is not None: record["area"]=subkey
             cross.append(record); existing[ck]=record
     d["worldOverlays"]={"octo":dict(add=added,patch=patches)}
+    if relations:
+        unique = {(min(r["from_"],r["to"]),max(r["from_"],r["to"])) for r in relations}
+        d["worldOverlays"]["octo"]["addRelations"]=[{"from":a,"relation":"associatedWith","to":b} for a,b in sorted(unique)]
     d["profileOverlays"]={PROFILE:dict(addBindings=bindings,addMapRepresentations=reps,addMapCoverage=coverage)}
     d["sourceDispositions"]=[dispositions[k] for k in sorted(dispositions)]
     counts={name:dict(Counter(r["status"] for r in d["sourceDispositions"] if r["table"]==name)) for name in tables}
@@ -280,6 +305,7 @@ def main():
     parser.add_argument("--root",type=Path,default=Path(__file__).resolve().parents[2])
     parser.add_argument("--output",type=Path,required=True)
     parser.add_argument("--voice-pack",type=Path)
+    parser.add_argument("--reviewed",action="store_true",help="apply approved Octo identity policies")
     args=parser.parse_args()
     out=args.output.resolve(); root=args.root.resolve(); addon=root/"SoftSpoken"
     if out==addon or addon in out.parents: parser.error("private staging output must be outside the addon")
@@ -295,7 +321,7 @@ def main():
     seed=read_json(tools/"decisions.json"); research=read_json(tools/"review/vanilla-seed.json")
     refs=inventory(root,args.voice_pack)["references"]
     meta=table((addon/"Modules/Stories/Data/TurtleAreaMeta.lua").read_text(encoding="utf-8-sig"),"SSCTurtleAreaMeta")
-    d,report=reconcile(seed,research,tables,refs,meta)
+    d,report=reconcile(seed,research,tables,refs,meta,reviewed=args.reviewed)
     identity_manifest(d["identities"],seed["identities"])
     scopes={PROFILE:"native","spoken_classic":"content"}
     view=effective(effective(d["base"],d["worldOverlays"]["octo"]),d["profileOverlays"][PROFILE])
