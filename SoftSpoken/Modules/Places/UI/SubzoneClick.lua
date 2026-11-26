@@ -109,7 +109,7 @@ function SubzoneClick.SetupSubzoneClicks()
     local button = WorldMapButton
     if not (button and button.HookScript) then return false end
     if type(UpdateMapHighlight) ~= "function" and
-        not (C_Map and C_Map.GetMapOverlays and C_Map.GetAreaInfo) then
+        not (C_Map and C_Map.GetMapOverlays and (SpokenPlacesRuntime.Registry() or C_Map.GetAreaInfo)) then
         return false
     end
     button:HookScript("OnMouseDown",function(self, mouseButton)

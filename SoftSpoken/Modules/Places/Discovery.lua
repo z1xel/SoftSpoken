@@ -61,8 +61,10 @@ end
 local function AcceptExploredOverlay(mapID, overlay, result)
     if type(overlay)~="table" then return end
     local ids={}
-    for _,id in pairs(overlay.areaIDs or {}) do
-        if type(id)=="number" and id>0 then ids[id]=true end
+    if type(overlay.areaIDs)=="table" then
+        for _,id in pairs(overlay.areaIDs) do
+            if type(id)=="number" and id>0 then ids[id]=true end
+        end
     end
     if type(overlay.areaID)=="number" and overlay.areaID>0 then ids[overlay.areaID]=true end
     local registry=PlacesRuntime.Registry and PlacesRuntime.Registry()

@@ -8,6 +8,7 @@ local MapCompat = SSZMapCompat
 local SubzoneClick = SSZSubzoneClick
 local MapPanel = SSZMapPanel
 local LoreWindow = SSZLoreWindow
+local R=SpokenPlacesRuntime
 
 local HIGHLIGHT_ALPHA = 0.35 -- upstream MapHighlight.lua
 local MAP_ART_WIDTH, MAP_ART_HEIGHT = 1002, 668
@@ -23,7 +24,7 @@ local function CanInteract()
     if Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones") then return false end
     local cfg = SpokenPlacesRuntime and SpokenPlacesRuntime.Settings()
     if not cfg or cfg.showMapPanel == false then return false end
-    if not (C_Map and C_Map.GetMapOverlays and C_Map.GetAreaInfo) then return false end
+    if not (C_Map and C_Map.GetMapOverlays and (R.Registry() or C_Map.GetAreaInfo)) then return false end
     if not (WorldMapButton and WorldMapDetailFrame and SubzoneClick and SubzoneClick.Position) then return false end
     if not VisibleMap() then return false end
     return true
@@ -41,20 +42,20 @@ end
 -- regions; 1.12 cannot split a single texture by subzone. Never illuminate
 -- the whole group when a click identifies only one of those regions.
 local function UniqueArea(overlay)
-    if not (overlay and type(overlay.tiles) == 'table') then return false end
-    local first = nil
-    if type(overlay.areaIDs) == 'table' then
-        for _, id in pairs(overlay.areaIDs) do
-            if type(id) == 'number' and id > 0 then
-                if first and first ~= id then return false end
-                first = id
-            end
-        end
+    if not (overlay and type(overlay.tiles)=="table" and table.getn(overlay.tiles)>0) then return false end
+    local ids={}
+    if type(overlay.areaIDs)=="table" then
+        for _,id in pairs(overlay.areaIDs) do if type(id)=="number" and id>0 then ids[id]=true end end
     end
-    if type(overlay.areaID) == 'number' and overlay.areaID > 0 then
-        if first and first ~= overlay.areaID then return false end
+    if type(overlay.areaID)=="number" and overlay.areaID>0 then ids[overlay.areaID]=true end
+    local registry=R.Registry()
+    local first
+    for aid in pairs(ids) do
+        local id=registry and R.NativeAreaLocation(aid) or (not registry and aid)
+        if not id or (first and first~=id) then return false end
+        first=id
     end
-    return table.getn(overlay.tiles) > 0
+    return first~=nil
 end
 
 -- ClassicAPI may put Shadowglen and its contained Aldrassil in one
@@ -64,7 +65,7 @@ end
 local function KnownNestedOverlay(mapID, key, overlay)
     if mapID ~= 1438 or key ~= 'shadowglen' or not overlay or
        type(overlay.tiles) ~= 'table' or table.getn(overlay.tiles) == 0 or
-       not (C_Map and C_Map.GetAreaInfo) then return false end
+       not (R.Registry() or (C_Map and C_Map.GetAreaInfo)) then return false end
     local found = false
     local ids = {}
     if type(overlay.areaIDs) == 'table' then
@@ -76,8 +77,8 @@ local function KnownNestedOverlay(mapID, key, overlay)
         ids[overlay.areaID]=true
     end
     for id in pairs(ids) do
-        local ok, name = pcall(C_Map.GetAreaInfo, id)
-        if not ok or type(name) ~= 'string' then return false end
+        local name=R.NativeAreaName(id)
+        if type(name)~="string" then return false end
         local area = MapCompat.Normalise and MapCompat.Normalise(name) or string.lower(name)
         if area ~= 'shadowglen' and area ~= 'aldrassil' then return false end
         if area == 'shadowglen' then found = true end

@@ -2,9 +2,16 @@
 SSZLoreWindow = SSZLoreWindow or {}
 local LoreWindow = SSZLoreWindow
 local Compendium = SpokenCompendium
-local CITY_IN = Compendium.CITY_IN
+local R=SpokenPlacesRuntime
+local CITY_IN = R.CityParents and R.CityParents() or Compendium.CITY_IN
 local CONTINENTS = { [1414]="Kalimdor", [1415]="Eastern Kingdoms" }
-local CONTINENT_OF = Compendium.KNOWN_CONTINENT
+local function ContinentOf(id)
+    if R.ContinentOf then return R.ContinentOf(id) end
+    return Compendium.KNOWN_CONTINENT[id]
+end
+local function Supported(id)
+    return id~=nil and (not R.IsMapSupported or R.IsMapSupported(id))
+end
 
 local rows = {}
 local selectedMapID, selectedAreaKey
@@ -24,9 +31,10 @@ local function Settings()
 end
 local function ZoneName(id)
     local entry=Lore().zones[id]
-    return (entry and entry.name) or CONTINENTS[id] or (id==947 and "Azeroth") or tostring(id)
+    return (R.MapName and R.MapName(id)) or (entry and entry.name) or CONTINENTS[id] or (id==947 and "Azeroth") or tostring(id)
 end
 local function HasVoice(id,key)
+    if not Supported(id) then return false end
     -- Use the same pack resolver as the narration player, including older
     -- ZoneLoreAudioData installations that the original browser missed.
     if SpokenPlacesBridge and SpokenPlacesBridge.HasVoice then
@@ -82,10 +90,11 @@ function LoreWindow.SetUnlockUndiscovered(on)
     end
 end
 local function IsLocked(id,key)
+    if not Supported(id) then return true end
     if id == 947 or Unlocked() then return false end
     if CONTINENTS[id] then
         for zoneID in pairs(Lore().zones or {}) do
-            if CONTINENT_OF[zoneID] == id and not CITY_IN[zoneID] and
+            if ContinentOf(zoneID) == id and not CITY_IN[zoneID] and
                Found(zoneID) then return false end
         end
         return true
@@ -103,17 +112,13 @@ local function Subs(id)
     sortedSubs[id]=list
     return list
 end
--- Same guard as upstream: when C_Map is installed, don't present foreign-client
--- maps that this client cannot identify as loose zones under Azeroth.
-local function UnknownHere(mapID)
-    if not (C_Map and C_Map.GetMapInfo) or Compendium.ContinentOf(mapID) then return false end
-    return C_Map.GetMapInfo(mapID)==nil
-end
+-- The fixed registry determines which content map identities are supported.
+-- Never pass upstream IDs to ClassicAPI GetMapInfo as if they were native.
 local function ZoneIDs()
     if sortedIDs then return sortedIDs end
     sortedIDs={}
     for id in pairs(Lore().zones or {}) do
-        if id~=947 and not CONTINENTS[id] and not UnknownHere(id) then
+        if id~=947 and not CONTINENTS[id] and Supported(id) then
             table.insert(sortedIDs,id)
         end
     end
@@ -152,7 +157,7 @@ local function Row(kind,id,key,depth,name,open,count,total,locked)
     local lore=Lore()
     local entry=key and lore.subzones[id] and lore.subzones[id][key]
         or (not key and lore.zones[id])
-    return {kind=kind,id=id,mapID=id,key=key,depth=depth,name=name,label=name,
+    return {kind=kind,id=id,mapID=id,key=key,locationID=R.ResolveLegacy and R.ResolveLegacy(id,key),depth=depth,name=name,label=name,
             leaf=(kind=="subzone"),open=open,count=count,total=total,
             missing=IsPending(entry),locked=locked,voiced=HasVoice(id,key)}
 end
@@ -225,7 +230,7 @@ local function ContinentProgress(continent)
     local done,total=0,0
     local anyFound=false
     for _,id in ipairs(ZoneIDs()) do
-        if CONTINENT_OF[id]==continent and not CITY_IN[id] then
+        if ContinentOf(id)==continent and not CITY_IN[id] then
             local found=Found(id)
             if found then anyFound=true end
             if not OnlyVoiced() or AnyVoice(id) then
@@ -263,7 +268,7 @@ local function RebuildRows()
         local inside={}
         if (hasSearch or openContinent[continent]) and not locked then
             for _,id in ipairs(ZoneIDs()) do
-                if CONTINENT_OF[id]==continent and not CITY_IN[id] then
+                if ContinentOf(id)==continent and not CITY_IN[id] then
                     local nested=ZoneRows(id,2,false)
                     for _,item in ipairs(nested) do table.insert(inside,item) end
                 end
@@ -287,7 +292,7 @@ local function RebuildRows()
         for _,item in ipairs(continentRows) do table.insert(rows,item) end
         -- Loose zones (not on the classic continents) remain accessible.
         for _,id in ipairs(ZoneIDs()) do
-            if not CONTINENT_OF[id] and not CITY_IN[id] then
+            if not ContinentOf(id) and not CITY_IN[id] then
                 local nested=ZoneRows(id,1,false)
                 for _,item in ipairs(nested) do table.insert(rows,item) end
             end
@@ -300,7 +305,7 @@ end
 local function Reveal(mapID, areaKey)
     if not mapID then return end
     openWorld=true
-    local continent=CONTINENTS[mapID] and mapID or CONTINENT_OF[mapID]
+    local continent=CONTINENTS[mapID] and mapID or ContinentOf(mapID)
     if continent then openContinent[continent]=true end
     if CITY_IN[mapID] then
         expandedZone=CITY_IN[mapID]
@@ -315,10 +320,11 @@ end
 -- 1.12 port uses the same static map hierarchy as its Compendium, instead of
 -- C_Map which the original modern-client implementation can ask directly.
 local function PlaceAbove(mapID)
-    if not mapID or mapID==947 then return nil end
+    if not Supported(mapID) or mapID==947 then return nil end
+    if R.PlaceAbove then return R.PlaceAbove(mapID) end
     if CONTINENTS[mapID] then return 947 end
     if CITY_IN[mapID] then return CITY_IN[mapID] end
-    return CONTINENT_OF[mapID] or (Lore().zones[mapID] and 947) or nil
+    return ContinentOf(mapID) or (Lore().zones[mapID] and 947) or nil
 end
 local function Count(n,plural,singular)
     if n==1 then return singular end
@@ -335,7 +341,7 @@ local function PlaceLine(mapID,key)
     if CONTINENTS[mapID] then
         local n=0
         for _,id in ipairs(ZoneIDs()) do
-            if CONTINENT_OF[id]==mapID and not CITY_IN[id] then n=n+1 end
+            if ContinentOf(id)==mapID and not CITY_IN[id] then n=n+1 end
         end
         return "In "..ZoneName(parent).."  \194\183  "..Count(n,"%d zones","1 zone"),parent
     end
@@ -364,7 +370,8 @@ local function ShowEntry()
     if parent then
         onSubtitle=function() LoreWindow.Navigate(parent) end
     end
-    local page={title=name,subtitle=line,onSubtitle=onSubtitle,mapID=id,key=key}
+    local page={title=name,subtitle=line,onSubtitle=onSubtitle,mapID=id,key=key,
+        locationID=R.ResolveLegacy and R.ResolveLegacy(id,key)}
     if IsLocked(id,key) then
         page.text="This place has not been discovered yet."
         page.missing=true
@@ -386,7 +393,7 @@ local function ShowEntry()
 end
 
 local function Select(item)
-    if not item or item.locked then return end
+    if not item or item.locked or not Supported(item.id) then return end
     selectedMapID,selectedAreaKey=item.id,item.key
     if searching=="" then
         if item.kind=="world" then openWorld=not openWorld
@@ -412,7 +419,7 @@ function LoreWindow.ZoneName(id) return ZoneName(id) end
 function LoreWindow.HasVoice(id,key) return HasVoice(id,key) end
 function LoreWindow.IsLocked(id,key) return IsLocked(id,key) end
 function LoreWindow.Settings() return Settings() end
-function LoreWindow.ContinentOf(id) return CONTINENT_OF[id] end
+function LoreWindow.ContinentOf(id) return ContinentOf(id) end
 function LoreWindow.PlaceAbove(id) return PlaceAbove(id) end
 function LoreWindow.PlaceLine(id,key) return PlaceLine(id,key) end
 function LoreWindow.IsPending(entry) return IsPending(entry) end
@@ -421,7 +428,7 @@ function LoreWindow.Reveal(mapID,key) Reveal(mapID,key) end
 -- An in-page breadcrumb moves to the parent without toggling its branch.
 -- It clears search so the revealed parent is visible in the left tree.
 function LoreWindow.Navigate(mapID,key)
-    if not mapID then return end
+    if not Supported(mapID) then return end
     selectedMapID,selectedAreaKey=mapID,key
     Reveal(mapID,key)
     searching=""
@@ -432,7 +439,7 @@ function LoreWindow.SetSearch(text)
     searching=string.lower(string.gsub(string.gsub(text or "","^%s+",""),"%s+$",""))
 end
 function LoreWindow.OpenSelection(mapID,areaKey)
-    if mapID then
+    if Supported(mapID) then
         selectedMapID,selectedAreaKey=mapID,areaKey
         Reveal(mapID,areaKey)
     end
@@ -509,7 +516,7 @@ function LoreWindow.ToggleLoreWindow()
     Compendium:Toggle()
 end
 function LoreWindow.ShowLoreFor(mapID,areaKey)
-    if not mapID or (Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones")) then return end
+    if not Supported(mapID) or (Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones")) then return end
     LoreWindow.OpenSelectionFromPlayer(mapID,areaKey)
     Compendium:Open("places")
     -- Upstream: an explicit request for lore unfolds a collapsed Compendium.

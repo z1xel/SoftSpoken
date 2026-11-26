@@ -5,48 +5,33 @@ SSZMapCompat = SSZMapCompat or {}
 local MapCompat = SSZMapCompat
 local Compendium = SpokenCompendium
 local LoreWindow = SSZLoreWindow
-local CITY_IN = Compendium and Compendium.CITY_IN or {}
+local R=SpokenPlacesRuntime
+local CITY_IN = R.CityParents()
+local Normalise=R.Normalise
+MapCompat.Normalise=Normalise
 
-local function Normalise(name)
-    if type(name) ~= "string" then return "" end
-    name = string.lower(name)
-    name = string.gsub(name, "'", "")
-    name = string.gsub(name, "[%p]", " ")
-    name = string.gsub(name, "%s+", " ")
-    name = string.gsub(name, "^%s+", "")
-    name = string.gsub(name, "%s+$", "")
-    name = string.gsub(name, "^the ", "")
-    return name
-end
-MapCompat.Normalise = Normalise
-
-local names = {}
-local function NameIndex()
-    local lore = SSZLore or {}
-    names = {}
-    for mapID, entry in pairs(lore.zones or {}) do
-        if entry.name then names[Normalise(entry.name)] = mapID end
-    end
-    names["kalimdor"] = 1414
-    names["eastern kingdoms"] = 1415
-    names["azeroth"] = 947
-    names["barrens"] = 1413
-    names["stranglethorn"] = 1434
-    names["stormwind"] = 1453
-    names["undercity"] = 1458
-    names["ironforge"] = 1455
-    names["orgrimmar"] = 1454
-    names["darnassus"] = 1457
-    names["thunder bluff"] = 1456
-end
 function MapCompat.IDForName(name)
-    if not next(names) then NameIndex() end
-    return names[Normalise(name)]
+    return R.MapIDForName(name)
 end
+
 function MapCompat.Name(mapID)
     if LoreWindow and LoreWindow.ZoneName then return LoreWindow.ZoneName(mapID) end
-    local e = SSZLore and SSZLore.zones[mapID]
-    return e and e.name or tostring(mapID)
+    return R.MapName(mapID) or tostring(mapID)
+end
+
+-- Exact texture-directory evidence comes from the native API. The value
+-- is an AreaTable ID, not a legacy content map key. Cache the static index.
+local directories
+local function DisplayedDirectory(info)
+    local registry=R.Registry()
+    if not registry or type(info)~="string" or not (C_Map and C_Map.GetMapAreaIDs) then return nil,false end
+    if not directories then
+        local ok,list=pcall(C_Map.GetMapAreaIDs)
+        if ok and type(list)=="table" then directories=list end
+    end
+    local aid=directories and directories[info]
+    if type(aid)~="number" or aid<=0 then return nil,false end
+    return R.MapForLocation(registry:ByAreaID(aid)),true
 end
 
 -- 1.12 GetMapZones may return a plain vararg of names, or pairs of IDs/names
@@ -67,7 +52,9 @@ function MapCompat.GetDisplayedMapID()
     local info = GetMapInfo and GetMapInfo() or nil
     -- City/dungeon maps can report a valid texture while their zone index is
     -- still zero or points to the parent. Prefer that specific texture name.
-    local infoID = MapCompat.IDForName(info)
+    local infoID,nativeDirectory = DisplayedDirectory(info)
+    if nativeDirectory and not infoID then return nil,info,continent,zone end
+    if not nativeDirectory then infoID=MapCompat.IDForName(info) end
     if infoID and infoID ~= 947 and infoID ~= 1414 and infoID ~= 1415 then
         return infoID, info, continent, zone
     end
@@ -84,11 +71,11 @@ function MapCompat.GetDisplayedMapID()
 end
 
 function MapCompat.SetDisplayedMap(mapID)
-    if not SetMapZoom then return false end
+    if not SetMapZoom or not R.IsMapSupported(mapID) then return false end
     if mapID == 947 then SetMapZoom(0); return true end
     if mapID == 1414 then SetMapZoom(1); return true end
     if mapID == 1415 then SetMapZoom(2); return true end
-    local parent = Compendium and Compendium.ContinentOf and Compendium.ContinentOf(mapID)
+    local parent = R.ContinentOf(mapID)
     local continent = parent == 1414 and 1 or parent == 1415 and 2
     if not continent or not GetMapZones then return false end
     local list = { GetMapZones(continent) }
@@ -137,26 +124,20 @@ end
 -- ClassicAPI's GetMapInfoAtPosition finds child MAPS, not arbitrary subzones.
 -- Do not mistake it for MapUtil.FindBestAreaNameAtMouse.
 local function PlaceByName(mapID, name)
-    local key = Normalise(name)
+    local key = R.ResolveAreaKey(mapID,name)
     local subs = SSZLore and SSZLore.subzones
-    local place = subs and subs[mapID] and subs[mapID][key]
+    local place = key and subs and subs[mapID] and subs[mapID][key]
     if place then return {key=key, name=place.name or name, entry=place} end
 end
 
-local function CityByName(mapID, name)
-    local target = Normalise(name)
-    if target == "" then return nil end
-    for city, parent in pairs(CITY_IN) do
-        if parent == mapID then
-            local lore = SSZLore and SSZLore.zones
-            local cityName = lore and lore[city] and lore[city].name
-            if (cityName and Normalise(cityName) == target) or
-                Normalise(MapCompat.Name(city)) == target or
-                Normalise(MapCompat.Name(city)) == target .. " city" then
-                return city
-            end
-        end
-    end
+local function CityByName(mapID,name)
+    local city=R.MapIDForName(name)
+    if city and CITY_IN[city]==mapID and SSZLore and SSZLore.zones and SSZLore.zones[city] then return city end
+end
+
+local function CityByLocation(mapID,id)
+    local city=R.MapForLocation(id)
+    if city and CITY_IN[city]==mapID and SSZLore and SSZLore.zones and SSZLore.zones[city] then return city end
 end
 MapCompat.CityByName = CityByName
 
@@ -209,29 +190,29 @@ end
 MapCompat.OverlayRectangle = OverlayRectangle
 
 -- A map-art overlay can list several areas. Never guess among them.
-local function OverlayEntries(mapID, o)
-    if not (C_Map and C_Map.GetAreaInfo) then return {} end
-    local ids = {}
-    if type(o.areaIDs) == "table" then
-        for _, id in pairs(o.areaIDs) do
-            if type(id) == "number" and id > 0 then ids[id] = true end
-        end
+local function OverlayEntries(mapID,o)
+    local ids={}
+    if type(o.areaIDs)=="table" then
+        for _,id in pairs(o.areaIDs) do if type(id)=="number" and id>0 then ids[id]=true end end
     end
-    if type(o.areaID) == "number" and o.areaID > 0 then ids[o.areaID] = true end
-    local results, seen = {}, {}
+    if type(o.areaID)=="number" and o.areaID>0 then ids[o.areaID]=true end
+    local results,seen,identities={}, {}, {}
+    local registry=R.Registry()
     for areaID in pairs(ids) do
-        local ok, name = pcall(C_Map.GetAreaInfo, areaID)
-        if ok and type(name) == "string" and name ~= "" then
-            local key = Normalise(name)
-            local entry = HasZoneSubzone(mapID, key)
-            if entry and not seen[key] then
-                seen[key] = true
-                table.insert(results, { name=entry.name or name, key=key,
-                                        entry=entry, overlay=o })
-            end
+        local id=R.NativeAreaLocation(areaID)
+        local name=R.NativeAreaName(areaID)
+        local token=id or (not registry and name and Normalise(name)) or areaID
+        identities[token]=true
+        local key=R.AreaKeyForNative(mapID,areaID)
+        local entry=key and HasZoneSubzone(mapID,key)
+        if entry and not seen[key] then
+            seen[key]=true
+            table.insert(results,{name=entry.name or name or key,key=key,entry=entry,overlay=o})
         end
     end
-    return results
+    local n=0
+    for _ in pairs(identities) do n=n+1 end
+    return results,n
 end
 
 local function GetOverlays(continent, zone, info)
@@ -266,8 +247,9 @@ function MapCompat.AreaAt(mapID, x, y, expectedKey)
     for _, overlay in ipairs(overlays) do
         local left, top, right, bottom = OverlayRectangle(overlay)
         if left and x >= left and x <= right and y >= top and y <= bottom then
-            for _, candidate in ipairs(OverlayEntries(mapID, overlay)) do
-                if not expectedKey or candidate.key == expectedKey then
+            local candidates,count=OverlayEntries(mapID,overlay)
+            for _,candidate in ipairs(candidates) do
+                if (expectedKey and candidate.key==expectedKey) or (not expectedKey and count==1) then
                     if chosen and (chosen.key ~= candidate.key or
                         chosen.overlay ~= candidate.overlay) then
                         return nil -- overlapping/conflicting regions
@@ -358,11 +340,13 @@ function MapCompat.ResolveAt(mapID, x, y, poiName)
     -- The client may identify child CITY maps at a coordinate. This call
     -- cannot resolve subzones; it is purely optional and its result must
     -- match the current zone's known child-city relationship.
-    if C_Map and type(C_Map.GetMapInfoAtPosition) == "function" then
-        local ok, detail = pcall(C_Map.GetMapInfoAtPosition, mapID, x, y)
-        if ok and type(detail) == "table" then
-            local city = CityByName(mapID, detail.name)
-            if city then return "city", city, "child-map" end
+    local nativeMap=R.NativeMapID(mapID)
+    local registry=R.Registry()
+    if nativeMap and registry and C_Map and type(C_Map.GetMapInfoAtPosition)=="function" then
+        local ok,detail=pcall(C_Map.GetMapInfoAtPosition,nativeMap,x,y)
+        if ok and type(detail)=="table" then
+            local city=CityByLocation(mapID,registry:ByNativeMapID(detail.mapID))
+            if city then return "city",city,"child-map" end
         end
     end
 
@@ -385,17 +369,15 @@ function MapCompat.ResolveAt(mapID, x, y, poiName)
                     ids[overlay.areaID] = true
                 end
                 for id in pairs(ids) do
-                    if C_Map and C_Map.GetAreaInfo then
-                        local ok, name = pcall(C_Map.GetAreaInfo, id)
-                        if ok and type(name) == "string" then
-                            local match = CityByName(mapID, name)
-                            if match then
-                                if city and city ~= match then mixed = true end
-                                city = match
-                            elseif PlaceByName(mapID, name) then
-                                mixed = true
-                            end
-                        end
+                    local location=R.NativeAreaLocation(id)
+                    local match=CityByLocation(mapID,location)
+                    if not R.Registry() then match=CityByName(mapID,R.NativeAreaName(id)) end
+                    if match then
+                        if city and city~=match then mixed=true end
+                        city=match
+                    else
+                        -- Unknown or distinct area in this hitbox is not proof of a city.
+                        mixed=true
                     end
                 end
             end
