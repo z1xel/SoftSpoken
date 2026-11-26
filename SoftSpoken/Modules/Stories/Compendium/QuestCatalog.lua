@@ -171,28 +171,192 @@ local function SortedKeys(t, names)
     end)
     return keys
 end
+-- The three quest geography fields belong to three pinned CONTENT scopes.
+-- A Tortoise snapshot AreaTable number is not automatically an Octo AreaTable
+-- number; a quest sort is never geographical. Keep original entrance/city
+-- filing as a presentation projection, not a containment assertion.
+local function Registry()
+    local r=SpokenEnv and SpokenEnv.Locations
+    if r and r:IsReady() then return r end
+end
+local function Locale() return GetLocale and GetLocale() or "enUS" end
+local function Content(r,namespace,value,scope)
+    if r and type(value)=="number" then return r:ResolveContentIdentifier(namespace,value,scope) end
+end
+local function MapLocation(r,value)
+    return Content(r,"upstreamUiMap",value,"spoken_classic")
+end
+local function InstanceLocation(r,value)
+    return Content(r,"instanceMap",value,"vanilla_instance_catalog")
+end
+local function AreaLocation(r,value)
+    return Content(r,"areaTable",value,"tortoise_snapshot")
+end
+local function Label(r,id,fallback)
+    return (id and r and r:GetName(id,Locale())) or fallback
+end
+local function Kind(r,id)
+    local e=id and r and r:Get(id)
+    return e and e.kind
+end
+local function ContentValues(r,id,namespace,scope)
+    local result={}
+    if id and r then
+        for _,b in ipairs(r:GetContentBindings(id)) do
+            if b.namespace==namespace and b.sourceScope==scope then
+                table.insert(result,b.value)
+            end
+        end
+    end
+    table.sort(result)
+    return result
+end
+local function UniqueValue(r,id,namespace,scope)
+    local values=ContentValues(r,id,namespace,scope)
+    if table.getn(values)==1 then return values[1] end
+end
+local function UpstreamMap(r,id)
+    return UniqueValue(r,id,"upstreamUiMap","spoken_classic")
+end
+local function Continent(r,id)
+    if not r or not id then return nil end
+    if id=="kalimdor" then return 1414 end
+    if id=="eastern_kingdoms" then return 1415 end
+    for _,parent in ipairs(r:GetAncestors(id)) do
+        if parent=="kalimdor" then return 1414 end
+        if parent=="eastern_kingdoms" then return 1415 end
+    end
+    -- Associations alone are not containment. For cross-boundary places
+    -- the reviewed source filing below remains the presentation context.
+end
+local function IsPvP(r,id)
+    local kind=Kind(r,id)
+    return kind=="battleground" or kind=="arena"
+end
+local function InstanceKind(r,id,fallback)
+    local kind=Kind(r,id)
+    if kind=="raid" or kind=="dungeon" then return kind end
+    return fallback
+end
+local function Zone(r,value)
+    local id=MapLocation(r,value)
+    return {locationID=id,mapID=UpstreamMap(r,id) or value,
+            sourceMapID=value,kind="zone"}
+end
+local function Instance(r,value)
+    local id=InstanceLocation(r,value)
+    return {locationID=id,dungeonID=UniqueValue(r,id,"instanceMap","vanilla_instance_catalog") or value,
+            sourceDungeonID=value,kind="dungeon"}
+end
+
+-- Shared quest category resolver. Each result carries the actual canonical
+-- category identity, its source context, and the original display filing.
+-- Cache only within a tree build; do not alter generated quest records.
+local function Geography(entry,r,areaMeta)
+    local result={}
+    if not entry then return result end
+    if type(entry.zones)=="table" and table.getn(entry.zones)>0 then
+        local seen={}
+        for _,value in ipairs(entry.zones) do
+            local z=Zone(r,value)
+            local d=entry.dungeon and Instance(r,entry.dungeon)
+            local key=(z.locationID or ("legacy:"..tostring(z.mapID)))..":"..
+                      (d and (d.locationID or ("legacy:"..tostring(d.dungeonID))) or "")
+            if not seen[key] then
+                seen[key]=true
+                if d then
+                    d.zoneID=z.mapID; d.contextLocationID=z.locationID
+                    d.sourceMapID=value
+                    table.insert(result,d)
+                else
+                    z.zoneID=z.mapID
+                    table.insert(result,z)
+                end
+            end
+        end
+    elseif type(entry.turtleArea)=="number" and entry.turtleArea>0 then
+        local aid=entry.turtleArea
+        local id=AreaLocation(r,aid)
+        local meta=areaMeta[aid]
+        local mapID=UpstreamMap(r,id)
+        local dungeonID=UniqueValue(r,id,"instanceMap","vanilla_instance_catalog")
+        if not r then
+            mapID=meta and meta.uiMapID
+            dungeonID=meta and meta.dungeonMapID
+        end
+        -- Reviewed metadata supplies the entrance filing only. If the
+        -- crosswalk disagrees, don't promote the area to a different instance.
+        if mapID then
+            table.insert(result,{kind="zone",locationID=id,zoneID=mapID,
+                sourceAreaID=aid,sourceScope="tortoise_snapshot"})
+        elseif dungeonID and meta and meta.parentZone and
+            (not r or (MapLocation(r,meta.parentZone) and InstanceLocation(r,dungeonID)==id)) then
+            local parent=Zone(r,meta.parentZone)
+            table.insert(result,{kind="dungeon",locationID=id,dungeonID=dungeonID,zoneID=parent.mapID,
+                contextLocationID=parent.locationID,sourceAreaID=aid,sourceScope="tortoise_snapshot"})
+        else
+            local aliases=ContentValues(r,id,"areaTable","tortoise_snapshot")
+            local representative=aliases[1] or aid
+            local presentation=areaMeta[representative] or meta
+            table.insert(result,{kind="area",locationID=id,areaID=representative,
+                sourceAreaID=aid,sourceScope="tortoise_snapshot",meta=presentation,
+                instanceType=InstanceKind(r,id,presentation and presentation.instanceType)})
+        end
+    end
+    return result
+end
+
+function QuestCatalog:GetGeography(questID)
+    return Geography(self:Entry(questID),Registry(),_G.SSCTurtleAreaMeta or {})
+end
+
+function QuestCatalog:GeographyLabel(questID)
+    local entry=self:Entry(questID)
+    local r=Registry()
+    local places=Geography(entry,r,_G.SSCTurtleAreaMeta or {})
+    local names,seen={},{}
+    for _,p in ipairs(places) do
+        local name
+        if p.sourceAreaID and p.kind=="dungeon" then
+            name=Label(r,p.locationID,SpokenCompendium.DungeonName(p.dungeonID))
+        elseif p.kind=="area" then
+            name=Label(r,p.locationID,(p.meta and p.meta.name) or ("Turtle Area "..p.sourceAreaID))
+        elseif p.zoneID then
+            -- Preserve the source quest's existing entrance-zone subtitle.
+            name=Label(r,p.contextLocationID or p.locationID and p.kind=="zone" and p.locationID,
+                       QuestState:MapName(p.zoneID))
+        end
+        if name and not seen[name] then seen[name]=true;table.insert(names,name) end
+    end
+    if table.getn(names)>0 then return table.concat(names,", ") end
+    if entry and entry.sort then return SortName(entry.sort) end
+    return "Place unknown (Turtle/uncatalogued quest)"
+end
+
 function QuestCatalog:BuildTree()
     local all,zones,turtleAreas,nativeAreaDungeons,sorts,unknown={},{},{},{},{},{}
     local areaMeta=_G.SSCTurtleAreaMeta or {}
+    local r=Registry()
+    local areaInfo,zoneInfo,dungeonInfo={},{},{}
     for id,entry in pairs(Raw().quests) do
         if Allowed(entry) then
             all[id]=true
-            if type(entry.zones)=="table" and table.getn(entry.zones)>0 then
-                for _,zone in ipairs(entry.zones) do AddTo(zones,zone,id) end
-            elseif type(entry.turtleArea)=="number" and entry.turtleArea>0 then
-                local meta=areaMeta[entry.turtleArea]
-                if meta and type(meta.uiMapID)=="number" and meta.uiMapID>0 then
-                    -- Verified map identity, without rewriting the quest record.
-                    AddTo(zones,meta.uiMapID,id)
-                elseif meta and meta.dungeonMapID and meta.parentZone then
-                    -- AreaTable and instance Map IDs are different namespaces.
-                    -- File this Turtle quest with the existing dungeon group.
-                    local byZone=nativeAreaDungeons[meta.parentZone] or {}
-                    nativeAreaDungeons[meta.parentZone]=byZone
-                    AddTo(byZone,meta.dungeonMapID,id)
-                else
-                    -- Custom and unmapped 1.12 areas retain their own nodes.
-                    AddTo(turtleAreas,entry.turtleArea,id)
+            local places=Geography(entry,r,areaMeta)
+            if table.getn(places)>0 then
+                for _,place in ipairs(places) do
+                    if place.kind=="zone" then
+                        zoneInfo[place.zoneID]=place.locationID
+                        AddTo(zones,place.zoneID,id)
+                    elseif place.kind=="dungeon" then
+                        zoneInfo[place.zoneID]=place.contextLocationID
+                        dungeonInfo[place.dungeonID]=place.locationID
+                        local byZone=nativeAreaDungeons[place.zoneID] or {}
+                        nativeAreaDungeons[place.zoneID]=byZone
+                        AddTo(byZone,place.dungeonID,id)
+                    else
+                        areaInfo[place.areaID]=place
+                        AddTo(turtleAreas,place.areaID,id)
+                    end
                 end
             elseif entry.sort then
                 AddTo(sorts,entry.sort,id)
@@ -212,6 +376,8 @@ function QuestCatalog:BuildTree()
     local root=Node("root","Quests","root")
     local continents={ [1414]=Attach(root,Node("continent:1414","Kalimdor","continent")),
                        [1415]=Attach(root,Node("continent:1415","Eastern Kingdoms","continent")) }
+    continents[1414].locationID=MapLocation(r,1414)
+    continents[1415].locationID=MapLocation(r,1415)
     local loose=Attach(root,Node("zones:other","Other Lands","section"))
     local cityIn=SpokenCompendium and SpokenCompendium.CITY_IN or {}
     local zoneNodes={}
@@ -221,63 +387,78 @@ function QuestCatalog:BuildTree()
     for zone in pairs(zones) do usedZones[zone]=true end
     for zone in pairs(nativeAreaDungeons) do usedZones[zone]=true end
     for areaID in pairs(turtleAreas) do
-        local meta=areaMeta[areaID]
-        if meta and meta.parentZone then usedZones[meta.parentZone]=true end
+        local meta=areaInfo[areaID].meta
+        if meta and meta.parentZone then
+            local parent=Zone(r,meta.parentZone)
+            usedZones[parent.mapID]=true
+            zoneInfo[parent.mapID]=parent.locationID
+        end
     end
-    local zoneIDs=SortedKeys(usedZones,function(id) return QuestState:MapName(id) end)
+    local function ZoneName(value) return Label(r,zoneInfo[value] or MapLocation(r,value),QuestState:MapName(value)) end
+    local function DungeonName(value) return Label(r,dungeonInfo[value] or InstanceLocation(r,value),SpokenCompendium.DungeonName(value)) end
+    local zoneIDs=SortedKeys(usedZones,ZoneName)
     for _,zone in ipairs(zoneIDs) do
-        local zoneNode=Node("zone:"..zone,QuestState:MapName(zone),"zone")
+        local zoneNode=Node("zone:"..zone,ZoneName(zone),"zone")
         zoneNodes[zone]=zoneNode
         zoneNode.mapID=zone
-        if pvpZones[zone] then zoneNode.iconType="pvp" end
-        local byDungeon,normal={},{}
-        for _,id in ipairs(zones[zone] or {}) do
-            local entry=Raw().quests[id]
-            if entry and entry.dungeon then AddTo(byDungeon,entry.dungeon,id)
-            else table.insert(normal,id) end
-        end
-        for dungeon,ids in pairs(nativeAreaDungeons[zone] or {}) do
-            for _,id in ipairs(ids) do AddTo(byDungeon,dungeon,id) end
-        end
-        for _,dungeon in ipairs(SortedKeys(byDungeon,function(id) return SpokenCompendium.DungeonName(id) end)) do
-            local dungeonNode=Attach(zoneNode,Node("dungeon:"..zone..":"..dungeon,SpokenCompendium.DungeonName(dungeon),"dungeon"))
-            dungeonNode.instanceType=SpokenCompendium.InstanceType(dungeon)
+        zoneNode.locationID=zoneInfo[zone] or MapLocation(r,zone)
+        if IsPvP(r,zoneNode.locationID) or (not r and pvpZones[zone]) then zoneNode.iconType="pvp" end
+        local byDungeon=nativeAreaDungeons[zone] or {}
+        for _,dungeon in ipairs(SortedKeys(byDungeon,DungeonName)) do
+            local dungeonNode=Attach(zoneNode,Node("dungeon:"..zone..":"..dungeon,DungeonName(dungeon),"dungeon"))
+            dungeonNode.locationID=dungeonInfo[dungeon] or InstanceLocation(r,dungeon)
+            dungeonNode.contextLocationID=zoneNode.locationID
+            dungeonNode.dungeonMapID=dungeon
+            dungeonNode.instanceType=InstanceKind(r,dungeonNode.locationID,SpokenCompendium.InstanceType(dungeon))
             MakeLeaves(dungeonNode,byDungeon[dungeon])
         end
-        MakeLeaves(zoneNode,normal)
+        MakeLeaves(zoneNode,zones[zone] or {})
     end
     -- Upstream keeps city quests beneath the surrounding zone card.
     -- A city whose surrounding zone is absent remains on its continent.
     for _,zone in ipairs(zoneIDs) do
         local parentZone=cityIn[zone] or zone
-        local cont=SpokenCompendium and SpokenCompendium.ContinentOf and SpokenCompendium.ContinentOf(parentZone)
+        local cont=Continent(r,MapLocation(r,parentZone))
+        if not r then cont=SpokenCompendium and SpokenCompendium.ContinentOf and SpokenCompendium.ContinentOf(parentZone) end
         local parent=(cityIn[zone] and zoneNodes[cityIn[zone]]) or continents[cont] or loose
         Attach(parent,zoneNodes[zone])
     end
     -- Custom instances remain identified by AreaTable ID (no fabricated
     -- native instance Map ID). Attach them to a known entrance zone or a
     -- parent Turtle area, without changing their quest records.
-    local areaNodes={}
-    local areaIDs=SortedKeys(turtleAreas,function(k)
-        local meta=areaMeta[k]
-        return meta and meta.name or tostring(k)
-    end)
+    local areaNodes,areaByLocation={},{}
+    local function AreaName(aid)
+        local info=areaInfo[aid]
+        return Label(r,info.locationID,(info.meta and info.meta.name) or ("Turtle Area "..aid))
+    end
+    local areaIDs=SortedKeys(turtleAreas,AreaName)
     for _,areaID in ipairs(areaIDs) do
-        local meta=areaMeta[areaID]
-        local name=(meta and meta.name) or ("Turtle Area "..areaID)
-        local instance=meta and (meta.instanceType=="dungeon" or meta.instanceType=="raid")
-        local areaNode=Node("turtle-area:"..areaID,name,instance and "dungeon" or "zone")
+        local info=areaInfo[areaID]
+        local instance=info.instanceType=="dungeon" or info.instanceType=="raid"
+        local areaNode=Node("turtle-area:"..areaID,AreaName(areaID),instance and "dungeon" or "zone")
         areaNode.areaID=areaID
-        areaNode.instanceType=meta and meta.instanceType
-        if pvpAreas[areaID] then areaNode.iconType="pvp" end
+        areaNode.locationID=info.locationID
+        areaNode.instanceType=info.instanceType
+        -- Sunnyglade's registry kind is not yet classified; retain the
+        -- explicitly reviewed source presentation badge, not a new identity.
+        if IsPvP(r,info.locationID) or pvpAreas[areaID] then areaNode.iconType="pvp" end
         MakeLeaves(areaNode,turtleAreas[areaID])
         areaNodes[areaID]=areaNode
+        if info.locationID then areaByLocation[info.locationID]=areaNode end
     end
     for _,areaID in ipairs(areaIDs) do
-        local meta=areaMeta[areaID]
-        local parent=(meta and meta.parentArea and areaNodes[meta.parentArea])
-            or (meta and meta.parentZone and zoneNodes[meta.parentZone])
-            or (meta and continents[meta.continent]) or loose
+        local info=areaInfo[areaID]
+        local meta=info.meta
+        local parent
+        if meta and meta.parentArea then
+            local canonicalParent=AreaLocation(r,meta.parentArea)
+            parent=canonicalParent and areaByLocation[canonicalParent] or (not r and areaNodes[meta.parentArea])
+        end
+        if not parent and meta and meta.parentZone then
+            parent=zoneNodes[Zone(r,meta.parentZone).mapID]
+        end
+        local cont=Continent(r,info.locationID) or (meta and meta.continent)
+        parent=parent or continents[cont] or loose
         Attach(parent,areaNodes[areaID])
     end
     for _,section in ipairs(sections) do

@@ -57,5 +57,11 @@ local MapNames={
     [1461]="Arathi Basin",
 }
 function Compendium.MapName(mapID)
+    local r=SpokenEnv and SpokenEnv.Locations
+    if r and r:IsReady() then
+        local id=r:ByUiMapID(mapID)
+        if id then return r:GetName(id,GetLocale and GetLocale() or "enUS") end
+    end
+    -- Compatibility labels for standalone tests or unavailable registry.
     return MapNames[mapID] or tostring(mapID)
 end

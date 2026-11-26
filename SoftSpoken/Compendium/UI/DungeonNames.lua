@@ -32,9 +32,19 @@ local DungeonNames={
 -- Raid maps share the instance-map namespace but use a different quest-category icon.
 local RAID_MAPS={ [249]=true,[309]=true,[409]=true,[469]=true,
     [509]=true,[531]=true,[533]=true }
+local function Instance(mapID)
+    local r=SpokenEnv and SpokenEnv.Locations
+    if r and r:IsReady() then
+        local id=r:ResolveContentIdentifier("instanceMap",mapID,"vanilla_instance_catalog")
+        if id then return r:Get(id),r:GetName(id,GetLocale and GetLocale() or "enUS") end
+    end
+end
 function Compendium.InstanceType(mapID)
+    local entity=Instance(mapID)
+    if entity and (entity.kind=="raid" or entity.kind=="dungeon") then return entity.kind end
     return RAID_MAPS[mapID] and "raid" or "dungeon"
 end
 function Compendium.DungeonName(mapID)
-    return DungeonNames[mapID] or ("Dungeon "..tostring(mapID))
+    local _,name=Instance(mapID)
+    return name or DungeonNames[mapID] or ("Dungeon "..tostring(mapID))
 end

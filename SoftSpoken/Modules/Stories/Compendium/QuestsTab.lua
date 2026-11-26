@@ -113,7 +113,8 @@ local function AddRow(rows,node,depth,forceMatch)
     if total==0 then return end
     table.insert(rows,{kind=node.kind,key=node.key,label=node.label,depth=depth,
         leaf=false,open=openedNow, count=completed,total=total, found=found,
-        instanceType=node.instanceType,iconType=node.iconType})
+        instanceType=node.instanceType,iconType=node.iconType,locationID=node.locationID,
+        contextLocationID=node.contextLocationID})
     if openedNow then
         local all=forceMatch or Match(node.label)
         for _,child in ipairs(node.children) do AddRow(rows,child,depth+1,all) end
@@ -137,29 +138,9 @@ local function PageEntry()
         return {title="Stories",subtitle="Quest acceptance, progress and completion",
             text="Select a quest to read its dialogue and replay available recordings."}
     end
-    local entry=QuestCatalog:Entry(selectedQuestID)
     local title=QuestCatalog:Title(selectedQuestID,true)
     local status=Status(selectedQuestID)
-    local place=""
-    if entry and type(entry.zones)=="table" and table.getn(entry.zones)>0 then
-        local names={}
-        for _,zone in ipairs(entry.zones) do table.insert(names,QuestState:MapName(zone)) end
-        place=table.concat(names,", ")
-    elseif entry and type(entry.turtleArea)=="number" and entry.turtleArea>0 then
-        -- Verified AreaTable links use the canonical UiMap name provider.
-        local meta=_G.SSCTurtleAreaMeta and _G.SSCTurtleAreaMeta[entry.turtleArea]
-        if meta and meta.uiMapID then
-            place=QuestState:MapName(meta.uiMapID)
-        elseif meta and meta.dungeonMapID then
-            place=Compendium.DungeonName(meta.dungeonMapID)
-        else
-            place=meta and meta.name or ("Turtle Area "..entry.turtleArea)
-        end
-    elseif entry and entry.sort then
-        place=QuestCatalog:SortName(entry.sort)
-    else
-        place="Place unknown (Turtle/uncatalogued quest)"
-    end
+    local place=QuestCatalog:GeographyLabel(selectedQuestID)
     return {title=title,subtitle=place.."  ·  "..status,key="quest:"..selectedQuestID,
         text=""}
 end

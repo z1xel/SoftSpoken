@@ -165,17 +165,18 @@ function QuestState:SeedActive(indexedIDs)
     end
 end
 function QuestState:MapName(id)
-    if C_Map and type(C_Map.GetMapInfo)=="function" then
-        local ok, info=pcall(C_Map.GetMapInfo,id)
-        if ok and type(info)=="table" and type(info.name)=="string" and info.name~="" then
-            return info.name
-        end
-    end
+    -- id is an upstream content UiMapID, not a ClassicAPI native map ID.
     if SpokenCompendium and SpokenCompendium.MapName then return SpokenCompendium.MapName(id) end
     return tostring(id)
 end
 function QuestState:CurrentMap()
+    -- Preserve the old native AreaTable return contract for callers.
     return Call(C_Map,"GetBestMapForUnit","player")
+end
+function QuestState:CurrentLocation()
+    local r=SpokenEnv and SpokenEnv.Locations
+    if r and r:IsReady() then return r:ResolvePlayerLocation() end
+    return nil,"unavailable"
 end
 function QuestState:Setting(key, value)
     local settings=SpokenEnv.Persistence:ModuleDB("Stories").profile.Compendium
