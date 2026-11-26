@@ -191,7 +191,7 @@ function H:ResolveWritingsKey(key)
 end
 function H:BookMark(w,book,key,method)
     local id=self:ResolveWritingsKey(key)
-    if not id then return false end
+    if not id or (method~=nil and type(method)~="string") then return false end
     return SetFlag(Bucket(w.locations,book),id,method or "encounter")
 end
 function H:Acquire(w,item,key,n)

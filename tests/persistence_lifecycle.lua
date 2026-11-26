@@ -73,7 +73,7 @@ if scenario == "seed" then
             custom={keep=name},
         }})
         Write(CharFile("SoftSpoken_Places",name), {SSZCharacter={
-            visited={["z:1411"]=true},heard={["s:1411:The Razor-Hill"]=true},greeted=true,
+            visited={["1411"]=true,["z:1411"]=true},heard={["s:1411:The Razor-Hill"]=true},greeted=true,
             settings={auto=false,holdCombat=true,captions=false,
                 discoveryDefaultMigrated=true,mode="unheard",loreFontSize=18},
         }})
@@ -143,6 +143,9 @@ function ace:GetAddon() return nil end
 function ace:NewAddon() return {} end
 
 dofile("SoftSpoken/Environment.lua")
+dofile("SoftSpoken/Locations/Data.lua")
+dofile("SoftSpoken/Locations/Registry.lua")
+dofile("SoftSpoken/Locations/History.lua")
 dofile("SoftSpoken/Persistence.lua")
 dofile("SoftSpoken/Migration.lua")
 SpokenEnv.Version = {IsAnyLegacy=true}
@@ -195,6 +198,9 @@ end
 assert(P:RecoverLegacy())
 core:InitDB()
 local root, char = P.root, P.character
+local H=SpokenEnv.LocationHistory
+Eq(char.geographyVersion,1,"canonical geography version")
+H:Validate(char)
 local stories, places, writings = P:ModuleDB("Stories"),P:ModuleDB("Places"),P:ModuleDB("Writings")
 Eq(root.sv,SoftSpokenDB)
 Eq(VoiceOver.StoriesAddon.db,stories)
@@ -209,11 +215,13 @@ local function History(id)
     Eq(char.Stories.journal.titles[id],"Quest "..player)
     Eq(char.Stories.journal.dialogue[id].accept,"Hello, "..player.."\nSecond line")
     Eq(char.Stories.journal.custom.keep,player)
-    assert(char.Places.visited["z:1411"] and char.Places.heard["s:1411:razor hill"])
-    assert(char.Places.heard["s:1411:The Razor-Hill"] and char.Places.greeted)
+    assert(char.Places.visited.durotar["1411"])
+    assert(char.Places.locationHolds.visited["z:1411"])
+    assert(H:PlaceHas(char.Places,"heard","s:1411:razor hill"))
+    assert(char.Places.locationHolds.heard["s:1411:The Razor-Hill"] and char.Places.greeted)
     assert(SpokenWritings:HasReadBook(id) and SpokenWritings:IsBookFound(id))
-    Eq(char.Writings.locations[id][1411],"encounter")
-    Eq(char.Writings.acquisitions[id][1411],2)
+    Eq(char.Writings.locations[id].durotar.encounter,true)
+    Eq(char.Writings.acquisitions[id].durotar,2)
 end
 local function LegacyPrefs()
     Eq(stories.profile.Compendium.foundOnly,false)
@@ -268,7 +276,9 @@ if scenario == "alice" then
     SpokenWritings:MarkBookFound(909)
     SpokenWritings:MarkBookRead(909)
     char.Stories.journal.completed[909]=true
-    char.Places.heard["z:909"]=true
+    SpokenPlacesRuntime.MarkHeard("z:909")
+    assert(H:BookMark(char.Writings,909,"hyjal","world"))
+    assert(H:Acquire(char.Writings,909,"hyjal",3))
     options:SetProfile("Empty")
     -- AceDB should strip this default-only namespace on logout.
     Eq(writings.profile.autoplay,true)
@@ -296,7 +306,9 @@ elseif scenario == "reload" then
     Eq(root:GetCurrentProfile(),"Alice Current")
     Eq(root.profile.Frame.FrameScale,1.25)
     History(101); LegacyPrefs()
-    assert(char.Writings.read[909] and char.Stories.journal.completed[909] and char.Places.heard["z:909"])
+    assert(char.Writings.read[909] and char.Stories.journal.completed[909] and H:PlaceHas(char.Places,"heard","z:909"))
+    Eq(char.Writings.locations[909].hyjal.world,true)
+    Eq(char.Writings.acquisitions[909].hyjal,3,"no duplicate counters after serialized reload")
     Eq(root.profiles["Bob - Test Realm"].Frame.FrameScale,0.85)
     Logout()
 elseif scenario == "historyonly" then

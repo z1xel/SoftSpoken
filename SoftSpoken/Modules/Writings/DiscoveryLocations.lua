@@ -211,7 +211,7 @@ local function SavedProjection(raw,held,isQuantity)
         if type(key)=="number" then
             local p={mapID=key,sourceMapID=key,held=true}
             if isQuantity then
-                if type(value)=="number" and value>0 then
+                if type(value)=="number" and value>0 and value==math.floor(value) and value-value==0 then
                     p.quantity=value;table.insert(result,p)
                 end
             elseif type(value)=="string" then
@@ -255,6 +255,7 @@ function Writings:BookFoundAt(book,mapID)
     local locations=self:BookLocations(book)
     local history=History()
     if history then
+        if type(mapID)=="string" and locations and locations[mapID] then return true end
         local id=history:ResolveWritingsKey(mapID)
         if id and locations and locations[id] then return true end
         local held=Character().locationHolds.locations[book]
