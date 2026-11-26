@@ -199,7 +199,17 @@ function Writings:ObservedLocations(book)
         if type(mapID)=="number" then table.insert(values,mapID) end
     end
     table.sort(values)
-    return MapReferences(values)
+    local projected=MapReferences(values)
+    for _,p in ipairs(projected) do
+        p.methods={}
+        for _,value in ipairs(values) do
+            if value==p.sourceMapID or (p.locationID and ContentLocation(r,value)==p.locationID) then
+                local method=locations[value]
+                if type(method)=="string" then p.methods[method]=true end
+            end
+        end
+    end
+    return projected
 end
 function Writings:BookFoundAt(book,mapID)
     if mapID==nil then return false end
@@ -240,14 +250,38 @@ function Writings:RecordBookLocation(book, mapID, how)
     if not book or type(mapID)~="number" or ROOTS[mapID] then return false end
     local r=Registry()
     if r and not ContentLocation(r,mapID) then return false end
+    mapID=ProjectMap(r,mapID)
     local characterDB=Character()
     if not characterDB then return false end
     local locations=characterDB.locations[book]
     if type(locations)~="table" then locations={}; characterDB.locations[book]=locations end
-    if locations[mapID] then return false end
+    if self:BookFoundAt(book,mapID) then return false end
     locations[mapID]=how or "encounter"
     if self.ReadablesLocationChanged then self:ReadablesLocationChanged() end
     return true
+end
+
+-- Outstanding quantities are projected by canonical identity for reading,
+-- without changing any raw counters or multiplying an ambiguous reference.
+function Writings:AcquisitionLocations(itemID)
+    local character=Character()
+    local raw=character and character.acquisitions and character.acquisitions[itemID]
+    local values={}
+    for mapID,n in pairs(type(raw)=="table" and raw or {}) do
+        if type(mapID)=="number" and type(n)=="number" and n>0 then table.insert(values,mapID) end
+    end
+    table.sort(values)
+    local r=Registry()
+    local result=MapReferences(values)
+    for _,p in ipairs(result) do
+        p.quantity=0
+        for _,value in ipairs(values) do
+            if value==p.sourceMapID or (p.locationID and ContentLocation(r,value)==p.locationID) then
+                p.quantity=p.quantity+raw[value]
+            end
+        end
+    end
+    return result
 end
 
 local function Inventory()
@@ -307,6 +341,7 @@ local function Reconcile()
     end
     local acquired=Character().acquisitions
     local location = Writings:CurrentDiscoveryMap()
+    if location then location=ProjectMap(Registry(),location) end
     for id,newCount in pairs(totals) do
         local increase = newCount - (previous[id] or 0)
         if increase>0 and location and carriedNames[names[id]] and
@@ -413,10 +448,9 @@ function Writings:MarkBookFound(book)
         if dirty then bags:Hide();dirty=false;elapsed=0;Reconcile() end
         local title=ItemTextGetItem and ItemTextGetItem()
         local itemID=UniqueInventoryItem(title)
-        local acquisitionZones=itemID and Character().acquisitions[itemID]
-        if type(acquisitionZones)=="table" then
-            for zone,count in pairs(acquisitionZones) do
-                if count>0 then self:RecordBookLocation(book,zone,"acquired") end
+        if itemID then
+            for _,origin in ipairs(self:AcquisitionLocations(itemID)) do
+                if origin.quantity>0 then self:RecordBookLocation(book,origin.mapID,"acquired") end
             end
         end
     end
