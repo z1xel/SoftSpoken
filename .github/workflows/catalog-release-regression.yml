@@ -7,6 +7,9 @@ on:
       - "SoftSpoken/Modules/Stories/**"
       - "SoftSpoken/Compendium/UI/**"
       - "tests/catalog_release_gate.lua"
+      - "tests/stories_registry_octo.lua"
+      - "tests/compendium_pvp_categories.lua"
+      - "SoftSpoken/Locations/**"
       - ".github/workflows/catalog-release-regression.yml"
   pull_request:
     branches: [dev, feature/single-addon]
@@ -14,6 +17,9 @@ on:
       - "SoftSpoken/Modules/Stories/**"
       - "SoftSpoken/Compendium/UI/**"
       - "tests/catalog_release_gate.lua"
+      - "tests/stories_registry_octo.lua"
+      - "tests/compendium_pvp_categories.lua"
+      - "SoftSpoken/Locations/**"
       - ".github/workflows/catalog-release-regression.yml"
 
 permissions:
@@ -37,4 +43,7 @@ jobs:
           luac5.1 -p SoftSpoken/Modules/Stories/Data/TurtleAreaMeta.lua
           luac5.1 -p SoftSpoken/Compendium/UI/DungeonNames.lua
       - name: Validate roster, speaker data associations and stage overlays
-        run: lua5.1 tests/catalog_release_gate.lua
+        run: |
+          lua5.1 tests/catalog_release_gate.lua
+          lua5.1 tests/compendium_pvp_categories.lua
+          lua5.1 tests/stories_registry_octo.lua
