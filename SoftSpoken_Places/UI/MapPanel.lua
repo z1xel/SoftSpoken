@@ -211,6 +211,34 @@ local function BuildPanel()
     panel:Hide()
 end
 
+-- Keep the button at the original outside anchor, regardless of whether
+-- the reader can dock outside. Only screen bounds may adjust that anchor.
+local toggleX, toggleY
+local function ApplyToggleAnchor()
+    if not toggle then return end
+    local x,y = 0,-75
+    if UIParent and WorldMapFrame.GetEffectiveScale and UIParent.GetEffectiveScale
+        and toggle.GetEffectiveScale and WorldMapFrame.GetRight and WorldMapFrame.GetTop
+        and UIParent.GetLeft and UIParent.GetRight and UIParent.GetBottom and UIParent.GetTop then
+        local mapScale,screenScale,scale = WorldMapFrame:GetEffectiveScale(),
+            UIParent:GetEffectiveScale(),toggle:GetEffectiveScale()
+        local mapRight,mapTop = WorldMapFrame:GetRight(),WorldMapFrame:GetTop()
+        local left,right,bottom,top = UIParent:GetLeft(),UIParent:GetRight(),
+            UIParent:GetBottom(),UIParent:GetTop()
+        if mapScale and screenScale and scale and mapScale > 0 and screenScale > 0 and scale > 0
+            and mapRight and mapTop and left and right and bottom and top then
+            x = math.max((left*screenScale-mapRight*mapScale)/scale,
+                math.min(x,(right*screenScale-mapRight*mapScale)/scale-toggle:GetWidth()))
+            y = math.min((top*screenScale-mapTop*mapScale)/scale,
+                math.max(y,(bottom*screenScale-mapTop*mapScale)/scale+toggle:GetHeight()))
+        end
+    end
+    if x == toggleX and y == toggleY then return end
+    toggle:ClearAllPoints()
+    toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",x,y)
+    toggleX,toggleY = x,y
+end
+
 local function BuildToggle()
     -- Reproduce Blizzard 1.12's SpellBookSkillLineTabTemplate, rather than
     -- framing this as an action-bar slot. Keep the independent map toggle
@@ -231,8 +259,7 @@ local function BuildToggle()
     icon:SetTexture("Interface\\Icons\\INV_Misc_Map_01")
     icon:SetTexCoord(.08,.92,.08,.92)
     toggle:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square","ADD")
-    -- Original UI remains full-screen on 1.12: put the reopen button within it.
-    -- ApplyAnchors positions the toggle together with its panel.
+    -- Button positioning is independent of the reader's docking mode.
     toggle:SetScript("OnClick",function() MapPanel.SetMapPanelCollapsed(false) end)
     toggle:SetScript("OnEnter",function(self)
         if GameTooltip then
@@ -243,6 +270,7 @@ local function BuildToggle()
     end)
     toggle:SetScript("OnLeave",function() if GameTooltip then GameTooltip:Hide() end end)
     toggle:SetScript("OnHide",function() if GameTooltip then GameTooltip:Hide() end end)
+    ApplyToggleAnchor()
     toggle:Hide()
 end
 -- Upstream docks beside the map, not over it. A modern/windowed map has
@@ -273,19 +301,16 @@ local function ApplyAnchors()
     if anchoredOutside == outside then return false end
     anchoredOutside = outside
     panel:ClearAllPoints()
-    toggle:ClearAllPoints()
     if outside then
         -- These are the same outer-edge anchors used by upstream MapPanel.lua.
         -- Crucially, WorldMapFrame itself is NEVER touched.
         panel:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",GAP,0)
         panel:SetPoint("BOTTOMLEFT",WorldMapFrame,"BOTTOMRIGHT",GAP,0)
-        toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",0,-75)
     else
         -- Fullscreen 1.12 and windowed maps too near the screen edge:
         -- leave the Blizzard map geometry alone and display an inset overlay.
         panel:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-28,-62)
         panel:SetPoint("BOTTOMRIGHT",WorldMapFrame,"BOTTOMRIGHT",-28,54)
-        toggle:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-33,-75)
     end
     return true
 end
@@ -408,7 +433,7 @@ function MapPanel.Refresh()
     ApplyAnchors()
     local collapsed=Settings().mapPanelCollapsed
     if collapsed then
-        panel:Hide();toggle:Show();return
+        panel:Hide();ApplyToggleAnchor();toggle:Show();return
     end
     toggle:Hide();panel:Show()
     if not mapID then
@@ -519,6 +544,7 @@ watch:SetScript("OnUpdate",function(self,dt)
     end
     if not WorldMapFrame:IsShown() then return end
     ApplyAnchors()
+    if toggle:IsShown() then ApplyToggleAnchor() end
     -- The native World Map border uses opposing anchors for its edge
     -- textures, so changes to map height require no separate border reflow.
     local mapID,_,continent,zone=MapCompat.GetDisplayedMapID()

@@ -86,3 +86,65 @@ local source=file:read("*a");file:close()
 assert(not string.find(source,"%f[%w]Compat%.Name%s*%("),
     "MapPanel contains a stale global Compat.Name lookup")
 print("PASS: Places subzone, city, ancestor and pending lore breadcrumbs")
+
+-- The compact reader must not reposition the button if the button still
+-- fits outside the map. Actual screen-edge clipping is handled separately.
+local function findup(fn,key)
+    for i=1,100 do
+        local name,value=debug.getupvalue(fn,i)
+        if name==key then return value,i end
+        if not name then break end
+    end
+    error("Missing upvalue "..key)
+end
+local applyPanel=findup(panel.SetupMapPanel,"ApplyAnchors")
+local buildToggle=findup(panel.SetupMapPanel,"BuildToggle")
+local applyToggle=findup(buildToggle,"ApplyToggleAnchor")
+local _,panelIndex=findup(applyPanel,"panel")
+local _,toggleIndex=findup(applyToggle,"toggle")
+local function anchorFrame()
+    local f={points={}}
+    function f:ClearAllPoints() self.points={} end
+    function f:SetPoint(a,parent,b,x,y) table.insert(self.points,{a,parent,b,x,y}) end
+    function f:GetWidth() return 32 end
+    function f:GetHeight() return 32 end
+    function f:GetEffectiveScale() return WorldMapFrame:GetEffectiveScale() end
+    return f
+end
+local reader,button=anchorFrame(),anchorFrame()
+debug.setupvalue(applyPanel,panelIndex,reader)
+debug.setupvalue(applyToggle,toggleIndex,button)
+local right,scale,top=600,1,700
+WorldMapFrame={GetRight=function() return right end,GetTop=function() return top end,
+    GetEffectiveScale=function() return scale end}
+UIParent={GetLeft=function() return 0 end,GetRight=function() return 1000 end,
+    GetBottom=function() return 0 end,GetTop=function() return 800 end,
+    GetEffectiveScale=function() return 1 end}
+local function checkAnchor(x,y,label)
+    local p=button.points[1]
+    eq(p[1],"TOPLEFT",label.." point")
+    eq(p[2],WorldMapFrame,label.." parent")
+    eq(p[3],"TOPRIGHT",label.." relative point")
+    eq(p[4],x,label.." x")
+    eq(p[5],y,label.." y")
+end
+applyPanel();applyToggle()
+checkAnchor(0,-75,"outside reader")
+eq(reader.points[1][1],"TOPLEFT","outside panel")
+right=850
+applyPanel();applyToggle()
+checkAnchor(0,-75,"compact reader with button room")
+eq(reader.points[1][1],"TOPRIGHT","compact panel")
+right=990
+applyPanel();applyToggle()
+checkAnchor(-22,-75,"screen edge")
+right=600
+applyPanel();applyToggle()
+checkAnchor(0,-75,"restored anchor")
+right,scale,top=495,2,350
+applyPanel();applyToggle()
+checkAnchor(-27,-75,"scaled screen edge")
+top=40
+applyToggle()
+checkAnchor(-27,-8,"bottom screen edge")
+print("PASS: independent map button anchor and screen bounds")
