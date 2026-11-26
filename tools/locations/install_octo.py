@@ -5,7 +5,8 @@ from pathlib import Path
 import zipfile
 
 EXPECTED = {
-    # Filled with the exact fixed L4/L5 Lua data digests.
+    "Locations.generated.lua": "f7972e1cd23a53ac27efbefab0ead1877e3e667b7773e20bb11e4a2d5b197094",
+    "ContentBindings.generated.lua": "ffda955d474d8ceff5ceaabdf61de710f608f878435e8401a7746ad8d2d7dd24",
 }
 
 def install(archive, root):

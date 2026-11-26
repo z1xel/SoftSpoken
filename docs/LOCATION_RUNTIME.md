@@ -14,4 +14,4 @@ Registry methods are documented in LOCATION_ARCHITECTURE_CONTRACT.md. Additional
 
 ClassicAPI GetBestMapForUnit("player") is AreaTable-based in v1.23.9; use ByAreaID, not ByNativeMapID. Subzone refinement is conservative; no known subzone match yields unknown/ambiguous rather than marking the entire zone as the subzone. Missing native evidence permits zone-text fallback, an observed unmapped native ID does not. No map zoom, mutation, audio or UI calls. Actual client behavior awaits L11.
 
-Tests: lua5.1 tests/location_registry.lua. The synthetic fixture covers namespaces, redirects/splits, context, relations, maps, legacy content, unavailable/absent states and player lookup. A full-catalog validation must also run against installed data before L7.
+Tests: lua5.1 tests/location_registry.lua. The synthetic fixture covers namespaces, redirects/splits, context, relations, maps, legacy content, unavailable/absent states and player lookup. Full-catalog test: lua5.1 tests/location_registry_octo.lua after installation. CI automatically runs it when Data.lua contains the generated catalog.

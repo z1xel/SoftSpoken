@@ -74,7 +74,7 @@ local function MapIndex(index,scope,namespace,value)
     return ((index[scope] or EMPTY)[namespace] or EMPTY)[value]
 end
 
-local function CheckRef(self,scope,namespace,value)
+local function CheckRef(self,scope,namespace)
     if not self.ready then return false end
     if NATIVE[namespace] then return scope==self.scope end
     return namespace=="upstreamUiMap" and scope==CONTENT_SCOPE
@@ -214,8 +214,11 @@ function Registry:ResolveCanonical(id)
         -- A retired split is not automatically resolvable, even with one survivor.
         local candidates={}
         for _,candidate in ipairs(self.splits[id]) do
-            local resolved=self:Get(candidate)
-            if resolved then candidates[candidate]=true end
+            local visited={}
+            while self.redirects[candidate] and not visited[candidate] do
+                visited[candidate]=true; candidate=self.redirects[candidate]
+            end
+            if self.entities[candidate] then candidates[candidate]=true end
         end
         return nil,"ambiguous",Ordered(candidates)
     end
@@ -248,8 +251,9 @@ end
 function Registry:ResolveIdentifier(namespace,value,scope)
     if not self.ready then return nil,"unavailable" end
     if not scope then scope=namespace=="upstreamUiMap" and CONTENT_SCOPE or self.scope end
-    if not CheckRef(self,scope,namespace,value) then return nil,"unavailable" end
+    if not CheckRef(self,scope,namespace) then return nil,"unavailable" end
     if not Integer(value) then return nil,"unknown" end
+    if namespace=="upstreamUiMap" and EXCLUDED[value] then return nil,"unavailable" end
     if namespace=="worldMapArea" then
         local row=MapIndex(self.representations,scope,namespace,value)
         return Live(self,row and row.subject)
