@@ -1,5 +1,7 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
     <Include file="Environment.lua"/>
+    <Include file="Locations\Data.lua"/>
+    <Include file="Locations\Registry.lua"/>
     <Include file="UpgradeGuard.lua"/>
     <Include file="Version.lua"/>
     <Include file="Persistence.lua"/>
