@@ -8,7 +8,7 @@ local LorePage = SSCLorePage
 local WIDTH, GAP = 328, 2
 local READER_RIGHT_SHIFT = 2
 local SCROLLBAR_EXTRA_RIGHT_SHIFT = 1
-local panel, page, pageInset
+local panel, page, toggle, pageInset
 local lastMapID, lastContinent, lastZone
 local ready = false
 local selectedMapID, selectedAreaKey, selectedCityID
@@ -211,6 +211,40 @@ local function BuildPanel()
     panel:Hide()
 end
 
+local function BuildToggle()
+    -- Reproduce Blizzard 1.12's SpellBookSkillLineTabTemplate, rather than
+    -- framing this as an action-bar slot. Keep the independent map toggle
+    -- parent/click handler so it still opens the lore panel when collapsed.
+    toggle=CreateFrame("Button","SSZMapLoreToggle",WorldMapFrame)
+    if toggle.SetFrameLevel and WorldMapFrame.GetFrameLevel then
+        toggle:SetFrameLevel(WorldMapFrame:GetFrameLevel() + 36)
+    end
+    toggle:SetWidth(32);toggle:SetHeight(32)
+    -- Stock SpellBookFrame.xml: a 64x64 metal side-tab texture anchored
+    -- (-3,+11) from a 32x32 button, with the game icon above it.
+    local housing=toggle:CreateTexture(nil,"BACKGROUND")
+    housing:SetTexture("Interface\\SpellBook\\SpellBook-SkillLineTab")
+    housing:SetWidth(64);housing:SetHeight(64)
+    housing:SetPoint("TOPLEFT",toggle,"TOPLEFT",-3,11)
+    local icon=toggle:CreateTexture(nil,"ARTWORK")
+    icon:SetAllPoints(toggle)
+    icon:SetTexture("Interface\\Icons\\INV_Misc_Map_01")
+    icon:SetTexCoord(.08,.92,.08,.92)
+    toggle:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square","ADD")
+    -- Original UI remains full-screen on 1.12: put the reopen button within it.
+    -- ApplyAnchors positions the toggle together with its panel.
+    toggle:SetScript("OnClick",function() MapPanel.SetMapPanelCollapsed(false) end)
+    toggle:SetScript("OnEnter",function(self)
+        if GameTooltip then
+            GameTooltip:SetOwner(self,"ANCHOR_RIGHT")
+            GameTooltip:SetText("Show Lore of the Land")
+            GameTooltip:Show()
+        end
+    end)
+    toggle:SetScript("OnLeave",function() if GameTooltip then GameTooltip:Hide() end end)
+    toggle:SetScript("OnHide",function() if GameTooltip then GameTooltip:Hide() end end)
+    toggle:Hide()
+end
 -- Upstream docks beside the map, not over it. A modern/windowed map has
 -- room for this; the stock 1.12 world map is fullscreen and has no room.
 -- Preserve Blizzard's map anchors, scale and WorldMapButton geometry in BOTH
@@ -239,16 +273,19 @@ local function ApplyAnchors()
     if anchoredOutside == outside then return false end
     anchoredOutside = outside
     panel:ClearAllPoints()
+    toggle:ClearAllPoints()
     if outside then
         -- These are the same outer-edge anchors used by upstream MapPanel.lua.
         -- Crucially, WorldMapFrame itself is NEVER touched.
         panel:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",GAP,0)
         panel:SetPoint("BOTTOMLEFT",WorldMapFrame,"BOTTOMRIGHT",GAP,0)
+        toggle:SetPoint("TOPLEFT",WorldMapFrame,"TOPRIGHT",0,-75)
     else
         -- Fullscreen 1.12 and windowed maps too near the screen edge:
         -- leave the Blizzard map geometry alone and display an inset overlay.
         panel:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-28,-62)
         panel:SetPoint("BOTTOMRIGHT",WorldMapFrame,"BOTTOMRIGHT",-28,54)
+        toggle:SetPoint("TOPRIGHT",WorldMapFrame,"TOPRIGHT",-33,-75)
     end
     return true
 end
@@ -347,7 +384,7 @@ function MapPanel.Refresh()
         if SSZMapHighlight and SSZMapHighlight.Hide then
             SSZMapHighlight.Hide()
         end
-        panel:Hide()
+        panel:Hide();toggle:Hide()
         return
     end
     local mapID,name,continent,zone=MapCompat.GetDisplayedMapID()
@@ -364,15 +401,16 @@ function MapPanel.Refresh()
     lastMapID,lastContinent,lastZone=mapID,continent,zone
     if panel.SetFrameStrata and WorldMapFrame.GetFrameStrata then
         panel:SetFrameStrata(WorldMapFrame:GetFrameStrata())
+        toggle:SetFrameStrata(WorldMapFrame:GetFrameStrata())
     end
     -- An existing map addon can switch fullscreen/windowed mode at runtime.
     -- Only the lore frames get reanchored. No map mutation.
     ApplyAnchors()
     local collapsed=Settings().mapPanelCollapsed
     if collapsed then
-        panel:Hide();return
+        panel:Hide();toggle:Show();return
     end
-    panel:Show()
+    toggle:Hide();panel:Show()
     if not mapID then
         page:Show({title=name or "Unknown map", text="No matching lore map could be identified.",missing=true,mapID=0})
         return
@@ -418,15 +456,13 @@ function MapPanel.SetMapPanelCollapsed(collapsed)
     MapPanel.Refresh()
 end
 function MapPanel.SetEnabled(enabled)
-    local settings = Settings()
-    settings.showMapPanel=enabled and true or false
-    -- The settings checkbox is the explicit way to reopen a closed reader.
-    if enabled then settings.mapPanelCollapsed = false end
+    Settings().showMapPanel=enabled and true or false
     if not enabled then
         if SSZMapHighlight and SSZMapHighlight.Hide then
             SSZMapHighlight.Hide()
         end
         if panel then panel:Hide() end
+        if toggle then toggle:Hide() end
     end
     MapPanel.Refresh()
 end
@@ -449,6 +485,7 @@ end
 function MapPanel.SetupMapPanel()
     if ready or not WorldMapFrame then return false end
     BuildPanel()
+    BuildToggle()
     ApplyAnchors()
     ready=true
     HookScript(WorldMapFrame,"OnShow",function()
@@ -461,7 +498,7 @@ function MapPanel.SetupMapPanel()
             SSZMapHighlight.Hide()
         end
         if MapCompat.ClearOverlayCache then MapCompat.ClearOverlayCache() end
-        panel:Hide()
+        panel:Hide();toggle:Hide()
     end)
     MapPanel.Refresh()
     return true
