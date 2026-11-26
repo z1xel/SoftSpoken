@@ -3,7 +3,8 @@
 
 local PlacesRuntime = SpokenPlacesRuntime
 local Normalise = PlacesRuntime.Normalise
-local AudioID = PlacesRuntime.AudioID
+local AudioID = PlacesRuntime.CurrentMapID or PlacesRuntime.AudioID
+local ResolveAreaKey = PlacesRuntime.ResolveAreaKey or function(_,name) return Normalise(name) end
 local HeardKey = PlacesRuntime.HeardKey
 local CurrentLocation = PlacesRuntime.CurrentLocation
 local CharDB = PlacesRuntime.CharDB
@@ -24,7 +25,7 @@ end
 -- Legacy API retained for compatibility; map clicks no longer call MarkFound.
 -- Discovery records should only be written by genuine world visits/events.
 function SpokenPlacesBridge:MarkFound(mapID, areaKey)
-    if not mapID or not areaKey then return false end
+    if not mapID or not areaKey or (PlacesRuntime.IsMapSupported and not PlacesRuntime.IsMapSupported(mapID)) then return false end
     local lore = SSZLore
     local key = Normalise(areaKey)
     if not (lore and lore.subzones and lore.subzones[mapID] and
@@ -92,6 +93,7 @@ end
 -- rather than a display name so "The Den" and "den" resolve to the same clip.
 function SpokenPlacesBridge:PlayEntry(mapID, areaKey)
     if not PlacesRuntime.source then return false, "player not ready" end
+    if PlacesRuntime.IsMapSupported and not PlacesRuntime.IsMapSupported(mapID) then return false,"unsupported map" end
     local lore = SSZLore or {}
     local z = lore.zones and lore.zones[mapID]
     local zoneName = ZONE_NAMES[mapID] or (z and z.name) or tostring(mapID)
@@ -113,10 +115,10 @@ function SpokenPlacesBridge:CurrentEntry()
     local zone, area = CurrentLocation()
     local mapID = AudioID(zone)
     if not mapID then return nil, nil end
-    local areaKey = Normalise(area)
+    local areaKey = ResolveAreaKey(mapID,area)
     local lore = SSZLore
     local subs = lore and lore.subzones and lore.subzones[mapID]
-    if areaKey == "" or areaKey == Normalise(zone) or
+    if not areaKey or areaKey == "" or Normalise(area) == Normalise(zone) or
        not (subs and subs[areaKey]) then
         areaKey = nil
     end

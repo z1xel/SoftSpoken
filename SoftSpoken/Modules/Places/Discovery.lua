@@ -3,14 +3,14 @@
 
 local PlacesRuntime = SpokenPlacesRuntime
 local Normalise = PlacesRuntime.Normalise
-local AudioID = PlacesRuntime.AudioID
+local AudioID = PlacesRuntime.CurrentMapID or PlacesRuntime.AudioID
+local ResolveAreaKey = PlacesRuntime.ResolveAreaKey or function(_,name) return Normalise(name) end
 local CharDB = PlacesRuntime.CharDB
 local ZONE_NAMES = PlacesRuntime.ZONE_NAMES
 local exploredCache = {}
 local nativeChecked = {} -- Native explored overlays apply to displayed map only.
 local InvalidateExploration
-local CITY_PARENT = { [1453]=1429, [1454]=1411, [1455]=1426,
-                      [1456]=1412, [1457]=1438, [1458]=1420 }
+local CITY_PARENT = PlacesRuntime.CityParents and PlacesRuntime.CityParents() or {}
 
 -- "Found" is not the same as "heard". As in upstream Spoken, standing in a
 -- place reveals it to the Compendium, while *autoplay* waits for the game's
@@ -27,8 +27,8 @@ local function RecordVisit(zone, subzone)
     local changed=false
     local zoneKey=VisitKey(mapID)
     if not visited[zoneKey] then visited[zoneKey]=true;changed=true end
-    local areaKey = Normalise(subzone)
-    if areaKey ~= "" and areaKey ~= Normalise(zone) then
+    local areaKey = ResolveAreaKey(mapID,subzone)
+    if areaKey and areaKey ~= "" and Normalise(subzone) ~= Normalise(zone) then
         local lore = SSZLore
         if lore and lore.subzones and lore.subzones[mapID] and
            lore.subzones[mapID][areaKey] then
@@ -50,38 +50,8 @@ end
 -- ClassicAPI exposes explored-only WorldMapOverlay records, including
 -- areaIDs, but does NOT necessarily implement GetExploredAreaIDsAtPosition.
 -- Use the documented exploration API instead of an always-empty scan.
-local exploredAreaIDs
 local function ExplorerMapAreaID(mapID)
-    if not C_Map then return nil end
-    if not exploredAreaIDs and C_Map.GetAreas then
-        local ok, areas=pcall(C_Map.GetAreas)
-        if ok and type(areas)=="table" then
-            exploredAreaIDs={}
-            for id,name in pairs(areas) do
-                if type(id)=="number" and type(name)=="string" then
-                    local key=Normalise(name)
-                    if not exploredAreaIDs[key] then exploredAreaIDs[key]=id end
-                end
-            end
-        end
-    end
-    local wanted=Normalise(ZONE_NAMES[mapID])
-    if exploredAreaIDs and exploredAreaIDs[wanted] then
-        return exploredAreaIDs[wanted]
-    end
-    -- Older ClassicAPI snapshots might expose GetMapAreaIDs before GetAreas.
-    -- The directory mapping is a safe fallback where an exact name matches.
-    if C_Map.GetMapAreaIDs then
-        local ok, directories=pcall(C_Map.GetMapAreaIDs)
-        if ok and type(directories)=="table" then
-            for name,id in pairs(directories) do
-                if type(id)=="number" and Normalise(name)==wanted then
-                    return id
-                end
-            end
-        end
-    end
-    return nil
+    if PlacesRuntime.NativeMapID then return PlacesRuntime.NativeMapID(mapID) end
 end
 
 -- Translate *one confirmed explored overlay* into lore keys. The unexplored
@@ -89,52 +59,41 @@ end
 -- Multiple areaIDs in a shared artwork record are ambiguous: do not unlock
 -- every subzone merely because one piece of map art became visible.
 local function AcceptExploredOverlay(mapID, overlay, result)
-    if type(overlay) ~= "table" or not (C_Map and C_Map.GetAreaInfo) then return end
+    if type(overlay)~="table" then return end
     local ids={}
-    if type(overlay.areaIDs) == "table" then
-        for _, id in pairs(overlay.areaIDs) do
-            if type(id)=="number" and id>0 then ids[id]=true end
+    for _,id in pairs(overlay.areaIDs or {}) do
+        if type(id)=="number" and id>0 then ids[id]=true end
+    end
+    if type(overlay.areaID)=="number" and overlay.areaID>0 then ids[overlay.areaID]=true end
+    local registry=PlacesRuntime.Registry and PlacesRuntime.Registry()
+    local unique, count, known={},0,0
+    local keys,names={},{}
+    for aid in pairs(ids) do
+        local id=registry and registry:ByAreaID(aid)
+        local name=PlacesRuntime.NativeAreaName and PlacesRuntime.NativeAreaName(aid)
+        local token=id or (not registry and name and Normalise(name)) or aid
+        if not unique[token] then unique[token]=true; count=count+1 end
+        if name then
+            known=known+1
+            names[Normalise(name)]=true
+            local key=PlacesRuntime.AreaKeyForNative and PlacesRuntime.AreaKeyForNative(mapID,aid)
+            if key then keys[key]=true end
         end
     end
-    if type(overlay.areaID)=="number" and overlay.areaID>0 then
-        ids[overlay.areaID]=true
-    end
-    local uniqueNames={}
-    local count=0
-    for id in pairs(ids) do
-        local ok,name=pcall(C_Map.GetAreaInfo,id)
-        if ok and type(name)=="string" and name~="" then
-            local key=Normalise(name)
-            if key~="" and not uniqueNames[key] then
-                uniqueNames[key]=true
-                count=count+1
-            end
-        end
-    end
-    if count == 0 then return end
+    if known==0 then return end
     result.zone=true
-    -- A shared overlay may span multiple places; it proves exploration of
-    -- the artwork, not which exact name/entry was discovered. One conservative
-    -- exception: Aldrassil is *inside* Shadowglen. Exploring this particular
-    -- shared texture necessarily reveals its enclosing Shadowglen, but does
-    -- NOT prove that the player entered Aldrassil itself.
-    if count ~= 1 then
-        if mapID==1438 and count==2 and uniqueNames.shadowglen and
-           uniqueNames.aldrassil then
-            local subs=SSZLore and SSZLore.subzones
-            if subs and subs[1438] and subs[1438].shadowglen then
-                result.keys.shadowglen=true
-                result.names.shadowglen=true
-            end
+    -- Preserve the existing narrowly reviewed Shadowglen/Aldrassil exception.
+    -- Otherwise distinct or unresolved areas in one texture are ambiguous.
+    if count~=1 then
+        if mapID==1438 and count==2 and names.shadowglen and names.aldrassil and keys.shadowglen then
+            result.keys.shadowglen=true
+            result.names.shadowglen=true
         end
         return
     end
-    local subs=SSZLore and SSZLore.subzones and
-               SSZLore.subzones[mapID]
-    for key in pairs(uniqueNames) do
-        result.names[key]=true
-        if subs and subs[key] then result.keys[key]=true end
-    end
+    local subs=SSZLore and SSZLore.subzones and SSZLore.subzones[mapID]
+    for name in pairs(names) do result.names[name]=true end
+    for key in pairs(keys) do if subs and subs[key] then result.keys[key]=true end end
 end
 
 -- Vanilla's GetNumMapOverlays/GetMapOverlayInfo return ONLY already explored
@@ -152,7 +111,7 @@ end
 
 local function NativeExploration(mapID, result)
     if not (GetNumMapOverlays and GetMapOverlayInfo and C_Map and
-            C_Map.GetMapOverlays and C_Map.GetAreaInfo) then return false end
+            C_Map.GetMapOverlays) then return false end
     -- Never scan a DIFFERENT displayed map; native overlays have no mapID
     -- argument. Do not change zoom or map visibility for this operation.
     local compat=SSZMapCompat
@@ -189,7 +148,7 @@ local function ScanExploration(mapID)
         result={zone=false, keys={}, names={}}
         exploredCache[mapID]=result
         local info=C_MapExplorationInfo
-        if info and info.GetExploredMapTextures and C_Map and C_Map.GetAreaInfo then
+        if info and info.GetExploredMapTextures then
             local areaID=ExplorerMapAreaID(mapID)
             if areaID then
                 local ok, overlays=pcall(info.GetExploredMapTextures,areaID)
@@ -217,9 +176,20 @@ InvalidateExploration = function()
 end
 
 local function WasFound(mapID, areaKey)
-    if not mapID then return false end
+    if not mapID or (PlacesRuntime.IsMapSupported and not PlacesRuntime.IsMapSupported(mapID)) then return false end
     local visited = CharDB().visited
     if visited[VisitKey(mapID,areaKey)] then return true end
+    -- Read through proven aliases without rewriting or fanning out saved keys.
+    local registry=PlacesRuntime.Registry and PlacesRuntime.Registry()
+    local id=registry and PlacesRuntime.ResolveLegacy(mapID,areaKey)
+    if id then
+        for _,b in ipairs(registry:GetContentBindings(id)) do
+            if b.namespace=="legacyPlace" and b.sourceScope=="spoken_classic" then
+                local key=b.area~="" and b.area or nil
+                if visited[VisitKey(b.value,key)] then return true end
+            end
+        end
+    end
     local scanned=ScanExploration(mapID)
     if areaKey then return scanned.keys[Normalise(areaKey)] == true end
     if scanned.zone then return true end

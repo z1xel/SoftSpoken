@@ -112,6 +112,7 @@ function PlacesRuntime.AudioPackNames()
 end
 
 local function FindRecording(mapID, areaKey)
+    if PlacesRuntime.IsMapSupported and not PlacesRuntime.IsMapSupported(mapID) then return nil end
     -- Registry family precedence first, then sorted addon names within
     -- each family. Retain alternatives for a missing physical MP3.
     local matches, seen = {}, {}
@@ -197,9 +198,9 @@ local function ParentHeading(mapID, zoneName, areaKey)
     return zoneName
 end
 
-local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay, initialGreeting)
+local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay, initialGreeting, resolvedAreaKey)
     local areaKey
-    if not isZone then areaKey = Normalise(areaLabel) end
+    if not isZone then areaKey = resolvedAreaKey or Normalise(areaLabel) end
     local pack, recording, choices = FindRecording(mapID, areaKey)
     if not pack then return nil end
     local fallbacks = {}
@@ -218,6 +219,7 @@ local function MakeClip(mapID, zoneName, areaLabel, isZone, autoplay, initialGre
         key = key,
         mapID = mapID,
         areaKey = areaKey,
+        locationID = PlacesRuntime.ResolveLegacy and PlacesRuntime.ResolveLegacy(mapID,areaKey) or nil,
         path = "Interface\\AddOns\\" .. pack.addon ..
                "\\Sounds\\" .. recording.file .. ".mp3",
         length = EstimatedLength(recording.len),
@@ -267,19 +269,21 @@ local function RequestNarration(zoneName, areaLabel, immediate, isZone, quietMis
         if not quietMissing then Say("Spoken player is not ready.") end
         return false
     end
-    local mapID = AudioID(zoneName)
+    local resolveMap = not immediate and PlacesRuntime.CurrentMapID or AudioID
+    local mapID = resolveMap(zoneName)
     if not mapID then
         if not quietMissing then Say("No audio ID mapped for: " .. zoneName) end
         return false
     end
-    local key
-    if isZone then
-        key = HeardKey(mapID, nil)
-    else
-        key = HeardKey(mapID, areaLabel)
+    local areaKey
+    if not isZone then
+        local resolveArea=PlacesRuntime.ResolveAreaKey or function(_,name) return Normalise(name) end
+        areaKey=resolveArea(mapID,areaLabel)
+        if not areaKey or areaKey=="" then return false end
     end
+    local key=HeardKey(mapID,areaKey)
     if not immediate and (WasHeard(key) or pending[key]) then return false end
-    local clip = MakeClip(mapID, zoneName, areaLabel, isZone, not immediate, initialGreeting)
+    local clip = MakeClip(mapID, zoneName, areaLabel, isZone, not immediate, initialGreeting, areaKey)
     if not clip then
         if not quietMissing then Say("No recording found for " .. zoneName .. " / " .. areaLabel) end
         return false

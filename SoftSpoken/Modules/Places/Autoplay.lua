@@ -3,7 +3,8 @@
 
 local PlacesRuntime = SpokenPlacesRuntime
 local Normalise = PlacesRuntime.Normalise
-local AudioID = PlacesRuntime.AudioID
+local AudioID = PlacesRuntime.CurrentMapID or PlacesRuntime.AudioID
+local ResolveAreaKey = PlacesRuntime.ResolveAreaKey or function(_,name) return Normalise(name) end
 local CurrentLocation = PlacesRuntime.CurrentLocation
 local CharDB = PlacesRuntime.CharDB
 local RecordVisit = PlacesRuntime.RecordVisit
@@ -26,9 +27,10 @@ local function TryGreeting(zone, subzone)
        UnitLevel("player") ~= 1 then return end
     local queued = false
     local mapID = AudioID(zone)
-    if settings.subzones and mapID and Normalise(subzone) ~= "" and
+    local areaKey = mapID and ResolveAreaKey(mapID,subzone)
+    if settings.subzones and mapID and areaKey and areaKey ~= "" and
        Normalise(subzone) ~= Normalise(zone) and
-       FindRecording(mapID, Normalise(subzone)) then
+       FindRecording(mapID, areaKey) then
         queued = RequestNarration(zone, subzone, false, false, true, true)
     end
     if not queued then
@@ -49,9 +51,10 @@ local function CheckLocation()
     local location = zone .. "|" .. subzone
     if location == lastLocation then return end
     RecordVisit(zone, subzone)
-    local zoneChanged = Normalise(zone) ~= Normalise(lastZone)
+    local zoneIdentity = AudioID(zone) or Normalise(zone)
+    local zoneChanged = zoneIdentity ~= lastZone
     lastLocation = location
-    lastZone = zone
+    lastZone = zoneIdentity
     if PlacesRuntime.IsPartOn and not PlacesRuntime:IsPartOn() then return end
     if not PlacesRuntime.Settings().auto or PlacesRuntime.Settings().mode ~= "unheard" then return end
     local mapID = AudioID(zone)
@@ -93,7 +96,7 @@ local function StabilizeStartingLocation(elapsed)
     PlacesRuntime.initialGreetingGraceUntil = (GetTime and GetTime() or 0) + STARTUP_GREETING_GRACE_SECONDS
     PlacesRuntime.startupActive = false
     lastLocation = key
-    lastZone = zone
+    lastZone = AudioID(zone) or Normalise(zone)
     RecordVisit(zone, subzone)
     -- Keep a low-frequency location poll after startup. Some 1.12 clients
     -- omit subzone transition events, especially nested places.
@@ -158,14 +161,14 @@ local function OnDiscovered(area)
     if not mapID then return end
     local zoneArea = Normalise(area) == Normalise(zone) or
                      Normalise(area) == Normalise(ZONE_NAMES[mapID])
-    local areaKey = Normalise(area)
+    local areaKey = ResolveAreaKey(mapID,area)
     -- Record genuine discoveries regardless of the autoplay preference.
     local visited=CharDB().visited
     if zoneArea then
         visited[VisitKey(mapID)] = true
     else
         local lore=SSZLore
-        if lore and lore.subzones and lore.subzones[mapID] and
+        if areaKey and lore and lore.subzones and lore.subzones[mapID] and
            lore.subzones[mapID][areaKey] then
             visited[VisitKey(mapID,areaKey)] = true
             visited[VisitKey(mapID)] = true
@@ -260,7 +263,7 @@ function PlacesRuntime.ResetLocationBaseline()
         PlacesRuntime.startupActive = false
         PlacesRuntime.startupStableKey = nil
     end
-    lastLocation, lastZone = zone .. "|" .. subzone, zone
+    lastLocation, lastZone = zone .. "|" .. subzone, AudioID(zone) or Normalise(zone)
     RecordVisit(zone, subzone)
 end
 
