@@ -149,10 +149,9 @@ end
 
 function Writings:CurrentDiscoveryLocation()
     local r=Registry()
-    if r and C_Map and type(C_Map.GetBestMapForUnit)=="function" then
-        local ok,area=pcall(C_Map.GetBestMapForUnit,"player")
-        if ok and type(area)=="number" and area>0 and area==math.floor(area) then
-            local id,status=r:ByAreaID(area)
+    if r then
+        local id,status,observed=r:ObservePlayerArea()
+        if observed then
             if not id then return nil,nil,status end
             local region=RegionalLocation(r,id)
             local mapID=LegacyMap(r,region)

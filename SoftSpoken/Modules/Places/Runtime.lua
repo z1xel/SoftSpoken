@@ -201,13 +201,14 @@ end
 -- The native player area can be finer than the legacy content map. Use
 -- the live zone text only to select a verified context for that identity.
 -- Unknown observed native IDs never fall through to an unrelated name.
+local REGIONAL={zone=true,city=true,dungeon=true,raid=true,
+                battleground=true,arena=true,continent=true,world=true}
 local function CurrentMapID(zoneName)
     local registry=Registry()
     local requested=AudioID(zoneName)
-    if not registry or not (C_Map and type(C_Map.GetBestMapForUnit)=="function") then return requested end
-    local ok,areaID=pcall(C_Map.GetBestMapForUnit,"player")
-    if not ok or type(areaID)~="number" or areaID<=0 then return requested end
-    local id=registry:ByAreaID(areaID)
+    if not registry then return requested end
+    local id,_,observed=registry:ObservePlayerArea()
+    if not observed then return requested end
     if not id then return nil end
     local direct=MapForLocation(id)
     if direct and ZONE_NAMES[direct] then return direct end
@@ -216,16 +217,14 @@ local function CurrentMapID(zoneName)
             or LegacyKeyForLocation(requested,id)) then return requested end
     -- A contentless zone or instance is not the same place as its
     -- containing continent/world. Stop at the first regional identity.
-    local regional={zone=true,city=true,dungeon=true,raid=true,
-                    battleground=true,arena=true,continent=true,world=true}
     local entity=registry:Get(id)
-    if entity and regional[entity.kind] then return nil end
+    if entity and REGIONAL[entity.kind] then return nil end
     for _,ancestor in ipairs(registry:GetAncestors(id)) do
         local parent=registry:Get(ancestor)
         if parent and (parent.kind=="continent" or parent.kind=="world") then return nil end
         local mapID=MapForLocation(ancestor)
         if mapID and ZONE_NAMES[mapID] then return mapID end
-        if parent and regional[parent.kind] then return nil end
+        if parent and REGIONAL[parent.kind] then return nil end
     end
 end
 

@@ -98,10 +98,24 @@ SpokenEnv.C_Map={GetBestMapForUnit=function(unit) assert(unit=="player");return 
 SpokenEnv.GetRealZoneText=function() return "Other" end
 SpokenEnv.GetSubZoneText=function() return "Tower" end
 SpokenEnv.SetMapZoom=function() error("map side effect") end
+local observed
+id,status,observed=r:ObservePlayerArea()
+assert(id=="zone" and status=="resolved" and observed)
 Is(r,"ResolvePlayerZone","zone","resolved")
 Is(r,"ResolvePlayerLocation","tower","resolved")
 SpokenEnv.C_Map.GetBestMapForUnit=function() return 9999 end
+id,status,observed=r:ObservePlayerArea()
+assert(not id and status=="unknown" and observed)
 Is(r,"ResolvePlayerLocation",nil,"unknown")
+SpokenEnv.C_Map.GetBestMapForUnit=function() return 300 end
+id,status,observed=r:ObservePlayerArea()
+assert(not id and status=="unavailable" and observed)
+SpokenEnv.C_Map.GetBestMapForUnit=function() error("unavailable API") end
+id,status,observed=r:ObservePlayerArea()
+assert(not id and status=="unavailable" and not observed)
+SpokenEnv.C_Map.GetBestMapForUnit=function() return 12.5 end
+id,status,observed=r:ObservePlayerArea()
+assert(not id and not observed)
 SpokenEnv.C_Map.GetBestMapForUnit=function() return nil end
 Is(r,"ResolvePlayerLocation","other_tower","resolved")
 SpokenEnv.GetSubZoneText=function() return "Missing" end
@@ -113,4 +127,4 @@ assert(missing:Get("tower")==nil and table.getn(missing:GetMaps("tower"))==0)
 local invalid=Load({schemaVersion=2},{})
 assert(not invalid:IsReady() and invalid:GetError())
 Is(invalid,"ResolveName",nil,"unavailable","Tower")
-print("L6 registry fixture: passed")
+print("L6/L11 registry fixture: passed")

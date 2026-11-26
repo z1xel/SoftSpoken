@@ -32,11 +32,10 @@ local function Ordered(set)
 end
 
 local function Choose(set)
-    local ids=Ordered(set)
-    local n=table.getn(ids)
-    if n==1 then return ids[1],"resolved" end
-    if n>1 then return nil,"ambiguous",ids end
-    return nil,"unknown"
+    local first=next(set or EMPTY)
+    if not first then return nil,"unknown" end
+    if not next(set,first) then return first,"resolved" end
+    return nil,"ambiguous",Ordered(set)
 end
 
 local function Integer(value)
@@ -204,8 +203,9 @@ function Registry:GetError() return self.error end
 function Registry:ResolveCanonical(id)
     if not self.ready then return nil,"unavailable" end
     if type(id)~="string" then return nil,"unknown" end
-    local seen={}
+    local seen
     while self.redirects[id] do
+        seen=seen or {}
         if seen[id] then return nil,"unknown" end
         seen[id]=true; id=self.redirects[id]
     end
@@ -228,12 +228,12 @@ end
 function Registry:Get(id)
     if not self.ready then return nil end
     -- Follow redirects but never resolve a split or recurse through it.
-    local seen={}
-    while type(id)=="string" and self.redirects[id] do
-        if seen[id] then return nil end
-        seen[id]=true; id=self.redirects[id]
-    end
-    return self.entities[id]
+    -- Active IDs are overwhelmingly the common path. Resolve redirects
+    -- centrally only when needed; splits and unknowns have no entity.
+    if type(id)~="string" then return nil end
+    if not self.redirects[id] then return self.entities[id] end
+    local canonical=self:ResolveCanonical(id)
+    return canonical and self.entities[canonical]
 end
 
 function Registry:GetAvailability(id)
@@ -362,7 +362,9 @@ end
 
 function Registry:ResolveName(name,context)
     if not self.ready then return nil,"unavailable" end
-    if type(name)~="string" or Fold(name)=="" then return nil,"unknown" end
+    if type(name)~="string" then return nil,"unknown" end
+    local key=Fold(name)
+    if key=="" then return nil,"unknown" end
     context=context or EMPTY
     if context.scope and context.scope~=self.scope and context.scope~=CONTENT_SCOPE then return nil,"unavailable" end
     local parent=context.parent and self:ResolveCanonical(context.parent)
@@ -370,14 +372,15 @@ function Registry:ResolveName(name,context)
     local map=context.map
     local mapScope=map and (map.scope or self.scope)
     if map and mapScope~=self.scope and mapScope~=CONTENT_SCOPE then return nil,"unavailable" end
+    local instance=context.instanceMapID and self:ByInstanceMapID(context.instanceMapID)
     local function Filter(set)
+        if not set then return EMPTY end
         local result={}
-        for id in pairs(set or EMPTY) do
+        for id in pairs(set) do
             local entity=self.entities[id]
             local matches=self.availability[id]~="absent" and (not context.kind or entity.kind==context.kind)
             if matches and parent then matches=self:IsWithin(id,parent) end
             if matches and context.instanceMapID then
-                local instance=self:ByInstanceMapID(context.instanceMapID)
                 matches=instance and (instance==id or self:IsWithin(id,instance))
             end
             if matches and map then
@@ -393,16 +396,16 @@ function Registry:ResolveName(name,context)
         return result
     end
     local locale=context.locale or "enUS"
-    local key=Fold(name)
-    -- Requested locale first, then English fallback. Exact preferred
-    -- spelling before folded preferred/alias lookup in each locale.
-    local sets={Filter((self.exact[locale] or EMPTY)[name]),
-                Filter((self.folded[locale] or EMPTY)[key])}
+    -- Evaluate precedence lazily; an exact ambiguous match is terminal,
+    -- not a reason to pick a candidate from a lower-precedence alias.
+    local set=Filter((self.exact[locale] or EMPTY)[name])
+    if next(set) then return Choose(set) end
+    set=Filter((self.folded[locale] or EMPTY)[key])
+    if next(set) then return Choose(set) end
     if locale~="enUS" then
-        table.insert(sets,Filter((self.exact.enUS or EMPTY)[name]))
-        table.insert(sets,Filter((self.folded.enUS or EMPTY)[key]))
-    end
-    for _,set in ipairs(sets) do
+        set=Filter((self.exact.enUS or EMPTY)[name])
+        if next(set) then return Choose(set) end
+        set=Filter((self.folded.enUS or EMPTY)[key])
         if next(set) then return Choose(set) end
     end
     return nil,"unknown"
@@ -410,12 +413,24 @@ end
 
 -- ClassicAPI v1.23.9 returns the engine's native zone-level AreaTable ID,
 -- despite the modern-looking API name. Never query or change map zoom.
-function Registry:ResolvePlayerZone()
-    if not self.ready then return nil,"unavailable" end
+-- The third return distinguishes missing API evidence from an observed
+-- native ID that does not resolve. Only the former permits text fallback.
+function Registry:ObservePlayerArea()
+    if not self.ready then return nil,"unavailable",false end
     if C_Map and type(C_Map.GetBestMapForUnit)=="function" then
         local ok,area=pcall(C_Map.GetBestMapForUnit,"player")
-        if ok and Integer(area) and area>0 then return self:ByAreaID(area) end
+        if ok and Integer(area) and area>0 then
+            local id,status=self:ByAreaID(area)
+            return id,status,true
+        end
     end
+    return nil,"unavailable",false
+end
+
+function Registry:ResolvePlayerZone()
+    if not self.ready then return nil,"unavailable" end
+    local id,status,observed=self:ObservePlayerArea()
+    if observed then return id,status end
     if type(GetRealZoneText)=="function" then
         return self:ResolveName(GetRealZoneText(),{locale=type(GetLocale)=="function" and GetLocale() or "enUS"})
     end

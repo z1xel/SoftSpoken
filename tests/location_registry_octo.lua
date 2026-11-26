@@ -46,4 +46,20 @@ end
 assert(r:ByAreaID(616)=="hyjal")
 assert(r:ByAreaID(209)~=r:ByInstanceMapID(209))
 assert(not _G.SoftSpokenLocationData and not _G.SoftSpokenLocationContentBindings and not _G.Locations)
-print("L6 full Octo catalog: "..count.." entities, "..table.getn(data.view.bindings).." bindings, "..table.getn(content).." content keys")
+-- Exercise repeated hot-path queries with the complete shipped dataset.
+-- Report timing and retained heap for comparison; no flaky wall-clock gate.
+local bindingCount,contentCount=table.getn(data.view.bindings),table.getn(content)
+data=nil; content=nil
+collectgarbage("collect")
+local before=collectgarbage("count")
+local start=os.clock()
+for i=1,10000 do
+    assert(r:ByAreaID(616)=="hyjal")
+    assert(r:Get("hyjal") and r:GetName("hyjal"))
+    assert(r:ResolveName("Durotar")=="durotar")
+end
+local elapsed=os.clock()-start
+collectgarbage("collect")
+print(string.format("L11 10000 lookup iterations (4 queries each): %.3fs, retained heap delta %.1f KiB",elapsed,collectgarbage("count")-before))
+-- Recover counts from the registry-independent counters before releasing input.
+print("L6 full Octo catalog: "..count.." entities, "..bindingCount.." bindings, "..contentCount.." content keys")
