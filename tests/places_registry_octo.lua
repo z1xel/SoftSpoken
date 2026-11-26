@@ -95,10 +95,26 @@ nativeArea=999999;R.RecordVisit(realZone,"Northshire Valley")
 eq(count(db.visited),2,"unknown native evidence cannot record a different place")
 nativeArea=12;R.RecordVisit("Durotar","Northshire Valley")
 eq(count(db.visited),2,"stale textual area cannot record a different place")
-db.visited={["1411/southfury river"]=true}
-eq(R.WasFound(1413,"southfury river"),true,"canonical equivalent discovery")
-eq(count(db.visited),1,"alias lookup does not rewrite visited")
-eq(db.visited["1413/southfury river"],nil)
+-- One physical river, four independent discovery contexts.
+db.visited={}
+nativeArea=377
+R.RecordVisit("Durotar","Southfury River")
+eq(db.visited["1411/southfury river"],true)
+R.db.profile.compendiumUnlockUndiscovered=false
+for _,id in ipairs({1411,1413,1440,1447}) do
+    eq(R.ResolveLegacy(id,"southfury river"),"southfury_river","shared canonical identity")
+    eq(R.WasFound(id,"southfury river"),id==1411,"context-specific visit")
+    eq(SSZLoreWindow.IsLocked(id,"southfury river"),id~=1411,"context-specific page lock")
+end
+eq(count(db.visited),2,"only observed zone and subzone are persisted")
+R.RecordVisit("The Barrens","Southfury River")
+eq(R.WasFound(1413,"southfury river"),true,"second context independently visited")
+eq(SSZLoreWindow.IsLocked(1413,"southfury river"),false)
+eq(R.WasFound(1440,"southfury river"),false)
+eq(R.WasFound(1447,"southfury river"),false)
+eq(count(db.visited),4)
+R.db.profile.compendiumUnlockUndiscovered=true
+nativeArea=12
 
 -- Native explored overlays: same identity may have multiple area IDs;
 -- mixed/unknown rows do not reveal a specific subzone.
@@ -155,4 +171,4 @@ for _,row in ipairs(SSZLoreWindow.RebuildRows()) do
     assert(R.IsMapSupported(row.mapID),"unsupported map leaked into browser")
 end
 eq(SSZLoreWindow.IsLocked(2482,nil),true)
-print("PASS: L7 real Octo Places geography, map evidence, discovery aliases, and independent clip variants")
+print("PASS: L7 real Octo Places geography, map evidence, independent discovery contexts, and independent clip variants")

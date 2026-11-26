@@ -182,17 +182,9 @@ local function WasFound(mapID, areaKey)
     if not mapID or (PlacesRuntime.IsMapSupported and not PlacesRuntime.IsMapSupported(mapID)) then return false end
     local visited = CharDB().visited
     if visited[VisitKey(mapID,areaKey)] then return true end
-    -- Read through proven aliases without rewriting or fanning out saved keys.
-    local registry=PlacesRuntime.Registry and PlacesRuntime.Registry()
-    local id=registry and PlacesRuntime.ResolveLegacy(mapID,areaKey)
-    if id then
-        for _,b in ipairs(registry:GetContentBindings(id)) do
-            if b.namespace=="legacyPlace" and b.sourceScope=="spoken_classic" then
-                local key=b.area~="" and b.area or nil
-                if visited[VisitKey(b.value,key)] then return true end
-            end
-        end
-    end
+    -- A shared geographical identity is not evidence of a visit in another
+    -- content context. Only this map/key or its own exploration evidence
+    -- may unlock this entry; recordings and visits stay context-specific.
     local scanned=ScanExploration(mapID)
     if areaKey then return scanned.keys[Normalise(areaKey)] == true end
     if scanned.zone then return true end
