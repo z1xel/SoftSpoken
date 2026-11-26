@@ -278,12 +278,18 @@ local function RequestNarration(zoneName, areaLabel, immediate, isZone, quietMis
     local areaKey
     if not isZone then
         local resolveArea=PlacesRuntime.ResolveAreaKey or function(_,name) return Normalise(name) end
-        areaKey=resolveArea(mapID,areaLabel)
+        if not immediate and PlacesRuntime.ResolveCurrentAreaKey then
+            areaKey=PlacesRuntime.ResolveCurrentAreaKey(mapID,zoneName,areaLabel)
+        else
+            areaKey=resolveArea(mapID,areaLabel)
+        end
         if not areaKey or areaKey=="" then return false end
     end
     local key=HeardKey(mapID,areaKey)
     if not immediate and (WasHeard(key) or pending[key]) then return false end
-    local clip = MakeClip(mapID, zoneName, areaLabel, isZone, not immediate, initialGreeting, areaKey)
+    local clipZone = (PlacesRuntime.MapName and PlacesRuntime.MapName(mapID)) or zoneName
+    local clipLabel = isZone and clipZone or areaLabel
+    local clip = MakeClip(mapID, clipZone, clipLabel, isZone, not immediate, initialGreeting, areaKey)
     if not clip then
         if not quietMissing then Say("No recording found for " .. zoneName .. " / " .. areaLabel) end
         return false

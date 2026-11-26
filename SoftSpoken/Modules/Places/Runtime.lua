@@ -220,6 +220,15 @@ local function CurrentMapID(zoneName)
     end
 end
 
+-- Resolve live subzone text in the actual selected content context.
+-- During a transition, native and textual zone evidence may temporarily
+-- disagree. Never interpret a stale subzone name under the new zone.
+local function ResolveCurrentAreaKey(mapID,zoneName,subzone)
+    local requested=AudioID(zoneName)
+    if requested and requested~=mapID then return nil end
+    return ResolveAreaKey(mapID,subzone)
+end
+
 local function ContinentOf(mapID)
     local registry=Registry()
     if registry then
@@ -281,6 +290,7 @@ PlacesRuntime.NativeAreaName = NativeAreaName
 PlacesRuntime.AreaKeyForNative = AreaKeyForNative
 PlacesRuntime.NativeMapID = NativeMapID
 PlacesRuntime.CurrentMapID = CurrentMapID
+PlacesRuntime.ResolveCurrentAreaKey = ResolveCurrentAreaKey
 PlacesRuntime.ContinentOf = ContinentOf
 PlacesRuntime.CityParents = CityParents
 PlacesRuntime.PlaceAbove = PlaceAbove

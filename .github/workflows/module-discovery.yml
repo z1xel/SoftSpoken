@@ -11,6 +11,9 @@ jobs:
       - run: |
           lua5.1 tests/module_discovery_policy.lua
           lua5.1 tests/audio_phase2_places.lua
+          lua5.1 tests/places_registry_octo.lua
+          lua5.1 tests/places_map_panel_names.lua
+          lua5.1 tests/places_zone_portrait_emblems.lua
           lua5.1 tests/audio_phase2_writings.lua
           lua5.1 tests/compendium_completed_sync.lua
           lua5.1 tests/stories_quest_dialogue.lua

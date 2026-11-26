@@ -304,6 +304,7 @@ local function PageEntry(mapID)
             local name = entry.name or selectedAreaKey
             local result = {
                 title = name, mapID = mapID, key = selectedAreaKey,
+                locationID = SpokenPlacesRuntime.ResolveLegacy and SpokenPlacesRuntime.ResolveLegacy(mapID,selectedAreaKey),
                 lore = {mapID, selectedAreaKey},
                 subtitle = "In " .. MapCompat.Name(mapID),
                 onSubtitle = function() MapPanel.ClearSubzone() end,
@@ -350,6 +351,7 @@ local function PageEntry(mapID)
         subtitle,parent=LoreWindow.PlaceLine(mapID)
     end
     local item={ title=name, mapID=mapID, subtitle=subtitle,
+        locationID=SpokenPlacesRuntime.ResolveLegacy and SpokenPlacesRuntime.ResolveLegacy(mapID),
         onSubtitle=parent and function() MapCompat.SetDisplayedMap(parent) end or nil }
     if citySelected then
         item.subtitle = "In " .. MapCompat.Name(selectedMapID)

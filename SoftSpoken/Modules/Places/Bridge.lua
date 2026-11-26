@@ -115,7 +115,8 @@ function SpokenPlacesBridge:CurrentEntry()
     local zone, area = CurrentLocation()
     local mapID = AudioID(zone)
     if not mapID then return nil, nil end
-    local areaKey = ResolveAreaKey(mapID,area)
+    local areaKey = PlacesRuntime.ResolveCurrentAreaKey and PlacesRuntime.ResolveCurrentAreaKey(mapID,zone,area)
+    if not PlacesRuntime.ResolveCurrentAreaKey then areaKey=ResolveAreaKey(mapID,area) end
     local lore = SSZLore
     local subs = lore and lore.subzones and lore.subzones[mapID]
     if not areaKey or areaKey == "" or Normalise(area) == Normalise(zone) or

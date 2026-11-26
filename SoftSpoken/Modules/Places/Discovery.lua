@@ -27,7 +27,8 @@ local function RecordVisit(zone, subzone)
     local changed=false
     local zoneKey=VisitKey(mapID)
     if not visited[zoneKey] then visited[zoneKey]=true;changed=true end
-    local areaKey = ResolveAreaKey(mapID,subzone)
+    local areaKey = PlacesRuntime.ResolveCurrentAreaKey and PlacesRuntime.ResolveCurrentAreaKey(mapID,zone,subzone)
+    if not PlacesRuntime.ResolveCurrentAreaKey then areaKey=ResolveAreaKey(mapID,subzone) end
     if areaKey and areaKey ~= "" and Normalise(subzone) ~= Normalise(zone) then
         local lore = SSZLore
         if lore and lore.subzones and lore.subzones[mapID] and

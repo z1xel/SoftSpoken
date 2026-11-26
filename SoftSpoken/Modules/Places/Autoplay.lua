@@ -5,6 +5,7 @@ local PlacesRuntime = SpokenPlacesRuntime
 local Normalise = PlacesRuntime.Normalise
 local AudioID = PlacesRuntime.CurrentMapID or PlacesRuntime.AudioID
 local ResolveAreaKey = PlacesRuntime.ResolveAreaKey or function(_,name) return Normalise(name) end
+local ResolveCurrentAreaKey = PlacesRuntime.ResolveCurrentAreaKey or function(mapID,_,name) return ResolveAreaKey(mapID,name) end
 local CurrentLocation = PlacesRuntime.CurrentLocation
 local CharDB = PlacesRuntime.CharDB
 local RecordVisit = PlacesRuntime.RecordVisit
@@ -27,7 +28,7 @@ local function TryGreeting(zone, subzone)
        UnitLevel("player") ~= 1 then return end
     local queued = false
     local mapID = AudioID(zone)
-    local areaKey = mapID and ResolveAreaKey(mapID,subzone)
+    local areaKey = mapID and ResolveCurrentAreaKey(mapID,zone,subzone)
     if settings.subzones and mapID and areaKey and areaKey ~= "" and
        Normalise(subzone) ~= Normalise(zone) and
        FindRecording(mapID, areaKey) then
@@ -48,16 +49,16 @@ local function CheckLocation()
     if PlacesRuntime.ShouldTrack and not PlacesRuntime:ShouldTrack() then return end
     local zone, subzone = CurrentLocation()
     if zone == "" then return end
-    local location = zone .. "|" .. subzone
+    local mapID = AudioID(zone)
+    local location = tostring(mapID) .. "|" .. zone .. "|" .. subzone
     if location == lastLocation then return end
     RecordVisit(zone, subzone)
-    local zoneIdentity = AudioID(zone) or Normalise(zone)
+    local zoneIdentity = mapID or Normalise(zone)
     local zoneChanged = zoneIdentity ~= lastZone
     lastLocation = location
     lastZone = zoneIdentity
     if PlacesRuntime.IsPartOn and not PlacesRuntime:IsPartOn() then return end
     if not PlacesRuntime.Settings().auto or PlacesRuntime.Settings().mode ~= "unheard" then return end
-    local mapID = AudioID(zone)
     if not mapID then return end
 
     if zoneChanged then
@@ -77,7 +78,7 @@ local function StabilizeStartingLocation(elapsed)
     if not PlacesRuntime.startupActive or not PlacesRuntime.firstWorldReady then return end
     local zone, subzone = CurrentLocation()
     if zone == "" then return end
-    local key = zone .. "|" .. subzone
+    local key = tostring(AudioID(zone)) .. "|" .. zone .. "|" .. subzone
     if key ~= PlacesRuntime.startupStableKey then
         PlacesRuntime.startupStableKey = key
         PlacesRuntime.startupStableElapsed = 0
@@ -161,7 +162,7 @@ local function OnDiscovered(area)
     if not mapID then return end
     local zoneArea = Normalise(area) == Normalise(zone) or
                      Normalise(area) == Normalise(ZONE_NAMES[mapID])
-    local areaKey = ResolveAreaKey(mapID,area)
+    local areaKey = ResolveCurrentAreaKey(mapID,zone,area)
     -- Record genuine discoveries regardless of the autoplay preference.
     local visited=CharDB().visited
     if zoneArea then
@@ -191,7 +192,7 @@ local function OnDiscovered(area)
     if PlacesRuntime.startupActive or not PlacesRuntime.Settings().auto then return end
     if zoneArea then
         RequestNarration(zone,zone,false,true,true)
-    elseif PlacesRuntime.Settings().subzones then
+    elseif areaKey and PlacesRuntime.Settings().subzones then
         RequestNarration(zone,area,false,false,true)
     end
 end
@@ -263,7 +264,8 @@ function PlacesRuntime.ResetLocationBaseline()
         PlacesRuntime.startupActive = false
         PlacesRuntime.startupStableKey = nil
     end
-    lastLocation, lastZone = zone .. "|" .. subzone, AudioID(zone) or Normalise(zone)
+    local mapID=AudioID(zone)
+    lastLocation, lastZone = tostring(mapID) .. "|" .. zone .. "|" .. subzone, mapID or Normalise(zone)
     RecordVisit(zone, subzone)
 end
 

@@ -1,0 +1,13 @@
+# L7 — Places integration
+
+Places uses the bundled fixed Octo Locations service for geographical identities, native area/map translation, canonical name lookup, continent/parent queries and native overlay identification. The existing lore, artwork and installed voice packs remain keyed by upstream map ID and exact normalized legacy subzone key. The Places projection resolves from canonical identity into the explicitly requested content map; it never chooses a recording in another map context merely because both recordings refer to the same location. Clip keys and heard state remain variant-specific.
+
+Existing city nesting is retained as a presentation relationship, not a modification of canonical containment. The six original city-to-zone presentation links remain in the shared Compendium until its other consumers are migrated. The five unsupported WoW Forever map IDs are excluded from browsing, discovery and playback; native Hyjal remains a canonical location with no invented Spoken map ID. Held legacy content on otherwise supported maps remains accessible through its original exact key and receives no fabricated identity.
+
+Current player zone selection uses native AreaTable evidence where available, then verified context or primary ancestors. Unknown observed native IDs do not fall through to unrelated names. Text fallback is retained when native evidence is unavailable. Stale textual subzones cannot be projected onto a different native map during transitions. Map browsing is independent of the player location and uses actual displayed-map evidence. The child-map API receives a nativeUiMap ID, not an upstream ID; no implicit map zoom occurs.
+
+Existing explored-overlay behavior remains read-only. Distinct or unknown identities in a shared overlay do not prove a particular subzone. Multiple verified IDs for one canonical location are one identity. The existing narrowly reviewed Shadowglen/Aldrassil rule remains. No additional historical exploration recovery is introduced.
+
+SavedVariables keep the existing format until L10. Visits are written to the observed legacy key; read-only discovery checks may recognize verified equivalent content keys. Heard keys are never merged. Contentless locations can be resolved through Locations but this phase does not introduce new persistent canonical visit storage or turn the lore browser into a catalog of all native locations. Stories and Writings are unchanged.
+
+Regression: tests/places_registry_octo.lua uses the complete bundled catalog and real Places lore plus controlled native API observations. Existing audio/discovery, map panel and portrait tests also run. Actual live client behavior remains for L11.
