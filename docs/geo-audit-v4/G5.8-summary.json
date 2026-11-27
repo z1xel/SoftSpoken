@@ -1,0 +1,87 @@
+{
+  "baseline": "4ca1c37581cc7d55dcd1a4a3674e3d78f7992994",
+  "sourceCounts": {
+    "O": 134,
+    "Z": 164,
+    "S": 9,
+    "X": 42,
+    "A": 1,
+    "D": 13,
+    "R": 304
+  },
+  "dispositions": {
+    "represented": 560,
+    "approved_hold": 92,
+    "excluded_development": 13,
+    "missing_or_context_mismatch": 2
+  },
+  "activeEntities": 1550,
+  "nativeDirectTotal": 1278,
+  "nativeMissing": [
+    {
+      "aid": "22",
+      "prior": "",
+      "classification": "terrain_only",
+      "action": "exclude_development_map"
+    },
+    {
+      "aid": "81",
+      "prior": "",
+      "classification": "terrain_only",
+      "action": "exclude_development_map"
+    },
+    {
+      "aid": "82",
+      "prior": "",
+      "classification": "terrain_only",
+      "action": "exclude_development_map"
+    },
+    {
+      "aid": "83",
+      "prior": "",
+      "classification": "terrain_only",
+      "action": "exclude_development_map"
+    },
+    {
+      "aid": "84",
+      "prior": "",
+      "classification": "terrain_only",
+      "action": "exclude_development_map"
+    },
+    {
+      "aid": "151",
+      "prior": "",
+      "classification": "terrain_only",
+      "action": "exclude_development_map"
+    },
+    {
+      "aid": "876",
+      "prior": "gm_island",
+      "classification": "terrain_only",
+      "action": "review_catalog_gap"
+    },
+    {
+      "aid": "956",
+      "prior": "verdant_fields",
+      "classification": "terrain_only",
+      "action": "review_catalog_gap"
+    },
+    {
+      "aid": "1397",
+      "prior": "emerald_forest",
+      "classification": "terrain_only",
+      "action": "review_catalog_gap"
+    },
+    {
+      "aid": "4688",
+      "prior": "",
+      "classification": "terrain_only",
+      "action": "exclude_development_map"
+    }
+  ],
+  "nativeBoundNoPlaces": [],
+  "limitations": [
+    "Contextual text coverage, not exact live WMO keys. Name normalization is a candidate matcher, not proof of a correct identity.",
+    "Root candidates with only a same-name match require parent verification. G4.3/4.4 holds retained. Native direct coverage uses G1 rows, V5 identity-level coverage unchanged."
+  ]
+}
