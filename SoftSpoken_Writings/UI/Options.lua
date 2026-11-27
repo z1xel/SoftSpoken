@@ -6,7 +6,6 @@ local Layout = SpokenLayout
 local page
 local frame
 local layout
-local DOWNLOAD = "https://www.curseforge.com/wow/addons/spoken-books-audio"
 
 local function S(key, fallback) return L[key] or fallback end
 local function Settings()
@@ -99,11 +98,6 @@ function Writings:SetupOptions()
         return result
     end, "No compatible Writings voice packs installed.")
     layout:Note("Voice language is selected on Home. An installed pack may not have a recording for every book in that language.", nil, 38)
-    layout:Button("Audio Download Address", 220, function()
-        if Spoken and Spoken.ShowDiagnostics then
-            Spoken:ShowDiagnostics("Writings Voice Pack", { "Download audio packs from:", DOWNLOAD })
-        end
-    end, "Show the Writings voice-pack download address in a copyable window.")
 
     layout:Section(S("OPT_SECTION_READ", "Reading History"))
     layout:Button("Forget What Was Read", 205, function()
