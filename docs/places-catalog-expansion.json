@@ -480,6 +480,13 @@
       "id": "champions_hall",
       "name": "Champions' Hall",
       "group": "instance"
+    },
+    {
+      "mid": 103478,
+      "aid": 3478,
+      "id": "gates_of_ahnqiraj",
+      "name": "Gates of Ahn'Qiraj",
+      "group": "outdoor_or_battleground"
     }
   ],
   "subzones": [
@@ -3653,6 +3660,48 @@
       "id": "sunnyglade_valley.stillshire_hamlet",
       "key": "stillshire hamlet",
       "name": "Stillshire Hamlet"
+    },
+    {
+      "mid": 1444,
+      "aid": 3217,
+      "id": "maul",
+      "name": "The Maul",
+      "key": "maul"
+    },
+    {
+      "mid": 105602,
+      "aid": 5017,
+      "id": "dun_galar",
+      "name": "Dun Galar",
+      "key": "dun galar"
+    },
+    {
+      "mid": 105602,
+      "aid": 5018,
+      "id": "flickerlode_mine",
+      "name": "Flickerlode Mine",
+      "key": "flickerlode mine"
+    },
+    {
+      "mid": 105602,
+      "aid": 5019,
+      "id": "grimstone_field",
+      "name": "Grimstone Field",
+      "key": "grimstone field"
+    },
+    {
+      "mid": 105602,
+      "aid": 5020,
+      "id": "parched_basin",
+      "name": "The Parched Basin",
+      "key": "parched basin"
+    },
+    {
+      "mid": 105602,
+      "aid": 5022,
+      "id": "karfang_retreat",
+      "name": "Karfang Retreat",
+      "key": "karfang retreat"
     }
   ],
   "newEntities": [
@@ -3830,5 +3879,15 @@
     "Content IDs 100000 + selected representative AreaTable ID are private catalog keys, not native IDs. Existing 1459–1461 preserved.",
     "Map 42 POIs are held: no matching AreaTable or WorldMapArea map in source.",
     "Static POI runtime data deliberately not regenerated."
+  ],
+  "existingBindingRepairs": [
+    {
+      "mid": 1454,
+      "aid": 2917,
+      "id": "hall_of_legends",
+      "key": "hall of legends",
+      "name": "Hall of Legends",
+      "reason": "Existing Orgrimmar lore; bind the native canonical identity rather than duplicate the entry."
+    }
   ]
 }

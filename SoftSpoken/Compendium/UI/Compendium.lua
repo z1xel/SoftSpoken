@@ -28,6 +28,7 @@ for _,id in ipairs({1416,1417,1418,1419,1420,1421,1422,1423,1424,1425,
 -- Octo geography content keys (not native AreaTable IDs).
 for _,id in ipairs({100408,100409,102040,104012,105179,105225,105561,105581,105602}) do KNOWN_CONTINENT[id]=1415 end
 for _,id in ipairs({100616,101769,105024,105121,105536,105642,105731}) do KNOWN_CONTINENT[id]=1414 end
+KNOWN_CONTINENT[103478]=1414 -- Gates of Ahn'Qiraj
 Compendium.KNOWN_CONTINENT = KNOWN_CONTINENT
 function Compendium.ContinentOf(mapID)
     -- C_Map is optional; Turtle-specific map discovery remains in LoreBridge.
