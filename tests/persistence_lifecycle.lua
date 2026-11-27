@@ -109,7 +109,8 @@ end
 local accountFile, characterFile = AccountFile("SoftSpoken"), CharFile("SoftSpoken")
 LoadScope("account", accountFile)
 LoadScope("character", characterFile)
-local originalLegacy = Read(accountFile).SpokenSettings
+local originalAccount, originalCharacter = Read(accountFile), Read(characterFile)
+local originalLegacy = originalAccount.SpokenSettings
 
 -- Real libraries, including their PLAYER_LOGOUT cleanup handler.
 table.setn = function() end
@@ -186,6 +187,160 @@ local function Logout()
     SaveScope("character",characterFile)
     Same(Read(accountFile).SpokenSettings, originalLegacy, "passive legacy data changed")
 end
+-- DEV6 uses the actual coordinator, Core initialization/finalization, and
+-- module database adapters. Mock the feature UI/event installation and
+-- timer execution, not storage, profile operations or serialization.
+local function Fire(name)
+    event = name
+    for _, frame in ipairs(frames) do
+        if frame.events[name] and frame.scripts.OnEvent then frame.scripts.OnEvent() end
+    end
+end
+local function SetupStartup()
+    local env = SpokenEnv
+    env.NarratorWindow={Initialize=function() end}
+    env.Transcript={Initialize=function() end}
+    env.Minimap={Setup=function() end}
+    env.Sources={Iterate=function() return function() end end}
+    env.Callbacks={Register=function() end,Fire=function() end}
+    env.SoundQueue={SetPaused=function() end}
+    options.Setup=function() end
+    options.UpdateRows=function() end
+    core.ScheduleTimer=function() end
+    for _, module in ipairs({VoiceOver.StoriesAddon,SpokenPlacesRuntime,SpokenWritings}) do
+        module.Initialize=function(self,worldReady)
+            self:InitDB()
+            self.initialized=true
+            self.worldReady=worldReady
+        end
+        module.RefreshConfig=function() end
+    end
+    SlashCmdList={}
+    dofile("SoftSpoken/Startup.lua")
+    return env.StartupController
+end
+
+if scenario == "dev" or scenario == "devlogout" or scenario == "devcrash" then
+    local originalAccountRef, originalCharacterRef, legacyRef =
+        SoftSpokenDB, SoftSpokenCharacterDB, SpokenSettings
+    local function Unchanged()
+        Eq(SoftSpokenDB,originalAccountRef,"account reference changed")
+        Eq(SoftSpokenCharacterDB,originalCharacterRef,"character reference changed")
+        Eq(SpokenSettings,legacyRef,"legacy reference changed")
+        Same(SoftSpokenDB,originalAccount.SoftSpokenDB,"account changed")
+        Same(SoftSpokenCharacterDB,originalCharacter.SoftSpokenCharacterDB,"character changed")
+        Same(SpokenSettings,originalLegacy,"legacy changed")
+    end
+    ImportSavedVariables=nil
+    local startup=SetupStartup()
+    Fire("PLAYER_LOGIN")
+    Eq(startup:GetState(),"blocked","missing importer must block normal startup")
+    assert(not P.root and not P.character)
+    Unchanged()
+    Fire("PLAYER_ENTERING_WORLD")
+    -- A trap confirms DEV never tries the importer even if it appears later.
+    ImportSavedVariables=function()
+        table.insert(calls,"unexpected DEV import")
+        error("DEV must not import")
+    end
+    SlashCmdList.SPOKEN("dev")
+    Eq(startup:GetState(),"dev")
+    Eq(P.mode,"dev")
+    assert(P.startupComplete and core.enabled)
+    Eq(table.getn(calls),0)
+    local root,ch=P.root,P.character
+    local H=SpokenEnv.LocationHistory
+    H:Validate(ch)
+    Eq(ch.geographyVersion,1)
+    assert(ch.migrationVersion==nil and root.sv.migration==nil)
+    Eq(root.profile.Frame.FrameScale,0.7,"fresh settings")
+    assert(not next(ch.Stories.journal.completed) and not next(ch.Places.visited)
+        and not next(ch.Writings.read),"fresh DEV history")
+    Eq(VoiceOver.StoriesAddon.character,ch.Stories)
+    Eq(SpokenWritings.character,ch.Writings)
+    assert(VoiceOver.StoriesAddon.worldReady and SpokenPlacesRuntime.worldReady)
+    Unchanged()
+    local st,pl,wr=P:ModuleDB("Stories"),P:ModuleDB("Places"),P:ModuleDB("Writings")
+    root.profile.Frame.FrameScale=1.66
+    root.global.Layout={Narrator={left=999,top=100,width=300}}
+    root.profile.Parts.zones=false
+    st.profile.Audio.Autoplay=false
+    pl.profile.mode="unheard"
+    wr.profile.readOnce=true
+    local current=root:GetCurrentProfile()
+    options:SetProfile("DEV only")
+    options:CopyProfile(current)
+    Eq(root.profile.Frame.FrameScale,1.66)
+    Eq(st.profile.Audio.Autoplay,false)
+    Eq(pl.profile.mode,"unheard")
+    Eq(wr.profile.readOnce,true)
+    ch.Stories.journal.completed[60606]=true
+    ch.Stories.journal.titles[60606]="DEV only"
+    assert(H:PlaceMark(ch.Places,"visited","1411/southfury river"))
+    SpokenPlacesRuntime.MarkHeard("s:1411:southfury river")
+    assert(H:PlaceHas(ch.Places,"heard","s:1411:southfury river"))
+    assert(not H:PlaceHas(ch.Places,"visited","1413/southfury river"))
+    SpokenWritings:MarkBookFound(60606)
+    SpokenWritings:MarkBookRead(60606)
+    assert(SpokenWritings:IsBookFound(60606) and SpokenWritings:HasReadBook(60606))
+    assert(H:BookMark(ch.Writings,60606,"hyjal","world"))
+    assert(H:Acquire(ch.Writings,60606,"hyjal",3))
+    SlashCmdList.SPOKEN("dev")
+    Eq(P.root,root)
+    Eq(P.character,ch)
+    assert(not startup:Start("normal"))
+    Unchanged()
+    if scenario=="devcrash" then
+        -- Terminate the simulated process without any logout or save.
+        print("PASS: DEV abrupt exit leaves original files alone ("..player..")")
+        return
+    end
+    local reloads=0
+    ReloadUI=function() reloads=reloads+1 end
+    if scenario=="dev" then
+        SlashCmdList.SPOKEN("undev")
+        Eq(reloads,1)
+        Eq(startup:GetState(),"dev","undev must not switch live storage")
+    end
+    Logout()
+    Unchanged()
+    Same(Read(accountFile),originalAccount,"serialized account changed")
+    Same(Read(characterFile),originalCharacter,"serialized character changed")
+    print("PASS: DEV temporary history, settings, "..scenario.." serialization ("..player..")")
+    return
+elseif scenario=="normalcheck" or scenario=="freshnormal" then
+    -- Completed characters can start without the importer; a first clean
+    -- normal login uses the fixture importer. Both reject a live DEV switch.
+    if scenario=="normalcheck" then ImportSavedVariables=nil end
+    local startup=SetupStartup()
+    Fire("PLAYER_LOGIN")
+    Fire("PLAYER_ENTERING_WORLD")
+    Eq(startup:GetState(),"running")
+    Eq(P.mode,"normal")
+    assert(P.startupComplete and P.root.sv==SoftSpokenDB and P.character==SoftSpokenCharacterDB)
+    local root,ch=P.root,P.character
+    if scenario=="normalcheck" then
+        Eq(root:GetCurrentProfile(),"Alice Current")
+        Eq(root.profile.Frame.FrameScale,1.25)
+        assert(ch.Stories.journal.completed[101] and ch.Stories.journal.completed[909])
+        assert(ch.Writings.read[909])
+        Eq(table.getn(calls),0)
+    else
+        Eq(root.profile.Frame.FrameScale,0.7)
+        Eq(root.sv.migration.characters[key],"new")
+        Eq(table.getn(calls),4)
+    end
+    assert(not root.profiles["DEV only"] and not ch.Stories.journal.completed[60606]
+        and not ch.Writings.read[60606])
+    SlashCmdList.SPOKEN("dev")
+    Eq(startup:GetState(),"running")
+    Eq(P.root,root)
+    Eq(P.character,ch)
+    Logout()
+    print("PASS: normal startup after DEV, no temporary state ("..player..")")
+    return
+end
+
 if scenario == "fail" then
     assert(not pcall(function() P:RecoverLegacy() end))
     assert(not SoftSpokenDB and not SoftSpokenCharacterDB)

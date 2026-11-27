@@ -102,9 +102,29 @@ normal migration before entering DEV can retain a recovered legacy
 SpokenSettings copy under the existing D6B contract; DEV itself never performs
 that operation. The missing-importer failure does not reach that write.
 
+## DEV6 — cross-session regression
+
+The D6C multi-process fixture now exercises real Startup, Core, Persistence,
+AceDB logout cleanup, TOC-selected serialization and module storage adapters.
+Each login starts a separate Lua process with disposable files. Cases cover
+legacy-only accounts, clean installs, new characters on migrated accounts,
+missing importer, repeated DEV activation, settings/profile changes and
+Stories/Places/Writings history, /softspoken undev, ordinary logout, abrupt
+process exit without serialization, normal migration after DEV, and refusal
+to enter DEV from a running normal session. Account and character globals are
+compared by reference and semantic content before and after DEV; retired
+module files are compared byte-for-byte. Fresh processes must start with
+empty temporary history, and later normal sessions must retain real progress
+without importing DEV data. The existing workflow runs these cases.
+
+The fixture mocks FrameXML, native importer and serializer, timers and module
+UI/event installation; it does not exercise actual WoW logout serialization,
+native audio or all live event paths. DEV7 is still required. A completed
+character with normal startup available cannot enter DEV via the slash command
+without a pre-controller block; the live-switch restriction is intentional.
+
 ## Remaining phases
 
-- DEV6: session isolation, reload and ordinary migration regression tests.
 - DEV7: real Octo login/reload/logout and semantic comparison of existing
   SavedVariables; use a backup of WTF. The existing TOC remains unchanged.
 
