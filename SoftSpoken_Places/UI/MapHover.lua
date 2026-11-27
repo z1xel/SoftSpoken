@@ -69,13 +69,11 @@ function MapHover.Resolve(x, y)
         foundID, foundKey = id, nil
     end
     if not entry then return nil end
-    -- Fog-of-war privacy: never reveal even a location NAME until discovery.
-    -- IsFound combines genuine visits and the client's already-explored map
-    -- overlays. Do NOT use LoreWindow.IsLocked here: the Compendium's
-    -- Unlock Undiscovered setting intentionally bypasses that lock, which
-    -- would spoil hidden regions simply by hovering the map.
-    local bridge = SpokenPlacesBridge
-    if not (bridge and bridge.IsFound and bridge:IsFound(foundID, foundKey)) then
+    -- Match the lore reader's eligibility, including Unlock Undiscovered.
+    -- Hovering remains read-only and does not require highlight artwork.
+    local loreWindow = SSZLoreWindow
+    if not (loreWindow and loreWindow.IsLocked) or
+        loreWindow.IsLocked(foundID, foundKey) then
         return nil
     end
     return { mapID=mapID, kind=kind, id=id,
