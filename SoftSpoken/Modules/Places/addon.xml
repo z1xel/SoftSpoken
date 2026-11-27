@@ -3,6 +3,7 @@
     <Include file="Data\Zones.lua"/>
     <Include file="Data\Subzones.lua"/>
     <Include file="Data\Pictures.lua"/>
+    <Include file="Data\OverlayOwners.lua"/>
     <Include file="Runtime.lua"/>
     <Include file="Settings.lua"/>
     <Include file="Audio.lua"/>

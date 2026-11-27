@@ -38,54 +38,6 @@ local function OverPanel()
     return false
 end
 
--- A hit rectangle with multiple AreaTable entries may contain distinct
--- regions; 1.12 cannot split a single texture by subzone. Never illuminate
--- the whole group when a click identifies only one of those regions.
-local function UniqueArea(overlay)
-    if not (overlay and type(overlay.tiles)=="table" and table.getn(overlay.tiles)>0) then return false end
-    local ids={}
-    if type(overlay.areaIDs)=="table" then
-        for _,id in pairs(overlay.areaIDs) do if type(id)=="number" and id>0 then ids[id]=true end end
-    end
-    if type(overlay.areaID)=="number" and overlay.areaID>0 then ids[overlay.areaID]=true end
-    local registry=R.Registry()
-    local first
-    for aid in pairs(ids) do
-        local id=registry and R.NativeAreaLocation(aid) or (not registry and aid)
-        if not id or (first and first~=id) then return false end
-        first=id
-    end
-    return first~=nil
-end
-
--- ClassicAPI may put Shadowglen and its contained Aldrassil in one
--- explored overlay record. Accept this *known nesting* only if every named
--- area in the overlay belongs to that pair; a genuinely mixed region must
--- still be skipped rather than lighting somebody else's map area.
-local function KnownNestedOverlay(mapID, key, overlay)
-    if mapID ~= 1438 or key ~= 'shadowglen' or not overlay or
-       type(overlay.tiles) ~= 'table' or table.getn(overlay.tiles) == 0 or
-       not (R.Registry() or (C_Map and C_Map.GetAreaInfo)) then return false end
-    local found = false
-    local ids = {}
-    if type(overlay.areaIDs) == 'table' then
-        for _, id in pairs(overlay.areaIDs) do
-            if type(id)=='number' and id > 0 then ids[id]=true end
-        end
-    end
-    if type(overlay.areaID)=='number' and overlay.areaID > 0 then
-        ids[overlay.areaID]=true
-    end
-    for id in pairs(ids) do
-        local name=R.NativeAreaName(id)
-        if type(name)~="string" then return false end
-        local area = MapCompat.Normalise and MapCompat.Normalise(name) or string.lower(name)
-        if area ~= 'shadowglen' and area ~= 'aldrassil' then return false end
-        if area == 'shadowglen' then found = true end
-    end
-    return found
-end
-
 -- Ask the exact same primary hit resolver used by the map click, then apply
 -- the Compendium's discovery gate. A hover MUST NEVER call MarkFound.
 function MapHighlight.Target(x, y)
@@ -101,8 +53,9 @@ function MapHighlight.Target(x, y)
     local _, entry, key, overlay = MapCompat.AreaAt(mapID, x, y,
         kind == 'subzone' and nativeKey or nil)
     if kind == 'subzone' and nativeKey ~= key then return nil end
-    if not (entry and key and overlay and
-            (UniqueArea(overlay) or KnownNestedOverlay(mapID,key,overlay))) then return nil end
+    -- AreaAt already returns only artwork owned by the selected place.
+    if not (entry and key and overlay and type(overlay.tiles) == 'table' and
+            table.getn(overlay.tiles) > 0) then return nil end
     if not (LoreWindow and LoreWindow.IsLocked) or LoreWindow.IsLocked(mapID, key) then return nil end
     return overlay, key
 end
