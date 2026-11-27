@@ -11,5 +11,9 @@ function SpokenPlacesBridge:ShouldLoadLanguage(code)
 end
 function SpokenPlacesBridge:RegisterLoreData(code, kind, entries)
     if code ~= "enUS" or (kind ~= "zones" and kind ~= "subzones") then return end
-    if type(entries) == "table" then SSZLore[kind] = entries end
+    if type(entries) == "table" then
+        local r=SpokenEnv and SpokenEnv.Locations
+        if r and r:IsReady() and r.ProjectPlaces then r:ProjectPlaces(kind,entries) end
+        SSZLore[kind] = entries
+    end
 end

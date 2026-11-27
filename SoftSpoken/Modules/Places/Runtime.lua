@@ -274,7 +274,20 @@ local function PlaceAbove(mapID)
 end
 
 local function CurrentLocation()
-    return GetRealZoneText() or "", GetSubZoneText() or ""
+    local zone=GetRealZoneText() or ""
+    local sub=GetSubZoneText() or ""
+    local registry=Registry()
+    if registry and type(GetMinimapZoneText)=="function" then
+        local name=GetMinimapZoneText()
+        if type(name)=="string" and name~="" and Normalise(name)~=Normalise(zone) then
+            local map=CurrentMapID(zone)
+            local k=map and Normalise(name)
+            local id=k and registry:ResolveLegacyPlace(map,k)
+            -- Require a reviewed contextual content binding, not a global name.
+            if id then sub=name end
+        end
+    end
+    return zone,sub
 end
 
 local function HeardKey(mapID, areaKey)

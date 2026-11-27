@@ -1,0 +1,6288 @@
+{
+  "baseline": "9470143425aba3b5680615515e8a6d4783efe370",
+  "retired": [
+    "algaz_gate",
+    "alterac_valley.dun_baldar_north_bunker",
+    "alterac_valley.dun_baldar_south_bunker",
+    "alterac_valley.east_frostwolf_tower",
+    "alterac_valley.frostwolf_relief_hut",
+    "alterac_valley.iceblood_tower",
+    "alterac_valley.stormpike_aid_station",
+    "alterac_valley.west_frostwolf_tower",
+    "banthallow_barrow_den",
+    "barkskin_hold",
+    "blackwater_cove",
+    "blackwater_shipwrecks",
+    "brave_wind_mesa",
+    "broken_spear_village",
+    "bucklebree_farm",
+    "cemetary",
+    "city",
+    "crimson_veil",
+    "damsels_luck",
+    "dead_mans_hole",
+    "diamondhead_river",
+    "draenildur_village",
+    "dun_galar",
+    "east_pillar",
+    "emerald_forest",
+    "everwinter_vale",
+    "fire_stone_mesa",
+    "flickerlode_mine",
+    "foothill_caverns",
+    "frostwolf_pass",
+    "galak_hold",
+    "gm_island",
+    "gornia",
+    "grimstone_field",
+    "gunstans_post",
+    "highlands",
+    "highlands.hidden_grove",
+    "idlewind_lake",
+    "ironclad_prison",
+    "isle_of_the_spirits",
+    "kamio",
+    "karfang_retreat",
+    "konko_depths",
+    "kontsuma",
+    "kontsuma_harbor",
+    "kontsuma_logging_camp",
+    "kontsuma_market",
+    "kul_tiras",
+    "lighthouse",
+    "mantle_rock",
+    "moggle_point",
+    "mokgordun",
+    "nalashir_ruins",
+    "nine",
+    "northshire_river",
+    "not_used_deadmines",
+    "obreens_camp",
+    "parched_basin",
+    "perch",
+    "riptide",
+    "rumble_cage",
+    "scarlet_basilica",
+    "school_of_necromancy",
+    "scourgehold",
+    "shell_beach",
+    "skyline_ridge",
+    "stormwind_mountains",
+    "sunnyglade_valley.berwick_hamlet",
+    "sunnyglade_valley.fort_valiance",
+    "sunnyglade_valley.gladeshire_hamlet",
+    "sunnyglade_valley.gladeshire_tower",
+    "sunnyglade_valley.goldregar_graveyard",
+    "sunnyglade_valley.goldregar_tower",
+    "sunnyglade_valley.greywalls_graveyard",
+    "sunnyglade_valley.midmond_hamlet",
+    "sunnyglade_valley.stillshire_hamlet",
+    "tamatsune_shrine",
+    "thieves_camp",
+    "tsatsuri_wilds",
+    "umikari_strand",
+    "valley_of_the_bloodfuries",
+    "vanndir_encampment",
+    "verdant_fields",
+    "west_pillar",
+    "west_point_tower",
+    "whipple_estate",
+    "witherbark_caverns",
+    "world_tree",
+    "zanes_eye_crater",
+    "zuluheds_terrace"
+  ],
+  "added": [
+    {
+      "id": "ruins_of_ahnqiraj.scarab_terrace",
+      "name": "Scarab Terrace",
+      "parent": "ruins_of_ahnqiraj",
+      "kind": "subzone"
+    },
+    {
+      "id": "ruins_of_ahnqiraj.generals_terrace",
+      "name": "General's Terrace",
+      "parent": "ruins_of_ahnqiraj",
+      "kind": "subzone"
+    },
+    {
+      "id": "ruins_of_ahnqiraj.reservoir",
+      "name": "The Reservoir",
+      "parent": "ruins_of_ahnqiraj",
+      "kind": "subzone"
+    },
+    {
+      "id": "ruins_of_ahnqiraj.hatchery",
+      "name": "The Hatchery",
+      "parent": "ruins_of_ahnqiraj",
+      "kind": "subzone"
+    },
+    {
+      "id": "ruins_of_ahnqiraj.comb",
+      "name": "The Comb",
+      "parent": "ruins_of_ahnqiraj",
+      "kind": "subzone"
+    },
+    {
+      "id": "ruins_of_ahnqiraj.watchers_terrace",
+      "name": "Watchers' Terrace",
+      "parent": "ruins_of_ahnqiraj",
+      "kind": "subzone"
+    },
+    {
+      "id": "wetlands.ruins_of_grim_batol",
+      "name": "Ruins of Grim Batol",
+      "parent": "wetlands",
+      "kind": "subzone"
+    },
+    {
+      "id": "deadmines.exterior",
+      "name": "Deadmines",
+      "parent": "westfall",
+      "kind": "landmark"
+    },
+    {
+      "id": "karazhan_crypt.exterior",
+      "name": "Karazhan Crypt",
+      "parent": "deadwind_pass.karazhan",
+      "kind": "landmark"
+    },
+    {
+      "id": "scarlet_monastery.exterior",
+      "name": "Scarlet Monastery",
+      "parent": "tirisfal_glades",
+      "kind": "landmark"
+    },
+    {
+      "id": "scholomance.exterior",
+      "name": "Scholomance",
+      "parent": "western_plaguelands.caer_darrow",
+      "kind": "landmark"
+    },
+    {
+      "id": "wailing_caverns.exterior",
+      "name": "Wailing Caverns",
+      "parent": "barrens",
+      "kind": "landmark"
+    },
+    {
+      "id": "undercity.apothecarium",
+      "name": "The Apothecarium",
+      "parent": "undercity",
+      "kind": "subzone"
+    },
+    {
+      "id": "undercity.canals",
+      "name": "Canals",
+      "parent": "undercity",
+      "kind": "subzone"
+    },
+    {
+      "id": "undercity.magic_quarter",
+      "name": "Magic Quarter",
+      "parent": "undercity",
+      "kind": "subzone"
+    },
+    {
+      "id": "undercity.rogues_quarter",
+      "name": "Rogues' Quarter",
+      "parent": "undercity",
+      "kind": "subzone"
+    },
+    {
+      "id": "undercity.royal_quarter",
+      "name": "Royal Quarter",
+      "parent": "undercity",
+      "kind": "subzone"
+    },
+    {
+      "id": "undercity.ruins_of_lordaeron",
+      "name": "Ruins of Lordaeron",
+      "parent": "undercity",
+      "kind": "subzone"
+    },
+    {
+      "id": "undercity.sewers",
+      "name": "Sewers",
+      "parent": "undercity",
+      "kind": "subzone"
+    },
+    {
+      "id": "undercity.trade_quarter",
+      "name": "Trade Quarter",
+      "parent": "undercity",
+      "kind": "subzone"
+    },
+    {
+      "id": "undercity.war_quarter",
+      "name": "War Quarter",
+      "parent": "undercity",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_mountain.forgewrights_tomb",
+      "name": "Forgewright's Tomb",
+      "parent": "blackrock_mountain",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_mountain.grinding_quarry",
+      "name": "The Grinding Quarry",
+      "parent": "blackrock_mountain",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_mountain.masonary",
+      "name": "The Masonary",
+      "parent": "blackrock_mountain",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_mountain.molten_span",
+      "name": "The Molten Span",
+      "parent": "blackrock_mountain",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.canals",
+      "name": "The Canals",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.cathedral_of_light",
+      "name": "Cathedral of Light",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.cathedral_square",
+      "name": "Cathedral Square",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.command_center",
+      "name": "Command Center",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.dwarven_district",
+      "name": "Dwarven District",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.little_silvermoon",
+      "name": "Little Silvermoon",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.mage_quarter",
+      "name": "Mage Quarter",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.old_town",
+      "name": "Old Town",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.park",
+      "name": "The Park",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.petitioners_chamber",
+      "name": "Petitioner's Chamber",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.royal_gallery",
+      "name": "Royal Gallery",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.royal_library",
+      "name": "Royal Library",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.si_7",
+      "name": "SI:7",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.slaughtered_lamb",
+      "name": "The Slaughtered Lamb",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.stormwind_keep",
+      "name": "Stormwind Keep",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.trade_district",
+      "name": "Trade District",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.war_room",
+      "name": "War Room",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_city.wizards_sanctum",
+      "name": "Wizard's Sanctum",
+      "parent": "stormwind_city",
+      "kind": "subzone"
+    },
+    {
+      "id": "stranglethorn_vale.booty_bay.old_port_authority",
+      "name": "The Old Port Authority",
+      "parent": "stranglethorn_vale.booty_bay",
+      "kind": "subzone"
+    },
+    {
+      "id": "stranglethorn_vale.booty_bay.salty_sailor_tavern",
+      "name": "The Salty Sailor Tavern",
+      "parent": "stranglethorn_vale.booty_bay",
+      "kind": "subzone"
+    },
+    {
+      "id": "ironforge.forlorn_cavern",
+      "name": "The Forlorn Cavern",
+      "parent": "ironforge",
+      "kind": "subzone"
+    },
+    {
+      "id": "ironforge.great_forge",
+      "name": "The Great Forge",
+      "parent": "ironforge",
+      "kind": "subzone"
+    },
+    {
+      "id": "ironforge.hall_of_arms",
+      "name": "Hall of Arms",
+      "parent": "ironforge",
+      "kind": "subzone"
+    },
+    {
+      "id": "ironforge.hall_of_explorers",
+      "name": "Hall of Explorers",
+      "parent": "ironforge",
+      "kind": "subzone"
+    },
+    {
+      "id": "ironforge.hall_of_mysteries",
+      "name": "Hall of Mysteries",
+      "parent": "ironforge",
+      "kind": "subzone"
+    },
+    {
+      "id": "ironforge.high_seat",
+      "name": "The High Seat",
+      "parent": "ironforge",
+      "kind": "subzone"
+    },
+    {
+      "id": "ironforge.library",
+      "name": "The Library",
+      "parent": "ironforge",
+      "kind": "subzone"
+    },
+    {
+      "id": "ironforge.military_ward",
+      "name": "The Military Ward",
+      "parent": "ironforge",
+      "kind": "subzone"
+    },
+    {
+      "id": "ironforge.mystic_ward",
+      "name": "The Mystic Ward",
+      "parent": "ironforge",
+      "kind": "subzone"
+    },
+    {
+      "id": "ironforge.old_ironforge",
+      "name": "Old Ironforge",
+      "parent": "ironforge",
+      "kind": "subzone"
+    },
+    {
+      "id": "ironforge.tinker_town",
+      "name": "Tinker Town",
+      "parent": "ironforge",
+      "kind": "subzone"
+    },
+    {
+      "id": "ironforge.vault_of_ironforge",
+      "name": "Vault of Ironforge",
+      "parent": "ironforge",
+      "kind": "subzone"
+    },
+    {
+      "id": "northshire_abbey.hall_of_arms",
+      "name": "Hall of Arms",
+      "parent": "northshire_abbey",
+      "kind": "subzone"
+    },
+    {
+      "id": "northshire_abbey.library_wing",
+      "name": "Library Wing",
+      "parent": "northshire_abbey",
+      "kind": "subzone"
+    },
+    {
+      "id": "northshire_abbey.main_hall",
+      "name": "Main Hall",
+      "parent": "northshire_abbey",
+      "kind": "subzone"
+    },
+    {
+      "id": "eastern_plaguelands.tyrs_hand.hall_of_arms",
+      "name": "Hall of Arms",
+      "parent": "eastern_plaguelands.tyrs_hand",
+      "kind": "subzone"
+    },
+    {
+      "id": "eastern_plaguelands.tyrs_hand.library_wing",
+      "name": "Library Wing",
+      "parent": "eastern_plaguelands.tyrs_hand",
+      "kind": "subzone"
+    },
+    {
+      "id": "eastern_plaguelands.tyrs_hand.main_hall",
+      "name": "Main Hall",
+      "parent": "eastern_plaguelands.tyrs_hand",
+      "kind": "subzone"
+    },
+    {
+      "id": "darnassus.temple_of_the_moon",
+      "name": "Temple of the Moon",
+      "parent": "darnassus",
+      "kind": "subzone"
+    },
+    {
+      "id": "orgrimmar.cleft_of_shadow",
+      "name": "Cleft of Shadow",
+      "parent": "orgrimmar",
+      "kind": "subzone"
+    },
+    {
+      "id": "orgrimmar.drag",
+      "name": "The Drag",
+      "parent": "orgrimmar",
+      "kind": "subzone"
+    },
+    {
+      "id": "orgrimmar.grommash_hold",
+      "name": "Grommash Hold",
+      "parent": "orgrimmar",
+      "kind": "subzone"
+    },
+    {
+      "id": "orgrimmar.hall_of_the_brave",
+      "name": "Hall of the Brave",
+      "parent": "orgrimmar",
+      "kind": "subzone"
+    },
+    {
+      "id": "orgrimmar.ring_of_valor",
+      "name": "The Ring of Valor",
+      "parent": "orgrimmar",
+      "kind": "subzone"
+    },
+    {
+      "id": "orgrimmar.valley_of_honor",
+      "name": "Valley of Honor",
+      "parent": "orgrimmar",
+      "kind": "subzone"
+    },
+    {
+      "id": "orgrimmar.valley_of_spirits",
+      "name": "Valley of Spirits",
+      "parent": "orgrimmar",
+      "kind": "subzone"
+    },
+    {
+      "id": "orgrimmar.valley_of_strength",
+      "name": "Valley of Strength",
+      "parent": "orgrimmar",
+      "kind": "subzone"
+    },
+    {
+      "id": "orgrimmar.valley_of_wisdom",
+      "name": "Valley of Wisdom",
+      "parent": "orgrimmar",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_vault.conflux_block",
+      "name": "Conflux Block",
+      "parent": "stormwind_vault",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_vault.gloom_cellar",
+      "name": "Gloom Cellar",
+      "parent": "stormwind_vault",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_vault.interrogation_cells",
+      "name": "Interrogation Cells",
+      "parent": "stormwind_vault",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_vault.secluded_cell",
+      "name": "Secluded Cell",
+      "parent": "stormwind_vault",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwind_vault.skittering_passage",
+      "name": "Skittering Passage",
+      "parent": "stormwind_vault",
+      "kind": "subzone"
+    },
+    {
+      "id": "deadmines.goblin_foundry",
+      "name": "Goblin Foundry",
+      "parent": "deadmines",
+      "kind": "subzone"
+    },
+    {
+      "id": "deadmines.harvest_golem_foundry",
+      "name": "Harvest Golem Foundry",
+      "parent": "deadmines",
+      "kind": "subzone"
+    },
+    {
+      "id": "deadmines.zanzil_laboratory",
+      "name": "Zanzil Laboratory",
+      "parent": "deadmines",
+      "kind": "subzone"
+    },
+    {
+      "id": "deadmines.mast_room",
+      "name": "Mast Room",
+      "parent": "deadmines",
+      "kind": "subzone"
+    },
+    {
+      "id": "wailing_caverns.crag_of_the_everliving",
+      "name": "Crag of the Everliving",
+      "parent": "wailing_caverns",
+      "kind": "subzone"
+    },
+    {
+      "id": "wailing_caverns.dreamers_rock",
+      "name": "Dreamer's Rock",
+      "parent": "wailing_caverns",
+      "kind": "subzone"
+    },
+    {
+      "id": "wailing_caverns.kolkar_falls",
+      "name": "Kolkar Falls",
+      "parent": "wailing_caverns",
+      "kind": "subzone"
+    },
+    {
+      "id": "wailing_caverns.overgrowth",
+      "name": "The Overgrowth",
+      "parent": "wailing_caverns",
+      "kind": "subzone"
+    },
+    {
+      "id": "wailing_caverns.pit_of_fangs",
+      "name": "Pit of Fangs",
+      "parent": "wailing_caverns",
+      "kind": "subzone"
+    },
+    {
+      "id": "wailing_caverns.screaming_gully",
+      "name": "Screaming Gully",
+      "parent": "wailing_caverns",
+      "kind": "subzone"
+    },
+    {
+      "id": "wailing_caverns.winding_chasm",
+      "name": "Winding Chasm",
+      "parent": "wailing_caverns",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackfathom_deeps.akumais_lair",
+      "name": "Aku'mai's Lair",
+      "parent": "blackfathom_deeps",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackfathom_deeps.drowned_sacellum",
+      "name": "The Drowned Sacellum",
+      "parent": "blackfathom_deeps",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackfathom_deeps.forgotten_pool",
+      "name": "The Forgotten Pool",
+      "parent": "blackfathom_deeps",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackfathom_deeps.moonshrine_ruins",
+      "name": "Moonshrine Ruins",
+      "parent": "blackfathom_deeps",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackfathom_deeps.moonshrine_sanctum",
+      "name": "Moonshrine Sanctum",
+      "parent": "blackfathom_deeps",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackfathom_deeps.pool_of_askar",
+      "name": "The Pool of Ask'ar",
+      "parent": "blackfathom_deeps",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackfathom_deeps.temple_of_elune",
+      "name": "Temple of Elune",
+      "parent": "blackfathom_deeps",
+      "kind": "subzone"
+    },
+    {
+      "id": "uldaman.dig_one",
+      "name": "Dig One",
+      "parent": "uldaman",
+      "kind": "subzone"
+    },
+    {
+      "id": "uldaman.dig_three",
+      "name": "Dig Three",
+      "parent": "uldaman",
+      "kind": "subzone"
+    },
+    {
+      "id": "uldaman.dig_two",
+      "name": "Dig Two",
+      "parent": "uldaman",
+      "kind": "subzone"
+    },
+    {
+      "id": "uldaman.echomok_cavern",
+      "name": "Echomok Cavern",
+      "parent": "uldaman",
+      "kind": "subzone"
+    },
+    {
+      "id": "uldaman.hall_of_the_crafters",
+      "name": "Hall of the Crafters",
+      "parent": "uldaman",
+      "kind": "subzone"
+    },
+    {
+      "id": "uldaman.hall_of_the_keepers",
+      "name": "Hall of the Keepers",
+      "parent": "uldaman",
+      "kind": "subzone"
+    },
+    {
+      "id": "uldaman.khazgoroths_seat",
+      "name": "Khaz'goroth's Seat",
+      "parent": "uldaman",
+      "kind": "subzone"
+    },
+    {
+      "id": "uldaman.map_chamber",
+      "name": "Map Chamber",
+      "parent": "uldaman",
+      "kind": "subzone"
+    },
+    {
+      "id": "uldaman.stone_vault",
+      "name": "The Stone Vault",
+      "parent": "uldaman",
+      "kind": "subzone"
+    },
+    {
+      "id": "uldaman.temple_hall",
+      "name": "Temple Hall",
+      "parent": "uldaman",
+      "kind": "subzone"
+    },
+    {
+      "id": "gnomeregan.clean_zone",
+      "name": "The Clean Zone",
+      "parent": "gnomeregan",
+      "kind": "subzone"
+    },
+    {
+      "id": "gnomeregan.clockwerk_run",
+      "name": "The Clockwerk Run",
+      "parent": "gnomeregan",
+      "kind": "subzone"
+    },
+    {
+      "id": "gnomeregan.dormitory",
+      "name": "The Dormitory",
+      "parent": "gnomeregan",
+      "kind": "subzone"
+    },
+    {
+      "id": "gnomeregan.engineering_labs",
+      "name": "Engineering Labs",
+      "parent": "gnomeregan",
+      "kind": "subzone"
+    },
+    {
+      "id": "gnomeregan.hall_of_gears",
+      "name": "The Hall of Gears",
+      "parent": "gnomeregan",
+      "kind": "subzone"
+    },
+    {
+      "id": "gnomeregan.launch_bay",
+      "name": "Launch Bay",
+      "parent": "gnomeregan",
+      "kind": "subzone"
+    },
+    {
+      "id": "gnomeregan.tinkers_court",
+      "name": "Tinkers' Court",
+      "parent": "gnomeregan",
+      "kind": "subzone"
+    },
+    {
+      "id": "sunken_temple.chamber_of_the_dreamer",
+      "name": "Chamber of the Dreamer",
+      "parent": "sunken_temple",
+      "kind": "subzone"
+    },
+    {
+      "id": "sunken_temple.hall_of_serpents",
+      "name": "Hall of Serpents",
+      "parent": "sunken_temple",
+      "kind": "subzone"
+    },
+    {
+      "id": "sunken_temple.hall_of_the_cursed",
+      "name": "Hall of the Cursed",
+      "parent": "sunken_temple",
+      "kind": "subzone"
+    },
+    {
+      "id": "sunken_temple.lair_of_the_chosen",
+      "name": "Lair of the Chosen",
+      "parent": "sunken_temple",
+      "kind": "subzone"
+    },
+    {
+      "id": "sunken_temple.pit_of_refuse",
+      "name": "The Pit of Refuse",
+      "parent": "sunken_temple",
+      "kind": "subzone"
+    },
+    {
+      "id": "sunken_temple.pit_of_sacrifice",
+      "name": "The Pit of Sacrifice",
+      "parent": "sunken_temple",
+      "kind": "subzone"
+    },
+    {
+      "id": "sunken_temple.sanctum_of_the_fallen_god",
+      "name": "Sanctum of the Fallen God",
+      "parent": "sunken_temple",
+      "kind": "subzone"
+    },
+    {
+      "id": "razorfen_downs.bone_pile",
+      "name": "The Bone Pile",
+      "parent": "razorfen_downs",
+      "kind": "subzone"
+    },
+    {
+      "id": "razorfen_downs.callers_chamber",
+      "name": "The Caller's Chamber",
+      "parent": "razorfen_downs",
+      "kind": "subzone"
+    },
+    {
+      "id": "razorfen_downs.murder_pens",
+      "name": "The Murder Pens",
+      "parent": "razorfen_downs",
+      "kind": "subzone"
+    },
+    {
+      "id": "razorfen_downs.spiral_of_thorns",
+      "name": "Spiral of Thorns",
+      "parent": "razorfen_downs",
+      "kind": "subzone"
+    },
+    {
+      "id": "razorfen_downs.temple_of_agamaggan",
+      "name": "Temple of Agamaggan",
+      "parent": "razorfen_downs",
+      "kind": "subzone"
+    },
+    {
+      "id": "scarlet_monastery_library.athenaeum",
+      "name": "Athenaeum",
+      "parent": "scarlet_monastery_library",
+      "kind": "subzone"
+    },
+    {
+      "id": "scarlet_monastery_library.gallery_of_treasures",
+      "name": "Gallery of Treasures",
+      "parent": "scarlet_monastery_library",
+      "kind": "subzone"
+    },
+    {
+      "id": "scarlet_monastery_library.huntsmans_cloister",
+      "name": "Huntsman's Cloister",
+      "parent": "scarlet_monastery_library",
+      "kind": "subzone"
+    },
+    {
+      "id": "scarlet_monastery_library.sanctum_of_the_fist",
+      "name": "Sanctum of the Fist",
+      "parent": "scarlet_monastery_library",
+      "kind": "subzone"
+    },
+    {
+      "id": "scarlet_monastery_graveyard.chamber_of_atonement",
+      "name": "Chamber of Atonement",
+      "parent": "scarlet_monastery_graveyard",
+      "kind": "subzone"
+    },
+    {
+      "id": "scarlet_monastery_graveyard.forlorn_cloister",
+      "name": "Forlorn Cloister",
+      "parent": "scarlet_monastery_graveyard",
+      "kind": "subzone"
+    },
+    {
+      "id": "scarlet_monastery_graveyard.honors_tomb",
+      "name": "Honor's Tomb",
+      "parent": "scarlet_monastery_graveyard",
+      "kind": "subzone"
+    },
+    {
+      "id": "scarlet_monastery_graveyard.scarlet_prison",
+      "name": "Scarlet Prison",
+      "parent": "scarlet_monastery_graveyard",
+      "kind": "subzone"
+    },
+    {
+      "id": "scarlet_monastery_cathedral.chapel_gardens",
+      "name": "Chapel Gardens",
+      "parent": "scarlet_monastery_cathedral",
+      "kind": "subzone"
+    },
+    {
+      "id": "scarlet_monastery_cathedral.crusaders_chapel",
+      "name": "Crusader's Chapel",
+      "parent": "scarlet_monastery_cathedral",
+      "kind": "subzone"
+    },
+    {
+      "id": "scarlet_monastery_armory.crusaders_armory",
+      "name": "Crusader's Armory",
+      "parent": "scarlet_monastery_armory",
+      "kind": "subzone"
+    },
+    {
+      "id": "scarlet_monastery_armory.footmans_armory",
+      "name": "Footman's Armory",
+      "parent": "scarlet_monastery_armory",
+      "kind": "subzone"
+    },
+    {
+      "id": "scarlet_monastery_armory.grand_vestibule",
+      "name": "The Grand Vestibule",
+      "parent": "scarlet_monastery_armory",
+      "kind": "subzone"
+    },
+    {
+      "id": "scarlet_monastery_armory.hall_of_champions",
+      "name": "Hall of Champions",
+      "parent": "scarlet_monastery_armory",
+      "kind": "subzone"
+    },
+    {
+      "id": "scarlet_monastery_armory.training_grounds",
+      "name": "Training Grounds",
+      "parent": "scarlet_monastery_armory",
+      "kind": "subzone"
+    },
+    {
+      "id": "scarlet_monastery_armory.warehouse",
+      "name": "Warehouse",
+      "parent": "scarlet_monastery_armory",
+      "kind": "subzone"
+    },
+    {
+      "id": "zulfarrak.farraki_tombs",
+      "name": "Farraki Tombs",
+      "parent": "zulfarrak",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_spire.blackrock_stadium",
+      "name": "Blackrock Stadium",
+      "parent": "blackrock_spire",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_spire.chamber_of_battle",
+      "name": "Chamber of Battle",
+      "parent": "blackrock_spire",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_spire.dragonspire_hall",
+      "name": "Dragonspire Hall",
+      "parent": "blackrock_spire",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_spire.furnace",
+      "name": "The Furnace",
+      "parent": "blackrock_spire",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_spire.hall_of_binding",
+      "name": "Hall of Binding",
+      "parent": "blackrock_spire",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_spire.hall_of_blackhand",
+      "name": "Hall of Blackhand",
+      "parent": "blackrock_spire",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_spire.halycons_lair",
+      "name": "Halycon's Lair",
+      "parent": "blackrock_spire",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_spire.hordemar_city",
+      "name": "Hordemar City",
+      "parent": "blackrock_spire",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_spire.mokdoom",
+      "name": "Mok'Doom",
+      "parent": "blackrock_spire",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_spire.molten_span",
+      "name": "The Molten Span",
+      "parent": "blackrock_spire",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_spire.rookery",
+      "name": "The Rookery",
+      "parent": "blackrock_spire",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_spire.skitterweb_tunnels",
+      "name": "Skitterweb Tunnels",
+      "parent": "blackrock_spire",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_spire.spire_throne",
+      "name": "Spire Throne",
+      "parent": "blackrock_spire",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_spire.storehouse",
+      "name": "The Storehouse",
+      "parent": "blackrock_spire",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_spire.tazzalaor",
+      "name": "Tazz'Alaor",
+      "parent": "blackrock_spire",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.black_vault",
+      "name": "The Black Vault",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.chamber_of_enchantment",
+      "name": "Chamber of Enchantment",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.dark_iron_highway",
+      "name": "Dark Iron Highway",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.detention_block",
+      "name": "Detention Block",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.domicile",
+      "name": "The Domicile",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.east_garrison",
+      "name": "East Garrison",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.grim_guzzler",
+      "name": "The Grim Guzzler",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.hall_of_crafting",
+      "name": "Hall of Crafting",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.halls_of_the_law",
+      "name": "Halls of the Law",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.imperial_seat",
+      "name": "The Imperial Seat",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.iron_hall",
+      "name": "The Iron Hall",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.lyceum",
+      "name": "The Lyceum",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.manufactory",
+      "name": "The Manufactory",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.mold_foundry",
+      "name": "Mold Foundry",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.molten_bridge",
+      "name": "The Molten Bridge",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.ring_of_the_law",
+      "name": "Ring of the Law",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.shadowforge_city",
+      "name": "Shadowforge City",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.shrine_of_thaurissan",
+      "name": "Shrine of Thaurissan",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.summoners_tomb",
+      "name": "Summoners' Tomb",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackrock_depths.west_garrison",
+      "name": "West Garrison",
+      "parent": "blackrock_depths",
+      "kind": "subzone"
+    },
+    {
+      "id": "scholomance.barov_family_vault",
+      "name": "Barov Family Vault",
+      "parent": "scholomance",
+      "kind": "subzone"
+    },
+    {
+      "id": "scholomance.chamber_of_summoning",
+      "name": "Chamber of Summoning",
+      "parent": "scholomance",
+      "kind": "subzone"
+    },
+    {
+      "id": "scholomance.coven",
+      "name": "The Coven",
+      "parent": "scholomance",
+      "kind": "subzone"
+    },
+    {
+      "id": "scholomance.great_ossuary",
+      "name": "The Great Ossuary",
+      "parent": "scholomance",
+      "kind": "subzone"
+    },
+    {
+      "id": "scholomance.hall_of_secrets",
+      "name": "Hall of Secrets",
+      "parent": "scholomance",
+      "kind": "subzone"
+    },
+    {
+      "id": "scholomance.hall_of_the_damned",
+      "name": "Hall of the Damned",
+      "parent": "scholomance",
+      "kind": "subzone"
+    },
+    {
+      "id": "scholomance.headmasters_study",
+      "name": "Headmaster's Study",
+      "parent": "scholomance",
+      "kind": "subzone"
+    },
+    {
+      "id": "scholomance.laboratory",
+      "name": "The Laboratory",
+      "parent": "scholomance",
+      "kind": "subzone"
+    },
+    {
+      "id": "scholomance.reliquary",
+      "name": "The Reliquary",
+      "parent": "scholomance",
+      "kind": "subzone"
+    },
+    {
+      "id": "scholomance.shadow_vault",
+      "name": "The Shadow Vault",
+      "parent": "scholomance",
+      "kind": "subzone"
+    },
+    {
+      "id": "scholomance.vault_of_the_ravenian",
+      "name": "Vault of the Ravenian",
+      "parent": "scholomance",
+      "kind": "subzone"
+    },
+    {
+      "id": "scholomance.viewing_room",
+      "name": "The Viewing Room",
+      "parent": "scholomance",
+      "kind": "subzone"
+    },
+    {
+      "id": "stratholme.alonsus_chapel",
+      "name": "Alonsus Chapel",
+      "parent": "stratholme",
+      "kind": "subzone"
+    },
+    {
+      "id": "stratholme.crimson_throne",
+      "name": "The Crimson Throne",
+      "parent": "stratholme",
+      "kind": "subzone"
+    },
+    {
+      "id": "stratholme.crusaders_square",
+      "name": "Crusaders' Square",
+      "parent": "stratholme",
+      "kind": "subzone"
+    },
+    {
+      "id": "stratholme.elders_square",
+      "name": "Elders' Square",
+      "parent": "stratholme",
+      "kind": "subzone"
+    },
+    {
+      "id": "stratholme.festival_lane",
+      "name": "Festival Lane",
+      "parent": "stratholme",
+      "kind": "subzone"
+    },
+    {
+      "id": "stratholme.gauntlet",
+      "name": "The Gauntlet",
+      "parent": "stratholme",
+      "kind": "subzone"
+    },
+    {
+      "id": "stratholme.hall_of_lights",
+      "name": "The Hall of Lights",
+      "parent": "stratholme",
+      "kind": "subzone"
+    },
+    {
+      "id": "stratholme.hoard",
+      "name": "The Hoard",
+      "parent": "stratholme",
+      "kind": "subzone"
+    },
+    {
+      "id": "stratholme.kings_square",
+      "name": "King's Square",
+      "parent": "stratholme",
+      "kind": "subzone"
+    },
+    {
+      "id": "stratholme.market_row",
+      "name": "Market Row",
+      "parent": "stratholme",
+      "kind": "subzone"
+    },
+    {
+      "id": "stratholme.scarlet_bastion",
+      "name": "The Scarlet Bastion",
+      "parent": "stratholme",
+      "kind": "subzone"
+    },
+    {
+      "id": "stratholme.slaughter_house",
+      "name": "The Slaughter House",
+      "parent": "stratholme",
+      "kind": "subzone"
+    },
+    {
+      "id": "stratholme.slaughter_square",
+      "name": "Slaughter Square",
+      "parent": "stratholme",
+      "kind": "subzone"
+    },
+    {
+      "id": "maraudon.earth_song_falls",
+      "name": "Earth Song Falls",
+      "parent": "maraudon",
+      "kind": "subzone"
+    },
+    {
+      "id": "maraudon.foulspore_cavern",
+      "name": "Foulspore Cavern",
+      "parent": "maraudon",
+      "kind": "subzone"
+    },
+    {
+      "id": "maraudon.noxious_hollow",
+      "name": "The Noxious Hollow",
+      "parent": "maraudon",
+      "kind": "subzone"
+    },
+    {
+      "id": "maraudon.poison_falls",
+      "name": "Poison Falls",
+      "parent": "maraudon",
+      "kind": "subzone"
+    },
+    {
+      "id": "maraudon.vyletongue_seat",
+      "name": "Vyletongue Seat",
+      "parent": "maraudon",
+      "kind": "subzone"
+    },
+    {
+      "id": "maraudon.wicked_grotto",
+      "name": "The Wicked Grotto",
+      "parent": "maraudon",
+      "kind": "subzone"
+    },
+    {
+      "id": "maraudon.zaetars_grave",
+      "name": "Zaetar's Grave",
+      "parent": "maraudon",
+      "kind": "subzone"
+    },
+    {
+      "id": "molten_core.magmadar_cavern",
+      "name": "Magmadar Cavern",
+      "parent": "molten_core",
+      "kind": "subzone"
+    },
+    {
+      "id": "molten_core.ragnaros_lair",
+      "name": "Ragnaros' Lair",
+      "parent": "molten_core",
+      "kind": "subzone"
+    },
+    {
+      "id": "dire_maul.athenaeum",
+      "name": "The Athenaeum",
+      "parent": "dire_maul",
+      "kind": "subzone"
+    },
+    {
+      "id": "dire_maul.capital_gardens",
+      "name": "Capital Gardens",
+      "parent": "dire_maul",
+      "kind": "subzone"
+    },
+    {
+      "id": "dire_maul.conservatory",
+      "name": "The Conservatory",
+      "parent": "dire_maul",
+      "kind": "subzone"
+    },
+    {
+      "id": "dire_maul.court_of_the_highborne",
+      "name": "Court of the Highborne",
+      "parent": "dire_maul",
+      "kind": "subzone"
+    },
+    {
+      "id": "dire_maul.gordoks_seat",
+      "name": "Gordok's Seat",
+      "parent": "dire_maul",
+      "kind": "subzone"
+    },
+    {
+      "id": "dire_maul.halls_of_destruction",
+      "name": "Halls of Destruction",
+      "parent": "dire_maul",
+      "kind": "subzone"
+    },
+    {
+      "id": "dire_maul.hidden_reach",
+      "name": "The Hidden Reach",
+      "parent": "dire_maul",
+      "kind": "subzone"
+    },
+    {
+      "id": "dire_maul.maul",
+      "name": "The Maul",
+      "parent": "dire_maul",
+      "kind": "subzone"
+    },
+    {
+      "id": "dire_maul.prison_of_immolthar",
+      "name": "Prison of Immol'thar",
+      "parent": "dire_maul",
+      "kind": "subzone"
+    },
+    {
+      "id": "dire_maul.shrine_of_eldretharr",
+      "name": "The Shrine of Eldretharr",
+      "parent": "dire_maul",
+      "kind": "subzone"
+    },
+    {
+      "id": "dire_maul.warpwood_quarter",
+      "name": "Warpwood Quarter",
+      "parent": "dire_maul",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackwing_lair.alchemical_laboratory",
+      "name": "Alchemical Laboratory",
+      "parent": "blackwing_lair",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackwing_lair.nefarians_lair",
+      "name": "Nefarian's Lair",
+      "parent": "blackwing_lair",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackwing_lair.dragonmaw_garrison",
+      "name": "Dragonmaw Garrison",
+      "parent": "blackwing_lair",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackwing_lair.halls_of_strife",
+      "name": "Halls of Strife",
+      "parent": "blackwing_lair",
+      "kind": "subzone"
+    },
+    {
+      "id": "blackwing_lair.shadow_wing_lair",
+      "name": "Shadow Wing Lair",
+      "parent": "blackwing_lair",
+      "kind": "subzone"
+    },
+    {
+      "id": "upper_necropolis.kelthuzad_chamber",
+      "name": "Kel'Thuzad Chamber",
+      "parent": "upper_necropolis",
+      "kind": "subzone"
+    },
+    {
+      "id": "upper_necropolis.sapphirons_lair",
+      "name": "Sapphiron's Lair",
+      "parent": "upper_necropolis",
+      "kind": "subzone"
+    },
+    {
+      "id": "karazhan_crypt.paupers_walk",
+      "name": "Pauper's Walk",
+      "parent": "karazhan_crypt",
+      "kind": "subzone"
+    },
+    {
+      "id": "karazhan_crypt.pit_of_criminals",
+      "name": "The Pit of Criminals",
+      "parent": "karazhan_crypt",
+      "kind": "subzone"
+    },
+    {
+      "id": "karazhan_crypt.slough_of_despair",
+      "name": "The Slough of Despair",
+      "parent": "karazhan_crypt",
+      "kind": "subzone"
+    },
+    {
+      "id": "karazhan_crypt.tomb_of_the_unrepentant",
+      "name": "Tomb of the Unrepentant",
+      "parent": "karazhan_crypt",
+      "kind": "subzone"
+    },
+    {
+      "id": "karazhan_crypt.upside_down_sinners",
+      "name": "The Upside-down Sinners",
+      "parent": "karazhan_crypt",
+      "kind": "subzone"
+    },
+    {
+      "id": "karazhan_crypt.well_of_the_forgotten",
+      "name": "Well of the Forgotten",
+      "parent": "karazhan_crypt",
+      "kind": "subzone"
+    },
+    {
+      "id": "dragonmaw_retreat.halls_of_the_ancestors",
+      "name": "Halls of the Ancestors",
+      "parent": "dragonmaw_retreat",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwrought_ruins.crystal_grotto",
+      "name": "Crystal Grotto",
+      "parent": "stormwrought_ruins",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwrought_ruins.deathlords_sepulcher",
+      "name": "Deathlord's Sepulcher",
+      "parent": "stormwrought_ruins",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwrought_ruins.fetid_lake",
+      "name": "Fetid Lake",
+      "parent": "stormwrought_ruins",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwrought_ruins.rotting_caverns",
+      "name": "Rotting Caverns",
+      "parent": "stormwrought_ruins",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwrought_ruins.sanctum_of_blood",
+      "name": "Sanctum of Blood",
+      "parent": "stormwrought_ruins",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_barracks",
+      "name": "Stormwrought Barracks",
+      "parent": "stormwrought_ruins",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_castle",
+      "name": "Stormwrought Castle",
+      "parent": "stormwrought_ruins",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_court",
+      "name": "Stormwrought Court",
+      "parent": "stormwrought_ruins",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_descent",
+      "name": "Stormwrought Descent",
+      "parent": "stormwrought_ruins",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_kitchen",
+      "name": "Stormwrought Kitchen",
+      "parent": "stormwrought_ruins",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_library",
+      "name": "Stormwrought Library",
+      "parent": "stormwrought_ruins",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_museum",
+      "name": "Stormwrought Museum",
+      "parent": "stormwrought_ruins",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_prison",
+      "name": "Stormwrought Prison",
+      "parent": "stormwrought_ruins",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_terrace",
+      "name": "Stormwrought Terrace",
+      "parent": "stormwrought_ruins",
+      "kind": "subzone"
+    },
+    {
+      "id": "stormwrought_ruins.temple_of_shadows",
+      "name": "Temple of Shadows",
+      "parent": "stormwrought_ruins",
+      "kind": "subzone"
+    },
+    {
+      "id": "timbermaw_hold.foulheart_coven",
+      "name": "Foulheart Coven",
+      "parent": "timbermaw_hold",
+      "kind": "subzone"
+    },
+    {
+      "id": "timbermaw_hold.grotto_of_dreams",
+      "name": "Grotto of Dreams",
+      "parent": "timbermaw_hold",
+      "kind": "subzone"
+    },
+    {
+      "id": "timbermaw_hold.heart_of_the_nightmare",
+      "name": "Heart of the Nightmare",
+      "parent": "timbermaw_hold",
+      "kind": "subzone"
+    },
+    {
+      "id": "timbermaw_hold.seat_of_the_chieftain",
+      "name": "Seat of the Chieftain",
+      "parent": "timbermaw_hold",
+      "kind": "subzone"
+    },
+    {
+      "id": "timbermaw_hold.timbermaw_village",
+      "name": "Timbermaw Village",
+      "parent": "timbermaw_hold",
+      "kind": "subzone"
+    },
+    {
+      "id": "westfall.moonbrook.defias_hideout",
+      "name": "Defias Hideout",
+      "parent": "westfall.moonbrook",
+      "kind": "subzone"
+    },
+    {
+      "id": "uldaman.exterior.dig_one",
+      "name": "Dig One",
+      "parent": "uldaman.exterior",
+      "kind": "subzone"
+    },
+    {
+      "id": "uldaman.exterior.echomok_cavern",
+      "name": "Echomok Cavern",
+      "parent": "uldaman.exterior",
+      "kind": "subzone"
+    },
+    {
+      "id": "uldaman.exterior.excavation_center",
+      "name": "Excavation Center",
+      "parent": "uldaman.exterior",
+      "kind": "subzone"
+    },
+    {
+      "id": "uldaman.exterior.hall_of_the_keepers",
+      "name": "Hall of the Keepers",
+      "parent": "uldaman.exterior",
+      "kind": "subzone"
+    },
+    {
+      "id": "uldaman.exterior.north_common_hall",
+      "name": "North Common Hall",
+      "parent": "uldaman.exterior",
+      "kind": "subzone"
+    },
+    {
+      "id": "uldaman.exterior.sealed_hall",
+      "name": "The Sealed Hall",
+      "parent": "uldaman.exterior",
+      "kind": "subzone"
+    },
+    {
+      "id": "uldaman.exterior.south_common_hall",
+      "name": "South Common Hall",
+      "parent": "uldaman.exterior",
+      "kind": "subzone"
+    },
+    {
+      "id": "gnomeregan.exterior.loading_room",
+      "name": "Loading Room",
+      "parent": "gnomeregan.exterior",
+      "kind": "subzone"
+    },
+    {
+      "id": "gnomeregan.exterior.train_depot",
+      "name": "Train Depot",
+      "parent": "gnomeregan.exterior",
+      "kind": "subzone"
+    },
+    {
+      "id": "gnomeregan.exterior.workshop_entrance",
+      "name": "Workshop Entrance",
+      "parent": "gnomeregan.exterior",
+      "kind": "subzone"
+    },
+    {
+      "id": "scarlet_monastery.exterior.grand_vestibule",
+      "name": "The Grand Vestibule",
+      "parent": "scarlet_monastery.exterior",
+      "kind": "subzone"
+    },
+    {
+      "id": "stratholme.exterior.kings_square",
+      "name": "King's Square",
+      "parent": "stratholme.exterior",
+      "kind": "subzone"
+    },
+    {
+      "id": "dire_maul.exterior.broken_commons",
+      "name": "Broken Commons",
+      "parent": "dire_maul.exterior",
+      "kind": "subzone"
+    },
+    {
+      "id": "dire_maul.exterior.eldreth_row",
+      "name": "Eldreth Row",
+      "parent": "dire_maul.exterior",
+      "kind": "subzone"
+    },
+    {
+      "id": "wailing_caverns.exterior.cavern_of_mists",
+      "name": "Cavern of Mists",
+      "parent": "wailing_caverns.exterior",
+      "kind": "subzone"
+    },
+    {
+      "id": "arathi_highlands.bouldergor.boulderfist_outpost",
+      "name": "Boulderfist Outpost",
+      "parent": "arathi_highlands.bouldergor",
+      "kind": "landmark"
+    },
+    {
+      "id": "duskwood.darkshire.darkshire_town_hall",
+      "name": "Darkshire Town Hall",
+      "parent": "duskwood.darkshire",
+      "kind": "landmark"
+    },
+    {
+      "id": "duskwood.darkshire.scarlet_raven_tavern",
+      "name": "Scarlet Raven Tavern",
+      "parent": "duskwood.darkshire",
+      "kind": "landmark"
+    },
+    {
+      "id": "dun_kithas.dun_kithas_magistrate",
+      "name": "Dun Kithas Magistrate",
+      "parent": "dun_kithas",
+      "kind": "landmark"
+    },
+    {
+      "id": "dun_morogh.golbolar_quarry.golbolar_quarry_mine",
+      "name": "Gol'Bolar Quarry Mine",
+      "parent": "dun_morogh.golbolar_quarry",
+      "kind": "landmark"
+    },
+    {
+      "id": "grim_batol.grim_ramparts",
+      "name": "Grim Ramparts",
+      "parent": "grim_batol",
+      "kind": "landmark"
+    },
+    {
+      "id": "redridge_mountains.lakeshire.lakeshire_inn",
+      "name": "Lakeshire Inn",
+      "parent": "redridge_mountains.lakeshire",
+      "kind": "landmark"
+    },
+    {
+      "id": "redridge_mountains.lakeshire.lakeshire_town_hall",
+      "name": "Lakeshire Town Hall",
+      "parent": "redridge_mountains.lakeshire",
+      "kind": "landmark"
+    },
+    {
+      "id": "elwynn_forest.goldshire.lions_pride_inn",
+      "name": "Lion's Pride Inn",
+      "parent": "elwynn_forest.goldshire",
+      "kind": "landmark"
+    },
+    {
+      "id": "northwind.plump_pumpkin",
+      "name": "The Plump Pumpkin",
+      "parent": "northwind",
+      "kind": "landmark"
+    },
+    {
+      "id": "abbey_gardens.saint_mara_abbey",
+      "name": "Saint Mara Abbey",
+      "parent": "abbey_gardens",
+      "kind": "landmark"
+    },
+    {
+      "id": "westfall.sentinel_hill.sentinel_tower",
+      "name": "Sentinel Tower",
+      "parent": "westfall.sentinel_hill",
+      "kind": "landmark"
+    },
+    {
+      "id": "southshore.southshore_town_hall",
+      "name": "Southshore Town Hall",
+      "parent": "southshore",
+      "kind": "landmark"
+    },
+    {
+      "id": "grim_hollow.tomb_of_ancestors",
+      "name": "Tomb of Ancestors",
+      "parent": "grim_hollow",
+      "kind": "landmark"
+    },
+    {
+      "id": "eastern_plaguelands.tyrs_hand.tyrs_hand_abbey",
+      "name": "Tyr's Hand Abbey",
+      "parent": "eastern_plaguelands.tyrs_hand",
+      "kind": "landmark"
+    },
+    {
+      "id": "forlorn_summit.widows_nest",
+      "name": "The Widow's Nest",
+      "parent": "forlorn_summit",
+      "kind": "landmark"
+    },
+    {
+      "id": "bael_hardul.hardul_distillery",
+      "name": "Hardul Distillery",
+      "parent": "bael_hardul",
+      "kind": "landmark"
+    },
+    {
+      "id": "ashenvale.thistlefur_village.thistlefur_hold",
+      "name": "Thistlefur Hold",
+      "parent": "ashenvale.thistlefur_village",
+      "kind": "landmark"
+    }
+  ],
+  "newBindings": [
+    {
+      "id": "quelthalas",
+      "ns": "upstreamUiMap",
+      "value": 102037
+    },
+    {
+      "id": "north_sea",
+      "ns": "upstreamUiMap",
+      "value": 105027
+    },
+    {
+      "id": "sunstrider_court",
+      "ns": "upstreamUiMap",
+      "value": 105638
+    },
+    {
+      "id": "deeprun_tram",
+      "ns": "instanceMap",
+      "value": 369
+    },
+    {
+      "id": "alliance_pvp_barracks",
+      "ns": "instanceMap",
+      "value": 449
+    },
+    {
+      "id": "horde_pvp_barracks",
+      "ns": "instanceMap",
+      "value": 450
+    },
+    {
+      "id": "rock_of_desolation",
+      "ns": "areaTable",
+      "value": 5558
+    },
+    {
+      "id": "ruins_of_ahnqiraj.scarab_terrace",
+      "ns": "areaTable",
+      "value": 3448
+    },
+    {
+      "id": "ruins_of_ahnqiraj.generals_terrace",
+      "ns": "areaTable",
+      "value": 3449
+    },
+    {
+      "id": "ruins_of_ahnqiraj.reservoir",
+      "ns": "areaTable",
+      "value": 3450
+    },
+    {
+      "id": "ruins_of_ahnqiraj.hatchery",
+      "ns": "areaTable",
+      "value": 3451
+    },
+    {
+      "id": "ruins_of_ahnqiraj.comb",
+      "ns": "areaTable",
+      "value": 3452
+    },
+    {
+      "id": "ruins_of_ahnqiraj.watchers_terrace",
+      "ns": "areaTable",
+      "value": 3453
+    },
+    {
+      "id": "wetlands.ruins_of_grim_batol",
+      "ns": "areaTable",
+      "value": 5550
+    },
+    {
+      "id": "wetlands.ruins_of_grim_batol",
+      "ns": "areaTable",
+      "value": 5639
+    },
+    {
+      "id": "eastern_plaguelands.tyrs_hand",
+      "ns": "areaTable",
+      "value": 4358
+    },
+    {
+      "id": "timbermaw_hold.exterior",
+      "ns": "areaTable",
+      "value": 5643
+    }
+  ],
+  "newContent": [
+    {
+      "id": "quelthalas",
+      "mid": 102037,
+      "key": "",
+      "name": "Quel'Thalas"
+    },
+    {
+      "id": "north_sea",
+      "mid": 105027,
+      "key": "",
+      "name": "North Sea"
+    },
+    {
+      "id": "sunstrider_court",
+      "mid": 105638,
+      "key": "",
+      "name": "Sunstrider Court"
+    },
+    {
+      "id": "ruins_of_ahnqiraj.scarab_terrace",
+      "mid": 103429,
+      "key": "scarab terrace",
+      "name": "Scarab Terrace"
+    },
+    {
+      "id": "ruins_of_ahnqiraj.generals_terrace",
+      "mid": 103429,
+      "key": "generals terrace",
+      "name": "General's Terrace"
+    },
+    {
+      "id": "ruins_of_ahnqiraj.reservoir",
+      "mid": 103429,
+      "key": "reservoir",
+      "name": "The Reservoir"
+    },
+    {
+      "id": "ruins_of_ahnqiraj.hatchery",
+      "mid": 103429,
+      "key": "hatchery",
+      "name": "The Hatchery"
+    },
+    {
+      "id": "ruins_of_ahnqiraj.comb",
+      "mid": 103429,
+      "key": "comb",
+      "name": "The Comb"
+    },
+    {
+      "id": "ruins_of_ahnqiraj.watchers_terrace",
+      "mid": 103429,
+      "key": "watchers terrace",
+      "name": "Watchers' Terrace"
+    },
+    {
+      "id": "wetlands.ruins_of_grim_batol",
+      "mid": 1437,
+      "key": "ruins of grim batol",
+      "name": "Ruins of Grim Batol"
+    },
+    {
+      "id": "wetlands.ruins_of_grim_batol",
+      "mid": 105602,
+      "key": "ruins of grim batol",
+      "name": "Ruins of Grim Batol"
+    },
+    {
+      "id": "eastern_plaguelands.tyrs_hand",
+      "mid": 104012,
+      "key": "tyrs hand",
+      "name": "Tyr's Hand"
+    },
+    {
+      "id": "timbermaw_hold.exterior",
+      "mid": 105642,
+      "key": "timbermaw hold",
+      "name": "Timbermaw Hold"
+    },
+    {
+      "id": "deadmines.exterior",
+      "mid": 1436,
+      "key": "deadmines",
+      "name": "Deadmines"
+    },
+    {
+      "id": "karazhan_crypt.exterior",
+      "mid": 1430,
+      "key": "karazhan crypt",
+      "name": "Karazhan Crypt"
+    },
+    {
+      "id": "scarlet_monastery.exterior",
+      "mid": 1420,
+      "key": "scarlet monastery",
+      "name": "Scarlet Monastery"
+    },
+    {
+      "id": "scholomance.exterior",
+      "mid": 1422,
+      "key": "scholomance",
+      "name": "Scholomance"
+    },
+    {
+      "id": "wailing_caverns.exterior",
+      "mid": 1413,
+      "key": "wailing caverns",
+      "name": "Wailing Caverns"
+    },
+    {
+      "id": "undercity.apothecarium",
+      "mid": 1458,
+      "key": "apothecarium",
+      "name": "The Apothecarium"
+    },
+    {
+      "id": "undercity.canals",
+      "mid": 1458,
+      "key": "canals",
+      "name": "Canals"
+    },
+    {
+      "id": "undercity.magic_quarter",
+      "mid": 1458,
+      "key": "magic quarter",
+      "name": "Magic Quarter"
+    },
+    {
+      "id": "undercity.rogues_quarter",
+      "mid": 1458,
+      "key": "rogues quarter",
+      "name": "Rogues' Quarter"
+    },
+    {
+      "id": "undercity.royal_quarter",
+      "mid": 1458,
+      "key": "royal quarter",
+      "name": "Royal Quarter"
+    },
+    {
+      "id": "undercity.ruins_of_lordaeron",
+      "mid": 1458,
+      "key": "ruins of lordaeron",
+      "name": "Ruins of Lordaeron"
+    },
+    {
+      "id": "undercity.sewers",
+      "mid": 1458,
+      "key": "sewers",
+      "name": "Sewers"
+    },
+    {
+      "id": "undercity.trade_quarter",
+      "mid": 1458,
+      "key": "trade quarter",
+      "name": "Trade Quarter"
+    },
+    {
+      "id": "undercity.war_quarter",
+      "mid": 1458,
+      "key": "war quarter",
+      "name": "War Quarter"
+    },
+    {
+      "id": "blackrock_mountain.forgewrights_tomb",
+      "mid": 1428,
+      "key": "forgewrights tomb",
+      "name": "Forgewright's Tomb"
+    },
+    {
+      "id": "blackrock_mountain.grinding_quarry",
+      "mid": 1428,
+      "key": "grinding quarry",
+      "name": "The Grinding Quarry"
+    },
+    {
+      "id": "blackrock_mountain.masonary",
+      "mid": 1428,
+      "key": "masonary",
+      "name": "The Masonary"
+    },
+    {
+      "id": "blackrock_mountain.molten_span",
+      "mid": 1428,
+      "key": "molten span",
+      "name": "The Molten Span"
+    },
+    {
+      "id": "stormwind_city.canals",
+      "mid": 1453,
+      "key": "canals",
+      "name": "The Canals"
+    },
+    {
+      "id": "stormwind_city.cathedral_of_light",
+      "mid": 1453,
+      "key": "cathedral of light",
+      "name": "Cathedral of Light"
+    },
+    {
+      "id": "stormwind_city.cathedral_square",
+      "mid": 1453,
+      "key": "cathedral square",
+      "name": "Cathedral Square"
+    },
+    {
+      "id": "stormwind_city.command_center",
+      "mid": 1453,
+      "key": "command center",
+      "name": "Command Center"
+    },
+    {
+      "id": "stormwind_city.dwarven_district",
+      "mid": 1453,
+      "key": "dwarven district",
+      "name": "Dwarven District"
+    },
+    {
+      "id": "stormwind_city.little_silvermoon",
+      "mid": 1453,
+      "key": "little silvermoon",
+      "name": "Little Silvermoon"
+    },
+    {
+      "id": "stormwind_city.mage_quarter",
+      "mid": 1453,
+      "key": "mage quarter",
+      "name": "Mage Quarter"
+    },
+    {
+      "id": "stormwind_city.old_town",
+      "mid": 1453,
+      "key": "old town",
+      "name": "Old Town"
+    },
+    {
+      "id": "stormwind_city.park",
+      "mid": 1453,
+      "key": "park",
+      "name": "The Park"
+    },
+    {
+      "id": "stormwind_city.petitioners_chamber",
+      "mid": 1453,
+      "key": "petitioners chamber",
+      "name": "Petitioner's Chamber"
+    },
+    {
+      "id": "stormwind_city.royal_gallery",
+      "mid": 1453,
+      "key": "royal gallery",
+      "name": "Royal Gallery"
+    },
+    {
+      "id": "stormwind_city.royal_library",
+      "mid": 1453,
+      "key": "royal library",
+      "name": "Royal Library"
+    },
+    {
+      "id": "stormwind_city.si_7",
+      "mid": 1453,
+      "key": "si 7",
+      "name": "SI:7"
+    },
+    {
+      "id": "stormwind_city.slaughtered_lamb",
+      "mid": 1453,
+      "key": "slaughtered lamb",
+      "name": "The Slaughtered Lamb"
+    },
+    {
+      "id": "stormwind_city.stormwind_keep",
+      "mid": 1453,
+      "key": "stormwind keep",
+      "name": "Stormwind Keep"
+    },
+    {
+      "id": "stormwind_city.trade_district",
+      "mid": 1453,
+      "key": "trade district",
+      "name": "Trade District"
+    },
+    {
+      "id": "stormwind_city.war_room",
+      "mid": 1453,
+      "key": "war room",
+      "name": "War Room"
+    },
+    {
+      "id": "stormwind_city.wizards_sanctum",
+      "mid": 1453,
+      "key": "wizards sanctum",
+      "name": "Wizard's Sanctum"
+    },
+    {
+      "id": "stranglethorn_vale.booty_bay.old_port_authority",
+      "mid": 1434,
+      "key": "old port authority",
+      "name": "The Old Port Authority"
+    },
+    {
+      "id": "stranglethorn_vale.booty_bay.salty_sailor_tavern",
+      "mid": 1434,
+      "key": "salty sailor tavern",
+      "name": "The Salty Sailor Tavern"
+    },
+    {
+      "id": "ironforge.forlorn_cavern",
+      "mid": 1455,
+      "key": "forlorn cavern",
+      "name": "The Forlorn Cavern"
+    },
+    {
+      "id": "ironforge.great_forge",
+      "mid": 1455,
+      "key": "great forge",
+      "name": "The Great Forge"
+    },
+    {
+      "id": "ironforge.hall_of_arms",
+      "mid": 1455,
+      "key": "hall of arms",
+      "name": "Hall of Arms"
+    },
+    {
+      "id": "ironforge.hall_of_explorers",
+      "mid": 1455,
+      "key": "hall of explorers",
+      "name": "Hall of Explorers"
+    },
+    {
+      "id": "ironforge.hall_of_mysteries",
+      "mid": 1455,
+      "key": "hall of mysteries",
+      "name": "Hall of Mysteries"
+    },
+    {
+      "id": "ironforge.high_seat",
+      "mid": 1455,
+      "key": "high seat",
+      "name": "The High Seat"
+    },
+    {
+      "id": "ironforge.library",
+      "mid": 1455,
+      "key": "library",
+      "name": "The Library"
+    },
+    {
+      "id": "ironforge.military_ward",
+      "mid": 1455,
+      "key": "military ward",
+      "name": "The Military Ward"
+    },
+    {
+      "id": "ironforge.mystic_ward",
+      "mid": 1455,
+      "key": "mystic ward",
+      "name": "The Mystic Ward"
+    },
+    {
+      "id": "ironforge.old_ironforge",
+      "mid": 1455,
+      "key": "old ironforge",
+      "name": "Old Ironforge"
+    },
+    {
+      "id": "ironforge.tinker_town",
+      "mid": 1455,
+      "key": "tinker town",
+      "name": "Tinker Town"
+    },
+    {
+      "id": "ironforge.vault_of_ironforge",
+      "mid": 1455,
+      "key": "vault of ironforge",
+      "name": "Vault of Ironforge"
+    },
+    {
+      "id": "northshire_abbey.hall_of_arms",
+      "mid": 1429,
+      "key": "hall of arms",
+      "name": "Hall of Arms"
+    },
+    {
+      "id": "northshire_abbey.library_wing",
+      "mid": 1429,
+      "key": "library wing",
+      "name": "Library Wing"
+    },
+    {
+      "id": "northshire_abbey.main_hall",
+      "mid": 1429,
+      "key": "main hall",
+      "name": "Main Hall"
+    },
+    {
+      "id": "eastern_plaguelands.tyrs_hand.hall_of_arms",
+      "mid": 1423,
+      "key": "hall of arms",
+      "name": "Hall of Arms"
+    },
+    {
+      "id": "eastern_plaguelands.tyrs_hand.library_wing",
+      "mid": 1423,
+      "key": "library wing",
+      "name": "Library Wing"
+    },
+    {
+      "id": "eastern_plaguelands.tyrs_hand.main_hall",
+      "mid": 1423,
+      "key": "main hall",
+      "name": "Main Hall"
+    },
+    {
+      "id": "darnassus.temple_of_the_moon",
+      "mid": 1457,
+      "key": "temple of the moon",
+      "name": "Temple of the Moon"
+    },
+    {
+      "id": "orgrimmar.cleft_of_shadow",
+      "mid": 1454,
+      "key": "cleft of shadow",
+      "name": "Cleft of Shadow"
+    },
+    {
+      "id": "orgrimmar.drag",
+      "mid": 1454,
+      "key": "drag",
+      "name": "The Drag"
+    },
+    {
+      "id": "orgrimmar.grommash_hold",
+      "mid": 1454,
+      "key": "grommash hold",
+      "name": "Grommash Hold"
+    },
+    {
+      "id": "orgrimmar.hall_of_the_brave",
+      "mid": 1454,
+      "key": "hall of the brave",
+      "name": "Hall of the Brave"
+    },
+    {
+      "id": "orgrimmar.ring_of_valor",
+      "mid": 1454,
+      "key": "ring of valor",
+      "name": "The Ring of Valor"
+    },
+    {
+      "id": "orgrimmar.valley_of_honor",
+      "mid": 1454,
+      "key": "valley of honor",
+      "name": "Valley of Honor"
+    },
+    {
+      "id": "orgrimmar.valley_of_spirits",
+      "mid": 1454,
+      "key": "valley of spirits",
+      "name": "Valley of Spirits"
+    },
+    {
+      "id": "orgrimmar.valley_of_strength",
+      "mid": 1454,
+      "key": "valley of strength",
+      "name": "Valley of Strength"
+    },
+    {
+      "id": "orgrimmar.valley_of_wisdom",
+      "mid": 1454,
+      "key": "valley of wisdom",
+      "name": "Valley of Wisdom"
+    },
+    {
+      "id": "stormwind_vault.conflux_block",
+      "mid": 105087,
+      "key": "conflux block",
+      "name": "Conflux Block"
+    },
+    {
+      "id": "stormwind_vault.gloom_cellar",
+      "mid": 105087,
+      "key": "gloom cellar",
+      "name": "Gloom Cellar"
+    },
+    {
+      "id": "stormwind_vault.interrogation_cells",
+      "mid": 105087,
+      "key": "interrogation cells",
+      "name": "Interrogation Cells"
+    },
+    {
+      "id": "stormwind_vault.secluded_cell",
+      "mid": 105087,
+      "key": "secluded cell",
+      "name": "Secluded Cell"
+    },
+    {
+      "id": "stormwind_vault.skittering_passage",
+      "mid": 105087,
+      "key": "skittering passage",
+      "name": "Skittering Passage"
+    },
+    {
+      "id": "deadmines.goblin_foundry",
+      "mid": 105138,
+      "key": "goblin foundry",
+      "name": "Goblin Foundry"
+    },
+    {
+      "id": "deadmines.harvest_golem_foundry",
+      "mid": 105138,
+      "key": "harvest golem foundry",
+      "name": "Harvest Golem Foundry"
+    },
+    {
+      "id": "deadmines.zanzil_laboratory",
+      "mid": 105138,
+      "key": "zanzil laboratory",
+      "name": "Zanzil Laboratory"
+    },
+    {
+      "id": "deadmines.mast_room",
+      "mid": 105138,
+      "key": "mast room",
+      "name": "Mast Room"
+    },
+    {
+      "id": "wailing_caverns.crag_of_the_everliving",
+      "mid": 100718,
+      "key": "crag of the everliving",
+      "name": "Crag of the Everliving"
+    },
+    {
+      "id": "wailing_caverns.dreamers_rock",
+      "mid": 100718,
+      "key": "dreamers rock",
+      "name": "Dreamer's Rock"
+    },
+    {
+      "id": "wailing_caverns.kolkar_falls",
+      "mid": 100718,
+      "key": "kolkar falls",
+      "name": "Kolkar Falls"
+    },
+    {
+      "id": "wailing_caverns.overgrowth",
+      "mid": 100718,
+      "key": "overgrowth",
+      "name": "The Overgrowth"
+    },
+    {
+      "id": "wailing_caverns.pit_of_fangs",
+      "mid": 100718,
+      "key": "pit of fangs",
+      "name": "Pit of Fangs"
+    },
+    {
+      "id": "wailing_caverns.screaming_gully",
+      "mid": 100718,
+      "key": "screaming gully",
+      "name": "Screaming Gully"
+    },
+    {
+      "id": "wailing_caverns.winding_chasm",
+      "mid": 100718,
+      "key": "winding chasm",
+      "name": "Winding Chasm"
+    },
+    {
+      "id": "blackfathom_deeps.akumais_lair",
+      "mid": 100719,
+      "key": "akumais lair",
+      "name": "Aku'mai's Lair"
+    },
+    {
+      "id": "blackfathom_deeps.drowned_sacellum",
+      "mid": 100719,
+      "key": "drowned sacellum",
+      "name": "The Drowned Sacellum"
+    },
+    {
+      "id": "blackfathom_deeps.forgotten_pool",
+      "mid": 100719,
+      "key": "forgotten pool",
+      "name": "The Forgotten Pool"
+    },
+    {
+      "id": "blackfathom_deeps.moonshrine_ruins",
+      "mid": 100719,
+      "key": "moonshrine ruins",
+      "name": "Moonshrine Ruins"
+    },
+    {
+      "id": "blackfathom_deeps.moonshrine_sanctum",
+      "mid": 100719,
+      "key": "moonshrine sanctum",
+      "name": "Moonshrine Sanctum"
+    },
+    {
+      "id": "blackfathom_deeps.pool_of_askar",
+      "mid": 100719,
+      "key": "pool of askar",
+      "name": "The Pool of Ask'ar"
+    },
+    {
+      "id": "blackfathom_deeps.temple_of_elune",
+      "mid": 100719,
+      "key": "temple of elune",
+      "name": "Temple of Elune"
+    },
+    {
+      "id": "uldaman.dig_one",
+      "mid": 101337,
+      "key": "dig one",
+      "name": "Dig One"
+    },
+    {
+      "id": "uldaman.dig_three",
+      "mid": 101337,
+      "key": "dig three",
+      "name": "Dig Three"
+    },
+    {
+      "id": "uldaman.dig_two",
+      "mid": 101337,
+      "key": "dig two",
+      "name": "Dig Two"
+    },
+    {
+      "id": "uldaman.echomok_cavern",
+      "mid": 101337,
+      "key": "echomok cavern",
+      "name": "Echomok Cavern"
+    },
+    {
+      "id": "uldaman.hall_of_the_crafters",
+      "mid": 101337,
+      "key": "hall of the crafters",
+      "name": "Hall of the Crafters"
+    },
+    {
+      "id": "uldaman.hall_of_the_keepers",
+      "mid": 101337,
+      "key": "hall of the keepers",
+      "name": "Hall of the Keepers"
+    },
+    {
+      "id": "uldaman.khazgoroths_seat",
+      "mid": 101337,
+      "key": "khazgoroths seat",
+      "name": "Khaz'goroth's Seat"
+    },
+    {
+      "id": "uldaman.map_chamber",
+      "mid": 101337,
+      "key": "map chamber",
+      "name": "Map Chamber"
+    },
+    {
+      "id": "uldaman.stone_vault",
+      "mid": 101337,
+      "key": "stone vault",
+      "name": "The Stone Vault"
+    },
+    {
+      "id": "uldaman.temple_hall",
+      "mid": 101337,
+      "key": "temple hall",
+      "name": "Temple Hall"
+    },
+    {
+      "id": "gnomeregan.clean_zone",
+      "mid": 100721,
+      "key": "clean zone",
+      "name": "The Clean Zone"
+    },
+    {
+      "id": "gnomeregan.clockwerk_run",
+      "mid": 100721,
+      "key": "clockwerk run",
+      "name": "The Clockwerk Run"
+    },
+    {
+      "id": "gnomeregan.dormitory",
+      "mid": 100721,
+      "key": "dormitory",
+      "name": "The Dormitory"
+    },
+    {
+      "id": "gnomeregan.engineering_labs",
+      "mid": 100721,
+      "key": "engineering labs",
+      "name": "Engineering Labs"
+    },
+    {
+      "id": "gnomeregan.hall_of_gears",
+      "mid": 100721,
+      "key": "hall of gears",
+      "name": "The Hall of Gears"
+    },
+    {
+      "id": "gnomeregan.launch_bay",
+      "mid": 100721,
+      "key": "launch bay",
+      "name": "Launch Bay"
+    },
+    {
+      "id": "gnomeregan.tinkers_court",
+      "mid": 100721,
+      "key": "tinkers court",
+      "name": "Tinkers' Court"
+    },
+    {
+      "id": "sunken_temple.chamber_of_the_dreamer",
+      "mid": 101417,
+      "key": "chamber of the dreamer",
+      "name": "Chamber of the Dreamer"
+    },
+    {
+      "id": "sunken_temple.hall_of_serpents",
+      "mid": 101417,
+      "key": "hall of serpents",
+      "name": "Hall of Serpents"
+    },
+    {
+      "id": "sunken_temple.hall_of_the_cursed",
+      "mid": 101417,
+      "key": "hall of the cursed",
+      "name": "Hall of the Cursed"
+    },
+    {
+      "id": "sunken_temple.lair_of_the_chosen",
+      "mid": 101417,
+      "key": "lair of the chosen",
+      "name": "Lair of the Chosen"
+    },
+    {
+      "id": "sunken_temple.pit_of_refuse",
+      "mid": 101417,
+      "key": "pit of refuse",
+      "name": "The Pit of Refuse"
+    },
+    {
+      "id": "sunken_temple.pit_of_sacrifice",
+      "mid": 101417,
+      "key": "pit of sacrifice",
+      "name": "The Pit of Sacrifice"
+    },
+    {
+      "id": "sunken_temple.sanctum_of_the_fallen_god",
+      "mid": 101417,
+      "key": "sanctum of the fallen god",
+      "name": "Sanctum of the Fallen God"
+    },
+    {
+      "id": "razorfen_downs.bone_pile",
+      "mid": 100722,
+      "key": "bone pile",
+      "name": "The Bone Pile"
+    },
+    {
+      "id": "razorfen_downs.callers_chamber",
+      "mid": 100722,
+      "key": "callers chamber",
+      "name": "The Caller's Chamber"
+    },
+    {
+      "id": "razorfen_downs.murder_pens",
+      "mid": 100722,
+      "key": "murder pens",
+      "name": "The Murder Pens"
+    },
+    {
+      "id": "razorfen_downs.spiral_of_thorns",
+      "mid": 100722,
+      "key": "spiral of thorns",
+      "name": "Spiral of Thorns"
+    },
+    {
+      "id": "razorfen_downs.temple_of_agamaggan",
+      "mid": 100722,
+      "key": "temple of agamaggan",
+      "name": "Temple of Agamaggan"
+    },
+    {
+      "id": "scarlet_monastery_library.athenaeum",
+      "mid": 100796,
+      "key": "athenaeum",
+      "name": "Athenaeum"
+    },
+    {
+      "id": "scarlet_monastery_library.gallery_of_treasures",
+      "mid": 100796,
+      "key": "gallery of treasures",
+      "name": "Gallery of Treasures"
+    },
+    {
+      "id": "scarlet_monastery_library.huntsmans_cloister",
+      "mid": 100796,
+      "key": "huntsmans cloister",
+      "name": "Huntsman's Cloister"
+    },
+    {
+      "id": "scarlet_monastery_library.sanctum_of_the_fist",
+      "mid": 100796,
+      "key": "sanctum of the fist",
+      "name": "Sanctum of the Fist"
+    },
+    {
+      "id": "scarlet_monastery_graveyard.chamber_of_atonement",
+      "mid": 100796,
+      "key": "chamber of atonement",
+      "name": "Chamber of Atonement"
+    },
+    {
+      "id": "scarlet_monastery_graveyard.forlorn_cloister",
+      "mid": 100796,
+      "key": "forlorn cloister",
+      "name": "Forlorn Cloister"
+    },
+    {
+      "id": "scarlet_monastery_graveyard.honors_tomb",
+      "mid": 100796,
+      "key": "honors tomb",
+      "name": "Honor's Tomb"
+    },
+    {
+      "id": "scarlet_monastery_graveyard.scarlet_prison",
+      "mid": 100796,
+      "key": "scarlet prison",
+      "name": "Scarlet Prison"
+    },
+    {
+      "id": "scarlet_monastery_cathedral.chapel_gardens",
+      "mid": 100796,
+      "key": "chapel gardens",
+      "name": "Chapel Gardens"
+    },
+    {
+      "id": "scarlet_monastery_cathedral.crusaders_chapel",
+      "mid": 100796,
+      "key": "crusaders chapel",
+      "name": "Crusader's Chapel"
+    },
+    {
+      "id": "scarlet_monastery_armory.crusaders_armory",
+      "mid": 100796,
+      "key": "crusaders armory",
+      "name": "Crusader's Armory"
+    },
+    {
+      "id": "scarlet_monastery_armory.footmans_armory",
+      "mid": 100796,
+      "key": "footmans armory",
+      "name": "Footman's Armory"
+    },
+    {
+      "id": "scarlet_monastery_armory.grand_vestibule",
+      "mid": 100796,
+      "key": "grand vestibule",
+      "name": "The Grand Vestibule"
+    },
+    {
+      "id": "scarlet_monastery_armory.hall_of_champions",
+      "mid": 100796,
+      "key": "hall of champions",
+      "name": "Hall of Champions"
+    },
+    {
+      "id": "scarlet_monastery_armory.training_grounds",
+      "mid": 100796,
+      "key": "training grounds",
+      "name": "Training Grounds"
+    },
+    {
+      "id": "scarlet_monastery_armory.warehouse",
+      "mid": 100796,
+      "key": "warehouse",
+      "name": "Warehouse"
+    },
+    {
+      "id": "zulfarrak.farraki_tombs",
+      "mid": 101176,
+      "key": "farraki tombs",
+      "name": "Farraki Tombs"
+    },
+    {
+      "id": "blackrock_spire.blackrock_stadium",
+      "mid": 101583,
+      "key": "blackrock stadium",
+      "name": "Blackrock Stadium"
+    },
+    {
+      "id": "blackrock_spire.chamber_of_battle",
+      "mid": 101583,
+      "key": "chamber of battle",
+      "name": "Chamber of Battle"
+    },
+    {
+      "id": "blackrock_spire.dragonspire_hall",
+      "mid": 101583,
+      "key": "dragonspire hall",
+      "name": "Dragonspire Hall"
+    },
+    {
+      "id": "blackrock_spire.furnace",
+      "mid": 101583,
+      "key": "furnace",
+      "name": "The Furnace"
+    },
+    {
+      "id": "blackrock_spire.hall_of_binding",
+      "mid": 101583,
+      "key": "hall of binding",
+      "name": "Hall of Binding"
+    },
+    {
+      "id": "blackrock_spire.hall_of_blackhand",
+      "mid": 101583,
+      "key": "hall of blackhand",
+      "name": "Hall of Blackhand"
+    },
+    {
+      "id": "blackrock_spire.halycons_lair",
+      "mid": 101583,
+      "key": "halycons lair",
+      "name": "Halycon's Lair"
+    },
+    {
+      "id": "blackrock_spire.hordemar_city",
+      "mid": 101583,
+      "key": "hordemar city",
+      "name": "Hordemar City"
+    },
+    {
+      "id": "blackrock_spire.mokdoom",
+      "mid": 101583,
+      "key": "mokdoom",
+      "name": "Mok'Doom"
+    },
+    {
+      "id": "blackrock_spire.molten_span",
+      "mid": 101583,
+      "key": "molten span",
+      "name": "The Molten Span"
+    },
+    {
+      "id": "blackrock_spire.rookery",
+      "mid": 101583,
+      "key": "rookery",
+      "name": "The Rookery"
+    },
+    {
+      "id": "blackrock_spire.skitterweb_tunnels",
+      "mid": 101583,
+      "key": "skitterweb tunnels",
+      "name": "Skitterweb Tunnels"
+    },
+    {
+      "id": "blackrock_spire.spire_throne",
+      "mid": 101583,
+      "key": "spire throne",
+      "name": "Spire Throne"
+    },
+    {
+      "id": "blackrock_spire.storehouse",
+      "mid": 101583,
+      "key": "storehouse",
+      "name": "The Storehouse"
+    },
+    {
+      "id": "blackrock_spire.tazzalaor",
+      "mid": 101583,
+      "key": "tazzalaor",
+      "name": "Tazz'Alaor"
+    },
+    {
+      "id": "blackrock_depths.black_vault",
+      "mid": 101584,
+      "key": "black vault",
+      "name": "The Black Vault"
+    },
+    {
+      "id": "blackrock_depths.chamber_of_enchantment",
+      "mid": 101584,
+      "key": "chamber of enchantment",
+      "name": "Chamber of Enchantment"
+    },
+    {
+      "id": "blackrock_depths.dark_iron_highway",
+      "mid": 101584,
+      "key": "dark iron highway",
+      "name": "Dark Iron Highway"
+    },
+    {
+      "id": "blackrock_depths.detention_block",
+      "mid": 101584,
+      "key": "detention block",
+      "name": "Detention Block"
+    },
+    {
+      "id": "blackrock_depths.domicile",
+      "mid": 101584,
+      "key": "domicile",
+      "name": "The Domicile"
+    },
+    {
+      "id": "blackrock_depths.east_garrison",
+      "mid": 101584,
+      "key": "east garrison",
+      "name": "East Garrison"
+    },
+    {
+      "id": "blackrock_depths.grim_guzzler",
+      "mid": 101584,
+      "key": "grim guzzler",
+      "name": "The Grim Guzzler"
+    },
+    {
+      "id": "blackrock_depths.hall_of_crafting",
+      "mid": 101584,
+      "key": "hall of crafting",
+      "name": "Hall of Crafting"
+    },
+    {
+      "id": "blackrock_depths.halls_of_the_law",
+      "mid": 101584,
+      "key": "halls of the law",
+      "name": "Halls of the Law"
+    },
+    {
+      "id": "blackrock_depths.imperial_seat",
+      "mid": 101584,
+      "key": "imperial seat",
+      "name": "The Imperial Seat"
+    },
+    {
+      "id": "blackrock_depths.iron_hall",
+      "mid": 101584,
+      "key": "iron hall",
+      "name": "The Iron Hall"
+    },
+    {
+      "id": "blackrock_depths.lyceum",
+      "mid": 101584,
+      "key": "lyceum",
+      "name": "The Lyceum"
+    },
+    {
+      "id": "blackrock_depths.manufactory",
+      "mid": 101584,
+      "key": "manufactory",
+      "name": "The Manufactory"
+    },
+    {
+      "id": "blackrock_depths.mold_foundry",
+      "mid": 101584,
+      "key": "mold foundry",
+      "name": "Mold Foundry"
+    },
+    {
+      "id": "blackrock_depths.molten_bridge",
+      "mid": 101584,
+      "key": "molten bridge",
+      "name": "The Molten Bridge"
+    },
+    {
+      "id": "blackrock_depths.ring_of_the_law",
+      "mid": 101584,
+      "key": "ring of the law",
+      "name": "Ring of the Law"
+    },
+    {
+      "id": "blackrock_depths.shadowforge_city",
+      "mid": 101584,
+      "key": "shadowforge city",
+      "name": "Shadowforge City"
+    },
+    {
+      "id": "blackrock_depths.shrine_of_thaurissan",
+      "mid": 101584,
+      "key": "shrine of thaurissan",
+      "name": "Shrine of Thaurissan"
+    },
+    {
+      "id": "blackrock_depths.summoners_tomb",
+      "mid": 101584,
+      "key": "summoners tomb",
+      "name": "Summoners' Tomb"
+    },
+    {
+      "id": "blackrock_depths.west_garrison",
+      "mid": 101584,
+      "key": "west garrison",
+      "name": "West Garrison"
+    },
+    {
+      "id": "scholomance.barov_family_vault",
+      "mid": 102057,
+      "key": "barov family vault",
+      "name": "Barov Family Vault"
+    },
+    {
+      "id": "scholomance.chamber_of_summoning",
+      "mid": 102057,
+      "key": "chamber of summoning",
+      "name": "Chamber of Summoning"
+    },
+    {
+      "id": "scholomance.coven",
+      "mid": 102057,
+      "key": "coven",
+      "name": "The Coven"
+    },
+    {
+      "id": "scholomance.great_ossuary",
+      "mid": 102057,
+      "key": "great ossuary",
+      "name": "The Great Ossuary"
+    },
+    {
+      "id": "scholomance.hall_of_secrets",
+      "mid": 102057,
+      "key": "hall of secrets",
+      "name": "Hall of Secrets"
+    },
+    {
+      "id": "scholomance.hall_of_the_damned",
+      "mid": 102057,
+      "key": "hall of the damned",
+      "name": "Hall of the Damned"
+    },
+    {
+      "id": "scholomance.headmasters_study",
+      "mid": 102057,
+      "key": "headmasters study",
+      "name": "Headmaster's Study"
+    },
+    {
+      "id": "scholomance.laboratory",
+      "mid": 102057,
+      "key": "laboratory",
+      "name": "The Laboratory"
+    },
+    {
+      "id": "scholomance.reliquary",
+      "mid": 102057,
+      "key": "reliquary",
+      "name": "The Reliquary"
+    },
+    {
+      "id": "scholomance.shadow_vault",
+      "mid": 102057,
+      "key": "shadow vault",
+      "name": "The Shadow Vault"
+    },
+    {
+      "id": "scholomance.vault_of_the_ravenian",
+      "mid": 102057,
+      "key": "vault of the ravenian",
+      "name": "Vault of the Ravenian"
+    },
+    {
+      "id": "scholomance.viewing_room",
+      "mid": 102057,
+      "key": "viewing room",
+      "name": "The Viewing Room"
+    },
+    {
+      "id": "stratholme.alonsus_chapel",
+      "mid": 102017,
+      "key": "alonsus chapel",
+      "name": "Alonsus Chapel"
+    },
+    {
+      "id": "stratholme.crimson_throne",
+      "mid": 102017,
+      "key": "crimson throne",
+      "name": "The Crimson Throne"
+    },
+    {
+      "id": "stratholme.crusaders_square",
+      "mid": 102017,
+      "key": "crusaders square",
+      "name": "Crusaders' Square"
+    },
+    {
+      "id": "stratholme.elders_square",
+      "mid": 102017,
+      "key": "elders square",
+      "name": "Elders' Square"
+    },
+    {
+      "id": "stratholme.festival_lane",
+      "mid": 102017,
+      "key": "festival lane",
+      "name": "Festival Lane"
+    },
+    {
+      "id": "stratholme.gauntlet",
+      "mid": 102017,
+      "key": "gauntlet",
+      "name": "The Gauntlet"
+    },
+    {
+      "id": "stratholme.hall_of_lights",
+      "mid": 102017,
+      "key": "hall of lights",
+      "name": "The Hall of Lights"
+    },
+    {
+      "id": "stratholme.hoard",
+      "mid": 102017,
+      "key": "hoard",
+      "name": "The Hoard"
+    },
+    {
+      "id": "stratholme.kings_square",
+      "mid": 102017,
+      "key": "kings square",
+      "name": "King's Square"
+    },
+    {
+      "id": "stratholme.market_row",
+      "mid": 102017,
+      "key": "market row",
+      "name": "Market Row"
+    },
+    {
+      "id": "stratholme.scarlet_bastion",
+      "mid": 102017,
+      "key": "scarlet bastion",
+      "name": "The Scarlet Bastion"
+    },
+    {
+      "id": "stratholme.slaughter_house",
+      "mid": 102017,
+      "key": "slaughter house",
+      "name": "The Slaughter House"
+    },
+    {
+      "id": "stratholme.slaughter_square",
+      "mid": 102017,
+      "key": "slaughter square",
+      "name": "Slaughter Square"
+    },
+    {
+      "id": "maraudon.earth_song_falls",
+      "mid": 102100,
+      "key": "earth song falls",
+      "name": "Earth Song Falls"
+    },
+    {
+      "id": "maraudon.foulspore_cavern",
+      "mid": 102100,
+      "key": "foulspore cavern",
+      "name": "Foulspore Cavern"
+    },
+    {
+      "id": "maraudon.noxious_hollow",
+      "mid": 102100,
+      "key": "noxious hollow",
+      "name": "The Noxious Hollow"
+    },
+    {
+      "id": "maraudon.poison_falls",
+      "mid": 102100,
+      "key": "poison falls",
+      "name": "Poison Falls"
+    },
+    {
+      "id": "maraudon.vyletongue_seat",
+      "mid": 102100,
+      "key": "vyletongue seat",
+      "name": "Vyletongue Seat"
+    },
+    {
+      "id": "maraudon.wicked_grotto",
+      "mid": 102100,
+      "key": "wicked grotto",
+      "name": "The Wicked Grotto"
+    },
+    {
+      "id": "maraudon.zaetars_grave",
+      "mid": 102100,
+      "key": "zaetars grave",
+      "name": "Zaetar's Grave"
+    },
+    {
+      "id": "molten_core.magmadar_cavern",
+      "mid": 102717,
+      "key": "magmadar cavern",
+      "name": "Magmadar Cavern"
+    },
+    {
+      "id": "molten_core.ragnaros_lair",
+      "mid": 102717,
+      "key": "ragnaros lair",
+      "name": "Ragnaros' Lair"
+    },
+    {
+      "id": "dire_maul.athenaeum",
+      "mid": 102557,
+      "key": "athenaeum",
+      "name": "The Athenaeum"
+    },
+    {
+      "id": "dire_maul.capital_gardens",
+      "mid": 102557,
+      "key": "capital gardens",
+      "name": "Capital Gardens"
+    },
+    {
+      "id": "dire_maul.conservatory",
+      "mid": 102557,
+      "key": "conservatory",
+      "name": "The Conservatory"
+    },
+    {
+      "id": "dire_maul.court_of_the_highborne",
+      "mid": 102557,
+      "key": "court of the highborne",
+      "name": "Court of the Highborne"
+    },
+    {
+      "id": "dire_maul.gordoks_seat",
+      "mid": 102557,
+      "key": "gordoks seat",
+      "name": "Gordok's Seat"
+    },
+    {
+      "id": "dire_maul.halls_of_destruction",
+      "mid": 102557,
+      "key": "halls of destruction",
+      "name": "Halls of Destruction"
+    },
+    {
+      "id": "dire_maul.hidden_reach",
+      "mid": 102557,
+      "key": "hidden reach",
+      "name": "The Hidden Reach"
+    },
+    {
+      "id": "dire_maul.maul",
+      "mid": 102557,
+      "key": "maul",
+      "name": "The Maul"
+    },
+    {
+      "id": "dire_maul.prison_of_immolthar",
+      "mid": 102557,
+      "key": "prison of immolthar",
+      "name": "Prison of Immol'thar"
+    },
+    {
+      "id": "dire_maul.shrine_of_eldretharr",
+      "mid": 102557,
+      "key": "shrine of eldretharr",
+      "name": "The Shrine of Eldretharr"
+    },
+    {
+      "id": "dire_maul.warpwood_quarter",
+      "mid": 102557,
+      "key": "warpwood quarter",
+      "name": "Warpwood Quarter"
+    },
+    {
+      "id": "blackwing_lair.alchemical_laboratory",
+      "mid": 102677,
+      "key": "alchemical laboratory",
+      "name": "Alchemical Laboratory"
+    },
+    {
+      "id": "blackwing_lair.nefarians_lair",
+      "mid": 102677,
+      "key": "nefarians lair",
+      "name": "Nefarian's Lair"
+    },
+    {
+      "id": "blackwing_lair.dragonmaw_garrison",
+      "mid": 102677,
+      "key": "dragonmaw garrison",
+      "name": "Dragonmaw Garrison"
+    },
+    {
+      "id": "blackwing_lair.halls_of_strife",
+      "mid": 102677,
+      "key": "halls of strife",
+      "name": "Halls of Strife"
+    },
+    {
+      "id": "blackwing_lair.shadow_wing_lair",
+      "mid": 102677,
+      "key": "shadow wing lair",
+      "name": "Shadow Wing Lair"
+    },
+    {
+      "id": "upper_necropolis.kelthuzad_chamber",
+      "mid": 103456,
+      "key": "kelthuzad chamber",
+      "name": "Kel'Thuzad Chamber"
+    },
+    {
+      "id": "upper_necropolis.sapphirons_lair",
+      "mid": 103456,
+      "key": "sapphirons lair",
+      "name": "Sapphiron's Lair"
+    },
+    {
+      "id": "karazhan_crypt.paupers_walk",
+      "mid": 105086,
+      "key": "paupers walk",
+      "name": "Pauper's Walk"
+    },
+    {
+      "id": "karazhan_crypt.pit_of_criminals",
+      "mid": 105086,
+      "key": "pit of criminals",
+      "name": "The Pit of Criminals"
+    },
+    {
+      "id": "karazhan_crypt.slough_of_despair",
+      "mid": 105086,
+      "key": "slough of despair",
+      "name": "The Slough of Despair"
+    },
+    {
+      "id": "karazhan_crypt.tomb_of_the_unrepentant",
+      "mid": 105086,
+      "key": "tomb of the unrepentant",
+      "name": "Tomb of the Unrepentant"
+    },
+    {
+      "id": "karazhan_crypt.upside_down_sinners",
+      "mid": 105086,
+      "key": "upside down sinners",
+      "name": "The Upside-down Sinners"
+    },
+    {
+      "id": "karazhan_crypt.well_of_the_forgotten",
+      "mid": 105086,
+      "key": "well of the forgotten",
+      "name": "Well of the Forgotten"
+    },
+    {
+      "id": "dragonmaw_retreat.halls_of_the_ancestors",
+      "mid": 105601,
+      "key": "halls of the ancestors",
+      "name": "Halls of the Ancestors"
+    },
+    {
+      "id": "stormwrought_ruins.crystal_grotto",
+      "mid": 105628,
+      "key": "crystal grotto",
+      "name": "Crystal Grotto"
+    },
+    {
+      "id": "stormwrought_ruins.deathlords_sepulcher",
+      "mid": 105628,
+      "key": "deathlords sepulcher",
+      "name": "Deathlord's Sepulcher"
+    },
+    {
+      "id": "stormwrought_ruins.fetid_lake",
+      "mid": 105628,
+      "key": "fetid lake",
+      "name": "Fetid Lake"
+    },
+    {
+      "id": "stormwrought_ruins.rotting_caverns",
+      "mid": 105628,
+      "key": "rotting caverns",
+      "name": "Rotting Caverns"
+    },
+    {
+      "id": "stormwrought_ruins.sanctum_of_blood",
+      "mid": 105628,
+      "key": "sanctum of blood",
+      "name": "Sanctum of Blood"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_barracks",
+      "mid": 105628,
+      "key": "stormwrought barracks",
+      "name": "Stormwrought Barracks"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_castle",
+      "mid": 105628,
+      "key": "stormwrought castle",
+      "name": "Stormwrought Castle"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_court",
+      "mid": 105628,
+      "key": "stormwrought court",
+      "name": "Stormwrought Court"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_descent",
+      "mid": 105628,
+      "key": "stormwrought descent",
+      "name": "Stormwrought Descent"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_kitchen",
+      "mid": 105628,
+      "key": "stormwrought kitchen",
+      "name": "Stormwrought Kitchen"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_library",
+      "mid": 105628,
+      "key": "stormwrought library",
+      "name": "Stormwrought Library"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_museum",
+      "mid": 105628,
+      "key": "stormwrought museum",
+      "name": "Stormwrought Museum"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_prison",
+      "mid": 105628,
+      "key": "stormwrought prison",
+      "name": "Stormwrought Prison"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_terrace",
+      "mid": 105628,
+      "key": "stormwrought terrace",
+      "name": "Stormwrought Terrace"
+    },
+    {
+      "id": "stormwrought_ruins.temple_of_shadows",
+      "mid": 105628,
+      "key": "temple of shadows",
+      "name": "Temple of Shadows"
+    },
+    {
+      "id": "timbermaw_hold.foulheart_coven",
+      "mid": 105640,
+      "key": "foulheart coven",
+      "name": "Foulheart Coven"
+    },
+    {
+      "id": "timbermaw_hold.grotto_of_dreams",
+      "mid": 105640,
+      "key": "grotto of dreams",
+      "name": "Grotto of Dreams"
+    },
+    {
+      "id": "timbermaw_hold.heart_of_the_nightmare",
+      "mid": 105640,
+      "key": "heart of the nightmare",
+      "name": "Heart of the Nightmare"
+    },
+    {
+      "id": "timbermaw_hold.seat_of_the_chieftain",
+      "mid": 105640,
+      "key": "seat of the chieftain",
+      "name": "Seat of the Chieftain"
+    },
+    {
+      "id": "timbermaw_hold.timbermaw_village",
+      "mid": 105640,
+      "key": "timbermaw village",
+      "name": "Timbermaw Village"
+    },
+    {
+      "id": "champions_hall",
+      "mid": 1453,
+      "key": "champions hall",
+      "name": "Champion's Hall"
+    },
+    {
+      "id": "westfall.moonbrook.defias_hideout",
+      "mid": 1436,
+      "key": "defias hideout",
+      "name": "Defias Hideout"
+    },
+    {
+      "id": "uldaman.exterior.dig_one",
+      "mid": 1418,
+      "key": "dig one",
+      "name": "Dig One"
+    },
+    {
+      "id": "uldaman.exterior.echomok_cavern",
+      "mid": 1418,
+      "key": "echomok cavern",
+      "name": "Echomok Cavern"
+    },
+    {
+      "id": "uldaman.exterior.excavation_center",
+      "mid": 1418,
+      "key": "excavation center",
+      "name": "Excavation Center"
+    },
+    {
+      "id": "uldaman.exterior.hall_of_the_keepers",
+      "mid": 1418,
+      "key": "hall of the keepers",
+      "name": "Hall of the Keepers"
+    },
+    {
+      "id": "uldaman.exterior.north_common_hall",
+      "mid": 1418,
+      "key": "north common hall",
+      "name": "North Common Hall"
+    },
+    {
+      "id": "uldaman.exterior.sealed_hall",
+      "mid": 1418,
+      "key": "sealed hall",
+      "name": "The Sealed Hall"
+    },
+    {
+      "id": "uldaman.exterior.south_common_hall",
+      "mid": 1418,
+      "key": "south common hall",
+      "name": "South Common Hall"
+    },
+    {
+      "id": "gnomeregan.exterior.loading_room",
+      "mid": 1426,
+      "key": "loading room",
+      "name": "Loading Room"
+    },
+    {
+      "id": "gnomeregan.exterior.train_depot",
+      "mid": 1426,
+      "key": "train depot",
+      "name": "Train Depot"
+    },
+    {
+      "id": "gnomeregan.exterior.workshop_entrance",
+      "mid": 1426,
+      "key": "workshop entrance",
+      "name": "Workshop Entrance"
+    },
+    {
+      "id": "scarlet_monastery.exterior.grand_vestibule",
+      "mid": 1420,
+      "key": "grand vestibule",
+      "name": "The Grand Vestibule"
+    },
+    {
+      "id": "stratholme.exterior.kings_square",
+      "mid": 1423,
+      "key": "kings square",
+      "name": "King's Square"
+    },
+    {
+      "id": "dire_maul.exterior.broken_commons",
+      "mid": 1444,
+      "key": "broken commons",
+      "name": "Broken Commons"
+    },
+    {
+      "id": "dire_maul.exterior.eldreth_row",
+      "mid": 1444,
+      "key": "eldreth row",
+      "name": "Eldreth Row"
+    },
+    {
+      "id": "wailing_caverns.exterior.cavern_of_mists",
+      "mid": 1413,
+      "key": "cavern of mists",
+      "name": "Cavern of Mists"
+    },
+    {
+      "id": "arathi_highlands.bouldergor.boulderfist_outpost",
+      "mid": 1417,
+      "key": "boulderfist outpost",
+      "name": "Boulderfist Outpost"
+    },
+    {
+      "id": "duskwood.darkshire.darkshire_town_hall",
+      "mid": 1431,
+      "key": "darkshire town hall",
+      "name": "Darkshire Town Hall"
+    },
+    {
+      "id": "duskwood.darkshire.scarlet_raven_tavern",
+      "mid": 1431,
+      "key": "scarlet raven tavern",
+      "name": "Scarlet Raven Tavern"
+    },
+    {
+      "id": "dun_kithas.dun_kithas_magistrate",
+      "mid": 105602,
+      "key": "dun kithas magistrate",
+      "name": "Dun Kithas Magistrate"
+    },
+    {
+      "id": "dun_morogh.golbolar_quarry.golbolar_quarry_mine",
+      "mid": 1426,
+      "key": "golbolar quarry mine",
+      "name": "Gol'Bolar Quarry Mine"
+    },
+    {
+      "id": "grim_batol.grim_ramparts",
+      "mid": 1437,
+      "key": "grim ramparts",
+      "name": "Grim Ramparts"
+    },
+    {
+      "id": "redridge_mountains.lakeshire.lakeshire_inn",
+      "mid": 1433,
+      "key": "lakeshire inn",
+      "name": "Lakeshire Inn"
+    },
+    {
+      "id": "redridge_mountains.lakeshire.lakeshire_town_hall",
+      "mid": 1433,
+      "key": "lakeshire town hall",
+      "name": "Lakeshire Town Hall"
+    },
+    {
+      "id": "elwynn_forest.goldshire.lions_pride_inn",
+      "mid": 1429,
+      "key": "lions pride inn",
+      "name": "Lion's Pride Inn"
+    },
+    {
+      "id": "northwind.plump_pumpkin",
+      "mid": 105581,
+      "key": "plump pumpkin",
+      "name": "The Plump Pumpkin"
+    },
+    {
+      "id": "abbey_gardens.saint_mara_abbey",
+      "mid": 105581,
+      "key": "saint mara abbey",
+      "name": "Saint Mara Abbey"
+    },
+    {
+      "id": "westfall.sentinel_hill.sentinel_tower",
+      "mid": 1436,
+      "key": "sentinel tower",
+      "name": "Sentinel Tower"
+    },
+    {
+      "id": "southshore.southshore_town_hall",
+      "mid": 1424,
+      "key": "southshore town hall",
+      "name": "Southshore Town Hall"
+    },
+    {
+      "id": "grim_hollow.tomb_of_ancestors",
+      "mid": 105602,
+      "key": "tomb of ancestors",
+      "name": "Tomb of Ancestors"
+    },
+    {
+      "id": "eastern_plaguelands.tyrs_hand.tyrs_hand_abbey",
+      "mid": 1423,
+      "key": "tyrs hand abbey",
+      "name": "Tyr's Hand Abbey"
+    },
+    {
+      "id": "forlorn_summit.widows_nest",
+      "mid": 1423,
+      "key": "widows nest",
+      "name": "The Widow's Nest"
+    },
+    {
+      "id": "bael_hardul.hardul_distillery",
+      "mid": 1442,
+      "key": "hardul distillery",
+      "name": "Hardul Distillery"
+    },
+    {
+      "id": "ashenvale.thistlefur_village.thistlefur_hold",
+      "mid": 1440,
+      "key": "thistlefur hold",
+      "name": "Thistlefur Hold"
+    }
+  ],
+  "newRelations": [
+    {
+      "from": "wetlands.ruins_of_grim_batol",
+      "to": "grim_reaches",
+      "relation": "within"
+    },
+    {
+      "from": "eastern_plaguelands.tyrs_hand",
+      "to": "scarlet_enclave",
+      "relation": "within"
+    },
+    {
+      "from": "timbermaw_hold.exterior",
+      "to": "moonwhisper_coast",
+      "relation": "within"
+    },
+    {
+      "from": "alterac_valley.exterior",
+      "to": "alterac_valley",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "blackfathom_deeps.exterior",
+      "to": "blackfathom_deeps",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "caverns_of_time.exterior",
+      "to": "caverns_of_time",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "dire_maul.exterior",
+      "to": "dire_maul",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "dragonmaw_retreat.exterior",
+      "to": "dragonmaw_retreat",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "frostmane_hollow.exterior",
+      "to": "frostmane_hollow",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "gilneas_city.exterior",
+      "to": "gilneas_city",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "gnomeregan.exterior",
+      "to": "gnomeregan",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "razorfen_downs.exterior",
+      "to": "razorfen_downs",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "razorfen_kraul.exterior",
+      "to": "razorfen_kraul",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "ruins_of_ahnqiraj.exterior",
+      "to": "ruins_of_ahnqiraj",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "shadowfang_keep.exterior",
+      "to": "shadowfang_keep",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "stratholme.exterior",
+      "to": "stratholme",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "timbermaw_hold.exterior",
+      "to": "timbermaw_hold",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "uldaman.exterior",
+      "to": "uldaman",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "zulfarrak.exterior",
+      "to": "zulfarrak",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "zulgurub.exterior",
+      "to": "zulgurub",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "maraudon.exterior",
+      "to": "maraudon",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "hateforge_quarry.exterior",
+      "to": "hateforge_quarry",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "deadmines.exterior",
+      "to": "deadmines",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "karazhan_crypt.exterior",
+      "to": "karazhan_crypt",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "scarlet_monastery.exterior",
+      "to": "scarlet_monastery",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "scholomance.exterior",
+      "to": "scholomance",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "wailing_caverns.exterior",
+      "to": "wailing_caverns",
+      "relation": "exteriorOf"
+    },
+    {
+      "from": "hall_of_legends",
+      "to": "orgrimmar",
+      "relation": "within"
+    },
+    {
+      "from": "champions_hall",
+      "to": "stormwind_city",
+      "relation": "within"
+    }
+  ],
+  "parentUpdates": [
+    {
+      "id": "scarlet_monastery_armory",
+      "parent": "scarlet_monastery"
+    },
+    {
+      "id": "scarlet_monastery_cathedral",
+      "parent": "scarlet_monastery"
+    },
+    {
+      "id": "scarlet_monastery_graveyard",
+      "parent": "scarlet_monastery"
+    },
+    {
+      "id": "scarlet_monastery_library",
+      "parent": "scarlet_monastery"
+    },
+    {
+      "id": "stormwind_city.slaughtered_lamb",
+      "parent": "stormwind_city.mage_quarter"
+    },
+    {
+      "id": "stormwind_city.wizards_sanctum",
+      "parent": "stormwind_city.mage_quarter"
+    },
+    {
+      "id": "stormwind_city.cathedral_of_light",
+      "parent": "stormwind_city.cathedral_square"
+    },
+    {
+      "id": "stormwind_city.royal_library",
+      "parent": "stormwind_city.stormwind_keep"
+    },
+    {
+      "id": "stormwind_city.royal_gallery",
+      "parent": "stormwind_city.stormwind_keep"
+    }
+  ],
+  "aliases": [
+    {
+      "id": "valley_of_heroes",
+      "name": "Valley Of Heroes"
+    },
+    {
+      "id": "champions_hall",
+      "name": "Champion's Hall"
+    }
+  ],
+  "candidates": [
+    {
+      "id": "ruins_of_ahnqiraj.scarab_terrace",
+      "p": "ruins_of_ahnqiraj",
+      "mid": 103429,
+      "name": "Scarab Terrace",
+      "source": "AreaTable 3448",
+      "status": "add"
+    },
+    {
+      "id": "ruins_of_ahnqiraj.generals_terrace",
+      "p": "ruins_of_ahnqiraj",
+      "mid": 103429,
+      "name": "General's Terrace",
+      "source": "AreaTable 3449",
+      "status": "add"
+    },
+    {
+      "id": "ruins_of_ahnqiraj.reservoir",
+      "p": "ruins_of_ahnqiraj",
+      "mid": 103429,
+      "name": "The Reservoir",
+      "source": "AreaTable 3450",
+      "status": "add"
+    },
+    {
+      "id": "ruins_of_ahnqiraj.hatchery",
+      "p": "ruins_of_ahnqiraj",
+      "mid": 103429,
+      "name": "The Hatchery",
+      "source": "AreaTable 3451",
+      "status": "add"
+    },
+    {
+      "id": "ruins_of_ahnqiraj.comb",
+      "p": "ruins_of_ahnqiraj",
+      "mid": 103429,
+      "name": "The Comb",
+      "source": "AreaTable 3452",
+      "status": "add"
+    },
+    {
+      "id": "ruins_of_ahnqiraj.watchers_terrace",
+      "p": "ruins_of_ahnqiraj",
+      "mid": 103429,
+      "name": "Watchers' Terrace",
+      "source": "AreaTable 3453",
+      "status": "add"
+    },
+    {
+      "id": "wetlands.ruins_of_grim_batol",
+      "p": "wetlands",
+      "mid": 1437,
+      "name": "Ruins of Grim Batol",
+      "source": "AreaTable 5550",
+      "status": "add"
+    },
+    {
+      "id": "undercity.apothecarium",
+      "p": "undercity",
+      "mid": 1458,
+      "name": "The Apothecarium",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "undercity.canals",
+      "p": "undercity",
+      "mid": 1458,
+      "name": "Canals",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "undercity.magic_quarter",
+      "p": "undercity",
+      "mid": 1458,
+      "name": "Magic Quarter",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "undercity.rogues_quarter",
+      "p": "undercity",
+      "mid": 1458,
+      "name": "Rogues' Quarter",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "undercity.royal_quarter",
+      "p": "undercity",
+      "mid": 1458,
+      "name": "Royal Quarter",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "undercity.ruins_of_lordaeron",
+      "p": "undercity",
+      "mid": 1458,
+      "name": "Ruins of Lordaeron",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "undercity.sewers",
+      "p": "undercity",
+      "mid": 1458,
+      "name": "Sewers",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "undercity.trade_quarter",
+      "p": "undercity",
+      "mid": 1458,
+      "name": "Trade Quarter",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "undercity.war_quarter",
+      "p": "undercity",
+      "mid": 1458,
+      "name": "War Quarter",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_mountain.forgewrights_tomb",
+      "p": "blackrock_mountain",
+      "mid": 1428,
+      "name": "Forgewright's Tomb",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_mountain.grinding_quarry",
+      "p": "blackrock_mountain",
+      "mid": 1428,
+      "name": "The Grinding Quarry",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_mountain.masonary",
+      "p": "blackrock_mountain",
+      "mid": 1428,
+      "name": "The Masonary",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_mountain.molten_span",
+      "p": "blackrock_mountain",
+      "mid": 1428,
+      "name": "The Molten Span",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_city.canals",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "The Canals",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_city.cathedral_of_light",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "Cathedral of Light",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_city.cathedral_square",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "Cathedral Square",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_city.command_center",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "Command Center",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_city.dwarven_district",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "Dwarven District",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_city.little_silvermoon",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "Little Silvermoon",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_city.mage_quarter",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "Mage Quarter",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_city.old_town",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "Old Town",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_city.park",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "The Park",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_city.petitioners_chamber",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "Petitioner's Chamber",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_city.royal_gallery",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "Royal Gallery",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_city.royal_library",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "Royal Library",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_city.si_7",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "SI:7",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_city.slaughtered_lamb",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "The Slaughtered Lamb",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_city.stormwind_keep",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "Stormwind Keep",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_city.trade_district",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "Trade District",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "valley_of_heroes",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "Valley Of Heroes",
+      "source": "V5 named mesh group",
+      "status": "reuse"
+    },
+    {
+      "id": "stormwind_city.war_room",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "War Room",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_city.wizards_sanctum",
+      "p": "stormwind_city",
+      "mid": 1453,
+      "name": "Wizard's Sanctum",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stranglethorn_vale.booty_bay.old_port_authority",
+      "p": "stranglethorn_vale.booty_bay",
+      "mid": 1434,
+      "name": "The Old Port Authority",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stranglethorn_vale.booty_bay.salty_sailor_tavern",
+      "p": "stranglethorn_vale.booty_bay",
+      "mid": 1434,
+      "name": "The Salty Sailor Tavern",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "ironforge.forlorn_cavern",
+      "p": "ironforge",
+      "mid": 1455,
+      "name": "The Forlorn Cavern",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "ironforge.great_forge",
+      "p": "ironforge",
+      "mid": 1455,
+      "name": "The Great Forge",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "ironforge.hall_of_arms",
+      "p": "ironforge",
+      "mid": 1455,
+      "name": "Hall of Arms",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "ironforge.hall_of_explorers",
+      "p": "ironforge",
+      "mid": 1455,
+      "name": "Hall of Explorers",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "ironforge.hall_of_mysteries",
+      "p": "ironforge",
+      "mid": 1455,
+      "name": "Hall of Mysteries",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "ironforge.high_seat",
+      "p": "ironforge",
+      "mid": 1455,
+      "name": "The High Seat",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "ironforge.library",
+      "p": "ironforge",
+      "mid": 1455,
+      "name": "The Library",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "ironforge.military_ward",
+      "p": "ironforge",
+      "mid": 1455,
+      "name": "The Military Ward",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "ironforge.mystic_ward",
+      "p": "ironforge",
+      "mid": 1455,
+      "name": "The Mystic Ward",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "ironforge.old_ironforge",
+      "p": "ironforge",
+      "mid": 1455,
+      "name": "Old Ironforge",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "ironforge.tinker_town",
+      "p": "ironforge",
+      "mid": 1455,
+      "name": "Tinker Town",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "ironforge.vault_of_ironforge",
+      "p": "ironforge",
+      "mid": 1455,
+      "name": "Vault of Ironforge",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "northshire_abbey.hall_of_arms",
+      "p": "northshire_abbey",
+      "mid": 1429,
+      "name": "Hall of Arms",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "northshire_abbey.library_wing",
+      "p": "northshire_abbey",
+      "mid": 1429,
+      "name": "Library Wing",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "northshire_abbey.main_hall",
+      "p": "northshire_abbey",
+      "mid": 1429,
+      "name": "Main Hall",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "eastern_plaguelands.tyrs_hand.hall_of_arms",
+      "p": "eastern_plaguelands.tyrs_hand",
+      "mid": 1423,
+      "name": "Hall of Arms",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "eastern_plaguelands.tyrs_hand.library_wing",
+      "p": "eastern_plaguelands.tyrs_hand",
+      "mid": 1423,
+      "name": "Library Wing",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "eastern_plaguelands.tyrs_hand.main_hall",
+      "p": "eastern_plaguelands.tyrs_hand",
+      "mid": 1423,
+      "name": "Main Hall",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "cenarion_enclave",
+      "p": "darnassus",
+      "mid": 1457,
+      "name": "Cenarion Enclave",
+      "source": "V5 named mesh group",
+      "status": "reuse"
+    },
+    {
+      "id": "craftsmens_terrace",
+      "p": "darnassus",
+      "mid": 1457,
+      "name": "Craftsmen's Terrace",
+      "source": "V5 named mesh group",
+      "status": "reuse"
+    },
+    {
+      "id": "temple_gardens",
+      "p": "darnassus",
+      "mid": 1457,
+      "name": "The Temple Gardens",
+      "source": "V5 named mesh group",
+      "status": "reuse"
+    },
+    {
+      "id": "darnassus.temple_of_the_moon",
+      "p": "darnassus",
+      "mid": 1457,
+      "name": "Temple of the Moon",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "tradesmens_terrace",
+      "p": "darnassus",
+      "mid": 1457,
+      "name": "Tradesmen's Terrace",
+      "source": "V5 named mesh group",
+      "status": "reuse"
+    },
+    {
+      "id": "orgrimmar.cleft_of_shadow",
+      "p": "orgrimmar",
+      "mid": 1454,
+      "name": "Cleft of Shadow",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "orgrimmar.drag",
+      "p": "orgrimmar",
+      "mid": 1454,
+      "name": "The Drag",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "orgrimmar.grommash_hold",
+      "p": "orgrimmar",
+      "mid": 1454,
+      "name": "Grommash Hold",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "orgrimmar.hall_of_the_brave",
+      "p": "orgrimmar",
+      "mid": 1454,
+      "name": "Hall of the Brave",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "orgrimmar.ring_of_valor",
+      "p": "orgrimmar",
+      "mid": 1454,
+      "name": "The Ring of Valor",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "orgrimmar.valley_of_honor",
+      "p": "orgrimmar",
+      "mid": 1454,
+      "name": "Valley of Honor",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "orgrimmar.valley_of_spirits",
+      "p": "orgrimmar",
+      "mid": 1454,
+      "name": "Valley of Spirits",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "orgrimmar.valley_of_strength",
+      "p": "orgrimmar",
+      "mid": 1454,
+      "name": "Valley of Strength",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "orgrimmar.valley_of_wisdom",
+      "p": "orgrimmar",
+      "mid": 1454,
+      "name": "Valley of Wisdom",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "hall_of_legends",
+      "p": "orgrimmar",
+      "mid": 1454,
+      "name": "Hall of Legends",
+      "source": "V5 named mesh group",
+      "status": "reuse"
+    },
+    {
+      "id": "stormwind_vault.conflux_block",
+      "p": "stormwind_vault",
+      "mid": 105087,
+      "name": "Conflux Block",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_vault.gloom_cellar",
+      "p": "stormwind_vault",
+      "mid": 105087,
+      "name": "Gloom Cellar",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_vault.interrogation_cells",
+      "p": "stormwind_vault",
+      "mid": 105087,
+      "name": "Interrogation Cells",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_vault.secluded_cell",
+      "p": "stormwind_vault",
+      "mid": 105087,
+      "name": "Secluded Cell",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwind_vault.skittering_passage",
+      "p": "stormwind_vault",
+      "mid": 105087,
+      "name": "Skittering Passage",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "deadmines.goblin_foundry",
+      "p": "deadmines",
+      "mid": 105138,
+      "name": "Goblin Foundry",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "deadmines.harvest_golem_foundry",
+      "p": "deadmines",
+      "mid": 105138,
+      "name": "Harvest Golem Foundry",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "ironclad_cove",
+      "p": "deadmines",
+      "mid": 105138,
+      "name": "Ironclad Cove",
+      "source": "V5 named mesh group",
+      "status": "reuse"
+    },
+    {
+      "id": "deadmines.zanzil_laboratory",
+      "p": "deadmines",
+      "mid": 105138,
+      "name": "Zanzil Laboratory",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "deadmines.mast_room",
+      "p": "deadmines",
+      "mid": 105138,
+      "name": "Mast Room",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "wailing_caverns.crag_of_the_everliving",
+      "p": "wailing_caverns",
+      "mid": 100718,
+      "name": "Crag of the Everliving",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "wailing_caverns.dreamers_rock",
+      "p": "wailing_caverns",
+      "mid": 100718,
+      "name": "Dreamer's Rock",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "wailing_caverns.kolkar_falls",
+      "p": "wailing_caverns",
+      "mid": 100718,
+      "name": "Kolkar Falls",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "wailing_caverns.overgrowth",
+      "p": "wailing_caverns",
+      "mid": 100718,
+      "name": "The Overgrowth",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "wailing_caverns.pit_of_fangs",
+      "p": "wailing_caverns",
+      "mid": 100718,
+      "name": "Pit of Fangs",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "wailing_caverns.screaming_gully",
+      "p": "wailing_caverns",
+      "mid": 100718,
+      "name": "Screaming Gully",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "wailing_caverns.winding_chasm",
+      "p": "wailing_caverns",
+      "mid": 100718,
+      "name": "Winding Chasm",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackfathom_deeps.akumais_lair",
+      "p": "blackfathom_deeps",
+      "mid": 100719,
+      "name": "Aku'mai's Lair",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackfathom_deeps.drowned_sacellum",
+      "p": "blackfathom_deeps",
+      "mid": 100719,
+      "name": "The Drowned Sacellum",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackfathom_deeps.forgotten_pool",
+      "p": "blackfathom_deeps",
+      "mid": 100719,
+      "name": "The Forgotten Pool",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackfathom_deeps.moonshrine_ruins",
+      "p": "blackfathom_deeps",
+      "mid": 100719,
+      "name": "Moonshrine Ruins",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackfathom_deeps.moonshrine_sanctum",
+      "p": "blackfathom_deeps",
+      "mid": 100719,
+      "name": "Moonshrine Sanctum",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackfathom_deeps.pool_of_askar",
+      "p": "blackfathom_deeps",
+      "mid": 100719,
+      "name": "The Pool of Ask'ar",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackfathom_deeps.temple_of_elune",
+      "p": "blackfathom_deeps",
+      "mid": 100719,
+      "name": "Temple of Elune",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "uldaman.dig_one",
+      "p": "uldaman",
+      "mid": 101337,
+      "name": "Dig One",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "uldaman.dig_three",
+      "p": "uldaman",
+      "mid": 101337,
+      "name": "Dig Three",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "uldaman.dig_two",
+      "p": "uldaman",
+      "mid": 101337,
+      "name": "Dig Two",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "uldaman.echomok_cavern",
+      "p": "uldaman",
+      "mid": 101337,
+      "name": "Echomok Cavern",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "uldaman.hall_of_the_crafters",
+      "p": "uldaman",
+      "mid": 101337,
+      "name": "Hall of the Crafters",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "uldaman.hall_of_the_keepers",
+      "p": "uldaman",
+      "mid": 101337,
+      "name": "Hall of the Keepers",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "uldaman.khazgoroths_seat",
+      "p": "uldaman",
+      "mid": 101337,
+      "name": "Khaz'goroth's Seat",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "uldaman.map_chamber",
+      "p": "uldaman",
+      "mid": 101337,
+      "name": "Map Chamber",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "uldaman.stone_vault",
+      "p": "uldaman",
+      "mid": 101337,
+      "name": "The Stone Vault",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "uldaman.temple_hall",
+      "p": "uldaman",
+      "mid": 101337,
+      "name": "Temple Hall",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "gnomeregan.clean_zone",
+      "p": "gnomeregan",
+      "mid": 100721,
+      "name": "The Clean Zone",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "gnomeregan.clockwerk_run",
+      "p": "gnomeregan",
+      "mid": 100721,
+      "name": "The Clockwerk Run",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "gnomeregan.dormitory",
+      "p": "gnomeregan",
+      "mid": 100721,
+      "name": "The Dormitory",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "gnomeregan.engineering_labs",
+      "p": "gnomeregan",
+      "mid": 100721,
+      "name": "Engineering Labs",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "gnomeregan.hall_of_gears",
+      "p": "gnomeregan",
+      "mid": 100721,
+      "name": "The Hall of Gears",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "gnomeregan.launch_bay",
+      "p": "gnomeregan",
+      "mid": 100721,
+      "name": "Launch Bay",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "gnomeregan.tinkers_court",
+      "p": "gnomeregan",
+      "mid": 100721,
+      "name": "Tinkers' Court",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "sunken_temple.chamber_of_the_dreamer",
+      "p": "sunken_temple",
+      "mid": 101417,
+      "name": "Chamber of the Dreamer",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "sunken_temple.hall_of_serpents",
+      "p": "sunken_temple",
+      "mid": 101417,
+      "name": "Hall of Serpents",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "sunken_temple.hall_of_the_cursed",
+      "p": "sunken_temple",
+      "mid": 101417,
+      "name": "Hall of the Cursed",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "sunken_temple.lair_of_the_chosen",
+      "p": "sunken_temple",
+      "mid": 101417,
+      "name": "Lair of the Chosen",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "sunken_temple.pit_of_refuse",
+      "p": "sunken_temple",
+      "mid": 101417,
+      "name": "The Pit of Refuse",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "sunken_temple.pit_of_sacrifice",
+      "p": "sunken_temple",
+      "mid": 101417,
+      "name": "The Pit of Sacrifice",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "sunken_temple.sanctum_of_the_fallen_god",
+      "p": "sunken_temple",
+      "mid": 101417,
+      "name": "Sanctum of the Fallen God",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "razorfen_downs.bone_pile",
+      "p": "razorfen_downs",
+      "mid": 100722,
+      "name": "The Bone Pile",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "razorfen_downs.callers_chamber",
+      "p": "razorfen_downs",
+      "mid": 100722,
+      "name": "The Caller's Chamber",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "razorfen_downs.murder_pens",
+      "p": "razorfen_downs",
+      "mid": 100722,
+      "name": "The Murder Pens",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "razorfen_downs.spiral_of_thorns",
+      "p": "razorfen_downs",
+      "mid": 100722,
+      "name": "Spiral of Thorns",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "razorfen_downs.temple_of_agamaggan",
+      "p": "razorfen_downs",
+      "mid": 100722,
+      "name": "Temple of Agamaggan",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scarlet_monastery_library.athenaeum",
+      "p": "scarlet_monastery_library",
+      "mid": 100796,
+      "name": "Athenaeum",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scarlet_monastery_library.gallery_of_treasures",
+      "p": "scarlet_monastery_library",
+      "mid": 100796,
+      "name": "Gallery of Treasures",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scarlet_monastery_library.huntsmans_cloister",
+      "p": "scarlet_monastery_library",
+      "mid": 100796,
+      "name": "Huntsman's Cloister",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scarlet_monastery_library.sanctum_of_the_fist",
+      "p": "scarlet_monastery_library",
+      "mid": 100796,
+      "name": "Sanctum of the Fist",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scarlet_monastery_graveyard.chamber_of_atonement",
+      "p": "scarlet_monastery_graveyard",
+      "mid": 100796,
+      "name": "Chamber of Atonement",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scarlet_monastery_graveyard.forlorn_cloister",
+      "p": "scarlet_monastery_graveyard",
+      "mid": 100796,
+      "name": "Forlorn Cloister",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scarlet_monastery_graveyard.honors_tomb",
+      "p": "scarlet_monastery_graveyard",
+      "mid": 100796,
+      "name": "Honor's Tomb",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scarlet_monastery_graveyard.scarlet_prison",
+      "p": "scarlet_monastery_graveyard",
+      "mid": 100796,
+      "name": "Scarlet Prison",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scarlet_monastery_cathedral.chapel_gardens",
+      "p": "scarlet_monastery_cathedral",
+      "mid": 100796,
+      "name": "Chapel Gardens",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scarlet_monastery_cathedral.crusaders_chapel",
+      "p": "scarlet_monastery_cathedral",
+      "mid": 100796,
+      "name": "Crusader's Chapel",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scarlet_monastery_armory.crusaders_armory",
+      "p": "scarlet_monastery_armory",
+      "mid": 100796,
+      "name": "Crusader's Armory",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scarlet_monastery_armory.footmans_armory",
+      "p": "scarlet_monastery_armory",
+      "mid": 100796,
+      "name": "Footman's Armory",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scarlet_monastery_armory.grand_vestibule",
+      "p": "scarlet_monastery_armory",
+      "mid": 100796,
+      "name": "The Grand Vestibule",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scarlet_monastery_armory.hall_of_champions",
+      "p": "scarlet_monastery_armory",
+      "mid": 100796,
+      "name": "Hall of Champions",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scarlet_monastery_armory.training_grounds",
+      "p": "scarlet_monastery_armory",
+      "mid": 100796,
+      "name": "Training Grounds",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scarlet_monastery_armory.warehouse",
+      "p": "scarlet_monastery_armory",
+      "mid": 100796,
+      "name": "Warehouse",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "zulfarrak.farraki_tombs",
+      "p": "zulfarrak",
+      "mid": 101176,
+      "name": "Farraki Tombs",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_spire.blackrock_stadium",
+      "p": "blackrock_spire",
+      "mid": 101583,
+      "name": "Blackrock Stadium",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_spire.chamber_of_battle",
+      "p": "blackrock_spire",
+      "mid": 101583,
+      "name": "Chamber of Battle",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_spire.dragonspire_hall",
+      "p": "blackrock_spire",
+      "mid": 101583,
+      "name": "Dragonspire Hall",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_spire.furnace",
+      "p": "blackrock_spire",
+      "mid": 101583,
+      "name": "The Furnace",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_spire.hall_of_binding",
+      "p": "blackrock_spire",
+      "mid": 101583,
+      "name": "Hall of Binding",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_spire.hall_of_blackhand",
+      "p": "blackrock_spire",
+      "mid": 101583,
+      "name": "Hall of Blackhand",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_spire.halycons_lair",
+      "p": "blackrock_spire",
+      "mid": 101583,
+      "name": "Halycon's Lair",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_spire.hordemar_city",
+      "p": "blackrock_spire",
+      "mid": 101583,
+      "name": "Hordemar City",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_spire.mokdoom",
+      "p": "blackrock_spire",
+      "mid": 101583,
+      "name": "Mok'Doom",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_spire.molten_span",
+      "p": "blackrock_spire",
+      "mid": 101583,
+      "name": "The Molten Span",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_spire.rookery",
+      "p": "blackrock_spire",
+      "mid": 101583,
+      "name": "The Rookery",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_spire.skitterweb_tunnels",
+      "p": "blackrock_spire",
+      "mid": 101583,
+      "name": "Skitterweb Tunnels",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_spire.spire_throne",
+      "p": "blackrock_spire",
+      "mid": 101583,
+      "name": "Spire Throne",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_spire.storehouse",
+      "p": "blackrock_spire",
+      "mid": 101583,
+      "name": "The Storehouse",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_spire.tazzalaor",
+      "p": "blackrock_spire",
+      "mid": 101583,
+      "name": "Tazz'Alaor",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.black_vault",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "The Black Vault",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.chamber_of_enchantment",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "Chamber of Enchantment",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.dark_iron_highway",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "Dark Iron Highway",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.detention_block",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "Detention Block",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.domicile",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "The Domicile",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.east_garrison",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "East Garrison",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.grim_guzzler",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "The Grim Guzzler",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.hall_of_crafting",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "Hall of Crafting",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.halls_of_the_law",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "Halls of the Law",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.imperial_seat",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "The Imperial Seat",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.iron_hall",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "The Iron Hall",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.lyceum",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "The Lyceum",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.manufactory",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "The Manufactory",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.mold_foundry",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "Mold Foundry",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.molten_bridge",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "The Molten Bridge",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.ring_of_the_law",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "Ring of the Law",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.shadowforge_city",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "Shadowforge City",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.shrine_of_thaurissan",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "Shrine of Thaurissan",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.summoners_tomb",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "Summoners' Tomb",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackrock_depths.west_garrison",
+      "p": "blackrock_depths",
+      "mid": 101584,
+      "name": "West Garrison",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scholomance.barov_family_vault",
+      "p": "scholomance",
+      "mid": 102057,
+      "name": "Barov Family Vault",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scholomance.chamber_of_summoning",
+      "p": "scholomance",
+      "mid": 102057,
+      "name": "Chamber of Summoning",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scholomance.coven",
+      "p": "scholomance",
+      "mid": 102057,
+      "name": "The Coven",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scholomance.great_ossuary",
+      "p": "scholomance",
+      "mid": 102057,
+      "name": "The Great Ossuary",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scholomance.hall_of_secrets",
+      "p": "scholomance",
+      "mid": 102057,
+      "name": "Hall of Secrets",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scholomance.hall_of_the_damned",
+      "p": "scholomance",
+      "mid": 102057,
+      "name": "Hall of the Damned",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scholomance.headmasters_study",
+      "p": "scholomance",
+      "mid": 102057,
+      "name": "Headmaster's Study",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scholomance.laboratory",
+      "p": "scholomance",
+      "mid": 102057,
+      "name": "The Laboratory",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scholomance.reliquary",
+      "p": "scholomance",
+      "mid": 102057,
+      "name": "The Reliquary",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scholomance.shadow_vault",
+      "p": "scholomance",
+      "mid": 102057,
+      "name": "The Shadow Vault",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scholomance.vault_of_the_ravenian",
+      "p": "scholomance",
+      "mid": 102057,
+      "name": "Vault of the Ravenian",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "scholomance.viewing_room",
+      "p": "scholomance",
+      "mid": 102057,
+      "name": "The Viewing Room",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stratholme.alonsus_chapel",
+      "p": "stratholme",
+      "mid": 102017,
+      "name": "Alonsus Chapel",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stratholme.crimson_throne",
+      "p": "stratholme",
+      "mid": 102017,
+      "name": "The Crimson Throne",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stratholme.crusaders_square",
+      "p": "stratholme",
+      "mid": 102017,
+      "name": "Crusaders' Square",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stratholme.elders_square",
+      "p": "stratholme",
+      "mid": 102017,
+      "name": "Elders' Square",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stratholme.festival_lane",
+      "p": "stratholme",
+      "mid": 102017,
+      "name": "Festival Lane",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stratholme.gauntlet",
+      "p": "stratholme",
+      "mid": 102017,
+      "name": "The Gauntlet",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stratholme.hall_of_lights",
+      "p": "stratholme",
+      "mid": 102017,
+      "name": "The Hall of Lights",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stratholme.hoard",
+      "p": "stratholme",
+      "mid": 102017,
+      "name": "The Hoard",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stratholme.kings_square",
+      "p": "stratholme",
+      "mid": 102017,
+      "name": "King's Square",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stratholme.market_row",
+      "p": "stratholme",
+      "mid": 102017,
+      "name": "Market Row",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stratholme.scarlet_bastion",
+      "p": "stratholme",
+      "mid": 102017,
+      "name": "The Scarlet Bastion",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stratholme.slaughter_house",
+      "p": "stratholme",
+      "mid": 102017,
+      "name": "The Slaughter House",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stratholme.slaughter_square",
+      "p": "stratholme",
+      "mid": 102017,
+      "name": "Slaughter Square",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "maraudon.earth_song_falls",
+      "p": "maraudon",
+      "mid": 102100,
+      "name": "Earth Song Falls",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "maraudon.foulspore_cavern",
+      "p": "maraudon",
+      "mid": 102100,
+      "name": "Foulspore Cavern",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "maraudon.noxious_hollow",
+      "p": "maraudon",
+      "mid": 102100,
+      "name": "The Noxious Hollow",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "maraudon.poison_falls",
+      "p": "maraudon",
+      "mid": 102100,
+      "name": "Poison Falls",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "maraudon.vyletongue_seat",
+      "p": "maraudon",
+      "mid": 102100,
+      "name": "Vyletongue Seat",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "maraudon.wicked_grotto",
+      "p": "maraudon",
+      "mid": 102100,
+      "name": "The Wicked Grotto",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "maraudon.zaetars_grave",
+      "p": "maraudon",
+      "mid": 102100,
+      "name": "Zaetar's Grave",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "molten_core.magmadar_cavern",
+      "p": "molten_core",
+      "mid": 102717,
+      "name": "Magmadar Cavern",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "molten_core.ragnaros_lair",
+      "p": "molten_core",
+      "mid": 102717,
+      "name": "Ragnaros' Lair",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "dire_maul.athenaeum",
+      "p": "dire_maul",
+      "mid": 102557,
+      "name": "The Athenaeum",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "dire_maul.capital_gardens",
+      "p": "dire_maul",
+      "mid": 102557,
+      "name": "Capital Gardens",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "dire_maul.conservatory",
+      "p": "dire_maul",
+      "mid": 102557,
+      "name": "The Conservatory",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "dire_maul.court_of_the_highborne",
+      "p": "dire_maul",
+      "mid": 102557,
+      "name": "Court of the Highborne",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "dire_maul.gordoks_seat",
+      "p": "dire_maul",
+      "mid": 102557,
+      "name": "Gordok's Seat",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "dire_maul.halls_of_destruction",
+      "p": "dire_maul",
+      "mid": 102557,
+      "name": "Halls of Destruction",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "dire_maul.hidden_reach",
+      "p": "dire_maul",
+      "mid": 102557,
+      "name": "The Hidden Reach",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "dire_maul.maul",
+      "p": "dire_maul",
+      "mid": 102557,
+      "name": "The Maul",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "dire_maul.prison_of_immolthar",
+      "p": "dire_maul",
+      "mid": 102557,
+      "name": "Prison of Immol'thar",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "dire_maul.shrine_of_eldretharr",
+      "p": "dire_maul",
+      "mid": 102557,
+      "name": "The Shrine of Eldretharr",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "dire_maul.warpwood_quarter",
+      "p": "dire_maul",
+      "mid": 102557,
+      "name": "Warpwood Quarter",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackwing_lair.alchemical_laboratory",
+      "p": "blackwing_lair",
+      "mid": 102677,
+      "name": "Alchemical Laboratory",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackwing_lair.nefarians_lair",
+      "p": "blackwing_lair",
+      "mid": 102677,
+      "name": "Nefarian's Lair",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackwing_lair.dragonmaw_garrison",
+      "p": "blackwing_lair",
+      "mid": 102677,
+      "name": "Dragonmaw Garrison",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackwing_lair.halls_of_strife",
+      "p": "blackwing_lair",
+      "mid": 102677,
+      "name": "Halls of Strife",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "blackwing_lair.shadow_wing_lair",
+      "p": "blackwing_lair",
+      "mid": 102677,
+      "name": "Shadow Wing Lair",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "upper_necropolis.kelthuzad_chamber",
+      "p": "upper_necropolis",
+      "mid": 103456,
+      "name": "Kel'Thuzad Chamber",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "upper_necropolis.sapphirons_lair",
+      "p": "upper_necropolis",
+      "mid": 103456,
+      "name": "Sapphiron's Lair",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "karazhan_crypt.paupers_walk",
+      "p": "karazhan_crypt",
+      "mid": 105086,
+      "name": "Pauper's Walk",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "karazhan_crypt.pit_of_criminals",
+      "p": "karazhan_crypt",
+      "mid": 105086,
+      "name": "The Pit of Criminals",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "karazhan_crypt.slough_of_despair",
+      "p": "karazhan_crypt",
+      "mid": 105086,
+      "name": "The Slough of Despair",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "karazhan_crypt.tomb_of_the_unrepentant",
+      "p": "karazhan_crypt",
+      "mid": 105086,
+      "name": "Tomb of the Unrepentant",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "karazhan_crypt.upside_down_sinners",
+      "p": "karazhan_crypt",
+      "mid": 105086,
+      "name": "The Upside-down Sinners",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "karazhan_crypt.well_of_the_forgotten",
+      "p": "karazhan_crypt",
+      "mid": 105086,
+      "name": "Well of the Forgotten",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "dragonmaw_retreat.halls_of_the_ancestors",
+      "p": "dragonmaw_retreat",
+      "mid": 105601,
+      "name": "Halls of the Ancestors",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwrought_ruins.crystal_grotto",
+      "p": "stormwrought_ruins",
+      "mid": 105628,
+      "name": "Crystal Grotto",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwrought_ruins.deathlords_sepulcher",
+      "p": "stormwrought_ruins",
+      "mid": 105628,
+      "name": "Deathlord's Sepulcher",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwrought_ruins.fetid_lake",
+      "p": "stormwrought_ruins",
+      "mid": 105628,
+      "name": "Fetid Lake",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwrought_ruins.rotting_caverns",
+      "p": "stormwrought_ruins",
+      "mid": 105628,
+      "name": "Rotting Caverns",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwrought_ruins.sanctum_of_blood",
+      "p": "stormwrought_ruins",
+      "mid": 105628,
+      "name": "Sanctum of Blood",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_barracks",
+      "p": "stormwrought_ruins",
+      "mid": 105628,
+      "name": "Stormwrought Barracks",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_castle",
+      "p": "stormwrought_ruins",
+      "mid": 105628,
+      "name": "Stormwrought Castle",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_court",
+      "p": "stormwrought_ruins",
+      "mid": 105628,
+      "name": "Stormwrought Court",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_descent",
+      "p": "stormwrought_ruins",
+      "mid": 105628,
+      "name": "Stormwrought Descent",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_kitchen",
+      "p": "stormwrought_ruins",
+      "mid": 105628,
+      "name": "Stormwrought Kitchen",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_library",
+      "p": "stormwrought_ruins",
+      "mid": 105628,
+      "name": "Stormwrought Library",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_museum",
+      "p": "stormwrought_ruins",
+      "mid": 105628,
+      "name": "Stormwrought Museum",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_prison",
+      "p": "stormwrought_ruins",
+      "mid": 105628,
+      "name": "Stormwrought Prison",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwrought_ruins.stormwrought_terrace",
+      "p": "stormwrought_ruins",
+      "mid": 105628,
+      "name": "Stormwrought Terrace",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "stormwrought_ruins.temple_of_shadows",
+      "p": "stormwrought_ruins",
+      "mid": 105628,
+      "name": "Temple of Shadows",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "timbermaw_hold.foulheart_coven",
+      "p": "timbermaw_hold",
+      "mid": 105640,
+      "name": "Foulheart Coven",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "timbermaw_hold.grotto_of_dreams",
+      "p": "timbermaw_hold",
+      "mid": 105640,
+      "name": "Grotto of Dreams",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "timbermaw_hold.heart_of_the_nightmare",
+      "p": "timbermaw_hold",
+      "mid": 105640,
+      "name": "Heart of the Nightmare",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "timbermaw_hold.seat_of_the_chieftain",
+      "p": "timbermaw_hold",
+      "mid": 105640,
+      "name": "Seat of the Chieftain",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "timbermaw_hold.timbermaw_village",
+      "p": "timbermaw_hold",
+      "mid": 105640,
+      "name": "Timbermaw Village",
+      "source": "V5 named mesh group",
+      "status": "add"
+    },
+    {
+      "id": "westfall.moonbrook.defias_hideout",
+      "p": "westfall.moonbrook",
+      "mid": 1436,
+      "name": "Defias Hideout",
+      "source": "G4.3 outdoor candidate",
+      "status": "add"
+    },
+    {
+      "id": "uldaman.exterior.dig_one",
+      "p": "uldaman.exterior",
+      "mid": 1418,
+      "name": "Dig One",
+      "source": "G4.3 outdoor candidate",
+      "status": "add"
+    },
+    {
+      "id": "uldaman.exterior.echomok_cavern",
+      "p": "uldaman.exterior",
+      "mid": 1418,
+      "name": "Echomok Cavern",
+      "source": "G4.3 outdoor candidate",
+      "status": "add"
+    },
+    {
+      "id": "uldaman.exterior.excavation_center",
+      "p": "uldaman.exterior",
+      "mid": 1418,
+      "name": "Excavation Center",
+      "source": "G4.3 outdoor candidate",
+      "status": "add"
+    },
+    {
+      "id": "uldaman.exterior.hall_of_the_keepers",
+      "p": "uldaman.exterior",
+      "mid": 1418,
+      "name": "Hall of the Keepers",
+      "source": "G4.3 outdoor candidate",
+      "status": "add"
+    },
+    {
+      "id": "uldaman.exterior.north_common_hall",
+      "p": "uldaman.exterior",
+      "mid": 1418,
+      "name": "North Common Hall",
+      "source": "G4.3 outdoor candidate",
+      "status": "add"
+    },
+    {
+      "id": "uldaman.exterior.sealed_hall",
+      "p": "uldaman.exterior",
+      "mid": 1418,
+      "name": "The Sealed Hall",
+      "source": "G4.3 outdoor candidate",
+      "status": "add"
+    },
+    {
+      "id": "uldaman.exterior.south_common_hall",
+      "p": "uldaman.exterior",
+      "mid": 1418,
+      "name": "South Common Hall",
+      "source": "G4.3 outdoor candidate",
+      "status": "add"
+    },
+    {
+      "id": "gnomeregan.exterior.loading_room",
+      "p": "gnomeregan.exterior",
+      "mid": 1426,
+      "name": "Loading Room",
+      "source": "G4.3 outdoor candidate",
+      "status": "add"
+    },
+    {
+      "id": "gnomeregan.exterior.train_depot",
+      "p": "gnomeregan.exterior",
+      "mid": 1426,
+      "name": "Train Depot",
+      "source": "G4.3 outdoor candidate",
+      "status": "add"
+    },
+    {
+      "id": "gnomeregan.exterior.workshop_entrance",
+      "p": "gnomeregan.exterior",
+      "mid": 1426,
+      "name": "Workshop Entrance",
+      "source": "G4.3 outdoor candidate",
+      "status": "add"
+    },
+    {
+      "id": "scarlet_monastery.exterior.grand_vestibule",
+      "p": "scarlet_monastery.exterior",
+      "mid": 1420,
+      "name": "The Grand Vestibule",
+      "source": "G4.3 outdoor candidate",
+      "status": "add"
+    },
+    {
+      "id": "stratholme.exterior.kings_square",
+      "p": "stratholme.exterior",
+      "mid": 1423,
+      "name": "King's Square",
+      "source": "G4.3 outdoor candidate",
+      "status": "add"
+    },
+    {
+      "id": "dire_maul.exterior.broken_commons",
+      "p": "dire_maul.exterior",
+      "mid": 1444,
+      "name": "Broken Commons",
+      "source": "G4.3 outdoor candidate",
+      "status": "add"
+    },
+    {
+      "id": "dire_maul.exterior.eldreth_row",
+      "p": "dire_maul.exterior",
+      "mid": 1444,
+      "name": "Eldreth Row",
+      "source": "G4.3 outdoor candidate",
+      "status": "add"
+    },
+    {
+      "id": "wailing_caverns.exterior.cavern_of_mists",
+      "p": "wailing_caverns.exterior",
+      "mid": 1413,
+      "name": "Cavern of Mists",
+      "source": "G4.3 outdoor candidate",
+      "status": "add"
+    },
+    {
+      "id": "arathi_highlands.bouldergor.boulderfist_outpost",
+      "p": "arathi_highlands.bouldergor",
+      "mid": 1417,
+      "name": "Boulderfist Outpost",
+      "source": "G4.4 named root",
+      "status": "add"
+    },
+    {
+      "id": "duskwood.darkshire.darkshire_town_hall",
+      "p": "duskwood.darkshire",
+      "mid": 1431,
+      "name": "Darkshire Town Hall",
+      "source": "G4.4 named root",
+      "status": "add"
+    },
+    {
+      "id": "duskwood.darkshire.scarlet_raven_tavern",
+      "p": "duskwood.darkshire",
+      "mid": 1431,
+      "name": "Scarlet Raven Tavern",
+      "source": "G4.4 named root",
+      "status": "add"
+    },
+    {
+      "id": "dun_kithas.dun_kithas_magistrate",
+      "p": "dun_kithas",
+      "mid": 105602,
+      "name": "Dun Kithas Magistrate",
+      "source": "G4.4 named root",
+      "status": "add"
+    },
+    {
+      "id": "dun_morogh.golbolar_quarry.golbolar_quarry_mine",
+      "p": "dun_morogh.golbolar_quarry",
+      "mid": 1426,
+      "name": "Gol'Bolar Quarry Mine",
+      "source": "G4.4 named root",
+      "status": "add"
+    },
+    {
+      "id": "grim_batol.grim_ramparts",
+      "p": "grim_batol",
+      "mid": 1437,
+      "name": "Grim Ramparts",
+      "source": "G4.4 named root",
+      "status": "add"
+    },
+    {
+      "id": "redridge_mountains.lakeshire.lakeshire_inn",
+      "p": "redridge_mountains.lakeshire",
+      "mid": 1433,
+      "name": "Lakeshire Inn",
+      "source": "G4.4 named root",
+      "status": "add"
+    },
+    {
+      "id": "redridge_mountains.lakeshire.lakeshire_town_hall",
+      "p": "redridge_mountains.lakeshire",
+      "mid": 1433,
+      "name": "Lakeshire Town Hall",
+      "source": "G4.4 named root",
+      "status": "add"
+    },
+    {
+      "id": "elwynn_forest.goldshire.lions_pride_inn",
+      "p": "elwynn_forest.goldshire",
+      "mid": 1429,
+      "name": "Lion's Pride Inn",
+      "source": "G4.4 named root",
+      "status": "add"
+    },
+    {
+      "id": "northwind.plump_pumpkin",
+      "p": "northwind",
+      "mid": 105581,
+      "name": "The Plump Pumpkin",
+      "source": "G4.4 named root",
+      "status": "add"
+    },
+    {
+      "id": "abbey_gardens.saint_mara_abbey",
+      "p": "abbey_gardens",
+      "mid": 105581,
+      "name": "Saint Mara Abbey",
+      "source": "G4.4 named root",
+      "status": "add"
+    },
+    {
+      "id": "westfall.sentinel_hill.sentinel_tower",
+      "p": "westfall.sentinel_hill",
+      "mid": 1436,
+      "name": "Sentinel Tower",
+      "source": "G4.4 named root",
+      "status": "add"
+    },
+    {
+      "id": "southshore.southshore_town_hall",
+      "p": "southshore",
+      "mid": 1424,
+      "name": "Southshore Town Hall",
+      "source": "G4.4 named root",
+      "status": "add"
+    },
+    {
+      "id": "grim_hollow.tomb_of_ancestors",
+      "p": "grim_hollow",
+      "mid": 105602,
+      "name": "Tomb of Ancestors",
+      "source": "G4.4 named root",
+      "status": "add"
+    },
+    {
+      "id": "eastern_plaguelands.tyrs_hand.tyrs_hand_abbey",
+      "p": "eastern_plaguelands.tyrs_hand",
+      "mid": 1423,
+      "name": "Tyr's Hand Abbey",
+      "source": "G4.4 named root",
+      "status": "add"
+    },
+    {
+      "id": "forlorn_summit.widows_nest",
+      "p": "forlorn_summit",
+      "mid": 1423,
+      "name": "The Widow's Nest",
+      "source": "G4.4 named root",
+      "status": "add"
+    },
+    {
+      "id": "bael_hardul.hardul_distillery",
+      "p": "bael_hardul",
+      "mid": 1442,
+      "name": "Hardul Distillery",
+      "source": "G4.4 named root",
+      "status": "add"
+    },
+    {
+      "id": "ashenvale.thistlefur_village.thistlefur_hold",
+      "p": "ashenvale.thistlefur_village",
+      "mid": 1440,
+      "name": "Thistlefur Hold",
+      "source": "G4.4 named root",
+      "status": "add"
+    }
+  ],
+  "held": [
+    [
+      "eastern_plaguelands.green_belt",
+      "Removal held: matching canonical name in wetlands.green_belt"
+    ],
+    [
+      "G4.3 shared Karazhan geometry",
+      "18 duplicated room contexts on maps 532/814 held pending accessible section allocation"
+    ],
+    [
+      "map 0 Sunken Temple groups",
+      "7 rooms reference outdoor AreaTable 1477; portal/accessibility unresolved"
+    ],
+    [
+      "Blackrock Spire / Blackrock Mountain",
+      "Outdoor same-name instance label not independently resolved"
+    ],
+    [
+      "map 389 Cleft of Shadow",
+      "Reused city name; hold"
+    ],
+    [
+      "map 533 King's Square",
+      "Reused Stratholme geometry; hold"
+    ],
+    [
+      "BRD The Molten Core",
+      "Instance entrance versus separate named region unresolved"
+    ],
+    [
+      "G4.4 generic/reused roots",
+      "Hold 30 contexts as approved"
+    ],
+    [
+      "G4.3 copied model contexts",
+      "Hold 33 contexts as approved"
+    ],
+    [
+      "Moomoo",
+      "Map subject alias unresolved; do not merge discoveries"
+    ],
+    [
+      "94 map-context conflicts",
+      "Unreviewed native-context assignments not allocated automatically"
+    ]
+  ],
+  "validation": "Connector-side source integrity and parent-cycle checks passed; Lua/CI/client validation pending. WMO candidates use contextual name bindings, not unobserved native WMO triples."
+}

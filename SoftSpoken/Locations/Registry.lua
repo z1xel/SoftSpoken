@@ -101,6 +101,8 @@ local function Build(data,content)
     self.entities=assert(view.entities)
     self.redirects=data.redirects or {}
     self.splits=data.splits or {}
+    self.g5=data.g5 or {}
+    self.retired=data.retired or {}
     self.availability=view.availability or {}
     self.bindings={}; self.representations={}; self.identifiers={}; self.children={}
     self.relations={}; self.exact={}; self.folded={}; self.mapSets={}; self.maps={}
@@ -129,9 +131,10 @@ local function Build(data,content)
     for _,list in pairs(self.identifiers) do table.sort(list,MapLess) end
     for _,r in ipairs(view.relations or EMPTY) do
         assert(self.entities[r.from] and self.entities[r.to] and r.from~=r.to,"invalid relation")
-        assert(r.relation=="within" or r.relation=="associatedWith" or r.relation=="entranceIn","invalid relation type")
+        assert(r.relation=="within" or r.relation=="associatedWith" or r.relation=="entranceIn" or r.relation=="exteriorOf","invalid relation type")
         AddSet(Bucket(self.relations,r.from),r.relation,r.to)
         if r.relation=="associatedWith" then AddSet(Bucket(self.relations,r.to),r.relation,r.from) end
+        if r.relation=="exteriorOf" then AddSet(Bucket(self.relations,r.to),"hasExterior",r.from) end
     end
     for _,kinds in pairs(self.relations) do
         for kind,set in pairs(kinds) do kinds[kind]=Ordered(set) end
@@ -437,15 +440,51 @@ function Registry:ResolvePlayerZone()
     return nil,"unavailable"
 end
 
+-- Specific WMO/minimap name can differ from the numeric zone identity.
+-- Only resolve it inside the observed geographical context; ambiguous names
+-- never select a location globally. Root inheritance is provided by the client.
 function Registry:ResolvePlayerLocation()
     local zone,status,candidates=self:ResolvePlayerZone()
     if not zone then return nil,status,candidates end
-    if type(GetSubZoneText)~="function" then return zone,"resolved" end
-    local sub=GetSubZoneText()
-    if type(sub)~="string" or Fold(sub)=="" then return zone,"resolved" end
     local locale=type(GetLocale)=="function" and GetLocale() or "enUS"
-    if Fold(sub)==Fold(self:GetName(zone,locale)) then return zone,"resolved" end
-    return self:ResolveName(sub,{parent=zone,locale=locale})
+    local function ResolveObserved(name)
+        if type(name)~="string" or Fold(name)=="" or Fold(name)==Fold(self:GetName(zone,locale)) then return nil,"unknown" end
+        local id,why,choices=self:ResolveName(name,{parent=zone,locale=locale})
+        if id or why=="ambiguous" then return id,why,choices end
+        -- Some client builds return a fine-grained numeric area, e.g. a city
+        -- district. Do not leave that physical context to guess a sibling.
+        return nil,"unknown"
+    end
+    if type(GetMinimapZoneText)=="function" then
+        local id,why,choices=ResolveObserved(GetMinimapZoneText())
+        if id or why=="ambiguous" then return id,why,choices end
+    end
+    local sub=type(GetSubZoneText)=="function" and GetSubZoneText()
+    if type(sub)~="string" or Fold(sub)=="" or Fold(sub)==Fold(self:GetName(zone,locale)) then return zone,"resolved" end
+    return ResolveObserved(sub)
+end
+
+-- Project approved pending entries and retirement filters into lore without
+-- deleting archived text, audio, or historical character keys.
+function Registry:ProjectPlaces(kind,entries)
+    local p=self.g5 or EMPTY
+    local function pending(name) return {name=name,pending=true,short="",full="",source=""} end
+    if kind=="zones" then
+        for mid in pairs(p.retiredZones or EMPTY) do entries[mid]=nil end
+        for mid,name in pairs(p.pendingZones or EMPTY) do
+            if not entries[mid] then entries[mid]=pending(name) end
+        end
+    elseif kind=="subzones" then
+        for mid in pairs(p.retiredZones or EMPTY) do entries[mid]=nil end
+        for mid,keys in pairs(p.retiredSubzones or EMPTY) do
+            if entries[mid] then for k in pairs(keys) do entries[mid][k]=nil end end
+        end
+        for mid,keys in pairs(p.pendingSubzones or EMPTY) do
+            local t=Bucket(entries,mid)
+            for k,name in pairs(keys) do if not t[k] then t[k]=pending(name) end end
+        end
+    end
+    return entries
 end
 
 -- Missing or invalid generated data must not interrupt existing modules.

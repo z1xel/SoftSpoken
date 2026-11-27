@@ -2,6 +2,7 @@
     <Include file="Environment.lua"/>
     <Include file="Locations\Data.lua"/>
     <Include file="Locations\PlacesCatalogExpansion.lua"/>
+    <Include file="Locations\G5Geography.lua"/>
     <Include file="Locations\Registry.lua"/>
     <Include file="Locations\History.lua"/>
     <Include file="UpgradeGuard.lua"/>
