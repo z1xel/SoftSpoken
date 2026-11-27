@@ -34,8 +34,8 @@ class LocationTests(unittest.TestCase):
         refs = data["references"]
         from collections import Counter
         counts = Counter(x["owner"] for x in refs)
-        self.assertEqual(counts["Places.Zones"],54)
-        self.assertEqual(counts["Places.Subzones"],878)
+        self.assertEqual(counts["Places.Zones"],123)
+        self.assertEqual(counts["Places.Subzones"],1347)
         self.assertEqual(counts["Places.Pictures"],862)
         self.assertEqual(counts["Stories.turtleArea"],980)
         self.assertEqual(counts["Stories.dungeon"],556)

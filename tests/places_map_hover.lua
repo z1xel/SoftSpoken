@@ -21,7 +21,7 @@ SSZLore={
         ["northshire valley"]={name="Northshire Valley"},
     }},
 }
-SpokenCompendium={CITY_IN={}}
+SpokenCompendium={CITY_IN={},Tab=function() return true end}
 dofile(P.."Runtime.lua")
 SpokenPlacesRuntime.db={profile=settings}
 dofile(P.."Settings.lua")

@@ -95,6 +95,7 @@ retired["witherbark_caverns"]=true
 retired["world_tree"]=true
 retired["zanes_eye_crater"]=true
 retired["zuluheds_terrace"]=true
+retired["eastern_plaguelands.green_belt"]=true
 local projection={retiredZones={},retiredSubzones={},pendingZones={},pendingSubzones={}}
 local function bucket(t,k) if not t[k] then t[k]={} end return t[k] end
 local function filter(t,keep)

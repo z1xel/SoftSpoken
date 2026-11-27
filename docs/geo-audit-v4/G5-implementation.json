@@ -25,6 +25,7 @@
     "draenildur_village",
     "dun_galar",
     "east_pillar",
+    "eastern_plaguelands.green_belt",
     "emerald_forest",
     "everwinter_vale",
     "fire_stone_mesa",
@@ -6240,10 +6241,6 @@
   ],
   "held": [
     [
-      "eastern_plaguelands.green_belt",
-      "Removal held: matching canonical name in wetlands.green_belt"
-    ],
-    [
       "G4.3 shared Karazhan geometry",
       "18 duplicated room contexts on maps 532/814 held pending accessible section allocation"
     ],
@@ -6281,8 +6278,11 @@
     ],
     [
       "94 map-context conflicts",
-      "Unreviewed native-context assignments not allocated automatically"
+      "Reviewed separately in G5-native-context-review.csv; no unsupported cross-map numeric binding allocated"
     ]
   ],
-  "validation": "Connector-side source integrity and parent-cycle checks passed; Lua/CI/client validation pending. WMO candidates use contextual name bindings, not unobserved native WMO triples."
+  "validation": "Initial CI: existing registry tests and new G5 effective-geography test passed; stale raw inventory and map-hover fixture caused unrelated suite failures. Follow-up adds discovery coverage and repairs fixtures. Live Octo validation remains pending.",
+  "retirementNotes": {
+    "eastern_plaguelands.green_belt": "V5 AreaTable 1019 has no assigned terrain or WMO evidence; separate Wetlands AreaTable 1025 has 201 assigned chunks. Preserve wetlands.green_belt; do not redirect between contexts."
+  }
 }
