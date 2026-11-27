@@ -57,7 +57,51 @@ local defaults = {profile={Frame={FrameScale=0.7}},char={IsPaused=false},global=
 local storyDefaults = {Audio={Autoplay=true,DisabledVoicePacks={}}}
 assert(not pcall(function() P:Initialize(defaults,storyDefaults,"invalid") end))
 Unchanged()
-local root, ch = P:Initialize(defaults,storyDefaults,"dev")
+-- Exercise the actual startup coordinator and Core:InitDB, not just a
+-- direct call to Persistence. UI and feature effects are stubbed here;
+-- the real module behavior is covered separately by the module regressions.
+local env = SpokenEnv
+local function Module(name)
+    return { InitDB=function(self) self.db=P:ModuleDB(name) end,
+        Initialize=function(self,worldReady) self.initialized=true; self.worldReady=worldReady end }
+end
+env.VoiceOver = {StoriesProfileDefaults=storyDefaults,StoriesAddon=Module("Stories")}
+env.SpokenPlacesRuntime = Module("Places")
+env.SpokenWritings = Module("Writings")
+local aceTimer=LibStub:NewLibrary("AceTimer-3.0",1)
+function aceTimer:Embed(target) return target end
+env.Version={IsAnyLegacy=true}
+dofile("SoftSpoken/Core.lua")
+env.Defaults=defaults
+local core=env.CoreController
+env.NarratorWindow={Initialize=function() end}
+env.Transcript={Initialize=function() end}
+env.Minimap={Setup=function() end}
+env.Options={Setup=function() end}
+SlashCmdList={}
+core.SeedCompendiumBinding=function() error("DEV attempted to seed persistent binding") end
+core.FinalizeStartup=function() end
+local startupFrame
+local create=CreateFrame
+CreateFrame=function()
+    startupFrame=create()
+    function startupFrame:UnregisterEvent() end
+    return startupFrame
+end
+dofile("SoftSpoken/Startup.lua")
+local startup=env.StartupController
+event="PLAYER_LOGIN"
+startupFrame.OnEvent()
+assert(startup:GetState()=="blocked" and not P.root)
+Unchanged()
+event="PLAYER_ENTERING_WORLD"
+startupFrame.OnEvent()
+assert(startup:Start("dev"))
+assert(startup:GetState()=="dev" and P.startupComplete)
+assert(env.VoiceOver.StoriesAddon.worldReady and env.SpokenPlacesRuntime.worldReady)
+assert(env.SpokenWritings.initialized and core.enabled)
+local root,ch=P.root,P.character
+assert(core.db==root)
 assert(P.mode == "dev" and root.sv ~= account and ch ~= character)
 assert(ch.geographyVersion == 1 and ch.migrationVersion == nil and root.sv.migration == nil)
 H:Validate(ch)

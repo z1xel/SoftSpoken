@@ -199,7 +199,7 @@ end
 -- Normal mode retains the legacy recovery and geography upgrade contract.
 -- DEV mode never accesses the declared saved globals; the fresh history
 -- uses the existing detached canonical transform, not Upgrade (which writes
--- the persistent global). Startup still rejects DEV until DEV3 wires entry.
+-- the persistent global). Startup selects this backend explicitly.
 local function Storage(mode)
     if mode == "dev" then
         assert(LocationHistory, "Missing temporary geography initializer")

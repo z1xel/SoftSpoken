@@ -377,7 +377,7 @@ function StoriesAddon:InitDB()
     self.character = SpokenEnv.Persistence.character.Stories
 end
 
-function StoriesAddon:Initialize()
+function StoriesAddon:Initialize(worldReady)
     if self.initializationStarted then return end
     self.initializationStarted = true
     self:InitDB()
@@ -461,7 +461,9 @@ function StoriesAddon:Initialize()
             self:ScheduleTimer(LoadDeferredDataModules, 1)
         end
     end
-    if self.dataModulesPending then
+    if self.dataModulesPending and worldReady then
+        ScheduleDeferredDataLoad()
+    elseif self.dataModulesPending then
         -- Initialization now runs at PLAYER_LOGIN. IsLoggedIn alone does not
         -- establish that the player has entered the world.
         self.dataLoaderFrame = CreateFrame("Frame")

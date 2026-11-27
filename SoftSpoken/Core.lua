@@ -104,11 +104,11 @@ Defaults = {
 }
 
 --- Idempotent: prepare saved settings before initializing dependent modules.
-function CoreController:InitDB()
+function CoreController:InitDB(mode)
     if self.db then
         return
     end
-    self.db = Persistence:Initialize(Defaults, VoiceOver.StoriesProfileDefaults)
+    self.db = Persistence:Initialize(Defaults, VoiceOver.StoriesProfileDefaults, mode)
     -- Core builds settings UI before the feature controllers start. Bind every
     -- namespace now so Compendium filters and unlock getters can read it safely.
     VoiceOver.StoriesAddon:InitDB()
@@ -296,9 +296,9 @@ end
 
 --- Initialize the player's UI and its two public commands. Idempotent, so
 --- Startup.lua calls this before the feature controllers.
-function CoreController:Initialize()
+function CoreController:Initialize(mode)
     if self.enabled then return end
-    self:InitDB()
+    self:InitDB(mode)
     -- If the previous session crashed mid-duck, restore each saved
     -- baseline only when that category still matches our last write.
     if OtherSounds then OtherSounds:RestoreLeftovers() end
@@ -316,7 +316,8 @@ function CoreController:Initialize()
 
     _G.SLASH_SPOKENCOMPENDIUM1 = "/compendium"
     SlashCmdList.SPOKENCOMPENDIUM = function() Spoken:ToggleCompendium() end
-    self:SeedCompendiumBinding()
+    -- The binding belongs to WoW's persistent binding set, not AceDB.
+    if Persistence.mode ~= "dev" then self:SeedCompendiumBinding() end
 end
 
 -- Said the first time a line waits behind a stop with nothing on screen to show it: with subtitles

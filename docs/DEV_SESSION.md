@@ -35,13 +35,28 @@ LocationHistory:Transform({}) operation; it never calls the global-writing
 Upgrade method or the importer. No legacy data is copied or consulted. The
 selected mode is session-local; explicit backend switches after initialization
 are rejected, while ordinary repeat initialization returns the existing root.
-The startup coordinator still rejects DEV until DEV3 wires safe entry.
+DEV1 initially rejected DEV until DEV3 wired safe entry.
 Tests exercise the real registry, AceDB, both empty and populated saved
 globals, temporary history, profile operations and AceDB logout cleanup.
 
+## DEV3 — safe explicit startup
+
+StartupController:Start("dev") is now available after PLAYER_LOGIN in a
+pending or blocked session. The installation guard still runs. Only normal
+mode invokes RecoverLegacy; the coordinator passes the explicit mode through
+Core to Persistence. No persistent history is upgraded in DEV. Success enters
+the dev state; partial controller failures require reload. No runtime
+database switch is allowed. A session-local world-entry observer lets late
+startup schedule Stories' deferred pack loading and arm Places' initial
+location stabilization even if PLAYER_ENTERING_WORLD already fired.
+DEV skips automatic Compendium keybinding seeding because that writes to
+WoW's binding set. Other native/client effects need DEV5 review. The existing
+slash command is not yet routed to DEV; that is DEV4. Internal testing can
+call SpokenEnv.StartupController:Start("dev") after a blocked login, but
+live client validation remains outstanding.
+
 ## Remaining phases
 
-- DEV3: wire the isolated canonical storage to the startup coordinator and Core, keeping normal migration and installation guards intact.
 - DEV4: pre-start in-game commands and DEV diagnostics.
 - DEV5: audit persistent globals and indirect aliases, including logout.
 - DEV6: session isolation, reload and ordinary migration regression tests.

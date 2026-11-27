@@ -76,7 +76,7 @@ frame:SetScript("OnEvent", function(self, firedEvent, a, b, c)
     end
 end)
 
-function PlacesRuntime:Initialize()
+function PlacesRuntime:Initialize(worldReady)
     if self.initializationStarted then return end
     self.initializationStarted = true
     self:InitDB()
@@ -151,6 +151,13 @@ function PlacesRuntime:Initialize()
         end)
     end
     ApplyDiscovery()
+    -- Late explicit startup missed the initial world-entry event. Arm the
+    -- same stabilization path, without fabricating a new discovery event.
+    if worldReady then
+        self.firstWorldReady = true
+        self.startupStableKey = nil
+        self.startupStableElapsed = 0
+    end
 end
 
 -- Re-evaluate the active combat gate and any open Places UI on profile changes.

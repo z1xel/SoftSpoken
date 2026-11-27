@@ -7,7 +7,7 @@ setfenv(1, SpokenEnv)
 -- once any controller has started, a failed initialization requires reload.
 StartupController = {}
 local state, reason = "pending", nil
-local loginReady = false
+local loginReady, worldReady = false, false
 
 local function SetState(nextState, nextReason)
     state, reason = nextState, nextReason
@@ -17,11 +17,11 @@ function StartupController:GetState()
     return state, reason
 end
 
-local function Run(name, controller, method)
+local function Run(name, controller, method, arg)
     local ok, result = pcall(function()
         assert(controller and type(controller[method]) == "function",
             name .. " has no " .. method)
-        return controller[method](controller)
+        return controller[method](controller, arg)
     end)
     if ok and result ~= false then return true end
     local message = "SoftSpoken startup: " .. name .. ": " ..
@@ -38,10 +38,7 @@ function StartupController:Start(mode)
     if state ~= "pending" and state ~= "blocked" then
         return false, state
     end
-    -- DEV1 only establishes the startup boundary. Never skip migration
-    -- until DEV2/DEV3 supply an isolated, fully initialized storage backend.
-    if mode == "dev" then return false, "dev-storage-unavailable" end
-    if mode ~= "normal" then return false, "unknown-mode" end
+    if mode ~= "normal" and mode ~= "dev" then return false, "unknown-mode" end
     if Persistence.root or Persistence.character then
         SetState("failed", "storage-already-initialized")
         return false, reason
@@ -53,16 +50,18 @@ function StartupController:Start(mode)
         SetState("blocked", "upgrade-guard")
         return false, reason
     end
-    if not Run("Legacy migration", Persistence, "RecoverLegacy") then
+    if mode == "normal" and not Run("Legacy migration", Persistence, "RecoverLegacy") then
         SetState("blocked", "migration")
         return false, reason
     end
-    if not Run("Core", CoreController, "Initialize") then
+    if not Run("Core", CoreController, "Initialize", mode) then
         SetState("failed", "core")
         return false, reason
     end
-    local storiesReady = Run("Stories", VoiceOver and VoiceOver.StoriesAddon, "Initialize")
-    local placesReady = Run("Places", SpokenPlacesRuntime, "Initialize")
+    -- Explicit startup can occur after the first world entry. Consumers that
+    -- normally await that event must initialize their world-dependent work.
+    local storiesReady = Run("Stories", VoiceOver and VoiceOver.StoriesAddon, "Initialize", worldReady)
+    local placesReady = Run("Places", SpokenPlacesRuntime, "Initialize", worldReady)
     local writingsReady = Run("Writings", SpokenWritings, "Initialize")
     local coreReady = Run("Core finalization", CoreController, "FinalizeStartup")
     -- Import markers only describe imported data, not successful UI startup.
@@ -72,14 +71,21 @@ function StartupController:Start(mode)
         SetState("failed", "controllers")
         return false, reason
     end
-    SetState("running")
+    SetState(mode == "dev" and "dev" or "running")
     return true
 end
 
 local loader = CreateFrame("Frame")
 loader:RegisterEvent("PLAYER_LOGIN")
+loader:RegisterEvent("PLAYER_ENTERING_WORLD")
 loader:SetScript("OnEvent", function(_, firedEvent)
-    if (firedEvent or event) ~= "PLAYER_LOGIN" or loginReady then return end
+    local e = firedEvent or event
+    if e == "PLAYER_ENTERING_WORLD" then
+        worldReady = true
+        loader:UnregisterEvent("PLAYER_ENTERING_WORLD")
+        return
+    end
+    if e ~= "PLAYER_LOGIN" or loginReady then return end
     loader:UnregisterEvent("PLAYER_LOGIN")
     loginReady = true
     StartupController:Start("normal")
