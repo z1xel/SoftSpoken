@@ -17,4 +17,5 @@ jobs:
           lua5.1 tests/dev_persistence.lua existing
           lua5.1 tests/upgrade_guard.lua
           python3 tests/test_public_contracts.py
+          python3 tests/test_dev_storage_boundary.py
           python3 tests/test_persistence_lifecycle.py

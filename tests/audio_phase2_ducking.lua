@@ -179,4 +179,20 @@ for _,write in ipairs(writes) do
     assert(write.k=="MusicVolume" or write.k=="AmbienceVolume" or write.k=="SoundVolume")
 end
 eq(values.MasterVolume,.95);eq(values.MasterSoundEffects,1)
-print("audio_phase2_ducking.lua: upstream 3-category fade, self-channel, overrides, crash recovery passed")
+-- DEV cannot retain the recovery snapshot across a crash: no CVar writes.
+SpokenEnv.Persistence={mode="dev"}
+local before=#writes
+eq(mix:IsAvailable(),false)
+play("Master");step(2)
+mix:Lower("Master");mix:RefreshConfig();step(2)
+volumes(.73,.4,.5)
+eq(#writes,before,"DEV wrote a client CVar")
+eq(addon.db.global.LoweredVolumes,nil)
+addon.db.global.LoweredVolumes={SFX={original=.9,applied=.73}}
+mix:RestoreLeftovers()
+eq(#writes,before,"DEV restored a persistent CVar")
+eq(addon.db.global.LoweredVolumes.SFX.original,.9)
+events.script(events,"PLAYER_LOGOUT")
+finish();step(2)
+eq(#writes,before,"DEV logout wrote a client CVar")
+print("audio_phase2_ducking.lua: normal fade, recovery and DEV CVar isolation passed")

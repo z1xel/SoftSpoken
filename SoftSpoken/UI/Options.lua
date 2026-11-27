@@ -501,6 +501,8 @@ local function Build()
         layout:Checkbox(L.OPT_LOWER_OTHERS, L.OPT_LOWER_OTHERS_TIP,
             function() return lower().Enabled end,
             function(v) lower().Enabled = v and true or false end, applyLower)
+    elseif Persistence and Persistence.mode == "dev" then
+        layout:Note("DEV: Automatic volume ducking is unavailable without persistent crash recovery.", nil, 34)
     end
     layout:Slider(L.OPT_LINE_GAP, 0, 5, 0.25,
         function() return audio().LineGap or 0 end, function(v) audio().LineGap = v end,
@@ -604,6 +606,7 @@ local function Build()
         return GetBindingText(key) or key
     end
     local function Bind(name, key)
+        if Persistence and Persistence.mode == "dev" then return end
         if InCombatLockdown and InCombatLockdown() then
             if UIErrorsFrame then UIErrorsFrame:AddMessage(L.OPT_KEY_COMBAT, 1, 0.1, 0.1) end
             return
@@ -618,11 +621,12 @@ local function Build()
     end
     for _, binding in ipairs(BINDINGS) do
         local name, label = binding[1], binding[2]
-        layout:Key(label, function()
+        local row = layout:Key(label, function()
             local key = GetBindingKey and GetBindingKey(name)
             if not key then return "off", L.OPT_KEY_NONE end
             return "key", KeyText(key)
         end, function(key)
+            if Persistence and Persistence.mode == "dev" then return end
             -- A key the game or another addon uses already is asked about, not taken.
             local taken = key and GetBindingAction and GetBindingAction(key)
             if taken and taken ~= "" and taken ~= name then
@@ -632,6 +636,13 @@ local function Build()
             end
             Bind(name, key)
         end, L.OPT_KEY_SET_TIP, { press = L.OPT_KEY_PRESS })
+        if Persistence and Persistence.mode == "dev" then
+            Requires(row, function() return false end, "Game keybindings are read-only in DEV.")
+            layout:BlockInteraction(row)
+        end
+    end
+    if Persistence and Persistence.mode == "dev" then
+        layout:Note("DEV: Game keybindings are read-only. Changes would survive reload.", nil, 34)
     end
 
     -- One profile owns Core and every feature namespace.

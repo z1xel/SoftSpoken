@@ -292,3 +292,17 @@ eq(data:HasPendingModules(), true, "remaining pack pending")
 data:LoadPresentModules()
 eq(data:HasPendingModules(), false, "all selected packs loaded")
 eq(data:GetModule("DeferredPack") ~= nil, true, "remaining pack loaded")
+
+-- DEV must not change the client's enabled-addon list just to load a pack.
+SpokenEnv={Persistence={mode="dev"}}
+install("DEVDisabled","success",true,true)
+install("DEVEnabled","success",true,false)
+data:EnumerateAddons(false)
+local ok, why = data:LoadModule(data:GetPresentModule("DEVDisabled"))
+eq(ok,false);eq(why,"DISABLED")
+eq(enableCalls.DEVDisabled,nil,"DEV changed client addon enable flags")
+eq(loadCalls.DEVDisabled,nil,"DEV loaded client-disabled pack")
+eq(data:LoadModule(data:GetPresentModule("DEVEnabled")),true)
+eq(loadCalls.DEVEnabled,1)
+SpokenEnv=nil
+print("PASS: DEV preserves client addon-enable flags")

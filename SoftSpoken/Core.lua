@@ -283,6 +283,7 @@ end
 --- existing game/addon binding or a player's choice to remove it later.
 --- The key belongs to WoW's binding set; the one-time marker is account-wide.
 function CoreController:SeedCompendiumBinding()
+    if Persistence and Persistence.mode == "dev" then return end
     if not (self.db and self.db.global) or self.db.global.CompendiumKeySeeded then return end
     if not (GetBindingKey and GetBindingAction and SetBinding) then return end
     local existing = GetBindingAction("J")

@@ -71,9 +71,39 @@ startup/storage status. Core retains /compendium and does not replace the
 startup command. No state flag or setting is written to disk. DEV3's
 integrated test fixture now supplies the missing profile refresh collaborators.
 
+## DEV5 — persistence boundary audit
+
+Core and all three module adapters consume the same selected Persistence
+root/character; the real AceDB logout cleanup operates on registered table
+objects rather than global names. The migration and geography upgrade paths
+are normal-only; DEV has neither a migration ledger nor aliases to old data.
+The automated source audit scans first-party Lua for the saved-variable
+identifiers and reports native mutation call sites. The static check guards
+the unified globals and native importer against new callers outside the
+storage/migration boundary. This is not a proof against dynamic access or
+third-party code.
+
+Client-owned state is a separate boundary: automatic keybinding seeding and
+editing from SoftSpoken are disabled in DEV, as is audio ducking, since a crash
+cannot recover a transient CVar snapshot. Existing keybindings and narration
+still work. Stories can load already-enabled or already-registered voice packs,
+but will not automatically enable a client-disabled pack in DEV. Settings and
+discovery progress remain temporary. These restrictions leave normal behavior
+unchanged. Tests cover the actual ducking and pack loader code.
+
+Installation conflict guards deliberately retain their existing behavior:
+UpgradeGuard may disable obsolete full modules before login, and Stories may
+disable superseded players to prevent duplicate event handling. These alter
+the game's addon enable flags, not SoftSpoken's SavedVariables, and may
+precede DEV activation. Keep obsolete addon folders out of the test install.
+Other addons, native caches, user-initiated game settings changes and WoW's
+own serialization are outside the temporary database guarantee. A failed
+normal migration before entering DEV can retain a recovered legacy
+SpokenSettings copy under the existing D6B contract; DEV itself never performs
+that operation. The missing-importer failure does not reach that write.
+
 ## Remaining phases
 
-- DEV5: audit persistent globals and indirect aliases, including logout.
 - DEV6: session isolation, reload and ordinary migration regression tests.
 - DEV7: real Octo login/reload/logout and semantic comparison of existing
   SavedVariables; use a backup of WTF. The existing TOC remains unchanged.

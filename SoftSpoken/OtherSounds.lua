@@ -20,7 +20,14 @@ local SETTLE_SECONDS = 1.2
 -- Below this a difference is the CVar's own rounding, not the player moving a slider.
 local EPSILON = .005
 
+local function InDEV()
+    return Persistence and Persistence.mode == "dev"
+end
+
 local function Config()
+    -- These CVars can survive the game session. Without a durable recovery
+    -- snapshot a killed DEV client could leave the player's volumes lowered.
+    if InDEV() then return nil end
     local audio = CoreController.db and CoreController.db.profile and CoreController.db.profile.Audio
     return audio and audio.LowerOthers
 end
@@ -161,6 +168,7 @@ function OtherSounds:Targets(voice)
 end
 
 function OtherSounds:Lower(voice)
+    if InDEV() then return end
     if not self.lowered then
         self.lowered = true
         self.original, self.applied = {}, {}
@@ -238,6 +246,7 @@ end
 
 --- Volumes a previous session lowered and never put back: it ended without a logout.
 function OtherSounds:RestoreLeftovers()
+    if InDEV() then return end
     if not (CoreController.db and CoreController.db.global) then return end
     local leftover = CoreController.db.global.LoweredVolumes
     if self.lowered then return end

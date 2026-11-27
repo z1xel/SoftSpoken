@@ -539,6 +539,13 @@ function DataModules:LoadModule(module)
     -- just before the deferred LoadAddOn; never disable it afterward or poll pfUI.
     -- The already-registered Lua tables remain usable if its flag changes later.
     if SwitchedOff(module.AddonName) then
+        -- In DEV leave the client's persistent addon-enable flags alone.
+        -- Already registered or client-enabled packs remain usable.
+        local persistence = SpokenEnv and SpokenEnv.Persistence
+        if persistence and persistence.mode == "dev" then
+            self.loadErrors[module.AddonName] = "DISABLED"
+            return false, self.loadErrors[module.AddonName]
+        end
         if type(EnableAddOn) ~= "function" then
             self.loadErrors[module.AddonName] = "ENABLE_UNAVAILABLE"
             return false, self.loadErrors[module.AddonName]
