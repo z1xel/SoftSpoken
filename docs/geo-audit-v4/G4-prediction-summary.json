@@ -1,0 +1,33 @@
+{
+  "scan_sha256": "fc4268fea3b563933632c5feccb387d1ce2ad30fa72107e817afe2f7af2972c8",
+  "wmo_dbc_sha256": "7f65971f95a378c69bf3ccbaa93067ebb042329fd75082ab94829cd895da1864",
+  "verified_wmo_report_rows": 10472,
+  "native_context_rows": 1373,
+  "native_classifications": {
+    "native_area_candidate": 1271,
+    "native_context_review": 94,
+    "excluded_development_map": 8
+  },
+  "named_evidence_rows": 2019,
+  "named_map_name_pairs": 644,
+  "named_context_rows": 667,
+  "named_classifications": {
+    "root_name_hold": 304,
+    "group_name_same_area": 9,
+    "group_name_override_candidate": 134,
+    "group_name_terrain_context_needed": 164,
+    "group_name_reference_review": 42,
+    "ambiguous_dbc_key": 1,
+    "excluded_development_map": 13
+  },
+  "named_evidence_classifications": {
+    "root_name_hold": 327,
+    "group_name_terrain_context_needed": 557,
+    "group_name_same_area": 131,
+    "excluded_development_map": 18,
+    "group_name_override_candidate": 871,
+    "group_name_reference_review": 114,
+    "ambiguous_dbc_key": 1
+  },
+  "live_verified": 0
+}
