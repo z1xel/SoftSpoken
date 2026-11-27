@@ -44,6 +44,14 @@ Flags use zone-map bit 4, not equality with 4. Icon, importance and faction do n
 
 The conservative overlay audit counts an artwork-bearing overlay with a nonempty hit rectangle and exactly one matched lore target. It is an offline geometry estimate, not proof of native visibility, accessibility or unambiguous cursor selection. Five pending foreign-map catalog zones (2482, 2521, 2524, 2548, 2652) and their 61 subzone entries were removed from the catalog and coverage denominator. Ordinary runtime behavior stays unchanged until M5/M6.
 
+## M4 revision — suppress redundant static POIs
+
+All 193 matched positions remain in the offline audit (191 geographical associations). The generated Lua registry now contains only 149 positions for 147 associations. The generator excludes 44 positions whose resolved map/location identity has independent overlay geometry, including four city positions already served by existing overlay-based city resolution. Native POI behavior is unaffected.
+
+The broad coverage table above is intentionally unchanged: it describes available geometry, not runtime POI eligibility. A shared overlay does not necessarily provide a usable highlight. Whispering Forest (#2675, Tirisfal Glades) is the one additional retained association in the 'both' category: overlay #134 references AreaTable IDs 5029 (The Whispering Forest) and 5035 (The Remnants Camp). The current MapHighlight.UniqueArea guard rejects that mixed overlay. The filter therefore requires a single distinct nonzero AreaTable ID, valid artwork and a nonempty hit rectangle; it uses the resolved geographical identity, never the POI's associated AreaTable ID as a proxy.
+
+Both Aldrassil records, Northshire Abbey and both Cenarion Hold records remain. The CSVs record runtime_status per matched POI and runtime_poi per coverage association; summary.json reports counts separately. This is an offline DBC-based approximation of available interaction geometry, not a live client highlight test. No TOC or runtime resolver changes.
+
 ## Zone breakdown
 
 Map ID | Overlay only | POI only | Both | Neither

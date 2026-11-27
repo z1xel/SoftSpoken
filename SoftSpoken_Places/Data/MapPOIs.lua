@@ -2,65 +2,44 @@
 -- OctoWoW DBC-derived positions; no runtime activation.
 SSZMapPOIData = {
     [1411] = {
-        {kind="city", id=1454, x=0.451232177, y=0.041344678, poi=33},
         {kind="subzone", id="den", x=0.423720080, y=0.684377286, poi=32},
-        {kind="subzone", id="razor hill", x=0.526339484, y=0.424303533, poi=31},
         {kind="subzone", id="razorwind canyon", x=0.486343270, y=0.332303527, poi=913},
-        {kind="subzone", id="senjin village", x=0.559005245, y=0.745480836, poi=34},
         {kind="subzone", id="torkren farm", x=0.431188682, y=0.306958856, poi=929},
     },
     [1412] = {
-        {kind="city", id=1456, x=0.392895376, y=0.272259867, poi=29},
-        {kind="subzone", id="bloodhoof village", x=0.475503649, y=0.598832106, poi=28},
         {kind="subzone", id="camp narache", x=0.447986373, y=0.768925561, poi=30},
-        {kind="subzone", id="venture co mine", x=0.600313365, y=0.358706572, poi=1047},
     },
     [1413] = {
-        {kind="subzone", id="camp taurajo", x=0.448478985, y=0.586887684, poi=1469},
-        {kind="subzone", id="crossroads", x=0.520565767, y=0.306146160, poi=35},
         {kind="subzone", id="fray island", x=0.686064044, y=0.485625903, poi=1067},
         {kind="subzone", id="morshan base camp", x=0.467393780, y=0.085457169, poi=1512},
-        {kind="subzone", id="ratchet", x=0.622005192, y=0.379479739, poi=39},
         {kind="subzone", id="wailing caverns", x=0.459860223, y=0.362696758, poi=1068},
     },
     [1417] = {
         {kind="subzone", id="drywhisker gorge", x=0.822422211, y=0.367037475, poi=327},
         {kind="subzone", id="hammerfall", x=0.739352819, y=0.357599991, poi=25},
-        {kind="subzone", id="refuge pointe", x=0.461150029, y=0.465716671, poi=24},
         {kind="subzone", id="tower of arathor", x=0.179580573, y=0.685366628, poi=1014},
     },
     [1418] = {
-        {kind="subzone", id="angor fortress", x=0.433700534, y=0.303357497, poi=27},
         {kind="subzone", id="dustbelch grotto", x=0.074741775, y=0.862917074, poi=1028},
-        {kind="subzone", id="kargath", x=0.043220104, y=0.474474425, poi=26},
         {kind="subzone", id="uldaman", x=0.442283488, y=0.122067674, poi=1027},
     },
     [1420] = {
-        {kind="city", id=1458, x=0.619115907, y=0.659853961, poi=18},
-        {kind="subzone", id="brill", x=0.609664177, y=0.527020714, poi=2},
-        {kind="subzone", id="deathknell", x=0.319807488, y=0.649848977, poi=4},
         {kind="subzone", id="night webs hollow", x=0.266418831, y=0.594652287, poi=1016},
         {kind="subzone", id="whispering forest", x=0.182645656, y=0.616265560, poi=2675},
     },
     [1421] = {
-        {kind="subzone", id="sepulcher", x=0.435947614, y=0.413785727, poi=17},
         {kind="subzone", id="valgans field", x=0.522469046, y=0.270685730, poi=1703},
     },
     [1422] = {
         {kind="subzone", id="chillwind camp", x=0.427472078, y=0.853122264, poi=1307},
         {kind="subzone", id="scholomance", x=0.696762759, y=0.734120090, poi=710},
         {kind="subzone", id="uthers tomb", x=0.521439531, y=0.836332747, poi=709},
-        {kind="subzone", id="weeping cave", x=0.652627869, y=0.389671586, poi=1551},
     },
     [1423] = {
         {kind="subzone", id="browman mill", x=0.774606494, y=0.509838264, poi=1018},
         {kind="subzone", id="terrorweb tunnel", x=0.152029402, y=0.296240163, poi=1017},
     },
-    [1424] = {
-        {kind="subzone", id="tarren mill", x=0.614759365, y=0.200175317, poi=23},
-    },
     [1425] = {
-        {kind="subzone", id="aerie peak", x=0.143574029, y=0.479929253, poi=792},
         {kind="subzone", id="revantusk village", x=0.783249290, y=0.794854824, poi=1507},
         {kind="subzone", id="wildhammer keep", x=0.141376636, y=0.447942280, poi=1015},
     },
@@ -80,7 +59,6 @@ SSZMapPOIData = {
     },
     [1429] = {
         {kind="subzone", id="echo ridge mine", x=0.476844222, y=0.318410727, poi=949},
-        {kind="subzone", id="goldshire", x=0.424076018, y=0.665564903, poi=7},
         {kind="subzone", id="jasperlode mine", x=0.616942874, y=0.537857679, poi=1030},
         {kind="subzone", id="maclure vineyards", x=0.422451050, y=0.867890082, poi=950},
         {kind="subzone", id="mirror lake", x=0.310296650, y=0.626322496, poi=227},
@@ -97,22 +75,18 @@ SSZMapPOIData = {
     },
     [1431] = {
         {kind="subzone", id="darkshire", x=0.742214813, y=0.471127930, poi=3},
-        {kind="subzone", id="raven hill", x=0.193666671, y=0.575477973, poi=14},
         {kind="subzone", id="rolands doom", x=0.730855538, y=0.755183377, poi=1127},
     },
     [1432] = {
         {kind="subzone", id="algaz station", x=0.243970059, y=0.179546432, poi=1032},
-        {kind="subzone", id="thelsamar", x=0.350269868, y=0.468460183, poi=19},
     },
     [1433] = {
-        {kind="subzone", id="lakeshire", x=0.290505069, y=0.450777988, poi=10},
         {kind="subzone", id="renders rock", x=0.331309587, y=0.068456905, poi=956},
         {kind="subzone", id="rethban caverns", x=0.198941424, y=0.273329871, poi=1008},
         {kind="subzone", id="tower of ilgalar", x=0.805209103, y=0.487823993, poi=955},
     },
     [1434] = {
         {kind="subzone", id="booty bay", x=0.271685025, y=0.755623274, poi=40},
-        {kind="subzone", id="gromgol base camp", x=0.318918720, y=0.284344634, poi=41},
         {kind="subzone", id="janeiros point", x=0.235507162, y=0.707740797, poi=1031},
         {kind="subzone", id="spirit den", x=0.350895213, y=0.607086797, poi=1007},
         {kind="subzone", id="yojamba isle", x=0.152023522, y=0.165919468, poi=1588},
@@ -120,21 +94,16 @@ SSZMapPOIData = {
     [1435] = {
         {kind="subzone", id="misty reed post", x=0.815481203, y=0.806953962, poi=1683},
         {kind="subzone", id="stagalbog cave", x=0.660965706, y=0.773210420, poi=1012},
-        {kind="subzone", id="stonard", x=0.459758068, y=0.538115552, poi=788},
         {kind="subzone", id="temple of atalhakkar", x=0.699989143, y=0.529091176, poi=1013},
     },
     [1436] = {
         {kind="subzone", id="moonbrook", x=0.430428548, y=0.693031101, poi=12},
-        {kind="subzone", id="sentinel hill", x=0.568259990, y=0.473015029, poi=15},
     },
     [1437] = {
         {kind="subzone", id="dun algaz", x=0.479651378, y=0.741260806, poi=5},
-        {kind="subzone", id="dun modr", x=0.474191271, y=0.167742436, poi=6},
         {kind="subzone", id="grim batol", x=0.739697550, y=0.691911139, poi=1033},
-        {kind="subzone", id="menethil harbor", x=0.106127076, y=0.553208174, poi=11},
     },
     [1438] = {
-        {kind="city", id=1457, x=0.306399105, y=0.553812155, poi=38},
         {kind="subzone", id="aldrassil", x=0.590885893, y=0.403255928, poi=36},
         {kind="subzone", id="aldrassil", x=0.589650532, y=0.398276358, poi=907},
         {kind="subzone", id="banethil barrow den", x=0.443307296, y=0.579618439, poi=911},
@@ -143,19 +112,16 @@ SSZMapPOIData = {
         {kind="subzone", id="shadowthread cave", x=0.568239056, y=0.316773423, poi=908},
     },
     [1439] = {
-        {kind="subzone", id="auberdine", x=0.386216780, y=0.433741105, poi=798},
         {kind="subzone", id="blackwood den", x=0.445199988, y=0.850515044, poi=1048},
         {kind="subzone", id="cliffspring falls", x=0.550239686, y=0.334983764, poi=1050},
         {kind="subzone", id="wildbend river", x=0.415406096, y=0.750525555, poi=1049},
     },
     [1440] = {
-        {kind="subzone", id="astranaar", x=0.361107891, y=0.507964884, poi=42},
         {kind="subzone", id="bathrans haunt", x=0.322768604, y=0.219980440, poi=1233},
         {kind="subzone", id="bloodtooth camp", x=0.548860958, y=0.796201613, poi=1244},
         {kind="subzone", id="demon fall canyon", x=0.841211662, y=0.772805208, poi=1239},
         {kind="subzone", id="dordanil barrow den", x=0.759252769, y=0.753610403, poi=1241},
         {kind="subzone", id="falfarren river", x=0.680273011, y=0.635241626, poi=1235},
-        {kind="subzone", id="forest song", x=0.864890848, y=0.466364845, poi=1238},
         {kind="subzone", id="greenpaw village", x=0.545368471, y=0.619611036, poi=1243},
         {kind="subzone", id="ruins of ordilaran", x=0.315537394, y=0.306739525, poi=1232},
         {kind="subzone", id="silverwind refuge", x=0.501199139, y=0.661502424, poi=1242},
@@ -168,8 +134,6 @@ SSZMapPOIData = {
         {kind="subzone", id="zoramgar outpost", x=0.119625371, y=0.340995115, poi=1234},
     },
     [1441] = {
-        {kind="subzone", id="darkcloud pinnacle", x=0.337752255, y=0.381661800, poi=1108},
-        {kind="subzone", id="freewind post", x=0.457311357, y=0.507068711, poi=46},
         {kind="subzone", id="ironstone camp", x=0.677056781, y=0.641380217, poi=1114},
         {kind="subzone", id="mirage raceway", x=0.804497740, y=0.774801996, poi=1110},
         {kind="subzone", id="roguefeather den", x=0.273395456, y=0.511377854, poi=1109},
@@ -181,9 +145,6 @@ SSZMapPOIData = {
     },
     [1442] = {
         {kind="subzone", id="cragpool lake", x=0.644544700, y=0.473174577, poi=1228},
-        {kind="subzone", id="sishir canyon", x=0.552500833, y=0.729466327, poi=1227},
-        {kind="subzone", id="stonetalon peak", x=0.415302433, y=0.195067324, poi=44},
-        {kind="subzone", id="sun rock retreat", x=0.504823867, y=0.624610973, poi=701},
         {kind="subzone", id="talon den", x=0.358359918, y=0.255389054, poi=1231},
         {kind="subzone", id="talondeep path", x=0.752005651, y=0.476074828, poi=1230},
         {kind="subzone", id="windshear mine", x=0.715835825, y=0.613229423, poi=1229},
@@ -191,13 +152,10 @@ SSZMapPOIData = {
     [1443] = {
         {kind="subzone", id="bolgans hole", x=0.385630673, y=0.911978638, poi=1147},
         {kind="subzone", id="ghost walker post", x=0.555327935, y=0.559102845, poi=1149},
-        {kind="subzone", id="nijels point", x=0.650622919, y=0.083244653, poi=799},
         {kind="subzone", id="scrabblescrews camp", x=0.609498141, y=0.620415537, poi=1150},
-        {kind="subzone", id="shadowprey village", x=0.252547391, y=0.703800286, poi=795},
         {kind="subzone", id="valley of bones", x=0.604956144, y=0.901718154, poi=1151},
     },
     [1444] = {
-        {kind="subzone", id="camp mojache", x=0.751951081, y=0.437765068, poi=790},
         {kind="subzone", id="feathermoon stronghold", x=0.311500715, y=0.446400381, poi=796},
         {kind="subzone", id="rage scar hold", x=0.532766913, y=0.318570016, poi=1168},
         {kind="subzone", id="ruins of solarsal", x=0.262595694, y=0.536598989, poi=1169},
@@ -218,11 +176,9 @@ SSZMapPOIData = {
         {kind="subzone", id="shady rest inn", x=0.297177130, y=0.482942819, poi=1087},
         {kind="subzone", id="stonemaul ruins", x=0.446885696, y=0.660768567, poi=1093},
         {kind="subzone", id="swamplight manor", x=0.555904762, y=0.261754281, poi=1098},
-        {kind="subzone", id="theramore isle", x=0.650192336, y=0.470525688, poi=791},
         {kind="subzone", id="tidefury cove", x=0.588135231, y=0.647899984, poi=1092},
     },
     [1446] = {
-        {kind="subzone", id="gadgetzan", x=0.512081175, y=0.274815196, poi=789},
         {kind="subzone", id="uldum", x=0.372239123, y=0.817480469, poi=1107},
         {kind="subzone", id="wavestrider beach", x=0.675392748, y=0.395315260, poi=1106},
     },
@@ -236,7 +192,6 @@ SSZMapPOIData = {
     [1448] = {
         {kind="subzone", id="bloodvenom post", x=0.346968695, y=0.527309169, poi=1220},
         {kind="subzone", id="irontree cavern", x=0.558725213, y=0.169946221, poi=1219},
-        {kind="subzone", id="talonbranch glade", x=0.620638255, y=0.241129790, poi=2619},
         {kind="subzone", id="timbermaw hold", x=0.650321721, y=0.082317538, poi=1218},
     },
     [1449] = {
@@ -265,7 +220,6 @@ SSZMapPOIData = {
     },
     [1452] = {
         {kind="subzone", id="dun mandarr", x=0.590231000, y=0.594613085, poi=1214},
-        {kind="subzone", id="everlook", x=0.612088738, y=0.382367189, poi=794},
         {kind="subzone", id="moon horror den", x=0.607732376, y=0.297953034, poi=1217},
         {kind="subzone", id="ruins of keltheril", x=0.561735250, y=0.445050372, poi=1213},
         {kind="subzone", id="timbermaw hold", x=0.279085908, y=0.344936898, poi=1212},
