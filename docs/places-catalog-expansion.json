@@ -3702,6 +3702,149 @@
       "id": "karfang_retreat",
       "name": "Karfang Retreat",
       "key": "karfang retreat"
+    },
+    {
+      "mid": 105023,
+      "name": "Fort Valiance",
+      "key": "fort valiance",
+      "id": "sunnyglade_valley.fort_valiance",
+      "poi": 1871,
+      "poiVariants": [
+        1871,
+        1872,
+        1873,
+        1874,
+        1875
+      ],
+      "parent": "sunnyglade_valley"
+    },
+    {
+      "mid": 105023,
+      "name": "Gladeshire Tower",
+      "key": "gladeshire tower",
+      "id": "sunnyglade_valley.gladeshire_tower",
+      "poi": 1861,
+      "poiVariants": [
+        1861,
+        1862,
+        1863,
+        1864,
+        1865
+      ],
+      "parent": "sunnyglade_valley"
+    },
+    {
+      "mid": 105023,
+      "name": "Gol'Dregar Tower",
+      "key": "goldregar tower",
+      "id": "sunnyglade_valley.goldregar_tower",
+      "poi": 1866,
+      "poiVariants": [
+        1866,
+        1867,
+        1868,
+        1869,
+        1870
+      ],
+      "parent": "sunnyglade_valley"
+    },
+    {
+      "mid": 1459,
+      "name": "Dun Baldar North Bunker",
+      "key": "dun baldar north bunker",
+      "id": "alterac_valley.dun_baldar_north_bunker",
+      "poi": 1250,
+      "poiVariants": [
+        1250,
+        1352,
+        1353,
+        1354
+      ],
+      "parent": "alterac_valley"
+    },
+    {
+      "mid": 1459,
+      "name": "Dun Baldar South Bunker",
+      "key": "dun baldar south bunker",
+      "id": "alterac_valley.dun_baldar_south_bunker",
+      "poi": 1249,
+      "poiVariants": [
+        1249,
+        1355,
+        1356,
+        1357
+      ],
+      "parent": "alterac_valley"
+    },
+    {
+      "mid": 1459,
+      "name": "East Frostwolf Tower",
+      "key": "east frostwolf tower",
+      "id": "alterac_valley.east_frostwolf_tower",
+      "poi": 1255,
+      "poiVariants": [
+        1255,
+        1362,
+        1363,
+        1364
+      ],
+      "parent": "alterac_valley"
+    },
+    {
+      "mid": 1459,
+      "name": "Frostwolf Relief Hut",
+      "key": "frostwolf relief hut",
+      "id": "alterac_valley.frostwolf_relief_hut",
+      "poi": 1351,
+      "poiVariants": [
+        1351,
+        1371,
+        1372,
+        1373
+      ],
+      "parent": "alterac_valley"
+    },
+    {
+      "mid": 1459,
+      "name": "Iceblood Tower",
+      "key": "iceblood tower",
+      "id": "alterac_valley.iceblood_tower",
+      "poi": 1252,
+      "poiVariants": [
+        1252,
+        1377,
+        1378,
+        1379
+      ],
+      "parent": "alterac_valley"
+    },
+    {
+      "mid": 1459,
+      "name": "Stormpike Aid Station",
+      "key": "stormpike aid station",
+      "id": "alterac_valley.stormpike_aid_station",
+      "poi": 1348,
+      "poiVariants": [
+        1348,
+        1395,
+        1396,
+        1397
+      ],
+      "parent": "alterac_valley"
+    },
+    {
+      "mid": 1459,
+      "name": "West Frostwolf Tower",
+      "key": "west frostwolf tower",
+      "id": "alterac_valley.west_frostwolf_tower",
+      "poi": 1527,
+      "poiVariants": [
+        1527,
+        1528,
+        1529,
+        1530
+      ],
+      "parent": "alterac_valley"
     }
   ],
   "newEntities": [
@@ -3754,6 +3897,66 @@
       "name": "Stillshire Hamlet",
       "parent": "sunnyglade_valley",
       "kind": "subzone"
+    },
+    {
+      "id": "sunnyglade_valley.fort_valiance",
+      "name": "Fort Valiance",
+      "parent": "sunnyglade_valley",
+      "kind": "landmark"
+    },
+    {
+      "id": "sunnyglade_valley.gladeshire_tower",
+      "name": "Gladeshire Tower",
+      "parent": "sunnyglade_valley",
+      "kind": "landmark"
+    },
+    {
+      "id": "sunnyglade_valley.goldregar_tower",
+      "name": "Gol'Dregar Tower",
+      "parent": "sunnyglade_valley",
+      "kind": "landmark"
+    },
+    {
+      "id": "alterac_valley.dun_baldar_north_bunker",
+      "name": "Dun Baldar North Bunker",
+      "parent": "alterac_valley",
+      "kind": "landmark"
+    },
+    {
+      "id": "alterac_valley.dun_baldar_south_bunker",
+      "name": "Dun Baldar South Bunker",
+      "parent": "alterac_valley",
+      "kind": "landmark"
+    },
+    {
+      "id": "alterac_valley.east_frostwolf_tower",
+      "name": "East Frostwolf Tower",
+      "parent": "alterac_valley",
+      "kind": "landmark"
+    },
+    {
+      "id": "alterac_valley.frostwolf_relief_hut",
+      "name": "Frostwolf Relief Hut",
+      "parent": "alterac_valley",
+      "kind": "landmark"
+    },
+    {
+      "id": "alterac_valley.iceblood_tower",
+      "name": "Iceblood Tower",
+      "parent": "alterac_valley",
+      "kind": "landmark"
+    },
+    {
+      "id": "alterac_valley.stormpike_aid_station",
+      "name": "Stormpike Aid Station",
+      "parent": "alterac_valley",
+      "kind": "landmark"
+    },
+    {
+      "id": "alterac_valley.west_frostwolf_tower",
+      "name": "West Frostwolf Tower",
+      "parent": "alterac_valley",
+      "kind": "landmark"
     }
   ],
   "held": [
