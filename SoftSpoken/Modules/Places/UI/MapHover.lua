@@ -126,7 +126,7 @@ function MapHover.Setup()
     if not (WorldMapFrame and WorldMapButton and MapCompat and SubzoneClick) then return false end
     local driver = CreateFrame('Frame', nil, WorldMapFrame)
     driver:SetScript('OnUpdate', function(self, elapsed)
-        if Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones") then return end
+        if Spoken and Spoken.IsPartOn and not Spoken:IsPartOn("zones") then Hide(); return end
         state.elapsed = state.elapsed + (elapsed or arg1 or 0)
         if state.elapsed < TICK then return end
         state.elapsed = 0

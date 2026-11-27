@@ -4,6 +4,7 @@
     <Include file="Data\Subzones.lua"/>
     <Include file="Data\Pictures.lua"/>
     <Include file="Data\OverlayOwners.lua"/>
+    <Include file="Data\MapPOIs.lua"/>
     <Include file="Runtime.lua"/>
     <Include file="Settings.lua"/>
     <Include file="Audio.lua"/>
@@ -15,6 +16,7 @@
     <Include file="UI\Pictures.lua"/>
     <Include file="UI\LoreWindow.lua"/>
     <Include file="UI\AudioButton.lua"/>
+    <Include file="UI\StaticPOI.lua"/>
     <Include file="UI\MapCompat.lua"/>
     <Include file="UI\MapPanel.lua"/>
     <Include file="UI\SubzoneClick.lua"/>

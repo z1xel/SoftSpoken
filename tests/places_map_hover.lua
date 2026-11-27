@@ -154,3 +154,107 @@ settings.compendiumUnlockUndiscovered=false
 hover.Update()
 eq(tip.shown,false,"locking hides current tooltip")
 print("PASS: named map locations resolve for hover and click independently of overlay artwork; reader locks and compact text verified")
+
+-- G6.3/4: the very same hover/click resolver, with synthetic static positions.
+-- The old test above must pass with static data absent.
+dofile(P.."UI/StaticPOI.lua")
+local registry=SpokenEnv.Locations
+local abbey=assert(registry:ResolveLegacyPlace(1429,"northshire abbey"))
+local valley=assert(registry:ResolveLegacyPlace(1429,"northshire valley"))
+local rows={{kind="subzone",id="northshire abbey",location=abbey,x=.5,y=.5,poi=1}}
+SpokenEnv.SSZMapPOIData={[1429]=rows}
+local w,h,scale=1000,600,1
+WorldMapButton.GetWidth=function() return w end
+WorldMapButton.GetHeight=function() return h end
+WorldMapButton.GetEffectiveScale=function() return scale end
+settings.compendiumUnlockUndiscovered=true
+nativeName="Elwynn Forest"; preciseName=nil; visibleName=nil; WorldMapFrame.areaName=nil
+poiName=nil
+expect("Northshire Abbey","static-poi","static fallback")
+eq(click.HandleClick(.5,.5),true,"static click uses same target")
+local count=clicks
+eq(next(found),nil,"static hover/click never discover")
+
+local function methodAt(x,y)
+    local _,_,m=compat.ResolveAt(1429,x,y)
+    return m
+end
+eq(methodAt(.511,.5),"static-poi","11 physical pixels horizontally")
+eq(methodAt(.513,.5),nil,"13 physical pixels horizontally")
+eq(methodAt(.5,.518),"static-poi","10.8 physical pixels vertically")
+eq(methodAt(.5,.522),nil,"13.2 physical pixels vertically")
+scale=2
+eq(methodAt(.5055,.5),"static-poi","11 physical pixels after scale")
+eq(methodAt(.5065,.5),nil,"13 physical pixels after scale")
+scale=1
+w=500; h=300
+eq(methodAt(.522,.5),"static-poi","11 physical pixels after resize")
+eq(methodAt(.526,.5),nil,"13 physical pixels after resize")
+w=1000;h=600
+-- Invalid frame or coordinates cannot resolve.
+scale=0;eq(methodAt(.5,.5),nil,"invalid frame scale");scale=1
+eq(methodAt(-.1,.5),nil,"outside map")
+eq(methodAt(0/0,.5),nil,"nonfinite cursor")
+
+-- Duplicate physical positions of one contextual key are harmless; near
+-- competing keys must not be selected by iteration order.
+rows[2]={kind="subzone",id="northshire abbey",location=abbey,x=.506,y=.5,poi=2}
+eq(methodAt(.503,.5),"static-poi","same target multiple positions")
+rows[3]={kind="subzone",id="northshire valley",location=valley,x=.516,y=.5,poi=3}
+eq(methodAt(.511,.5),"static-poi-ambiguous","equal distance distinct targets")
+eq(hover.Resolve(.511,.5),nil,"ambiguity no tooltip")
+eq(click.HandleClick(.511,.5),false,"ambiguity no reader")
+eq(methodAt(.507,.5),"static-poi","clearly closer target wins")
+rows[3]=nil;rows[2]=nil
+-- Native and overlay paths retain priority even at exact static center.
+nativeName="Northshire Valley"
+local k,id,source=compat.ResolveAt(1429,.5,.5)
+eq(k,"subzone","native kind");eq(id,"northshire valley","native wins");eq(source,"native","native method")
+nativeName="Unmapped Landmark";eq(methodAt(.5,.5),"native-unmapped","unknown native blocks static")
+nativeName="Elwynn Forest";preciseName="Northshire Valley"
+k,id,source=compat.ResolveAt(1429,.5,.5)
+eq(id,"northshire valley","precise wins");eq(source,"precise","precise method")
+preciseName="Unmapped Precise Landmark";eq(methodAt(.5,.5),"native-unmapped","unknown precise blocks static")
+preciseName=nil
+poiName="Northshire Valley"
+k,id,source=compat.ResolveAt(1429,.5,.5,hover.HoveredPOI())
+eq(id,"northshire valley","native button wins");eq(source,"poi","native button method")
+poiName="Unknown POI";eq(click.HandleClick(.5,.5),false,"unknown native button blocks click")
+poiName=nil
+local originalAreaAt=compat.AreaAt
+compat.AreaAt=function() return "Northshire Valley",SSZLore.subzones[1429]["northshire valley"],"northshire valley" end
+k,id,source=compat.ResolveAt(1429,.5,.5)
+eq(id,"northshire valley","owned overlay wins");eq(source,"overlay","overlay method")
+compat.AreaAt=originalAreaAt
+
+-- Reject stale bindings and unsupported scopes, with no fallback target.
+rows[1].location="not_a_canonical_identity";eq(methodAt(.5,.5),nil,"retired target")
+rows[1].location=valley;eq(methodAt(.5,.5),nil,"wrong canonical binding")
+rows[1].location=abbey
+local scope=registry.scope;registry.scope="other";eq(methodAt(.5,.5),nil,"wrong client scope");registry.scope=scope
+settings.compendiumUnlockUndiscovered=false
+eq(hover.Resolve(.5,.5),nil,"static lock hides hover")
+eq(click.HandleClick(.5,.5),false,"static lock blocks click")
+found["northshire abbey"]=true
+expect("Northshire Abbey","static-poi","discovered static target")
+found["northshire abbey"]=nil
+settings.compendiumUnlockUndiscovered=true
+click.MouseDown("LeftButton",.48,.5)
+eq(click.MouseUp("LeftButton",.5,.5),false,"map drag does not select static target")
+click.MouseDown("LeftButton",.5,.5)
+eq(click.MouseUp("LeftButton",.5,.5),true,"stationary static click")
+click.MouseDown("LeftButton",.5,.5);zone=0
+eq(click.MouseUp("LeftButton",.5,.5),false,"map changed during click")
+eq(hover.Resolve(.5,.5),nil,"no static hover on continent")
+zone=1
+settings.showMapPanel=false
+eq(click.HandleClick(.5,.5),false,"disabled panel click")
+eq(hover.Resolve(.5,.5),nil,"disabled panel hover")
+settings.showMapPanel=true
+Spoken={IsPartOn=function() return false end}
+eq(methodAt(.5,.5),nil,"disabled Places static lookup")
+eq(click.HandleClick(.5,.5),false,"disabled Places click")
+eq(hover.Resolve(.5,.5),nil,"disabled Places hover")
+Spoken=nil
+eq(next(found),nil,"no static discovery writes")
+print("PASS: G6 static POI scale, precedence, overlap, locks, drag, scope and shared hover/click")

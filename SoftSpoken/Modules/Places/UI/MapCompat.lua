@@ -102,7 +102,7 @@ end
 
 -- ClassicAPI provides overlay art coordinates for highlighting and a
 -- conservative fallback. Native map names and clickable POIs select lore.
--- No manually defined hotspots or changes to the displayed map.
+-- Static POI fallback is restricted to reviewed canonical positions; no map changes.
 local overlayCache = { key = nil, overlays = nil }
 local MAP_ART_WIDTH, MAP_ART_HEIGHT = 1002, 668  -- 1.12 WorldMapOverlay DBC coordinates
 
@@ -425,6 +425,9 @@ function MapCompat.ResolveAt(mapID, x, y, poiName)
         if place then return "subzone", place.key, "precise" end
         local city = CityByName(mapID, exactName)
         if city then return "city", city, "precise" end
+        if Normalise(exactName) ~= Normalise(MapCompat.Name(mapID)) then
+            return nil, nil, "native-unmapped"
+        end
     end
 
     -- The client may identify child CITY maps at a coordinate. This call
@@ -444,13 +447,14 @@ function MapCompat.ResolveAt(mapID, x, y, poiName)
     -- Do not return a city if another owned overlay identifies a distinct area.
     local _, info, continent, zoneIndex = MapCompat.GetDisplayedMapID()
     local overlays = GetOverlays(continent, zoneIndex, info)
-    local city, mixed = nil, false
+    local city, mixed, ownedHit = nil, false, false
     if overlays then
         for _, overlay in ipairs(overlays) do
             local l,t,r,b = OverlayRectangle(overlay)
             if l and x >= l and x <= r and y >= t and y <= b then
                 local name, areaID = MapCompat.OverlayOwner(overlay)
                 if areaID then
+                    ownedHit = true
                     local location = R.NativeAreaLocation(areaID)
                     local match = CityByLocation(mapID, location)
                     if not R.Registry() then match = CityByName(mapID, name) end
@@ -471,5 +475,11 @@ function MapCompat.ResolveAt(mapID, x, y, poiName)
     -- its matching lore area is unique: never display a choice popup.
     local _, entry, key = MapCompat.AreaAt(mapID, x, y)
     if entry and key then return "subzone", key, "overlay" end
+    -- An owned rectangle that could not select one target is not permission
+    -- to guess a nearby static marker. Preserve native/overlay precedence.
+    if ownedHit then return nil, nil, "overlay-unresolved" end
+    if SSZStaticPOI and SSZStaticPOI.ResolveAt then
+        return SSZStaticPOI.ResolveAt(mapID,x,y,WorldMapButton)
+    end
     return nil
 end

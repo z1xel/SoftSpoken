@@ -49,6 +49,8 @@ function MapHighlight.Target(x, y)
     -- to illuminate. Otherwise the rectangle can highlight a neighbor.
     local kind, nativeKey, resolution = MapCompat.ResolveAt(mapID, x, y)
     if resolution == 'native-unmapped' or resolution == 'poi-unmapped' or
+        resolution == 'overlay-unresolved' or resolution == 'static-poi' or
+        resolution == 'static-poi-ambiguous' or
         kind == 'city' then return nil end
     local _, entry, key, overlay = MapCompat.AreaAt(mapID, x, y,
         kind == 'subzone' and nativeKey or nil)
