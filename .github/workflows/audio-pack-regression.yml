@@ -225,6 +225,8 @@ jobs:
         run: lua5.1 tests/places_zone_portrait_emblems.lua
       - name: Check Places map-panel breadcrumbs and subzone selection
         run: lua5.1 tests/places_map_panel_names.lua
+      - name: Check named map locations without highlight artwork
+        run: lua5.1 tests/places_map_hover.lua
       - name: Check Stories faction crests and portrait fallbacks
         run: lua5.1 tests/stories_faction_crest.lua
       - name: Check Stories shared speaker resolution
