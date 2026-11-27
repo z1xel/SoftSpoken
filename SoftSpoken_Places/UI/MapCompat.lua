@@ -184,12 +184,6 @@ local function PreciseArea(mapID, x, y)
 end
 MapCompat.PreciseArea = PreciseArea
 
-local function HasZoneSubzone(mapID, key)
-    local lore = SSZLore
-    local subs = lore and lore.subzones and lore.subzones[mapID]
-    return subs and subs[key]
-end
-
 local function OverlayRectangle(o)
     if type(o) ~= "table" then return nil end
     local r = type(o.hitRect) == "table" and o.hitRect or o
@@ -208,30 +202,99 @@ local function OverlayRectangle(o)
 end
 MapCompat.OverlayRectangle = OverlayRectangle
 
--- A map-art overlay can list several areas. Never guess among them.
-local function OverlayEntries(mapID, o)
-    if not (C_Map and C_Map.GetAreaInfo) then return {} end
-    local ids = {}
-    if type(o.areaIDs) == "table" then
-        for _, id in pairs(o.areaIDs) do
-            if type(id) == "number" and id > 0 then ids[id] = true end
-        end
-    end
-    if type(o.areaID) == "number" and o.areaID > 0 then ids[o.areaID] = true end
-    local results, seen = {}, {}
-    for areaID in pairs(ids) do
-        local ok, name = pcall(C_Map.GetAreaInfo, areaID)
-        if ok and type(name) == "string" and name ~= "" then
-            local key = Normalise(name)
-            local entry = HasZoneSubzone(mapID, key)
-            if entry and not seen[key] then
-                seen[key] = true
-                table.insert(results, { name=entry.name or name, key=key,
-                                        entry=entry, overlay=o })
+-- The exploration texture belongs to one area, not every area that reveals it.
+-- Generated shared sets are a fallback for clients that omit the texture name.
+-- Live texture names also handle client-specific extra area associations.
+local OVERLAY_ALIASES = { ravenhillcemetary="ravenhillcemetery", thelganrock="thelgenrock" }
+
+local function CompactName(name)
+    local key = Normalise(name)
+    return (string.gsub(key, "[^a-z0-9]", ""))
+end
+
+local function TextureStem(path, tile)
+    if type(path) ~= "string" or path == "" then return nil end
+    local file = string.gsub(path, "^.*[/\\]", "")
+    file = string.gsub(file, "%.[bB][lL][pP]$", "")
+    file = string.gsub(file, "%.[tT][gG][aA]$", "")
+    if tile then file = string.gsub(file, "%d+$", "") end
+    local stem = CompactName(file)
+    if stem ~= "" then return stem end
+end
+
+local function OverlayTexture(o)
+    local stem = TextureStem(o.textureName, false)
+    if stem then return stem end
+    if type(o.tiles) ~= "table" then return nil end
+    for _, tile in ipairs(o.tiles) do
+        if type(tile) == "table" then
+            local value = TextureStem(tile.file, true)
+            if value then
+                if stem and stem ~= value then return nil, true end
+                stem = value
             end
         end
     end
-    return results
+    return stem
+end
+
+function MapCompat.OverlayOwner(o)
+    if type(o) ~= "table" or not (C_Map and C_Map.GetAreaInfo) then return nil end
+    local ids, seen = {}, {}
+    local function Add(id)
+        if type(id) == "number" and id > 0 and not seen[id] then
+            seen[id] = true
+            table.insert(ids, id)
+        end
+    end
+    if type(o.areaIDs) == "table" then
+        for _, id in pairs(o.areaIDs) do Add(id) end
+    end
+    Add(o.areaID)
+    table.sort(ids)
+    local signature = {}
+    for _, id in ipairs(ids) do table.insert(signature, tostring(id)) end
+    local known = SSZOverlayOwners and SSZOverlayOwners[table.concat(signature, ",")]
+    local stem, conflicting = OverlayTexture(o)
+    if conflicting then return nil end
+    if not stem and known then stem = known.texture end
+    if stem == "monastary" then return nil end
+    if table.getn(ids) == 0 then return nil end
+
+    local names = {}
+    for _, id in ipairs(ids) do
+        local ok, name = pcall(C_Map.GetAreaInfo, id)
+        if not ok or type(name) ~= "string" or name == "" then return nil end
+        names[id] = name
+    end
+    if table.getn(ids) == 1 then return names[ids[1]], ids[1] end
+    if not stem then return nil end
+
+    stem = OVERLAY_ALIASES[stem] or stem
+    local function Match(key)
+        local owner, count = nil, 0
+        for _, id in ipairs(ids) do
+            if CompactName(names[id]) == key then owner, count = id, count + 1 end
+        end
+        return owner, count
+    end
+    local owner, count = Match(stem)
+    if count == 0 and string.sub(stem, 1, 3) == "the" then
+        owner, count = Match(string.sub(stem, 4))
+    end
+    if count == 1 then
+        -- A generated unresolved record is not allowed to gain an owner by
+        -- guessing when live data supplies no independent texture evidence.
+        if known and not OverlayTexture(o) and known.owner ~= owner then return nil end
+        return names[owner], owner
+    end
+end
+
+local function OverlayEntries(mapID, o)
+    local name = MapCompat.OverlayOwner(o)
+    local place = name and PlaceByName(mapID, name)
+    if not place then return {} end
+    return {{ name=place.name, entry=place.entry, key=place.key, overlay=o }}
 end
 
 local function GetOverlays(continent, zone, info)
@@ -367,7 +430,7 @@ function MapCompat.ResolveAt(mapID, x, y, poiName)
     end
 
     -- Overlay geometry: city art can be identified exactly by its area name.
-    -- Do not return a city if an independent lore subzone shares the hitbox.
+    -- Do not return a city if another owned overlay identifies a lore subzone.
     local _, info, continent, zoneIndex = MapCompat.GetDisplayedMapID()
     local overlays = GetOverlays(continent, zoneIndex, info)
     local city, mixed = nil, false
@@ -375,27 +438,14 @@ function MapCompat.ResolveAt(mapID, x, y, poiName)
         for _, overlay in ipairs(overlays) do
             local l,t,r,b = OverlayRectangle(overlay)
             if l and x >= l and x <= r and y >= t and y <= b then
-                local ids = {}
-                if type(overlay.areaIDs) == "table" then
-                    for _, id in pairs(overlay.areaIDs) do
-                        if type(id) == "number" and id > 0 then ids[id] = true end
-                    end
-                end
-                if type(overlay.areaID) == "number" and overlay.areaID > 0 then
-                    ids[overlay.areaID] = true
-                end
-                for id in pairs(ids) do
-                    if C_Map and C_Map.GetAreaInfo then
-                        local ok, name = pcall(C_Map.GetAreaInfo, id)
-                        if ok and type(name) == "string" then
-                            local match = CityByName(mapID, name)
-                            if match then
-                                if city and city ~= match then mixed = true end
-                                city = match
-                            elseif PlaceByName(mapID, name) then
-                                mixed = true
-                            end
-                        end
+                local name = MapCompat.OverlayOwner(overlay)
+                if name then
+                    local match = CityByName(mapID, name)
+                    if match then
+                        if city and city ~= match then mixed = true end
+                        city = match
+                    elseif PlaceByName(mapID, name) then
+                        mixed = true
                     end
                 end
             end

@@ -1,6 +1,6 @@
 # Places map POIs — M3/M4 offline audit
 
-This is staged data only. MapPOIs.lua is deliberately absent from the TOC; no change to map, discovery, tooltip or click runtime. Source DBCs are not committed.
+POI positions remain staged: MapPOIs.lua is deliberately absent from the TOC. Shared overlay ownership is active in the map resolver and highlighter. Source DBCs are not committed.
 
 Reproduce from the main checkout (Python 3, standard library):
 
@@ -8,7 +8,7 @@ Reproduce from the main checkout (Python 3, standard library):
 python scripts/generate_map_pois.py --dbc-dir /path/to/extracted/dbc --repo . --out /tmp/softspoken-poi
 ```
 
-Compare the generated MapPOIs.lua with SoftSpoken_Places/Data/MapPOIs.lua. The output directory also contains the full per-record classification, mapped positions, per-association coverage CSV and summary JSON.
+Compare the generated MapPOIs.lua and OverlayOwners.lua with the corresponding files under SoftSpoken_Places/Data/. The output directory also contains the full per-record classification, mapped positions, per-association coverage CSV, shared overlay ownership CSV and summary JSON.
 
 ## Input fingerprints (SHA-256)
 
@@ -32,69 +32,65 @@ Catalog after removal of five pending foreign-map entries: 49 zone entries, 817 
 
 Flags use zone-map bit 4, not equality with 4. Icon, importance and faction do not filter static records. Duplicate native IDs are audited; the 12 repeated IDs (2749–2760) occur in dynamic records. Distinct positions survive for the same lore identity. Both Aldrassil positions and both Cenarion Hold positions are included. Slaughter Hollow (#247) is held because its position is outside its matching zone map. No alias or artificial coordinates were added.
 
-## Coverage
+## Coverage and overlay ownership
 
 | Geometry | Associations |
 | --- | ---: |
-| overlay only | 417 |
-| POI only | 146 |
-| both | 45 |
-| neither | 215 |
+| overlay only | 452 |
+| POI only | 138 |
+| both | 53 |
+| neither | 180 |
 | total | 823 |
 
-The conservative overlay audit counts an artwork-bearing overlay with a nonempty hit rectangle and exactly one matched lore target. It is an offline geometry estimate, not proof of native visibility, accessibility or unambiguous cursor selection. Five pending foreign-map catalog zones (2482, 2521, 2524, 2548, 2652) and their 61 subzone entries were removed from the catalog and coverage denominator. Ordinary runtime behavior stays unchanged until M5/M6.
+The overlay audit requires nonempty artwork and hit rectangles. A single-area overlay belongs to its associated area; a shared overlay belongs to the unique normalized texture-name match (with the reviewed RAVENHILLCEMETARY and THELGANROCK spelling aliases). 51 of 52 shared overlays resolve; MONASTARY is suppressed. Overlay ownership describes artwork, not geographical containment.
 
-## M4 revision — suppress redundant static POIs
+All 193 matched positions remain in the offline audit. The staged POI registry now contains 140 positions for 138 map/location associations: 53 positions are covered by owned overlays. Nine formerly retained records are now covered: Hammerfall, Whispering Forest, Anvilmar, Kharanos, Darkshire, Booty Bay, Moonbrook, Grim Batol and Twilight Base Camp. Aldrassil's two positions remain; its containing Shadowglen owns SHADOWGLEN.
 
-All 193 matched positions remain in the offline audit (191 geographical associations). The generated Lua registry now contains only 149 positions for 147 associations. The generator excludes 44 positions whose resolved map/location identity has independent overlay geometry, including four city positions already served by existing overlay-based city resolution. Native POI behavior is unaffected.
-
-The broad coverage table above is intentionally unchanged: it describes available geometry, not runtime POI eligibility. A shared overlay does not necessarily provide a usable highlight. Whispering Forest (#2675, Tirisfal Glades) is the one additional retained association in the 'both' category: overlay #134 references AreaTable IDs 5029 (The Whispering Forest) and 5035 (The Remnants Camp). The current MapHighlight.UniqueArea guard rejects that mixed overlay. The filter therefore requires a single distinct nonzero AreaTable ID, valid artwork and a nonempty hit rectangle; it uses the resolved geographical identity, never the POI's associated AreaTable ID as a proxy.
-
-Both Aldrassil records, Northshire Abbey and both Cenarion Hold records remain. The CSVs record runtime_status per matched POI and runtime_poi per coverage association; summary.json reports counts separately. This is an offline DBC-based approximation of available interaction geometry, not a live client highlight test. No TOC or runtime resolver changes.
+OverlayOwners.lua is generated alongside MapPOIs.lua. The TOC loads only OverlayOwners.lua; MapPOIs.lua remains inactive until M5/M6. Shared map resolution and highlight selection use the same owner. Native POIs, native names, discovery gating and overlap protection retain precedence. The live texture stem is preferred; the generated shared area-set table supplies a fallback when texture metadata is absent. Unknown or ambiguous shared ownership is suppressed.
 
 ## Zone breakdown
 
 Map ID | Overlay only | POI only | Both | Neither
 --- | ---: | ---: | ---: | ---:
-1411 | 7 | 3 | 3 | 14
-1412 | 10 | 1 | 3 | 8
+1411 | 8 | 3 | 3 | 13
+1412 | 11 | 1 | 3 | 7
 1413 | 18 | 3 | 3 | 7
 1416 | 5 | 0 | 0 | 2
-1417 | 14 | 3 | 1 | 1
-1418 | 10 | 2 | 2 | 3
+1417 | 14 | 2 | 2 | 1
+1418 | 12 | 2 | 2 | 1
 1419 | 7 | 0 | 0 | 0
 1420 | 12 | 1 | 4 | 14
-1421 | 11 | 1 | 1 | 9
+1421 | 14 | 1 | 1 | 6
 1422 | 12 | 3 | 1 | 1
 1423 | 22 | 2 | 0 | 4
 1424 | 10 | 0 | 1 | 13
 1425 | 13 | 2 | 1 | 5
-1426 | 15 | 5 | 0 | 6
+1426 | 16 | 3 | 2 | 5
 1427 | 7 | 1 | 0 | 3
 1428 | 9 | 2 | 0 | 1
-1429 | 8 | 8 | 1 | 7
-1430 | 2 | 4 | 0 | 3
-1431 | 10 | 2 | 1 | 4
-1432 | 9 | 1 | 1 | 4
-1433 | 6 | 3 | 1 | 6
-1434 | 25 | 4 | 1 | 8
-1435 | 9 | 3 | 1 | 1
-1436 | 12 | 1 | 1 | 3
-1437 | 11 | 2 | 2 | 11
-1438 | 9 | 5 | 1 | 2
-1439 | 7 | 3 | 1 | 4
-1440 | 14 | 15 | 2 | 9
-1441 | 6 | 8 | 2 | 4
-1442 | 7 | 4 | 3 | 4
+1429 | 11 | 8 | 1 | 4
+1430 | 3 | 4 | 0 | 2
+1431 | 11 | 1 | 2 | 3
+1432 | 10 | 1 | 1 | 3
+1433 | 10 | 3 | 1 | 2
+1434 | 25 | 3 | 2 | 8
+1435 | 10 | 3 | 1 | 0
+1436 | 12 | 0 | 2 | 3
+1437 | 12 | 1 | 3 | 10
+1438 | 10 | 5 | 1 | 1
+1439 | 8 | 3 | 1 | 3
+1440 | 17 | 15 | 2 | 6
+1441 | 7 | 8 | 2 | 3
+1442 | 8 | 4 | 3 | 3
 1443 | 13 | 4 | 2 | 1
-1444 | 14 | 7 | 1 | 6
-1445 | 4 | 12 | 1 | 7
+1444 | 15 | 7 | 1 | 5
+1445 | 6 | 12 | 1 | 5
 1446 | 19 | 2 | 1 | 1
 1447 | 18 | 5 | 0 | 7
 1448 | 11 | 3 | 1 | 3
 1449 | 7 | 2 | 0 | 3
-1450 | 0 | 3 | 0 | 2
-1451 | 2 | 12 | 0 | 5
+1450 | 1 | 3 | 0 | 1
+1451 | 6 | 11 | 1 | 1
 1452 | 12 | 4 | 1 | 1
 1453 | 0 | 0 | 0 | 4
 1454 | 0 | 0 | 0 | 2

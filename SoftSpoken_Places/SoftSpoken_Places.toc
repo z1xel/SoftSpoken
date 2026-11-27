@@ -9,6 +9,7 @@ LoreDataRegistry.lua
 Data\Zones.lua
 Data\Subzones.lua
 Data\Pictures.lua
+Data\OverlayOwners.lua
 Runtime.lua
 Settings.lua
 Audio.lua

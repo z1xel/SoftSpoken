@@ -16,7 +16,6 @@ SSZMapPOIData = {
     },
     [1417] = {
         {kind="subzone", id="drywhisker gorge", x=0.822422211, y=0.367037475, poi=327},
-        {kind="subzone", id="hammerfall", x=0.739352819, y=0.357599991, poi=25},
         {kind="subzone", id="tower of arathor", x=0.179580573, y=0.685366628, poi=1014},
     },
     [1418] = {
@@ -25,7 +24,6 @@ SSZMapPOIData = {
     },
     [1420] = {
         {kind="subzone", id="night webs hollow", x=0.266418831, y=0.594652287, poi=1016},
-        {kind="subzone", id="whispering forest", x=0.182645656, y=0.616265560, poi=2675},
     },
     [1421] = {
         {kind="subzone", id="valgans field", x=0.522469046, y=0.270685730, poi=1703},
@@ -45,9 +43,7 @@ SSZMapPOIData = {
     },
     [1426] = {
         {kind="city", id=1455, x=0.575447721, y=0.280787237, poi=8},
-        {kind="subzone", id="anvilmar", x=0.287983753, y=0.687470629, poi=1},
         {kind="subzone", id="ironbands compound", x=0.772828432, y=0.603537925, poi=948},
-        {kind="subzone", id="kharanos", x=0.463798988, y=0.520467024, poi=9},
         {kind="subzone", id="steelgrills depot", x=0.499644670, y=0.490646731, poi=947},
     },
     [1427] = {
@@ -74,7 +70,6 @@ SSZMapPOIData = {
         {kind="subzone", id="sleeping gorge", x=0.456140004, y=0.524479978, poi=1289},
     },
     [1431] = {
-        {kind="subzone", id="darkshire", x=0.742214813, y=0.471127930, poi=3},
         {kind="subzone", id="rolands doom", x=0.730855538, y=0.755183377, poi=1127},
     },
     [1432] = {
@@ -86,7 +81,6 @@ SSZMapPOIData = {
         {kind="subzone", id="tower of ilgalar", x=0.805209103, y=0.487823993, poi=955},
     },
     [1434] = {
-        {kind="subzone", id="booty bay", x=0.271685025, y=0.755623274, poi=40},
         {kind="subzone", id="janeiros point", x=0.235507162, y=0.707740797, poi=1031},
         {kind="subzone", id="spirit den", x=0.350895213, y=0.607086797, poi=1007},
         {kind="subzone", id="yojamba isle", x=0.152023522, y=0.165919468, poi=1588},
@@ -96,12 +90,8 @@ SSZMapPOIData = {
         {kind="subzone", id="stagalbog cave", x=0.660965706, y=0.773210420, poi=1012},
         {kind="subzone", id="temple of atalhakkar", x=0.699989143, y=0.529091176, poi=1013},
     },
-    [1436] = {
-        {kind="subzone", id="moonbrook", x=0.430428548, y=0.693031101, poi=12},
-    },
     [1437] = {
         {kind="subzone", id="dun algaz", x=0.479651378, y=0.741260806, poi=5},
-        {kind="subzone", id="grim batol", x=0.739697550, y=0.691911139, poi=1033},
     },
     [1438] = {
         {kind="subzone", id="aldrassil", x=0.590885893, y=0.403255928, poi=36},
@@ -212,7 +202,6 @@ SSZMapPOIData = {
         {kind="subzone", id="ravaged twilight camp", x=0.221210751, y=0.106727709, poi=1171},
         {kind="subzone", id="staghelm point", x=0.700461912, y=0.240714349, poi=1688},
         {kind="subzone", id="swarming pillar", x=0.518368922, y=0.477183888, poi=1472},
-        {kind="subzone", id="twilight base camp", x=0.385404192, y=0.446773827, poi=1687},
         {kind="subzone", id="twilight outpost", x=0.202168605, y=0.848406252, poi=1173},
         {kind="subzone", id="twilight post", x=0.258712223, y=0.336520408, poi=1172},
         {kind="subzone", id="twilights run", x=0.689257117, y=0.151451652, poi=1689},
