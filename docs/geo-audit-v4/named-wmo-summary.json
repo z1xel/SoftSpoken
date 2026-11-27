@@ -1,0 +1,189 @@
+{
+  "baseline_commit": "6e45a86af7313f4db5f08bb8ad974ae364ef467c",
+  "source_archive": "GeoAudit_20261127_160346.zip",
+  "archive_sha256": "2b0ed77cb8950cb0c54ff8c699437ea6ce80baea49136c821db29f0ad27506fc",
+  "named_wmo_csv_sha256": "aee901f859b8f00bc670694bdc2dbbbd415544676ca38ee1e34e42edd30fcb0c",
+  "source_rows": 1734,
+  "normalized_map_name_groups": 623,
+  "same_map_area_name_groups_outside_g2": 250,
+  "unmatched_name_groups": 336,
+  "other_map_name_only_groups": 37,
+  "unmatched_mesh_groups": 305,
+  "cross_map_mesh_groups": 6,
+  "root_only_groups": 62,
+  "review_actions": {
+    "candidate_live_name_validation": 248,
+    "hold_root_name_only": 59,
+    "review_outdoor_reference_conflict": 36,
+    "hold_unresolved_outdoor_context": 8,
+    "review_existing_context_name": 1,
+    "review_cross_map_area_name": 6,
+    "hold_unresolved_map_context": 2,
+    "exclude_development_map": 13
+  },
+  "unmatched_review_actions": {
+    "candidate_live_name_validation": 248,
+    "hold_root_name_only": 30,
+    "review_outdoor_reference_conflict": 36,
+    "hold_unresolved_outdoor_context": 8,
+    "review_existing_context_name": 1,
+    "hold_unresolved_map_context": 2,
+    "exclude_development_map": 11
+  },
+  "groups_with_any_exact_catalog_or_registry_name": 38,
+  "groups_with_map_context_name_match": 9,
+  "poi_only_review": [
+    {
+      "id": "maraudon.exterior",
+      "name": "Maraudon",
+      "map": 1,
+      "evidence": "root_only",
+      "action": "hold_independent_runtime_name",
+      "notes": "Outdoor WMO root references instance AreaTable 2100; 33/33 groups have mesh, none is an exact name-bearing group in outdoor scan."
+    },
+    {
+      "id": "hateforge_quarry.exterior",
+      "name": "Hateforge Quarry",
+      "map": 0,
+      "evidence": "root_only",
+      "action": "hold_independent_runtime_name",
+      "notes": "Outdoor WMO root references instance AreaTable 5103; zero groups read/with mesh."
+    },
+    {
+      "id": "sunnyglade_valley.berwick_hamlet",
+      "name": "Berwick Hamlet",
+      "map": 27,
+      "evidence": "no_named_wmo_match_in_v4",
+      "action": "hold_independent_runtime_name",
+      "notes": "No matching explicit WMO name in any scanned map."
+    },
+    {
+      "id": "sunnyglade_valley.gladeshire_hamlet",
+      "name": "Gladeshire Hamlet",
+      "map": 27,
+      "evidence": "no_named_wmo_match_in_v4",
+      "action": "hold_independent_runtime_name",
+      "notes": "No matching explicit WMO name in any scanned map."
+    },
+    {
+      "id": "sunnyglade_valley.goldregar_graveyard",
+      "name": "Gol'Dregar Graveyard",
+      "map": 27,
+      "evidence": "no_named_wmo_match_in_v4",
+      "action": "hold_independent_runtime_name",
+      "notes": "No matching explicit WMO name in any scanned map."
+    },
+    {
+      "id": "sunnyglade_valley.greywalls_graveyard",
+      "name": "Greywall's Graveyard",
+      "map": 27,
+      "evidence": "no_named_wmo_match_in_v4",
+      "action": "hold_independent_runtime_name",
+      "notes": "No matching explicit WMO name in any scanned map."
+    },
+    {
+      "id": "sunnyglade_valley.midmond_hamlet",
+      "name": "Midmond Hamlet",
+      "map": 27,
+      "evidence": "no_named_wmo_match_in_v4",
+      "action": "hold_independent_runtime_name",
+      "notes": "No matching explicit WMO name in any scanned map."
+    },
+    {
+      "id": "sunnyglade_valley.stillshire_hamlet",
+      "name": "Stillshire Hamlet",
+      "map": 27,
+      "evidence": "no_named_wmo_match_in_v4",
+      "action": "hold_independent_runtime_name",
+      "notes": "No matching explicit WMO name in any scanned map."
+    },
+    {
+      "id": "sunnyglade_valley.fort_valiance",
+      "name": "Fort Valiance",
+      "map": 27,
+      "evidence": "no_named_wmo_match_in_v4",
+      "action": "hold_independent_runtime_name",
+      "notes": "No matching explicit WMO name in any scanned map."
+    },
+    {
+      "id": "sunnyglade_valley.gladeshire_tower",
+      "name": "Gladeshire Tower",
+      "map": 27,
+      "evidence": "no_named_wmo_match_in_v4",
+      "action": "hold_independent_runtime_name",
+      "notes": "No matching explicit WMO name in any scanned map."
+    },
+    {
+      "id": "sunnyglade_valley.goldregar_tower",
+      "name": "Gol'Dregar Tower",
+      "map": 27,
+      "evidence": "no_named_wmo_match_in_v4",
+      "action": "hold_independent_runtime_name",
+      "notes": "No matching explicit WMO name in any scanned map."
+    },
+    {
+      "id": "alterac_valley.dun_baldar_north_bunker",
+      "name": "Dun Baldar North Bunker",
+      "map": 30,
+      "evidence": "no_named_wmo_match_in_v4",
+      "action": "hold_independent_runtime_name",
+      "notes": "No matching explicit WMO name in any scanned map."
+    },
+    {
+      "id": "alterac_valley.dun_baldar_south_bunker",
+      "name": "Dun Baldar South Bunker",
+      "map": 30,
+      "evidence": "no_named_wmo_match_in_v4",
+      "action": "hold_independent_runtime_name",
+      "notes": "No matching explicit WMO name in any scanned map."
+    },
+    {
+      "id": "alterac_valley.east_frostwolf_tower",
+      "name": "East Frostwolf Tower",
+      "map": 30,
+      "evidence": "no_named_wmo_match_in_v4",
+      "action": "hold_independent_runtime_name",
+      "notes": "No matching explicit WMO name in any scanned map."
+    },
+    {
+      "id": "alterac_valley.frostwolf_relief_hut",
+      "name": "Frostwolf Relief Hut",
+      "map": 30,
+      "evidence": "no_named_wmo_match_in_v4",
+      "action": "hold_independent_runtime_name",
+      "notes": "No matching explicit WMO name in any scanned map."
+    },
+    {
+      "id": "alterac_valley.iceblood_tower",
+      "name": "Iceblood Tower",
+      "map": 30,
+      "evidence": "no_named_wmo_match_in_v4",
+      "action": "hold_independent_runtime_name",
+      "notes": "No matching explicit WMO name in any scanned map."
+    },
+    {
+      "id": "alterac_valley.stormpike_aid_station",
+      "name": "Stormpike Aid Station",
+      "map": 30,
+      "evidence": "no_named_wmo_match_in_v4",
+      "action": "hold_independent_runtime_name",
+      "notes": "No matching explicit WMO name in any scanned map."
+    },
+    {
+      "id": "alterac_valley.west_frostwolf_tower",
+      "name": "West Frostwolf Tower",
+      "map": 30,
+      "evidence": "no_named_wmo_match_in_v4",
+      "action": "hold_independent_runtime_name",
+      "notes": "No matching explicit WMO name in any scanned map."
+    }
+  ],
+  "limitations": [
+    "Map/name is a review unit not canonical identity; it may aggregate distinct placements.",
+    "Name match is a candidate; outdoor map ancestry is broad; explicit native references retained for maps 0, 1, 189 only.",
+    "No fuzzy merges; other spellings or aliases may exist.",
+    "Geometry is not proof of walkability, runtime recognition or accessibility.",
+    "Stormwind and three other WMO roots, 17 groups and 113 terrain tiles failed; archive precedence unverified.",
+    "No runtime or registry changes."
+  ]
+}
