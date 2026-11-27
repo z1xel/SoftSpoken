@@ -25,10 +25,23 @@ commands, skipped migrations or alternative database writes are introduced
 in DEV1. Existing normal initialization order and failure isolation are
 retained; startupComplete remains separate from migration completion.
 
+## DEV2 — temporary storage backend
+
+Persistence:Initialize(coreDefaults, storiesProfileDefaults, mode) accepts
+normal (default) or dev. Both use the real AceDB and the same three namespaces,
+defaults and character-table initialization. DEV allocates a private account
+table and a fresh character table using the existing detached canonical
+LocationHistory:Transform({}) operation; it never calls the global-writing
+Upgrade method or the importer. No legacy data is copied or consulted. The
+selected mode is session-local; explicit backend switches after initialization
+are rejected, while ordinary repeat initialization returns the existing root.
+The startup coordinator still rejects DEV until DEV3 wires safe entry.
+Tests exercise the real registry, AceDB, both empty and populated saved
+globals, temporary history, profile operations and AceDB logout cleanup.
+
 ## Remaining phases
 
-- DEV2: private account/character tables with the same AceDB defaults and namespaces.
-- DEV3: explicit-table canonical geography initialization and safe DEV entry.
+- DEV3: wire the isolated canonical storage to the startup coordinator and Core, keeping normal migration and installation guards intact.
 - DEV4: pre-start in-game commands and DEV diagnostics.
 - DEV5: audit persistent globals and indirect aliases, including logout.
 - DEV6: session isolation, reload and ordinary migration regression tests.

@@ -163,10 +163,9 @@ local function EnsureTable(parent, key)
     return value
 end
 
--- Only called after legacy recovery, and before any feature reads its history.
--- These tables are ordinary saved variables, never AceDB profile sections.
-local function CharacterDB()
-    local character = EnsureTable(_G, "SoftSpokenCharacterDB")
+-- Populate the selected character table before any feature reads its history.
+-- Character history lives outside AceDB profile sections in both modes.
+local function CharacterDB(character)
     local stories = EnsureTable(character, "Stories")
     local journal = EnsureTable(stories, "journal")
     EnsureTable(journal, "seen")
@@ -196,28 +195,48 @@ local function CharacterDB()
     return character
 end
 
+-- Select storage before Core or any feature controller consumes it.
+-- Normal mode retains the legacy recovery and geography upgrade contract.
+-- DEV mode never accesses the declared saved globals; the fresh history
+-- uses the existing detached canonical transform, not Upgrade (which writes
+-- the persistent global). Startup still rejects DEV until DEV3 wires entry.
+local function Storage(mode)
+    if mode == "dev" then
+        assert(LocationHistory, "Missing temporary geography initializer")
+        local character = LocationHistory:Transform({})
+        Persistence:ValidateCharacterHistory(character)
+        return {}, CharacterDB(character)
+    end
+    if LocationHistory then LocationHistory:Upgrade() end
+    local character = CharacterDB(EnsureTable(_G, "SoftSpokenCharacterDB"))
+    return EnsureTable(_G, "SoftSpokenDB"), character
+end
+
 -- Called by Core at login, before feature controllers initialize.
--- Legacy recovery runs before this call.
+-- Legacy recovery runs before normal initialization.
 -- The default profile selection remains AceDB's character-named profile.
 -- The root retains Core's existing defaults (including the paused char flag).
 -- Stories' old char section is replaced by the profile-independent journal
 -- and history above; only its profile defaults enter the namespace.
-function Persistence:Initialize(coreDefaults, storiesProfileDefaults)
-    if self.root then return self.root, self.character end
+function Persistence:Initialize(coreDefaults, storiesProfileDefaults, mode)
+    assert(mode == nil or mode == "normal" or mode == "dev", "Unknown persistence mode")
+    if self.root then
+        assert(not mode or mode == self.mode, "Cannot switch a live persistence backend")
+        return self.root, self.character
+    end
+    mode = mode or "normal"
     assert(type(coreDefaults) == "table" and type(coreDefaults.profile) == "table",
         "Missing Core database defaults")
     assert(type(storiesProfileDefaults) == "table", "Missing Stories profile defaults")
     local storiesProfile = StoriesSchema(storiesProfileDefaults)
 
-    if LocationHistory then LocationHistory:Upgrade() end
-    local character = CharacterDB()
-    local saved = EnsureTable(_G, "SoftSpokenDB")
+    local saved, character = Storage(mode)
     local root = LibStub("AceDB-3.0"):New(saved, coreDefaults)
     root:RegisterNamespace("Stories", { profile = storiesProfile })
     root:RegisterNamespace("Places", placesDefaults)
     root:RegisterNamespace("Writings", writingsDefaults)
 
-    self.root, self.character = root, character
+    self.root, self.character, self.mode = root, character, mode
     return root, character
 end
 
