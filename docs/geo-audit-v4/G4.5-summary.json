@@ -1,0 +1,26 @@
+{
+  "baseline": "53e40fd8ff9843ab8f08fb1ab1bfa6a0c134fd3b",
+  "canonical_total": 1351,
+  "direct_supported": 1220,
+  "review_total": 131,
+  "review_with_area": 105,
+  "review_without_area": 26,
+  "dispositions": {
+    "hold_no_physical_assignment": 50,
+    "retain_instance": 16,
+    "hold_exterior_context": 2,
+    "hold_legacy_context": 13,
+    "retain_named_candidate": 8,
+    "retain_structural": 3,
+    "retain_exterior_candidate": 4,
+    "propose_exclude_placeholder": 3,
+    "hold_context_conflict": 2,
+    "hold_accessibility": 1,
+    "hold_superseded_map": 11,
+    "review_map_subject_alias": 1,
+    "repair_native_binding": 1,
+    "hold_poi_only": 16
+  },
+  "alternate_binding_review": 24,
+  "actual_runtime_changes": false
+}
