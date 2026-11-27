@@ -1,0 +1,104 @@
+{
+  "baseline": "76bfe6b3e1fc1e57227ecb71d3a54994ebeca8c8",
+  "source_rows": 483,
+  "active_entities": 1552,
+  "active_content_maps": 121,
+  "unambiguous_coordinate_frames": 103,
+  "source_fingerprints": {
+    "AreaPOI": "776b95fe6492837299de5fec1b27df59923e868250fa962a0c7f8c6031764113",
+    "AreaTable": "f17b32702cf489390e059df6e5e668c469c6b5e90a39b9109f6fa2a9627b3617",
+    "WorldMapArea": "97fbaf8cf54578d9d7de3cb221e1cb8e784969658b8b72dac0abd0af4492841e",
+    "WorldMapOverlay": "fc7a78561c5d51fa7dc254428c7a2e134b2dd082a02bb157ebda4ead030f41e6"
+  },
+  "dispositions": {
+    "covered_by_overlay": 85,
+    "no_active_context": 3,
+    "staged_requires_native_probe": 178,
+    "no_zone_map_flag": 18,
+    "dynamic_world_state": 164,
+    "retired_location": 6,
+    "unsupported_world_map": 27,
+    "semantic_alias_review": 2
+  },
+  "coverage": {
+    "overlay_only": 620,
+    "both": 85,
+    "neither": 602,
+    "poi_only": 175
+  },
+  "coverage_associations": 1482,
+  "staged_associations": 175,
+  "old_staged": 169,
+  "new_staged": 178,
+  "new_positions": [
+    {
+      "row": 9,
+      "poi": 1010,
+      "mid": 1417,
+      "key": "boulderfist outpost",
+      "id": "arathi_highlands.bouldergor.boulderfist_outpost"
+    },
+    {
+      "row": 77,
+      "poi": 710,
+      "mid": 1422,
+      "key": "scholomance",
+      "id": "scholomance.exterior"
+    },
+    {
+      "row": 90,
+      "poi": 1013,
+      "mid": 1435,
+      "key": "temple of atalhakkar",
+      "id": "sunken_temple.exterior"
+    },
+    {
+      "row": 154,
+      "poi": 1148,
+      "mid": 1443,
+      "key": "maraudon",
+      "id": "maraudon.exterior"
+    },
+    {
+      "row": 162,
+      "poi": 1094,
+      "mid": 1445,
+      "key": "onyxias lair",
+      "id": "onyxias_lair.exterior"
+    },
+    {
+      "row": 217,
+      "poi": 1212,
+      "mid": 105642,
+      "key": "timbermaw hold",
+      "id": "timbermaw_hold.exterior"
+    },
+    {
+      "row": 218,
+      "poi": 1218,
+      "mid": 105642,
+      "key": "timbermaw hold",
+      "id": "timbermaw_hold.exterior"
+    },
+    {
+      "row": 231,
+      "poi": 1068,
+      "mid": 1413,
+      "key": "wailing caverns",
+      "id": "wailing_caverns.exterior"
+    },
+    {
+      "row": 431,
+      "poi": 2698,
+      "mid": 1428,
+      "key": "hateforge quarry",
+      "id": "hateforge_quarry.exterior"
+    }
+  ],
+  "dropped": [],
+  "changed": [],
+  "limitations": [
+    "Static DBC and reviewed overlay ownership classification, not a live undiscovered native API probe. Every staged position is provisional until native coverage check; never activate as an overriding hitbox.",
+    "Explicit WMA representation is required; duplicated coordinate frames held. Raw DBCs not committed. Excluded prefilter rows identified by original row and native POI ID, not guessed names."
+  ]
+}
