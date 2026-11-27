@@ -1,4 +1,4 @@
--- Spoken Zones 1.12 -- short lore previews on the world map.
+-- Spoken Zones 1.12 -- compact location tooltips on the world map.
 -- Reuses the EXACT click resolver: no second hitbox system, discovery writes,
 -- zone selection, or dependency on ClassicAPI exploration artwork.
 SSZMapHover = SSZMapHover or {}
@@ -97,21 +97,6 @@ local function Tooltip()
     return frame
 end
 
-local function ShortText(entry)
-    if entry.pending then return nil end
-    local text = entry.short
-    if type(text) ~= 'string' or text == '' then return nil end
-    -- Keep previews readable without letting extremely long descriptions
-    -- cover the map. Break on a word rather than in the middle of one.
-    if string.len(text) > 340 then
-        local head = string.sub(text, 1, 340)
-        local cut = string.find(string.reverse(head), '%s')
-        if cut and cut <= 55 then head = string.sub(head, 1, 341 - cut) end
-        text = head .. '...'
-    end
-    return text
-end
-
 local function Paint(item)
     local tip = Tooltip()
     if not tip then return end
@@ -119,12 +104,6 @@ local function Paint(item)
     tip:SetOwner(WorldMapButton, 'ANCHOR_CURSOR')
     tip:SetText(item.name, 1, 0.82, 0)
     tip:AddLine('In ' .. item.parent, 0.76, 0.69, 0.5)
-    local short = ShortText(item.entry)
-    if short then
-        tip:AddLine(short, 1, 1, 1, true)
-    else
-        tip:AddLine('The story of this place has not been written yet.', 0.7, 0.7, 0.7, true)
-    end
     tip:AddLine('Click to read its story', 0.45, 0.82, 0.45)
     tip:Show()
 end
