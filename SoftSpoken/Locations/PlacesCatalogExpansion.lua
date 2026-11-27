@@ -561,3 +561,35 @@ addContent("grimstone_field", 105602, "grimstone field") -- AreaTable 5019
 addContent("parched_basin", 105602, "parched basin") -- AreaTable 5020
 addContent("karfang_retreat", 105602, "karfang retreat") -- AreaTable 5022
 addContent("hall_of_legends", 1454, "hall of legends") -- existing lore; AreaTable 2917
+
+-- Named world-state landmarks are catalog identities, not static POI hitboxes.
+assert(not view.entities["sunnyglade_valley.fort_valiance"])
+view.entities["sunnyglade_valley.fort_valiance"] = {kind="landmark", name="Fort Valiance", parent="sunnyglade_valley"}
+addContent("sunnyglade_valley.fort_valiance", 105023, "fort valiance") -- AreaPOI variants 1871, 1872, 1873, 1874, 1875
+assert(not view.entities["sunnyglade_valley.gladeshire_tower"])
+view.entities["sunnyglade_valley.gladeshire_tower"] = {kind="landmark", name="Gladeshire Tower", parent="sunnyglade_valley"}
+addContent("sunnyglade_valley.gladeshire_tower", 105023, "gladeshire tower") -- AreaPOI variants 1861, 1862, 1863, 1864, 1865
+assert(not view.entities["sunnyglade_valley.goldregar_tower"])
+view.entities["sunnyglade_valley.goldregar_tower"] = {kind="landmark", name="Gol'Dregar Tower", parent="sunnyglade_valley"}
+addContent("sunnyglade_valley.goldregar_tower", 105023, "goldregar tower") -- AreaPOI variants 1866, 1867, 1868, 1869, 1870
+assert(not view.entities["alterac_valley.dun_baldar_north_bunker"])
+view.entities["alterac_valley.dun_baldar_north_bunker"] = {kind="landmark", name="Dun Baldar North Bunker", parent="alterac_valley"}
+addContent("alterac_valley.dun_baldar_north_bunker", 1459, "dun baldar north bunker") -- AreaPOI variants 1250, 1352, 1353, 1354
+assert(not view.entities["alterac_valley.dun_baldar_south_bunker"])
+view.entities["alterac_valley.dun_baldar_south_bunker"] = {kind="landmark", name="Dun Baldar South Bunker", parent="alterac_valley"}
+addContent("alterac_valley.dun_baldar_south_bunker", 1459, "dun baldar south bunker") -- AreaPOI variants 1249, 1355, 1356, 1357
+assert(not view.entities["alterac_valley.east_frostwolf_tower"])
+view.entities["alterac_valley.east_frostwolf_tower"] = {kind="landmark", name="East Frostwolf Tower", parent="alterac_valley"}
+addContent("alterac_valley.east_frostwolf_tower", 1459, "east frostwolf tower") -- AreaPOI variants 1255, 1362, 1363, 1364
+assert(not view.entities["alterac_valley.frostwolf_relief_hut"])
+view.entities["alterac_valley.frostwolf_relief_hut"] = {kind="landmark", name="Frostwolf Relief Hut", parent="alterac_valley"}
+addContent("alterac_valley.frostwolf_relief_hut", 1459, "frostwolf relief hut") -- AreaPOI variants 1351, 1371, 1372, 1373
+assert(not view.entities["alterac_valley.iceblood_tower"])
+view.entities["alterac_valley.iceblood_tower"] = {kind="landmark", name="Iceblood Tower", parent="alterac_valley"}
+addContent("alterac_valley.iceblood_tower", 1459, "iceblood tower") -- AreaPOI variants 1252, 1377, 1378, 1379
+assert(not view.entities["alterac_valley.stormpike_aid_station"])
+view.entities["alterac_valley.stormpike_aid_station"] = {kind="landmark", name="Stormpike Aid Station", parent="alterac_valley"}
+addContent("alterac_valley.stormpike_aid_station", 1459, "stormpike aid station") -- AreaPOI variants 1348, 1395, 1396, 1397
+assert(not view.entities["alterac_valley.west_frostwolf_tower"])
+view.entities["alterac_valley.west_frostwolf_tower"] = {kind="landmark", name="West Frostwolf Tower", parent="alterac_valley"}
+addContent("alterac_valley.west_frostwolf_tower", 1459, "west frostwolf tower") -- AreaPOI variants 1527, 1528, 1529, 1530

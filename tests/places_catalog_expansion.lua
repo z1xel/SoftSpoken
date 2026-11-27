@@ -538,6 +538,16 @@ local checks={
     {105602, "grimstone field", "grimstone_field"},
     {105602, "parched basin", "parched_basin"},
     {105602, "karfang retreat", "karfang_retreat"},
+    {105023, "fort valiance", "sunnyglade_valley.fort_valiance"},
+    {105023, "gladeshire tower", "sunnyglade_valley.gladeshire_tower"},
+    {105023, "goldregar tower", "sunnyglade_valley.goldregar_tower"},
+    {1459, "dun baldar north bunker", "alterac_valley.dun_baldar_north_bunker"},
+    {1459, "dun baldar south bunker", "alterac_valley.dun_baldar_south_bunker"},
+    {1459, "east frostwolf tower", "alterac_valley.east_frostwolf_tower"},
+    {1459, "frostwolf relief hut", "alterac_valley.frostwolf_relief_hut"},
+    {1459, "iceblood tower", "alterac_valley.iceblood_tower"},
+    {1459, "stormpike aid station", "alterac_valley.stormpike_aid_station"},
+    {1459, "west frostwolf tower", "alterac_valley.west_frostwolf_tower"},
 }
 for _,v in ipairs(checks) do
     local mid,key,id=v[1],v[2],v[3]
