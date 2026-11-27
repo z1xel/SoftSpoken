@@ -75,6 +75,64 @@ function StartupController:Start(mode)
     return true
 end
 
+-- The command must be available even when Core has never initialized.
+local function Say(message)
+    if DEFAULT_CHAT_FRAME and DEFAULT_CHAT_FRAME.AddMessage then
+        DEFAULT_CHAT_FRAME:AddMessage("|cffffd100SoftSpoken:|r " .. message)
+    end
+end
+
+function StartupController:Describe()
+    local mode = Persistence and Persistence.mode
+    return "Startup: " .. state .. (reason and (" (" .. reason .. ")") or "") ..
+        "; storage: " .. (mode == "dev" and "DEV (temporary, not saved)" or
+            mode == "normal" and "normal (persistent)" or "not initialized")
+end
+
+function StartupController:Command(message)
+    local command = string.lower(string.gsub(message or "", "^%s*(.-)%s*$", "%1"))
+    if command == "dev" then
+        if state == "dev" then
+            Say("DEV session already active. Settings and progress are temporary.")
+            return
+        end
+        local ok, why = self:Start("dev")
+        if ok then
+            Say("|cffffd100DEV SESSION ACTIVE|r — migration bypassed. Settings and progress will not be saved. /softspoken undev reloads the interface.")
+        elseif why == "running" then
+            Say("Normal session already running. Live database switching is disabled.")
+        else
+            Say("DEV startup unavailable (" .. tostring(why) .. ")." ..
+                (state == "failed" and " Reload the interface before retrying." or ""))
+        end
+        return
+    elseif command == "undev" then
+        if state ~= "dev" and not (state == "failed" and Persistence.mode == "dev") then
+            Say("No DEV session is active.")
+            return
+        end
+        if not ReloadUI then
+            Say("ReloadUI unavailable. Use /reload or relog to exit DEV.")
+            return
+        end
+        Say("Exiting DEV. Temporary settings and progress will be discarded; normal startup will run again.")
+        ReloadUI()
+        return
+    elseif command == "status" then
+        Say(self:Describe())
+        return
+    end
+    -- Preserve the existing settings command in initialized sessions.
+    if state == "running" or state == "dev" then
+        Options:Open()
+    else
+        Say(self:Describe() .. ". Use /softspoken dev for a temporary session, or /softspoken status.")
+    end
+end
+
+_G.SLASH_SPOKEN1 = "/softspoken"
+SlashCmdList.SPOKEN = function(message) StartupController:Command(message) end
+
 local loader = CreateFrame("Frame")
 loader:RegisterEvent("PLAYER_LOGIN")
 loader:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -88,5 +146,8 @@ loader:SetScript("OnEvent", function(_, firedEvent)
     if e ~= "PLAYER_LOGIN" or loginReady then return end
     loader:UnregisterEvent("PLAYER_LOGIN")
     loginReady = true
-    StartupController:Start("normal")
+    local ok, why = StartupController:Start("normal")
+    if not ok and why == "migration" then
+        Say("Normal startup blocked. /softspoken dev starts a temporary session without migration.")
+    end
 end)

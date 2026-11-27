@@ -63,7 +63,8 @@ Unchanged()
 local env = SpokenEnv
 local function Module(name)
     return { InitDB=function(self) self.db=P:ModuleDB(name) end,
-        Initialize=function(self,worldReady) self.initialized=true; self.worldReady=worldReady end }
+        Initialize=function(self,worldReady) self.initialized=true; self.worldReady=worldReady end,
+        RefreshConfig=function() end }
 end
 env.VoiceOver = {StoriesProfileDefaults=storyDefaults,StoriesAddon=Module("Stories")}
 env.SpokenPlacesRuntime = Module("Places")
@@ -77,8 +78,12 @@ local core=env.CoreController
 env.NarratorWindow={Initialize=function() end}
 env.Transcript={Initialize=function() end}
 env.Minimap={Setup=function() end}
-env.Options={Setup=function() end}
+local opened,reloads=0,0
+env.Options={Setup=function() end,Open=function() opened=opened+1 end}
+env.Sources={Iterate=function() return function() end end}
+env.Callbacks={Fire=function() end}
 SlashCmdList={}
+ReloadUI=function() reloads=reloads+1 end
 core.SeedCompendiumBinding=function() error("DEV attempted to seed persistent binding") end
 core.FinalizeStartup=function() end
 local startupFrame
@@ -96,12 +101,17 @@ assert(startup:GetState()=="blocked" and not P.root)
 Unchanged()
 event="PLAYER_ENTERING_WORLD"
 startupFrame.OnEvent()
-assert(startup:Start("dev"))
+SlashCmdList.SPOKEN("dev")
 assert(startup:GetState()=="dev" and P.startupComplete)
 assert(env.VoiceOver.StoriesAddon.worldReady and env.SpokenPlacesRuntime.worldReady)
 assert(env.SpokenWritings.initialized and core.enabled)
 local root,ch=P.root,P.character
 assert(core.db==root)
+assert(string.find(startup:Describe(),"DEV (temporary, not saved)",1,true))
+SlashCmdList.SPOKEN("")
+assert(opened==1, "Core replaced the startup command")
+SlashCmdList.SPOKEN("dev")
+assert(P.root==root and P.character==ch)
 assert(P.mode == "dev" and root.sv ~= account and ch ~= character)
 assert(ch.geographyVersion == 1 and ch.migrationVersion == nil and root.sv.migration == nil)
 H:Validate(ch)
@@ -132,6 +142,9 @@ assert(not places.profile.auto and writings.profile.readOnce)
 assert(P:Initialize() == root and P.character == ch)
 assert(P:Initialize(defaults,storyDefaults,"dev") == root)
 assert(not pcall(function() P:Initialize(defaults,storyDefaults,"normal") end))
+Unchanged()
+SlashCmdList.SPOKEN("undev")
+assert(reloads==1 and P.root==root and P.mode=="dev")
 Unchanged()
 -- The real AceDB logout handler must only clean the temporary root/namespaces.
 event = "PLAYER_LOGOUT"

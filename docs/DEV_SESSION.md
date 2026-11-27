@@ -51,13 +51,28 @@ startup schedule Stories' deferred pack loading and arm Places' initial
 location stabilization even if PLAYER_ENTERING_WORLD already fired.
 DEV skips automatic Compendium keybinding seeding because that writes to
 WoW's binding set. Other native/client effects need DEV5 review. The existing
-slash command is not yet routed to DEV; that is DEV4. Internal testing can
-call SpokenEnv.StartupController:Start("dev") after a blocked login, but
-live client validation remains outstanding.
+slash command was not yet routed to DEV at DEV3. Internal testing can
+call SpokenEnv.StartupController:Start("dev") after a blocked login; live
+client validation remains outstanding.
+
+## DEV4 — in-game activation
+
+Startup owns /softspoken before PLAYER_LOGIN, so a failed migration cannot
+hide the entry point. /softspoken dev starts an isolated session after a
+pre-controller block, prints a clear temporary-state notice, and is
+idempotent. A running normal session cannot be switched to DEV; no in-place
+database rebinding is supported. /softspoken undev invokes ReloadUI only in
+DEV (including partial failure with an initialized DEV backend), discards
+temporary state through the normal reload lifecycle and attempts normal
+startup on the next login. /softspoken status reports startup and storage
+state. The bare command still opens settings in running sessions; blocked
+sessions receive a helpful hint. Existing diagnostics include the same
+startup/storage status. Core retains /compendium and does not replace the
+startup command. No state flag or setting is written to disk. DEV3's
+integrated test fixture now supplies the missing profile refresh collaborators.
 
 ## Remaining phases
 
-- DEV4: pre-start in-game commands and DEV diagnostics.
 - DEV5: audit persistent globals and indirect aliases, including logout.
 - DEV6: session isolation, reload and ordinary migration regression tests.
 - DEV7: real Octo login/reload/logout and semantic comparison of existing

@@ -90,6 +90,7 @@ end
 -- Build the same diagnostic summary directly from the runtime. Diagnostics
 -- must never depend on public slash commands or temporarily hijack chat print.
 local function SpokenLines(lines)
+    if StartupController then table.insert(lines, StartupController:Describe()) end
     if not (CoreController and CoreController.db and Spoken and SoundQueue) then
         table.insert(lines, "Spoken " .. tostring(AddonVersion) .. ": not enabled yet")
         return

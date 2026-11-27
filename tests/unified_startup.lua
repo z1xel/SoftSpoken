@@ -1,6 +1,6 @@
 -- Test the real native startup coordinator with minimal Vanilla globals.
 local calls, messages, frame = {}, {}, nil
-local failure, conflict, startup, reenter, modes, late
+local failure, conflict, startup, reenter, modes, late, opened, reloads
 local function record(name) calls[table.getn(calls)+1] = name end
 local function expectState(expected, why)
     local state, reason = startup:GetState()
@@ -9,6 +9,10 @@ local function expectState(expected, why)
 end
 local function setup(fail, blocked, recursive)
     calls, messages, modes, late = {}, {}, {}, {}
+    opened, reloads = 0, 0
+    SlashCmdList = {}
+    Options = {Open = function() opened = opened + 1 end}
+    ReloadUI = function() reloads = reloads + 1 end
     failure, conflict, reenter = fail, blocked, recursive
     local function controller(name)
         return { Initialize = function(_, arg)
@@ -51,6 +55,7 @@ local function setup(fail, blocked, recursive)
     assert(loadfile("SoftSpoken/Startup.lua"))()
     startup = SpokenEnv.StartupController
     expectState("pending")
+    assert(SLASH_SPOKEN1 == "/softspoken" and type(SlashCmdList.SPOKEN) == "function")
     local ok, why = startup:Start("normal")
     assert(not ok and why == "awaiting-login")
     ok, why = startup:Start("dev")
@@ -76,6 +81,11 @@ assert(table.concat(calls, ",") == full)
 assert(table.getn(messages) == 0 and Persistence.startupComplete == true)
 expectState("running")
 assert(modes[1] == "normal" and late.Stories == false and late.Places == false)
+SlashCmdList.SPOKEN("dev")
+SlashCmdList.SPOKEN("undev")
+assert(reloads == 0 and opened == 0)
+SlashCmdList.SPOKEN("")
+assert(opened == 1)
 assert(not startup:Start("normal") and not startup:Start("dev"))
 assert(table.concat(calls, ",") == full)
 
@@ -101,14 +111,27 @@ assert(not startup:Start("normal") and not startup:Start("dev"))
 assert(table.concat(calls, ",") == "Migration,Core")
 
 setup("Migration")
-assert(table.concat(calls, ",") == "Migration" and table.getn(messages) == 1)
+assert(table.concat(calls, ",") == "Migration" and table.getn(messages) == 2)
 expectState("blocked", "migration")
-assert(startup:Start("dev"), "explicit DEV startup after blocked migration failed")
+assert(string.find(messages[2], "/softspoken dev", 1, true))
+SlashCmdList.SPOKEN("")
+assert(opened == 0)
+SlashCmdList.SPOKEN("status")
+assert(string.find(messages[table.getn(messages)], "blocked", 1, true))
+SlashCmdList.SPOKEN("undev")
+assert(reloads == 0)
+SlashCmdList.SPOKEN("  DEV  ")
 expectState("dev")
 assert(Persistence.startupComplete and modes[1] == "dev")
 assert(late.Stories == true and late.Places == true, "late world entry not propagated")
 assert(table.concat(calls, ",") == full, "DEV must not repeat migration")
 assert(not startup:Start("normal") and not startup:Start("dev"))
+SlashCmdList.SPOKEN("dev")
+assert(table.concat(calls, ",") == full)
+SlashCmdList.SPOKEN("")
+assert(opened == 1)
+SlashCmdList.SPOKEN("undev")
+assert(reloads == 1 and startup:GetState() == "dev", "exit must reload, not switch live DB")
 assert(table.concat(calls, ",") == full)
 
 setup("Migration")

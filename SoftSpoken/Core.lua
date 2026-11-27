@@ -308,12 +308,8 @@ function CoreController:Initialize(mode)
     Minimap:Setup()
     Options:Setup()
 
-    -- These are the ONLY public SoftSpoken chat commands. Playback and
-    -- debugging have in-game controls, keybindings, or internal APIs instead.
-    -- Register slash aliases globally: the implementation runs in SpokenEnv.
-    _G.SLASH_SPOKEN1 = "/softspoken"
-    SlashCmdList.SPOKEN = function() Options:Open() end
-
+    -- /softspoken is owned by Startup.lua, including before Core starts.
+    -- Keep the Compendium alias available after successful Core initialization.
     _G.SLASH_SPOKENCOMPENDIUM1 = "/compendium"
     SlashCmdList.SPOKENCOMPENDIUM = function() Spoken:ToggleCompendium() end
     -- The binding belongs to WoW's persistent binding set, not AceDB.
