@@ -1,4 +1,6 @@
-# Places map POIs — regenerated M4
+# Places map POIs — regenerated M4 (historical)
+
+Superseded on dev by [G6.1/G6.2](geo-audit-v4/G6.2-static-poi-regeneration.md).
 
 Octo source data: the four original Vanilla-layout DBCs (483 AreaPOI records, 1,481 AreaTable rows, 175 WorldMapArea rows, 707 WorldMapOverlay rows). Raw DBCs are not committed. This is offline staged data only; the registry is not loaded by a TOC, and M5/M6 runtime behavior has not changed.
 

@@ -13,23 +13,24 @@
   "dispositions": {
     "covered_by_overlay": 85,
     "no_active_context": 3,
-    "staged_requires_native_probe": 178,
+    "staged_requires_native_probe": 176,
     "no_zone_map_flag": 18,
     "dynamic_world_state": 164,
     "retired_location": 6,
     "unsupported_world_map": 27,
-    "semantic_alias_review": 2
+    "semantic_alias_review": 2,
+    "hold_context_conflict": 2
   },
   "coverage": {
     "overlay_only": 620,
     "both": 85,
-    "neither": 602,
-    "poi_only": 175
+    "neither": 603,
+    "poi_only": 174
   },
   "coverage_associations": 1482,
-  "staged_associations": 175,
+  "staged_associations": 174,
   "old_staged": 169,
-  "new_staged": 178,
+  "new_staged": 176,
   "new_positions": [
     {
       "row": 9,
@@ -67,20 +68,6 @@
       "id": "onyxias_lair.exterior"
     },
     {
-      "row": 217,
-      "poi": 1212,
-      "mid": 105642,
-      "key": "timbermaw hold",
-      "id": "timbermaw_hold.exterior"
-    },
-    {
-      "row": 218,
-      "poi": 1218,
-      "mid": 105642,
-      "key": "timbermaw hold",
-      "id": "timbermaw_hold.exterior"
-    },
-    {
       "row": 231,
       "poi": 1068,
       "mid": 1413,
@@ -100,5 +87,26 @@
   "limitations": [
     "Static DBC and reviewed overlay ownership classification, not a live undiscovered native API probe. Every staged position is provisional until native coverage check; never activate as an overriding hitbox.",
     "Explicit WMA representation is required; duplicated coordinate frames held. Raw DBCs not committed. Excluded prefilter rows identified by original row and native POI ID, not guessed names."
-  ]
+  ],
+  "held_contexts": [
+    {
+      "poi": 1212,
+      "reason": "Winterspring native ancestry; Moonwhisper Coast's overlapping map bounds are not a valid substitute for a missing Winterspring Places association."
+    },
+    {
+      "poi": 1218,
+      "reason": "Felwood native ancestry; Moonwhisper Coast's overlapping map bounds are not a valid substitute for a missing Felwood Places association."
+    }
+  ],
+  "runtime_activation": false,
+  "native_probe_required": true,
+  "validation": {
+    "source_fingerprints_match_m4": true,
+    "old_positions_recomputed": 169,
+    "old_coordinate_digest": "fnv1a32:cdb215c1",
+    "new_positions_computed": 7,
+    "coordinate_bounds_and_duplicate_check": "passed",
+    "effective_registry_lua_regression": "pending CI",
+    "full_python_regeneration": "not yet executed on all four DBCs in one checkout; staged result derived from original DBC coordinate pass and checked effective source projection"
+  }
 }

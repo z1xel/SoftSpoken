@@ -6,6 +6,9 @@ on:
       - 'SoftSpoken/Locations/**'
       - 'tests/location_registry.lua'
       - 'tests/location_registry_octo.lua'
+      - 'tests/places_static_poi_stage.lua'
+      - 'scripts/generate_map_pois.py'
+      - 'scripts/export_effective_poi_catalog.lua'
       - 'SoftSpoken/addon.xml'
       - 'SoftSpoken/Modules/**/Data/**'
       - 'SoftSpoken/Compendium/UI/*Names.lua'
@@ -16,6 +19,9 @@ on:
       - 'SoftSpoken/Locations/**'
       - 'tests/location_registry.lua'
       - 'tests/location_registry_octo.lua'
+      - 'tests/places_static_poi_stage.lua'
+      - 'scripts/generate_map_pois.py'
+      - 'scripts/export_effective_poi_catalog.lua'
       - 'SoftSpoken/addon.xml'
       - 'SoftSpoken/Modules/**/Data/**'
       - 'SoftSpoken/Compendium/UI/*Names.lua'
@@ -33,6 +39,9 @@ jobs:
       - run: lua5.1 tests/location_registry.lua
       - run: lua5.1 tests/location_registry_octo.lua
       - run: lua5.1 tests/location_g5.lua
+      - run: lua5.1 tests/places_static_poi_stage.lua
+      - run: lua5.1 scripts/export_effective_poi_catalog.lua . > /tmp/effective-poi-catalog.tsv
+      - run: python -m py_compile scripts/generate_map_pois.py
       - run: python -m unittest discover -s tools/locations -p 'test_*.py' -v
       - run: python tools/locations/build.py --inventory-only --output /tmp/location-inventory
       - run: python tools/locations/build.py --seed-only --manifest tools/locations/sources.json --decisions tools/locations/decisions.json --output /tmp/location-seed

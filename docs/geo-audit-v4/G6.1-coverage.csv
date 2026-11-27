@@ -1188,7 +1188,7 @@ mid,kind,key,id,geometry,staged
 "1437","subzone","ruins of grim batol","wetlands.ruins_of_grim_batol","neither","false"
 "105602","subzone","ruins of grim batol","wetlands.ruins_of_grim_batol","neither","false"
 "104012","subzone","tyrs hand","eastern_plaguelands.tyrs_hand","neither","false"
-"105642","subzone","timbermaw hold","timbermaw_hold.exterior","poi_only","true"
+"105642","subzone","timbermaw hold","timbermaw_hold.exterior","neither","false"
 "1436","subzone","deadmines","deadmines.exterior","neither","false"
 "1430","subzone","karazhan crypt","karazhan_crypt.exterior","neither","false"
 "1420","subzone","scarlet monastery","scarlet_monastery.exterior","neither","false"
