@@ -10,78 +10,102 @@
     "R": 304
   },
   "dispositions": {
-    "represented": 560,
+    "represented": 562,
     "approved_hold": 92,
-    "excluded_development": 13,
-    "missing_or_context_mismatch": 2
+    "excluded_development": 13
   },
-  "activeEntities": 1550,
+  "activeEntities": 1552,
   "nativeDirectTotal": 1278,
   "nativeMissing": [
     {
       "aid": "22",
       "prior": "",
       "classification": "terrain_only",
-      "action": "exclude_development_map"
+      "action": "exclude_development_map",
+      "disposition": "development_map_exclusion"
     },
     {
       "aid": "81",
       "prior": "",
       "classification": "terrain_only",
-      "action": "exclude_development_map"
+      "action": "exclude_development_map",
+      "disposition": "development_map_exclusion"
     },
     {
       "aid": "82",
       "prior": "",
       "classification": "terrain_only",
-      "action": "exclude_development_map"
+      "action": "exclude_development_map",
+      "disposition": "development_map_exclusion"
     },
     {
       "aid": "83",
       "prior": "",
       "classification": "terrain_only",
-      "action": "exclude_development_map"
+      "action": "exclude_development_map",
+      "disposition": "development_map_exclusion"
     },
     {
       "aid": "84",
       "prior": "",
       "classification": "terrain_only",
-      "action": "exclude_development_map"
+      "action": "exclude_development_map",
+      "disposition": "development_map_exclusion"
     },
     {
       "aid": "151",
       "prior": "",
       "classification": "terrain_only",
-      "action": "exclude_development_map"
+      "action": "exclude_development_map",
+      "disposition": "development_map_exclusion"
     },
     {
       "aid": "876",
       "prior": "gm_island",
       "classification": "terrain_only",
-      "action": "review_catalog_gap"
+      "action": "review_catalog_gap",
+      "disposition": "explicit_user_exclusion"
     },
     {
       "aid": "956",
       "prior": "verdant_fields",
       "classification": "terrain_only",
-      "action": "review_catalog_gap"
+      "action": "review_catalog_gap",
+      "disposition": "explicit_user_exclusion"
     },
     {
       "aid": "1397",
       "prior": "emerald_forest",
       "classification": "terrain_only",
-      "action": "review_catalog_gap"
+      "action": "review_catalog_gap",
+      "disposition": "explicit_user_exclusion"
     },
     {
       "aid": "4688",
       "prior": "",
       "classification": "terrain_only",
-      "action": "exclude_development_map"
+      "action": "exclude_development_map",
+      "disposition": "development_map_exclusion"
     }
   ],
   "nativeBoundNoPlaces": [],
   "limitations": [
     "Contextual text coverage, not exact live WMO keys. Name normalization is a candidate matcher, not proof of a correct identity.",
     "Root candidates with only a same-name match require parent verification. G4.3/4.4 holds retained. Native direct coverage uses G1 rows, V5 identity-level coverage unchanged."
-  ]
+  ],
+  "corrections": {
+    "added": [
+      "sunken_temple.exterior",
+      "onyxias_lair.exterior"
+    ],
+    "reassignedAreaTable": [
+      1477,
+      2159
+    ],
+    "reparented": [
+      "upper_necropolis"
+    ],
+    "physicalMapAPI": "GetInstanceInfo return 8 (ClassicAPI), required to distinguish two split areas; no fallback if unavailable",
+    "validation": "CI and live client pending"
+  }
 }

@@ -1356,3 +1356,32 @@ table.insert(content,{location="bael_hardul.hardul_distillery",namespace="legacy
 bucket(projection.pendingSubzones,1442)["hardul distillery"]="Hardul Distillery"
 table.insert(content,{location="ashenvale.thistlefur_village.thistlefur_hold",namespace="legacyPlace",sourceScope="spoken_classic",value=1440,area="thistlefur hold"})
 bucket(projection.pendingSubzones,1440)["thistlefur hold"]="Thistlefur Hold"
+
+-- G5.8: these two native AreaTable IDs are physically assigned to mainland
+-- geometry; the corresponding instanceMap IDs remain separate. Map artwork
+-- subjects are deliberately unchanged (nativeUiMap/worldMapArea namespaces).
+local function addExterior(id,name,parent,instance,aid,mid,key,worldMap,instanceMap)
+    assert(not view.entities[id] and not retired[id])
+    assert(view.entities[parent] and view.entities[instance])
+    view.entities[id]={name=name,kind="landmark",parent=parent}
+    local count=0
+    for _,r in ipairs(view.bindings) do
+        if r.namespace=="areaTable" and r.scope=="octo_20261126" and r.value==aid then
+            assert(r.location==instance)
+            r.location=id; count=count+1
+        end
+    end
+    assert(count==1,"missing mainland area binding")
+    for _,r in ipairs(content) do
+        assert(not (r.namespace=="legacyPlace" and r.sourceScope=="spoken_classic" and r.value==mid and r.area==key),"exterior content collision")
+    end
+    table.insert(view.relations,{from=id,to=instance,relation="exteriorOf"})
+    table.insert(content,{location=id,namespace="legacyPlace",sourceScope="spoken_classic",value=mid,area=key})
+    bucket(projection.pendingSubzones,mid)[key]=name
+    bucket(projection,"splitAreas")[aid]={outdoor=id,instance=instance,worldMap=worldMap,instanceMap=instanceMap}
+end
+addExterior("sunken_temple.exterior","The Temple of Atal'Hakkar","swamp_of_sorrows.pool_of_tears","sunken_temple",1477,1435,"temple of atalhakkar",0,109)
+addExterior("onyxias_lair.exterior","Onyxia's Lair","dustwallow_marsh.wyrmbog","onyxias_lair",2159,1445,"onyxias lair",1,249)
+-- Native AreaTable 5148 is on map 533, a subdivision of Naxxramas.
+view.entities["upper_necropolis"].parent="naxxramas"
+view.entities["upper_necropolis"].kind="subzone"

@@ -277,6 +277,30 @@ local function CurrentLocation()
     local zone=GetRealZoneText() or ""
     local sub=GetSubZoneText() or ""
     local registry=Registry()
+    -- The exterior's own name may also be the reported zone text. Project
+    -- a verified mainland area into its containing Places map instead of
+    -- suppressing it as a duplicate zone name or selecting the instance.
+    if registry then
+        local observed=registry:ObservePlayerArea()
+        if observed then
+            for _,pair in pairs(registry.g5 and registry.g5.splitAreas or {}) do
+                if observed==pair.outdoor then
+                    local mid=CurrentMapID(zone)
+                    local k=mid and LegacyKeyForLocation(mid,observed)
+                    if k then
+                        local label=MapName(mid)
+                        if label then
+                            zone=label
+                            local specific=type(GetMinimapZoneText)=="function" and GetMinimapZoneText()
+                            local child=type(specific)=="string" and registry:ResolveName(specific,{parent=observed})
+                            if child and LegacyKeyForLocation(mid,child) then sub=specific
+                            else sub=registry:GetName(observed) end
+                        end
+                    end
+                end
+            end
+        end
+    end
     if registry and type(GetMinimapZoneText)=="function" then
         local name=GetMinimapZoneText()
         if type(name)=="string" and name~="" and Normalise(name)~=Normalise(zone) then

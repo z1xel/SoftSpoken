@@ -68,4 +68,30 @@ native=1519;zone="Stormwind City";name="The Apothecarium";visit()
 assert(not R.WasFound(1458,"apothecarium"),"unrelated minimap name unlocked")
 assert(not r:ByAreaID(1019) and r:ByAreaID(1025)=="wetlands.green_belt")
 assert(not SSZLore.subzones[1423]["green belt"])
-print("PASS: G5 effective geography and independent minimap discovery")
+-- G5.8: physical map distinguishes a same-named outdoor model from its instance.
+local physicalMap=0
+GetInstanceInfo=function() return "", "none", 1, "", 0, 0, false, physicalMap, 0 end
+assert(r:ByAreaID(1477)=="sunken_temple.exterior")
+assert(r:ByAreaID(2159)=="onyxias_lair.exterior")
+assert(r:ByInstanceMapID(109)=="sunken_temple")
+assert(r:ByInstanceMapID(249)=="onyxias_lair")
+assert(r:GetParent("upper_necropolis")=="naxxramas")
+native=1477;zone="The Temple of Atal'Hakkar";name=zone;physicalMap=0
+assert(r:ObservePlayerArea()=="sunken_temple.exterior")
+visit()
+assert(R.WasFound(1435,"temple of atalhakkar") and not R.WasFound(101417),"exterior unlocked interior")
+physicalMap=109;zone="Sunken Temple";name="Chamber of the Dreamer"
+assert(r:ObservePlayerArea()=="sunken_temple")
+visit()
+assert(R.WasFound(101417,"chamber of the dreamer"))
+native=2159;physicalMap=1;zone="Onyxia's Lair";name=zone
+assert(r:ObservePlayerArea()=="onyxias_lair.exterior")
+visit()
+assert(R.WasFound(1445,"onyxias lair") and not R.WasFound(102159))
+physicalMap=249
+assert(r:ObservePlayerArea()=="onyxias_lair")
+visit()
+assert(R.WasFound(102159))
+GetInstanceInfo=nil
+assert(not r:ObservePlayerArea(),"split native area with no map must remain unknown")
+print("PASS: G5 effective geography, independent minimap discovery and exterior/instance separation")

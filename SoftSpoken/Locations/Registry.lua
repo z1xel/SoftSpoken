@@ -418,14 +418,41 @@ end
 -- despite the modern-looking API name. Never query or change map zoom.
 -- The third return distinguishes missing API evidence from an observed
 -- native ID that does not resolve. Only the former permits text fallback.
+-- ClassicAPI GetInstanceInfo return 8 is the physical Map.dbc ID.
+-- Only the explicitly reviewed split-area pairs use this override. An
+-- unavailable map cannot establish which side of a portal was occupied.
 function Registry:ObservePlayerArea()
     if not self.ready then return nil,"unavailable",false end
+    local mapID
+    if type(GetInstanceInfo)=="function" then
+        local ok,_,_,_,_,_,_,_,value=pcall(GetInstanceInfo)
+        if ok and Integer(value) and value>=0 then mapID=value end
+    end
+    local splits=self.g5 and self.g5.splitAreas or EMPTY
     if C_Map and type(C_Map.GetBestMapForUnit)=="function" then
         local ok,area=pcall(C_Map.GetBestMapForUnit,"player")
         if ok and Integer(area) and area>0 then
+            local split=splits[area]
+            if split then
+                if mapID==split.worldMap then return split.outdoor,"resolved",true end
+                if mapID==split.instanceMap then return split.instance,"resolved",true end
+                return nil,"unavailable",true
+            end
             local id,status=self:ByAreaID(area)
+            -- These two instance maps have verified independent identities.
+            -- Do not let a copied mainland ID or an unrelated area supersede
+            -- current instance context.
+            for _,pair in pairs(splits) do
+                if mapID==pair.instanceMap then
+                    if id and (id==pair.instance or self:IsWithin(id,pair.instance)) then return id,status,true end
+                    return pair.instance,"resolved",true
+                end
+            end
             return id,status,true
         end
+    end
+    for _,pair in pairs(splits) do
+        if mapID==pair.instanceMap then return pair.instance,"resolved",true end
     end
     return nil,"unavailable",false
 end
