@@ -17,7 +17,7 @@ Compare the generated MapPOIs.lua with SoftSpoken_Places/Data/MapPOIs.lua. The o
 - WorldMapArea: 97fbaf8cf54578d9d7de3cb221e1cb8e784969658b8b72dac0abd0af4492841e
 - WorldMapOverlay: fc7a78561c5d51fa7dc254428c7a2e134b2dd082a02bb157ebda4ead030f41e6
 
-Catalog at base commit 737f2086c356819610b37aa351af2ad2bea67782: 54 zone entries, 878 subzones. Six parent-map city associations included in the coverage denominator. 46 unambiguous native map bindings; 38 maps have included POI positions.
+Catalog after removal of five pending foreign-map entries: 49 zone entries, 817 subzones. The original DBC audit used base commit 737f2086c356819610b37aa351af2ad2bea67782; the removed maps had no included positions or overlay associations. Six parent-map city associations included in the coverage denominator. 46 unambiguous native map bindings; 38 maps have included POI positions.
 
 ## Classification
 
@@ -39,10 +39,10 @@ Flags use zone-map bit 4, not equality with 4. Icon, importance and faction do n
 | overlay only | 417 |
 | POI only | 146 |
 | both | 45 |
-| neither | 276 |
-| total | 884 |
+| neither | 215 |
+| total | 823 |
 
-The conservative overlay audit counts an artwork-bearing overlay with a nonempty hit rectangle and exactly one matched lore target. It is an offline geometry estimate, not proof of native visibility, accessibility or unambiguous cursor selection. Five pending foreign-map catalog zones have no exact native map binding. Ordinary runtime behavior stays unchanged until M5/M6.
+The conservative overlay audit counts an artwork-bearing overlay with a nonempty hit rectangle and exactly one matched lore target. It is an offline geometry estimate, not proof of native visibility, accessibility or unambiguous cursor selection. Five pending foreign-map catalog zones (2482, 2521, 2524, 2548, 2652) and their 61 subzone entries were removed from the catalog and coverage denominator. Ordinary runtime behavior stays unchanged until M5/M6.
 
 ## Zone breakdown
 
@@ -94,11 +94,6 @@ Map ID | Overlay only | POI only | Both | Neither
 1456 | 0 | 0 | 0 | 4
 1457 | 0 | 0 | 0 | 5
 1458 | 0 | 0 | 0 | 1
-2482 | 0 | 0 | 0 | 9
-2521 | 0 | 0 | 0 | 27
-2524 | 0 | 0 | 0 | 2
-2548 | 0 | 0 | 0 | 18
-2652 | 0 | 0 | 0 | 5
 
 ## Runtime calibration
 
