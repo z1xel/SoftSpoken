@@ -551,3 +551,13 @@ addContent("sunnyglade_valley.goldregar_graveyard", 105023, "goldregar graveyard
 addContent("sunnyglade_valley.greywalls_graveyard", 105023, "greywalls graveyard") -- AreaPOI 1855
 addContent("sunnyglade_valley.midmond_hamlet", 105023, "midmond hamlet") -- AreaPOI 1858
 addContent("sunnyglade_valley.stillshire_hamlet", 105023, "stillshire hamlet") -- AreaPOI 1859
+
+-- Final completeness pass; all targets are existing canonical identities.
+addMap("gates_of_ahnqiraj", 103478) -- AreaTable 3478
+addContent("maul", 1444, "maul") -- AreaTable 3217
+addContent("dun_galar", 105602, "dun galar") -- AreaTable 5017
+addContent("flickerlode_mine", 105602, "flickerlode mine") -- AreaTable 5018
+addContent("grimstone_field", 105602, "grimstone field") -- AreaTable 5019
+addContent("parched_basin", 105602, "parched basin") -- AreaTable 5020
+addContent("karfang_retreat", 105602, "karfang retreat") -- AreaTable 5022
+addContent("hall_of_legends", 1454, "hall of legends") -- existing lore; AreaTable 2917

@@ -531,6 +531,13 @@ local checks={
     {105023, "greywalls graveyard", "sunnyglade_valley.greywalls_graveyard"},
     {105023, "midmond hamlet", "sunnyglade_valley.midmond_hamlet"},
     {105023, "stillshire hamlet", "sunnyglade_valley.stillshire_hamlet"},
+    {103478, "", "gates_of_ahnqiraj"},
+    {1444, "maul", "maul"},
+    {105602, "dun galar", "dun_galar"},
+    {105602, "flickerlode mine", "flickerlode_mine"},
+    {105602, "grimstone field", "grimstone_field"},
+    {105602, "parched basin", "parched_basin"},
+    {105602, "karfang retreat", "karfang_retreat"},
 }
 for _,v in ipairs(checks) do
     local mid,key,id=v[1],v[2],v[3]
@@ -539,6 +546,7 @@ for _,v in ipairs(checks) do
     assert(e and e.pending==true and e.short=="" and e.full=="", "missing pending catalog entry: "..mid..":"..key)
     assert(r:ByUiMapID(mid), "unsupported content map: "..mid)
 end
+assert(r:ResolveLegacyPlace(1454,"hall of legends")=="hall_of_legends")
 assert(r:ByAreaID(271)=="southshore")
 assert(r:ByAreaID(2100)=="maraudon")
 assert(r:ResolveLegacyPlace(1443,"maraudon")=="maraudon.exterior")

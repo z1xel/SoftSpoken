@@ -5061,6 +5061,13 @@ local subzones = {
 			full = "",
 			source = "",
 		},
+		["maul"] = {
+			pending = true,
+			name = "The Maul",
+			short = "",
+			full = "",
+			source = "",
+		},
 	},
 	-- Dustwallow Marsh: 24 subzones
 	[1445] = {
@@ -8167,6 +8174,41 @@ local subzones = {
 		["zarmgeth stronghold"] = {
 			pending = true,
 			name = "Zarm'geth Stronghold",
+			short = "",
+			full = "",
+			source = "",
+		},
+		["dun galar"] = {
+			pending = true,
+			name = "Dun Galar",
+			short = "",
+			full = "",
+			source = "",
+		},
+		["flickerlode mine"] = {
+			pending = true,
+			name = "Flickerlode Mine",
+			short = "",
+			full = "",
+			source = "",
+		},
+		["grimstone field"] = {
+			pending = true,
+			name = "Grimstone Field",
+			short = "",
+			full = "",
+			source = "",
+		},
+		["parched basin"] = {
+			pending = true,
+			name = "The Parched Basin",
+			short = "",
+			full = "",
+			source = "",
+		},
+		["karfang retreat"] = {
+			pending = true,
+			name = "Karfang Retreat",
 			short = "",
 			full = "",
 			source = "",

@@ -818,6 +818,13 @@ local zones = {
 		full = "",
 		source = "",
 	},
+	[103478] = {
+		pending = true,
+		name = "Gates of Ahn'Qiraj",
+		short = "",
+		full = "",
+		source = "",
+	},
 }
 
 SpokenZones:RegisterLoreData("enUS", "zones", zones)
