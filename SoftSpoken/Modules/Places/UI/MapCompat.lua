@@ -180,10 +180,10 @@ local function OverlayRectangle(o)
     local bottom = tonumber(r.bottom or r.hitRectBottom)
     if not (left and right and top and bottom) or
         right <= left or bottom <= top then return nil end
-    local w, h = ArtDimensions()
     if right <= 1 and bottom <= 1 and left >= 0 and top >= 0 then
         return left, top, right, bottom
     end
+    local w, h = ArtDimensions()
     if w <= 0 or h <= 0 then return nil end
     return left / w, top / h, right / w, bottom / h
 end
@@ -239,71 +239,60 @@ function MapCompat.OverlayOwner(o)
         for _, id in pairs(o.areaIDs) do Add(id) end
     end
     Add(o.areaID)
-    table.sort(ids)
-    if table.getn(ids) == 0 then return nil end
-    local signature = {}
-    for _, id in ipairs(ids) do table.insert(signature, tostring(id)) end
-    local registry = R.Registry()
-    local known = SSZOverlayOwners and (not registry or registry.scope == "octo_20261126")
-        and SSZOverlayOwners[table.concat(signature, ",")]
+    local count = table.getn(ids)
+    if count == 0 then return nil end
     local stem, conflicting = OverlayTexture(o)
-    if conflicting then return nil end
-    if stem == "monastary" or (known and known.texture == "monastary" and not stem) then return nil end
-
+    if conflicting or stem == "monastary" then return nil end
     local function Resolve(id)
         local name = R.NativeAreaName(id)
         if type(name) == "string" and name ~= "" then return name, id end
     end
+    if count == 1 then return Resolve(ids[1]) end
 
-    -- Reviewed DBC ownership wins for an exact area set and matching (or
-    -- unavailable) texture metadata, even if a canonical display name differs.
-    if known and (not stem or stem == known.texture) then
-        if known.owner == 0 or not seen[known.owner] then return nil end
-        return Resolve(known.owner)
+    -- Reviewed ownership can override canonical display spelling, so unlike
+    -- main, check the exact shared signature even with live texture data.
+    table.sort(ids)
+    local registry = R.Registry()
+    if SSZOverlayOwners and (not registry or registry.scope == "octo_20261126") then
+        local signature = {}
+        for i, id in ipairs(ids) do signature[i] = tostring(id) end
+        local known = SSZOverlayOwners[table.concat(signature, ",")]
+        if known and (not stem or stem == known.texture) then
+            if known.owner == 0 or not seen[known.owner] then return nil end
+            return Resolve(known.owner)
+        end
     end
-    if table.getn(ids) == 1 then return Resolve(ids[1]) end
 
-    local names, identities = {}, {}
-    local identityCount, singleID = 0, nil
+    -- Resolve each name/identity only once. Multiple native IDs for one
+    -- canonical location are one candidate, not a conflicting owner.
+    stem = OVERLAY_ALIASES[stem] or stem
+    local alternate = stem and string.sub(stem, 1, 3) == "the" and string.sub(stem, 4) or nil
+    local firstID, firstName, firstIdentity, mixed
+    local owner, ownerName, identity, conflict
+    local altOwner, altName, altIdentity, altConflict
     for _, id in ipairs(ids) do
         local name = R.NativeAreaName(id)
-        local identity = registry and R.NativeAreaLocation(id) or (not registry and id)
-        if not identity or type(name) ~= "string" or name == "" then return nil end
-        names[id] = name
-        if not identities[identity] then
-            identities[identity] = true
-            identityCount, singleID = identityCount + 1, id
-        end
-    end
-    -- Multiple native IDs can identify the same canonical location.
-    if identityCount == 1 then return Resolve(singleID) end
-    if not stem then return nil end
-    stem = OVERLAY_ALIASES[stem] or stem
-    local function Match(key)
-        local owner, identity
-        for _, id in ipairs(ids) do
-            if CompactName(names[id]) == key then
-                local candidate = registry and R.NativeAreaLocation(id) or id
-                if identity and candidate ~= identity then return nil end
-                owner, identity = owner or id, candidate
+        local candidate = registry and R.NativeAreaLocation(id) or (not registry and id)
+        if not candidate or type(name) ~= "string" or name == "" then return nil end
+        if not firstID then
+            firstID, firstName, firstIdentity = id, name, candidate
+        elseif firstIdentity ~= candidate then mixed = true end
+        if stem then
+            local key = CompactName(name)
+            if key == stem then
+                if identity and identity ~= candidate then conflict = true end
+                if not owner then owner, ownerName, identity = id, name, candidate end
+            elseif alternate and key == alternate then
+                if altIdentity and altIdentity ~= candidate then altConflict = true end
+                if not altOwner then altOwner, altName, altIdentity = id, name, candidate end
             end
         end
-        return owner
     end
-    local owner = Match(stem)
-    if not owner and string.sub(stem, 1, 3) == "the" then
-        owner = Match(string.sub(stem, 4))
+    if not mixed then return firstName, firstID end
+    if owner and not conflict then return ownerName, owner end
+    if not owner or conflict then
+        if altOwner and not altConflict then return altName, altOwner end
     end
-    if owner then return Resolve(owner) end
-end
-
-local function OverlayEntries(mapID, o)
-    local name, areaID = MapCompat.OverlayOwner(o)
-    if not areaID then return {} end
-    local key = R.AreaKeyForNative(mapID, areaID)
-    local entry = key and HasZoneSubzone(mapID, key)
-    if not entry then return {} end
-    return {{name=entry.name or name or key, key=key, entry=entry, overlay=o}}
 end
 
 local function GetOverlays(continent, zone, info)
@@ -324,33 +313,52 @@ function MapCompat.ClearOverlayCache()
     overlayCache.overlays = nil
 end
 
--- One definite overlay match can be used as a fallback when the map does
--- not provide a specific name, or to locate the artwork to highlight for a
--- separately resolved native name. The latter NEVER chooses the lore key.
+-- A single scan uses the native owner ID, never an ambiguous display name.
+-- A unique subzone beats a city, but an unrelated owned rectangle still
+-- blocks a city fallback as in the original registry-backed resolver.
+local function ScanOverlays(mapID, x, y, info, continent, zone, expectedKey)
+    local overlays = GetOverlays(continent, zone, info)
+    if not overlays then return nil end
+    local subKey, subArt, subName, cityID, cityArt, cityConflict, ownedHit, otherOwned
+    local registry = R.Registry()
+    for _, overlay in ipairs(overlays) do
+        local l,t,r,b = OverlayRectangle(overlay)
+        if l and x >= l and x <= r and y >= t and y <= b then
+            local name, areaID = MapCompat.OverlayOwner(overlay)
+            if areaID then
+                ownedHit = true
+                local key = R.AreaKeyForNative(mapID, areaID)
+                local entry = key and HasZoneSubzone(mapID, key)
+                if entry and (not expectedKey or key == expectedKey) then
+                    if subKey and (subKey ~= key or subArt ~= overlay) then
+                        return nil, nil, nil, true
+                    end
+                    subKey, subArt, subName = key, overlay, entry.name or name or key
+                elseif not expectedKey then
+                    local city = registry and CityByLocation(mapID, R.NativeAreaLocation(areaID))
+                    if not registry then city = CityByName(mapID, name) end
+                    if city then
+                        if cityID and cityID ~= city then cityConflict = true end
+                        cityID, cityArt = city, overlay
+                    else
+                        otherOwned = true
+                    end
+                end
+            end
+        end
+    end
+    if subKey then return "subzone", subKey, subArt, ownedHit, subName end
+    if cityID and not cityConflict and not otherOwned then return "city", cityID, cityArt, ownedHit end
+    return nil, nil, nil, ownedHit
+end
+
 function MapCompat.AreaAt(mapID, x, y, expectedKey)
     if type(x) ~= "number" or type(y) ~= "number" or
         x < 0 or x > 1 or y < 0 or y > 1 then return nil end
     local displayed, info, continent, zone = MapCompat.GetDisplayedMapID()
     if displayed ~= mapID or not zone or zone <= 0 then return nil end
-    local overlays = GetOverlays(continent, zone, info)
-    if not overlays then return nil end
-    local chosen
-    for _, overlay in ipairs(overlays) do
-        local left, top, right, bottom = OverlayRectangle(overlay)
-        if left and x >= left and x <= right and y >= top and y <= bottom then
-            for _, candidate in ipairs(OverlayEntries(mapID, overlay)) do
-                if not expectedKey or candidate.key == expectedKey then
-                    if chosen and (chosen.key ~= candidate.key or
-                        chosen.overlay ~= candidate.overlay) then
-                        return nil -- overlapping/conflicting regions
-                    end
-                    chosen = candidate
-                end
-            end
-        end
-    end
-    if chosen then return chosen.name, chosen.entry, chosen.key, chosen.overlay end
-    return nil
+    local kind, key, art, _, name = ScanOverlays(mapID, x, y, info, continent, zone, expectedKey)
+    if kind == "subzone" then return name, HasZoneSubzone(mapID, key), key, art end
 end
 
 -- Native/POI name resolution takes precedence. An overlay is a fallback only
@@ -369,12 +377,27 @@ local function NamedTarget(mapID, name, source)
     if city then return "city", city, source end
 end
 
-function MapCompat.ResolveAt(mapID, x, y, poiName)
-    if type(x) ~= "number" or type(y) ~= "number" or
-        x < 0 or x > 1 or y < 0 or y > 1 then return nil end
-    local shown, _, _, zone = MapCompat.GetDisplayedMapID()
-    if shown ~= mapID or not zone or zone <= 0 then return nil end
+-- The vanilla map may give a POI its own mouse target and title, rather than
+-- return its name from UpdateMapHighlight. Use the POI button's actual name
+-- while hovering it, just as SubzoneClick passes that name on click.
+function MapCompat.HoveredPOI()
+    if not GetNumMapLandmarks then return nil end
+    local count = tonumber(GetNumMapLandmarks()) or 0
+    if count > 200 then count = 200 end
+    for i = 1, count do
+        local poi = getglobal and getglobal('WorldMapFramePOI' .. i)
+        if poi and type(poi.name) == 'string' and poi.name ~= '' and
+            (not poi.IsShown or poi:IsShown()) then
+            if (poi.IsMouseOver and poi:IsMouseOver()) or
+                (MouseIsOver and MouseIsOver(poi)) then
+                return poi.name
+            end
+        end
+    end
+    return nil
+end
 
+local function ResolveNative(mapID, x, y, poiName)
     -- A confirmed clicked POI is more specific than the underlying native
     -- map region; it is also a separate clickable Button in Blizzard 1.12.
     local kind, id, method = NamedTarget(mapID, poiName, "poi")
@@ -406,10 +429,8 @@ function MapCompat.ResolveAt(mapID, x, y, poiName)
     -- displayed label did not identify a known place.
     local nativeName = NativeArea(x, y)
     if nativeName then
-        local place = PlaceByName(mapID, nativeName)
-        if place then return "subzone", place.key, "native" end
-        local city = CityByName(mapID, nativeName)
-        if city then return "city", city, "native" end
+        kind, id, method = NamedTarget(mapID, nativeName, "native")
+        if kind then return kind, id, method end
         -- If the engine positively names a DIFFERENT area without lore,
         -- refuse to substitute an overlapping overlay's guessed place.
         -- Broad parent-zone names are not fine-grained evidence, however.
@@ -421,10 +442,8 @@ function MapCompat.ResolveAt(mapID, x, y, poiName)
     -- Retail-style API remains an optional fallback for modified clients.
     local exactName = PreciseArea(mapID, x, y)
     if exactName then
-        local place = PlaceByName(mapID, exactName)
-        if place then return "subzone", place.key, "precise" end
-        local city = CityByName(mapID, exactName)
-        if city then return "city", city, "precise" end
+        kind, id, method = NamedTarget(mapID, exactName, "precise")
+        if kind then return kind, id, method end
         if Normalise(exactName) ~= Normalise(MapCompat.Name(mapID)) then
             return nil, nil, "native-unmapped"
         end
@@ -443,43 +462,38 @@ function MapCompat.ResolveAt(mapID, x, y, poiName)
         end
     end
 
-    -- Overlay geometry: city art can be identified exactly by its area name.
-    -- Do not return a city if another owned overlay identifies a distinct area.
-    local _, info, continent, zoneIndex = MapCompat.GetDisplayedMapID()
-    local overlays = GetOverlays(continent, zoneIndex, info)
-    local city, mixed, ownedHit = nil, false, false
-    if overlays then
-        for _, overlay in ipairs(overlays) do
-            local l,t,r,b = OverlayRectangle(overlay)
-            if l and x >= l and x <= r and y >= t and y <= b then
-                local name, areaID = MapCompat.OverlayOwner(overlay)
-                if areaID then
-                    ownedHit = true
-                    local location = R.NativeAreaLocation(areaID)
-                    local match = CityByLocation(mapID, location)
-                    if not R.Registry() then match = CityByName(mapID, name) end
-                    if match then
-                        if city and city ~= match then mixed = true end
-                        city = match
-                    else
-                        mixed = true
-                    end
-                end
-            end
+end
+
+-- Resolve the displayed map once. A non-nil mapID requires that exact
+-- displayed map (e.g. the map on mouse-down). On success return the map
+-- as result five, so callers need not query it separately. Result four
+-- carries matching artwork; named hits need it only for highlighting.
+function MapCompat.ResolveAt(mapID, x, y, poiName, wantArtwork)
+    if type(x) ~= "number" or type(y) ~= "number" or
+        x < 0 or x > 1 or y < 0 or y > 1 then return nil end
+    local shown, info, continent, zone = MapCompat.GetDisplayedMapID()
+    if not shown or (mapID and shown ~= mapID) or not zone or zone <= 0 then return nil end
+    mapID = shown
+
+    -- Explicit native button clicks carry their own identity. Otherwise
+    -- all consumers inspect the same hovered button before native geometry.
+    local kind, id, method = ResolveNative(mapID, x, y, poiName or MapCompat.HoveredPOI())
+    if kind then
+        if wantArtwork and kind == "subzone" then
+            local _, _, art = ScanOverlays(mapID, x, y, info, continent, zone, id)
+            return kind, id, method, art, mapID
         end
+        return kind, id, method, nil, mapID
     end
-    if city and not mixed and not MapCompat.AreaAt(mapID, x, y) then
-        return "city", city, "overlay"
-    end
-    -- Older clients might supply no hover name. Use the overlay ONLY when
-    -- its matching lore area is unique: never display a choice popup.
-    local _, entry, key = MapCompat.AreaAt(mapID, x, y)
-    if entry and key then return "subzone", key, "overlay" end
-    -- An owned rectangle that could not select one target is not permission
-    -- to guess a nearby static marker. Preserve native/overlay precedence.
+    if method then return nil, nil, method end
+
+    local k, key, art, ownedHit = ScanOverlays(mapID, x, y, info, continent, zone)
+    if k then return k, key, "overlay", art, mapID end
     if ownedHit then return nil, nil, "overlay-unresolved" end
     if SSZStaticPOI and SSZStaticPOI.ResolveAt then
-        return SSZStaticPOI.ResolveAt(mapID,x,y,WorldMapButton)
+        k, key, method = SSZStaticPOI.ResolveAt(mapID,x,y,WorldMapButton)
+        if k then return k, key, method, nil, mapID end
+        return nil, nil, method
     end
     return nil
 end

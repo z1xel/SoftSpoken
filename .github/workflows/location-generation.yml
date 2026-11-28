@@ -8,6 +8,8 @@ on:
       - 'tests/location_registry_octo.lua'
       - 'tests/places_static_poi_stage.lua'
       - 'tests/places_map_hover.lua'
+      - 'tests/places_overlay_ownership.lua'
+      - 'tests/places_registry_octo.lua'
       - 'SoftSpoken/Modules/Places/UI/**'
       - 'SoftSpoken/Modules/Places/addon.xml'
       - 'scripts/generate_map_pois.py'
@@ -24,6 +26,8 @@ on:
       - 'tests/location_registry_octo.lua'
       - 'tests/places_static_poi_stage.lua'
       - 'tests/places_map_hover.lua'
+      - 'tests/places_overlay_ownership.lua'
+      - 'tests/places_registry_octo.lua'
       - 'SoftSpoken/Modules/Places/UI/**'
       - 'SoftSpoken/Modules/Places/addon.xml'
       - 'scripts/generate_map_pois.py'
@@ -47,6 +51,8 @@ jobs:
       - run: lua5.1 tests/location_g5.lua
       - run: lua5.1 tests/places_static_poi_stage.lua
       - run: lua5.1 tests/places_map_hover.lua
+      - run: lua5.1 tests/places_overlay_ownership.lua
+      - run: lua5.1 tests/places_registry_octo.lua
       - run: lua5.1 scripts/export_effective_poi_catalog.lua . > /tmp/effective-poi-catalog.tsv
       - run: python -m py_compile scripts/generate_map_pois.py
       - run: python -m unittest discover -s tools/locations -p 'test_*.py' -v

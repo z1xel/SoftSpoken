@@ -23,8 +23,7 @@ end
 -- No discovery eligibility here: hover and reader apply the same lock
 -- AFTER geometry selection, so a locked target cannot reveal a neighbor.
 local function ValidTarget(registry,mapID,row)
-    if type(row)~="table" or type(row.location)~="string" or not registry:Get(row.location) then return false end
-    if not (Finite(row.x) and Finite(row.y)) or row.x<0 or row.x>1 or row.y<0 or row.y>1 then return false end
+    if type(row.location)~="string" or not registry:Get(row.location) then return false end
     local lore=SSZLore
     if not lore then return false end
     if row.kind=="subzone" and type(row.id)=="string" then
@@ -51,10 +50,11 @@ function POI.ResolveAt(mapID,x,y,button)
     if not w then return nil end
     local bestByTarget={}
     for _,row in ipairs(rows) do
-        if ValidTarget(registry,mapID,row) then
+        if type(row)=="table" and Finite(row.x) and Finite(row.y) and
+                row.x>=0 and row.x<=1 and row.y>=0 and row.y<=1 then
             local dx,dy=(x-row.x)*w,(y-row.y)*h
             local d2=dx*dx+dy*dy
-            if d2<=RADIUS_PX*RADIUS_PX then
+            if d2<=RADIUS_PX*RADIUS_PX and ValidTarget(registry,mapID,row) then
                 -- Same contextual target at several positions is one candidate.
                 -- Distinct content keys are not collapsed even if identities match.
                 local key=row.kind.."|"..tostring(row.id).."|"..row.location

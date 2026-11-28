@@ -66,7 +66,7 @@ dofile(P.."UI/SubzoneClick.lua")
 dofile(P.."UI/MapHover.lua")
 local compat,hover,click=SSZMapCompat,SSZMapHover,SSZSubzoneClick
 local function expect(name,method,label)
-    local kind,key,source=compat.ResolveAt(1429,.5,.5,hover.HoveredPOI())
+    local kind,key,source=compat.ResolveAt(1429,.5,.5)
     eq(kind,"subzone",label.." kind")
     eq(key,"northshire abbey",label.." key")
     eq(source,method,label.." method")
@@ -217,15 +217,16 @@ eq(id,"northshire valley","precise wins");eq(source,"precise","precise method")
 preciseName="Unmapped Precise Landmark";eq(methodAt(.5,.5),"native-unmapped","unknown precise blocks static")
 preciseName=nil
 poiName="Northshire Valley"
-k,id,source=compat.ResolveAt(1429,.5,.5,hover.HoveredPOI())
+k,id,source=compat.ResolveAt(1429,.5,.5)
 eq(id,"northshire valley","native button wins");eq(source,"poi","native button method")
 poiName="Unknown POI";eq(click.HandleClick(.5,.5),false,"unknown native button blocks click")
 poiName=nil
-local originalAreaAt=compat.AreaAt
-compat.AreaAt=function() return "Northshire Valley",SSZLore.subzones[1429]["northshire valley"],"northshire valley" end
+C_Map.GetMapOverlays=function() return {{areaID=9,hitRect={left=.4,right=.6,top=.4,bottom=.6}}} end
+compat.ClearOverlayCache()
 k,id,source=compat.ResolveAt(1429,.5,.5)
 eq(id,"northshire valley","owned overlay wins");eq(source,"overlay","overlay method")
-compat.AreaAt=originalAreaAt
+C_Map.GetMapOverlays=function() return {} end
+compat.ClearOverlayCache()
 
 -- Reject stale bindings and unsupported scopes, with no fallback target.
 rows[1].location="not_a_canonical_identity";eq(methodAt(.5,.5),nil,"retired target")
@@ -258,3 +259,91 @@ eq(hover.Resolve(.5,.5),nil,"disabled Places hover")
 Spoken=nil
 eq(next(found),nil,"no static discovery writes")
 print("PASS: G6 static POI scale, precedence, overlap, locks, drag, scope and shared hover/click")
+
+-- C3: do not consult canonical identities or lore for distant/malformed rows.
+local get=registry.Get
+local distantReads=0
+registry.Get=function(self,id)
+    if id=="distant_test_identity" then distantReads=distantReads+1 end
+    return get(self,id)
+end
+rows[2]={kind="subzone",id="distant",location="distant_test_identity",x=.9,y=.9}
+rows[3]={kind="subzone",id="distant",location="distant_test_identity",x=0/0,y=.5}
+rows[4]={kind="subzone",id="distant",location="distant_test_identity",x=-.1,y=.5}
+rows[5]=false
+eq(methodAt(.5,.5),"static-poi","nearby valid target")
+eq(distantReads,0,"distance and coordinate guards before registry access")
+rows[2].x=.505;rows[2].y=.5
+eq(methodAt(.5,.5),"static-poi","unknown nearby identity excluded")
+eq(distantReads,1,"nearby candidate checked")
+for i=2,5 do rows[i]=nil end
+registry.Get=get
+
+-- C4: native buttons drive all three consumers, even with other ground art.
+CreateFrame=function() return {SetScript=function() end} end
+WorldMapDetailFrame={}
+dofile(P.."UI/MapHighlight.lua")
+local highlight=SSZMapHighlight
+local valleyArt={areaID=9,hitRect={left=.4,right=.6,top=.4,bottom=.6},tiles={{file="Valley1.blp"}}}
+local abbeyArt={areaID=24,hitRect={left=.4,right=.6,top=.4,bottom=.6},tiles={{file="Abbey1.blp"}}}
+local art={valleyArt}
+C_Map.GetMapOverlays=function() return art end
+compat.ClearOverlayCache()
+nativeName="Northshire Valley";poiName="Northshire Abbey"
+expect("Northshire Abbey","poi","shared button context")
+eq(click.HandleClick(.5,.5),true,"button selects reader")
+eq(highlight.Target(.5,.5),nil,"no neighboring highlight")
+art={valleyArt,abbeyArt};compat.ClearOverlayCache()
+eq(highlight.Target(.5,.5),abbeyArt,"button owns highlighted art")
+settings.compendiumUnlockUndiscovered=false
+eq(hover.Resolve(.5,.5),nil,"locked button hover")
+eq(click.HandleClick(.5,.5),false,"locked button click")
+eq(highlight.Target(.5,.5),nil,"locked button highlight")
+settings.compendiumUnlockUndiscovered=true
+poiName="Unknown POI"
+eq(hover.Resolve(.5,.5),nil,"unknown button hover")
+eq(click.HandleClick(.5,.5),false,"unknown button click")
+eq(highlight.Target(.5,.5),nil,"unknown button highlight")
+eq(click.HandleClick(.5,.5,"Northshire Abbey"),true,"explicit event wins")
+poiName=nil
+
+-- C5: a single displayed-map lookup; preserve mouse-down map identity.
+local display=compat.GetDisplayedMapID
+local reads=0
+compat.GetDisplayedMapID=function() reads=reads+1;return display() end
+local function once(fn,label)
+    reads=0
+    local result=fn()
+    eq(reads,1,label.." map reads")
+    return result
+end
+nativeName="Northshire Abbey"
+eq(once(function() return hover.Resolve(.5,.5).id end,"hover"),"northshire abbey")
+eq(once(function() return click.HandleClick(.5,.5) end,"click"),true)
+eq(once(function() return highlight.Target(.5,.5) end,"highlight"),abbeyArt)
+click.MouseDown("LeftButton",.5,.5)
+eq(once(function() return click.MouseUp("LeftButton",.5,.5) end,"mouse up"),true)
+click.MouseDown("LeftButton",.5,.5)
+reads=0
+eq(click.MouseUp("LeftButton",.48,.5),false,"drag rejected")
+eq(reads,0,"drag does not query map")
+click.MouseDown("LeftButton",.5,.5)
+compat.GetDisplayedMapID=function() reads=reads+1;return 1420,"Tirisfal Glades",2,1 end
+eq(once(function() return click.MouseUp("LeftButton",.5,.5) end,"changed map"),false)
+eq(once(function() return compat.ResolveAt(1429,.5,.5) end,"stale map"),nil)
+compat.GetDisplayedMapID=display
+nativeName="Elwynn Forest";preciseName="Northshire Abbey"
+local _,_,m,_,mid=compat.ResolveAt(nil,.5,.5)
+eq(m,"precise");eq(mid,1429)
+preciseName=nil
+art={};compat.ClearOverlayCache()
+_,_,m,_,mid=compat.ResolveAt(nil,.5,.5)
+eq(m,"static-poi");eq(mid,1429)
+art={abbeyArt};compat.ClearOverlayCache()
+_,_,m,_,mid=compat.ResolveAt(nil,.5,.5)
+eq(m,"overlay");eq(mid,1429)
+Spoken={IsPartOn=function() return false end}
+eq(highlight.Target(.5,.5),nil,"disabled Places highlight")
+Spoken=nil
+eq(next(found),nil,"no discovery writes")
+print("PASS: C3-C5 canonical distance-first validation, shared POI context and map reads")

@@ -10,12 +10,12 @@ dofile("SoftSpoken/Locations/Registry.lua")
 local registry=SpokenEnv.Locations
 assert(registry:IsReady())
 SSZLore={zones={
-    [1420]={name="Tirisfal Glades"}, [1438]={name="Teldrassil"}
+    [1420]={name="Tirisfal Glades"}, [1438]={name="Teldrassil"}, [1458]={name="Undercity"}
 },subzones={
     [1420]={["whispering forest"]={name="Whispering Forest"}, ["whispering gardens"]={name="Whispering Gardens"}, ["terrace of repose"]={name="Terrace of Repose"}},
     [1438]={["shadowglen"]={name="Shadowglen"}, ["aldrassil"]={name="Aldrassil"}}
 }}
-SpokenCompendium={CITY_IN={}}
+SpokenCompendium={CITY_IN={[1458]=1420}}
 dofile(P.."Runtime.lua")
 SpokenPlacesRuntime.db={profile={showMapPanel=true,compendiumUnlockUndiscovered=true}}
 dofile(P.."Settings.lua")
@@ -80,3 +80,66 @@ local kind,id=compat.ResolveAt(1438,.5,.5)
 eq(kind,"subzone","native Aldrassil stays selectable")
 eq(id,"aldrassil","native identity")
 print("PASS: canonical overlay ownership, aliases, discovery and suppression")
+
+-- C1/C2: retain canonical IDs and reviewed ownership while scanning once.
+mapName="Tirisfal Glades";nativeName=nil
+SSZLore.subzones[1420]["remnants camp"]={name="Remnants Camp"}
+local city=overlay({1497},"UNDERCITY")
+local camp=overlay({5035},"THEREMNANTSCAMP")
+local unmapped=overlay({188},"SHADOWGLEN")
+local calls=0
+local originalOwner=compat.OverlayOwner
+compat.OverlayOwner=function(row) calls=calls+1;return originalOwner(row) end
+local function setOverlays(list)
+    current=list;compat.ClearOverlayCache();calls=0
+end
+local function result(k,id,method,art,label)
+    local a,b,c,d,mid=compat.ResolveAt(nil,.5,.5,nil,true)
+    eq(a,k,label.." kind");eq(b,id,label.." key");eq(c,method,label.." method")
+    eq(d,art,label.." art")
+    if k then eq(mid,1420,label.." map") end
+end
+setOverlays({city})
+result("city",1458,"overlay",city,"city")
+eq(calls,1,"one scan")
+setOverlays({city,forest})
+result("subzone","whispering forest","overlay",forest,"subzone precedence")
+eq(calls,2,"one scan across two overlays")
+calls=0
+eq(highlight.Target(.5,.5),forest,"subzone artwork")
+eq(calls,2,"highlight single scan")
+setOverlays({forest,city})
+result("subzone","whispering forest","overlay",forest,"reverse precedence")
+setOverlays({city,unmapped})
+result(nil,nil,"overlay-unresolved",nil,"unmapped owned rectangle blocks city")
+setOverlays({city,forest,camp})
+result(nil,nil,"overlay-unresolved",nil,"ambiguous subzones block city")
+setOverlays({forest,city})
+locked=true
+eq(highlight.Target(.5,.5),nil,"locked subzone does not highlight city")
+locked=false
+nativeName="Undercity"
+result("city",1458,"native",nil,"native city wins")
+nativeName="The Remnants Camp"
+result("subzone","remnants camp","native",nil,"native without art")
+nativeName=nil
+compat.OverlayOwner=originalOwner
+
+-- Reviewed native signatures remain authoritative even if names change.
+local R=SpokenPlacesRuntime
+local nativeNameFn=R.NativeAreaName
+R.NativeAreaName=function(id) if id==5029 then return "Canonical renamed forest" end;return nativeNameFn(id) end
+owner({5035,5029},"THEWHISPERINGFOREST",5029)
+owner({5035,5029},nil,5029)
+R.NativeAreaName=nativeNameFn
+local conflict=overlay({188},"SHADOWGLEN")
+conflict.tiles[2]={file="ALDRASSIL2.blp"}
+eq(compat.OverlayOwner(conflict),nil,"conflicting stems")
+-- Shared IDs from the same canonical river remain a single owner.
+local _,river=compat.OverlayOwner(overlay({377,814},nil))
+assert(river==377 or river==814,"same canonical identity preserved")
+local scope=registry.scope
+registry.scope="other"
+owner({5035,5029},nil,nil)
+registry.scope=scope
+print("PASS: canonical single-pass precedence, artwork ownership and scope")
