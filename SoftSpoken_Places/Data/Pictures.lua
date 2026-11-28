@@ -947,4 +947,24 @@ SSZPictures = {
         [""] = "zone-1458",
         ["ruins of lordaeron"] = "1420-ruins-of-lordaeron",
     },
+    [2482] = {
+        [""] = "zone-2482",
+        ["mount hyjal"] = "zone-2482",
+    },
+    [2521] = {
+        [""] = "zone-2521",
+        ["zephras isle"] = "zone-2521",
+    },
+    [2524] = {
+        [""] = "zone-2524",
+        ["darkspear islands"] = "zone-2524",
+    },
+    [2548] = {
+        [""] = "zone-2548",
+        ["riverglades"] = "zone-2548",
+    },
+    [2652] = {
+        [""] = "zone-2652",
+        ["shendralas"] = "zone-2652",
+    },
 }

@@ -1,4 +1,6 @@
-# Places map POIs — regenerated M4
+# Places map POIs — historical M4 staging
+
+**P1/P2 rollback:** the original Places catalog has been restored from `737f208`, and the catalog-expansion manifests have been removed on `main`. The counts and reproduction command below describe the earlier expanded-catalog staging at `c5018ee`, not the restored catalog. The staged POI table is still unloaded. P3 must regenerate it against the restored catalog and remove the generator's dependency on the deleted expansion manifest before the command is usable again.
 
 Octo source data: the four original Vanilla-layout DBCs (483 AreaPOI records, 1,481 AreaTable rows, 175 WorldMapArea rows, 707 WorldMapOverlay rows). Raw DBCs are not committed. This is offline staged data only; the registry is not loaded by a TOC, and M5/M6 runtime behavior has not changed.
 
