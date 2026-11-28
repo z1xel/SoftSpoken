@@ -109,12 +109,12 @@ You can find the source code and releases in the [ClassicAPI repository](https:/
 
 ## Installation
 
-**Source version:** **v0.9.2-beta** (release candidate). **Latest published release:** **v0.9.1-beta**. Do not mix modules from different versions.
+**Latest release:** **v0.9.2-beta**. Do not mix modules from different versions.
 
-The v0.9.2 update improves Places world-map interaction: compact tooltips, corrected lore button placement and shared overlay ownership, and invisible hover/click hitboxes for 141 existing lore locations. No Places catalog expansion or SavedVariables migration is included. See [release notes](docs/releases/v0.9.2-beta.md).
+The v0.9.2 update improves Places world-map interaction: compact tooltips, corrected lore button placement and shared overlay ownership, and invisible hover/click hitboxes for 141 map positions for existing lore locations. No Places catalog expansion or SavedVariables migration is included. See [release notes](docs/releases/v0.9.2-beta.md).
 
 1. **Enable ClassicAPI**, preferably the [latest version](https://github.com/brues-code/ClassicAPI/releases/latest), before starting the game. OctoWoW users can follow the [update instructions above](#updating-classicapi-in-octowow).
-2. Download **[SoftSpoken-v0.9.1-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.9.1-beta/SoftSpoken-v0.9.1-beta.zip)** and extract it. The previous **[SoftSpoken-v0.8.1-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.8.1-beta/SoftSpoken-v0.8.1-beta.zip)** remains available.
+2. Download **[SoftSpoken-v0.9.2-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.9.2-beta/SoftSpoken-v0.9.2-beta.zip)** and extract it. Previous releases **[v0.9.1-beta](https://github.com/z1xel/SoftSpoken/releases/download/v0.9.1-beta/SoftSpoken-v0.9.1-beta.zip)** and **[v0.8.1-beta](https://github.com/z1xel/SoftSpoken/releases/download/v0.8.1-beta/SoftSpoken-v0.8.1-beta.zip)** remain available.
 3. **Updating an existing installation?** Before copying the new version, **delete these four old folders** from `Interface\AddOns`: `SoftSpoken`, `SoftSpoken_Stories`, `SoftSpoken_Places`, and `SoftSpoken_Writings`. This prevents obsolete files from earlier versions from remaining installed. **Keep your separately installed voice-pack folders and SavedVariables**; they do not need to be deleted.
 4. Find the following four addon folders in the extracted contents and copy them into your World of Warcraft 1.12 `Interface\AddOns` directory:
 
