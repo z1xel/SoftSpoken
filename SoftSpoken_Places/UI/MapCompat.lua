@@ -424,10 +424,8 @@ local function ResolveNative(mapID, x, y, poiName)
     -- displayed label did not identify a known place.
     local nativeName = NativeArea(x, y)
     if nativeName then
-        local place = PlaceByName(mapID, nativeName)
-        if place then return "subzone", place.key, "native" end
-        local city = CityByName(mapID, nativeName)
-        if city then return "city", city, "native" end
+        kind, id, method = NamedTarget(mapID, nativeName, "native")
+        if kind then return kind, id, method end
         -- If the engine positively names a DIFFERENT area without lore,
         -- refuse to substitute an overlapping overlay's guessed place.
         -- Broad parent-zone names are not fine-grained evidence, however.
@@ -439,10 +437,8 @@ local function ResolveNative(mapID, x, y, poiName)
     -- Retail-style API remains an optional fallback for modified clients.
     local exactName = PreciseArea(mapID, x, y)
     if exactName then
-        local place = PlaceByName(mapID, exactName)
-        if place then return "subzone", place.key, "precise" end
-        local city = CityByName(mapID, exactName)
-        if city then return "city", city, "precise" end
+        kind, id, method = NamedTarget(mapID, exactName, "precise")
+        if kind then return kind, id, method end
         if Normalise(exactName) ~= Normalise(MapCompat.Name(mapID)) then
             return nil, nil, "native-unmapped"
         end
@@ -461,13 +457,16 @@ local function ResolveNative(mapID, x, y, poiName)
 
 end
 
--- The fourth result is matching artwork when requested. Named hover/click
--- hits remain independent of overlay APIs; highlight asks for the art.
+-- Resolve the displayed map once. A non-nil mapID requires that exact
+-- displayed map (e.g. the map on mouse-down). On success return the map
+-- as result five, so callers need not query it separately. Result four
+-- carries matching artwork; named hits need it only for highlighting.
 function MapCompat.ResolveAt(mapID, x, y, poiName, wantArtwork)
     if type(x) ~= "number" or type(y) ~= "number" or
         x < 0 or x > 1 or y < 0 or y > 1 then return nil end
     local shown, info, continent, zone = MapCompat.GetDisplayedMapID()
-    if shown ~= mapID or not zone or zone <= 0 then return nil end
+    if not shown or (mapID and shown ~= mapID) or not zone or zone <= 0 then return nil end
+    mapID = shown
 
     -- Explicit native button clicks carry their own identity. Otherwise
     -- all consumers inspect the same hovered button before native geometry.
@@ -475,17 +474,19 @@ function MapCompat.ResolveAt(mapID, x, y, poiName, wantArtwork)
     if kind then
         if wantArtwork and kind == "subzone" then
             local _, _, art = ScanOverlays(mapID, x, y, info, continent, zone, id)
-            return kind, id, method, art
+            return kind, id, method, art, mapID
         end
-        return kind, id, method
+        return kind, id, method, nil, mapID
     end
     if method then return nil, nil, method end
 
     local k, key, art, ownedHit = ScanOverlays(mapID, x, y, info, continent, zone)
-    if k then return k, key, "overlay", art end
+    if k then return k, key, "overlay", art, mapID end
     if ownedHit then return nil, nil, "overlay-unresolved" end
     if SSZStaticPOI and SSZStaticPOI.ResolveAt then
-        return SSZStaticPOI.ResolveAt(mapID,x,y,WorldMapButton)
+        k, key, method = SSZStaticPOI.ResolveAt(mapID,x,y,WorldMapButton)
+        if k then return k, key, method, nil, mapID end
+        return nil, nil, method
     end
     return nil
 end

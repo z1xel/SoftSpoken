@@ -235,3 +235,47 @@ shown=true;over=false
 eq(hover.Resolve(.5,.5).id,"northshire valley","nonhovered button ignored")
 eq(highlight.Target(.5,.5),valleyArt,"nonhovered button cannot affect art")
 print("PASS: distance-first lore checks and common native POI context")
+
+-- C5: each consumer queries the displayed map exactly once during
+-- resolution. The real reader intentionally rechecks at selection time.
+local display=compat.GetDisplayedMapID
+local mapReads=0
+compat.GetDisplayedMapID=function() mapReads=mapReads+1;return display() end
+local function once(fn,label)
+    mapReads=0
+    local result=fn()
+    eq(mapReads,1,label.." map query count")
+    return result
+end
+nativeName="Northshire Abbey";poiName=nil
+eq(once(function() return hover.Resolve(.5,.5).id end,"hover"),"northshire abbey","hover target")
+eq(once(function() return click.HandleClick(.5,.5) end,"click"),true,"click target")
+eq(once(function() return highlight.Target(.5,.5) end,"highlight"),abbeyArt,"art target")
+click.MouseDown("LeftButton",.5,.5)
+eq(once(function() return click.MouseUp("LeftButton",.5,.5) end,"mouse up"),true,"stationary click")
+click.MouseDown("LeftButton",.5,.5)
+mapReads=0
+eq(click.MouseUp("LeftButton",.48,.5),false,"drag rejected before lookup")
+eq(mapReads,0,"drag no map query")
+click.MouseDown("LeftButton",.5,.5)
+compat.GetDisplayedMapID=function() mapReads=mapReads+1;return 1420,"Tirisfal Glades",2,1 end
+eq(once(function() return click.MouseUp("LeftButton",.5,.5) end,"changed map"),false,"changed map rejected")
+eq(once(function() return compat.ResolveAt(1429,.5,.5) end,"explicit stale map"),nil,"stale map rejected")
+compat.GetDisplayedMapID=function() mapReads=mapReads+1;return display() end
+zone=0
+eq(once(function() return hover.Resolve(.5,.5) end,"continent hover"),nil,"continent rejected")
+eq(once(function() return click.HandleClick(.5,.5) end,"continent click"),false,"continent rejected")
+zone=1
+nativeName="Elwynn Forest";preciseName="Northshire Abbey"
+local k,id,m,a,mid=compat.ResolveAt(nil,.5,.5)
+eq(k,"subzone","precise kind");eq(id,"northshire abbey","precise key")
+eq(m,"precise","precise method");eq(mid,1429,"precise result map")
+preciseName=nil
+art={};compat.ClearOverlayCache()
+k,id,m,a,mid=compat.ResolveAt(nil,.5,.5)
+eq(m,"static-poi","static method");eq(mid,1429,"static result map")
+art={abbeyArt};compat.ClearOverlayCache()
+k,id,m,a,mid=compat.ResolveAt(nil,.5,.5)
+eq(m,"overlay","overlay method");eq(mid,1429,"overlay result map")
+compat.GetDisplayedMapID=display
+print("PASS: one displayed-map read per resolution, native names and drag validation")

@@ -40,11 +40,8 @@ end
 -- the Compendium's discovery gate. A hover MUST NEVER call MarkFound.
 function MapHighlight.Target(x, y)
     if not CanInteract() or OverPanel() then return nil end
-    local mapID, _, _, zone = MapCompat.GetDisplayedMapID()
-    if not (mapID and zone and zone > 0) then return nil end
-    if type(x) ~= 'number' or type(y) ~= 'number' then return nil end
     -- The shared resolver returns only artwork owned by its chosen target.
-    local kind, key, _, overlay = MapCompat.ResolveAt(mapID, x, y, nil, true)
+    local kind, key, _, overlay, mapID = MapCompat.ResolveAt(nil, x, y, nil, true)
     if kind ~= "subzone" or not (key and overlay and
             type(overlay.tiles) == 'table' and table.getn(overlay.tiles) > 0) then return nil end
     if not (LoreWindow and LoreWindow.IsLocked) or LoreWindow.IsLocked(mapID, key) then return nil end

@@ -31,28 +31,18 @@ SubzoneClick.Position = Position
 local function ClearDown()
     downX, downY, downMap = nil, nil, nil
 end
-function SubzoneClick.HandleClick(x, y, poiName)
+function SubzoneClick.HandleClick(x, y, poiName, expectedMap)
     local settings = SSZCharacter and SSZCharacter.settings
     if settings and settings.showMapPanel == false then return false end
-    local mapID = MapCompat.GetDisplayedMapID()
-    if not mapID then return false end
-    -- Leave continent/world map navigation entirely to Blizzard.
-    local _, _, _, zone = MapCompat.GetDisplayedMapID()
-    if not zone or zone <= 0 then return false end
-    -- Central resolver: native map name, POI, optional city/overlay fallback.
-    local kind, id, method
-    if MapCompat.ResolveAt then kind, id, method = MapCompat.ResolveAt(mapID, x, y, poiName) end
-    local opened
+    -- ResolveAt handles continent/world maps and verifies the mouse-down
+    -- map for drag clicks. The reader still checks the map before opening.
+    local kind, id, _, _, mapID = MapCompat.ResolveAt(expectedMap, x, y, poiName)
     if kind == "city" then
-        opened = MapPanel.SelectCity and MapPanel.SelectCity(mapID, id) or false
+        return MapPanel.SelectCity and MapPanel.SelectCity(mapID, id) == true or false
     elseif kind == "subzone" then
-        opened = MapPanel.SelectSubzone(mapID, id)
-    elseif method == "native-unmapped" or method == "poi-unmapped" then
-        -- The map identifies this as a distinct area without an available
-        -- lore entry. Do not select an unrelated overlapping overlay.
-        opened = false
+        return MapPanel.SelectSubzone(mapID, id) == true
     end
-    return opened == true
+    return false
 end
 
 function SubzoneClick.MouseDown(button, x, y)
@@ -66,9 +56,8 @@ function SubzoneClick.MouseUp(button, x, y)
     local sx, sy, sm = downX, downY, downMap
     ClearDown()
     if not (sx and sy and sm and x and y) then return false end
-    if MapCompat.GetDisplayedMapID() ~= sm then return false end
     if math.abs(x-sx) + math.abs(y-sy) > DRAG_TOLERANCE then return false end
-    return SubzoneClick.HandleClick(x,y)
+    return SubzoneClick.HandleClick(x,y,nil,sm)
 end
 
 -- POI icons are children of WorldMapButton with their own OnClick handler.

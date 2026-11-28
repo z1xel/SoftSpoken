@@ -33,9 +33,7 @@ end
 -- Hovering never discovers, plays or selects a location.
 function MapHover.Resolve(x, y)
     if not Enabled() or not x or not y then return nil end
-    local mapID, _, _, zoneIndex = MapCompat.GetDisplayedMapID()
-    if not (mapID and zoneIndex and zoneIndex > 0) then return nil end
-    local kind, id = MapCompat.ResolveAt(mapID, x, y)
+    local kind, id, _, _, mapID = MapCompat.ResolveAt(nil, x, y)
     if kind ~= 'subzone' and kind ~= 'city' then return nil end
     local lore = SSZLore
     if not lore then return nil end
