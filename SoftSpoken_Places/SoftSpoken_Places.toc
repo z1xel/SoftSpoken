@@ -10,6 +10,7 @@ Data\Zones.lua
 Data\Subzones.lua
 Data\Pictures.lua
 Data\OverlayOwners.lua
+Data\MapPOIs.lua
 Runtime.lua
 Settings.lua
 Audio.lua
@@ -21,6 +22,7 @@ UI\CompendiumHooks.lua
 UI\Pictures.lua
 UI\LoreWindow.lua
 UI\AudioButton.lua
+UI\StaticPOI.lua
 UI\MapCompat.lua
 UI\MapPanel.lua
 UI\SubzoneClick.lua

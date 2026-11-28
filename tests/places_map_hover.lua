@@ -115,3 +115,50 @@ overPanel=false; zone=0
 eq(hover.Resolve(.5,.5),nil,"continent map")
 eq(clicks,1,"hover never selects reader")
 print("PASS: named map locations resolve for hover and click independently of overlay artwork")
+
+-- Main's static fallback uses the same resolver with no dev dependencies.
+SSZLore.subzones[1429]["northshire abbey"].short="Existing lore"
+SSZLore.subzones[1429]["northshire valley"].short="Existing lore"
+dofile("SoftSpoken_Places/UI/StaticPOI.lua")
+local rows={{kind="subzone",id="northshire abbey",x=.5,y=.5,poi=1}}
+SSZMapPOIData={[1429]=rows}
+zone=1;nativeName="Elwynn Forest";preciseName=nil
+local w,h,scale=1000,600,1
+WorldMapButton.GetWidth=function() return w end
+WorldMapButton.GetHeight=function() return h end
+WorldMapButton.GetEffectiveScale=function() return scale end
+expect("Northshire Abbey","static-poi","static fallback")
+eq(click.HandleClick(.5,.5),true,"static click")
+local function method(x,y) local _,_,m=compat.ResolveAt(1429,x,y);return m end
+eq(method(.511,.5),"static-poi","11 pixels")
+eq(method(.513,.5),nil,"13 pixels")
+scale=2;eq(method(.5055,.5),"static-poi","scaled inside");eq(method(.5065,.5),nil,"scaled outside");scale=1
+rows[2]={kind="subzone",id="northshire abbey",x=.506,y=.5,poi=2}
+eq(method(.503,.5),"static-poi","same target duplicate")
+rows[3]={kind="subzone",id="northshire valley",x=.516,y=.5,poi=3}
+eq(method(.511,.5),"static-poi-ambiguous","different target tie")
+eq(hover.Resolve(.511,.5),nil,"ambiguous hover")
+eq(click.HandleClick(.511,.5),false,"ambiguous click")
+rows[2]=nil;rows[3]=nil
+nativeName="Northshire Valley"
+local _,id,source=compat.ResolveAt(1429,.5,.5)
+eq(id,"northshire valley","native wins");eq(source,"native","native method")
+nativeName="Unmapped Landmark";eq(method(.5,.5),"native-unmapped","unmapped native blocks")
+nativeName="Elwynn Forest";preciseName="Unmapped Precise";eq(method(.5,.5),"native-unmapped","unmapped precise blocks")
+preciseName="Northshire Valley";eq(method(.5,.5),"precise","precise wins");preciseName=nil
+poiName="Unmapped POI";eq(click.HandleClick(.5,.5),false,"native button blocks");poiName=nil
+local old=compat.AreaAt
+compat.AreaAt=function() return "Northshire Valley",SSZLore.subzones[1429]["northshire valley"],"northshire valley" end
+eq(method(.5,.5),"overlay","overlay wins");compat.AreaAt=old
+locked=true;eq(hover.Resolve(.5,.5),nil,"locked hover");eq(click.HandleClick(.5,.5),false,"locked click");locked=false
+SSZLore.subzones[1429]["northshire abbey"].short=""
+eq(method(.5,.5),nil,"empty lore excluded")
+SSZLore.subzones[1429]["northshire abbey"].short="Existing lore"
+SSZLore.subzones[1429]["northshire abbey"].pending=true
+eq(method(.5,.5),nil,"pending excluded")
+SSZLore.subzones[1429]["northshire abbey"].pending=nil
+click.MouseDown("LeftButton",.48,.5);eq(click.MouseUp("LeftButton",.5,.5),false,"drag")
+click.MouseDown("LeftButton",.5,.5);eq(click.MouseUp("LeftButton",.5,.5),true,"stationary click")
+SSZCharacter.settings.showMapPanel=false
+eq(hover.Resolve(.5,.5),nil,"disabled hover");eq(click.HandleClick(.5,.5),false,"disabled click")
+print("PASS: main static fallback precedence, scaling, locks, overlaps and drag")

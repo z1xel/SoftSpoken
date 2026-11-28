@@ -1,0 +1,19 @@
+name: Places static POI regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'SoftSpoken_Places/**'
+      - 'tests/places_*.lua'
+      - 'scripts/filter_dev_pois.lua'
+      - '.github/workflows/places-poi-regression.yml'
+  workflow_dispatch:
+jobs:
+  places:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y lua5.1
+      - run: lua5.1 tests/places_static_poi_main.lua
+      - run: lua5.1 tests/places_map_hover.lua
+      - run: lua5.1 tests/places_overlay_ownership.lua

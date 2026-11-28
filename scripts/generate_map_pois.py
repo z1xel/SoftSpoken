@@ -45,7 +45,8 @@ def read_catalog(root,branch):
         if m: key=m[1];subs[mid].add(key);continue
         if key is not None and l=='\t\t\tpending = true,': pending.add((mid,'subzone',key))
     if not zones or not subs or not set(subs)<=set(zones): raise ValueError('Catalog parse failed')
-    review=json.loads((root/'docs/places-catalog-expansion.json').read_text(encoding='utf-8'))
+    manifest=root/'docs/places-catalog-expansion.json'
+    review=json.loads(manifest.read_text(encoding='utf-8')) if manifest.exists() else {'roots':[], 'subzones':[]}
     roots={r['mid']:r['aid'] for r in review['roots']}
     holds={(r['mid'],'subzone',r['key']) for r in review['subzones'] if 'poi' in r and not r.get('aid')}
     owners={tuple(map(int,m[1].split(','))):(m[2],int(m[3])) for m in re.finditer(r'\["([\d,]+)"\]\s*=\s*\{texture="([^"]+)", owner=(\d+)\}',(p/'OverlayOwners.lua').read_text(encoding='utf-8'))}

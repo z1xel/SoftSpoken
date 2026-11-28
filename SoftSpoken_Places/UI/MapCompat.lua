@@ -416,6 +416,9 @@ function MapCompat.ResolveAt(mapID, x, y, poiName)
         if place then return "subzone", place.key, "precise" end
         local city = CityByName(mapID, exactName)
         if city then return "city", city, "precise" end
+        if Normalise(exactName) ~= Normalise(MapCompat.Name(mapID)) then
+            return nil, nil, "native-unmapped"
+        end
     end
 
     -- The client may identify child CITY maps at a coordinate. This call
@@ -433,13 +436,14 @@ function MapCompat.ResolveAt(mapID, x, y, poiName)
     -- Do not return a city if another owned overlay identifies a lore subzone.
     local _, info, continent, zoneIndex = MapCompat.GetDisplayedMapID()
     local overlays = GetOverlays(continent, zoneIndex, info)
-    local city, mixed = nil, false
+    local city, mixed, ownedHit = nil, false, false
     if overlays then
         for _, overlay in ipairs(overlays) do
             local l,t,r,b = OverlayRectangle(overlay)
             if l and x >= l and x <= r and y >= t and y <= b then
                 local name = MapCompat.OverlayOwner(overlay)
                 if name then
+                    ownedHit = true
                     local match = CityByName(mapID, name)
                     if match then
                         if city and city ~= match then mixed = true end
@@ -458,5 +462,9 @@ function MapCompat.ResolveAt(mapID, x, y, poiName)
     -- its matching lore area is unique: never display a choice popup.
     local _, entry, key = MapCompat.AreaAt(mapID, x, y)
     if entry and key then return "subzone", key, "overlay" end
+    if ownedHit then return nil, nil, "overlay-unresolved" end
+    if SSZStaticPOI and SSZStaticPOI.ResolveAt then
+        return SSZStaticPOI.ResolveAt(mapID,x,y,WorldMapButton)
+    end
     return nil
 end
