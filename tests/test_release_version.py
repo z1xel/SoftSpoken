@@ -4,7 +4,7 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
-EXPECTED = "v0.9.1-beta"
+EXPECTED = "v0.9.2-beta"
 version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
 assert version == EXPECTED, f"Unexpected release milestone: {version!r}"
 
@@ -27,10 +27,11 @@ for path, pattern in runtime.items():
 readme = (ROOT / "README.md").read_text(encoding="utf-8")
 assert readme.startswith("# SoftSpoken " + version + "\n"), "README release title is stale"
 assert "v0.8.1-beta.zip" in readme, "Existing published release link must remain available"
-assert not (ROOT / ".github/workflows/publish-v081-beta.yml").exists(), (
-    "Retired automatic publisher must not remain active in the release branch"
-)
-stage = ROOT / ".github/workflows/stage-v091-beta.yml"
+for retired in ("publish-v081-beta.yml", "publish-v090-beta.yml", "stage-v091-beta.yml"):
+    assert not (ROOT / ".github/workflows" / retired).exists(), (
+        f"Retired release workflow remains active: {retired}"
+    )
+stage = ROOT / ".github/workflows/stage-v092-beta.yml"
 assert stage.is_file() and version in stage.read_text(encoding="utf-8"), (
     "New version-specific release staging workflow is missing"
 )

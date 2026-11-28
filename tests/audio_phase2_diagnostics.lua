@@ -21,7 +21,7 @@ local books={key="books",addon="SoftSpoken_Writings",GetChannel=function() retur
 local sources={books=books}
 SpokenEnv=setmetatable({
     format=string.format,
-    AddonVersion="v0.9.1-beta",
+    AddonVersion="v0.9.2-beta",
     Version={IsLegacyVanilla=true},
     OtherSounds={lowered=false},
     CoreController={

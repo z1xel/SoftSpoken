@@ -1,35 +1,32 @@
-name: Stage SoftSpoken v0.9.1-beta
+name: Stage SoftSpoken v0.9.2-beta
 
 # Builds a private-to-Actions candidate ZIP; does NOT publish a GitHub release.
 on:
   push:
-    branches: [dev]
+    branches: [main]
     paths:
       - "VERSION"
       - "README.md"
-      - "SoftSpoken/SoftSpoken.toc"
-      - "SoftSpoken_Stories/SoftSpoken_Stories.toc"
-      - "SoftSpoken_Places/SoftSpoken_Places.toc"
-      - "SoftSpoken_Writings/SoftSpoken_Writings.toc"
-      - "SoftSpoken/Environment.lua"
-      - "SoftSpoken_Stories/Environment.lua"
-      - "SoftSpoken_Writings/Core.lua"
-      - "tests/test_release_version.py"
-      - "tests/test_public_contracts.py"
-      - "tests/test_ui_packaging.py"
-      - "tests/test_texture_path_integrity.py"
-      - "SoftSpoken_Places/Textures/**"
-      - "SoftSpoken_Stories/Textures/**"
-      - "SoftSpoken/Textures/**"
-      - ".github/workflows/stage-v091-beta.yml"
+      - "SoftSpoken/**"
+      - "SoftSpoken_Stories/**"
+      - "SoftSpoken_Places/**"
+      - "SoftSpoken_Writings/**"
+      - "tests/**"
+      - "docs/releases/v0.9.2-beta.md"
+      - ".github/workflows/stage-v092-beta.yml"
   workflow_dispatch:
+
+concurrency:
+  group: stage-v092-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
   stage:
-    name: Validate and package v0.9.1-beta
+    if: github.ref == 'refs/heads/main'
+    name: Validate and package v0.9.2-beta
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,12 +36,21 @@ jobs:
           python3 tests/test_public_contracts.py
           python3 tests/test_ui_packaging.py
           python3 tests/test_texture_path_integrity.py
+      - name: Validate quest catalog and static POI regressions
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y lua5.1
+          lua5.1 tests/catalog_release_gate.lua
+          lua5.1 tests/places_static_poi_main.lua
+          lua5.1 tests/places_map_hover.lua
+          lua5.1 tests/places_overlay_ownership.lua
       - name: Build installable ZIP without development files
         run: |
           python3 - <<'PY'
           import pathlib, zipfile
           modules = ("SoftSpoken", "SoftSpoken_Stories", "SoftSpoken_Places", "SoftSpoken_Writings")
           version = pathlib.Path("VERSION").read_text().strip()
+          assert version == "v0.9.2-beta", version
           package = pathlib.Path("dist") / ("SoftSpoken-" + version + ".zip")
           package.parent.mkdir(exist_ok=True)
           files = sorted(p for mod in modules for p in pathlib.Path(mod).rglob("*") if p.is_file())
@@ -62,6 +68,6 @@ jobs:
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: SoftSpoken-v0.9.1-beta-preview
-          path: dist/SoftSpoken-v0.9.1-beta.zip
+          name: SoftSpoken-v0.9.2-beta-preview
+          path: dist/SoftSpoken-v0.9.2-beta.zip
           compression-level: 0

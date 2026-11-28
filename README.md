@@ -1,4 +1,4 @@
-# SoftSpoken v0.9.1-beta
+# SoftSpoken v0.9.2-beta
 *Voiced dialogue, lore, and text for World of Warcraft Vanilla.*
 
 <p align="center">
@@ -109,7 +109,9 @@ You can find the source code and releases in the [ClassicAPI repository](https:/
 
 ## Installation
 
-**Current release:** **v0.9.1-beta**. Do not mix modules from different versions.
+**Source version:** **v0.9.2-beta** (release candidate). **Latest published release:** **v0.9.1-beta**. Do not mix modules from different versions.
+
+The v0.9.2 update improves Places world-map interaction: compact tooltips, corrected lore button placement and shared overlay ownership, and invisible hover/click hitboxes for 141 existing lore locations. No Places catalog expansion or SavedVariables migration is included. See [release notes](docs/releases/v0.9.2-beta.md).
 
 1. **Enable ClassicAPI**, preferably the [latest version](https://github.com/brues-code/ClassicAPI/releases/latest), before starting the game. OctoWoW users can follow the [update instructions above](#updating-classicapi-in-octowow).
 2. Download **[SoftSpoken-v0.9.1-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.9.1-beta/SoftSpoken-v0.9.1-beta.zip)** and extract it. The previous **[SoftSpoken-v0.8.1-beta.zip](https://github.com/z1xel/SoftSpoken/releases/download/v0.8.1-beta/SoftSpoken-v0.8.1-beta.zip)** remains available.
