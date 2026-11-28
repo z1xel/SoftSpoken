@@ -43,19 +43,10 @@ function MapHighlight.Target(x, y)
     local mapID, _, _, zone = MapCompat.GetDisplayedMapID()
     if not (mapID and zone and zone > 0) then return nil end
     if type(x) ~= 'number' or type(y) ~= 'number' then return nil end
-    -- The engine's exact hover name must agree with any overlay we choose
-    -- to illuminate. Otherwise the rectangle can highlight a neighbor.
-    local kind, nativeKey, resolution = MapCompat.ResolveAt(mapID, x, y)
-    if resolution == 'native-unmapped' or resolution == 'poi-unmapped' or
-        resolution == 'overlay-unresolved' or resolution == 'static-poi' or
-        resolution == 'static-poi-ambiguous' or
-        kind == 'city' then return nil end
-    local _, entry, key, overlay = MapCompat.AreaAt(mapID, x, y,
-        kind == 'subzone' and nativeKey or nil)
-    if kind == 'subzone' and nativeKey ~= key then return nil end
-    -- AreaAt already returns only artwork owned by the selected place.
-    if not (entry and key and overlay and type(overlay.tiles) == 'table' and
-            table.getn(overlay.tiles) > 0) then return nil end
+    -- The shared resolver returns only artwork owned by its chosen target.
+    local kind, key, _, overlay = MapCompat.ResolveAt(mapID, x, y, nil, true)
+    if kind ~= "subzone" or not (key and overlay and
+            type(overlay.tiles) == 'table' and table.getn(overlay.tiles) > 0) then return nil end
     if not (LoreWindow and LoreWindow.IsLocked) or LoreWindow.IsLocked(mapID, key) then return nil end
     return overlay, key
 end

@@ -8,14 +8,15 @@ local names = {
     [188]="Shadowglen", [256]="Aldrassil", [160]="Whispering Gardens", [161]="Terrace of Repose",
     [243]="Forlorn Rowe", [492]="Raven Hill Cemetery",
     [836]="Dun Algaz", [1021]="Thelgen Rock",
-    [1]="Unknown One", [2]="Unknown Two", [3]="Unknown One"
+    [1]="Unknown One", [2]="Unknown Two", [3]="Unknown One", [1497]="Undercity"
 }
 local current = {}
 C_Map = { GetAreaInfo=function(id) return names[id] end, GetMapOverlays=function() return current end }
-SSZLore = {zones={[1420]={name="Tirisfal Glades"}}, subzones={[1420]={
+SSZLore = {zones={[1420]={name="Tirisfal Glades"},[1458]={name="Undercity"}}, subzones={[1420]={
     ["whispering forest"]={name="Whispering Forest"}, ["remnants camp"]={name="Remnants Camp"},
     ["whispering gardens"]={name="Whispering Gardens"}, ["terrace of repose"]={name="Terrace of Repose"}
 }}}
+SpokenCompendium = {CITY_IN={[1458]=1420}}
 local locked, native = false, nil
 SSZLoreWindow = {IsLocked=function() return locked end}
 SSZSubzoneClick = {Position=function() return .5,.5 end}
@@ -69,3 +70,73 @@ locked = false; current={overlay({160,161},"MONASTARY")}; compat.ClearOverlayCac
 eq(highlight.Target(.5,.5),nil,"monastary suppressed")
 eq(compat.ResolveAt(1420,.5,.5),nil,"monastary not a fallback")
 print("PASS: overlay ownership, aliases, suppression and discovery")
+
+-- Ownership fast path, duplicate IDs, conflicting tile stems, and reviewed
+-- signature fallback must retain their conservative behavior.
+local count = 0
+C_Map.GetAreaInfo=function(id) count=count+1;return names[id] end
+owner({188,188}, nil, 188)
+eq(count,1,"duplicate singleton resolves once")
+local conflict=overlay({188},"SHADOWGLEN")
+conflict.tiles[2]={file="Interface\\WorldMap\\Tirisfal\\ALDRASSIL2.blp"}
+eq(compat.OverlayOwner(conflict),nil,"conflicting texture stems")
+owner({5035,5029}, "THEREMNANTSCAMP", 5035)
+local original=names[5029]
+names[5029]="Different Area"
+owner({5035,5029},nil,nil)
+names[5029]=original
+
+-- Exercise real geometry, including a city + subzone conflict.
+local city=overlay({1497},"UNDERCITY")
+local camp=overlay({5035},"THEREMNANTSCAMP")
+local function setOverlays(list)
+    current=list
+    compat.ClearOverlayCache()
+    count=0
+end
+local function assertResolution(k,key,method,art,label)
+    local a,b,c,d=compat.ResolveAt(1420,.5,.5,nil,true)
+    eq(a,k,label.." kind");eq(b,key,label.." key")
+    eq(c,method,label.." method");eq(d,art,label.." artwork")
+end
+setOverlays({city})
+assertResolution("city",1458,"overlay",city,"city fallback")
+eq(count,1,"one owner query for one city")
+setOverlays({forest})
+assertResolution("subzone","whispering forest","overlay",forest,"subzone fallback")
+eq(count,2,"two area lookups in one shared overlay scan")
+count=0
+eq(highlight.Target(.5,.5),forest,"highlight receives fallback art")
+eq(count,2,"highlight does not repeat the overlay scan")
+setOverlays({city,forest})
+assertResolution(nil,nil,"overlay-unresolved",nil,"city and subzone conflict")
+eq(count,3,"each overlapping overlay visited once")
+eq(highlight.Target(.5,.5),nil,"mixed hit has no highlight")
+setOverlays({forest,city})
+assertResolution(nil,nil,"overlay-unresolved",nil,"reversed overlap")
+setOverlays({forest,camp})
+assertResolution(nil,nil,"overlay-unresolved",nil,"two subzone owners")
+local forestCopy=overlay({5029},"THEWHISPERINGFOREST")
+setOverlays({forest,forestCopy})
+assertResolution(nil,nil,"overlay-unresolved",nil,"same key different artwork")
+setOverlays({forest,city})
+native="The Whispering Forest"
+assertResolution("subzone","whispering forest","native",forest,"native target selects its own art")
+count=0
+eq(compat.ResolveAt(1420,.5,.5),"subzone","named hover needs no art")
+eq(count,0,"named hover skips overlay scan")
+native="The Remnants Camp"
+assertResolution("subzone","remnants camp","native",nil,"native without owned art")
+eq(highlight.Target(.5,.5),nil,"no neighboring art")
+native=nil
+local staticCalls=0
+SSZStaticPOI={ResolveAt=function() staticCalls=staticCalls+1;return "subzone","remnants camp","static-poi" end}
+setOverlays({forest,city})
+assertResolution(nil,nil,"overlay-unresolved",nil,"ambiguity blocks static fallback")
+eq(staticCalls,0,"static fallback not consulted on ambiguity")
+setOverlays({})
+assertResolution("subzone","remnants camp","static-poi",nil,"no owner permits fallback")
+eq(staticCalls,1,"static fallback consulted once")
+eq(highlight.Target(.5,.5),nil,"static hit has no artwork")
+SSZStaticPOI=nil
+print("PASS: single overlay traversal, native art selection, and conservative overlaps")

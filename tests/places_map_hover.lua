@@ -147,9 +147,12 @@ nativeName="Unmapped Landmark";eq(method(.5,.5),"native-unmapped","unmapped nati
 nativeName="Elwynn Forest";preciseName="Unmapped Precise";eq(method(.5,.5),"native-unmapped","unmapped precise blocks")
 preciseName="Northshire Valley";eq(method(.5,.5),"precise","precise wins");preciseName=nil
 poiName="Unmapped POI";eq(click.HandleClick(.5,.5),false,"native button blocks");poiName=nil
-local old=compat.AreaAt
-compat.AreaAt=function() return "Northshire Valley",SSZLore.subzones[1429]["northshire valley"],"northshire valley" end
-eq(method(.5,.5),"overlay","overlay wins");compat.AreaAt=old
+C_Map.GetAreaInfo=function() return "Northshire Valley" end
+C_Map.GetMapOverlays=function() return {{areaID=1,hitRect={left=.4,right=.6,top=.4,bottom=.6}}} end
+compat.ClearOverlayCache()
+eq(method(.5,.5),"overlay","overlay wins")
+C_Map.GetMapOverlays=function() return {} end
+compat.ClearOverlayCache()
 locked=true;eq(hover.Resolve(.5,.5),nil,"locked hover");eq(click.HandleClick(.5,.5),false,"locked click");locked=false
 SSZLore.subzones[1429]["northshire abbey"].short=""
 eq(method(.5,.5),nil,"empty lore excluded")
