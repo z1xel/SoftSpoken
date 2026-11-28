@@ -41,9 +41,6 @@ function SubzoneClick.HandleClick(x, y, poiName)
     if not zone or zone <= 0 then return false end
     -- Central resolver: native map name, POI, optional city/overlay fallback.
     local kind, id, method
-    if not poiName and SSZMapHover and SSZMapHover.HoveredPOI then
-        poiName=SSZMapHover.HoveredPOI()
-    end
     if MapCompat.ResolveAt then kind, id, method = MapCompat.ResolveAt(mapID, x, y, poiName) end
     local opened
     if kind == "city" then

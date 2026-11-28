@@ -28,8 +28,6 @@ local function HasLore(entry)
 end
 
 local function ValidTarget(mapID,row)
-    if type(row)~="table" then return false end
-    if not (Finite(row.x) and Finite(row.y)) or row.x<0 or row.x>1 or row.y<0 or row.y>1 then return false end
     local lore=SSZLore
     if not (lore and lore.zones and lore.zones[mapID]) then return false end
     if row.kind=="subzone" and type(row.id)=="string" then
@@ -52,10 +50,11 @@ function POI.ResolveAt(mapID,x,y,button)
     if not w then return nil end
     local bestByTarget={}
     for _,row in ipairs(rows) do
-        if ValidTarget(mapID,row) then
+        if type(row)=="table" and Finite(row.x) and Finite(row.y) and
+                row.x>=0 and row.x<=1 and row.y>=0 and row.y<=1 then
             local dx,dy=(x-row.x)*w,(y-row.y)*h
             local d2=dx*dx+dy*dy
-            if d2<=RADIUS_PX*RADIUS_PX then
+            if d2<=RADIUS_PX*RADIUS_PX and ValidTarget(mapID,row) then
                 -- Same contextual target at several positions is one candidate.
                 -- Distinct content keys are never collapsed.
                 local key=row.kind.."|"..tostring(row.id)

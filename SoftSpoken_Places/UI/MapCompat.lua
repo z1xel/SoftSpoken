@@ -372,6 +372,26 @@ function MapCompat.AreaAt(mapID, x, y, expectedKey)
     end
 end
 
+-- The vanilla map may give a POI its own mouse target and title, rather than
+-- return its name from UpdateMapHighlight. Use the POI button's actual name
+-- while hovering it, just as SubzoneClick passes that name on click.
+function MapCompat.HoveredPOI()
+    if not GetNumMapLandmarks then return nil end
+    local count = tonumber(GetNumMapLandmarks()) or 0
+    if count > 200 then count = 200 end
+    for i = 1, count do
+        local poi = getglobal and getglobal('WorldMapFramePOI' .. i)
+        if poi and type(poi.name) == 'string' and poi.name ~= '' and
+            (not poi.IsShown or poi:IsShown()) then
+            if (poi.IsMouseOver and poi:IsMouseOver()) or
+                (MouseIsOver and MouseIsOver(poi)) then
+                return poi.name
+            end
+        end
+    end
+    return nil
+end
+
 local function ResolveNative(mapID, x, y, poiName)
     -- A confirmed clicked POI is more specific than the underlying native
     -- map region; it is also a separate clickable Button in Blizzard 1.12.
@@ -449,7 +469,9 @@ function MapCompat.ResolveAt(mapID, x, y, poiName, wantArtwork)
     local shown, info, continent, zone = MapCompat.GetDisplayedMapID()
     if shown ~= mapID or not zone or zone <= 0 then return nil end
 
-    local kind, id, method = ResolveNative(mapID, x, y, poiName)
+    -- Explicit native button clicks carry their own identity. Otherwise
+    -- all consumers inspect the same hovered button before native geometry.
+    local kind, id, method = ResolveNative(mapID, x, y, poiName or MapCompat.HoveredPOI())
     if kind then
         if wantArtwork and kind == "subzone" then
             local _, _, art = ScanOverlays(mapID, x, y, info, continent, zone, id)

@@ -57,7 +57,7 @@ dofile("SoftSpoken_Places/UI/SubzoneClick.lua")
 dofile("SoftSpoken_Places/UI/MapHover.lua")
 local compat,hover,click=SSZMapCompat,SSZMapHover,SSZSubzoneClick
 local function expect(name,method,label)
-    local kind,key,source=compat.ResolveAt(1429,.5,.5,hover.HoveredPOI())
+    local kind,key,source=compat.ResolveAt(1429,.5,.5)
     eq(kind,"subzone",label.." kind")
     eq(key,"northshire abbey",label.." key")
     eq(source,method,label.." method")
@@ -165,3 +165,73 @@ click.MouseDown("LeftButton",.5,.5);eq(click.MouseUp("LeftButton",.5,.5),true,"s
 SSZCharacter.settings.showMapPanel=false
 eq(hover.Resolve(.5,.5),nil,"disabled hover");eq(click.HandleClick(.5,.5),false,"disabled click")
 print("PASS: main static fallback precedence, scaling, locks, overlaps and drag")
+
+-- C3: only in-radius valid coordinates may cause a lore lookup.
+SSZCharacter.settings.showMapPanel=true
+local subs=SSZLore.subzones[1429]
+local distantLookups=0
+setmetatable(subs,{__index=function(_,key)
+    if key=="distant place" then distantLookups=distantLookups+1 end
+    return nil
+end})
+rows[2]={kind="subzone",id="distant place",x=.9,y=.9,poi=2}
+rows[3]={kind="subzone",id="distant place",x=-.1,y=.5,poi=3}
+rows[4]={kind="subzone",id="distant place",x=0/0,y=.5,poi=4}
+rows[5]={kind="subzone",id="distant place",x=math.huge,y=.5,poi=5}
+rows[6]={kind="subzone",id="distant place",x="bad",y=.5,poi=6}
+rows[7]=false
+local _,key,source=SSZStaticPOI.ResolveAt(1429,.5,.5,WorldMapButton)
+eq(key,"northshire abbey","valid nearby target")
+eq(source,"static-poi","nearby method")
+eq(distantLookups,0,"distance and coordinate guards precede lore access")
+rows[2].x=.505;rows[2].y=.5
+_,key=SSZStaticPOI.ResolveAt(1429,.5,.5,WorldMapButton)
+eq(key,"northshire abbey","nearby missing lore cannot replace valid hit")
+eq(distantLookups,1,"only nearby valid coordinates consult lore")
+for i=2,7 do rows[i]=nil end
+setmetatable(subs,nil)
+
+-- C4: actual tooltip, reader and highlight use the same native button
+-- identity even when UpdateMapHighlight identifies different ground.
+WorldMapDetailFrame={}
+dofile("SoftSpoken_Places/UI/MapHighlight.lua")
+local highlight=SSZMapHighlight
+local valleyArt={areaID=1,hitRect={left=.4,right=.6,top=.4,bottom=.6},
+    tiles={{file="Valley1.blp"}}}
+local abbeyArt={areaID=2,hitRect={left=.4,right=.6,top=.4,bottom=.6},
+    tiles={{file="Abbey1.blp"}}}
+local art={valleyArt}
+C_Map.GetAreaInfo=function(id) return id==1 and "Northshire Valley" or "Northshire Abbey" end
+C_Map.GetMapOverlays=function() return art end
+compat.ClearOverlayCache()
+nativeName="Northshire Valley";poiName="Northshire Abbey"
+expect("Northshire Abbey","poi","native button wins across consumers")
+eq(click.HandleClick(.5,.5),true,"reader selects button")
+eq(highlight.Target(.5,.5),nil,"button cannot highlight underlying valley")
+art={valleyArt,abbeyArt};compat.ClearOverlayCache()
+eq(highlight.Target(.5,.5),abbeyArt,"button highlights its own art")
+locked=true
+eq(hover.Resolve(.5,.5),nil,"button lock hides tooltip")
+eq(click.HandleClick(.5,.5),false,"button lock blocks reader")
+eq(highlight.Target(.5,.5),nil,"button lock blocks highlight")
+locked=false
+poiName="Unmapped POI"
+eq(hover.Resolve(.5,.5),nil,"unknown button hides tooltip")
+eq(click.HandleClick(.5,.5),false,"unknown button blocks reader")
+eq(highlight.Target(.5,.5),nil,"unknown button blocks highlight")
+-- Explicit event identity is authoritative even if another button is
+-- hovered by the time the hooked callback runs.
+eq(click.HandleClick(.5,.5,"Northshire Abbey"),true,"explicit native click wins")
+local shown,over=false,true
+getglobal=function(name)
+    if name=="WorldMapFramePOI1" then
+        return {name="Northshire Abbey",IsShown=function() return shown end,
+            IsMouseOver=function() return over end}
+    end
+end
+eq(hover.Resolve(.5,.5).id,"northshire valley","hidden button ignored")
+eq(highlight.Target(.5,.5),valleyArt,"hidden button cannot affect art")
+shown=true;over=false
+eq(hover.Resolve(.5,.5).id,"northshire valley","nonhovered button ignored")
+eq(highlight.Target(.5,.5),valleyArt,"nonhovered button cannot affect art")
+print("PASS: distance-first lore checks and common native POI context")

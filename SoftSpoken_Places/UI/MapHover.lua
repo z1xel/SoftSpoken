@@ -29,34 +29,13 @@ local function Enabled()
     return true
 end
 
--- The vanilla map may give a POI its own mouse target and title, rather than
--- return its name from UpdateMapHighlight. Use the POI button's actual name
--- while hovering it, just as SubzoneClick passes that name on click.
-local function HoveredPOI()
-    if not GetNumMapLandmarks then return nil end
-    local count = tonumber(GetNumMapLandmarks()) or 0
-    if count > 200 then count = 200 end
-    for i = 1, count do
-        local poi = getglobal and getglobal('WorldMapFramePOI' .. i)
-        if poi and type(poi.name) == 'string' and poi.name ~= '' and
-            (not poi.IsShown or poi:IsShown()) then
-            if (poi.IsMouseOver and poi:IsMouseOver()) or
-                (MouseIsOver and MouseIsOver(poi)) then
-                return poi.name
-            end
-        end
-    end
-    return nil
-end
-MapHover.HoveredPOI = HoveredPOI
-
 -- A nil result means no known lore place under the pointer.
 -- Hovering never discovers, plays or selects a location.
 function MapHover.Resolve(x, y)
     if not Enabled() or not x or not y then return nil end
     local mapID, _, _, zoneIndex = MapCompat.GetDisplayedMapID()
     if not (mapID and zoneIndex and zoneIndex > 0) then return nil end
-    local kind, id = MapCompat.ResolveAt(mapID, x, y, HoveredPOI())
+    local kind, id = MapCompat.ResolveAt(mapID, x, y)
     if kind ~= 'subzone' and kind ~= 'city' then return nil end
     local lore = SSZLore
     if not lore then return nil end
