@@ -333,11 +333,12 @@ end
 
 -- One pass for both selection and artwork. When a native subzone is
 -- already known, only its own artwork may match; another owner is ignored.
--- Without a native target, conflicting city/subzone hits are ambiguous.
+-- A unique subzone takes precedence over cities. Ambiguity within the
+-- highest-priority kind must not fall through to a less specific target.
 local function ScanOverlays(mapID, x, y, info, continent, zone, expectedKey)
     local overlays = GetOverlays(continent, zone, info)
     if not overlays then return nil end
-    local kind, id, art, ownedHit, ownerName
+    local subKey, subArt, subName, cityID, cityArt, cityName, cityConflict, ownedHit
     for _, overlay in ipairs(overlays) do
         local l,t,r,b = OverlayRectangle(overlay)
         if l and x >= l and x <= r and y >= t and y <= b then
@@ -345,17 +346,21 @@ local function ScanOverlays(mapID, x, y, info, continent, zone, expectedKey)
             if name then
                 ownedHit = true
                 local k, key = NamedTarget(mapID, name)
-                if k and (not expectedKey or (k == "subzone" and key == expectedKey)) then
-                    if kind and (kind ~= k or id ~= key or
-                        (k == "subzone" and art ~= overlay)) then
+                if k == "subzone" and (not expectedKey or key == expectedKey) then
+                    if subKey and (subKey ~= key or subArt ~= overlay) then
                         return nil, nil, nil, true
                     end
-                    kind, id, art, ownerName = k, key, overlay, name
+                    subKey, subArt, subName = key, overlay, name
+                elseif k == "city" and not expectedKey then
+                    if cityID and cityID ~= key then cityConflict = true end
+                    cityID, cityArt, cityName = key, overlay, name
                 end
             end
         end
     end
-    return kind, id, art, ownedHit, ownerName
+    if subKey then return "subzone", subKey, subArt, ownedHit, subName end
+    if cityID and not cityConflict then return "city", cityID, cityArt, ownedHit, cityName end
+    return nil, nil, nil, ownedHit
 end
 
 -- Retain the existing subzone artwork lookup API. It uses the same scan

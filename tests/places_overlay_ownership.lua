@@ -109,11 +109,29 @@ count=0
 eq(highlight.Target(.5,.5),forest,"highlight receives fallback art")
 eq(count,2,"highlight does not repeat the overlay scan")
 setOverlays({city,forest})
-assertResolution(nil,nil,"overlay-unresolved",nil,"city and subzone conflict")
+assertResolution("subzone","whispering forest","overlay",forest,"subzone wins over city")
 eq(count,3,"each overlapping overlay visited once")
-eq(highlight.Target(.5,.5),nil,"mixed hit has no highlight")
+eq(highlight.Target(.5,.5),forest,"mixed hit highlights subzone")
 setOverlays({forest,city})
-assertResolution(nil,nil,"overlay-unresolved",nil,"reversed overlap")
+assertResolution("subzone","whispering forest","overlay",forest,"reversed overlap")
+setOverlays({city,forest,camp})
+assertResolution(nil,nil,"overlay-unresolved",nil,"two subzones cannot fall back to city")
+setOverlays({forest,camp,city})
+assertResolution(nil,nil,"overlay-unresolved",nil,"ambiguous subzones before city")
+-- A synthetic second child city tests order independence; real main has
+-- only one child city per parent.
+names[1498]="Second City"
+SSZLore.zones[9999]={name="Second City"}
+SpokenCompendium.CITY_IN[9999]=1420
+local city2=overlay({1498},"SECONDCITY")
+setOverlays({city,city2})
+assertResolution(nil,nil,"overlay-unresolved",nil,"two different cities")
+setOverlays({city,city2,forest})
+assertResolution("subzone","whispering forest","overlay",forest,"subzone beats conflicting cities")
+setOverlays({forest,city2,city})
+assertResolution("subzone","whispering forest","overlay",forest,"subzone beats reversed conflicting cities")
+setOverlays({city,city})
+assertResolution("city",1458,"overlay",city,"same city repeated")
 setOverlays({forest,camp})
 assertResolution(nil,nil,"overlay-unresolved",nil,"two subzone owners")
 local forestCopy=overlay({5029},"THEWHISPERINGFOREST")
@@ -132,6 +150,9 @@ native=nil
 local staticCalls=0
 SSZStaticPOI={ResolveAt=function() staticCalls=staticCalls+1;return "subzone","remnants camp","static-poi" end}
 setOverlays({forest,city})
+assertResolution("subzone","whispering forest","overlay",forest,"subzone blocks static fallback")
+eq(staticCalls,0,"static fallback not consulted on resolved overlap")
+setOverlays({forest,camp,city})
 assertResolution(nil,nil,"overlay-unresolved",nil,"ambiguity blocks static fallback")
 eq(staticCalls,0,"static fallback not consulted on ambiguity")
 setOverlays({})
@@ -140,3 +161,39 @@ eq(staticCalls,1,"static fallback consulted once")
 eq(highlight.Target(.5,.5),nil,"static hit has no artwork")
 SSZStaticPOI=nil
 print("PASS: single overlay traversal, native art selection, and conservative overlaps")
+
+-- The subzone is selected before discovery eligibility. Exercise the real
+-- hover and click consumers; the stub reader uses the same lock boundary.
+local selectedCity, selectedSubzone=0,0
+SSZMapPanel={
+    SelectCity=function() selectedCity=selectedCity+1;return true end,
+    SelectSubzone=function(mid,key)
+        eq(mid,1420,"reader map")
+        eq(key,"whispering forest","reader subzone")
+        if SSZLoreWindow.IsLocked(mid,key) then return false end
+        selectedSubzone=selectedSubzone+1
+        return true
+    end,
+}
+SSZLoreWindow.IsLocked=function(mid,key)
+    return locked and key=="whispering forest"
+end
+dofile("SoftSpoken_Places/UI/SubzoneClick.lua")
+dofile("SoftSpoken_Places/UI/MapHover.lua")
+setOverlays({city,forest})
+locked=true
+assertResolution("subzone","whispering forest","overlay",forest,"locked subzone still wins geometry")
+eq(SSZMapHover.Resolve(.5,.5),nil,"locked subzone hides tooltip")
+eq(SSZSubzoneClick.HandleClick(.5,.5),false,"locked subzone blocks click")
+eq(highlight.Target(.5,.5),nil,"locked subzone hides highlight")
+eq(selectedCity,0,"never select underlying unlocked city")
+locked=false
+eq(SSZMapHover.Resolve(.5,.5).id,"whispering forest","unlocked tooltip")
+eq(SSZSubzoneClick.HandleClick(.5,.5),true,"unlocked reader")
+eq(highlight.Target(.5,.5),forest,"unlocked highlight")
+eq(selectedSubzone,1,"subzone selected exactly once")
+native="Undercity"
+assertResolution("city",1458,"native",nil,"native city beats overlay subzone")
+eq(SSZSubzoneClick.HandleClick(.5,.5),true,"native city reader")
+eq(selectedCity,1,"native city selected")
+print("PASS: subzone precedence, discovery lock and native city priority")
